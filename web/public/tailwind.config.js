@@ -1,6 +1,7 @@
 module.exports = {
   content: [
-    "./gateway/**/*.{html,js}"
+    "./dashboard.html",
+    "./js/**/*.{js,ts}"
   ],
   theme: {
     extend: {

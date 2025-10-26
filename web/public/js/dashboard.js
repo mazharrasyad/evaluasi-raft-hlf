@@ -30,6 +30,67 @@ const dateTimeFormatter = new Intl.DateTimeFormat('id-ID', {
     timeStyle: 'short'
 });
 
+const SWAL_PRIMARY_COLOR = '#38BDF8';
+const SWAL_CANCEL_COLOR = '#64748B';
+
+function isSwalAvailable() {
+    return typeof window !== 'undefined'
+        && typeof window.Swal !== 'undefined'
+        && typeof window.Swal.fire === 'function';
+}
+
+async function showInfoAlert(message, { title = 'Informasi', confirmText = 'Mengerti' } = {}) {
+    if (isSwalAvailable()) {
+        await window.Swal.fire({
+            icon: 'info',
+            title,
+            text: message,
+            confirmButtonText: confirmText,
+            confirmButtonColor: SWAL_PRIMARY_COLOR
+        });
+        return;
+    }
+
+    window.alert([title, message].filter(Boolean).join('\n\n'));
+}
+
+async function showSuccessAlert(message, { title = 'Berhasil', confirmText = 'Baik' } = {}) {
+    if (isSwalAvailable()) {
+        await window.Swal.fire({
+            icon: 'success',
+            title,
+            text: message,
+            confirmButtonText: confirmText,
+            confirmButtonColor: SWAL_PRIMARY_COLOR
+        });
+        return;
+    }
+
+    window.alert([title, message].filter(Boolean).join('\n\n'));
+}
+
+async function confirmSimulationDeletion() {
+    const text = 'Hapus seluruh data simulasi pada session browser? Tindakan ini tidak dapat dibatalkan.';
+    const title = 'Hapus data simulasi?';
+
+    if (isSwalAvailable()) {
+        const result = await window.Swal.fire({
+            icon: 'warning',
+            title,
+            text,
+            showCancelButton: true,
+            confirmButtonText: 'Ya, hapus',
+            cancelButtonText: 'Batal',
+            confirmButtonColor: SWAL_PRIMARY_COLOR,
+            cancelButtonColor: SWAL_CANCEL_COLOR,
+            focusCancel: true
+        });
+        return Boolean(result.isConfirmed);
+    }
+
+    return window.confirm(text);
+}
+
 function ensureAnimateObserver() {
     if (animateObserver) {
         return animateObserver;
@@ -882,13 +943,15 @@ if (simulationForm) {
 }
 
 if (clearSimulationButton) {
-    clearSimulationButton.addEventListener('click', () => {
+    clearSimulationButton.addEventListener('click', async () => {
         if (!simulationData.length) {
-            updateSimulationStatus('Tidak ada data simulasi yang perlu dihapus.', 'info');
+            const message = 'Tidak ada data simulasi yang perlu dihapus.';
+            updateSimulationStatus(message, 'info');
+            await showInfoAlert(message);
             return;
         }
 
-        const confirmed = window.confirm('Hapus seluruh data simulasi pada session browser? Tindakan ini tidak dapat dibatalkan.');
+        const confirmed = await confirmSimulationDeletion();
         if (!confirmed) {
             return;
         }
@@ -896,7 +959,9 @@ if (clearSimulationButton) {
         simulationData = [];
         saveSimulationDataToSession(simulationData);
         renderSimulationData();
-        updateSimulationStatus('Seluruh data simulasi berhasil dihapus.', 'success');
+        const successMessage = 'Seluruh data simulasi berhasil dihapus.';
+        updateSimulationStatus(successMessage, 'success');
+        await showSuccessAlert(successMessage);
     });
 }
 

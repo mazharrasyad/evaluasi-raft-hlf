@@ -374,9 +374,8 @@ function createDetailsItem({ name, totalReports, children, level = 'regency' }) 
     const isDistrictLevel = level === 'district';
 
     details.className = isDistrictLevel
-        ? 'group rounded-xl border border-secondary/20 bg-white text-textdark shadow-sm shadow-black/5 animate-on-scroll'
-        : 'group rounded-2xl border border-secondary/30 bg-soft/40 text-textdark shadow-md shadow-black/10 animate-on-scroll';
-    details.dataset.animateDelay = isDistrictLevel ? '160' : '120';
+        ? 'group rounded-xl border border-secondary/20 bg-white text-textdark shadow-sm shadow-black/5'
+        : 'group rounded-2xl border border-secondary/30 bg-soft/40 text-textdark shadow-md shadow-black/10';
 
     const summary = document.createElement('summary');
     summary.className = isDistrictLevel
@@ -397,14 +396,12 @@ function createDetailsItem({ name, totalReports, children, level = 'regency' }) 
     }
 
     details.appendChild(body);
-    observeAnimatedElement(details);
     return details;
 }
 
 function createProvinceCard({ name, totalReports, children }) {
     const card = document.createElement('article');
-    card.className = 'flex flex-col gap-4 rounded-3xl border border-secondary/30 bg-surfaceMuted/70 p-6 shadow-xl shadow-black/20 animate-on-scroll';
-    card.dataset.animateDelay = '80';
+    card.className = 'flex flex-col gap-4 rounded-3xl border border-secondary/30 bg-surfaceMuted/70 p-6 shadow-xl shadow-black/20';
 
     const header = document.createElement('div');
     header.className = 'flex flex-wrap items-center justify-between gap-3';
@@ -431,7 +428,6 @@ function createProvinceCard({ name, totalReports, children }) {
 
     card.appendChild(header);
     card.appendChild(body);
-    observeAnimatedElement(card);
     return card;
 }
 
@@ -450,8 +446,7 @@ function getRecordsForSubdistrict(subdistrict) {
 function createLeafItem(subdistrict) {
     const item = document.createElement('button');
     item.type = 'button';
-    item.className = 'flex w-full items-center justify-between gap-3 rounded-xl border border-secondary/20 bg-white px-4 py-3 text-left text-sm text-textdark shadow-sm transition hover:border-secondary/40 hover:bg-secondary/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary animate-on-scroll';
-    item.dataset.animateDelay = '180';
+    item.className = 'flex w-full items-center justify-between gap-3 rounded-xl border border-secondary/20 bg-white px-4 py-3 text-left text-sm text-textdark shadow-sm transition hover:border-secondary/40 hover:bg-secondary/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary';
     item.dataset.subdistrictId = subdistrict.sanitizedId;
     item.title = 'Lihat detail laporan kelurahan';
 
@@ -470,7 +465,6 @@ function createLeafItem(subdistrict) {
         openSubdistrictModal(subdistrict, records);
     });
 
-    observeAnimatedElement(item);
     return item;
 }
 

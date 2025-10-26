@@ -51,23 +51,65 @@ Rancangan varian memperluas jaringan dengan fokus pada skalabilitas dan tolerans
 
 1. Instal dependensi Fabric (Docker, Docker Compose, Node.js, Go) serta aktifkan Docker daemon.
 2. Ekspor variabel `PATH` agar mencakup utilitas Fabric binaries (`configtxgen`, `peer`, `orderer`).
-3. Jalankan jaringan standar:
+
+### Menjalankan Rancangan Standar
+
+1. Jalankan jaringan standar:
    ```bash
    cd raft-standard/network
    ./network.sh up createChannel -c channel-standard -ca
    ```
-4. Deploy chaincode Pelaporan dari direktori `chaincode/pelaporan`:
+2. Deploy chaincode Pelaporan dari direktori `chaincode/pelaporan`:
    ```bash
    ./network.sh deployCC -c channel-standard -ccn pelaporan -ccp ../chaincode/pelaporan -ccl javascript
    ```
-5. Jalankan gateway untuk mengirim transaksi uji:
+3. Jalankan gateway untuk mengirim transaksi uji:
    ```bash
    cd ../../gateway
    npm install
    npm run start
    ```
-6. Untuk mengumpulkan metrik, gunakan skrip otomatisasi pada direktori `bin/` (mis. `bin/collect-metrics.sh`) atau jalankan benchmark melalui `gateway/benchmark/run.sh`.
-7. Setelah selesai, hentikan jaringan dengan `./network.sh down` dari direktori `raft-standard/network`.
+4. Dari akar repositori, kumpulkan metrik menggunakan skrip otomatisasi:
+   ```bash
+   bin/collect-metrics.sh
+   ```
+   atau jalankan benchmark terotomatisasi:
+   ```bash
+   gateway/benchmark/run.sh
+   ```
+5. Setelah selesai, hentikan jaringan dengan menjalankan perintah berikut dari direktori `raft-standard/network`:
+   ```bash
+   ./network.sh down
+   ```
+
+### Menjalankan Rancangan Varian
+
+Rancangan varian memerlukan perluasan topologi bawaan. Gunakan langkah berikut sebagai panduan:
+
+1. Gandakan file `raft-standard/network/compose/compose-test-net.yaml` untuk membuat berkas docker-compose khusus (mis. `compose-variant.yaml`) dan tambahkan layanan orderer serta peer tambahan sesuai kebutuhan varian.
+2. Perbarui `raft-standard/config/configtx.yaml` dan `raft-standard/network/organizations/cryptogen/crypto-config-orderer.yaml` agar memasukkan identitas orderer tambahan yang akan digunakan oleh klaster RAFT.
+3. Setelah penyesuaian selesai, jalankan jaringan varian dengan perintah:
+   ```bash
+   cd raft-standard/network
+   COMPOSE_FILE_BASE=compose-variant.yaml ./network.sh up createChannel -c channel-varian -ca -s couchdb
+   ```
+   Opsi `-s couchdb` mengaktifkan database CouchDB pada seluruh peer sebagaimana didefinisikan dalam rancangan.
+4. Deploy chaincode yang sama atau khusus varian menggunakan perintah `./network.sh deployCC` sebagaimana pada rancangan standar, namun arahkan parameter channel ke `channel-varian`.
+5. Jalankan beban transaksi dari `gateway/benchmark/` untuk mensimulasikan rasio baca/tulis 70/30:
+   ```bash
+   cd ../../gateway/benchmark
+   ./run.sh --profile mix --tps 400
+   ```
+   Sesuaikan parameter `--tps` untuk mengevaluasi throughput yang berbeda.
+6. Kumpulkan metrik menggunakan skrip otomatisasi yang sama:
+   ```bash
+   ../../bin/collect-metrics.sh --profile variant
+   ```
+   atau akses dashboard Prometheus/Grafana yang dikonfigurasi di `raft-standard/network/prometheus-grafana/` untuk pemantauan visual.
+7. Setelah eksperimen selesai, hentikan seluruh layanan varian dari direktori `raft-standard/network`:
+   ```bash
+   ./network.sh down
+   ```
 
 ## Referensi
 

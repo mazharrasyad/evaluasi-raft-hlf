@@ -69,6 +69,21 @@ async function showSuccessAlert(message, { title = 'Berhasil', confirmText = 'Ba
     window.alert([title, message].filter(Boolean).join('\n\n'));
 }
 
+async function showErrorAlert(message, { title = 'Gagal', confirmText = 'Mengerti' } = {}) {
+    if (isSwalAvailable()) {
+        await window.Swal.fire({
+            icon: 'error',
+            title,
+            text: message,
+            confirmButtonText: confirmText,
+            confirmButtonColor: SWAL_PRIMARY_COLOR
+        });
+        return;
+    }
+
+    window.alert([title, message].filter(Boolean).join('\n\n'));
+}
+
 async function confirmSimulationDeletion() {
     const text = 'Hapus seluruh data simulasi pada session browser? Tindakan ini tidak dapat dibatalkan.';
     const title = 'Hapus data simulasi?';
@@ -910,7 +925,7 @@ function generateSimulationRecords(count) {
     return records;
 }
 
-function handleSimulationSubmit(event) {
+async function handleSimulationSubmit(event) {
     event.preventDefault();
 
     if (!simulationCountInput) {
@@ -919,6 +934,7 @@ function handleSimulationSubmit(event) {
 
     if (!wilayahDataset || !wilayahDataset.subdistricts.length) {
         updateSimulationStatus('Dataset wilayah belum siap. Tidak dapat membuat data simulasi.', 'error');
+        await showErrorAlert('Dataset wilayah belum siap. Tidak dapat membuat data simulasi.');
         return;
     }
 
@@ -929,13 +945,16 @@ function handleSimulationSubmit(event) {
     const generated = generateSimulationRecords(count);
     if (!generated.length) {
         updateSimulationStatus('Tidak ada data simulasi yang berhasil dibuat. Coba lagi.', 'error');
+        await showErrorAlert('Tidak ada data simulasi yang berhasil dibuat. Coba lagi.');
         return;
     }
 
     simulationData = [...simulationData, ...generated];
     saveSimulationDataToSession(simulationData);
     renderSimulationData();
-    updateSimulationStatus(`Berhasil membuat ${formatCount(generated.length)} data simulasi.`, 'success');
+    const successMessage = `Berhasil membuat ${formatCount(generated.length)} data simulasi.`;
+    updateSimulationStatus(successMessage, 'success');
+    await showSuccessAlert(successMessage);
 }
 
 if (simulationForm) {

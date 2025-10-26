@@ -1,0 +1,30 @@
+{
+    "name": "shm-gateway",
+    "version": "1.0.0",
+    "description": "SHM Gateway for Hyperledger Fabric",
+    "type": "module",
+    "engines": {
+        "node": ">=18"
+    },
+    "scripts": {
+        "lint": "eslint src",
+        "pretest": "npm run lint",
+        "check-files": "node check-files.js",
+        "check-network": "node check-network.js",
+        "start": "npm run check-files && node src/app.js",
+        "start:skip-check": "node src/app.js"
+    },
+    "engineStrict": true,
+    "author": "Hyperledger",
+    "license": "Apache-2.0",
+    "dependencies": {
+        "@grpc/grpc-js": "^1.12.2",
+        "@hyperledger/fabric-gateway": "^1.7.0",
+        "express": "^4.18.2"
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.5.0",
+        "eslint": "^9.5.0",
+        "globals": "^15.6.0"
+    }
+}

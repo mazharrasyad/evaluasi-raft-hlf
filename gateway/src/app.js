@@ -18,8 +18,8 @@ const mspId = 'Org1MSP';
 const channelName = 'mychannel';
 const chaincodeName = 'pelaporan-standard';
 const networkCandidates = [
-    path.resolve(__dirname, '../../network-standard'),
-    path.resolve(__dirname, '../../network-custom')
+    path.resolve(__dirname, '../../raft-standard/network'),
+    path.resolve(__dirname, '../../raft-variant/network')
 ];
 const networkPath = networkCandidates.find(candidate => existsSync(candidate)) || networkCandidates[0];
 const cryptoPath = path.resolve(networkPath, 'organizations/peerOrganizations/org1.example.com');

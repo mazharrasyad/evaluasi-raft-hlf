@@ -29,7 +29,7 @@ This error occurs when different peers produce different results for the same tr
 
 3. **Restart the network**:
    ```bash
-   cd ../network   # gunakan ../network-origin jika memakai jaringan contoh
+   cd ../network   # gunakan ../network-standard jika memakai jaringan contoh
    ./network.sh down
    ./network.sh up createChannel -c mychannel -ca
    ./network.sh deployCC -ccn catatan-digital -ccp ../chaincode/catatan-digital -ccl javascript

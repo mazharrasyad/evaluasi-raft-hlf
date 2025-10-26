@@ -15,7 +15,7 @@ const mspId = 'Org1MSP';
 const channelName = 'mychannel';
 const chaincodeName = 'catatan-digital';
 const networkCandidates = [
-    path.resolve(__dirname, '../../network-origin'),
+    path.resolve(__dirname, '../../network-standard'),
     path.resolve(__dirname, '../../network-custom')
 ];
 const networkPath = networkCandidates.find(candidate => existsSync(candidate)) || networkCandidates[0];

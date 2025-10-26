@@ -27,6 +27,17 @@
     <link rel="icon" type="image/svg+xml" href="/logo-ai-center.svg">
     <style>
         body { font-family: 'Inter', sans-serif; }
+
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(32px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .animate-on-scroll.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
     </style>
 </head>
 <body class="bg-soft text-textdark">
@@ -47,14 +58,23 @@
                                 <span class="text-xs text-white/80">Evaluasi RAFT HLF &mdash; AI Center</span>
                             </div>
                         </div>
-                        <span class="text-xs font-medium text-secondary">Data referensi: Kemendagri &mdash; wilayah-indonesia</span>
                     </div>
-                    <div class="flex flex-col gap-6 rounded-3xl border border-secondary/30 bg-white p-8 text-textdark shadow-2xl shadow-black/30">
+                    <div class="flex flex-col gap-8 rounded-3xl border border-secondary/30 bg-white/95 p-8 text-textdark shadow-2xl shadow-black/10 backdrop-blur-sm animate-on-scroll" data-animate="fade-up">
                         <div class="flex flex-col gap-4 text-left">
-                            <h1 class="text-4xl font-semibold text-primary md:text-5xl">Rekapitulasi Laporan berdasarkan Hirarki Wilayah</h1>
+                            <h1 class="text-4xl font-semibold text-primary md:text-5xl">Evaluasi RAFT Hyperledger Fabric</h1>
                             <p class="text-lg text-textdark/80">Gunakan tampilan hierarkis untuk menelusuri jumlah pelaporan dari tingkat provinsi hingga kelurahan. Klik setiap wilayah untuk melihat rincian di tingkat berikutnya.</p>
                         </div>
-                        <div class="flex flex-col gap-3 rounded-2xl border border-accent/60 bg-soft p-6 text-sm text-textdark md:flex-row md:items-center md:justify-between">
+                        <div class="grid gap-4 rounded-2xl border border-secondary/20 bg-soft p-6 text-sm text-textdark md:grid-cols-2 md:gap-6">
+                            <article class="flex flex-col gap-2 rounded-2xl border border-secondary/20 bg-white p-4 shadow-sm animate-on-scroll" data-animate="fade-up" data-animate-delay="100">
+                                <h2 class="text-base font-semibold text-primary">RAFT Standard</h2>
+                                <p class="text-sm text-textdark/80">Menggunakan konfigurasi RAFT default Hyperledger Fabric untuk mengukur kinerja baseline pada jaringan pengujian.</p>
+                            </article>
+                            <article class="flex flex-col gap-2 rounded-2xl border border-secondary/20 bg-white p-4 shadow-sm animate-on-scroll" data-animate="fade-up" data-animate-delay="200">
+                                <h2 class="text-base font-semibold text-primary">RAFT Variant</h2>
+                                <p class="text-sm text-textdark/80">Menerapkan variasi parameter RAFT (timeout dan prioritas leader) guna membandingkan stabilitas dan throughput terhadap standar.</p>
+                            </article>
+                        </div>
+                        <div class="flex flex-col gap-3 rounded-2xl border border-accent/60 bg-soft p-6 text-sm text-textdark md:flex-row md:items-center md:justify-between animate-on-scroll" data-animate="fade-up" data-animate-delay="300">
                             <div class="flex flex-col gap-1">
                                 <span class="text-xs uppercase tracking-[0.3em] text-secondary">Total pelaporan tercatat</span>
                                 <span class="text-3xl font-semibold text-accent" id="totalReports">0</span>
@@ -66,8 +86,8 @@
             </header>
 
             <main class="flex-1">
-                <div class="mx-auto w-full max-w-6xl px-6 pb-24">
-                    <section class="rounded-3xl border border-secondary/20 bg-white p-8 shadow-2xl">
+                <div class="mx-auto w-full max-w-6xl px-6 pb-24 pt-12">
+                    <section class="rounded-3xl border border-secondary/20 bg-white/95 p-8 shadow-2xl shadow-black/10 backdrop-blur-sm animate-on-scroll" data-animate="fade-up">
                         <header class="flex flex-col gap-2 border-b border-secondary/20 pb-6">
                             <h2 class="text-2xl font-semibold text-primary">Peta Laporan Wilayah</h2>
                             <p class="text-sm text-textdark/80">Memuat semua provinsi dari dataset <code>wilayah-indonesia</code>. Klik untuk menelusuri daftar kabupaten/kota, kecamatan, hingga kelurahan.</p>
@@ -98,6 +118,40 @@
 
         const hierarchyContainer = document.getElementById('hierarchyContainer');
         const totalReportsEl = document.getElementById('totalReports');
+
+        let animateObserver;
+
+        function ensureAnimateObserver() {
+            if (animateObserver) {
+                return animateObserver;
+            }
+
+            animateObserver = new IntersectionObserver((entries, obs) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const target = entry.target;
+                        const delay = target.dataset.animateDelay;
+                        if (delay) {
+                            target.style.transitionDelay = `${parseInt(delay, 10) / 1000}s`;
+                        }
+                        target.classList.add('is-visible');
+                        obs.unobserve(target);
+                    }
+                });
+            }, { threshold: 0.2 });
+
+            return animateObserver;
+        }
+
+        function observeAnimatedElement(element) {
+            if (!element || !element.classList || !element.classList.contains('animate-on-scroll')) {
+                return;
+            }
+
+            ensureAnimateObserver().observe(element);
+        }
+
+        document.querySelectorAll('.animate-on-scroll').forEach(observeAnimatedElement);
 
         function formatCount(value) {
             return new Intl.NumberFormat('id-ID').format(value ?? 0);
@@ -137,7 +191,8 @@
 
         function createDetailsItem({ name, totalReports, childLoader }) {
             const details = document.createElement('details');
-            details.className = 'group rounded-2xl border border-secondary/20 bg-soft transition-colors hover:border-secondary/40 shadow-md';
+            details.className = 'group rounded-2xl border border-secondary/20 bg-soft transition-colors hover:border-secondary/40 shadow-md animate-on-scroll';
+            details.dataset.animateDelay = '120';
 
             const summary = document.createElement('summary');
             summary.className = 'cursor-pointer select-none rounded-2xl px-4 py-3 outline-none transition-colors group-open:bg-white';
@@ -178,12 +233,14 @@
                 });
             }
 
+            observeAnimatedElement(details);
             return details;
         }
 
         function createLeafItem(name, totalReports) {
             const item = document.createElement('div');
-            item.className = 'flex flex-wrap items-center justify-between gap-3 rounded-xl border border-secondary/20 bg-white px-4 py-3 text-sm text-textdark shadow-sm';
+            item.className = 'flex flex-wrap items-center justify-between gap-3 rounded-xl border border-secondary/20 bg-white px-4 py-3 text-sm text-textdark shadow-sm animate-on-scroll';
+            item.dataset.animateDelay = '80';
 
             const label = document.createElement('span');
             label.textContent = name;
@@ -194,6 +251,7 @@
 
             item.appendChild(label);
             item.appendChild(badge);
+            observeAnimatedElement(item);
             return item;
         }
 

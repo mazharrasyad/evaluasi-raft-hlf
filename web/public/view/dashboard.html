@@ -97,21 +97,35 @@
                                 <h2 class="text-2xl font-semibold text-textdark">Simulasi Data Pelaporan</h2>
                                 <p class="text-sm text-textdark/70">Buat data pelaporan simulasi berdasarkan hierarki wilayah Indonesia. Hasil simulasi akan disimpan pada session browser dan dapat ditelusuri melalui ringkasan serta pop up detail di tingkat kelurahan.</p>
                             </header>
-                            <form id="simulationForm" class="mt-6 grid gap-4 rounded-2xl border border-white/10 bg-surfaceMuted p-6 text-sm text-textdark md:grid-cols-[minmax(0,320px)_auto] md:items-end md:gap-6" autocomplete="off">
-                                <label class="flex flex-col gap-2">
-                                    <span class="text-xs font-semibold uppercase tracking-[0.25em] text-secondary">Jumlah data simulasi</span>
-                                    <input id="simulationCount" type="number" min="1" max="1000" step="1" required class="w-full rounded-xl border border-white/10 bg-surface px-4 py-3 text-base text-textdark shadow-lg shadow-black/20 outline-none transition focus:border-secondary focus:ring-2 focus:ring-secondary/40" placeholder="Contoh: 25" />
-                                </label>
-                                <div class="flex flex-col items-stretch justify-end gap-4 md:flex-row md:items-center md:gap-6">
-                                    <div class="flex flex-col gap-3 sm:flex-row">
-                                        <button type="submit" class="inline-flex items-center justify-center rounded-xl bg-primary px-6 py-3 text-sm font-semibold uppercase tracking-[0.3em] text-[#041226] transition hover:bg-secondary hover:text-textdark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary">
-                                            Buat Data
-                                        </button>
-                                        <button type="button" id="clearSimulationButton" class="inline-flex items-center justify-center rounded-xl border border-highlight/40 bg-highlight/20 px-6 py-3 text-sm font-semibold uppercase tracking-[0.3em] text-highlight transition hover:bg-highlight hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-highlight">
-                                            Hapus Data
-                                        </button>
+                            <form id="simulationForm" class="mt-6 space-y-6 overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-surfaceMuted/70 via-surface/95 to-surfaceMuted/70 p-6 text-sm text-textdark shadow-[0_20px_60px_-25px_rgba(0,0,0,0.55)]" autocomplete="off">
+                                <div class="flex items-center gap-4 rounded-2xl border border-white/10 bg-surface/60 p-4 shadow-inner shadow-black/10">
+                                    <span class="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/20 text-lg text-primary">✨</span>
+                                    <div class="space-y-1">
+                                        <p class="text-sm font-semibold text-textdark">Eksplorasi jumlah data simulasi</p>
+                                        <p class="text-xs text-textdark/70">Sesuaikan jumlah catatan sebelum membuat data uji coba.</p>
                                     </div>
-                                    <p id="simulationStatus" class="text-sm text-muted" role="status" aria-live="polite">Formulir siap digunakan.</p>
+                                </div>
+                                <div class="grid gap-5 md:grid-cols-[minmax(0,280px)_1fr] md:items-end md:gap-8">
+                                    <label class="flex flex-col gap-2">
+                                        <span class="text-xs font-semibold uppercase tracking-[0.2em] text-secondary">Jumlah data simulasi</span>
+                                        <input id="simulationCount" type="number" min="1" max="1000" step="1" required class="w-full rounded-xl border border-white/10 bg-surface/80 px-4 py-3 text-base text-textdark shadow-lg shadow-black/20 outline-none transition focus:border-secondary focus:ring-2 focus:ring-secondary/40" placeholder="Contoh: 25" />
+                                    </label>
+                                    <div class="flex flex-col items-stretch justify-end gap-4 md:flex-row md:items-center md:justify-between md:gap-6">
+                                        <div class="flex flex-wrap items-center gap-3">
+                                            <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-primary/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#041226] shadow-lg shadow-primary/20 transition duration-200 hover:-translate-y-0.5 hover:bg-secondary hover:text-textdark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary">
+                                                <span class="text-base">▶</span>
+                                                <span>Buat Data</span>
+                                            </button>
+                                            <button type="button" id="clearSimulationButton" class="inline-flex items-center gap-2 rounded-lg border border-highlight/50 bg-highlight/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-highlight transition duration-200 hover:-translate-y-0.5 hover:bg-highlight hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-highlight">
+                                                <span class="text-base">✕</span>
+                                                <span>Hapus Data</span>
+                                            </button>
+                                        </div>
+                                        <p id="simulationStatus" class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/60 px-4 py-2 text-xs font-medium text-textdark/80" role="status" aria-live="polite">
+                                            <span class="h-2 w-2 rounded-full bg-secondary"></span>
+                                            Formulir siap digunakan.
+                                        </p>
+                                    </div>
                                 </div>
                             </form>
                             <div id="simulationSummary" class="mt-6 grid gap-4 md:grid-cols-2"></div>

@@ -47,6 +47,7 @@ app.use((req, res, next) => {
 });
 
 app.use(express.json());
+app.use(express.static(path.resolve(__dirname, '..')));
 
 const decoder = new TextDecoder();
 
@@ -1222,7 +1223,7 @@ async function submitWithRetry(contract, functionName, ...args) {
 
 // Serve API documentation at root route
 app.get('/', (req, res) => {
-    const docsPath = path.resolve(__dirname, '../api-docs.html');
+    const docsPath = path.resolve(__dirname, '../dashboard.html');
     res.sendFile(docsPath);
 });
 

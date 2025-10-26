@@ -1,0 +1,49 @@
+---
+name: Fabric RAFT Evaluation
+version: '0.1'
+description: Benchmark scenarios for RAFT consensus evaluation on Hyperledger Fabric.
+workers:
+  type: local
+  number: 4
+rounds:
+  - label: light-load
+    description: 100 transactions at 10 TPS
+    txNumber: 100
+    rateControl:
+      type: fixed-load
+      opts:
+        tps: 10
+    workload:
+      module: ./workloads/submitReport.js
+      arguments:
+        chaincodeId: report
+        channel: reportchannel
+  - label: medium-load
+    description: 1000 transactions at 50 TPS
+    txNumber: 1000
+    rateControl:
+      type: fixed-load
+      opts:
+        tps: 50
+    workload:
+      module: ./workloads/submitReport.js
+      arguments:
+        chaincodeId: report
+        channel: reportchannel
+  - label: heavy-load
+    description: 5000 transactions at 100 TPS
+    txNumber: 5000
+    rateControl:
+      type: fixed-load
+      opts:
+        tps: 100
+    workload:
+      module: ./workloads/submitReport.js
+      arguments:
+        chaincodeId: report
+        channel: reportchannel
+monitor:
+  type: process
+  interval: 1
+  processes:
+    - command: docker stats --no-stream

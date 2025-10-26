@@ -1,0 +1,21 @@
+Orderer:
+  OrdererType: etcdraft
+  Addresses:
+    - orderer.example.com:7050
+  BatchTimeout: 500ms
+  BatchSize:
+    MaxMessageCount: 50
+    AbsoluteMaxBytes: 50 MB
+    PreferredMaxBytes: 2 MB
+  EtcdRaft:
+    Consenters:
+      - Host: orderer.example.com
+        Port: 7050
+        ClientTLSCert: ../crypto/ordererOrganizations/example.com/orderers/orderer.example.com/tls/server.crt
+        ServerTLSCert: ../crypto/ordererOrganizations/example.com/orderers/orderer.example.com/tls/server.crt
+    Options:
+      TickInterval: 300ms
+      ElectionTick: 20
+      HeartbeatTick: 2
+      MaxInflightBlocks: 10
+      SnapshotIntervalSize: 16 MB

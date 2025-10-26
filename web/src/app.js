@@ -10,7 +10,7 @@ app.disable('x-powered-by');
 
 const staticRoot = path.resolve(__dirname, '../public');
 const wilayahDataDir = path.resolve(staticRoot, 'wilayah-indonesia');
-const dashboardFile = path.resolve(staticRoot, 'dashboard.html');
+const dashboardFile = path.resolve(staticRoot, 'view', 'dashboard.html');
 
 app.use(express.static(staticRoot));
 app.use('/wilayah-data', express.static(wilayahDataDir));

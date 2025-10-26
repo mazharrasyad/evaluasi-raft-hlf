@@ -155,7 +155,6 @@ async function checkSingleNetwork({ label, networkDir, instructions }) {
 async function checkNetworkHealth() {
     const results = [];
     for (const config of networkConfigurations) {
-        // eslint-disable-next-line no-await-in-loop
         const result = await checkSingleNetwork(config);
         results.push(result);
     }

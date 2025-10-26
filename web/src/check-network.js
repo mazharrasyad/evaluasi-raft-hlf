@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { checkNetworkHealth } from './src/network-check.js';
+import { checkNetworkHealth } from './network-check.js';
 
 const COLORS = {
     reset: '\x1b[0m',

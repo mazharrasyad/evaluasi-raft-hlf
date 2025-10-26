@@ -15,8 +15,8 @@ const __dirname = path.dirname(__filename);
 
 // ✅ Konfigurasi Hyperledger Fabric
 const mspId = 'Org1MSP';
-const channelName = 'mychannel';
-const chaincodeName = 'pelaporan-standard';
+const channelName = 'channel-standard';
+const chaincodeName = 'pelaporan';
 const networkCandidates = [
     path.resolve(__dirname, '../../raft-standard/network'),
     path.resolve(__dirname, '../../raft-variant/network')
@@ -1272,7 +1272,7 @@ app.get('/api/blockchain/info', async (req, res) => {
         const timestamp = new Date().toISOString();
         const currentBlockHash = crypto.createHash('sha256').update(dataString + timestamp).digest('hex');
         const previousBlockHash = crypto.createHash('sha256').update(dataString).digest('hex');
-        const genesisHash = crypto.createHash('sha256').update('pelaporan-standard-genesis').digest('hex');
+        const genesisHash = crypto.createHash('sha256').update('pelaporan-genesis').digest('hex');
 
         res.json({
             error: false,

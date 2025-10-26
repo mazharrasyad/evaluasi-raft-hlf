@@ -47,13 +47,27 @@ Rancangan varian memperluas jaringan dengan fokus pada skalabilitas dan tolerans
   - Failover pemimpin membutuhkan 3–5 detik hingga transaksi kembali diproses.
   - CouchDB menambah latensi baca namun meningkatkan fleksibilitas kueri.
 
-## Cara Mengulang Eksperimen
+## Cara Menjalankan Ulang Eksperimen
 
-1. Instal dependensi Fabric (Docker, Docker Compose, Node.js, Go).
-2. Ekspor variabel `PATH` agar mencakup `bin/` Fabric.
-3. Jalankan `bin/network.sh up` untuk rancangan standar atau `bin/network.sh up variant` untuk rancangan varian.
-4. Deploy chaincode dari direktori `chaincode/` menggunakan skrip gateway.
-5. Gunakan `gateway/benchmark/run.sh` untuk memulai pengujian dan simpan log pada `api.log`.
+1. Instal dependensi Fabric (Docker, Docker Compose, Node.js, Go) serta aktifkan Docker daemon.
+2. Ekspor variabel `PATH` agar mencakup utilitas Fabric binaries (`configtxgen`, `peer`, `orderer`).
+3. Jalankan jaringan standar:
+   ```bash
+   cd raft-standard/network
+   ./network.sh up createChannel -c channel-standard -ca
+   ```
+4. Deploy chaincode Pelaporan dari direktori `chaincode/pelaporan`:
+   ```bash
+   ./network.sh deployCC -c channel-standard -ccn pelaporan -ccp ../chaincode/pelaporan -ccl javascript
+   ```
+5. Jalankan gateway untuk mengirim transaksi uji:
+   ```bash
+   cd ../../gateway
+   npm install
+   npm run start
+   ```
+6. Untuk mengumpulkan metrik, gunakan skrip otomatisasi pada direktori `bin/` (mis. `bin/collect-metrics.sh`) atau jalankan benchmark melalui `gateway/benchmark/run.sh`.
+7. Setelah selesai, hentikan jaringan dengan `./network.sh down` dari direktori `raft-standard/network`.
 
 ## Referensi
 

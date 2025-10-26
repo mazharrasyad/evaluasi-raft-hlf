@@ -8,36 +8,42 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/svg+xml" href="http://31.97.107.123:5173/logo-gasnyoba.svg">
+    <link rel="icon" type="image/svg+xml" href="./logo-ai-center.svg">
     <style>
         body { font-family: 'Inter', sans-serif; }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100">
+<body class="bg-[#050505] text-[#f4f4f5]">
     <div class="relative min-h-screen overflow-hidden">
         <div class="absolute inset-0 -z-10 h-full w-full">
-            <div class="absolute -left-1/3 top-0 h-[720px] w-[720px] rounded-full bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 opacity-30 blur-3xl"></div>
-            <div class="absolute -right-1/4 bottom-0 h-[620px] w-[620px] rounded-full bg-gradient-to-tr from-cyan-400 via-sky-500 to-indigo-500 opacity-30 blur-3xl"></div>
+            <div class="absolute -left-1/3 top-0 h-[720px] w-[720px] rounded-full bg-gradient-to-br from-[#0b6aa7]/40 via-[#0d2238]/60 to-transparent opacity-80 blur-3xl"></div>
+            <div class="absolute -right-1/4 bottom-0 h-[620px] w-[620px] rounded-full bg-gradient-to-tr from-[#e4cb19]/20 via-transparent to-[#07a3de]/30 opacity-70 blur-3xl"></div>
         </div>
 
         <div class="flex min-h-screen flex-col">
             <header class="relative isolate">
                 <div class="mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 py-16">
-                    <div class="flex flex-col gap-3 text-sm text-indigo-200/80 md:flex-row md:items-center md:justify-between">
-                        <span class="inline-flex items-center gap-2 rounded-full border border-indigo-400/50 bg-indigo-500/10 px-4 py-1 font-semibold uppercase tracking-[0.22em]">Pelaporan Wilayah</span>
-                        <span class="text-xs text-indigo-200/60">Data referensi: Kemendagri &mdash; wilayah-indonesia</span>
+                    <div class="flex flex-col items-start justify-between gap-4 text-sm text-[#8dcff0] md:flex-row md:items-center">
+                        <div class="flex items-center gap-4">
+                            <img src="./logo-ai-center.svg" alt="AI Center" class="h-14 w-14 rounded-xl border border-white/10 bg-white/5 p-2 shadow-lg shadow-black/40" loading="lazy">
+                            <div class="flex flex-col gap-1">
+                                <span class="inline-flex items-center gap-2 rounded-full border border-[#07a3de]/50 bg-[#07a3de]/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.28em] text-[#9de7ff]">Pelaporan Wilayah</span>
+                                <span class="text-xs text-[#8fa2c3]">Evaluasi RAFT HLF &mdash; AI Center</span>
+                            </div>
+                        </div>
+                        <span class="text-xs text-[#8fa2c3]">Data referensi: Kemendagri &mdash; wilayah-indonesia</span>
                     </div>
-                    <div class="flex flex-col gap-6 rounded-3xl border border-white/10 bg-slate-900/60 p-8 shadow-lg shadow-indigo-500/10">
+                    <div class="flex flex-col gap-6 rounded-3xl border border-white/10 bg-white/5 p-8 shadow-xl shadow-black/40 backdrop-blur">
                         <div class="flex flex-col gap-4 text-left">
                             <h1 class="text-4xl font-semibold text-white md:text-5xl">Rekapitulasi Laporan berdasarkan Hirarki Wilayah</h1>
-                            <p class="text-lg text-slate-300">Gunakan tampilan hierarkis untuk menelusuri jumlah pelaporan dari tingkat provinsi hingga kelurahan. Klik setiap wilayah untuk melihat rincian di tingkat berikutnya.</p>
+                            <p class="text-lg text-[#c8d9ff]">Gunakan tampilan hierarkis untuk menelusuri jumlah pelaporan dari tingkat provinsi hingga kelurahan. Klik setiap wilayah untuk melihat rincian di tingkat berikutnya.</p>
                         </div>
-                        <div class="flex flex-col gap-3 rounded-2xl border border-indigo-400/30 bg-indigo-500/10 p-6 text-sm text-indigo-100 md:flex-row md:items-center md:justify-between">
+                        <div class="flex flex-col gap-3 rounded-2xl border border-[#e4cb19]/30 bg-[#e4cb19]/10 p-6 text-sm text-[#f8eeb7] md:flex-row md:items-center md:justify-between">
                             <div class="flex flex-col gap-1">
-                                <span class="text-xs uppercase tracking-[0.3em] text-indigo-200/60">Total pelaporan tercatat</span>
+                                <span class="text-xs uppercase tracking-[0.3em] text-[#f1e085]/70">Total pelaporan tercatat</span>
                                 <span class="text-3xl font-semibold text-white" id="totalReports">0</span>
                             </div>
-                            <p class="max-w-xl text-indigo-100/80">Jumlah pelaporan dihitung dari catatan digital yang tersimpan pada blockchain atau data sampel apabila jaringan belum aktif.</p>
+                            <p class="max-w-xl text-[#f2e9b6]">Jumlah pelaporan dihitung dari catatan digital yang tersimpan pada blockchain atau data sampel apabila jaringan belum aktif.</p>
                         </div>
                     </div>
                 </div>
@@ -45,25 +51,24 @@
 
             <main class="flex-1">
                 <div class="mx-auto w-full max-w-6xl px-6 pb-24">
-                    <section class="rounded-3xl border border-white/10 bg-slate-900/60 p-8 shadow-2xl shadow-slate-900/40">
-                        <header class="flex flex-col gap-2 border-b border-white/10 pb-6">
+                    <section class="rounded-3xl border border-white/10 bg-white/5 p-8 shadow-2xl shadow-black/50 backdrop-blur">
+                        <header class="flex flex-col gap-2 border-b border-white/5 pb-6">
                             <h2 class="text-2xl font-semibold text-white">Peta Laporan Wilayah</h2>
-                            <p class="text-sm text-slate-300">Memuat semua provinsi dari dataset <code>wilayah-indonesia</code>. Klik untuk menelusuri daftar kabupaten/kota, kecamatan, hingga kelurahan.</p>
+                            <p class="text-sm text-[#c1d0f1]">Memuat semua provinsi dari dataset <code>wilayah-indonesia</code>. Klik untuk menelusuri daftar kabupaten/kota, kecamatan, hingga kelurahan.</p>
                         </header>
                         <div class="mt-6 space-y-4" id="hierarchyContainer">
-                            <p class="text-sm text-slate-400" id="hierarchyStatus">Memuat data wilayah...</p>
+                            <p class="text-sm text-[#9caacb]" id="hierarchyStatus">Memuat data wilayah...</p>
                         </div>
-                        <footer class="mt-8 rounded-2xl border border-slate-800/80 bg-slate-900/70 p-6 text-xs text-slate-400">
+                        <footer class="mt-8 rounded-2xl border border-white/5 bg-white/5 p-6 text-xs text-[#9caacb]">
                             <p class="leading-relaxed">Data wilayah diambil dari repositori <code>wilayah-indonesia</code> dan dipadankan dengan catatan pelaporan yang tersedia. Jika sebuah wilayah tidak memiliki pelaporan, panel akan menampilkan pesan khusus untuk memudahkan verifikasi.</p>
                         </footer>
                     </section>
                 </div>
             </main>
 
-            <footer class="border-t border-white/10 bg-slate-950/80">
-                <div class="mx-auto flex max-w-6xl flex-col gap-4 px-6 py-10 text-center text-sm text-slate-400 md:flex-row md:items-center md:justify-between">
-                    <p>&copy; <span id="currentYear"></span> Evaluasi RAFT HLF. Seluruh hak cipta dilindungi.</p>
-                    <p class="text-slate-500">Halaman ini menampilkan ringkasan laporan berbasis wilayah. Dokumentasi API lengkap disediakan terpisah.</p>
+            <footer class="border-t border-white/5 bg-[#050505]/80">
+                <div class="mx-auto flex max-w-6xl justify-center px-6 py-8 text-sm text-[#9caacb]">
+                    <p>&copy; <span id="currentYear"></span> Evaluasi RAFT HLF.</p>
                 </div>
             </footer>
         </div>
@@ -95,11 +100,11 @@
             wrapper.className = 'flex flex-wrap items-center justify-between gap-4';
 
             const nameEl = document.createElement('span');
-            nameEl.className = 'text-base font-medium text-slate-100';
+            nameEl.className = 'text-base font-medium text-white';
             nameEl.textContent = name;
 
             const badge = document.createElement('span');
-            badge.className = 'inline-flex items-center gap-1 rounded-full border border-indigo-400/50 bg-indigo-500/10 px-3 py-1 text-xs font-semibold text-indigo-200';
+            badge.className = 'inline-flex items-center gap-1 rounded-full border border-[#07a3de]/40 bg-[#07a3de]/10 px-3 py-1 text-xs font-semibold text-[#a9ecff]';
             badge.textContent = `${formatCount(totalReports)} laporan`;
 
             wrapper.appendChild(nameEl);
@@ -109,22 +114,22 @@
 
         function createEmptyMessage(text) {
             const message = document.createElement('p');
-            message.className = 'text-sm text-slate-400';
+            message.className = 'text-sm text-[#9caacb]';
             message.textContent = text;
             return message;
         }
 
         function createDetailsItem({ name, totalReports, childLoader }) {
             const details = document.createElement('details');
-            details.className = 'group rounded-2xl border border-slate-800/80 bg-slate-900/70 transition-colors hover:border-indigo-400/40';
+            details.className = 'group rounded-2xl border border-white/5 bg-white/5 transition-colors hover:border-[#07a3de]/40 backdrop-blur';
 
             const summary = document.createElement('summary');
-            summary.className = 'cursor-pointer select-none rounded-2xl px-4 py-3 outline-none transition-colors group-open:bg-slate-900/90';
+            summary.className = 'cursor-pointer select-none rounded-2xl px-4 py-3 outline-none transition-colors group-open:bg-white/5';
             summary.appendChild(createSummaryLabel(name, totalReports));
             details.appendChild(summary);
 
             const body = document.createElement('div');
-            body.className = 'space-y-3 border-t border-slate-800/60 px-4 py-4';
+            body.className = 'space-y-3 border-t border-white/5 px-4 py-4';
             body.dataset.loaded = 'false';
             details.appendChild(body);
 
@@ -162,13 +167,13 @@
 
         function createLeafItem(name, totalReports) {
             const item = document.createElement('div');
-            item.className = 'flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-800/80 bg-slate-950/60 px-4 py-3 text-sm text-slate-200';
+            item.className = 'flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/5 bg-black/40 px-4 py-3 text-sm text-[#e5e7ff] backdrop-blur';
 
             const label = document.createElement('span');
             label.textContent = name;
 
             const badge = document.createElement('span');
-            badge.className = 'inline-flex items-center gap-1 rounded-full border border-emerald-400/40 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-200';
+            badge.className = 'inline-flex items-center gap-1 rounded-full border border-[#e4cb19]/40 bg-[#e4cb19]/10 px-3 py-1 text-xs font-semibold text-[#f6e27a]';
             badge.textContent = `${formatCount(totalReports)} laporan`;
 
             item.appendChild(label);

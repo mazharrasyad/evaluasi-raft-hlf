@@ -1,7 +1,7 @@
-# Evaluasi Varian RAFT pada Hyperledger Fabric
+# Evaluasi RAFT HLF (Hyperledger Fabric)
 
 ## Tujuan Penelitian
-Proyek ini mendukung tesis berjudul **"Evaluasi Varian Algoritma Konsensus RAFT pada Hyperledger Fabric melalui Simulasi Beban Transaksi Pelaporan Maladministrasi Masyarakat Indonesia"**. Infrastruktur yang disediakan memungkinkan peneliti membangun jaringan Hyperledger Fabric v3.x, menjalankan chaincode pelaporan maladministrasi, dan mengukur dampak perubahan parameter RAFT terhadap performa jaringan.
+Proyek ini mendukung tesis berjudul **"Evaluasi Varian Algoritma Konsensus RAFT pada Hyperledger Fabric melalui Simulasi Beban Transaksi Pelaporan Maladministrasi Masyarakat Indonesia"**. Infrastruktur yang disediakan memungkinkan peneliti membangun jaringan Hyperledger Fabric v3.x, menjalankan chaincode pelaporan maladministrasi, dan mengukur dampak perubahan parameter RAFT terhadap performa jaringan. Repositori ini selanjutnya disebut sebagai **Evaluasi RAFT HLF (Hyperledger Fabric)** untuk mencerminkan fokus utamanya pada pengujian konsensus RAFT di Hyperledger Fabric.
 
 ## Rancangan Eksperimen
 Eksperimen mencakup dua konfigurasi orderer:

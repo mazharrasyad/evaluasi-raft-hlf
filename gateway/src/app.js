@@ -78,6 +78,218 @@ const PERFORMANCE_METRICS = {
 
 const PERFORMANCE_METRIC_KEYS = Object.keys(PERFORMANCE_METRICS);
 
+function clampNumber(value, min, max) {
+    const numeric = Number(value);
+    if (!Number.isFinite(numeric)) {
+        return min;
+    }
+    return Math.min(Math.max(numeric, min), max);
+}
+
+function toNonNegativeNumber(value, fallback = 0) {
+    const numeric = Number(value);
+    if (!Number.isFinite(numeric) || numeric < 0) {
+        return fallback;
+    }
+    return numeric;
+}
+
+function safeDivide(numerator, denominator) {
+    if (!denominator) {
+        return 0;
+    }
+    return numerator / denominator;
+}
+
+function determineMaladministrasiRisk(serviceQualityIndex, backlogRate, escalationRate) {
+    if (serviceQualityIndex >= 80 && backlogRate <= 10 && escalationRate <= 10) {
+        return {
+            level: 'rendah',
+            description: 'Risiko maladministrasi terkendali dengan baik dan proses berjalan stabil.'
+        };
+    }
+
+    if (serviceQualityIndex >= 60 && backlogRate <= 25) {
+        return {
+            level: 'sedang',
+            description: 'Terdapat area yang perlu diperketat, namun situasi masih relatif dapat dikendalikan.'
+        };
+    }
+
+    return {
+        level: 'tinggi',
+        description: 'Risiko maladministrasi tinggi dan membutuhkan intervensi segera untuk menekan eskalasi.'
+    };
+}
+
+function buildMaladministrasiRecommendations(metrics) {
+    const recommendations = [];
+
+    if (metrics.backlogRate > 25) {
+        recommendations.push('Prioritaskan penyelesaian backlog dengan alokasi tim khusus atau sesi layanan tambahan.');
+    }
+
+    if (metrics.resolutionRate < 70) {
+        recommendations.push('Tingkatkan kapasitas penanganan melalui pelatihan ulang petugas dan otomatisasi alur kerja.');
+    }
+
+    if (metrics.escalationRate > 15) {
+        recommendations.push('Perkuat kanal mediasi awal agar laporan dapat selesai tanpa eskalasi lanjutan.');
+    }
+
+    if (metrics.resolutionSpeedScore < 60) {
+        recommendations.push('Tinjau kembali SLA dan sederhanakan SOP agar waktu penyelesaian mendekati target tujuh hari.');
+    }
+
+    if (metrics.satisfactionScore < 70) {
+        recommendations.push('Lakukan survei kepuasan lanjutan untuk memahami keluhan utama pelapor.');
+    }
+
+    if (!recommendations.length) {
+        recommendations.push('Pertahankan praktik pelayanan saat ini dan lakukan pemantauan berkala terhadap tren laporan.');
+    }
+
+    return recommendations;
+}
+
+function buildMaladministrasiSummary(simulationName, analysisPeriodDays, metrics, risk) {
+    const headline = metrics.serviceQualityIndex >= 80
+        ? 'Pelayanan maladministrasi berada pada kategori prima.'
+        : metrics.serviceQualityIndex >= 60
+            ? 'Pelayanan berjalan cukup baik namun memerlukan penguatan pada beberapa aspek.'
+            : 'Pelayanan berada pada zona waspada dan membutuhkan perbaikan segera.';
+
+    const description = [
+        `Selama ${analysisPeriodDays} hari, simulasi "${simulationName}" menerima ${metrics.totalReports.toLocaleString('id-ID')} laporan dengan ${metrics.maladministrationCases.toLocaleString('id-ID')} kasus maladministrasi teridentifikasi (${metrics.detectionRate.toFixed(1)}%).`,
+        `${metrics.resolvedCases.toLocaleString('id-ID')} kasus berhasil diselesaikan (${metrics.resolutionRate.toFixed(1)}%) sementara ${metrics.backlogCases.toLocaleString('id-ID')} kasus masih tertunda.`,
+        `Rata-rata penyelesaian ${metrics.averageResolutionDays.toFixed(1)} hari dengan ${metrics.escalationRate.toFixed(1)}% kasus membutuhkan eskalasi.`,
+        `Skor kualitas layanan keseluruhan berada di ${metrics.serviceQualityIndex.toFixed(1)} dari 100.`
+    ].join(' ');
+
+    return {
+        headline,
+        description,
+        riskLevel: risk.level,
+        riskDescription: risk.description
+    };
+}
+
+function analyzeMaladministrasiSimulation(input) {
+    const simulationName = typeof input.simulationName === 'string' && input.simulationName.trim()
+        ? input.simulationName.trim()
+        : 'Simulasi Maladministrasi';
+
+    const analysisPeriodDays = Math.max(toNonNegativeNumber(input.analysisPeriodDays, 30), 1);
+    const totalReports = toNonNegativeNumber(input.totalReports, 0);
+    const maladministrationRaw = toNonNegativeNumber(input.maladministrationCases, 0);
+    const resolvedRaw = toNonNegativeNumber(input.resolvedCases, 0);
+    const escalatedRaw = toNonNegativeNumber(input.escalatedCases, 0);
+    const averageResolutionDays = toNonNegativeNumber(input.averageResolutionDays, 0);
+    const satisfactionScore = clampNumber(toNonNegativeNumber(input.satisfactionScore, 0), 0, 100);
+
+    const normalizationNotes = [];
+
+    let maladministrationCases = Math.min(maladministrationRaw, totalReports);
+    if (maladministrationRaw > totalReports) {
+        normalizationNotes.push('Kasus maladministrasi melebihi total laporan dan telah disesuaikan ke nilai maksimal yang wajar.');
+    }
+
+    let resolvedCases = Math.min(resolvedRaw, maladministrationCases);
+    if (resolvedRaw > maladministrationCases) {
+        normalizationNotes.push('Kasus selesai melebihi jumlah maladministrasi dan telah disesuaikan.');
+    }
+
+    let escalatedCases = Math.min(escalatedRaw, maladministrationCases);
+    if (escalatedRaw > maladministrationCases) {
+        normalizationNotes.push('Kasus eskalasi melebihi jumlah maladministrasi dan telah dipangkas.');
+    }
+
+    const combinedHandled = resolvedCases + escalatedCases;
+    if (combinedHandled > maladministrationCases) {
+        const overflow = combinedHandled - maladministrationCases;
+        if (overflow > 0) {
+            const adjustment = Math.min(overflow, resolvedCases);
+            resolvedCases -= adjustment;
+            normalizationNotes.push('Total kasus selesai dan eskalasi melampaui jumlah maladministrasi, sehingga nilai penyelesaian disesuaikan.');
+        }
+    }
+
+    const backlogCases = Math.max(maladministrationCases - resolvedCases - escalatedCases, 0);
+    const detectionRate = clampNumber(safeDivide(maladministrationCases, totalReports) * 100, 0, 100);
+    const resolutionRate = clampNumber(safeDivide(resolvedCases, maladministrationCases || 1) * 100, 0, 100);
+    const escalationRate = clampNumber(safeDivide(escalatedCases, maladministrationCases || 1) * 100, 0, 100);
+    const backlogRate = clampNumber(safeDivide(backlogCases, maladministrationCases || 1) * 100, 0, 100);
+    const throughputPerDay = Number(safeDivide(maladministrationCases, analysisPeriodDays).toFixed(2));
+    const resolutionSpeedScore = clampNumber(100 - Math.min((averageResolutionDays / 7) * 100, 100), 0, 100);
+    const serviceQualityIndex = clampNumber(
+        Number(((resolutionRate * 0.4) + ((100 - escalationRate) * 0.2) + (resolutionSpeedScore * 0.2) + (satisfactionScore * 0.2)).toFixed(2)),
+        0,
+        100
+    );
+
+    const risk = determineMaladministrasiRisk(serviceQualityIndex, backlogRate, escalationRate);
+    const summary = buildMaladministrasiSummary(simulationName, analysisPeriodDays, {
+        totalReports,
+        maladministrationCases,
+        resolvedCases,
+        escalatedCases,
+        backlogCases,
+        detectionRate,
+        resolutionRate,
+        escalationRate,
+        backlogRate,
+        throughputPerDay,
+        averageResolutionDays,
+        satisfactionScore,
+        resolutionSpeedScore,
+        serviceQualityIndex
+    }, risk);
+
+    const recommendations = buildMaladministrasiRecommendations({
+        backlogRate,
+        resolutionRate,
+        escalationRate,
+        resolutionSpeedScore,
+        satisfactionScore
+    });
+
+    return {
+        simulationName,
+        generatedAt: new Date().toISOString(),
+        analysisPeriodDays,
+        metrics: {
+            totalReports,
+            maladministrationCases,
+            resolvedCases,
+            escalatedCases,
+            backlogCases,
+            detectionRate,
+            resolutionRate,
+            escalationRate,
+            backlogRate,
+            throughputPerDay,
+            averageResolutionDays,
+            satisfactionScore,
+            resolutionSpeedScore,
+            serviceQualityIndex,
+            riskLevel: risk.level
+        },
+        summary,
+        recommendations,
+        metadata: {
+            normalizationNotes,
+            rawInput: {
+                totalReports,
+                maladministrationCases: maladministrationRaw,
+                resolvedCases: resolvedRaw,
+                escalatedCases: escalatedRaw,
+                averageResolutionDays,
+                satisfactionScore
+            }
+        }
+    };
+}
+
 function formatMetricValue(value, precision) {
     const numeric = Number(value);
     if (!Number.isFinite(numeric)) {
@@ -918,6 +1130,44 @@ app.get('/api/blockchain/performance', async (_req, res) => {
                 blocks: blockDetails,
                 metadata: responseMetadata
             }
+        });
+    } catch (err) {
+        res.status(500).json({
+            error: true,
+            message: err.message,
+            data: null
+        });
+    }
+});
+
+app.post('/api/simulasi/maladministrasi/analyze', (req, res) => {
+    try {
+        const {
+            simulationName,
+            analysisPeriodDays,
+            totalReports,
+            maladministrationCases,
+            resolvedCases,
+            escalatedCases,
+            averageResolutionDays,
+            satisfactionScore
+        } = req.body || {};
+
+        const payload = analyzeMaladministrasiSimulation({
+            simulationName,
+            analysisPeriodDays,
+            totalReports,
+            maladministrationCases,
+            resolvedCases,
+            escalatedCases,
+            averageResolutionDays,
+            satisfactionScore
+        });
+
+        res.json({
+            error: false,
+            message: 'Analisa simulasi maladministrasi berhasil dibuat',
+            data: payload
         });
     } catch (err) {
         res.status(500).json({

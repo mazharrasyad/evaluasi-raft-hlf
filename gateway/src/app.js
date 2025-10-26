@@ -29,6 +29,7 @@ const tlsCertPath = path.resolve(cryptoPath, 'peers/peer0.org1.example.com/tls/c
 const peerEndpoint = 'localhost:7051';
 const peerHostAlias = 'peer0.org1.example.com';
 const sampleDataPath = path.resolve(__dirname, '../sample.json');
+const wilayahDataDir = path.resolve(__dirname, '../../wilayah-indonesia');
 
 // ✅ Inisialisasi Express
 const app = express();
@@ -172,6 +173,407 @@ function buildMaladministrasiSummary(simulationName, analysisPeriodDays, metrics
         riskLevel: risk.level,
         riskDescription: risk.description
     };
+}
+
+function normalizeName(value) {
+    return (value || '')
+        .toString()
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, ' ')
+        .trim();
+}
+
+function sanitizeCode(value) {
+    return (value || '')
+        .toString()
+        .replace(/[^0-9]/g, '');
+}
+
+function parseCsvRecords(raw) {
+    return raw
+        .split(/\r?\n/)
+        .map(line => line.trim())
+        .filter(line => line && !line.startsWith('#') && !line.startsWith('//'))
+        .slice(1)
+        .map(line => {
+            try {
+                const [id, name] = JSON.parse(`[${line}]`);
+                return { id, name };
+            } catch {
+                return null;
+            }
+        })
+        .filter(Boolean);
+}
+
+function getFieldValue(candidate, keys) {
+    for (const key of keys) {
+        const value = candidate?.[key];
+        if (typeof value === 'string' && value.trim()) {
+            return value.trim();
+        }
+    }
+    return null;
+}
+
+function incrementCount(map, key) {
+    map.set(key, (map.get(key) || 0) + 1);
+}
+
+let wilayahDatasetCache = null;
+
+async function loadWilayahDataset() {
+    if (wilayahDatasetCache) {
+        return wilayahDatasetCache;
+    }
+
+    const [provinsiRaw, kabupatenRaw, kecamatanRaw, kelurahanRaw] = await Promise.all([
+        fs.readFile(path.resolve(wilayahDataDir, 'provinsi.csv'), 'utf8'),
+        fs.readFile(path.resolve(wilayahDataDir, 'kabupaten_kota.csv'), 'utf8'),
+        fs.readFile(path.resolve(wilayahDataDir, 'kecamatan.csv'), 'utf8'),
+        fs.readFile(path.resolve(wilayahDataDir, 'kelurahan_desa.csv'), 'utf8')
+    ]);
+
+    const provinsiRecords = parseCsvRecords(provinsiRaw);
+    const kabupatenRecords = parseCsvRecords(kabupatenRaw);
+    const kecamatanRecords = parseCsvRecords(kecamatanRaw);
+    const kelurahanRecords = parseCsvRecords(kelurahanRaw);
+
+    const dataset = {
+        provinces: [],
+        provincesById: new Map(),
+        provincesBySanitizedId: new Map(),
+        provincesByName: new Map()
+    };
+
+    for (const record of provinsiRecords) {
+        const normalizedName = normalizeName(record.name);
+        const province = {
+            id: record.id,
+            sanitizedId: sanitizeCode(record.id),
+            name: record.name,
+            normalizedName,
+            regencies: [],
+            regencyIndexBySanitizedId: new Map(),
+            regencyIndexByName: new Map()
+        };
+        dataset.provinces.push(province);
+        dataset.provincesById.set(province.id, province);
+        dataset.provincesBySanitizedId.set(province.sanitizedId, province);
+        dataset.provincesByName.set(province.normalizedName, province);
+    }
+
+    for (const record of kabupatenRecords) {
+        const segments = record.id.split('.');
+        if (!segments.length) {
+            continue;
+        }
+        const provinceId = segments[0];
+        const province = dataset.provincesById.get(provinceId);
+        if (!province) {
+            continue;
+        }
+
+        const regency = {
+            id: record.id,
+            sanitizedId: sanitizeCode(record.id),
+            name: record.name,
+            normalizedName: normalizeName(record.name),
+            provinceId,
+            districts: [],
+            districtIndexBySanitizedId: new Map(),
+            districtIndexByName: new Map()
+        };
+
+        province.regencies.push(regency);
+        province.regencyIndexBySanitizedId.set(regency.sanitizedId, regency);
+        province.regencyIndexByName.set(regency.normalizedName, regency);
+    }
+
+    for (const record of kecamatanRecords) {
+        const segments = record.id.split('.');
+        if (segments.length < 3) {
+            continue;
+        }
+
+        const provinceId = segments[0];
+        const regencyKey = sanitizeCode(`${segments[0]}.${segments[1]}`);
+        const province = dataset.provincesById.get(provinceId);
+        if (!province) {
+            continue;
+        }
+
+        const regency = province.regencyIndexBySanitizedId.get(regencyKey);
+        if (!regency) {
+            continue;
+        }
+
+        const district = {
+            id: record.id,
+            sanitizedId: sanitizeCode(record.id),
+            name: record.name,
+            normalizedName: normalizeName(record.name),
+            provinceId,
+            regencyId: `${segments[0]}.${segments[1]}`,
+            subdistricts: [],
+            subdistrictIndexBySanitizedId: new Map(),
+            subdistrictIndexByName: new Map()
+        };
+
+        regency.districts.push(district);
+        regency.districtIndexBySanitizedId.set(district.sanitizedId, district);
+        regency.districtIndexByName.set(district.normalizedName, district);
+    }
+
+    for (const record of kelurahanRecords) {
+        const segments = record.id.split('.');
+        if (segments.length < 4) {
+            continue;
+        }
+
+        const provinceId = segments[0];
+        const regencyKey = sanitizeCode(`${segments[0]}.${segments[1]}`);
+        const districtKey = sanitizeCode(`${segments[0]}.${segments[1]}.${segments[2]}`);
+        const province = dataset.provincesById.get(provinceId);
+        if (!province) {
+            continue;
+        }
+
+        const regency = province.regencyIndexBySanitizedId.get(regencyKey);
+        if (!regency) {
+            continue;
+        }
+
+        const district = regency.districtIndexBySanitizedId.get(districtKey);
+        if (!district) {
+            continue;
+        }
+
+        const subdistrict = {
+            id: record.id,
+            sanitizedId: sanitizeCode(record.id),
+            name: record.name,
+            normalizedName: normalizeName(record.name),
+            provinceId,
+            regencyId: `${segments[0]}.${segments[1]}`,
+            districtId: `${segments[0]}.${segments[1]}.${segments[2]}`
+        };
+
+        district.subdistricts.push(subdistrict);
+        district.subdistrictIndexBySanitizedId.set(subdistrict.sanitizedId, subdistrict);
+        district.subdistrictIndexByName.set(subdistrict.normalizedName, subdistrict);
+    }
+
+    wilayahDatasetCache = dataset;
+    return dataset;
+}
+
+async function getAllCatatanWithFallback() {
+    try {
+        return await withContract(async (contract) => {
+            const resultBytes = await contract.evaluateTransaction('GetAllCatatan');
+            const jsonString = decoder.decode(resultBytes);
+            if (!jsonString) {
+                return [];
+            }
+            const parsed = JSON.parse(jsonString);
+            return Array.isArray(parsed) ? parsed : [];
+        });
+    } catch (err) {
+        console.warn('Gagal mengambil catatan dari blockchain, menggunakan data sampel:', err.message);
+        try {
+            const sampleRaw = await fs.readFile(sampleDataPath, 'utf8');
+            const sampleNotes = JSON.parse(sampleRaw);
+            return Array.isArray(sampleNotes) ? sampleNotes : [];
+        } catch (fallbackError) {
+            console.error('Gagal memuat data sampel catatan:', fallbackError.message);
+            return [];
+        }
+    }
+}
+
+function findProvinceForNote(dataset, note) {
+    const provinceIdRaw = getFieldValue(note, ['provinceId', 'province_id', 'provinsiId', 'provinsi_id']);
+    const provinceNameRaw = getFieldValue(note, ['provinceName', 'province_name', 'provinsiName', 'provinsi_name']);
+    const sanitizedId = sanitizeCode(provinceIdRaw);
+
+    let province = null;
+    if (sanitizedId) {
+        province = dataset.provincesBySanitizedId.get(sanitizedId);
+    }
+
+    if (!province && provinceNameRaw) {
+        const normalized = normalizeName(provinceNameRaw);
+        province = dataset.provincesByName.get(normalized);
+    }
+
+    return province || null;
+}
+
+function findRegencyForNote(province, note) {
+    const regencyIdRaw = getFieldValue(note, ['cityId', 'city_id', 'regencyId', 'regency_id', 'kabupatenId', 'kabupaten_id']);
+    const regencyNameRaw = getFieldValue(note, ['cityName', 'city_name', 'regencyName', 'regency_name', 'kabupatenName', 'kabupaten_name']);
+    let regency = null;
+
+    const sanitizedId = sanitizeCode(regencyIdRaw);
+    if (sanitizedId) {
+        regency = province.regencyIndexBySanitizedId.get(sanitizedId);
+        if (!regency && sanitizedId.length > 4) {
+            regency = province.regencyIndexBySanitizedId.get(sanitizedId.slice(0, 4));
+        }
+    }
+
+    if (!regency && regencyNameRaw) {
+        const normalized = normalizeName(regencyNameRaw);
+        regency = province.regencyIndexByName.get(normalized);
+    }
+
+    return regency || null;
+}
+
+function findDistrictForNote(regency, note) {
+    const districtNameRaw = getFieldValue(note, ['districtName', 'district_name', 'kecamatanName', 'kecamatan_name']);
+    if (districtNameRaw) {
+        const normalized = normalizeName(districtNameRaw);
+        const byName = regency.districtIndexByName.get(normalized);
+        if (byName) {
+            return byName;
+        }
+    }
+
+    const districtIdRaw = getFieldValue(note, ['districtId', 'district_id', 'kecamatanId', 'kecamatan_id']);
+    const sanitizedId = sanitizeCode(districtIdRaw);
+    if (!sanitizedId) {
+        return null;
+    }
+
+    let district = regency.districtIndexBySanitizedId.get(sanitizedId);
+    if (district) {
+        return district;
+    }
+
+    const fallbackLength = regency.sanitizedId.length + 2;
+    if (sanitizedId.length >= fallbackLength) {
+        district = regency.districtIndexBySanitizedId.get(sanitizedId.slice(0, fallbackLength));
+        if (district) {
+            return district;
+        }
+    }
+
+    if (sanitizedId.length >= 6) {
+        district = regency.districtIndexBySanitizedId.get(sanitizedId.slice(0, 6));
+        if (district) {
+            return district;
+        }
+    }
+
+    return null;
+}
+
+function findSubdistrictForNote(district, note) {
+    const subdistrictNameRaw = getFieldValue(note, ['subdistrictName', 'subdistrict_name', 'kelurahanName', 'kelurahan_name', 'desaName', 'desa_name']);
+    if (subdistrictNameRaw) {
+        const normalized = normalizeName(subdistrictNameRaw);
+        const byName = district.subdistrictIndexByName.get(normalized);
+        if (byName) {
+            return byName;
+        }
+    }
+
+    const subdistrictIdRaw = getFieldValue(note, ['subdistrictId', 'subdistrict_id', 'kelurahanId', 'kelurahan_id', 'desaId', 'desa_id']);
+    const sanitizedId = sanitizeCode(subdistrictIdRaw);
+    if (!sanitizedId) {
+        return null;
+    }
+
+    let subdistrict = district.subdistrictIndexBySanitizedId.get(sanitizedId);
+    if (subdistrict) {
+        return subdistrict;
+    }
+
+    const fallbackLength = district.sanitizedId.length + 4;
+    if (sanitizedId.length >= fallbackLength) {
+        subdistrict = district.subdistrictIndexBySanitizedId.get(sanitizedId.slice(0, fallbackLength));
+        if (subdistrict) {
+            return subdistrict;
+        }
+    }
+
+    if (sanitizedId.length >= 10) {
+        subdistrict = district.subdistrictIndexBySanitizedId.get(sanitizedId.slice(0, 10));
+        if (subdistrict) {
+            return subdistrict;
+        }
+    }
+
+    return null;
+}
+
+function aggregateWilayahCounts(dataset, notes) {
+    const counts = {
+        totalReports: Array.isArray(notes) ? notes.length : 0,
+        provinces: new Map(),
+        regencies: new Map(),
+        districts: new Map(),
+        subdistricts: new Map()
+    };
+
+    if (!Array.isArray(notes)) {
+        return counts;
+    }
+
+    for (const note of notes) {
+        const province = findProvinceForNote(dataset, note);
+        if (!province) {
+            continue;
+        }
+
+        incrementCount(counts.provinces, province.id);
+
+        const regency = findRegencyForNote(province, note);
+        if (!regency) {
+            continue;
+        }
+
+        incrementCount(counts.regencies, regency.sanitizedId);
+
+        const district = findDistrictForNote(regency, note);
+        if (!district) {
+            continue;
+        }
+
+        incrementCount(counts.districts, district.sanitizedId);
+
+        const subdistrict = findSubdistrictForNote(district, note);
+        if (!subdistrict) {
+            continue;
+        }
+
+        incrementCount(counts.subdistricts, subdistrict.sanitizedId);
+    }
+
+    return counts;
+}
+
+let wilayahAggregationCache = null;
+let wilayahAggregationCacheTimestamp = 0;
+const WILAYAH_AGGREGATION_TTL_MS = 30 * 1000;
+
+async function buildWilayahReportContext() {
+    const now = Date.now();
+    if (wilayahAggregationCache && (now - wilayahAggregationCacheTimestamp) < WILAYAH_AGGREGATION_TTL_MS) {
+        return wilayahAggregationCache;
+    }
+
+    const dataset = await loadWilayahDataset();
+    const notes = await getAllCatatanWithFallback();
+    const counts = aggregateWilayahCounts(dataset, notes);
+
+    wilayahAggregationCache = { dataset, counts };
+    wilayahAggregationCacheTimestamp = now;
+    return wilayahAggregationCache;
 }
 
 function analyzeMaladministrasiSimulation(input) {
@@ -1086,6 +1488,250 @@ app.post('/api/catatan/seed', async (req, res) => {
         res.status(500).json({
             error: true,
             message: err.message,
+            total_data: 0,
+            data: null
+        });
+    }
+});
+
+app.get('/api/wilayah/pelaporan', async (_req, res) => {
+    try {
+        const { dataset, counts } = await buildWilayahReportContext();
+        const provinces = dataset.provinces
+            .map(province => ({
+                id: province.id,
+                sanitizedId: province.sanitizedId,
+                name: province.name,
+                totalReports: counts.provinces.get(province.id) || 0,
+                regencyCount: province.regencies.length
+            }))
+            .sort((a, b) => a.name.localeCompare(b.name, 'id-ID'));
+
+        res.json({
+            error: false,
+            message: 'success',
+            total_reports: counts.totalReports,
+            total_data: provinces.length,
+            data: provinces
+        });
+    } catch (err) {
+        res.status(500).json({
+            error: true,
+            message: err.message,
+            total_reports: 0,
+            total_data: 0,
+            data: null
+        });
+    }
+});
+
+app.get('/api/wilayah/pelaporan/provinsi/:provinceId', async (req, res) => {
+    try {
+        const provinceId = sanitizeCode(req.params.provinceId);
+        const { dataset, counts } = await buildWilayahReportContext();
+        const province = dataset.provincesBySanitizedId.get(provinceId);
+
+        if (!province) {
+            res.status(404).json({
+                error: true,
+                message: 'Provinsi tidak ditemukan',
+                total_reports: counts.totalReports,
+                total_data: 0,
+                data: null
+            });
+            return;
+        }
+
+        const regencies = province.regencies
+            .map(regency => ({
+                id: regency.id,
+                sanitizedId: regency.sanitizedId,
+                name: regency.name,
+                totalReports: counts.regencies.get(regency.sanitizedId) || 0,
+                districtCount: regency.districts.length
+            }))
+            .sort((a, b) => a.name.localeCompare(b.name, 'id-ID'));
+
+        res.json({
+            error: false,
+            message: 'success',
+            total_reports: counts.totalReports,
+            total_data: regencies.length,
+            parent: {
+                id: province.id,
+                sanitizedId: province.sanitizedId,
+                name: province.name,
+                totalReports: counts.provinces.get(province.id) || 0
+            },
+            data: regencies
+        });
+    } catch (err) {
+        res.status(500).json({
+            error: true,
+            message: err.message,
+            total_reports: 0,
+            total_data: 0,
+            data: null
+        });
+    }
+});
+
+app.get('/api/wilayah/pelaporan/provinsi/:provinceId/kabupaten/:regencyId', async (req, res) => {
+    try {
+        const provinceId = sanitizeCode(req.params.provinceId);
+        const regencyId = sanitizeCode(req.params.regencyId);
+        const { dataset, counts } = await buildWilayahReportContext();
+        const province = dataset.provincesBySanitizedId.get(provinceId);
+
+        if (!province) {
+            res.status(404).json({
+                error: true,
+                message: 'Provinsi tidak ditemukan',
+                total_reports: counts.totalReports,
+                total_data: 0,
+                data: null
+            });
+            return;
+        }
+
+        const regency = province.regencyIndexBySanitizedId.get(regencyId);
+        if (!regency) {
+            res.status(404).json({
+                error: true,
+                message: 'Kabupaten/kota tidak ditemukan',
+                total_reports: counts.totalReports,
+                total_data: 0,
+                data: null
+            });
+            return;
+        }
+
+        const districts = regency.districts
+            .map(district => ({
+                id: district.id,
+                sanitizedId: district.sanitizedId,
+                name: district.name,
+                totalReports: counts.districts.get(district.sanitizedId) || 0,
+                subdistrictCount: district.subdistricts.length
+            }))
+            .sort((a, b) => a.name.localeCompare(b.name, 'id-ID'));
+
+        res.json({
+            error: false,
+            message: 'success',
+            total_reports: counts.totalReports,
+            total_data: districts.length,
+            parent: {
+                province: {
+                    id: province.id,
+                    sanitizedId: province.sanitizedId,
+                    name: province.name,
+                    totalReports: counts.provinces.get(province.id) || 0
+                },
+                regency: {
+                    id: regency.id,
+                    sanitizedId: regency.sanitizedId,
+                    name: regency.name,
+                    totalReports: counts.regencies.get(regency.sanitizedId) || 0
+                }
+            },
+            data: districts
+        });
+    } catch (err) {
+        res.status(500).json({
+            error: true,
+            message: err.message,
+            total_reports: 0,
+            total_data: 0,
+            data: null
+        });
+    }
+});
+
+app.get('/api/wilayah/pelaporan/provinsi/:provinceId/kabupaten/:regencyId/kecamatan/:districtId', async (req, res) => {
+    try {
+        const provinceId = sanitizeCode(req.params.provinceId);
+        const regencyId = sanitizeCode(req.params.regencyId);
+        const districtId = sanitizeCode(req.params.districtId);
+        const { dataset, counts } = await buildWilayahReportContext();
+        const province = dataset.provincesBySanitizedId.get(provinceId);
+
+        if (!province) {
+            res.status(404).json({
+                error: true,
+                message: 'Provinsi tidak ditemukan',
+                total_reports: counts.totalReports,
+                total_data: 0,
+                data: null
+            });
+            return;
+        }
+
+        const regency = province.regencyIndexBySanitizedId.get(regencyId);
+        if (!regency) {
+            res.status(404).json({
+                error: true,
+                message: 'Kabupaten/kota tidak ditemukan',
+                total_reports: counts.totalReports,
+                total_data: 0,
+                data: null
+            });
+            return;
+        }
+
+        const district = regency.districtIndexBySanitizedId.get(districtId);
+        if (!district) {
+            res.status(404).json({
+                error: true,
+                message: 'Kecamatan tidak ditemukan',
+                total_reports: counts.totalReports,
+                total_data: 0,
+                data: null
+            });
+            return;
+        }
+
+        const subdistricts = district.subdistricts
+            .map(subdistrict => ({
+                id: subdistrict.id,
+                sanitizedId: subdistrict.sanitizedId,
+                name: subdistrict.name,
+                totalReports: counts.subdistricts.get(subdistrict.sanitizedId) || 0
+            }))
+            .sort((a, b) => a.name.localeCompare(b.name, 'id-ID'));
+
+        res.json({
+            error: false,
+            message: 'success',
+            total_reports: counts.totalReports,
+            total_data: subdistricts.length,
+            parent: {
+                province: {
+                    id: province.id,
+                    sanitizedId: province.sanitizedId,
+                    name: province.name,
+                    totalReports: counts.provinces.get(province.id) || 0
+                },
+                regency: {
+                    id: regency.id,
+                    sanitizedId: regency.sanitizedId,
+                    name: regency.name,
+                    totalReports: counts.regencies.get(regency.sanitizedId) || 0
+                },
+                district: {
+                    id: district.id,
+                    sanitizedId: district.sanitizedId,
+                    name: district.name,
+                    totalReports: counts.districts.get(district.sanitizedId) || 0
+                }
+            },
+            data: subdistricts
+        });
+    } catch (err) {
+        res.status(500).json({
+            error: true,
+            message: err.message,
+            total_reports: 0,
             total_data: 0,
             data: null
         });

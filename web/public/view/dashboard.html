@@ -95,25 +95,26 @@
                         <section class="rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20 backdrop-blur-sm animate-on-scroll" data-animate="fade-up">
                             <header class="flex flex-col gap-2 border-b border-white/10 pb-6">
                                 <h2 class="text-2xl font-semibold text-textdark">Simulasi Data Pelaporan</h2>
-                                <p class="text-sm text-textdark/70">Buat data pelaporan simulasi berdasarkan hierarki wilayah Indonesia. Hasil simulasi akan disimpan pada session browser dan dapat dilihat pada tabel di bawah.</p>
+                                <p class="text-sm text-textdark/70">Buat data pelaporan simulasi berdasarkan hierarki wilayah Indonesia. Hasil simulasi akan disimpan pada session browser dan dapat ditelusuri melalui ringkasan serta pop up detail di tingkat kelurahan.</p>
                             </header>
                             <form id="simulationForm" class="mt-6 grid gap-4 rounded-2xl border border-white/10 bg-surfaceMuted p-6 text-sm text-textdark md:grid-cols-[minmax(0,320px)_auto] md:items-end md:gap-6" autocomplete="off">
                                 <label class="flex flex-col gap-2">
                                     <span class="text-xs font-semibold uppercase tracking-[0.25em] text-secondary">Jumlah data simulasi</span>
                                     <input id="simulationCount" type="number" min="1" max="1000" step="1" required class="w-full rounded-xl border border-white/10 bg-surface px-4 py-3 text-base text-textdark shadow-lg shadow-black/20 outline-none transition focus:border-secondary focus:ring-2 focus:ring-secondary/40" placeholder="Contoh: 25" />
                                 </label>
-                                <div class="flex flex-col items-stretch justify-end gap-3 md:flex-row md:items-center">
-                                    <button type="submit" class="inline-flex items-center justify-center rounded-xl bg-primary px-6 py-3 text-sm font-semibold uppercase tracking-[0.3em] text-[#041226] transition hover:bg-secondary hover:text-textdark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary">
-                                        Buat Data
-                                    </button>
+                                <div class="flex flex-col items-stretch justify-end gap-4 md:flex-row md:items-center md:gap-6">
+                                    <div class="flex flex-col gap-3 sm:flex-row">
+                                        <button type="submit" class="inline-flex items-center justify-center rounded-xl bg-primary px-6 py-3 text-sm font-semibold uppercase tracking-[0.3em] text-[#041226] transition hover:bg-secondary hover:text-textdark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary">
+                                            Buat Data
+                                        </button>
+                                        <button type="button" id="clearSimulationButton" class="inline-flex items-center justify-center rounded-xl border border-highlight/40 bg-highlight/20 px-6 py-3 text-sm font-semibold uppercase tracking-[0.3em] text-highlight transition hover:bg-highlight hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-highlight">
+                                            Hapus Data
+                                        </button>
+                                    </div>
                                     <p id="simulationStatus" class="text-sm text-muted" role="status" aria-live="polite">Formulir siap digunakan.</p>
                                 </div>
                             </form>
-                            <div class="mt-6 overflow-hidden rounded-2xl border border-white/10 bg-surfaceMuted shadow-lg shadow-black/10">
-                                <div class="overflow-x-auto" id="simulationDataContainer">
-                                    <p class="px-6 py-5 text-sm text-muted">Belum ada data simulasi tersimpan di session browser.</p>
-                                </div>
-                            </div>
+                            <div id="simulationSummary" class="mt-6 grid gap-4 md:grid-cols-2"></div>
                         </section>
 
                         <section class="rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20 backdrop-blur-sm animate-on-scroll" data-animate="fade-up" data-animate-delay="120">
@@ -139,5 +140,22 @@
     </div>
 
     <script src="../js/dashboard.js" defer></script>
+    <div id="simulationModal" class="fixed inset-0 z-50 hidden">
+        <div id="simulationModalOverlay" class="absolute inset-0 bg-soft/80 backdrop-blur-sm"></div>
+        <div class="relative z-10 mx-auto flex min-h-full w-full max-w-4xl items-center justify-center px-4 py-12">
+            <div class="w-full overflow-hidden rounded-3xl border border-white/10 bg-surface shadow-2xl shadow-black/30" role="dialog" aria-modal="true" aria-labelledby="simulationModalTitle" tabindex="-1">
+                <header class="flex items-start justify-between gap-4 border-b border-white/10 bg-surfaceMuted/80 px-6 py-4">
+                    <div class="space-y-1">
+                        <p class="text-xs uppercase tracking-[0.3em] text-secondary">Detail Data Simulasi</p>
+                        <h3 id="simulationModalTitle" class="text-lg font-semibold text-textdark">Kelurahan</h3>
+                    </div>
+                    <button type="button" id="simulationModalClose" class="inline-flex items-center justify-center rounded-full border border-white/10 bg-soft px-3 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-textdark transition hover:bg-highlight hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-highlight">
+                        Tutup
+                    </button>
+                </header>
+                <div id="simulationModalContent" class="max-h-[65vh] overflow-y-auto bg-surfaceMuted/60 p-6 text-sm text-textdark"></div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

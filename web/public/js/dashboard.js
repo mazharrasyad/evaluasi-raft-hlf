@@ -108,6 +108,35 @@ function generateRandomDescription(minWords = 30, maxWords = 150) {
     return sentences.join(' ');
 }
 
+function parseWilayahCsvLine(line) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#') || trimmed.startsWith('//')) {
+        return null;
+    }
+
+    const match = trimmed.match(/^"([^"\n]+)",\s*(.*)$/);
+    if (!match) {
+        return null;
+    }
+
+    const [, id, rawName] = match;
+    if (!rawName) {
+        return null;
+    }
+
+    let name = rawName.trim();
+    if (name.startsWith('"') && name.endsWith('"')) {
+        name = name.slice(1, -1);
+    }
+    name = name.replace(/""/g, '"').trim();
+
+    if (!name) {
+        return null;
+    }
+
+    return { id, name };
+}
+
 async function loadCsvRecords(url) {
     const response = await fetch(url);
     if (!response.ok) {
@@ -116,17 +145,8 @@ async function loadCsvRecords(url) {
     const text = await response.text();
     return text
         .split(/\r?\n/)
-        .map(line => line.trim())
-        .filter(line => line && !line.startsWith('#') && !line.startsWith('//'))
         .slice(1)
-        .map(line => {
-            try {
-                const [id, name] = JSON.parse(`[${line}]`);
-                return { id, name };
-            } catch {
-                return null;
-            }
-        })
+        .map(parseWilayahCsvLine)
         .filter(Boolean);
 }
 

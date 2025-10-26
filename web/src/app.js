@@ -10,15 +10,20 @@ app.disable('x-powered-by');
 
 const staticRoot = path.resolve(__dirname, '../public');
 const wilayahDataDir = path.resolve(staticRoot, 'wilayah-indonesia');
+const dashboardFile = path.resolve(staticRoot, 'dashboard.html');
 
 app.use(express.static(staticRoot));
 app.use('/wilayah-data', express.static(wilayahDataDir));
 
-app.get('*', (req, res) => {
-    res.sendFile(path.resolve(staticRoot, 'dashboard.html'));
+app.get('/', (req, res) => {
+    res.sendFile(dashboardFile);
 });
 
-const PORT = process.env.PORT || 3000;
+app.get('*', (req, res) => {
+    res.sendFile(dashboardFile);
+});
+
+const PORT = process.env.PORT || 5176;
 app.listen(PORT, () => {
     console.log(`Gateway listening on http://localhost:${PORT}`);
 });

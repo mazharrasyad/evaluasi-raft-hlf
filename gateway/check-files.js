@@ -10,7 +10,7 @@ const __dirname = path.dirname(__filename);
 // Define paths to check
 const networkCandidates = [
   path.resolve(__dirname, '../network'),
-  path.resolve(__dirname, '../network-origin')
+  path.resolve(__dirname, '../network-standard')
 ];
 
 async function resolveNetworkPath() {
@@ -53,7 +53,7 @@ async function checkFiles() {
 
     console.log('\nPlease ensure the Hyperledger Fabric network is set up correctly:');
     console.log('1. Make sure the network is running: cd ../network && ./network.sh up createChannel -c mychannel -ca');
-    console.log('   (use ../network-origin if you are relying on the bundled Fabric sample network)');
+    console.log('   (use ../network-standard if you are relying on the bundled Fabric sample network)');
     console.log('2. Make sure the chaincode is deployed: ./network.sh deployCC -ccn catatan-digital -ccp ../chaincode/catatan-digital -ccl javascript');
     console.log('3. Check that the crypto materials are generated in the correct location');
 

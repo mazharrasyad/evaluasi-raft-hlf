@@ -18,8 +18,8 @@ async function main() {
             console.error('❌ Network is unhealthy');
             console.error(`Error: ${health.error}`);
             console.error('Please check that the Hyperledger Fabric network is running');
-            console.error('Run the test network with: cd ../network-origin && ./network.sh up createChannel -c mychannel -ca');
-            console.error('  (use ../network-origin if you are relying on the bundled Fabric sample network)');
+            console.error('Run the test network with: cd ../network-standard && ./network.sh up createChannel -c mychannel -ca');
+            console.error('  (use ../network-standard if you are relying on the bundled Fabric sample network)');
             console.error('Deploy the chaincode with: ./network.sh deployCC -ccn catatan-digital -ccp ../chaincode/catatan-digital -ccl javascript');
             process.exit(1);
         }

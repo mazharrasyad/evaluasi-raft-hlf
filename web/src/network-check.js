@@ -13,23 +13,24 @@ const __dirname = path.dirname(__filename);
 // Configuration
 const mspId = 'Org1MSP';
 const mspUser = 'User1@org1.example.com';
-const channelName = 'channel-standard';
 const chaincodeName = 'pelaporan';
 const networkConfigurations = [
     {
         label: 'RAFT Standard',
         networkDir: path.resolve(__dirname, '../../raft-standard/network'),
+        channelName: 'channel-standard',
         instructions: {
             up: 'cd ../raft-standard/network && ./network.sh up createChannel -c channel-standard -ca',
-            deploy: './network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl javascript'
+            deploy: './network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl javascript -c channel-standard'
         }
     },
     {
         label: 'RAFT Variant',
         networkDir: path.resolve(__dirname, '../../raft-variant/network'),
+        channelName: 'channel-variant',
         instructions: {
-            up: 'cd ../raft-variant/network && ./network.sh up createChannel -c channel-standard -ca',
-            deploy: './network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl javascript'
+            up: 'cd ../raft-variant/network && ./network.sh up createChannel -c channel-variant -ca',
+            deploy: './network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl javascript -c channel-variant'
         }
     }
 ];
@@ -45,7 +46,7 @@ async function readFirstVisibleFile(directory) {
     return path.join(directory, candidate);
 }
 
-async function checkSingleNetwork({ label, networkDir, instructions }) {
+async function checkSingleNetwork({ label, networkDir, channelName, instructions }) {
     const timestamp = new Date().toISOString();
     const baseResult = {
         label,

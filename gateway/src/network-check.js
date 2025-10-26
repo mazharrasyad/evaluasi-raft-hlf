@@ -13,7 +13,7 @@ const __dirname = path.dirname(__filename);
 // Configuration
 const mspId = 'Org1MSP';
 const channelName = 'mychannel';
-const chaincodeName = 'catatan-digital';
+const chaincodeName = 'pelaporan-standard';
 const networkCandidates = [
     path.resolve(__dirname, '../../network-standard'),
     path.resolve(__dirname, '../../network-custom')

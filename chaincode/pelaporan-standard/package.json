@@ -1,5 +1,5 @@
 {
-  "name": "catatan-digital",
+  "name": "pelaporan-standard",
   "version": "1.0.0",
   "description": "Chaincode untuk mencatat data digital di Hyperledger Fabric",
   "main": "index.js",

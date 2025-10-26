@@ -3,7 +3,7 @@
 Repositori ini berisi artefak yang digunakan untuk mengevaluasi kinerja mekanisme konsensus RAFT di jaringan Hyperledger Fabric. Dua skenario diuji:
 
 1. **Rancangan Standar** yang mengikuti konfigurasi bawaan Fabric Samples dengan sedikit penyesuaian.
-2. **Rancangan Kustom** yang memodifikasi topologi dan parameter jaringan untuk meniru beban produksi.
+2. **Rancangan Varian** yang memodifikasi topologi dan parameter jaringan untuk meniru beban produksi.
 
 ## Latar Belakang
 
@@ -27,17 +27,18 @@ Rancangan standar didasarkan pada contoh *Fabric Test Network* (`test-network`) 
   - Throughput maksimal tercapai sekitar 180 TPS sebelum peningkatan latensi signifikan.
   - Pemilihan pemimpin jarang terjadi kecuali ketika node sengaja dihentikan.
 
-## Rancangan Kustom
+## Rancangan Varian
 
-Rancangan kustom memperluas jaringan dengan fokus pada skalabilitas dan toleransi gangguan.
+Rancangan varian memperluas jaringan dengan fokus pada skalabilitas dan toleransi gangguan.
 
-- **Perbedaan Utama**:
-  - Menambah organisasi ketiga dengan dua peer tambahan (total 6 peer).
-  - Meningkatkan klaster RAFT menjadi 5 orderer dan mengaktifkan `TLS` mutual.
-  - Mengubah parameter `BatchTimeout` menjadi 1s dan `BatchSize.MaxMessageCount` menjadi 20.
-  - Mengaktifkan *State Database* CouchDB untuk semua peer.
+- **Topologi**: 5 orderer dalam klaster RAFT, 3 organisasi dengan masing-masing dua peer (total 6 peer), serta 1 channel aplikasi utama.
+- **Parameter Penting**:
+  - `BatchTimeout`: 1s
+  - `BatchSize.MaxMessageCount`: 20
+  - Database status menggunakan CouchDB untuk seluruh peer
+  - `TLS` mutual diaktifkan pada klaster orderer
 - **Metodologi Uji**:
-  - Deploy jaringan menggunakan `network-origin/docker-compose-custom.yaml` melalui skrip `bin/network.sh up custom`.
+  - Deploy jaringan menggunakan `network-origin/docker-compose-variant.yaml` melalui skrip `bin/network.sh up variant`.
   - Gunakan generator beban di `gateway/benchmark/` untuk skenario baca/tulis 70/30 dengan variasi TPS (200–600).
   - Simulasikan kegagalan orderer melalui `bin/failover.sh` untuk mengukur waktu pemulihan RAFT.
   - Pantau metrik dengan Prometheus dan Grafana (konfigurasi di `config/monitoring/`).
@@ -50,7 +51,7 @@ Rancangan kustom memperluas jaringan dengan fokus pada skalabilitas dan tolerans
 
 1. Instal dependensi Fabric (Docker, Docker Compose, Node.js, Go).
 2. Ekspor variabel `PATH` agar mencakup `bin/` Fabric.
-3. Jalankan `bin/network.sh up` untuk rancangan standar atau `bin/network.sh up custom` untuk rancangan kustom.
+3. Jalankan `bin/network.sh up` untuk rancangan standar atau `bin/network.sh up variant` untuk rancangan varian.
 4. Deploy chaincode dari direktori `chaincode/` menggunakan skrip gateway.
 5. Gunakan `gateway/benchmark/run.sh` untuk memulai pengujian dan simpan log pada `api.log`.
 

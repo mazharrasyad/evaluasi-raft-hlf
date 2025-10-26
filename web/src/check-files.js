@@ -9,8 +9,8 @@ const __dirname = path.dirname(__filename);
 
 // Define paths to check
 const networkCandidates = [
-  path.resolve(__dirname, '../raft-standard/network'),
-  path.resolve(__dirname, '../raft-variant/network')
+  path.resolve(__dirname, '../../raft-standard/network'),
+  path.resolve(__dirname, '../../raft-variant/network')
 ];
 
 async function resolveNetworkPath() {
@@ -18,7 +18,7 @@ async function resolveNetworkPath() {
     try {
       await fs.access(candidate);
       return candidate;
-    } catch (error) {
+    } catch {
       // continue trying other candidates
     }
   }

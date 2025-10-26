@@ -212,6 +212,117 @@ function parseWilayahCsvLine(line) {
     return { id, name };
 }
 
+async function loadPackedWilayahDataset() {
+    const response = await fetch(`${WILAYAH_DATA_BASE_URL}/dataset.min.json`, {
+        cache: 'force-cache'
+    });
+    if (!response.ok) {
+        throw new Error(`Gagal memuat dataset wilayah ringkas (${response.status})`);
+    }
+
+    const data = await response.json();
+
+    const provinces = new Map();
+    const regencies = new Map();
+    const districts = new Map();
+    const subdistricts = [];
+
+    const safeSplit = (value, expectedSegments) => {
+        const segments = (value || '').split('|');
+        if (segments.length < expectedSegments) {
+            return null;
+        }
+        if (segments.length === expectedSegments) {
+            return segments;
+        }
+        const head = segments.slice(0, expectedSegments - 1);
+        head.push(segments.slice(expectedSegments - 1).join('|'));
+        return head;
+    };
+
+    (Array.isArray(data.p) ? data.p : []).forEach(entry => {
+        const segments = safeSplit(entry, 2);
+        if (!segments) {
+            return;
+        }
+        const [id, name] = segments;
+        if (!id || !name) {
+            return;
+        }
+        provinces.set(id, {
+            id,
+            sanitizedId: sanitizeCode(id),
+            name
+        });
+    });
+
+    (Array.isArray(data.r) ? data.r : []).forEach(entry => {
+        const segments = safeSplit(entry, 3);
+        if (!segments) {
+            return;
+        }
+        const [provinceId, id, name] = segments;
+        if (!provinceId || !id || !name || !provinces.has(provinceId)) {
+            return;
+        }
+        regencies.set(id, {
+            id,
+            sanitizedId: sanitizeCode(id),
+            name,
+            provinceId
+        });
+    });
+
+    (Array.isArray(data.d) ? data.d : []).forEach(entry => {
+        const segments = safeSplit(entry, 4);
+        if (!segments) {
+            return;
+        }
+        const [provinceId, regencyId, id, name] = segments;
+        if (!provinceId || !regencyId || !id || !name) {
+            return;
+        }
+        if (!provinces.has(provinceId) || !regencies.has(regencyId)) {
+            return;
+        }
+        districts.set(id, {
+            id,
+            sanitizedId: sanitizeCode(id),
+            name,
+            provinceId,
+            regencyId
+        });
+    });
+
+    (Array.isArray(data.s) ? data.s : []).forEach(entry => {
+        const segments = safeSplit(entry, 5);
+        if (!segments) {
+            return;
+        }
+        const [provinceId, regencyId, districtId, id, name] = segments;
+        if (!provinceId || !regencyId || !districtId || !id || !name) {
+            return;
+        }
+        if (!provinces.has(provinceId) || !regencies.has(regencyId) || !districts.has(districtId)) {
+            return;
+        }
+        subdistricts.push({
+            id,
+            sanitizedId: sanitizeCode(id),
+            name,
+            provinceId,
+            regencyId,
+            districtId
+        });
+    });
+
+    if (!subdistricts.length) {
+        throw new Error('Dataset wilayah tidak berisi kelurahan/desa.');
+    }
+
+    return { provinces, regencies, districts, subdistricts };
+}
+
 async function loadCsvRecords(url) {
     const response = await fetch(url);
     if (!response.ok) {
@@ -225,7 +336,7 @@ async function loadCsvRecords(url) {
         .filter(Boolean);
 }
 
-async function loadWilayahDataset() {
+async function loadWilayahDatasetFromCsv() {
     const [provinceRecords, regencyRecords, districtRecords, subdistrictRecords] = await Promise.all([
         loadCsvRecords(`${WILAYAH_DATA_BASE_URL}/provinsi.csv`),
         loadCsvRecords(`${WILAYAH_DATA_BASE_URL}/kabupaten_kota.csv`),
@@ -308,6 +419,15 @@ async function loadWilayahDataset() {
     }
 
     return { provinces, regencies, districts, subdistricts };
+}
+
+async function loadWilayahDataset() {
+    try {
+        return await loadPackedWilayahDataset();
+    } catch (error) {
+        console.warn('Gagal memuat dataset wilayah ringkas, mencoba fallback CSV:', error);
+        return loadWilayahDatasetFromCsv();
+    }
 }
 
 function loadSimulationDataFromSession() {

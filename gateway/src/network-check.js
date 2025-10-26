@@ -12,8 +12,8 @@ const __dirname = path.dirname(__filename);
 
 // Configuration
 const mspId = 'Org1MSP';
-const channelName = 'mychannel';
-const chaincodeName = 'pelaporan-standard';
+const channelName = 'channel-standard';
+const chaincodeName = 'pelaporan';
 const networkCandidates = [
     path.resolve(__dirname, '../../raft-standard/network'),
     path.resolve(__dirname, '../../raft-variant/network')

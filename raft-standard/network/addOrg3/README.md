@@ -10,7 +10,7 @@ cd addOrg3
 ./addOrg3.sh up
 ```
 
-If you used `network.sh` to create a channel other than the default `mychannel`, you need pass that name to the `addorg3.sh` script.
+If you used `network.sh` to create a channel other than the default `channel-standard`, you need pass that name to the `addorg3.sh` script.
 ```
 ./network.sh up createChannel -c channel1
 cd addOrg3

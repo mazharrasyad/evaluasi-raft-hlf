@@ -18,6 +18,7 @@ const simulationModalClose = document.getElementById('simulationModalClose');
 
 let animateObserver;
 let wilayahDataset = null;
+const WILAYAH_DATA_BASE_URL = '/wilayah-indonesia';
 let simulationData = [];
 let subdistrictRecordsIndex = new Map();
 let isModalOpen = false;
@@ -165,10 +166,10 @@ async function loadCsvRecords(url) {
 
 async function loadWilayahDataset() {
     const [provinceRecords, regencyRecords, districtRecords, subdistrictRecords] = await Promise.all([
-        loadCsvRecords('/wilayah-data/provinsi.csv'),
-        loadCsvRecords('/wilayah-data/kabupaten_kota.csv'),
-        loadCsvRecords('/wilayah-data/kecamatan.csv'),
-        loadCsvRecords('/wilayah-data/kelurahan_desa.csv')
+        loadCsvRecords(`${WILAYAH_DATA_BASE_URL}/provinsi.csv`),
+        loadCsvRecords(`${WILAYAH_DATA_BASE_URL}/kabupaten_kota.csv`),
+        loadCsvRecords(`${WILAYAH_DATA_BASE_URL}/kecamatan.csv`),
+        loadCsvRecords(`${WILAYAH_DATA_BASE_URL}/kelurahan_desa.csv`)
     ]);
 
     const provinces = new Map();

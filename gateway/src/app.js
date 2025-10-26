@@ -1326,7 +1326,7 @@ app.use((err, req, res, _next) => {
 });
 
 // ▶️ Jalankan server
-const PORT = process.env.PORT || 5175;
+const PORT = process.env.PORT || 5176;
 app.listen(PORT, () => {
     console.log(`✅ API Gateway running at http://localhost:${PORT}`);
 });

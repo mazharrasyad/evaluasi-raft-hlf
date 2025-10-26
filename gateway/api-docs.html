@@ -80,7 +80,7 @@
                         <dl class="mt-4 space-y-3">
                             <div class="flex items-center justify-between">
                                 <dt class="text-slate-400">Alamat Dasar</dt>
-                                <dd class="font-semibold text-slate-100">http://localhost:5175</dd>
+                                <dd class="font-semibold text-slate-100">http://localhost:5176</dd>
                             </div>
                             <div class="flex items-center justify-between">
                                 <dt class="text-slate-400">Channel</dt>
@@ -553,7 +553,7 @@
                             <h3 class="text-lg font-semibold text-white">Tambah Catatan (POST)</h3>
                             <span class="rounded-full bg-sky-500/20 px-3 py-1 text-xs text-sky-200">Write</span>
                         </div>
-                        <pre class="mt-4 overflow-x-auto rounded-2xl bg-slate-950/80 p-4 text-sm text-slate-100"><code>await fetch('http://localhost:5175/api/catatan', {
+                        <pre class="mt-4 overflow-x-auto rounded-2xl bg-slate-950/80 p-4 text-sm text-slate-100"><code>await fetch('http://localhost:5176/api/catatan', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
@@ -568,7 +568,7 @@
                             <h3 class="text-lg font-semibold text-white">Daftar Catatan (GET)</h3>
                             <span class="rounded-full bg-emerald-500/20 px-3 py-1 text-xs text-emerald-200">Read</span>
                         </div>
-                        <pre class="mt-4 overflow-x-auto rounded-2xl bg-slate-950/80 p-4 text-sm text-slate-100"><code>const response = await fetch('http://localhost:5175/api/catatan');
+                        <pre class="mt-4 overflow-x-auto rounded-2xl bg-slate-950/80 p-4 text-sm text-slate-100"><code>const response = await fetch('http://localhost:5176/api/catatan');
 const payload = await response.json();
 console.log(payload.total_data, payload.data);</code></pre>
                     </div>
@@ -577,7 +577,7 @@ console.log(payload.total_data, payload.data);</code></pre>
                             <h3 class="text-lg font-semibold text-white">Verifikasi Rantai (GET)</h3>
                             <span class="rounded-full bg-fuchsia-500/20 px-3 py-1 text-xs text-fuchsia-200">Integrity</span>
                         </div>
-                        <pre class="mt-4 overflow-x-auto rounded-2xl bg-slate-950/80 p-4 text-sm text-slate-100"><code>const result = await fetch('http://localhost:5175/api/blockchain/verify-chain');
+                        <pre class="mt-4 overflow-x-auto rounded-2xl bg-slate-950/80 p-4 text-sm text-slate-100"><code>const result = await fetch('http://localhost:5176/api/blockchain/verify-chain');
 const payload = await result.json();
 console.log(payload.data.chainStatus);
 console.table(payload.data.blocks);</code></pre>
@@ -980,7 +980,7 @@ console.table(payload.data.blocks);</code></pre>
             const locationOrigin = typeof window.location?.origin === 'string' && window.location.origin.startsWith('http')
                 ? window.location.origin
                 : null;
-            const fallbackApiBases = ['http://localhost:5175', 'http://127.0.0.1:5175'];
+            const fallbackApiBases = ['http://localhost:5176', 'http://127.0.0.1:5176'];
 
             function normalizeBase(base) {
                 if (typeof base !== 'string' || !base.trim()) {

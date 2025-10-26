@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluasi RAFT HLF &mdash; Pelaporan Wilayah</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0B3C8C',
+                        secondary: '#3E8EDE',
+                        accent: '#F6C400',
+                        highlight: '#E53935',
+                        soft: '#FFF4CC',
+                        textdark: '#222831'
+                    }
+                }
+            }
+        };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="/images/logo-ai-center.svg">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(32px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .animate-on-scroll.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="bg-soft text-textdark">
+    <div class="relative min-h-screen overflow-hidden">
+        <div class="absolute inset-0 -z-10 h-full w-full">
+            <div class="absolute -left-1/3 top-0 h-[720px] w-[720px] rounded-full bg-gradient-to-br from-secondary/30 via-primary/50 to-transparent opacity-80 blur-3xl"></div>
+            <div class="absolute -right-1/4 bottom-0 h-[620px] w-[620px] rounded-full bg-gradient-to-tr from-accent/30 via-soft/40 to-secondary/30 opacity-70 blur-3xl"></div>
+        </div>
+
+        <div class="flex min-h-screen flex-col">
+            <header class="relative isolate bg-primary text-white shadow-lg">
+                <div class="mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 py-16">
+                    <div class="flex flex-col items-start justify-between gap-4 text-sm text-white/80 md:flex-row md:items-center">
+                        <div class="flex items-center gap-4">
+                            <img src="/images/logo-ai-center.svg" alt="AI Center" class="h-14 w-14 rounded-xl border border-white/20 bg-white/10 p-2 shadow-lg" loading="lazy">
+                            <div class="flex flex-col gap-1">
+                                <span class="inline-flex items-center gap-2 rounded-full border border-secondary/50 bg-secondary/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.28em] text-secondary">Pelaporan Wilayah</span>
+                                <span class="text-xs text-white/80">Evaluasi RAFT HLF &mdash; AI Center</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-8 rounded-3xl border border-secondary/30 bg-white/95 p-8 text-textdark shadow-2xl shadow-black/10 backdrop-blur-sm animate-on-scroll" data-animate="fade-up">
+                        <div class="flex flex-col gap-4 text-left">
+                            <h1 class="text-4xl font-semibold text-primary md:text-5xl">Evaluasi RAFT Hyperledger Fabric</h1>
+                            <p class="text-lg text-textdark/80">Gunakan tampilan hierarkis untuk menelusuri jumlah pelaporan dari tingkat provinsi hingga kelurahan. Klik setiap wilayah untuk melihat rincian di tingkat berikutnya.</p>
+                        </div>
+                        <div class="grid gap-4 rounded-2xl border border-secondary/20 bg-soft p-6 text-sm text-textdark md:grid-cols-2 md:gap-6">
+                            <article class="flex flex-col gap-2 rounded-2xl border border-secondary/20 bg-white p-4 shadow-sm animate-on-scroll" data-animate="fade-up" data-animate-delay="100">
+                                <h2 class="text-base font-semibold text-primary">RAFT Standard</h2>
+                                <p class="text-sm text-textdark/80">Menggunakan konfigurasi RAFT default Hyperledger Fabric untuk mengukur kinerja baseline pada jaringan pengujian.</p>
+                            </article>
+                            <article class="flex flex-col gap-2 rounded-2xl border border-secondary/20 bg-white p-4 shadow-sm animate-on-scroll" data-animate="fade-up" data-animate-delay="200">
+                                <h2 class="text-base font-semibold text-primary">RAFT Variant</h2>
+                                <p class="text-sm text-textdark/80">Menerapkan variasi parameter RAFT (timeout dan prioritas leader) guna membandingkan stabilitas dan throughput terhadap standar.</p>
+                            </article>
+                        </div>
+                        <div class="flex flex-col gap-3 rounded-2xl border border-accent/60 bg-soft p-6 text-sm text-textdark md:flex-row md:items-center md:justify-between animate-on-scroll" data-animate="fade-up" data-animate-delay="300">
+                            <div class="flex flex-col gap-1">
+                                <span class="text-xs uppercase tracking-[0.3em] text-secondary">Total pelaporan tercatat</span>
+                                <span class="text-3xl font-semibold text-accent" id="totalReports">0</span>
+                            </div>
+                            <p class="max-w-xl text-textdark/80">Jumlah pelaporan dihitung dari catatan digital yang tersimpan pada blockchain atau data sampel apabila jaringan belum aktif.</p>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <main class="flex-1">
+                <div class="mx-auto w-full max-w-6xl px-6 pb-24 pt-12">
+                    <div class="space-y-10">
+                        <section class="rounded-3xl border border-secondary/20 bg-white/95 p-8 shadow-2xl shadow-black/10 backdrop-blur-sm animate-on-scroll" data-animate="fade-up">
+                            <header class="flex flex-col gap-2 border-b border-secondary/20 pb-6">
+                                <h2 class="text-2xl font-semibold text-primary">Simulasi Data Pelaporan</h2>
+                                <p class="text-sm text-textdark/80">Buat data pelaporan simulasi berdasarkan hierarki wilayah Indonesia. Hasil simulasi akan disimpan pada session browser dan dapat dilihat pada tabel di bawah.</p>
+                            </header>
+                            <form id="simulationForm" class="mt-6 grid gap-4 rounded-2xl border border-secondary/20 bg-soft p-6 text-sm text-textdark/90 md:grid-cols-[minmax(0,320px)_auto] md:items-end md:gap-6" autocomplete="off">
+                                <label class="flex flex-col gap-2">
+                                    <span class="text-xs font-semibold uppercase tracking-[0.25em] text-secondary">Jumlah data simulasi</span>
+                                    <input id="simulationCount" type="number" min="1" max="1000" step="1" required class="w-full rounded-xl border border-secondary/30 bg-white px-4 py-3 text-base text-textdark shadow-sm outline-none transition focus:border-secondary focus:ring-2 focus:ring-secondary/30" placeholder="Contoh: 25" />
+                                </label>
+                                <div class="flex flex-col items-stretch justify-end gap-3 md:flex-row md:items-center">
+                                    <button type="submit" class="inline-flex items-center justify-center rounded-xl bg-primary px-6 py-3 text-sm font-semibold uppercase tracking-[0.3em] text-white transition hover:bg-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary">
+                                        Buat Data
+                                    </button>
+                                    <p id="simulationStatus" class="text-sm text-secondary" role="status" aria-live="polite">Formulir siap digunakan.</p>
+                                </div>
+                            </form>
+                            <div class="mt-6 overflow-hidden rounded-2xl border border-secondary/20 bg-white shadow-sm">
+                                <div class="overflow-x-auto" id="simulationDataContainer">
+                                    <p class="px-6 py-5 text-sm text-secondary">Belum ada data simulasi tersimpan di session browser.</p>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="rounded-3xl border border-secondary/20 bg-white/95 p-8 shadow-2xl shadow-black/10 backdrop-blur-sm animate-on-scroll" data-animate="fade-up" data-animate-delay="120">
+                            <header class="flex flex-col gap-2 border-b border-secondary/20 pb-6">
+                                <h2 class="text-2xl font-semibold text-primary">Peta Laporan Wilayah</h2>
+                                <p class="text-sm text-textdark/80">Panel hierarkis ini menampilkan rekapitulasi laporan berdasarkan data simulasi yang tersimpan di session browser. Klik setiap wilayah untuk menelusuri rincian hingga tingkat kelurahan.</p>
+                            </header>
+                            <div class="mt-6 space-y-4" id="hierarchyContainer"></div>
+                            <footer class="mt-8 rounded-2xl border border-secondary/20 bg-soft p-6 text-xs text-textdark/80">
+                                <p class="leading-relaxed">Dataset wilayah diambil dari repositori <code>wilayah-indonesia</code> dan dipadankan dengan catatan simulasi. Data tidak disimpan permanen dan akan hilang ketika sesi browser berakhir.</p>
+                            </footer>
+                        </section>
+                    </div>
+                </div>
+            </main>
+
+            <footer class="border-t border-secondary/30 bg-primary text-white">
+                <div class="mx-auto flex max-w-6xl justify-center px-6 py-8 text-sm">
+                    <p>&copy; <span id="currentYear"></span> Evaluasi RAFT HLF.</p>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <script src="/js/dashboard.js" defer></script>
+</body>
+</html>

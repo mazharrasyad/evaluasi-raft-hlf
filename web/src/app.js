@@ -8,8 +8,8 @@ const __dirname = path.dirname(__filename);
 const app = express();
 app.disable('x-powered-by');
 
-const staticRoot = path.resolve(__dirname, '..');
-const wilayahDataDir = path.resolve(__dirname, '../../wilayah-indonesia');
+const staticRoot = path.resolve(__dirname, '../public');
+const wilayahDataDir = path.resolve(staticRoot, 'wilayah-indonesia');
 
 app.use(express.static(staticRoot));
 app.use('/wilayah-data', express.static(wilayahDataDir));

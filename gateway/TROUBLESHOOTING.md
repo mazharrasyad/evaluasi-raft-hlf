@@ -32,7 +32,7 @@ This error occurs when different peers produce different results for the same tr
    cd ../network   # gunakan ../network-standard jika memakai jaringan contoh
    ./network.sh down
    ./network.sh up createChannel -c mychannel -ca
-   ./network.sh deployCC -ccn catatan-digital -ccp ../chaincode/catatan-digital -ccl javascript
+   ./network.sh deployCC -ccn pelaporan-standard -ccp ../chaincode/pelaporan-standard -ccl javascript
    ```
 
 4. **Adjust endorsement policy**:
@@ -80,7 +80,7 @@ To verify the network is functioning correctly:
 
 4. **Check endorsement policy**:
    ```bash
-   docker exec peer0.org1.example.com peer lifecycle chaincode querycommitted -C mychannel -n catatan-digital
+   docker exec peer0.org1.example.com peer lifecycle chaincode querycommitted -C mychannel -n pelaporan-standard
    ```
 
 ## Contact Support

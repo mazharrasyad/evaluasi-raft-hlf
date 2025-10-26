@@ -15,6 +15,10 @@ const dashboardFile = path.resolve(staticRoot, 'view', 'dashboard.html');
 app.use(express.static(staticRoot));
 app.use('/wilayah-data', express.static(wilayahDataDir));
 
+app.get('/healthz', (_req, res) => {
+    res.json({ status: 'ok' });
+});
+
 app.get('/', (req, res) => {
     res.sendFile(dashboardFile);
 });
@@ -24,6 +28,8 @@ app.get('*', (req, res) => {
 });
 
 const PORT = process.env.PORT || 5176;
-app.listen(PORT, () => {
-    console.log(`Gateway listening on http://localhost:${PORT}`);
+const HOST = process.env.HOST || '0.0.0.0';
+
+app.listen(PORT, HOST, () => {
+    console.log(`Gateway listening on http://${HOST}:${PORT}`);
 });

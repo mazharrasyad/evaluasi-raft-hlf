@@ -12,7 +12,9 @@
         "check-files": "node src/check-files.js",
         "check-network": "node src/check-network.js",
         "start": "npm run check-files && node src/app.js",
-        "start:skip-check": "node src/app.js"
+        "start:skip-check": "node src/app.js",
+        "app.js": "node src/app.js",
+        "src/app.js": "node src/app.js"
     },
     "engineStrict": true,
     "author": "Hyperledger",

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dataset Wilayah Indonesia &mdash; Evaluasi RAFT HLF</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#38BDF8',
+                        secondary: '#6366F1',
+                        accent: '#F59E0B',
+                        highlight: '#F97316',
+                        soft: '#050B16',
+                        surface: '#0F172A',
+                        surfaceMuted: '#16213F',
+                        border: '#1E293B',
+                        muted: '#94A3B8',
+                        textdark: '#E2E8F0'
+                    }
+                }
+            }
+        };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="../images/logo-ai-center.svg">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-soft text-textdark">
+    <div class="relative min-h-screen overflow-hidden">
+        <div class="absolute inset-0 -z-10 h-full w-full">
+            <div class="absolute -left-1/3 top-0 h-[720px] w-[720px] rounded-full bg-gradient-to-br from-secondary/30 via-primary/40 to-transparent opacity-70 blur-3xl"></div>
+            <div class="absolute -right-1/4 bottom-0 h-[620px] w-[620px] rounded-full bg-gradient-to-tr from-accent/40 via-secondary/20 to-primary/20 opacity-70 blur-3xl"></div>
+        </div>
+
+        <div class="flex min-h-screen flex-col">
+            <header class="relative isolate bg-gradient-to-br from-surface via-soft to-[#020817] text-textdark shadow-lg">
+                <div class="mx-auto flex w-full max-w-4xl flex-col gap-6 px-6 py-14">
+                    <div class="flex flex-col gap-4 rounded-3xl border border-white/10 bg-surface/90 p-8 shadow-2xl shadow-black/20 backdrop-blur-sm">
+                        <div class="flex flex-col gap-2">
+                            <span class="inline-flex items-center gap-2 self-start rounded-full border border-white/10 bg-secondary/20 px-4 py-1 text-xs font-semibold uppercase tracking-[0.28em] text-textdark">Dataset Wilayah</span>
+                            <h1 class="text-3xl font-semibold text-textdark md:text-4xl">Dataset Wilayah Indonesia</h1>
+                            <p class="text-sm text-textdark/70">Dataset ini berisi hierarki wilayah administratif Indonesia dan digunakan oleh aplikasi evaluasi RAFT HLF.</p>
+                        </div>
+                        <p class="text-sm leading-relaxed text-textdark/70">
+                            Berkas berikut tersedia sebagai aset statis. Anda dapat mengunduh masing-masing CSV untuk melihat isi dataset atau menggunakan endpoint yang sama pada aplikasi lain.
+                        </p>
+                    </div>
+                </div>
+            </header>
+
+            <main class="flex-1">
+                <div class="mx-auto w-full max-w-4xl px-6 pb-24 pt-12">
+                    <section class="space-y-6 rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20 backdrop-blur-sm">
+                        <header class="border-b border-white/10 pb-6">
+                            <h2 class="text-xl font-semibold text-textdark">Daftar Berkas Dataset</h2>
+                            <p class="mt-2 text-sm text-textdark/70">Semua berkas menggunakan pemisah koma (<code>,</code>) dan penomoran kode wilayah dari Kemendagri.</p>
+                        </header>
+                        <ul class="space-y-4">
+                            <li class="flex flex-col gap-2 rounded-2xl border border-white/10 bg-surfaceMuted/70 p-4 text-sm text-textdark">
+                                <div class="flex items-center justify-between gap-4">
+                                    <span class="font-semibold">Provinsi</span>
+                                    <a class="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#041226] transition hover:bg-secondary hover:text-textdark" href="/wilayah-indonesia/provinsi.csv">Unduh</a>
+                                </div>
+                                <p class="text-textdark/70">Daftar 38 provinsi lengkap dengan kode wilayah.</p>
+                            </li>
+                            <li class="flex flex-col gap-2 rounded-2xl border border-white/10 bg-surfaceMuted/70 p-4 text-sm text-textdark">
+                                <div class="flex items-center justify-between gap-4">
+                                    <span class="font-semibold">Kabupaten / Kota</span>
+                                    <a class="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#041226] transition hover:bg-secondary hover:text-textdark" href="/wilayah-indonesia/kabupaten_kota.csv">Unduh</a>
+                                </div>
+                                <p class="text-textdark/70">Daftar kabupaten dan kota beserta relasi ke provinsi.</p>
+                            </li>
+                            <li class="flex flex-col gap-2 rounded-2xl border border-white/10 bg-surfaceMuted/70 p-4 text-sm text-textdark">
+                                <div class="flex items-center justify-between gap-4">
+                                    <span class="font-semibold">Kecamatan</span>
+                                    <a class="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#041226] transition hover:bg-secondary hover:text-textdark" href="/wilayah-indonesia/kecamatan.csv">Unduh</a>
+                                </div>
+                                <p class="text-textdark/70">Daftar kecamatan dengan relasi ke kabupaten/kota.</p>
+                            </li>
+                            <li class="flex flex-col gap-2 rounded-2xl border border-white/10 bg-surfaceMuted/70 p-4 text-sm text-textdark">
+                                <div class="flex items-center justify-between gap-4">
+                                    <span class="font-semibold">Kelurahan / Desa</span>
+                                    <a class="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#041226] transition hover:bg-secondary hover:text-textdark" href="/wilayah-indonesia/kelurahan_desa.csv">Unduh</a>
+                                </div>
+                                <p class="text-textdark/70">Daftar kelurahan dan desa yang terhubung dengan kecamatan terkait.</p>
+                            </li>
+                        </ul>
+                        <footer class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-4 text-xs text-textdark/70">
+                            Sumber data: <a class="text-primary underline hover:text-secondary" href="https://github.com/alifbint/indonesia-38-provinsi" target="_blank" rel="noopener">alifbint/indonesia-38-provinsi</a>.
+                        </footer>
+                    </section>
+                </div>
+            </main>
+
+            <footer class="border-t border-white/10 bg-surface/90 py-6 text-center text-xs text-textdark/60">
+                <p>&copy; 2024 Evaluasi RAFT HLF &mdash; AI Center.</p>
+                <a class="mt-2 inline-flex items-center gap-2 text-primary hover:text-secondary" href="/">&larr; Kembali ke dashboard</a>
+            </footer>
+        </div>
+    </div>
+</body>
+</html>

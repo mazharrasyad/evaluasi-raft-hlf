@@ -10,11 +10,16 @@ app.disable('x-powered-by');
 
 const staticRoot = path.resolve(__dirname, '../public');
 const dashboardFile = path.resolve(staticRoot, 'view', 'dashboard.html');
+const wilayahDatasetFile = path.resolve(staticRoot, 'view', 'wilayah-indonesia.html');
 
 app.use(express.static(staticRoot));
 
 app.get('/', (req, res) => {
     res.sendFile(dashboardFile);
+});
+
+app.get('/wilayah-indonesia', (req, res) => {
+    res.sendFile(wilayahDatasetFile);
 });
 
 app.get('*', (req, res) => {

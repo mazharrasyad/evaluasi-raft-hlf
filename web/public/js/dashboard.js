@@ -4,6 +4,14 @@ if (yearEl) {
 }
 
 const hierarchyContainer = document.getElementById('hierarchyContainer');
+const hierarchyChartCanvas = document.getElementById('hierarchyChart');
+const hierarchyChartWrapper = document.getElementById('hierarchyChartWrapper');
+const hierarchyEmptyState = document.getElementById('hierarchyEmptyState');
+const hierarchyEmptyStateMessage = hierarchyEmptyState
+    ? hierarchyEmptyState.querySelector('[data-empty-message]')
+    : null;
+const hierarchyBreadcrumbEl = document.getElementById('hierarchyBreadcrumb');
+const hierarchyBackButton = document.getElementById('hierarchyBackButton');
 const totalReportsEl = document.getElementById('totalReports');
 const simulationForm = document.getElementById('simulationForm');
 const simulationCountInput = document.getElementById('simulationCount');
@@ -21,6 +29,10 @@ let wilayahDataset = null;
 const WILAYAH_DATA_BASE_URL = '/wilayah-indonesia';
 let simulationData = [];
 let subdistrictRecordsIndex = new Map();
+let hierarchyChartInstance = null;
+let hierarchyViewStack = [];
+let hierarchyTree = [];
+let currentChartItems = [];
 let isModalOpen = false;
 let lastFocusedElement = null;
 
@@ -32,6 +44,35 @@ const dateTimeFormatter = new Intl.DateTimeFormat('id-ID', {
 
 const SWAL_PRIMARY_COLOR = '#38BDF8';
 const SWAL_CANCEL_COLOR = '#64748B';
+
+if (typeof window !== 'undefined' && window.Chart) {
+    window.Chart.defaults.font.family = 'Inter, sans-serif';
+    window.Chart.defaults.color = '#E2E8F0';
+    window.Chart.defaults.font.size = 13;
+}
+
+const HIERARCHY_LEVEL_META = {
+    province: {
+        label: 'Provinsi',
+        childLevel: 'regency',
+        emptyChildMessage: 'Provinsi ini belum memiliki data kabupaten/kota.'
+    },
+    regency: {
+        label: 'Kabupaten/Kota',
+        childLevel: 'district',
+        emptyChildMessage: 'Kabupaten/kota ini belum memiliki data kecamatan.'
+    },
+    district: {
+        label: 'Kecamatan',
+        childLevel: 'subdistrict',
+        emptyChildMessage: 'Kecamatan ini belum memiliki data kelurahan/desa.'
+    },
+    subdistrict: {
+        label: 'Kelurahan/Desa',
+        childLevel: null,
+        emptyChildMessage: null
+    }
+};
 
 function isSwalAvailable() {
     return typeof window !== 'undefined'
@@ -554,8 +595,8 @@ function renderSimulationSummary(records) {
     const guidanceDescription = document.createElement('p');
     guidanceDescription.className = 'text-sm leading-relaxed text-textdark/80';
     guidanceDescription.textContent = records.length
-        ? 'Gunakan peta hierarkis di bawah untuk memilih provinsi, kabupaten/kota, dan kecamatan. Klik nama kelurahan untuk membuka pop up yang memuat tabel detail laporannya.'
-        : 'Setelah membuat data simulasi, gunakan peta hierarkis untuk menelusuri provinsi hingga kelurahan. Klik nama kelurahan untuk membuka pop up berisi detail laporan.';
+        ? 'Gunakan grafik batang hierarkis di bawah untuk memilih provinsi, kabupaten/kota, dan kecamatan. Klik batang kelurahan/desa untuk membuka pop up yang memuat tabel detail laporannya.'
+        : 'Setelah membuat data simulasi, grafik batang hierarkis akan menampilkan provinsi dan jumlah laporan. Klik setiap batang untuk menelusuri hingga kelurahan/desa.';
 
     const guidanceHint = document.createElement('p');
     guidanceHint.className = 'text-xs text-textdark/60';
@@ -570,85 +611,406 @@ function renderSimulationSummary(records) {
     simulationSummaryContainer.appendChild(guidanceCard);
 }
 
-function createSummaryLabel(name, totalReports, { size = 'md' } = {}) {
-    const wrapper = document.createElement('div');
-    wrapper.className = 'flex flex-wrap items-center justify-between gap-4';
-
-    const nameEl = document.createElement('span');
-    nameEl.className = size === 'sm'
-        ? 'text-sm font-medium text-textdark'
-        : 'text-base font-medium text-textdark';
-    nameEl.textContent = name;
-
-    const badge = document.createElement('span');
-    badge.className = 'inline-flex items-center gap-1 rounded-full border border-accent/60 bg-accent/10 px-3 py-1 text-xs font-semibold text-accent';
-    badge.textContent = `${formatCount(totalReports)} laporan`;
-
-    wrapper.appendChild(nameEl);
-    wrapper.appendChild(badge);
-    return wrapper;
+function isChartJsAvailable() {
+    return typeof window !== 'undefined'
+        && typeof window.Chart !== 'undefined';
 }
 
-function createDetailsItem({ name, totalReports, children, level = 'regency' }) {
-    const details = document.createElement('details');
-    const isDistrictLevel = level === 'district';
-
-    details.className = isDistrictLevel
-        ? 'group rounded-xl border border-secondary/20 bg-white text-textdark shadow-sm shadow-black/5'
-        : 'group rounded-2xl border border-secondary/30 bg-soft/40 text-textdark shadow-md shadow-black/10';
-
-    const summary = document.createElement('summary');
-    summary.className = isDistrictLevel
-        ? 'flex cursor-pointer select-none items-center justify-between gap-3 rounded-xl px-4 py-3 text-left outline-none transition-colors group-open:bg-secondary/10'
-        : 'flex cursor-pointer select-none items-center justify-between gap-3 rounded-2xl px-4 py-3 text-left outline-none transition-colors group-open:bg-secondary/10';
-    summary.appendChild(createSummaryLabel(name, totalReports, { size: isDistrictLevel ? 'sm' : 'md' }));
-    details.appendChild(summary);
-
-    const body = document.createElement('div');
-    body.className = isDistrictLevel
-        ? 'space-y-2 border-t border-secondary/10 bg-secondary/5 px-3 py-3'
-        : 'space-y-3 border-t border-secondary/20 bg-soft/20 px-4 py-4';
-
-    if (Array.isArray(children) && children.length) {
-        children.forEach(child => body.appendChild(child));
-    } else {
-        body.appendChild(createEmptyMessage('Belum ada data pada tingkat ini.'));
+function destroyHierarchyChart() {
+    if (hierarchyChartInstance) {
+        hierarchyChartInstance.destroy();
+        hierarchyChartInstance = null;
     }
-
-    details.appendChild(body);
-    return details;
+    currentChartItems = [];
 }
 
-function createProvinceCard({ name, totalReports, children }) {
-    const card = document.createElement('article');
-    card.className = 'flex flex-col gap-4 rounded-3xl border border-secondary/30 bg-surfaceMuted/70 p-6 shadow-xl shadow-black/20';
-
-    const header = document.createElement('div');
-    header.className = 'flex flex-wrap items-center justify-between gap-3';
-
-    const title = document.createElement('h3');
-    title.className = 'text-xl font-semibold text-textdark';
-    title.textContent = name;
-
-    const badge = document.createElement('span');
-    badge.className = 'inline-flex items-center gap-1 rounded-full border border-secondary/60 bg-secondary/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-secondary';
-    badge.textContent = `${formatCount(totalReports)} laporan`;
-
-    header.appendChild(title);
-    header.appendChild(badge);
-
-    const body = document.createElement('div');
-    body.className = 'space-y-3';
-
-    if (Array.isArray(children) && children.length) {
-        children.forEach(child => body.appendChild(child));
-    } else {
-        body.appendChild(createEmptyMessage('Belum ada kabupaten/kota pada provinsi ini.'));
+function showHierarchyEmptyState(message) {
+    if (hierarchyEmptyState) {
+        hierarchyEmptyState.classList.remove('hidden');
+        if (hierarchyEmptyStateMessage) {
+            hierarchyEmptyStateMessage.textContent = message;
+        }
+        return;
     }
 
-    card.appendChild(header);
-    card.appendChild(body);
-    return card;
+    if (!hierarchyContainer) {
+        return;
+    }
+
+    hierarchyContainer.innerHTML = '';
+    hierarchyContainer.appendChild(createEmptyMessage(message));
+}
+
+function hideHierarchyEmptyState() {
+    if (hierarchyEmptyState) {
+        hierarchyEmptyState.classList.add('hidden');
+    }
+}
+
+function showHierarchyChartWrapper() {
+    if (hierarchyChartWrapper) {
+        hierarchyChartWrapper.classList.remove('hidden');
+    }
+}
+
+function hideHierarchyChartWrapper() {
+    if (hierarchyChartWrapper) {
+        hierarchyChartWrapper.classList.add('hidden');
+    }
+}
+
+function getHierarchyLevelInfo(entry) {
+    if (!entry) {
+        return {
+            level: 'province',
+            label: HIERARCHY_LEVEL_META.province.label,
+            childLevel: HIERARCHY_LEVEL_META.province.childLevel,
+            emptyChildMessage: HIERARCHY_LEVEL_META.province.emptyChildMessage,
+            datasetTitle: 'Jumlah laporan per provinsi',
+            items: []
+        };
+    }
+
+    const meta = HIERARCHY_LEVEL_META[entry.level] || HIERARCHY_LEVEL_META.province;
+
+    if (entry.level === 'province') {
+        return {
+            level: entry.level,
+            label: meta.label,
+            childLevel: meta.childLevel,
+            emptyChildMessage: meta.emptyChildMessage,
+            datasetTitle: 'Jumlah laporan per provinsi',
+            items: hierarchyTree.slice()
+        };
+    }
+
+    if (entry.level === 'regency') {
+        const province = entry.item;
+        return {
+            level: entry.level,
+            label: province?.name || meta.label,
+            childLevel: meta.childLevel,
+            emptyChildMessage: meta.emptyChildMessage,
+            datasetTitle: province
+                ? `Jumlah laporan kab/kota di ${province.name}`
+                : 'Jumlah laporan kabupaten/kota',
+            items: Array.isArray(province?.regencies) ? province.regencies.slice() : []
+        };
+    }
+
+    if (entry.level === 'district') {
+        const regency = entry.item;
+        return {
+            level: entry.level,
+            label: regency?.name || meta.label,
+            childLevel: meta.childLevel,
+            emptyChildMessage: meta.emptyChildMessage,
+            datasetTitle: regency
+                ? `Jumlah laporan kecamatan di ${regency.name}`
+                : 'Jumlah laporan kecamatan',
+            items: Array.isArray(regency?.districts) ? regency.districts.slice() : []
+        };
+    }
+
+    if (entry.level === 'subdistrict') {
+        const district = entry.item;
+        return {
+            level: entry.level,
+            label: district?.name || meta.label,
+            childLevel: meta.childLevel,
+            emptyChildMessage: meta.emptyChildMessage,
+            datasetTitle: district
+                ? `Jumlah laporan kelurahan/desa di ${district.name}`
+                : 'Jumlah laporan kelurahan/desa',
+            items: Array.isArray(district?.subdistricts) ? district.subdistricts.slice() : []
+        };
+    }
+
+    return {
+        level: entry.level,
+        label: meta.label,
+        childLevel: meta.childLevel,
+        emptyChildMessage: meta.emptyChildMessage,
+        datasetTitle: 'Jumlah laporan',
+        items: []
+    };
+}
+
+function getNextHierarchyEntry(level, item) {
+    const meta = HIERARCHY_LEVEL_META[level];
+    if (!meta || !meta.childLevel) {
+        return null;
+    }
+
+    if (level === 'province') {
+        return Array.isArray(item.regencies) && item.regencies.length
+            ? { level: 'regency', item }
+            : null;
+    }
+
+    if (level === 'regency') {
+        return Array.isArray(item.districts) && item.districts.length
+            ? { level: 'district', item }
+            : null;
+    }
+
+    if (level === 'district') {
+        return Array.isArray(item.subdistricts) && item.subdistricts.length
+            ? { level: 'subdistrict', item }
+            : null;
+    }
+
+    return null;
+}
+
+function getBreadcrumbLabel(entry) {
+    if (!entry) {
+        return '';
+    }
+    if (entry.level === 'province') {
+        return HIERARCHY_LEVEL_META.province.label;
+    }
+    return entry.item?.name || HIERARCHY_LEVEL_META[entry.level]?.label || 'Wilayah';
+}
+
+function navigateToHierarchyIndex(index) {
+    if (!Array.isArray(hierarchyViewStack) || !hierarchyViewStack.length) {
+        return;
+    }
+
+    const targetIndex = Math.max(0, Math.min(index, hierarchyViewStack.length - 1));
+    hierarchyViewStack = hierarchyViewStack.slice(0, targetIndex + 1);
+    renderCurrentHierarchyLevel();
+}
+
+function updateHierarchyBreadcrumb() {
+    if (!hierarchyBreadcrumbEl) {
+        return;
+    }
+
+    hierarchyBreadcrumbEl.innerHTML = '';
+
+    if (!hierarchyViewStack.length) {
+        return;
+    }
+
+    const list = document.createElement('ol');
+    list.className = 'flex flex-wrap items-center gap-2';
+
+    hierarchyViewStack.forEach((entry, index) => {
+        if (index > 0) {
+            const separator = document.createElement('span');
+            separator.className = 'text-xs text-textdark/50';
+            separator.textContent = '›';
+            list.appendChild(separator);
+        }
+
+        const label = getBreadcrumbLabel(entry);
+        const isLast = index === hierarchyViewStack.length - 1;
+
+        if (isLast) {
+            const current = document.createElement('span');
+            current.className = 'text-sm font-semibold text-textdark';
+            current.textContent = label;
+            list.appendChild(current);
+        } else {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'text-xs font-semibold uppercase tracking-[0.2em] text-secondary transition hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary';
+            button.textContent = label;
+            button.addEventListener('click', () => navigateToHierarchyIndex(index));
+            list.appendChild(button);
+        }
+    });
+
+    hierarchyBreadcrumbEl.appendChild(list);
+}
+
+function updateHierarchyNavigationControls() {
+    if (!hierarchyBackButton) {
+        return;
+    }
+
+    if (hierarchyViewStack.length <= 1) {
+        hierarchyBackButton.classList.add('hidden');
+        hierarchyBackButton.disabled = true;
+    } else {
+        hierarchyBackButton.classList.remove('hidden');
+        hierarchyBackButton.disabled = false;
+    }
+}
+
+function renderCurrentHierarchyLevel() {
+    if (!hierarchyViewStack.length) {
+        destroyHierarchyChart();
+        hideHierarchyChartWrapper();
+        showHierarchyEmptyState('Belum ada data simulasi yang dapat ditampilkan.');
+        return;
+    }
+
+    const entry = hierarchyViewStack[hierarchyViewStack.length - 1];
+    const levelInfo = getHierarchyLevelInfo(entry);
+
+    updateHierarchyBreadcrumb();
+    updateHierarchyNavigationControls();
+
+    if (!isChartJsAvailable() || !hierarchyChartCanvas) {
+        destroyHierarchyChart();
+        hideHierarchyChartWrapper();
+        showHierarchyEmptyState('Chart.js tidak tersedia untuk menampilkan grafik.');
+        return;
+    }
+
+    currentChartItems = Array.isArray(levelInfo.items) ? levelInfo.items.slice() : [];
+
+    if (!currentChartItems.length) {
+        destroyHierarchyChart();
+        hideHierarchyChartWrapper();
+        showHierarchyEmptyState('Belum ada data pada tingkat ini.');
+        return;
+    }
+
+    hideHierarchyEmptyState();
+    showHierarchyChartWrapper();
+
+    const labels = currentChartItems.map(item => item.name);
+    const data = currentChartItems.map(item => item.totalReports);
+
+    destroyHierarchyChart();
+
+    const chartContext = hierarchyChartCanvas.getContext('2d');
+    hierarchyChartInstance = new window.Chart(chartContext, {
+        type: 'bar',
+        data: {
+            labels,
+            datasets: [
+                {
+                    label: levelInfo.datasetTitle,
+                    data,
+                    backgroundColor: 'rgba(99, 102, 241, 0.75)',
+                    hoverBackgroundColor: 'rgba(99, 102, 241, 0.95)',
+                    borderRadius: 16,
+                    borderSkipped: false,
+                    maxBarThickness: 48,
+                    minBarLength: 4
+                }
+            ]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            layout: {
+                padding: {
+                    top: 16,
+                    right: 24,
+                    bottom: 16,
+                    left: 12
+                }
+            },
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(148, 163, 184, 0.15)',
+                        drawBorder: false
+                    },
+                    ticks: {
+                        color: '#94A3B8',
+                        callback: value => formatCount(value),
+                        font: {
+                            size: 12
+                        }
+                    }
+                },
+                y: {
+                    grid: {
+                        display: false,
+                        drawBorder: false
+                    },
+                    ticks: {
+                        color: '#E2E8F0',
+                        font: {
+                            size: 13,
+                            weight: '600'
+                        }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: '#0F172A',
+                    borderColor: 'rgba(148, 163, 184, 0.15)',
+                    borderWidth: 1,
+                    titleColor: '#E2E8F0',
+                    bodyColor: '#E2E8F0',
+                    callbacks: {
+                        label(context) {
+                            const value = context?.parsed?.x ?? context?.parsed ?? 0;
+                            return `${formatCount(value)} laporan`;
+                        }
+                    }
+                },
+                title: {
+                    display: true,
+                    text: levelInfo.datasetTitle,
+                    color: '#94A3B8',
+                    font: {
+                        size: 14,
+                        weight: '600'
+                    },
+                    padding: {
+                        bottom: 16
+                    }
+                }
+            },
+            onHover(event, elements) {
+                if (event?.native) {
+                    event.native.target.style.cursor = elements.length ? 'pointer' : 'default';
+                }
+            },
+            onClick(event, elements) {
+                handleHierarchyChartInteraction(levelInfo.level, elements);
+            }
+        }
+    });
+}
+
+function handleHierarchyChartInteraction(level, elements) {
+    if (!Array.isArray(elements) || !elements.length) {
+        return;
+    }
+
+    const { index } = elements[0];
+    if (typeof index !== 'number') {
+        return;
+    }
+
+    const targetItem = currentChartItems[index];
+    if (!targetItem) {
+        return;
+    }
+
+    if (level === 'subdistrict') {
+        const records = getRecordsForSubdistrict(targetItem);
+        openSubdistrictModal(targetItem, records);
+        return;
+    }
+
+    const nextEntry = getNextHierarchyEntry(level, targetItem);
+    if (!nextEntry) {
+        const meta = HIERARCHY_LEVEL_META[level];
+        if (meta && meta.emptyChildMessage) {
+            showInfoAlert(meta.emptyChildMessage, { title: 'Data belum tersedia' });
+        }
+        return;
+    }
+
+    hierarchyViewStack.push(nextEntry);
+    renderCurrentHierarchyLevel();
 }
 
 function getRecordsForSubdistrict(subdistrict) {
@@ -661,31 +1023,6 @@ function getRecordsForSubdistrict(subdistrict) {
     }
     const records = subdistrictRecordsIndex.get(key) || [];
     return records.slice();
-}
-
-function createLeafItem(subdistrict) {
-    const item = document.createElement('button');
-    item.type = 'button';
-    item.className = 'flex w-full items-center justify-between gap-3 rounded-xl border border-secondary/20 bg-white px-4 py-3 text-left text-sm text-textdark shadow-sm transition hover:border-secondary/40 hover:bg-secondary/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary';
-    item.dataset.subdistrictId = subdistrict.sanitizedId;
-    item.title = 'Lihat detail laporan kelurahan';
-
-    const label = document.createElement('span');
-    label.textContent = subdistrict.name;
-
-    const badge = document.createElement('span');
-    badge.className = 'inline-flex items-center gap-1 rounded-full border border-accent/60 bg-accent/10 px-3 py-1 text-xs font-semibold text-accent';
-    badge.textContent = `${formatCount(subdistrict.totalReports)} laporan`;
-
-    item.appendChild(label);
-    item.appendChild(badge);
-
-    item.addEventListener('click', () => {
-        const records = getRecordsForSubdistrict(subdistrict);
-        openSubdistrictModal(subdistrict, records);
-    });
-
-    return item;
 }
 
 function buildHierarchyFromRecords(records) {
@@ -815,21 +1152,14 @@ function renderHierarchy(records) {
         return;
     }
 
-    const { totalReports, provinces } = buildHierarchyFromRecords(records);
+    const safeRecords = Array.isArray(records) ? records : [];
 
     if (totalReportsEl) {
-        totalReportsEl.textContent = formatCount(totalReports);
-    }
-
-    hierarchyContainer.innerHTML = '';
-
-    if (!records.length) {
-        hierarchyContainer.appendChild(createEmptyMessage('Belum ada data simulasi yang dapat ditampilkan.'));
-        return;
+        totalReportsEl.textContent = formatCount(safeRecords.length);
     }
 
     subdistrictRecordsIndex = new Map();
-    records.forEach(record => {
+    safeRecords.forEach(record => {
         const key = sanitizeCode(record.subdistrictId || record.kelurahan_desa);
         if (!key) {
             return;
@@ -839,40 +1169,30 @@ function renderHierarchy(records) {
         subdistrictRecordsIndex.set(key, existing);
     });
 
-    const provincesWrapper = document.createElement('div');
-    provincesWrapper.className = 'grid gap-6 md:grid-cols-2';
+    if (!safeRecords.length) {
+        hierarchyTree = [];
+        hierarchyViewStack = [];
+        destroyHierarchyChart();
+        hideHierarchyChartWrapper();
+        showHierarchyEmptyState('Belum ada data simulasi yang dapat ditampilkan.');
+        return;
+    }
 
-    provinces.forEach(province => {
-        const regencyChildren = province.regencies.map(regency => {
-            const districtChildren = regency.districts.map(district => {
-                const subdistrictChildren = district.subdistricts.map(subdistrict =>
-                    createLeafItem(subdistrict)
-                );
-                return createDetailsItem({
-                    name: district.name,
-                    totalReports: district.totalReports,
-                    children: subdistrictChildren,
-                    level: 'district'
-                });
-            });
-            return createDetailsItem({
-                name: regency.name,
-                totalReports: regency.totalReports,
-                children: districtChildren,
-                level: 'regency'
-            });
-        });
+    const { provinces } = buildHierarchyFromRecords(safeRecords);
 
-        const provinceElement = createProvinceCard({
-            name: province.name,
-            totalReports: province.totalReports,
-            children: regencyChildren
-        });
+    if (!Array.isArray(provinces) || !provinces.length) {
+        hierarchyTree = [];
+        hierarchyViewStack = [];
+        destroyHierarchyChart();
+        hideHierarchyChartWrapper();
+        showHierarchyEmptyState('Data simulasi belum memiliki struktur wilayah yang dapat divisualisasikan.');
+        return;
+    }
 
-        provincesWrapper.appendChild(provinceElement);
-    });
+    hierarchyTree = provinces;
+    hierarchyViewStack = [{ level: 'province', item: null }];
 
-    hierarchyContainer.appendChild(provincesWrapper);
+    renderCurrentHierarchyLevel();
 }
 
 function renderSimulationData() {
@@ -1104,6 +1424,14 @@ async function handleSimulationSubmit(event) {
     const successMessage = `Berhasil membuat ${formatCount(generated.length)} data simulasi.`;
     updateSimulationStatus(successMessage, 'success');
     await showSuccessAlert(successMessage);
+}
+
+if (hierarchyBackButton) {
+    hierarchyBackButton.addEventListener('click', () => {
+        if (hierarchyViewStack.length > 1) {
+            navigateToHierarchyIndex(hierarchyViewStack.length - 2);
+        }
+    });
 }
 
 if (simulationForm) {

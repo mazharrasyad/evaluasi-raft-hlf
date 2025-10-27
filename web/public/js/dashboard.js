@@ -493,6 +493,13 @@ function sanitizeCode(value) {
         .replace(/[^0-9]/g, '');
 }
 
+function normalizeName(value) {
+    return (value || '')
+        .toString()
+        .trim()
+        .toLowerCase();
+}
+
 function createRandomId() {
     if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
         return crypto.randomUUID();
@@ -1275,23 +1282,26 @@ function handleHierarchyChartInteraction(level, elements) {
         return;
     }
 
-    if (level === 'subdistrict') {
-        const records = getRecordsForSubdistrict(targetItem);
-        openSubdistrictModal(targetItem, records);
-        return;
-    }
-
+    const records = getRecordsForHierarchyLevel(level, targetItem);
     const nextEntry = getNextHierarchyEntry(level, targetItem);
-    if (!nextEntry) {
-        const meta = HIERARCHY_LEVEL_META[level];
-        if (meta && meta.emptyChildMessage) {
-            showInfoAlert(meta.emptyChildMessage, { title: 'Data belum tersedia' });
-        }
-        return;
-    }
+    const meta = HIERARCHY_LEVEL_META[level] || {};
+    const childLevel = nextEntry ? nextEntry.level : meta.childLevel;
 
-    hierarchyViewStack.push(nextEntry);
-    renderCurrentHierarchyLevel();
+    const navigateToNextLevel = nextEntry
+        ? () => {
+            hierarchyViewStack.push(nextEntry);
+            renderCurrentHierarchyLevel();
+        }
+        : null;
+
+    openHierarchyReportsModal({
+        level,
+        item: targetItem,
+        records,
+        onNavigate: navigateToNextLevel,
+        childLevel,
+        childUnavailableMessage: !nextEntry && meta.emptyChildMessage ? meta.emptyChildMessage : ''
+    });
 }
 
 function getRecordsForSubdistrict(subdistrict) {
@@ -1304,6 +1314,90 @@ function getRecordsForSubdistrict(subdistrict) {
     }
     const records = subdistrictRecordsIndex.get(key) || [];
     return records.slice();
+}
+
+function getRecordIdentifiers(record, level) {
+    if (!record) {
+        return { id: '', name: '' };
+    }
+
+    if (level === 'province') {
+        return {
+            id: sanitizeCode(record.provinceId || record.provinsi),
+            name: normalizeName(record.provinsi)
+        };
+    }
+
+    if (level === 'regency') {
+        return {
+            id: sanitizeCode(record.regencyId || record.kab_kota),
+            name: normalizeName(record.kab_kota)
+        };
+    }
+
+    if (level === 'district') {
+        return {
+            id: sanitizeCode(record.districtId || record.kecamatan),
+            name: normalizeName(record.kecamatan)
+        };
+    }
+
+    if (level === 'subdistrict') {
+        return {
+            id: sanitizeCode(record.subdistrictId || record.kelurahan_desa),
+            name: normalizeName(record.kelurahan_desa)
+        };
+    }
+
+    return { id: '', name: '' };
+}
+
+function getRecordsForHierarchyLevel(level, item) {
+    if (!level || !item) {
+        return [];
+    }
+
+    if (level === 'subdistrict') {
+        return getRecordsForSubdistrict(item);
+    }
+
+    const targetId = sanitizeCode(item.id || item.sanitizedId || item.name);
+    const targetName = normalizeName(item.name);
+
+    if (!Array.isArray(simulationData) || !simulationData.length) {
+        return [];
+    }
+
+    return simulationData.filter(record => {
+        const { id, name } = getRecordIdentifiers(record, level);
+        if (targetId && id) {
+            return id === targetId;
+        }
+        if (targetName && name) {
+            return name === targetName;
+        }
+        return false;
+    });
+}
+
+function getChildItemsForLevel(level, item) {
+    if (!item) {
+        return [];
+    }
+
+    if (level === 'province') {
+        return Array.isArray(item.regencies) ? item.regencies.slice() : [];
+    }
+
+    if (level === 'regency') {
+        return Array.isArray(item.districts) ? item.districts.slice() : [];
+    }
+
+    if (level === 'district') {
+        return Array.isArray(item.subdistricts) ? item.subdistricts.slice() : [];
+    }
+
+    return [];
 }
 
 function buildHierarchyFromRecords(records) {
@@ -1569,30 +1663,187 @@ function closeSimulationModal() {
     lastFocusedElement = null;
 }
 
-function openSubdistrictModal(subdistrict, records) {
+const CHILD_SUMMARY_LIMIT = 10;
+
+function createChildSummaryList(items, childLevel) {
+    if (!Array.isArray(items) || !items.length || !childLevel) {
+        return null;
+    }
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'mb-4 space-y-3';
+
+    const childLabel = HIERARCHY_LEVEL_META[childLevel]?.label || 'Wilayah';
+
+    const heading = document.createElement('p');
+    heading.className = 'text-xs font-semibold uppercase tracking-[0.3em] text-secondary';
+    heading.textContent = `Sebaran laporan per ${childLabel.toLowerCase()}`;
+    wrapper.appendChild(heading);
+
+    const list = document.createElement('ul');
+    list.className = 'space-y-2';
+
+    const limitedItems = items.slice(0, CHILD_SUMMARY_LIMIT);
+    limitedItems.forEach(child => {
+        const itemRow = document.createElement('li');
+        itemRow.className = 'flex items-center justify-between rounded-xl border border-white/10 bg-surface/80 px-4 py-3 text-sm text-textdark/80 shadow-inner shadow-black/5';
+
+        const nameEl = document.createElement('span');
+        nameEl.className = 'font-medium text-textdark';
+        nameEl.textContent = child?.name || 'Wilayah';
+
+        const countEl = document.createElement('span');
+        countEl.className = 'text-xs font-semibold uppercase tracking-[0.2em] text-secondary';
+        countEl.textContent = `${formatCount(child?.totalReports ?? 0)} laporan`;
+
+        itemRow.appendChild(nameEl);
+        itemRow.appendChild(countEl);
+        list.appendChild(itemRow);
+    });
+
+    wrapper.appendChild(list);
+
+    if (items.length > CHILD_SUMMARY_LIMIT) {
+        const remaining = document.createElement('p');
+        remaining.className = 'text-xs text-textdark/60';
+        remaining.textContent = `+${formatCount(items.length - CHILD_SUMMARY_LIMIT)} ${childLabel.toLowerCase()} lainnya.`;
+        wrapper.appendChild(remaining);
+    }
+
+    return wrapper;
+}
+
+function createLocationDescription(level, itemName, reference, recordsCount) {
+    if (!itemName) {
+        itemName = 'Wilayah';
+    }
+
+    if (level === 'province') {
+        return `Provinsi ${itemName} mencatat ${formatCount(recordsCount)} laporan.`;
+    }
+
+    if (level === 'regency') {
+        const provinceName = reference?.provinsi || 'provinsi tidak diketahui';
+        return `Kabupaten/Kota ${itemName} berada di Provinsi ${provinceName} dan mencatat ${formatCount(recordsCount)} laporan.`;
+    }
+
+    if (level === 'district') {
+        const regencyName = reference?.kab_kota || 'kabupaten/kota tidak diketahui';
+        const provinceName = reference?.provinsi || 'provinsi tidak diketahui';
+        return `Kecamatan ${itemName} berada di ${regencyName}, Provinsi ${provinceName}, dengan ${formatCount(recordsCount)} laporan.`;
+    }
+
+    if (level === 'subdistrict') {
+        const districtName = reference?.kecamatan || 'kecamatan tidak diketahui';
+        const regencyName = reference?.kab_kota || 'kabupaten/kota tidak diketahui';
+        const provinceName = reference?.provinsi || 'provinsi tidak diketahui';
+        return `Kelurahan ${itemName} berada di Kecamatan ${districtName}, ${regencyName}, ${provinceName} dan mencatat ${formatCount(recordsCount)} laporan.`;
+    }
+
+    return '';
+}
+
+function createDistributionDescription(level, item, records) {
+    if (!Array.isArray(records) || !records.length) {
+        return '';
+    }
+
+    if (level === 'province') {
+        const uniqueRegencies = new Set(records.map(record => normalizeName(record?.kab_kota)).filter(Boolean));
+        if (uniqueRegencies.size) {
+            return `Laporan tersebar di ${formatCount(uniqueRegencies.size)} kabupaten/kota.`;
+        }
+    }
+
+    if (level === 'regency') {
+        const uniqueDistricts = new Set(records.map(record => normalizeName(record?.kecamatan)).filter(Boolean));
+        if (uniqueDistricts.size) {
+            return `Laporan tercatat pada ${formatCount(uniqueDistricts.size)} kecamatan.`;
+        }
+    }
+
+    if (level === 'district') {
+        const uniqueSubdistricts = new Set(records.map(record => normalizeName(record?.kelurahan_desa)).filter(Boolean));
+        if (uniqueSubdistricts.size) {
+            return `Laporan berasal dari ${formatCount(uniqueSubdistricts.size)} kelurahan/desa.`;
+        }
+    }
+
+    return '';
+}
+
+function openHierarchyReportsModal({ level, item, records, onNavigate, childLevel, childUnavailableMessage }) {
     if (!simulationModal || !simulationModalContent || !simulationModalTitle) {
         return;
     }
 
-    const subdistrictName = subdistrict && subdistrict.name ? subdistrict.name : 'Kelurahan';
-    const totalText = `${formatCount(records.length)} laporan`;
+    const itemName = item?.name || 'Wilayah';
+    const safeRecords = Array.isArray(records) ? records.slice() : [];
+    const totalReports = safeRecords.length || item?.totalReports || 0;
+    const totalText = `${formatCount(totalReports)} laporan`;
 
-    simulationModalTitle.textContent = `${subdistrictName} • ${totalText}`;
+    simulationModalTitle.textContent = `${itemName} • ${totalText}`;
     simulationModalContent.innerHTML = '';
 
-    if (!records.length) {
-        simulationModalContent.appendChild(createEmptyMessage('Belum ada data detail untuk kelurahan ini.'));
+    if (!safeRecords.length) {
+        simulationModalContent.appendChild(createEmptyMessage('Belum ada data detail untuk wilayah ini.'));
     } else {
-        const reference = records[0];
-        const meta = document.createElement('p');
-        meta.className = 'mb-4 text-sm text-textdark/70';
-        meta.textContent = `Kelurahan ${subdistrictName} berada di Kecamatan ${reference.kecamatan}, ${reference.kab_kota}, ${reference.provinsi}.`;
+        const reference = safeRecords[0];
+        const description = document.createElement('div');
+        description.className = 'mb-4 space-y-2 text-sm text-textdark/70';
+
+        const locationText = createLocationDescription(level, itemName, reference, totalReports);
+        if (locationText) {
+            const locationParagraph = document.createElement('p');
+            locationParagraph.textContent = locationText;
+            description.appendChild(locationParagraph);
+        }
+
+        const distributionText = createDistributionDescription(level, item, safeRecords);
+        if (distributionText) {
+            const distributionParagraph = document.createElement('p');
+            distributionParagraph.textContent = distributionText;
+            description.appendChild(distributionParagraph);
+        }
+
+        if (description.childNodes.length) {
+            simulationModalContent.appendChild(description);
+        }
+
+        if (level !== 'subdistrict') {
+            const childItems = getChildItemsForLevel(level, item);
+            const summaryList = createChildSummaryList(childItems, childLevel);
+            if (summaryList) {
+                simulationModalContent.appendChild(summaryList);
+            } else if (childUnavailableMessage) {
+                const message = document.createElement('p');
+                message.className = 'mb-4 rounded-xl border border-dashed border-secondary/30 bg-surface/60 px-4 py-3 text-sm text-secondary';
+                message.textContent = childUnavailableMessage;
+                simulationModalContent.appendChild(message);
+            }
+        }
+
+        if (typeof onNavigate === 'function' && childLevel) {
+            const actions = document.createElement('div');
+            actions.className = 'mb-4 flex justify-end';
+
+            const nextLabel = HIERARCHY_LEVEL_META[childLevel]?.label || 'Wilayah';
+            const navigateButton = document.createElement('button');
+            navigateButton.type = 'button';
+            navigateButton.className = 'inline-flex items-center gap-2 rounded-lg bg-primary/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#041226] shadow-lg shadow-primary/20 transition duration-200 hover:-translate-y-0.5 hover:bg-secondary hover:text-textdark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary';
+            navigateButton.textContent = `Telusuri ${nextLabel}`;
+            navigateButton.addEventListener('click', () => {
+                closeSimulationModal();
+                onNavigate();
+            });
+
+            actions.appendChild(navigateButton);
+            simulationModalContent.appendChild(actions);
+        }
 
         const tableWrapper = document.createElement('div');
         tableWrapper.className = 'overflow-x-auto rounded-2xl border border-white/10 bg-surface shadow-inner shadow-black/10';
-        tableWrapper.appendChild(createModalTable(records));
-
-        simulationModalContent.appendChild(meta);
+        tableWrapper.appendChild(createModalTable(safeRecords));
         simulationModalContent.appendChild(tableWrapper);
     }
 

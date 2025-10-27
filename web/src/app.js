@@ -162,10 +162,12 @@ async function logNetworkStartupFailure(result) {
 
 const NETWORK_SHUTDOWN_TARGETS = [
     {
+        id: 'standard',
         label: 'Jaringan RAFT Standard',
         directory: path.resolve(__dirname, '../../raft-standard/network'),
     },
     {
+        id: 'variant',
         label: 'Jaringan RAFT Variant',
         directory: path.resolve(__dirname, '../../raft-variant/network'),
     },
@@ -173,6 +175,7 @@ const NETWORK_SHUTDOWN_TARGETS = [
 
 const NETWORK_START_TARGETS = [
     {
+        id: 'standard',
         label: 'Jaringan RAFT Standard',
         directory: path.resolve(__dirname, '../../raft-standard/network'),
         channel: 'channel-standard',
@@ -206,6 +209,7 @@ const NETWORK_START_TARGETS = [
         ],
     },
     {
+        id: 'variant',
         label: 'Jaringan RAFT Variant',
         directory: path.resolve(__dirname, '../../raft-variant/network'),
         channel: 'channel-variant',
@@ -372,7 +376,7 @@ async function executeNetworkShutdown({ label, directory }) {
     }
 }
 
-async function executeNetworkStartup({ label, directory, commands }, context = {}) {
+async function executeNetworkStartup({ id, label, directory, commands }, context = {}) {
     const scriptPath = path.resolve(directory, 'network.sh');
     const commandList = Array.isArray(commands) ? commands : [];
     const operationId = typeof context?.operationId === 'string' ? context.operationId : null;
@@ -385,6 +389,7 @@ async function executeNetworkStartup({ label, directory, commands }, context = {
         operationId,
         clientOperationId,
         targetLabel: label,
+        targetId: id,
         networkDir: directory,
     };
 
@@ -392,6 +397,7 @@ async function executeNetworkStartup({ label, directory, commands }, context = {
         await fs.access(directory, fsConstants.R_OK | fsConstants.X_OK);
     } catch (error) {
         const failureResult = {
+            targetId: id,
             label,
             networkDir: directory,
             status: 'not_found',
@@ -415,6 +421,7 @@ async function executeNetworkStartup({ label, directory, commands }, context = {
         await fs.access(scriptPath, fsConstants.X_OK);
     } catch (error) {
         const failureResult = {
+            targetId: id,
             label,
             networkDir: directory,
             status: 'not_found',
@@ -436,6 +443,7 @@ async function executeNetworkStartup({ label, directory, commands }, context = {
 
     if (!commandList.length) {
         const failureResult = {
+            targetId: id,
             label,
             networkDir: directory,
             status: 'error',
@@ -535,6 +543,7 @@ async function executeNetworkStartup({ label, directory, commands }, context = {
             });
 
             const failureResult = {
+                targetId: id,
                 label,
                 networkDir: directory,
                 status: hasSuccess ? 'partial' : 'error',
@@ -578,6 +587,7 @@ async function executeNetworkStartup({ label, directory, commands }, context = {
     }
 
     const successResult = {
+        targetId: id,
         label,
         networkDir: directory,
         status: 'success',
@@ -703,6 +713,44 @@ app.post('/api/start-network', async (req, res) => {
     const operationId = randomUUID();
     const operationContext = { operationId, clientOperationId };
 
+    const rawNetworkType = typeof req.body?.networkType === 'string'
+        ? req.body.networkType.trim().toLowerCase()
+        : null;
+    const selectedTargets = rawNetworkType
+        ? NETWORK_START_TARGETS.filter(target => target.id === rawNetworkType)
+        : NETWORK_START_TARGETS;
+
+    if (rawNetworkType && selectedTargets.length === 0) {
+        const completedAt = new Date().toISOString();
+        res.status(400).json({
+            requestedAt,
+            completedAt,
+            overallStatus: 'error',
+            operationId,
+            clientOperationId,
+            error: 'Jaringan yang diminta tidak ditemukan.',
+            results: [],
+            networkType: rawNetworkType,
+        });
+        return;
+    }
+
+    if (selectedTargets.length === 0) {
+        const completedAt = new Date().toISOString();
+        res.status(500).json({
+            requestedAt,
+            completedAt,
+            overallStatus: 'error',
+            operationId,
+            clientOperationId,
+            error: 'Tidak ada jaringan yang dikonfigurasi untuk dijalankan.',
+            results: [],
+        });
+        return;
+    }
+
+    const targetIds = selectedTargets.map(target => target.id);
+
     broadcastNetworkOperationEvent({
         operationType: 'startup',
         phase: 'begin',
@@ -710,6 +758,8 @@ app.post('/api/start-network', async (req, res) => {
         operationId,
         clientOperationId,
         requestedAt,
+        networkType: rawNetworkType,
+        targetIds,
     });
 
     const dockerFailure = await ensureDockerAvailable();
@@ -723,10 +773,13 @@ app.post('/api/start-network', async (req, res) => {
             message: dockerFailure.message,
             resolution: dockerFailure.resolution,
             error: dockerFailure.error,
+            networkType: rawNetworkType,
+            targetIds,
         });
 
-        for (const target of NETWORK_START_TARGETS) {
+        for (const target of selectedTargets) {
             const failureResult = {
+                targetId: target.id,
                 label: target.label,
                 networkDir: target.directory,
                 status: dockerFailure.status,
@@ -746,6 +799,8 @@ app.post('/api/start-network', async (req, res) => {
             operationId,
             clientOperationId,
             completedAt,
+            networkType: rawNetworkType,
+            targetIds,
         });
 
         res.json({
@@ -756,12 +811,13 @@ app.post('/api/start-network', async (req, res) => {
             operationId,
             clientOperationId,
             results,
+            networkType: rawNetworkType,
         });
 
         return;
     }
 
-    for (const target of NETWORK_START_TARGETS) {
+    for (const target of selectedTargets) {
         const result = await executeNetworkStartup(target, operationContext);
         results.push(result);
     }
@@ -781,6 +837,8 @@ app.post('/api/start-network', async (req, res) => {
         operationId,
         clientOperationId,
         completedAt,
+        networkType: rawNetworkType,
+        targetIds,
     });
 
     res.json({
@@ -790,6 +848,7 @@ app.post('/api/start-network', async (req, res) => {
         operationId,
         clientOperationId,
         results,
+        networkType: rawNetworkType,
     });
 });
 

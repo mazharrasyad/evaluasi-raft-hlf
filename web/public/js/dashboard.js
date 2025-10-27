@@ -50,6 +50,7 @@ let hierarchyChartInstance = null;
 let hierarchyViewStack = [];
 let hierarchyTree = [];
 let currentChartItems = [];
+let activeHierarchyBarIndex = null;
 let isModalOpen = false;
 let lastFocusedElement = null;
 
@@ -186,6 +187,13 @@ const HIERARCHY_LEVEL_META = {
         childLevel: null,
         emptyChildMessage: null
     }
+};
+
+const HIERARCHY_BAR_ANIMATION = {
+    baseThickness: 28,
+    expandedThickness: 44,
+    baseBackground: 'rgba(99, 102, 241, 0.75)',
+    expandedBackground: 'rgba(99, 102, 241, 0.95)'
 };
 
 function isSwalAvailable() {
@@ -1330,6 +1338,7 @@ function renderCurrentHierarchyLevel() {
     }
 
     currentChartItems = Array.isArray(levelInfo.items) ? levelInfo.items.slice() : [];
+    activeHierarchyBarIndex = null;
 
     if (!currentChartItems.length) {
         destroyHierarchyChart();
@@ -1355,16 +1364,40 @@ function renderCurrentHierarchyLevel() {
                 {
                     label: levelInfo.datasetTitle,
                     data,
-                    backgroundColor: 'rgba(99, 102, 241, 0.75)',
+                    backgroundColor(context) {
+                        if (!context || typeof context.dataIndex !== 'number') {
+                            return HIERARCHY_BAR_ANIMATION.baseBackground;
+                        }
+                        return context.dataIndex === activeHierarchyBarIndex
+                            ? HIERARCHY_BAR_ANIMATION.expandedBackground
+                            : HIERARCHY_BAR_ANIMATION.baseBackground;
+                    },
                     hoverBackgroundColor: 'rgba(99, 102, 241, 0.95)',
-                    borderRadius: 16,
+                    borderRadius(context) {
+                        if (!context || typeof context.dataIndex !== 'number') {
+                            return 16;
+                        }
+                        return context.dataIndex === activeHierarchyBarIndex ? 20 : 16;
+                    },
                     borderSkipped: false,
-                    maxBarThickness: 48,
+                    barThickness(context) {
+                        if (!context || typeof context.dataIndex !== 'number') {
+                            return HIERARCHY_BAR_ANIMATION.baseThickness;
+                        }
+                        return context.dataIndex === activeHierarchyBarIndex
+                            ? HIERARCHY_BAR_ANIMATION.expandedThickness
+                            : HIERARCHY_BAR_ANIMATION.baseThickness;
+                    },
+                    maxBarThickness: HIERARCHY_BAR_ANIMATION.expandedThickness,
                     minBarLength: 4
                 }
             ]
         },
         options: {
+            animation: {
+                duration: 450,
+                easing: 'easeOutCubic'
+            },
             indexAxis: 'y',
             responsive: true,
             maintainAspectRatio: false,
@@ -1462,6 +1495,8 @@ function handleHierarchyChartInteraction(level, elements) {
         return;
     }
 
+    animateHierarchyBarSelection(index);
+
     const records = getRecordsForHierarchyLevel(level, targetItem);
     const nextEntry = getNextHierarchyEntry(level, targetItem);
     const meta = HIERARCHY_LEVEL_META[level] || {};
@@ -1482,6 +1517,20 @@ function handleHierarchyChartInteraction(level, elements) {
         childLevel,
         childUnavailableMessage: !nextEntry && meta.emptyChildMessage ? meta.emptyChildMessage : ''
     });
+}
+
+function animateHierarchyBarSelection(index) {
+    if (!hierarchyChartInstance || typeof index !== 'number') {
+        return;
+    }
+
+    if (activeHierarchyBarIndex === index) {
+        hierarchyChartInstance.update();
+        return;
+    }
+
+    activeHierarchyBarIndex = index;
+    hierarchyChartInstance.update();
 }
 
 function getRecordsForSubdistrict(subdistrict) {

@@ -165,6 +165,23 @@ async function executeNetworkShutdown({ label, directory }) {
             error: error instanceof Error ? error.message : String(error),
         };
 
+        const errorCode = typeof error?.code === 'number' ? error.code : null;
+        if (errorCode !== null) {
+            failureResult.exitCode = errorCode;
+        }
+
+        const dockerNotFoundMessage = 'docker: command not found';
+        if (stderr?.includes(dockerNotFoundMessage) || stdout?.includes(dockerNotFoundMessage)) {
+            failureResult.message = 'Perintah docker tidak ditemukan saat menjalankan network.sh.';
+            failureResult.resolution = 'Pastikan Docker terpasang dan dapat dijalankan oleh user yang menjalankan gateway.';
+        } else if (errorCode === 126 || errorCode === 127) {
+            failureResult.message = 'Perintah network.sh tidak dapat dijalankan.';
+            failureResult.resolution = 'Periksa izin eksekusi berkas network.sh dan pastikan dependensi shell tersedia.';
+        } else {
+            failureResult.message = 'Perintah ./network.sh down gagal dijalankan.';
+            failureResult.resolution = 'Periksa log pemadaman jaringan untuk rincian lebih lanjut.';
+        }
+
         await logNetworkShutdownFailure(failureResult);
 
         return failureResult;

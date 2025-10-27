@@ -193,12 +193,68 @@ const HIERARCHY_LEVEL_META = {
     }
 };
 
-const HIERARCHY_BAR_ANIMATION = {
-    baseThickness: 28,
-    expandedThickness: 44,
-    baseBackground: 'rgba(99, 102, 241, 0.75)',
-    expandedBackground: 'rgba(99, 102, 241, 0.95)'
+const HIERARCHY_BAR_STYLE = {
+    fallbackColor: 'rgba(99, 102, 241, 0.7)',
+    startColor: [56, 189, 248],
+    endColor: [79, 70, 229]
 };
+
+function getParsedChartValue(parsedValue) {
+    if (parsedValue == null) {
+        return 0;
+    }
+
+    if (typeof parsedValue === 'number' && !Number.isNaN(parsedValue)) {
+        return parsedValue;
+    }
+
+    if (typeof parsedValue === 'object') {
+        if (typeof parsedValue.x === 'number' && !Number.isNaN(parsedValue.x)) {
+            return parsedValue.x;
+        }
+        if (typeof parsedValue.y === 'number' && !Number.isNaN(parsedValue.y)) {
+            return parsedValue.y;
+        }
+    }
+
+    const numericValue = Number(parsedValue);
+    return Number.isNaN(numericValue) ? 0 : numericValue;
+}
+
+function createHierarchyBarGradient(context, maxValue, { boost = 0 } = {}) {
+    if (!context || typeof context.dataIndex !== 'number') {
+        return HIERARCHY_BAR_STYLE.fallbackColor;
+    }
+
+    const chart = context.chart;
+    if (!chart || !chart.ctx || !chart.chartArea) {
+        return HIERARCHY_BAR_STYLE.fallbackColor;
+    }
+
+    const { chartArea } = chart;
+    const value = getParsedChartValue(context.parsed);
+    const ratio = maxValue > 0 ? Math.min(1, Math.max(0, value / maxValue)) : 0;
+    const isActive = context.dataIndex === activeHierarchyBarIndex;
+    const activeBoost = isActive ? 0.18 : 0;
+
+    const startAlpha = Math.min(1, 0.28 + ratio * 0.3 + activeBoost + boost);
+    const endAlpha = Math.min(1, 0.5 + ratio * 0.45 + activeBoost + boost);
+
+    const gradient = chart.ctx.createLinearGradient(
+        chartArea.left,
+        chartArea.top,
+        chartArea.right,
+        chartArea.top
+    );
+
+    const [startR, startG, startB] = HIERARCHY_BAR_STYLE.startColor;
+    const [endR, endG, endB] = HIERARCHY_BAR_STYLE.endColor;
+
+    gradient.addColorStop(0, `rgba(${startR}, ${startG}, ${startB}, ${startAlpha})`);
+    gradient.addColorStop(1, `rgba(${endR}, ${endG}, ${endB}, ${endAlpha})`);
+
+    return gradient;
+}
 
 const HIERARCHY_CHART_HEIGHT = {
     min: 420,
@@ -1513,6 +1569,8 @@ function renderCurrentHierarchyLevel() {
     destroyHierarchyChart();
 
     const chartContext = hierarchyChartCanvas.getContext('2d');
+    const maxReportValue = data.length ? Math.max(...data) : 0;
+
     hierarchyChartInstance = new window.Chart(chartContext, {
         type: 'bar',
         data: {
@@ -1521,35 +1579,20 @@ function renderCurrentHierarchyLevel() {
                 {
                     label: levelInfo.datasetTitle,
                     data,
-                    barPercentage: 0.62,
-                    categoryPercentage: 0.74,
+                    barPercentage: 0.58,
+                    categoryPercentage: 0.72,
                     backgroundColor(context) {
-                        if (!context || typeof context.dataIndex !== 'number') {
-                            return HIERARCHY_BAR_ANIMATION.baseBackground;
-                        }
-                        return context.dataIndex === activeHierarchyBarIndex
-                            ? HIERARCHY_BAR_ANIMATION.expandedBackground
-                            : HIERARCHY_BAR_ANIMATION.baseBackground;
+                        return createHierarchyBarGradient(context, maxReportValue);
                     },
-                    hoverBackgroundColor: 'rgba(99, 102, 241, 0.95)',
-                    borderWidth: 0,
-                    borderRadius(context) {
-                        if (!context || typeof context.dataIndex !== 'number') {
-                            return 16;
-                        }
-                        return context.dataIndex === activeHierarchyBarIndex ? 20 : 16;
+                    hoverBackgroundColor(context) {
+                        return createHierarchyBarGradient(context, maxReportValue, { boost: 0.08 });
                     },
+                    borderWidth: 1,
+                    borderColor: 'rgba(148, 163, 184, 0.25)',
                     borderSkipped: false,
-                    barThickness(context) {
-                        if (!context || typeof context.dataIndex !== 'number') {
-                            return HIERARCHY_BAR_ANIMATION.baseThickness;
-                        }
-                        return context.dataIndex === activeHierarchyBarIndex
-                            ? HIERARCHY_BAR_ANIMATION.expandedThickness
-                            : HIERARCHY_BAR_ANIMATION.baseThickness;
-                    },
-                    maxBarThickness: HIERARCHY_BAR_ANIMATION.expandedThickness,
-                    minBarLength: 4
+                    borderRadius: 12,
+                    maxBarThickness: 40,
+                    minBarLength: 6
                 }
             ]
         },

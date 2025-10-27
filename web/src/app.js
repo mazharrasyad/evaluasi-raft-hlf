@@ -182,7 +182,6 @@ const viewFiles = {
     kesehatanJaringan: path.resolve(viewsRoot, 'kesehatan-jaringan.html'),
     ruteServer: path.resolve(viewsRoot, 'rute-server.html'),
     simulasiData: path.resolve(viewsRoot, 'simulasi-data.html'),
-    petaLaporan: path.resolve(viewsRoot, 'peta-laporan.html'),
     wilayahDataset: path.resolve(viewsRoot, 'wilayah-indonesia.html'),
 };
 
@@ -202,10 +201,6 @@ app.get('/rute-server', (req, res) => {
 
 app.get('/simulasi-data', (req, res) => {
     res.sendFile(viewFiles.simulasiData);
-});
-
-app.get('/peta-laporan', (req, res) => {
-    res.sendFile(viewFiles.petaLaporan);
 });
 
 app.get('/api/check-network', async (req, res) => {

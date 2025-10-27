@@ -40,6 +40,8 @@ const simulationEvaluationList = document.getElementById('simulationEvaluationLi
 const simulationSubmitButton = simulationForm
     ? simulationForm.querySelector('button[type="submit"]')
     : null;
+const networkStartupButton = document.getElementById('networkStartupButton');
+const networkStartupStatusEl = document.getElementById('networkStartupStatus');
 const networkCheckButton = document.getElementById('networkCheckButton');
 const networkCheckStatusEl = document.getElementById('networkCheckStatus');
 const networkShutdownButton = document.getElementById('networkShutdownButton');
@@ -91,6 +93,7 @@ const decimalFormatter = new Intl.NumberFormat('id-ID', {
 
 const SWAL_PRIMARY_COLOR = '#38BDF8';
 const SWAL_CANCEL_COLOR = '#64748B';
+const DEFAULT_NETWORK_START_STATUS_MESSAGE = 'Belum ada perintah penyalaan jaringan yang dijalankan.';
 const DEFAULT_NETWORK_STATUS_MESSAGE = 'Belum ada pemeriksaan yang dijalankan.';
 const DEFAULT_NETWORK_SHUTDOWN_STATUS_MESSAGE = 'Belum ada perintah pemadaman jaringan yang dijalankan.';
 
@@ -428,6 +431,29 @@ async function confirmNetworkShutdown() {
     return window.confirm(`${title}\n\n${text}`);
 }
 
+async function confirmNetworkStartup() {
+    const title = 'Hidupkan seluruh jaringan Fabric?';
+    const text = 'Perintah ini akan menjalankan ./network.sh up createChannel dan deploy chaincode pelaporan pada jaringan RAFT Standard dan RAFT Variant. Pastikan server siap sebelum melanjutkan.';
+
+    if (isSwalAvailable()) {
+        const result = await window.Swal.fire({
+            icon: 'question',
+            title,
+            text,
+            showCancelButton: true,
+            confirmButtonText: 'Ya, hidupkan jaringan',
+            cancelButtonText: 'Batal',
+            confirmButtonColor: SWAL_PRIMARY_COLOR,
+            cancelButtonColor: SWAL_CANCEL_COLOR,
+            focusCancel: true,
+        });
+
+        return Boolean(result.isConfirmed);
+    }
+
+    return window.confirm(`${title}\n\n${text}`);
+}
+
 async function confirmSimulationDeletion() {
     const text = 'Hapus seluruh data simulasi pada session browser? Tindakan ini tidak dapat dibatalkan.';
     const title = 'Hapus data simulasi?';
@@ -455,6 +481,23 @@ function getNetworkStatusMeta(status) {
         return NETWORK_STATUS_META[status];
     }
     return NETWORK_STATUS_META.unknown;
+}
+
+function updateNetworkStartupStatus(state = 'idle', message = DEFAULT_NETWORK_START_STATUS_MESSAGE) {
+    if (!networkStartupStatusEl) {
+        return;
+    }
+
+    const indicator = networkStartupStatusEl.querySelector('[data-indicator]');
+    const messageEl = networkStartupStatusEl.querySelector('[data-message]');
+
+    if (indicator) {
+        indicator.className = `h-2 w-2 rounded-full ${NETWORK_STATUS_INDICATOR[state] || NETWORK_STATUS_INDICATOR.idle}`;
+    }
+
+    if (messageEl && typeof message === 'string') {
+        messageEl.textContent = message;
+    }
 }
 
 function updateNetworkCheckStatus(state = 'idle', message = DEFAULT_NETWORK_STATUS_MESSAGE) {
@@ -489,6 +532,64 @@ function updateNetworkShutdownStatus(state = 'idle', message = DEFAULT_NETWORK_S
     if (messageEl && typeof message === 'string') {
         messageEl.textContent = message;
     }
+}
+
+function formatNetworkStartupSummary(results) {
+    if (!Array.isArray(results) || !results.length) {
+        return ['Tidak ada jaringan yang ditemukan untuk dijalankan.'];
+    }
+
+    return results.map(result => {
+        const label = result?.label || 'Jaringan';
+        let statusLabel = 'gagal dijalankan';
+
+        if (result?.status === 'success') {
+            statusLabel = 'berhasil dijalankan';
+        } else if (result?.status === 'partial') {
+            statusLabel = 'berhasil sebagian';
+        } else if (result?.status === 'not_found') {
+            statusLabel = 'tidak ditemukan';
+        } else if (result?.status === 'dependency_missing') {
+            statusLabel = 'tidak dapat dijalankan karena dependensi hilang';
+        }
+
+        const detailParts = [];
+
+        if (Array.isArray(result?.steps)) {
+            result.steps.forEach(step => {
+                const stepLabel = step?.label || step?.displayCommand || 'Langkah';
+                let stepStatusLabel = 'gagal';
+
+                if (step?.status === 'success') {
+                    stepStatusLabel = 'berhasil';
+                } else if (step?.status === 'skipped') {
+                    stepStatusLabel = 'dilewati';
+                }
+
+                detailParts.push(`${stepLabel} — ${stepStatusLabel}.`);
+
+                if (step?.message) {
+                    detailParts.push(step.message);
+                }
+
+                if (step?.resolution) {
+                    detailParts.push(step.resolution);
+                }
+            });
+        }
+
+        if (result?.message) {
+            detailParts.push(result.message);
+        }
+
+        if (result?.resolution) {
+            detailParts.push(result.resolution);
+        }
+
+        const detailText = detailParts.length ? ` ${detailParts.join(' ')}` : '';
+
+        return `${label} — ${statusLabel}.${detailText}`.trim();
+    });
 }
 
 function formatNetworkShutdownSummary(results) {
@@ -2928,6 +3029,73 @@ async function handleSimulationSubmit(event) {
     }
 }
 
+async function handleNetworkStartupButtonClick() {
+    if (!networkStartupButton) {
+        return;
+    }
+
+    const confirmed = await confirmNetworkStartup();
+    if (!confirmed) {
+        updateNetworkStartupStatus('idle', 'Perintah penyalaan jaringan dibatalkan.');
+        return;
+    }
+
+    const originalContent = networkStartupButton.innerHTML;
+    networkStartupButton.disabled = true;
+    networkStartupButton.classList.add('cursor-not-allowed', 'opacity-60');
+    networkStartupButton.innerHTML = '<span class="text-base animate-spin">⚡</span><span>Menyalakan...</span>';
+
+    updateNetworkStartupStatus('loading', 'Menjalankan perintah penyalaan jaringan...');
+
+    try {
+        const response = await fetch('/api/start-network', {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(`Server mengembalikan status ${response.status}`);
+        }
+
+        const data = await response.json();
+        const results = Array.isArray(data?.results) ? data.results : [];
+        const successCount = results.filter(result => result?.status === 'success').length;
+        const summaryLines = formatNetworkStartupSummary(results);
+        const summaryText = summaryLines.join('\n');
+
+        if (!results.length) {
+            updateNetworkStartupStatus('error', 'Tidak ada jaringan yang ditemukan untuk dijalankan.');
+            await showErrorAlert(summaryText, { title: 'Perintah penyalaan gagal' });
+            return;
+        }
+
+        if (successCount === results.length) {
+            updateNetworkStartupStatus('success', 'Seluruh jaringan berhasil dijalankan.');
+            await showSuccessAlert(summaryText, { title: 'Jaringan siap digunakan' });
+            return;
+        }
+
+        if (successCount > 0) {
+            updateNetworkStartupStatus('error', 'Sebagian jaringan gagal dijalankan. Periksa detail pemberitahuan.');
+            await showErrorAlert(summaryText, { title: 'Sebagian perintah gagal' });
+            return;
+        }
+
+        updateNetworkStartupStatus('error', 'Perintah penyalaan jaringan gagal dijalankan.');
+        await showErrorAlert(summaryText || 'Perintah penyalaan jaringan gagal dijalankan.');
+    } catch (error) {
+        console.error('Gagal menyalakan jaringan Fabric:', error);
+        updateNetworkStartupStatus('error', 'Perintah penyalaan jaringan gagal. Periksa log server.');
+        await showErrorAlert('Gagal menjalankan perintah penyalaan jaringan. Periksa log server untuk detailnya.');
+    } finally {
+        networkStartupButton.disabled = false;
+        networkStartupButton.classList.remove('cursor-not-allowed', 'opacity-60');
+        networkStartupButton.innerHTML = originalContent;
+    }
+}
+
 async function handleNetworkCheckButtonClick() {
     if (!networkCheckButton) {
         return;
@@ -2983,6 +3151,13 @@ async function handleNetworkCheckButtonClick() {
         networkCheckButton.classList.remove('cursor-not-allowed', 'opacity-60');
         networkCheckButton.innerHTML = originalContent;
     }
+}
+
+if (networkStartupButton) {
+    updateNetworkStartupStatus('idle', DEFAULT_NETWORK_START_STATUS_MESSAGE);
+    networkStartupButton.addEventListener('click', handleNetworkStartupButtonClick);
+} else {
+    updateNetworkStartupStatus('idle', DEFAULT_NETWORK_START_STATUS_MESSAGE);
 }
 
 if (networkCheckButton) {

@@ -69,7 +69,26 @@
                                     <p class="text-sm text-textdark/70">Pemeriksaan akan menghubungi peer <code>peer0.org1.example.com</code> dan menjalankan transaksi <code>GetAllCatatan</code> untuk memastikan chaincode merespons.</p>
                                     <p class="text-xs text-textdark/50">Pastikan jaringan Hyperledger Fabric telah dijalankan sebelum memulai pemeriksaan.</p>
                                 </div>
-                                <div class="grid gap-4 md:grid-cols-2">
+                                <div class="grid gap-4 md:grid-cols-3">
+                                    <article class="flex flex-col gap-3 rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6 shadow-lg shadow-black/20">
+                                        <header class="flex items-center justify-between">
+                                            <div>
+                                                <p class="text-xs uppercase tracking-[0.3em] text-emerald-300">Tindakan jaringan</p>
+                                                <h2 class="text-lg font-semibold text-textdark">Hidupkan Jaringan</h2>
+                                            </div>
+                                            <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-300">⚡</span>
+                                        </header>
+                                        <p class="text-sm text-textdark/70">Jalankan skrip <code>network.sh</code> untuk menyalakan jaringan RAFT dan melakukan deploy chaincode <code>pelaporan</code>.</p>
+                                        <div class="flex flex-col gap-3">
+                                            <button type="button" id="networkStartupButton" class="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-500/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-emerald-500/40 transition duration-200 hover:-translate-y-0.5 hover:bg-emerald-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400">
+                                                <span>Hidupkan Jaringan</span>
+                                            </button>
+                                            <p id="networkStartupStatus" class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 py-2 text-xs font-medium text-textdark/80" role="status" aria-live="polite">
+                                                <span data-indicator class="h-2 w-2 rounded-full bg-secondary"></span>
+                                                <span data-message>Belum ada perintah penyalaan jaringan yang dijalankan.</span>
+                                            </p>
+                                        </div>
+                                    </article>
                                     <article class="flex flex-col gap-3 rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6 shadow-lg shadow-black/20">
                                         <header class="flex items-center justify-between">
                                             <div>

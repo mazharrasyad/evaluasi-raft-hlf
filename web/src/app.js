@@ -15,6 +15,8 @@ const execFileAsync = promisify(execFile);
 
 const logsRoot = path.resolve(__dirname, '../logs');
 const networkShutdownLogPath = path.resolve(logsRoot, 'network-shutdown.log');
+const networkStartupLogPath = path.resolve(logsRoot, 'network-start.log');
+const EXEC_MAX_BUFFER = 20 * 1024 * 1024;
 
 async function logNetworkShutdownFailure(result) {
     try {
@@ -67,6 +69,78 @@ async function logNetworkShutdownFailure(result) {
     }
 }
 
+async function logNetworkStartupFailure(result) {
+    try {
+        await fs.mkdir(logsRoot, { recursive: true });
+
+        const timestamp = new Date().toISOString();
+        const {
+            label,
+            networkDir,
+            status,
+            message,
+            resolution,
+            error,
+            steps,
+        } = result;
+
+        const logLines = [
+            `[${timestamp}] Gagal menyalakan jaringan: ${label}`,
+            `Status: ${status}`,
+            `Direktori: ${networkDir ?? '-'}`,
+        ];
+
+        if (message) {
+            logLines.push(`Pesan: ${message}`);
+        }
+
+        if (resolution) {
+            logLines.push(`Tindakan: ${resolution}`);
+        }
+
+        if (Array.isArray(steps) && steps.length) {
+            steps.forEach((step, index) => {
+                const stepLabel = step?.label || `Langkah ${index + 1}`;
+                const statusLabel = step?.status || 'unknown';
+                logLines.push(`Langkah ${index + 1}: ${stepLabel} — ${statusLabel}`);
+
+                if (step?.displayCommand) {
+                    logLines.push(`  Perintah: ${step.displayCommand}`);
+                }
+
+                if (step?.message) {
+                    logLines.push(`  Pesan: ${step.message}`);
+                }
+
+                if (step?.resolution) {
+                    logLines.push(`  Tindakan: ${step.resolution}`);
+                }
+
+                if (step?.error) {
+                    logLines.push(`  Error: ${step.error}`);
+                }
+
+                if (step?.stdout) {
+                    logLines.push(`  STDOUT: ${String(step.stdout).trim()}`);
+                }
+
+                if (step?.stderr) {
+                    logLines.push(`  STDERR: ${String(step.stderr).trim()}`);
+                }
+            });
+        }
+
+        if (error) {
+            logLines.push(`Error: ${error}`);
+        }
+
+        const logEntry = `${logLines.join('\n')}\n\n`;
+        await fs.appendFile(networkStartupLogPath, logEntry, 'utf8');
+    } catch (loggingError) {
+        console.error('Failed to write network startup log:', loggingError);
+    }
+}
+
 const NETWORK_SHUTDOWN_TARGETS = [
     {
         label: 'Jaringan RAFT Standard',
@@ -75,6 +149,65 @@ const NETWORK_SHUTDOWN_TARGETS = [
     {
         label: 'Jaringan RAFT Variant',
         directory: path.resolve(__dirname, '../../raft-variant/network'),
+    },
+];
+
+const NETWORK_START_TARGETS = [
+    {
+        label: 'Jaringan RAFT Standard',
+        directory: path.resolve(__dirname, '../../raft-standard/network'),
+        channel: 'channel-standard',
+        commands: [
+            {
+                label: 'Mulai jaringan',
+                args: ['up', 'createChannel', '-c', 'channel-standard', '-ca'],
+                displayCommand: './network.sh up createChannel -c channel-standard -ca',
+            },
+            {
+                label: 'Deploy chaincode',
+                args: [
+                    'deployCC',
+                    '-ccn',
+                    'pelaporan',
+                    '-ccp',
+                    '../chaincode/pelaporan',
+                    '-ccl',
+                    'javascript',
+                    '-c',
+                    'channel-standard',
+                ],
+                displayCommand:
+                    './network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl javascript -c channel-standard',
+            },
+        ],
+    },
+    {
+        label: 'Jaringan RAFT Variant',
+        directory: path.resolve(__dirname, '../../raft-variant/network'),
+        channel: 'channel-variant',
+        commands: [
+            {
+                label: 'Mulai jaringan',
+                args: ['up', 'createChannel', '-c', 'channel-variant', '-ca'],
+                displayCommand: './network.sh up createChannel -c channel-variant -ca',
+            },
+            {
+                label: 'Deploy chaincode',
+                args: [
+                    'deployCC',
+                    '-ccn',
+                    'pelaporan',
+                    '-ccp',
+                    '../chaincode/pelaporan',
+                    '-ccl',
+                    'javascript',
+                    '-c',
+                    'channel-variant',
+                ],
+                displayCommand:
+                    './network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl javascript -c channel-variant',
+            },
+        ],
     },
 ];
 
@@ -161,6 +294,7 @@ async function executeNetworkShutdown({ label, directory }) {
     try {
         const { stdout, stderr } = await execFileAsync('./network.sh', ['down'], {
             cwd: directory,
+            maxBuffer: EXEC_MAX_BUFFER,
         });
 
         return {
@@ -206,6 +340,135 @@ async function executeNetworkShutdown({ label, directory }) {
 
         return failureResult;
     }
+}
+
+async function executeNetworkStartup({ label, directory, commands }) {
+    const scriptPath = path.resolve(directory, 'network.sh');
+    const commandList = Array.isArray(commands) ? commands : [];
+
+    try {
+        await fs.access(directory, fsConstants.R_OK | fsConstants.X_OK);
+    } catch (error) {
+        const failureResult = {
+            label,
+            networkDir: directory,
+            status: 'not_found',
+            message: 'Direktori jaringan tidak ditemukan atau tidak dapat diakses.',
+            error: error instanceof Error ? error.message : String(error),
+        };
+
+        await logNetworkStartupFailure(failureResult);
+
+        return failureResult;
+    }
+
+    try {
+        await fs.access(scriptPath, fsConstants.X_OK);
+    } catch (error) {
+        const failureResult = {
+            label,
+            networkDir: directory,
+            status: 'not_found',
+            message: 'Berkas network.sh tidak ditemukan atau tidak dapat dijalankan.',
+            error: error instanceof Error ? error.message : String(error),
+        };
+
+        await logNetworkStartupFailure(failureResult);
+
+        return failureResult;
+    }
+
+    if (!commandList.length) {
+        const failureResult = {
+            label,
+            networkDir: directory,
+            status: 'error',
+            message: 'Tidak ada perintah yang dikonfigurasi untuk menyalakan jaringan.',
+        };
+
+        await logNetworkStartupFailure(failureResult);
+
+        return failureResult;
+    }
+
+    const steps = [];
+    let hasSuccess = false;
+
+    for (const command of commandList) {
+        const stepResult = {
+            label: command.label,
+            displayCommand: command.displayCommand,
+            args: Array.isArray(command.args) ? command.args : [],
+        };
+
+        try {
+            const { stdout, stderr } = await execFileAsync('./network.sh', stepResult.args, {
+                cwd: directory,
+                maxBuffer: EXEC_MAX_BUFFER,
+            });
+
+            stepResult.status = 'success';
+            stepResult.stdout = stdout;
+            stepResult.stderr = stderr;
+            steps.push(stepResult);
+            hasSuccess = true;
+        } catch (error) {
+            const stdout = error?.stdout ? String(error.stdout) : undefined;
+            const stderr = error?.stderr ? String(error.stderr) : undefined;
+            const errorCode = typeof error?.code === 'number' ? error.code : null;
+
+            stepResult.status = 'error';
+            stepResult.stdout = stdout;
+            stepResult.stderr = stderr;
+            stepResult.error = error instanceof Error ? error.message : String(error);
+
+            if (stderr?.includes('docker: command not found') || stdout?.includes('docker: command not found')) {
+                stepResult.message = 'Perintah docker tidak ditemukan saat menjalankan network.sh.';
+                stepResult.resolution = 'Pastikan Docker terpasang dan dapat dijalankan oleh user yang menjalankan gateway.';
+            } else if (errorCode === 126 || errorCode === 127) {
+                stepResult.message = 'Perintah network.sh tidak dapat dijalankan.';
+                stepResult.resolution = 'Periksa izin eksekusi berkas network.sh dan pastikan dependensi shell tersedia.';
+            } else {
+                stepResult.message = `Perintah ${stepResult.displayCommand || './network.sh'} gagal dijalankan.`;
+                stepResult.resolution = 'Periksa log penyalaan jaringan untuk rincian lebih lanjut.';
+            }
+
+            steps.push(stepResult);
+
+            const failureResult = {
+                label,
+                networkDir: directory,
+                status: hasSuccess ? 'partial' : 'error',
+                message: stepResult.message,
+                resolution: stepResult.resolution,
+                error: stepResult.error,
+                steps,
+            };
+
+            const remainingCommands = commandList.slice(steps.length);
+            for (const remaining of remainingCommands) {
+                steps.push({
+                    label: remaining.label,
+                    displayCommand: remaining.displayCommand,
+                    status: 'skipped',
+                    message: 'Langkah ini dilewati karena perintah sebelumnya gagal.',
+                });
+            }
+
+            await logNetworkStartupFailure(failureResult);
+
+            return failureResult;
+        }
+    }
+
+    const successResult = {
+        label,
+        networkDir: directory,
+        status: 'success',
+        steps,
+    };
+
+    return successResult;
 }
 
 const app = express();
@@ -275,6 +538,58 @@ app.get('/api/check-network', async (req, res) => {
             error: errorMessage,
         });
     }
+});
+
+app.post('/api/start-network', async (req, res) => {
+    const requestedAt = new Date().toISOString();
+    const results = [];
+
+    const dockerFailure = await ensureDockerAvailable();
+    if (dockerFailure) {
+        for (const target of NETWORK_START_TARGETS) {
+            const failureResult = {
+                label: target.label,
+                networkDir: target.directory,
+                status: dockerFailure.status,
+                ...dockerFailure,
+            };
+
+            await logNetworkStartupFailure(failureResult);
+            results.push(failureResult);
+        }
+
+        const completedAt = new Date().toISOString();
+
+        res.json({
+            requestedAt,
+            completedAt,
+            overallStatus: 'error',
+            dependencyStatus: 'docker_unavailable',
+            results,
+        });
+
+        return;
+    }
+
+    for (const target of NETWORK_START_TARGETS) {
+        const result = await executeNetworkStartup(target);
+        results.push(result);
+    }
+
+    const completedAt = new Date().toISOString();
+    const successCount = results.filter(result => result.status === 'success').length;
+    const overallStatus = successCount === results.length
+        ? 'success'
+        : successCount > 0
+            ? 'partial'
+            : 'error';
+
+    res.json({
+        requestedAt,
+        completedAt,
+        overallStatus,
+        results,
+    });
 });
 
 app.post('/api/shutdown-network', async (req, res) => {

@@ -27,6 +27,7 @@ async function logNetworkShutdownFailure(result) {
             command,
             status,
             message,
+            resolution,
             error,
             stdout,
             stderr,
@@ -41,6 +42,10 @@ async function logNetworkShutdownFailure(result) {
 
         if (message) {
             logLines.push(`Pesan: ${message}`);
+        }
+
+        if (resolution) {
+            logLines.push(`Tindakan: ${resolution}`);
         }
 
         if (error) {
@@ -72,6 +77,29 @@ const NETWORK_SHUTDOWN_TARGETS = [
         directory: path.resolve(__dirname, '../../raft-variant/network'),
     },
 ];
+
+async function ensureDockerAvailable() {
+    try {
+        await execFileAsync('docker', ['version']);
+        return null;
+    } catch (error) {
+        const stdout = error?.stdout ? String(error.stdout) : undefined;
+        const stderr = error?.stderr ? String(error.stderr) : undefined;
+        const isMissingBinary = error?.code === 'ENOENT';
+
+        return {
+            command: 'docker version',
+            status: isMissingBinary ? 'dependency_missing' : 'error',
+            message: isMissingBinary
+                ? 'Perintah docker tidak ditemukan di server gateway.'
+                : 'Gagal menjalankan perintah docker version.',
+            resolution: 'Pastikan Docker terpasang, service docker berjalan, dan user memiliki akses ke Docker CLI.',
+            error: error instanceof Error ? error.message : String(error),
+            stdout,
+            stderr,
+        };
+    }
+}
 
 async function executeNetworkShutdown({ label, directory }) {
     const scriptPath = path.resolve(directory, 'network.sh');
@@ -225,6 +253,32 @@ app.get('/api/check-network', async (req, res) => {
 app.post('/api/shutdown-network', async (req, res) => {
     const requestedAt = new Date().toISOString();
     const results = [];
+
+    const dockerFailure = await ensureDockerAvailable();
+    if (dockerFailure) {
+        for (const target of NETWORK_SHUTDOWN_TARGETS) {
+            const failureResult = {
+                label: target.label,
+                networkDir: target.directory,
+                ...dockerFailure,
+            };
+
+            await logNetworkShutdownFailure(failureResult);
+            results.push(failureResult);
+        }
+
+        const completedAt = new Date().toISOString();
+
+        res.json({
+            requestedAt,
+            completedAt,
+            overallStatus: 'error',
+            dependencyStatus: 'docker_unavailable',
+            results,
+        });
+
+        return;
+    }
 
     for (const target of NETWORK_SHUTDOWN_TARGETS) {
         const result = await executeNetworkShutdown(target);

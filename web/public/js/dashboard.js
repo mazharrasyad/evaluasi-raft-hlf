@@ -510,9 +510,23 @@ function formatNetworkShutdownSummary(results) {
             statusLabel = 'berhasil dimatikan';
         } else if (result?.status === 'not_found') {
             statusLabel = 'tidak ditemukan';
+        } else if (result?.status === 'dependency_missing') {
+            statusLabel = 'tidak dapat dijalankan karena dependensi hilang';
         }
 
-        return `${label} — ${statusLabel}.`;
+        const additionalDetails = [];
+
+        if (result?.message) {
+            additionalDetails.push(result.message);
+        }
+
+        if (result?.resolution) {
+            additionalDetails.push(result.resolution);
+        }
+
+        const detailText = additionalDetails.length ? ` ${additionalDetails.join(' ')}` : '';
+
+        return `${label} — ${statusLabel}.${detailText}`.trim();
     });
 }
 

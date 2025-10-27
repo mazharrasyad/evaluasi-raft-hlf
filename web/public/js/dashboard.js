@@ -58,6 +58,9 @@ const networkOperationMessage = networkOperationOverlay
 const networkOperationTimer = networkOperationOverlay
     ? networkOperationOverlay.querySelector('[data-overlay-timer]')
     : null;
+const networkOperationSeconds = networkOperationOverlay
+    ? networkOperationOverlay.querySelector('[data-overlay-seconds]')
+    : null;
 const networkOperationHint = networkOperationOverlay
     ? networkOperationOverlay.querySelector('[data-overlay-hint]')
     : null;
@@ -65,6 +68,7 @@ const networkOperationHint = networkOperationOverlay
 let networkOperationTimerHandle = null;
 let networkOperationOverlayStart = null;
 let networkOperationOverlayHideTimeout = null;
+let networkOperationLastDisplayedSeconds = null;
 
 const MIN_NETWORK_OPERATION_OVERLAY_DURATION = 600;
 
@@ -604,6 +608,15 @@ function updateNetworkOperationOverlayTimer() {
     if (networkOperationTimer) {
         networkOperationTimer.textContent = formatElapsedTime(elapsed);
     }
+
+    if (networkOperationSeconds) {
+        const elapsedSeconds = Math.floor(elapsed / 1000);
+
+        if (networkOperationLastDisplayedSeconds !== elapsedSeconds) {
+            networkOperationSeconds.textContent = `Waktu berlalu: ${elapsedSeconds} detik`;
+            networkOperationLastDisplayedSeconds = elapsedSeconds;
+        }
+    }
 }
 
 function showNetworkOperationOverlay(mode = 'startup', message) {
@@ -622,9 +635,14 @@ function showNetworkOperationOverlay(mode = 'startup', message) {
     }
 
     networkOperationOverlayStart = performance.now();
+    networkOperationLastDisplayedSeconds = 0;
 
     if (networkOperationTimer) {
         networkOperationTimer.textContent = '00:00.0';
+    }
+
+    if (networkOperationSeconds) {
+        networkOperationSeconds.textContent = 'Waktu berlalu: 0 detik';
     }
 
     const defaultHint = mode === 'shutdown'
@@ -672,6 +690,7 @@ function hideNetworkOperationOverlay() {
         }
 
         networkOperationOverlayStart = null;
+        networkOperationLastDisplayedSeconds = null;
 
         networkOperationOverlay.classList.add('hidden', 'opacity-0', 'pointer-events-none');
         networkOperationOverlay.classList.remove('flex', 'opacity-100', 'pointer-events-auto');
@@ -688,6 +707,7 @@ function hideNetworkOperationOverlay() {
         networkOperationOverlay.classList.add('hidden');
         networkOperationOverlay.classList.remove('flex');
         networkOperationOverlay.setAttribute('aria-hidden', 'true');
+        networkOperationLastDisplayedSeconds = null;
     };
 
     const beginFade = () => {
@@ -713,6 +733,7 @@ function hideNetworkOperationOverlay() {
         ? 0
         : Math.max(0, performance.now() - networkOperationOverlayStart);
     networkOperationOverlayStart = null;
+    networkOperationLastDisplayedSeconds = null;
 
     const effectiveElapsed = Number.isFinite(elapsed) ? elapsed : 0;
     const remainingDelay = Math.max(0, MIN_NETWORK_OPERATION_OVERLAY_DURATION - effectiveElapsed);

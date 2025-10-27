@@ -14,23 +14,26 @@ const __dirname = path.dirname(__filename);
 const mspId = 'Org1MSP';
 const mspUser = 'User1@org1.example.com';
 const chaincodeName = 'pelaporan';
+const standardNetworkDir = path.resolve(__dirname, '../../raft-standard/network');
+const variantNetworkDir = path.resolve(__dirname, '../../raft-variant/network');
+
 const networkConfigurations = [
     {
         label: 'RAFT Standard',
-        networkDir: path.resolve(__dirname, '../../raft-standard/network'),
+        networkDir: standardNetworkDir,
         channelName: 'channel-standard',
         instructions: {
-            up: 'cd ../raft-standard/network && ./network.sh up -ca && ./network.sh createChannel -c channel-standard -ca',
-            deploy: './network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl javascript -c channel-standard'
+            up: `cd ${standardNetworkDir} && ./network.sh up -ca && ./network.sh createChannel -c channel-standard -ca`,
+            deploy: `cd ${standardNetworkDir} && ./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl javascript -c channel-standard`
         }
     },
     {
         label: 'RAFT Variant',
-        networkDir: path.resolve(__dirname, '../../raft-variant/network'),
+        networkDir: variantNetworkDir,
         channelName: 'channel-variant',
         instructions: {
-            up: 'cd ../raft-variant/network && ./network.sh up -ca -bft && ./network.sh createChannel -c channel-variant -ca -bft',
-            deploy: './network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl javascript -c channel-variant -bft'
+            up: `cd ${variantNetworkDir} && ./network.sh up -ca -bft && ./network.sh createChannel -c channel-variant -ca -bft`,
+            deploy: `cd ${variantNetworkDir} && ./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl javascript -c channel-variant -bft`
         }
     }
 ];

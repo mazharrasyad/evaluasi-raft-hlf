@@ -2,6 +2,8 @@ import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+import { checkNetworkHealth } from './network-check.js';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -16,6 +18,30 @@ app.use(express.static(staticRoot));
 
 app.get('/', (req, res) => {
     res.sendFile(dashboardFile);
+});
+
+app.get('/api/check-network', async (req, res) => {
+    try {
+        const rawResults = await checkNetworkHealth();
+        const results = Array.isArray(rawResults) ? rawResults : [rawResults];
+        const overallStatus = results.length && results.every(item => item.status === 'healthy')
+            ? 'healthy'
+            : results.some(item => item.status === 'healthy')
+                ? 'partial'
+                : 'unavailable';
+
+        res.json({
+            checkedAt: new Date().toISOString(),
+            overallStatus,
+            results,
+        });
+    } catch (error) {
+        console.error('Failed to check network health:', error);
+        res.status(500).json({
+            message: 'Gagal memeriksa kesehatan jaringan.',
+            error: error instanceof Error ? error.message : error,
+        });
+    }
 });
 
 app.get('/wilayah-indonesia', (req, res) => {

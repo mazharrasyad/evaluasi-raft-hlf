@@ -84,6 +84,29 @@ async function showErrorAlert(message, { title = 'Gagal', confirmText = 'Mengert
     window.alert([title, message].filter(Boolean).join('\n\n'));
 }
 
+async function confirmSimulationCreation(count) {
+    const formattedCount = formatCount(count);
+    const text = `Buat ${formattedCount} data simulasi baru pada sesi ini?`;
+    const title = 'Buat data simulasi?';
+
+    if (isSwalAvailable()) {
+        const result = await window.Swal.fire({
+            icon: 'question',
+            title,
+            text,
+            showCancelButton: true,
+            confirmButtonText: 'Ya, buat data',
+            cancelButtonText: 'Batal',
+            confirmButtonColor: SWAL_PRIMARY_COLOR,
+            cancelButtonColor: SWAL_CANCEL_COLOR,
+            focusCancel: true
+        });
+        return Boolean(result.isConfirmed);
+    }
+
+    return window.confirm(`${title}\n\n${text}`);
+}
+
 async function confirmSimulationDeletion() {
     const text = 'Hapus seluruh data simulasi pada session browser? Tindakan ini tidak dapat dibatalkan.';
     const title = 'Hapus data simulasi?';
@@ -941,6 +964,12 @@ async function handleSimulationSubmit(event) {
     const requested = Number(simulationCountInput.value);
     const count = Number.isFinite(requested) ? Math.min(Math.max(Math.floor(requested), 1), 1000) : 1;
     simulationCountInput.value = String(count);
+
+    const confirmed = await confirmSimulationCreation(count);
+    if (!confirmed) {
+        updateSimulationStatus('Pembuatan data simulasi dibatalkan.', 'info');
+        return;
+    }
 
     const generated = generateSimulationRecords(count);
     if (!generated.length) {

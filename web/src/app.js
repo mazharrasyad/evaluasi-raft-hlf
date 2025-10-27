@@ -78,9 +78,29 @@ const NETWORK_SHUTDOWN_TARGETS = [
     },
 ];
 
+function getContainerCliVersionCommand() {
+    const rawValue = process.env.CONTAINER_CLI?.trim();
+    const parts = rawValue ? rawValue.split(/\s+/).filter(Boolean) : [];
+    const binary = parts.shift() || 'docker';
+    const args = [...parts, 'version'];
+    const display = [binary, ...args].join(' ').trim();
+    const binaryName = path.basename(binary);
+    const friendlyName = binaryName === 'docker' ? 'Docker' : binaryName;
+
+    return {
+        binary,
+        args,
+        display: display || binaryName,
+        binaryName,
+        friendlyName,
+    };
+}
+
 async function ensureDockerAvailable() {
+    const commandInfo = getContainerCliVersionCommand();
+
     try {
-        await execFileAsync('docker', ['version']);
+        await execFileAsync(commandInfo.binary, commandInfo.args);
         return null;
     } catch (error) {
         const stdout = error?.stdout ? String(error.stdout) : undefined;
@@ -88,12 +108,12 @@ async function ensureDockerAvailable() {
         const isMissingBinary = error?.code === 'ENOENT';
 
         return {
-            command: 'docker version',
+            command: commandInfo.display,
             status: isMissingBinary ? 'dependency_missing' : 'error',
             message: isMissingBinary
-                ? 'Perintah docker tidak ditemukan di server gateway.'
-                : 'Gagal menjalankan perintah docker version.',
-            resolution: 'Pastikan Docker terpasang, service docker berjalan, dan user memiliki akses ke Docker CLI.',
+                ? `Perintah ${commandInfo.binaryName} tidak ditemukan di server gateway.`
+                : `Gagal menjalankan perintah ${commandInfo.display}.`,
+            resolution: `Pastikan ${commandInfo.friendlyName} terpasang, layanan terkait berjalan, dan user memiliki akses ke CLI ${commandInfo.friendlyName}.`,
             error: error instanceof Error ? error.message : String(error),
             stdout,
             stderr,

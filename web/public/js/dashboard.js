@@ -76,6 +76,12 @@ const NETWORK_STATUS_META = {
         description: 'Material kriptografi belum lengkap.',
         badgeClass: 'border-amber-400/40 bg-amber-500/10 text-amber-300',
     },
+    error: {
+        label: 'Pemeriksaan gagal',
+        icon: '❌',
+        description: 'Pemeriksaan jaringan tidak dapat dijalankan.',
+        badgeClass: 'border-rose-400/40 bg-rose-500/10 text-rose-300',
+    },
     unknown: {
         label: 'Status tidak diketahui',
         icon: 'ℹ️',
@@ -1729,6 +1735,18 @@ async function handleNetworkCheckButtonClick() {
             checkedAt: data?.checkedAt,
             overallStatus: data?.overallStatus,
         });
+
+        if (data?.error) {
+            const errorMessage = typeof data.error === 'string'
+                ? data.error
+                : 'Pemeriksaan jaringan gagal dijalankan. Periksa log server.';
+            updateNetworkCheckStatus('error', errorMessage);
+            await showErrorAlert(
+                `Gagal menjalankan pemeriksaan jaringan. ${errorMessage}`,
+                { title: 'Pemeriksaan jaringan gagal' }
+            );
+            return;
+        }
 
         const summaryMeta = OVERALL_STATUS_META[data?.overallStatus];
         const successMessage = summaryMeta

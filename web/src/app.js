@@ -21,6 +21,8 @@ app.get('/', (req, res) => {
 });
 
 app.get('/api/check-network', async (req, res) => {
+    const checkedAt = new Date().toISOString();
+
     try {
         const rawResults = await checkNetworkHealth();
         const results = Array.isArray(rawResults) ? rawResults : [rawResults];
@@ -31,15 +33,31 @@ app.get('/api/check-network', async (req, res) => {
                 : 'unavailable';
 
         res.json({
-            checkedAt: new Date().toISOString(),
+            checkedAt,
             overallStatus,
             results,
         });
     } catch (error) {
         console.error('Failed to check network health:', error);
-        res.status(500).json({
-            message: 'Gagal memeriksa kesehatan jaringan.',
-            error: error instanceof Error ? error.message : error,
+        const errorMessage = error instanceof Error ? error.message : String(error);
+
+        const fallbackResult = {
+            label: 'Pemeriksaan jaringan',
+            networkDir: null,
+            channel: null,
+            chaincode: null,
+            peer: null,
+            instructions: null,
+            timestamp: checkedAt,
+            status: 'error',
+            message: errorMessage,
+        };
+
+        res.json({
+            checkedAt,
+            overallStatus: 'unavailable',
+            results: [fallbackResult],
+            error: errorMessage,
         });
     }
 });

@@ -120,9 +120,32 @@
                         <section class="rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20 backdrop-blur-sm">
                             <header class="flex flex-col gap-2 border-b border-white/10 pb-6">
                                 <h2 class="text-2xl font-semibold text-textdark">Peta Laporan Wilayah</h2>
-                                <p class="text-sm text-textdark/70">Panel hierarkis ini menampilkan rekapitulasi laporan berdasarkan data simulasi yang tersimpan di session browser. Klik setiap wilayah untuk menelusuri rincian hingga tingkat kelurahan.</p>
+                                <p class="text-sm text-textdark/70">Grafik batang interaktif ini menampilkan rekapitulasi laporan berdasarkan data simulasi yang tersimpan di session browser. Klik batang untuk menelusuri kabupaten/kota, kecamatan, hingga kelurahan.</p>
                             </header>
-                            <div class="mt-6 space-y-4" id="hierarchyContainer"></div>
+                            <div class="mt-6 space-y-4" id="hierarchyContainer">
+                                <div id="hierarchyEmptyState" class="rounded-2xl border border-secondary/30 bg-surfaceMuted/60 p-6 text-sm text-secondary">
+                                    Belum ada data simulasi yang dapat ditampilkan. Buat data terlebih dahulu untuk melihat grafik persebaran laporan.
+                                </div>
+                                <div id="hierarchyChartWrapper" class="hidden space-y-4 rounded-3xl border border-secondary/30 bg-surfaceMuted/70 p-6 shadow-xl shadow-black/20">
+                                    <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                                        <div class="space-y-1">
+                                            <p class="text-xs font-semibold uppercase tracking-[0.3em] text-secondary">Tingkat Wilayah</p>
+                                            <h3 id="hierarchyTitle" class="text-xl font-semibold text-textdark">Persebaran Laporan per Provinsi</h3>
+                                            <p id="hierarchyInstruction" class="text-sm text-textdark/70">Klik batang provinsi untuk melihat kabupaten/kota.</p>
+                                        </div>
+                                        <button id="hierarchyBackButton" type="button" class="inline-flex items-center gap-2 self-start rounded-full border border-white/10 bg-soft/60 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-textdark transition hover:bg-secondary/20 hover:text-textdark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary disabled:cursor-not-allowed disabled:border-white/5 disabled:bg-soft/30 disabled:text-textdark/40" disabled>
+                                            Kembali
+                                        </button>
+                                    </div>
+                                    <nav id="hierarchyBreadcrumb" class="flex flex-wrap items-center gap-2 text-xs text-textdark/60"></nav>
+                                    <div class="relative h-[360px] w-full">
+                                        <div id="hierarchyChartFallback" class="pointer-events-none absolute inset-0 hidden items-center justify-center">
+                                            <p class="rounded-full border border-secondary/30 bg-secondary/10 px-4 py-2 text-xs font-medium uppercase tracking-[0.2em] text-secondary">Belum ada data pada tingkat ini.</p>
+                                        </div>
+                                        <canvas id="hierarchyChart" class="!h-full !w-full"></canvas>
+                                    </div>
+                                </div>
+                            </div>
                             <footer class="mt-8 rounded-2xl border border-white/10 bg-surfaceMuted p-6 text-xs text-textdark/70">
                                 <p class="leading-relaxed">Dataset wilayah diambil dari repositori <code>wilayah-indonesia</code> dan dipadankan dengan catatan simulasi. Data tidak disimpan permanen dan akan hilang ketika sesi browser berakhir.</p>
                             </footer>
@@ -164,6 +187,7 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js" defer></script>
     <script src="../js/dashboard.js" defer></script>
     <div id="simulationModal" class="fixed inset-0 z-50 hidden">
         <div id="simulationModalOverlay" class="absolute inset-0 bg-soft/80 backdrop-blur-sm"></div>

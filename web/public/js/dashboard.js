@@ -21,6 +21,12 @@ const totalReportsEl = document.getElementById('totalReports');
 const simulationForm = document.getElementById('simulationForm');
 const simulationCountInput = document.getElementById('simulationCount');
 const simulationStatusEl = document.getElementById('simulationStatus');
+const simulationStatusIndicator = simulationStatusEl
+    ? simulationStatusEl.querySelector('[data-status-indicator]')
+    : null;
+const simulationStatusMessage = simulationStatusEl
+    ? simulationStatusEl.querySelector('[data-status-message]')
+    : null;
 const simulationSummaryContainer = document.getElementById('simulationSummary');
 const clearSimulationButton = document.getElementById('clearSimulationButton');
 const simulationModal = document.getElementById('simulationModal');
@@ -102,6 +108,35 @@ const NETWORK_STATUS_INDICATOR = {
     success: 'bg-emerald-400',
     error: 'bg-rose-400',
 };
+
+const SIMULATION_STATUS_VARIANTS = {
+    info: {
+        container: ['border-secondary/40', 'bg-secondary/10', 'text-secondary/90'],
+        indicator: ['bg-secondary', 'shadow-[0_0_0_4px_rgba(99,102,241,0.25)]'],
+    },
+    success: {
+        container: ['border-emerald-400/40', 'bg-emerald-500/10', 'text-emerald-200'],
+        indicator: ['bg-emerald-400', 'shadow-[0_0_0_4px_rgba(16,185,129,0.25)]'],
+    },
+    error: {
+        container: ['border-rose-400/40', 'bg-rose-500/10', 'text-rose-200'],
+        indicator: ['bg-rose-400', 'shadow-[0_0_0_4px_rgba(244,63,94,0.25)]'],
+    },
+};
+
+const SIMULATION_STATUS_VARIANT_CLASS_CACHE = Object.values(SIMULATION_STATUS_VARIANTS)
+    .reduce((accumulator, variant) => {
+        if (variant.container) {
+            variant.container.forEach(className => accumulator.container.add(className));
+        }
+        if (variant.indicator) {
+            variant.indicator.forEach(className => accumulator.indicator.add(className));
+        }
+        return accumulator;
+    }, { container: new Set(), indicator: new Set() });
+
+SIMULATION_STATUS_VARIANT_CLASS_CACHE.container = Array.from(SIMULATION_STATUS_VARIANT_CLASS_CACHE.container);
+SIMULATION_STATUS_VARIANT_CLASS_CACHE.indicator = Array.from(SIMULATION_STATUS_VARIANT_CLASS_CACHE.indicator);
 
 const OVERALL_STATUS_META = {
     healthy: {
@@ -2012,20 +2047,28 @@ function handleModalKeyDown(event) {
 }
 
 function updateSimulationStatus(message, variant = 'info') {
-    if (!simulationStatusEl) {
+    if (!simulationStatusEl || !simulationStatusMessage) {
         return;
     }
 
-    const baseClass = 'text-sm';
-    let variantClass = 'text-secondary';
-    if (variant === 'success') {
-        variantClass = 'text-emerald-600';
-    } else if (variant === 'error') {
-        variantClass = 'text-highlight';
+    const nextVariant = SIMULATION_STATUS_VARIANTS[variant]
+        ? variant
+        : 'info';
+    const variantConfig = SIMULATION_STATUS_VARIANTS[nextVariant];
+
+    simulationStatusEl.dataset.variant = nextVariant;
+
+    if (variantConfig && Array.isArray(variantConfig.container)) {
+        simulationStatusEl.classList.remove(...SIMULATION_STATUS_VARIANT_CLASS_CACHE.container);
+        simulationStatusEl.classList.add(...variantConfig.container);
     }
 
-    simulationStatusEl.className = `${baseClass} ${variantClass}`;
-    simulationStatusEl.textContent = message;
+    if (simulationStatusIndicator && variantConfig && Array.isArray(variantConfig.indicator)) {
+        simulationStatusIndicator.classList.remove(...SIMULATION_STATUS_VARIANT_CLASS_CACHE.indicator);
+        simulationStatusIndicator.classList.add(...variantConfig.indicator);
+    }
+
+    simulationStatusMessage.textContent = message;
 }
 
 function generateSimulationRecords(count) {

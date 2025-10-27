@@ -257,8 +257,8 @@ function createHierarchyBarGradient(context, maxValue, { boost = 0 } = {}) {
 }
 
 const HIERARCHY_CHART_HEIGHT = {
-    min: 420,
-    perItem: 36,
+    min: 460,
+    perItem: 44,
 };
 
 const NAME_COMPARISON_LOCALE = 'id-ID';
@@ -280,62 +280,6 @@ function sortItemsByTotalReports(items) {
     }
     return items.slice().sort(compareByTotalReportsDesc);
 }
-
-const HIERARCHY_VALUE_LABEL_PLUGIN = {
-    id: 'hierarchyValueLabel',
-    afterDatasetsDraw(chart) {
-        const datasetMeta = chart.getDatasetMeta(0);
-        const dataset = chart.data?.datasets?.[0];
-        if (!datasetMeta || !dataset || !Array.isArray(datasetMeta.data)) {
-            return;
-        }
-
-        const pluginConfig = chart?.config?.options?.plugins?.hierarchyValueLabel || {};
-        if (pluginConfig.display === false) {
-            return;
-        }
-
-        const ctx = chart.ctx;
-        const baseFontFamily = window.Chart?.defaults?.font?.family || 'Inter, sans-serif';
-        const fontSize = pluginConfig.fontSize ?? 12;
-        const fontWeight = pluginConfig.fontWeight ?? 600;
-        const textPadding = pluginConfig.padding ?? 12;
-        const textColor = pluginConfig.color || '#E2E8F0';
-
-        ctx.save();
-        ctx.font = `${fontWeight} ${fontSize}px ${baseFontFamily}`;
-        ctx.fillStyle = textColor;
-        ctx.textAlign = 'left';
-        ctx.textBaseline = 'middle';
-
-        datasetMeta.data.forEach((element, index) => {
-            if (!element || element.skip) {
-                return;
-            }
-
-            const rawValue = dataset.data[index];
-            const numericValue = typeof rawValue === 'number'
-                ? rawValue
-                : Number.parseFloat(rawValue);
-            const safeValue = Number.isFinite(numericValue) ? numericValue : 0;
-            const formatter = pluginConfig.formatter || (value => `${formatCount(value)} laporan`);
-            const label = formatter(safeValue, index, chart);
-            if (!label) {
-                return;
-            }
-
-            const text = String(label);
-            const position = element.tooltipPosition(true);
-            const maxX = chart.chartArea?.right ?? position.x;
-            const x = Math.min(position.x + textPadding, maxX - 4);
-            const y = position.y;
-
-            ctx.fillText(text, x, y);
-        });
-
-        ctx.restore();
-    }
-};
 
 function isSwalAvailable() {
     return typeof window !== 'undefined'
@@ -1593,8 +1537,8 @@ function renderCurrentHierarchyLevel() {
                 {
                     label: levelInfo.datasetTitle,
                     data,
-                    barPercentage: 0.58,
-                    categoryPercentage: 0.72,
+                    barPercentage: 0.74,
+                    categoryPercentage: 0.82,
                     backgroundColor(context) {
                         return createHierarchyBarGradient(context, maxReportValue);
                     },
@@ -1605,7 +1549,7 @@ function renderCurrentHierarchyLevel() {
                     borderColor: 'rgba(148, 163, 184, 0.25)',
                     borderSkipped: false,
                     borderRadius: 12,
-                    maxBarThickness: 40,
+                    maxBarThickness: 56,
                     minBarLength: 6
                 }
             ]
@@ -1620,9 +1564,9 @@ function renderCurrentHierarchyLevel() {
             maintainAspectRatio: false,
             layout: {
                 padding: {
-                    top: 16,
+                    top: 24,
                     right: 72,
-                    bottom: 16,
+                    bottom: 24,
                     left: 12
                 }
             },
@@ -1641,7 +1585,7 @@ function renderCurrentHierarchyLevel() {
                         color: '#94A3B8',
                         callback: value => formatCount(value),
                         maxRotation: 0,
-                        padding: 12,
+                        padding: 16,
                         font: {
                             size: 12
                         }
@@ -1658,7 +1602,7 @@ function renderCurrentHierarchyLevel() {
                     },
                     ticks: {
                         color: '#E2E8F0',
-                        padding: 12,
+                        padding: 16,
                         autoSkip: false,
                         font: {
                             size: 13,
@@ -1703,15 +1647,6 @@ function renderCurrentHierarchyLevel() {
                         bottom: 16
                     }
                 },
-                hierarchyValueLabel: {
-                    color: '#CBD5F5',
-                    padding: 16,
-                    fontWeight: 600,
-                    fontSize: 12,
-                    formatter(value) {
-                        return `${formatCount(value)} laporan`;
-                    }
-                }
             },
             onHover(event, elements) {
                 if (event?.native) {
@@ -1721,8 +1656,7 @@ function renderCurrentHierarchyLevel() {
             onClick(event, elements) {
                 handleHierarchyChartInteraction(levelInfo.level, elements);
             }
-        },
-        plugins: [HIERARCHY_VALUE_LABEL_PLUGIN]
+        }
     });
 }
 

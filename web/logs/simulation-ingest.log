@@ -1,0 +1,52 @@
+[2025-10-27T10:58:36.503Z] Pengiriman catatan ke RAFT Standard (channel-standard)
+Status: error
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Waktu mulai: 2025-10-27T10:58:36.491Z
+Waktu selesai: 2025-10-27T10:58:36.503Z
+Pesan: contract.createTransaction is not a function
+Error: contract.createTransaction is not a function
+Stacktrace:
+TypeError: contract.createTransaction is not a function
+    at submitToSingleNetwork (file:///root/evaluasi-raft-hlf/web/src/simulation-ingest.js:268:38)
+    at async submitSimulationRecord (file:///root/evaluasi-raft-hlf/web/src/simulation-ingest.js:374:24)
+    at async file:///root/evaluasi-raft-hlf/web/src/app.js:671:25
+
+[2025-10-27T10:58:36.509Z] Pengiriman catatan ke RAFT Variant (channel-variant)
+Status: error
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Waktu mulai: 2025-10-27T10:58:36.504Z
+Waktu selesai: 2025-10-27T10:58:36.509Z
+Pesan: contract.createTransaction is not a function
+Error: contract.createTransaction is not a function
+Stacktrace:
+TypeError: contract.createTransaction is not a function
+    at submitToSingleNetwork (file:///root/evaluasi-raft-hlf/web/src/simulation-ingest.js:268:38)
+    at async submitSimulationRecord (file:///root/evaluasi-raft-hlf/web/src/simulation-ingest.js:374:24)
+    at async file:///root/evaluasi-raft-hlf/web/src/app.js:671:25
+
+[2025-10-27T10:58:36.642Z] Pengiriman catatan ke RAFT Standard (channel-standard)
+Status: error
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Waktu mulai: 2025-10-27T10:58:36.636Z
+Waktu selesai: 2025-10-27T10:58:36.642Z
+Pesan: contract.createTransaction is not a function
+Error: contract.createTransaction is not a function
+Stacktrace:
+TypeError: contract.createTransaction is not a function
+    at submitToSingleNetwork (file:///root/evaluasi-raft-hlf/web/src/simulation-ingest.js:268:38)
+    at async submitSimulationRecord (file:///root/evaluasi-raft-hlf/web/src/simulation-ingest.js:374:24)
+    at async file:///root/evaluasi-raft-hlf/web/src/app.js:671:25
+
+[2025-10-27T10:58:36.645Z] Pengiriman catatan ke RAFT Variant (channel-variant)
+Status: error
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Waktu mulai: 2025-10-27T10:58:36.642Z
+Waktu selesai: 2025-10-27T10:58:36.645Z
+Pesan: contract.createTransaction is not a function
+Error: contract.createTransaction is not a function
+Stacktrace:
+TypeError: contract.createTransaction is not a function
+    at submitToSingleNetwork (file:///root/evaluasi-raft-hlf/web/src/simulation-ingest.js:268:38)
+    at async submitSimulationRecord (file:///root/evaluasi-raft-hlf/web/src/simulation-ingest.js:374:24)
+    at async file:///root/evaluasi-raft-hlf/web/src/app.js:671:25
+

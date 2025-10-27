@@ -1,0 +1,265 @@
+[2025-10-27T13:35:58.745Z] Gagal menyalakan jaringan: Jaringan RAFT Standard
+Status: partial
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Pesan: Perintah ./network.sh createChannel -c channel-standard -ca gagal dijalankan.
+Tindakan: Periksa log penyalaan jaringan untuk rincian lebih lanjut.
+Langkah 1: Mulai layanan inti — success
+  Perintah: ./network.sh up -ca
+  STDOUT: [0;34mUsing docker and docker-compose[0m
+[0;34mStarting nodes with CLI timeout of '5' tries and CLI delay of '3' seconds and using database 'leveldb' [0m
+[0;34mLOCAL_VERSION=v2.5.12[0m
+[0;34mDOCKER_IMAGE_VERSION=v2.5.12[0m
+[0;34mCA_LOCAL_VERSION=v1.5.15[0m
+[0;34mCA_DOCKER_IMAGE_VERSION=v1.5.15[0m
+Found orphan containers (64482ee5b0d6_ca_org1, cd3801988b2e_ca_org2, ed209d834771_ca_orderer) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up.
+peer0.org1.example.com is up-to-date
+orderer.example.com is up-to-date
+peer0.org2.example.com is up-to-date
+CONTAINER ID   IMAGE                                                                                                                                                                        COMMAND                  CREATED          STATUS                        PORTS                                                                                                                                   NAMES
+e1ec8bd3bddb   dev-peer0.org2.example.com-pelaporan_1.0-b0cdc47f9832a4e4f69bf8d0f60d51740cadcb0648a7239c0409c8f1e8caaac0-7353f065055c2dc24c768cf5c4e50d640c7e60e89c46d23b5b6f6552f3418598   "docker-entrypoint.s…"   19 minutes ago   Up 19 minutes                                                                                                                                                         dev-peer0.org2.example.com-pelaporan_1.0-b0cdc47f9832a4e4f69bf8d0f60d51740cadcb0648a7239c0409c8f1e8caaac0
+c3f191bccc75   dev-peer0.org1.example.com-pelaporan_1.0-b0cdc47f9832a4e4f69bf8d0f60d51740cadcb0648a7239c0409c8f1e8caaac0-8e82804c46959ec86b4c8d60855260c4758ea87b84cfabfc458d3a32fa11b7dd   "docker-entrypoint.s…"   19 minutes ago   Up 19 minutes                                                                                                                                                         dev-peer0.org1.example.com-pelaporan_1.0-b0cdc47f9832a4e4f69bf8d0f60d51740cadcb0648a7239c0409c8f1e8caaac0
+765a26b06128   hyperledger/fabric-peer:latest                                                                                                                                               "peer node start"        20 minutes ago   Up 20 minutes                 0.0.0.0:9051->9051/tcp, [::]:9051->9051/tcp, 7051/tcp, 0.0.0.0:9445->9445/tcp, [::]:9445->9445/tcp                                      peer0.org2.example.com
+1c93c39bd310   hyperledger/fabric-peer:latest                                                                                                                                               "peer node start"        20 minutes ago   Up 20 minutes                 0.0.0.0:7051->7051/tcp, [::]:7051->7051/tcp, 0.0.0.0:9444->9444/tcp, [::]:9444->9444/tcp                                                peer0.org1.example.com
+f7577727aedc   hyperledger/fabric-orderer:latest                                                                                                                                            "orderer"                20 minutes ago   Up 20 minutes                 0.0.0.0:7050->7050/tcp, [::]:7050->7050/tcp, 0.0.0.0:7053->7053/tcp, [::]:7053->7053/tcp, 0.0.0.0:9443->9443/tcp, [::]:9443->9443/tcp   orderer.example.com
+64482ee5b0d6   hyperledger/fabric-ca:latest                                                                                                                                                 "sh -c 'fabric-ca-se…"   21 minutes ago   Exited (137) 19 minutes ago                                                                                                                                           64482ee5b0d6_ca_org1
+ed209d834771   hyperledger/fabric-ca:latest                                                                                                                                                 "sh -c 'fabric-ca-se…"   21 minutes ago   Exited (137) 19 minutes ago                                                                                                                                           ed209d834771_ca_orderer
+cd3801988b2e   hyperledger/fabric-ca:latest                                                                                                                                                 "sh -c 'fabric-ca-se…"   21 minutes ago   Exited (137) 19 minutes ago                                                                                                                                           cd3801988b2e_ca_org2
+Langkah 2: Buat channel — error
+  Perintah: ./network.sh createChannel -c channel-standard -ca
+  Pesan: Perintah ./network.sh createChannel -c channel-standard -ca gagal dijalankan.
+  Tindakan: Periksa log penyalaan jaringan untuk rincian lebih lanjut.
+  Error: Command failed: ./network.sh createChannel -c channel-standard -ca
++ '[' 0 -eq 1 ']'
++ configtxgen -profile ChannelUsingRaft -outputBlock ./channel-artifacts/channel-standard.block -channelID channel-standard
+[34m2025-10-27 13:35:43.112 UTC 0001 INFO[0m [common.tools.configtxgen] [34;1mmain[0m -> Loading configuration
+[34m2025-10-27 13:35:43.118 UTC 0002 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> orderer type: etcdraft
+[34m2025-10-27 13:35:43.118 UTC 0003 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> Orderer.EtcdRaft.Options unset, setting to tick_interval:"500ms" election_tick:10 heartbeat_tick:1 max_inflight_blocks:5 snapshot_interval_size:16777216 
+[34m2025-10-27 13:35:43.118 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/raft-standard/network/configtx/configtx.yaml
+[34m2025-10-27 13:35:43.120 UTC 0005 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Generating genesis block
+[34m2025-10-27 13:35:43.120 UTC 0006 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Creating application channel genesis block
+[34m2025-10-27 13:35:43.121 UTC 0007 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Writing genesis block
++ res=0
++ . scripts/orderer.sh channel-standard
++ '[' 0 -eq 1 ']'
++ res=0
++ peer channel join -b ./channel-artifacts/channel-standard.block
++ res=1
++ peer channel join -b ./channel-artifacts/channel-standard.block
++ res=1
++ peer channel join -b ./channel-artifacts/channel-standard.block
++ res=1
++ peer channel join -b ./channel-artifacts/channel-standard.block
++ res=1
+
+  STDOUT: [0;34mUsing docker and docker-compose[0m
+[0;34mCreating channel 'channel-standard'.[0m
+[0;34mIf network is not up, starting nodes with CLI timeout of '5' tries and CLI delay of '3' seconds and using database 'leveldb [0m
+[0;34mBringing up network[0m
+[0;34mLOCAL_VERSION=v2.5.12[0m
+[0;34mDOCKER_IMAGE_VERSION=v2.5.12[0m
+[0;34mCA_LOCAL_VERSION=v1.5.15[0m
+[0;34mCA_DOCKER_IMAGE_VERSION=v1.5.15[0m
+Found orphan containers (cd3801988b2e_ca_org2, ed209d834771_ca_orderer, 64482ee5b0d6_ca_org1) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up.
+orderer.example.com is up-to-date
+peer0.org2.example.com is up-to-date
+peer0.org1.example.com is up-to-date
+CONTAINER ID   IMAGE                                                                                                                                                                        COMMAND                  CREATED          STATUS                        PORTS                                                                                                                                   NAMES
+e1ec8bd3bddb   dev-peer0.org2.example.com-pelaporan_1.0-b0cdc47f9832a4e4f69bf8d0f60d51740cadcb0648a7239c0409c8f1e8caaac0-7353f065055c2dc24c768cf5c4e50d640c7e60e89c46d23b5b6f6552f3418598   "docker-entrypoint.s…"   19 minutes ago   Up 19 minutes                                                                                                                                                         dev-peer0.org2.example.com-pelaporan_1.0-b0cdc47f9832a4e4f69bf8d0f60d51740cadcb0648a7239c0409c8f1e8caaac0
+c3f191bccc75   dev-peer0.org1.example.com-pelaporan_1.0-b0cdc47f9832a4e4f69bf8d0f60d51740cadcb0648a7239c0409c8f1e8caaac0-8e82804c46959ec86b4c8d60855260c4758ea87b84cfabfc458d3a32fa11b7dd   "docker-entrypoint.s…"   19 minutes ago   Up 19 minutes                                                                                                                                                         dev-peer0.org1.example.com-pelaporan_1.0-b0cdc47f9832a4e4f69bf8d0f60d51740cadcb0648a7239c0409c8f1e8caaac0
+765a26b06128   hyperledger/fabric-peer:latest                                                                                                                                               "peer node start"        21 minutes ago   Up 21 minutes                 0.0.0.0:9051->9051/tcp, [::]:9051->9051/tcp, 7051/tcp, 0.0.0.0:9445->9445/tcp, [::]:9445->9445/tcp                                      peer0.org2.example.com
+1c93c39bd310   hyperledger/fabric-peer:latest                                                                                                                                               "peer node start"        21 minutes ago   Up 21 minutes                 0.0.0.0:7051->7051/tcp, [::]:7051->7051/tcp, 0.0.0.0:9444->9444/tcp, [::]:9444->9444/tcp                                                peer0.org1.example.com
+f7577727aedc   hyperledger/fabric-orderer:latest                                                                                                                                            "orderer"                21 minutes ago   Up 21 minutes                 0.0.0.0:7050->7050/tcp, [::]:7050->7050/tcp, 0.0.0.0:7053->7053/tcp, [::]:7053->7053/tcp, 0.0.0.0:9443->9443/tcp, [::]:9443->9443/tcp   orderer.example.com
+64482ee5b0d6   hyperledger/fabric-ca:latest                                                                                                                                                 "sh -c 'fabric-ca-se…"   21 minutes ago   Exited (137) 19 minutes ago                                                                                                                                           64482ee5b0d6_ca_org1
+ed209d834771   hyperledger/fabric-ca:latest                                                                                                                                                 "sh -c 'fabric-ca-se…"   21 minutes ago   Exited (137) 19 minutes ago                                                                                                                                           ed209d834771_ca_orderer
+cd3801988b2e   hyperledger/fabric-ca:latest                                                                                                                                                 "sh -c 'fabric-ca-se…"   21 minutes ago   Exited (137) 19 minutes ago                                                                                                                                           cd3801988b2e_ca_org2
+[0;34mUsing docker and docker-compose[0m
+[0;34mGenerating channel genesis block 'channel-standard.block'[0m
+[0;34mUsing organization 1[0m
+/root/gasnyoba-blockchain/bin/configtxgen
+[0;34mCreating channel channel-standard[0m
+[0;34mAdding orderers[0m
+Committed chaincode definition for chaincode 'pelaporan' on channel 'channel-standard':
+Version: 1.0, Sequence: 1, Endorsement Plugin: escc, Validation Plugin: vscc, Approvals: [Org1MSP: true, Org2MSP: true]
+Status: 405
+{
+	"error": "cannot join: channel already exists"
+}
+
+[0;32mChannel 'channel-standard' created[0m
+[0;34mJoining org1 peer to the channel...[0m
+[0;34mUsing organization 1[0m
+[34m2025-10-27 13:35:58.718 UTC 0001 INFO[0m [channelCmd] [34;1mInitCmdFactory[0m -> Endorser and orderer connections initialized
+Error: proposal failed (err: bad proposal response 500: cannot create ledger from genesis block: ledger [channel-standard] already exists with state [ACTIVE])
+[0;31mAfter 5 attempts, peer0.org1 has failed to join channel 'channel-standard' [0m
+  STDERR: + '[' 0 -eq 1 ']'
++ configtxgen -profile ChannelUsingRaft -outputBlock ./channel-artifacts/channel-standard.block -channelID channel-standard
+[34m2025-10-27 13:35:43.112 UTC 0001 INFO[0m [common.tools.configtxgen] [34;1mmain[0m -> Loading configuration
+[34m2025-10-27 13:35:43.118 UTC 0002 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> orderer type: etcdraft
+[34m2025-10-27 13:35:43.118 UTC 0003 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> Orderer.EtcdRaft.Options unset, setting to tick_interval:"500ms" election_tick:10 heartbeat_tick:1 max_inflight_blocks:5 snapshot_interval_size:16777216 
+[34m2025-10-27 13:35:43.118 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/raft-standard/network/configtx/configtx.yaml
+[34m2025-10-27 13:35:43.120 UTC 0005 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Generating genesis block
+[34m2025-10-27 13:35:43.120 UTC 0006 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Creating application channel genesis block
+[34m2025-10-27 13:35:43.121 UTC 0007 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Writing genesis block
++ res=0
++ . scripts/orderer.sh channel-standard
++ '[' 0 -eq 1 ']'
++ res=0
++ peer channel join -b ./channel-artifacts/channel-standard.block
++ res=1
++ peer channel join -b ./channel-artifacts/channel-standard.block
++ res=1
++ peer channel join -b ./channel-artifacts/channel-standard.block
++ res=1
++ peer channel join -b ./channel-artifacts/channel-standard.block
++ res=1
+Langkah 3: Deploy chaincode — skipped
+  Perintah: ./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl javascript -c channel-standard
+  Pesan: Langkah ini dilewati karena perintah sebelumnya gagal.
+Error: Command failed: ./network.sh createChannel -c channel-standard -ca
++ '[' 0 -eq 1 ']'
++ configtxgen -profile ChannelUsingRaft -outputBlock ./channel-artifacts/channel-standard.block -channelID channel-standard
+[34m2025-10-27 13:35:43.112 UTC 0001 INFO[0m [common.tools.configtxgen] [34;1mmain[0m -> Loading configuration
+[34m2025-10-27 13:35:43.118 UTC 0002 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> orderer type: etcdraft
+[34m2025-10-27 13:35:43.118 UTC 0003 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> Orderer.EtcdRaft.Options unset, setting to tick_interval:"500ms" election_tick:10 heartbeat_tick:1 max_inflight_blocks:5 snapshot_interval_size:16777216 
+[34m2025-10-27 13:35:43.118 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/raft-standard/network/configtx/configtx.yaml
+[34m2025-10-27 13:35:43.120 UTC 0005 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Generating genesis block
+[34m2025-10-27 13:35:43.120 UTC 0006 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Creating application channel genesis block
+[34m2025-10-27 13:35:43.121 UTC 0007 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Writing genesis block
++ res=0
++ . scripts/orderer.sh channel-standard
++ '[' 0 -eq 1 ']'
++ res=0
++ peer channel join -b ./channel-artifacts/channel-standard.block
++ res=1
++ peer channel join -b ./channel-artifacts/channel-standard.block
++ res=1
++ peer channel join -b ./channel-artifacts/channel-standard.block
++ res=1
++ peer channel join -b ./channel-artifacts/channel-standard.block
++ res=1
+
+
+[2025-10-27T16:32:57.287Z] Gagal menyalakan jaringan: Jaringan RAFT Standard
+Status: partial
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Pesan: Perintah ./network.sh createChannel -c channel-standard -ca gagal dijalankan.
+Tindakan: Periksa log penyalaan jaringan untuk rincian lebih lanjut.
+Langkah 1: Mulai layanan inti — success
+  Perintah: ./network.sh up -ca
+  STDOUT: [0;34mUsing docker and docker-compose[0m
+[0;34mStarting nodes with CLI timeout of '5' tries and CLI delay of '3' seconds and using database 'leveldb' [0m
+[0;34mLOCAL_VERSION=v2.5.12[0m
+[0;34mDOCKER_IMAGE_VERSION=v2.5.12[0m
+[0;34mCA_LOCAL_VERSION=v1.5.15[0m
+[0;34mCA_DOCKER_IMAGE_VERSION=v1.5.15[0m
+Found orphan containers (ca_orderer, ca_org2, ca_org1) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up.
+orderer.example.com is up-to-date
+peer0.org1.example.com is up-to-date
+peer0.org2.example.com is up-to-date
+CONTAINER ID   IMAGE                                                                                                                                                                        COMMAND                  CREATED              STATUS              PORTS                                                                                                                                   NAMES
+d157acb5180f   dev-peer0.org1.example.com-pelaporan_1.0-b0cdc47f9832a4e4f69bf8d0f60d51740cadcb0648a7239c0409c8f1e8caaac0-8e82804c46959ec86b4c8d60855260c4758ea87b84cfabfc458d3a32fa11b7dd   "docker-entrypoint.s…"   7 seconds ago        Up 7 seconds                                                                                                                                                dev-peer0.org1.example.com-pelaporan_1.0-b0cdc47f9832a4e4f69bf8d0f60d51740cadcb0648a7239c0409c8f1e8caaac0
+73eaeb761f4e   dev-peer0.org2.example.com-pelaporan_1.0-b0cdc47f9832a4e4f69bf8d0f60d51740cadcb0648a7239c0409c8f1e8caaac0-7353f065055c2dc24c768cf5c4e50d640c7e60e89c46d23b5b6f6552f3418598   "docker-entrypoint.s…"   7 seconds ago        Up 7 seconds                                                                                                                                                dev-peer0.org2.example.com-pelaporan_1.0-b0cdc47f9832a4e4f69bf8d0f60d51740cadcb0648a7239c0409c8f1e8caaac0
+71c8ee37faff   hyperledger/fabric-peer:latest                                                                                                                                               "peer node start"        About a minute ago   Up About a minute   0.0.0.0:9051->9051/tcp, [::]:9051->9051/tcp, 7051/tcp, 0.0.0.0:9445->9445/tcp, [::]:9445->9445/tcp                                      peer0.org2.example.com
+571acde53055   hyperledger/fabric-peer:latest                                                                                                                                               "peer node start"        About a minute ago   Up About a minute   0.0.0.0:7051->7051/tcp, [::]:7051->7051/tcp, 0.0.0.0:9444->9444/tcp, [::]:9444->9444/tcp                                                peer0.org1.example.com
+913aa2a415cb   hyperledger/fabric-orderer:latest                                                                                                                                            "orderer"                About a minute ago   Up About a minute   0.0.0.0:7050->7050/tcp, [::]:7050->7050/tcp, 0.0.0.0:7053->7053/tcp, [::]:7053->7053/tcp, 0.0.0.0:9443->9443/tcp, [::]:9443->9443/tcp   orderer.example.com
+bdf42ce7cccb   hyperledger/fabric-ca:latest                                                                                                                                                 "sh -c 'fabric-ca-se…"   About a minute ago   Up About a minute   0.0.0.0:9054->9054/tcp, [::]:9054->9054/tcp, 7054/tcp, 0.0.0.0:19054->19054/tcp, [::]:19054->19054/tcp                                  ca_orderer
+aa464fb39734   hyperledger/fabric-ca:latest                                                                                                                                                 "sh -c 'fabric-ca-se…"   About a minute ago   Up About a minute   0.0.0.0:7054->7054/tcp, [::]:7054->7054/tcp, 0.0.0.0:17054->17054/tcp, [::]:17054->17054/tcp                                            ca_org1
+6ccda058c50f   hyperledger/fabric-ca:latest                                                                                                                                                 "sh -c 'fabric-ca-se…"   About a minute ago   Up About a minute   0.0.0.0:8054->8054/tcp, [::]:8054->8054/tcp, 7054/tcp, 0.0.0.0:18054->18054/tcp, [::]:18054->18054/tcp                                  ca_org2
+Langkah 2: Buat channel — error
+  Perintah: ./network.sh createChannel -c channel-standard -ca
+  Pesan: Perintah ./network.sh createChannel -c channel-standard -ca gagal dijalankan.
+  Tindakan: Periksa log penyalaan jaringan untuk rincian lebih lanjut.
+  Error: Command failed: ./network.sh createChannel -c channel-standard -ca
++ '[' 0 -eq 1 ']'
++ configtxgen -profile ChannelUsingRaft -outputBlock ./channel-artifacts/channel-standard.block -channelID channel-standard
+[34m2025-10-27 16:32:41.633 UTC 0001 INFO[0m [common.tools.configtxgen] [34;1mmain[0m -> Loading configuration
+[34m2025-10-27 16:32:41.641 UTC 0002 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> orderer type: etcdraft
+[34m2025-10-27 16:32:41.643 UTC 0003 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> Orderer.EtcdRaft.Options unset, setting to tick_interval:"500ms" election_tick:10 heartbeat_tick:1 max_inflight_blocks:5 snapshot_interval_size:16777216 
+[34m2025-10-27 16:32:41.643 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/raft-standard/network/configtx/configtx.yaml
+[34m2025-10-27 16:32:41.646 UTC 0005 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Generating genesis block
+[34m2025-10-27 16:32:41.646 UTC 0006 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Creating application channel genesis block
+[34m2025-10-27 16:32:41.647 UTC 0007 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Writing genesis block
++ res=0
++ . scripts/orderer.sh channel-standard
++ '[' 0 -eq 1 ']'
++ res=0
++ peer channel join -b ./channel-artifacts/channel-standard.block
++ res=1
++ peer channel join -b ./channel-artifacts/channel-standard.block
++ res=1
++ peer channel join -b ./channel-artifacts/channel-standard.block
++ res=1
++ peer channel join -b ./channel-artifacts/channel-standard.block
++ res=1
+
+  STDOUT: [0;34mUsing docker and docker-compose[0m
+[0;34mCreating channel 'channel-standard'.[0m
+[0;34mIf network is not up, starting nodes with CLI timeout of '5' tries and CLI delay of '3' seconds and using database 'leveldb [0m
+Network Running Already
+[0;34mUsing docker and docker-compose[0m
+[0;34mGenerating channel genesis block 'channel-standard.block'[0m
+[0;34mUsing organization 1[0m
+/root/gasnyoba-blockchain/bin/configtxgen
+[0;34mCreating channel channel-standard[0m
+[0;34mAdding orderers[0m
+[34m2025-10-27 16:32:34.207 UTC 0001 INFO[0m [chaincodeCmd] [34;1mClientWait[0m -> txid [465a221c4251c0fde9320d6ae596c879e633314f983ace100c1c2a02e3901396] committed with status (VALID) at localhost:7051
+[34m2025-10-27 16:32:34.209 UTC 0002 INFO[0m [chaincodeCmd] [34;1mClientWait[0m -> txid [465a221c4251c0fde9320d6ae596c879e633314f983ace100c1c2a02e3901396] committed with status (VALID) at localhost:9051
+Status: 405
+{
+	"error": "cannot join: channel already exists"
+}
+
+[0;32mChannel 'channel-standard' created[0m
+[0;34mJoining org1 peer to the channel...[0m
+[0;34mUsing organization 1[0m
+[34m2025-10-27 16:32:57.268 UTC 0001 INFO[0m [channelCmd] [34;1mInitCmdFactory[0m -> Endorser and orderer connections initialized
+Error: proposal failed (err: bad proposal response 500: cannot create ledger from genesis block: ledger [channel-standard] already exists with state [ACTIVE])
+[0;31mAfter 5 attempts, peer0.org1 has failed to join channel 'channel-standard' [0m
+  STDERR: + '[' 0 -eq 1 ']'
++ configtxgen -profile ChannelUsingRaft -outputBlock ./channel-artifacts/channel-standard.block -channelID channel-standard
+[34m2025-10-27 16:32:41.633 UTC 0001 INFO[0m [common.tools.configtxgen] [34;1mmain[0m -> Loading configuration
+[34m2025-10-27 16:32:41.641 UTC 0002 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> orderer type: etcdraft
+[34m2025-10-27 16:32:41.643 UTC 0003 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> Orderer.EtcdRaft.Options unset, setting to tick_interval:"500ms" election_tick:10 heartbeat_tick:1 max_inflight_blocks:5 snapshot_interval_size:16777216 
+[34m2025-10-27 16:32:41.643 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/raft-standard/network/configtx/configtx.yaml
+[34m2025-10-27 16:32:41.646 UTC 0005 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Generating genesis block
+[34m2025-10-27 16:32:41.646 UTC 0006 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Creating application channel genesis block
+[34m2025-10-27 16:32:41.647 UTC 0007 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Writing genesis block
++ res=0
++ . scripts/orderer.sh channel-standard
++ '[' 0 -eq 1 ']'
++ res=0
++ peer channel join -b ./channel-artifacts/channel-standard.block
++ res=1
++ peer channel join -b ./channel-artifacts/channel-standard.block
++ res=1
++ peer channel join -b ./channel-artifacts/channel-standard.block
++ res=1
++ peer channel join -b ./channel-artifacts/channel-standard.block
++ res=1
+Langkah 3: Deploy chaincode — skipped
+  Perintah: ./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl javascript -c channel-standard
+  Pesan: Langkah ini dilewati karena perintah sebelumnya gagal.
+Error: Command failed: ./network.sh createChannel -c channel-standard -ca
++ '[' 0 -eq 1 ']'
++ configtxgen -profile ChannelUsingRaft -outputBlock ./channel-artifacts/channel-standard.block -channelID channel-standard
+[34m2025-10-27 16:32:41.633 UTC 0001 INFO[0m [common.tools.configtxgen] [34;1mmain[0m -> Loading configuration
+[34m2025-10-27 16:32:41.641 UTC 0002 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> orderer type: etcdraft
+[34m2025-10-27 16:32:41.643 UTC 0003 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> Orderer.EtcdRaft.Options unset, setting to tick_interval:"500ms" election_tick:10 heartbeat_tick:1 max_inflight_blocks:5 snapshot_interval_size:16777216 
+[34m2025-10-27 16:32:41.643 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/raft-standard/network/configtx/configtx.yaml
+[34m2025-10-27 16:32:41.646 UTC 0005 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Generating genesis block
+[34m2025-10-27 16:32:41.646 UTC 0006 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Creating application channel genesis block
+[34m2025-10-27 16:32:41.647 UTC 0007 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Writing genesis block
++ res=0
++ . scripts/orderer.sh channel-standard
++ '[' 0 -eq 1 ']'
++ res=0
++ peer channel join -b ./channel-artifacts/channel-standard.block
++ res=1
++ peer channel join -b ./channel-artifacts/channel-standard.block
++ res=1
++ peer channel join -b ./channel-artifacts/channel-standard.block
++ res=1
++ peer channel join -b ./channel-artifacts/channel-standard.block
++ res=1
+
+

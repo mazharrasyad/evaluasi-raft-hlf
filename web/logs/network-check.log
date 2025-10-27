@@ -14,3 +14,289 @@ Chaincode: pelaporan
 Peer: localhost:7051
 Pesan: Material kriptografi tidak ditemukan.
 
+[2025-10-27T10:49:31.217Z] Pemeriksaan jaringan: RAFT Standard
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Channel: channel-standard
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-27T10:49:31.219Z] Pemeriksaan jaringan: RAFT Variant
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-27T10:52:54.091Z] Pemeriksaan jaringan: RAFT Standard
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Channel: channel-standard
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-27T10:52:54.092Z] Pemeriksaan jaringan: RAFT Variant
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-27T10:57:03.114Z] Pemeriksaan jaringan: RAFT Standard
+Status: unhealthy
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Channel: channel-standard
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+Error: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+Stacktrace:
+GatewayError: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+    at newGatewayError (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/gatewayerror.js:54:12)
+    at Object.callback (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/client.js:102:60)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client.js:193:36)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:367:141)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:327:181)
+    at /root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/resolving-call.js:135:78
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+
+[2025-10-27T10:57:07.570Z] Pemeriksaan jaringan: RAFT Standard
+Status: unhealthy
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Channel: channel-standard
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+Error: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+Stacktrace:
+GatewayError: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+    at newGatewayError (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/gatewayerror.js:54:12)
+    at Object.callback (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/client.js:102:60)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client.js:193:36)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:367:141)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:327:181)
+    at /root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/resolving-call.js:135:78
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+
+[2025-10-27T13:13:54.527Z] Pemeriksaan jaringan: RAFT Standard
+Status: unhealthy
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Channel: channel-standard
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+Error: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+Stacktrace:
+GatewayError: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+    at newGatewayError (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/gatewayerror.js:54:12)
+    at Object.callback (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/client.js:102:60)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client.js:193:36)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:367:141)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:327:181)
+    at /root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/resolving-call.js:135:78
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+
+[2025-10-27T13:14:23.451Z] Pemeriksaan jaringan: RAFT Standard
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Channel: channel-standard
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-27T13:14:23.452Z] Pemeriksaan jaringan: RAFT Variant
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-27T13:40:18.281Z] Pemeriksaan jaringan: RAFT Variant
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-27T13:48:33.988Z] Pemeriksaan jaringan: RAFT Standard
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Channel: channel-standard
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-27T13:48:33.990Z] Pemeriksaan jaringan: RAFT Variant
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-27T13:56:56.998Z] Pemeriksaan jaringan: RAFT Standard
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Channel: channel-standard
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-27T13:56:57.000Z] Pemeriksaan jaringan: RAFT Variant
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-27T14:11:07.714Z] Pemeriksaan jaringan: RAFT Variant
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-27T15:00:49.246Z] Pemeriksaan jaringan: RAFT Variant
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-27T15:01:06.017Z] Pemeriksaan jaringan: RAFT Standard
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Channel: channel-standard
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-27T15:01:06.018Z] Pemeriksaan jaringan: RAFT Variant
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-27T15:41:49.719Z] Pemeriksaan jaringan: RAFT Variant
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-27T16:31:09.553Z] Pemeriksaan jaringan: RAFT Standard
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Channel: channel-standard
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-27T16:31:09.557Z] Pemeriksaan jaringan: RAFT Variant
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-27T16:34:44.788Z] Pemeriksaan jaringan: RAFT Variant
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-27T16:48:12.693Z] Pemeriksaan jaringan: RAFT Standard
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Channel: channel-standard
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-27T16:48:12.696Z] Pemeriksaan jaringan: RAFT Variant
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-27T22:31:50.711Z] Pemeriksaan jaringan: RAFT Variant
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-27T22:32:06.829Z] Pemeriksaan jaringan: RAFT Standard
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Channel: channel-standard
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-27T22:32:06.831Z] Pemeriksaan jaringan: RAFT Variant
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-27T22:59:35.812Z] Pemeriksaan jaringan: RAFT Variant
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-27T22:59:54.149Z] Pemeriksaan jaringan: RAFT Standard
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Channel: channel-standard
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-27T22:59:54.150Z] Pemeriksaan jaringan: RAFT Variant
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-27T23:01:49.583Z] Pemeriksaan jaringan: RAFT Variant
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-27T23:06:46.705Z] Pemeriksaan jaringan: RAFT Variant
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+

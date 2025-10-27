@@ -257,8 +257,8 @@ function createHierarchyBarGradient(context, maxValue, { boost = 0 } = {}) {
 }
 
 const HIERARCHY_CHART_HEIGHT = {
-    min: 460,
-    perItem: 44,
+    min: 520,
+    perItem: 48,
 };
 
 const NAME_COMPARISON_LOCALE = 'id-ID';

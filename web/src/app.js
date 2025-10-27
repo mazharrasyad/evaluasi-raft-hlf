@@ -7,6 +7,7 @@ import { fileURLToPath } from 'url';
 import { promisify } from 'util';
 
 import { checkNetworkHealth } from './network-check.js';
+import { submitSimulationRecord } from './simulation-ingest.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -485,6 +486,7 @@ const viewFiles = {
 };
 
 app.use(express.static(staticRoot));
+app.use(express.json({ limit: '2mb' }));
 
 app.get('/', (req, res) => {
     res.sendFile(viewFiles.dashboard);
@@ -641,6 +643,48 @@ app.post('/api/shutdown-network', async (req, res) => {
         overallStatus,
         results,
     });
+});
+
+app.post('/api/simulations/records', async (req, res) => {
+    const receivedAt = new Date().toISOString();
+    const record = req.body?.record;
+
+    if (!record || typeof record !== 'object') {
+        res.status(400).json({
+            receivedAt,
+            error: 'Payload record tidak valid.',
+            code: 'invalid_payload',
+        });
+        return;
+    }
+
+    if (!record.id || typeof record.id !== 'string') {
+        res.status(400).json({
+            receivedAt,
+            error: 'Record harus memiliki properti id bertipe string.',
+            code: 'invalid_record_id',
+        });
+        return;
+    }
+
+    try {
+        const results = await submitSimulationRecord(record);
+        const processedAt = new Date().toISOString();
+
+        res.json({
+            receivedAt,
+            processedAt,
+            recordId: record.id,
+            results,
+        });
+    } catch (error) {
+        console.error('Failed to submit simulation record:', error);
+        res.status(500).json({
+            receivedAt,
+            error: 'Gagal mengirim data simulasi ke jaringan blockchain.',
+            code: 'ingest_failed',
+        });
+    }
 });
 
 app.get('/wilayah-indonesia', (req, res) => {

@@ -26,6 +26,7 @@ const simulationModalClose = document.getElementById('simulationModalClose');
 const networkCheckButton = document.getElementById('networkCheckButton');
 const networkCheckStatusEl = document.getElementById('networkCheckStatus');
 const networkHealthResultsContainer = document.getElementById('networkHealthResults');
+const networkBlockSummaryEl = document.getElementById('networkBlockSummary');
 const networkHealthSummaryEl = document.getElementById('networkHealthSummary');
 const networkHealthListEl = document.getElementById('networkHealthList');
 
@@ -326,6 +327,39 @@ function createInstructionList(instructions) {
     return wrapper;
 }
 
+function createNetworkBlockSummaryCard(result, index = 0) {
+    const card = document.createElement('article');
+    card.className = 'animate-on-scroll flex flex-col gap-3 rounded-2xl border border-white/10 bg-surface p-5 shadow-lg shadow-black/10';
+    card.dataset.animateDelay = String(80 * (index + 1));
+
+    const channelLabel = document.createElement('span');
+    channelLabel.className = 'text-xs font-semibold uppercase tracking-[0.3em] text-secondary';
+    channelLabel.textContent = result?.channel || 'Channel';
+
+    const networkName = document.createElement('h3');
+    networkName.className = 'text-base font-semibold text-textdark';
+    networkName.textContent = result?.label || 'Jaringan';
+
+    const blockInfo = resolveBlockHeightInfo(result);
+
+    const valueEl = document.createElement('p');
+    valueEl.className = `text-3xl font-semibold ${blockInfo?.hasData ? 'text-primary' : 'text-textdark/60'}`;
+    valueEl.textContent = blockInfo?.primary || 'Tidak tersedia';
+
+    const statusMeta = NETWORK_STATUS_META[result?.status] || NETWORK_STATUS_META.unknown;
+    const statusBadge = document.createElement('span');
+    statusBadge.className = `inline-flex items-center gap-2 self-start rounded-full border px-3 py-1 text-[11px] font-semibold ${statusMeta.badgeClass}`;
+    statusBadge.textContent = `${statusMeta.icon} ${statusMeta.label}`;
+
+    const descriptionEl = document.createElement('p');
+    descriptionEl.className = 'text-xs text-textdark/70';
+    descriptionEl.textContent = blockInfo?.secondary || statusMeta.description || '';
+
+    card.append(channelLabel, networkName, valueEl, statusBadge, descriptionEl);
+    observeAnimatedElement(card);
+    return card;
+}
+
 function createNetworkResultCard(result) {
     const card = document.createElement('article');
     card.className = 'flex flex-col gap-3 rounded-xl border border-white/10 bg-surface p-4 shadow-lg shadow-black/10';
@@ -356,12 +390,18 @@ function createNetworkResultCard(result) {
     const details = document.createElement('dl');
     details.className = 'grid gap-3 text-xs text-textdark/60 sm:grid-cols-2';
 
+    const blockInfo = resolveBlockHeightInfo(result);
+
     const detailEntries = [
         { term: 'Direktori jaringan', value: result?.networkDir },
         { term: 'Channel', value: result?.channel },
         { term: 'Chaincode', value: result?.chaincode },
         { term: 'Peer', value: result?.peer },
     ];
+
+    if (blockInfo?.primary) {
+        detailEntries.push({ term: 'Jumlah blok', value: blockInfo.primary });
+    }
 
     detailEntries.forEach(entry => {
         if (!entry.value) {
@@ -398,6 +438,15 @@ function createNetworkResultCard(result) {
 function renderNetworkHealthResults(results, summary = {}) {
     if (!networkHealthResultsContainer) {
         return;
+    }
+
+    if (networkBlockSummaryEl) {
+        networkBlockSummaryEl.innerHTML = '';
+        if (Array.isArray(results) && results.length) {
+            results.forEach((result, index) => {
+                networkBlockSummaryEl.append(createNetworkBlockSummaryCard(result, index));
+            });
+        }
     }
 
     if (networkHealthSummaryEl) {
@@ -479,6 +528,97 @@ document.querySelectorAll('.animate-on-scroll').forEach(observeAnimatedElement);
 
 function formatCount(value) {
     return new Intl.NumberFormat('id-ID').format(value ?? 0);
+}
+
+function normalizeBlockHeight(value) {
+    if (value === null || value === undefined) {
+        return null;
+    }
+
+    if (typeof value === 'number' && Number.isFinite(value)) {
+        return { numeric: value, text: formatCount(value) };
+    }
+
+    if (typeof value === 'bigint') {
+        const isSafe = value <= BigInt(Number.MAX_SAFE_INTEGER);
+        return {
+            numeric: isSafe ? Number(value) : null,
+            text: isSafe ? formatCount(Number(value)) : value.toString()
+        };
+    }
+
+    if (typeof value === 'string') {
+        const trimmed = value.trim();
+        if (!trimmed) {
+            return null;
+        }
+        const parsed = Number.parseInt(trimmed, 10);
+        if (!Number.isNaN(parsed)) {
+            return { numeric: parsed, text: formatCount(parsed) };
+        }
+        return { numeric: null, text: trimmed };
+    }
+
+    return { numeric: null, text: String(value) };
+}
+
+function formatBlockHeightLabel(value, { withUnit = true } = {}) {
+    const normalized = normalizeBlockHeight(value);
+    if (!normalized) {
+        return null;
+    }
+
+    if (!withUnit) {
+        return normalized.text;
+    }
+
+    return normalized.numeric !== null
+        ? `${normalized.text} blok`
+        : normalized.text;
+}
+
+function resolveBlockHeightInfo(result) {
+    const formatted = formatBlockHeightLabel(result?.blockHeight);
+    if (formatted) {
+        return {
+            primary: formatted,
+            secondary: 'Jumlah blok pada channel saat pemeriksaan ini.',
+            hasData: true,
+        };
+    }
+
+    switch (result?.status) {
+        case 'healthy':
+            return {
+                primary: 'Tidak tersedia',
+                secondary: 'Jumlah blok tidak berhasil diambil dari jaringan.',
+                hasData: false,
+            };
+        case 'unhealthy':
+            return {
+                primary: 'Tidak tersedia',
+                secondary: 'Jaringan tidak merespons. Periksa konfigurasi sebelum mencoba lagi.',
+                hasData: false,
+            };
+        case 'not_found':
+            return {
+                primary: 'Tidak ditemukan',
+                secondary: 'Direktori jaringan tidak tersedia pada server.',
+                hasData: false,
+            };
+        case 'incomplete':
+            return {
+                primary: 'Material belum lengkap',
+                secondary: result?.message || 'Material kriptografi belum lengkap.',
+                hasData: false,
+            };
+        default:
+            return {
+                primary: 'Menunggu pemeriksaan',
+                secondary: 'Jalankan pemeriksaan jaringan untuk melihat jumlah blok.',
+                hasData: false,
+            };
+    }
 }
 
 function sanitizeCode(value) {

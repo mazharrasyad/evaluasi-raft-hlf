@@ -37,6 +37,89 @@ const networkConfigurations = [
 const peerEndpoint = 'localhost:7051';
 const peerHostAlias = 'peer0.org1.example.com';
 
+function readVarint(buffer, offset) {
+    let result = 0n;
+    let shift = 0n;
+    let position = offset;
+
+    while (position < buffer.length) {
+        const byte = buffer[position++];
+        result |= BigInt(byte & 0x7F) << shift;
+        if ((byte & 0x80) === 0) {
+            break;
+        }
+        shift += 7n;
+    }
+
+    return { value: result, offset: position };
+}
+
+function skipUnknownField(buffer, offset, wireType) {
+    switch (wireType) {
+        case 0: { // varint
+            const { offset: nextOffset } = readVarint(buffer, offset);
+            return nextOffset;
+        }
+        case 1: // 64-bit
+            return Math.min(buffer.length, offset + 8);
+        case 2: { // length-delimited
+            const { value, offset: lengthOffset } = readVarint(buffer, offset);
+            const length = Number(value);
+            return Math.min(buffer.length, lengthOffset + length);
+        }
+        case 5: // 32-bit
+            return Math.min(buffer.length, offset + 4);
+        default:
+            return buffer.length;
+    }
+}
+
+function decodeBlockchainInfo(bytes) {
+    const buffer = Buffer.from(bytes);
+    let offset = 0;
+    const result = {
+        height: null,
+        currentBlockHash: null,
+        previousBlockHash: null,
+    };
+
+    while (offset < buffer.length) {
+        const key = buffer[offset++];
+        if (typeof key === 'undefined') {
+            break;
+        }
+
+        const fieldNumber = key >> 3;
+        const wireType = key & 0x07;
+
+        if (fieldNumber === 1 && wireType === 0) {
+            const { value, offset: nextOffset } = readVarint(buffer, offset);
+            result.height = value;
+            offset = nextOffset;
+            continue;
+        }
+
+        if ((fieldNumber === 2 || fieldNumber === 3) && wireType === 2) {
+            const { value: lengthValue, offset: lengthOffset } = readVarint(buffer, offset);
+            const length = Number(lengthValue);
+            offset = lengthOffset;
+            const sliceEnd = Math.min(buffer.length, offset + length);
+            const hashValue = buffer.slice(offset, sliceEnd);
+            if (fieldNumber === 2) {
+                result.currentBlockHash = hashValue;
+            } else {
+                result.previousBlockHash = hashValue;
+            }
+            offset = sliceEnd;
+            continue;
+        }
+
+        offset = skipUnknownField(buffer, offset, wireType);
+    }
+
+    return result;
+}
+
 async function readFirstVisibleFile(directory) {
     const entries = await fs.readdir(directory);
     const candidate = entries.find(entry => !entry.startsWith('.'));
@@ -133,9 +216,30 @@ async function checkSingleNetwork({ label, networkDir, channelName, instructions
 
         await contract.evaluateTransaction('GetAllCatatan');
 
+        let blockHeight = null;
+
+        try {
+            const qscc = network.getContract('qscc');
+            const chainInfoBytes = await qscc.evaluateTransaction('GetChainInfo', channelName);
+            const decoded = decodeBlockchainInfo(chainInfoBytes);
+            if (decoded.height !== null && decoded.height !== undefined) {
+                const heightBigInt = decoded.height;
+                if (typeof heightBigInt === 'bigint') {
+                    blockHeight = heightBigInt <= BigInt(Number.MAX_SAFE_INTEGER)
+                        ? Number(heightBigInt)
+                        : heightBigInt.toString();
+                } else if (typeof heightBigInt === 'number' && Number.isFinite(heightBigInt)) {
+                    blockHeight = heightBigInt;
+                }
+            }
+        } catch (error) {
+            console.warn(`Gagal mengambil informasi blok untuk ${label}:`, error);
+        }
+
         return {
             ...baseResult,
-            status: 'healthy'
+            status: 'healthy',
+            blockHeight
         };
     } catch (error) {
         return {

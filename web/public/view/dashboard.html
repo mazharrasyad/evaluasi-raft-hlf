@@ -72,25 +72,65 @@
                                 </div>
                                 <div class="flex flex-col gap-8 rounded-3xl border border-white/10 bg-surface/90 p-8 text-textdark shadow-2xl shadow-black/20 backdrop-blur-sm">
                                     <div class="flex flex-col gap-4 text-left">
-                                        <h1 class="text-4xl font-semibold text-textdark md:text-5xl">Evaluasi RAFT Hyperledger Fabric</h1>
-                                        <p class="text-lg text-textdark/70">Gunakan tampilan hierarkis untuk menelusuri jumlah pelaporan dari tingkat provinsi hingga kelurahan. Klik setiap wilayah untuk melihat rincian di tingkat berikutnya.</p>
+                                        <h1 class="text-4xl font-semibold text-textdark md:text-5xl">Detail Jaringan Hyperledger Fabric</h1>
+                                        <p class="text-lg text-textdark/70">Ringkasan konfigurasi jaringan Fabric yang digunakan untuk evaluasi konsensus RAFT, mencakup versi komponen, struktur organisasi, dan topologi peer yang aktif.</p>
                                     </div>
                                     <div class="grid gap-4 rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6 text-sm text-textdark md:grid-cols-2 md:gap-6">
                                         <article class="flex flex-col gap-2 rounded-2xl border border-white/10 bg-surface p-4 shadow-lg shadow-black/20">
-                                            <h2 class="text-base font-semibold text-primary">RAFT Standard</h2>
-                                            <p class="text-sm text-textdark/70">Menggunakan konfigurasi RAFT default Hyperledger Fabric untuk mengukur kinerja baseline pada jaringan pengujian.</p>
+                                            <h2 class="text-base font-semibold text-primary">Versi Hyperledger Fabric</h2>
+                                            <p class="text-sm text-textdark/70">Fabric runtime <span class="font-semibold text-accent">2.5.13</span> dengan Fabric CA <span class="font-semibold text-accent">1.5.15</span> sebagai standar ketika jaringan dihidupkan melalui <code>network.sh</code>.</p>
                                         </article>
                                         <article class="flex flex-col gap-2 rounded-2xl border border-white/10 bg-surface p-4 shadow-lg shadow-black/20">
-                                            <h2 class="text-base font-semibold text-primary">RAFT Variant</h2>
-                                            <p class="text-sm text-textdark/70">Menerapkan variasi parameter RAFT (timeout dan prioritas leader) guna membandingkan stabilitas dan throughput terhadap standar.</p>
+                                            <h2 class="text-base font-semibold text-primary">Konsensus Orderer</h2>
+                                            <p class="text-sm text-textdark/70">Orderer menggunakan mode <span class="font-semibold text-accent">etcdraft</span> dengan node konsenter yang tersertifikasi TLS untuk memastikan pemilihan leader deterministik.</p>
+                                        </article>
+                                        <article class="flex flex-col gap-2 rounded-2xl border border-white/10 bg-surface p-4 shadow-lg shadow-black/20">
+                                            <h2 class="text-base font-semibold text-primary">Channel &amp; Database</h2>
+                                            <p class="text-sm text-textdark/70">Channel default <span class="font-semibold text-accent">channel-standard</span> menggunakan penyimpanan state LevelDB dan dapat disiapkan otomatis melalui <code>createChannel</code>.</p>
+                                        </article>
+                                        <article class="flex flex-col gap-2 rounded-2xl border border-white/10 bg-surface p-4 shadow-lg shadow-black/20">
+                                            <h2 class="text-base font-semibold text-primary">Baseline Chaincode</h2>
+                                            <p class="text-sm text-textdark/70">Chaincode <span class="font-semibold text-accent">pelaporan</span> berbahasa JavaScript menjadi contoh awal sebelum data produksi diunggah melalui antarmuka simulasi.</p>
                                         </article>
                                     </div>
-                                    <div class="flex flex-col gap-3 rounded-2xl border border-accent/40 bg-surfaceMuted/80 p-6 text-sm text-textdark md:flex-row md:items-center md:justify-between">
-                                        <div class="flex flex-col gap-1">
-                                            <span class="text-xs uppercase tracking-[0.3em] text-secondary">Total pelaporan tercatat</span>
-                                            <span class="text-3xl font-semibold text-accent" id="totalReports">0</span>
+                                    <div class="space-y-6 rounded-2xl border border-accent/40 bg-surfaceMuted/80 p-6 text-sm text-textdark">
+                                        <div class="space-y-2">
+                                            <h2 class="text-xl font-semibold text-textdark">Layanan Orderer RAFT</h2>
+                                            <p class="text-textdark/70">Jaringan memiliki satu node orderer <span class="font-semibold text-accent">orderer.example.com</span> (port 7050) yang menjalankan TLS penuh serta endpoint operasional pada port 9443 untuk metrik Prometheus.</p>
+                                            <ul class="list-disc space-y-2 pl-5 text-textdark/70">
+                                                <li>Koneksi client &amp; server TLS menggunakan sertifikat dari MSP <span class="font-semibold text-textdark">OrdererMSP</span>.</li>
+                                                <li>Cluster RAFT mengikuti konfigurasi konsenter tunggal sehingga setiap transaksi membutuhkan leader tunggal yang stabil.</li>
+                                            </ul>
                                         </div>
-                                        <p class="max-w-xl text-textdark/70">Jumlah pelaporan dihitung dari catatan digital yang tersimpan pada blockchain atau data sampel apabila jaringan belum aktif.</p>
+                                        <div class="grid gap-4 rounded-2xl border border-white/10 bg-surface p-4 shadow-inner shadow-black/10 md:grid-cols-2">
+                                            <div class="space-y-2">
+                                                <h3 class="text-lg font-semibold text-primary">Keanggotaan &amp; MSP</h3>
+                                                <p class="text-textdark/70">Topologi identitas mencakup OrdererOrg serta dua organisasi aplikasi dengan hak baca/tulis dan endorsement tersendiri.</p>
+                                                <ul class="list-disc space-y-1 pl-5 text-textdark/70">
+                                                    <li><span class="font-semibold text-textdark">OrdererOrg / OrdererMSP</span> – endpoint orderer dan admin orderer.</li>
+                                                    <li><span class="font-semibold text-textdark">Org1MSP</span> – memiliki hak endorsement dan akses klien untuk Org1.</li>
+                                                    <li><span class="font-semibold text-textdark">Org2MSP</span> – struktur kebijakan identik untuk Org2.</li>
+                                                </ul>
+                                            </div>
+                                            <div class="space-y-2">
+                                                <h3 class="text-lg font-semibold text-primary">Topologi Peer</h3>
+                                                <p class="text-textdark/70">Setiap organisasi mengoperasikan satu peer utama dengan TLS, endpoint gRPC, dan port observasi.</p>
+                                                <dl class="space-y-2 text-textdark/70">
+                                                    <div>
+                                                        <dt class="font-semibold text-textdark">peer0.org1.example.com</dt>
+                                                        <dd>gRPC 7051 • Chaincode 7052 • Metrics 9444 • MSP <span class="font-semibold text-textdark">Org1MSP</span></dd>
+                                                    </div>
+                                                    <div>
+                                                        <dt class="font-semibold text-textdark">peer0.org2.example.com</dt>
+                                                        <dd>gRPC 9051 • Chaincode 9052 • Metrics 9445 • MSP <span class="font-semibold text-textdark">Org2MSP</span></dd>
+                                                    </div>
+                                                </dl>
+                                            </div>
+                                        </div>
+                                        <div class="space-y-2">
+                                            <h2 class="text-xl font-semibold text-textdark">Kemampuan Tambahan</h2>
+                                            <p class="text-textdark/70">Skrip otomatis memungkinkan penyediaan jaringan standar maupun variasi BFT melalui flag <code>-bft</code>, sekaligus mendukung mode Chaincode-as-a-Service untuk proses deploy yang terkontrol.</p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

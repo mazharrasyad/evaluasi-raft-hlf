@@ -160,9 +160,14 @@ const NETWORK_START_TARGETS = [
         channel: 'channel-standard',
         commands: [
             {
-                label: 'Mulai jaringan',
-                args: ['up', 'createChannel', '-c', 'channel-standard', '-ca'],
-                displayCommand: './network.sh up createChannel -c channel-standard -ca',
+                label: 'Mulai layanan inti',
+                args: ['up', '-ca'],
+                displayCommand: './network.sh up -ca',
+            },
+            {
+                label: 'Buat channel',
+                args: ['createChannel', '-c', 'channel-standard', '-ca'],
+                displayCommand: './network.sh createChannel -c channel-standard -ca',
             },
             {
                 label: 'Deploy chaincode',
@@ -188,9 +193,14 @@ const NETWORK_START_TARGETS = [
         channel: 'channel-variant',
         commands: [
             {
-                label: 'Mulai jaringan',
-                args: ['up', 'createChannel', '-c', 'channel-variant', '-ca'],
-                displayCommand: './network.sh up createChannel -c channel-variant -ca',
+                label: 'Mulai layanan inti',
+                args: ['up', '-ca'],
+                displayCommand: './network.sh up -ca',
+            },
+            {
+                label: 'Buat channel',
+                args: ['createChannel', '-c', 'channel-variant', '-ca'],
+                displayCommand: './network.sh createChannel -c channel-variant -ca',
             },
             {
                 label: 'Deploy chaincode',

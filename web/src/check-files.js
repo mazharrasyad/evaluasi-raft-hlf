@@ -52,7 +52,7 @@ async function checkFiles() {
     console.error(error.message);
 
     console.log('\nPlease ensure the Hyperledger Fabric network is set up correctly:');
-    console.log('1. Make sure the network is running: cd ../raft-standard/network && ./network.sh up createChannel -c channel-standard -ca');
+    console.log('1. Make sure the network is running: cd ../raft-standard/network && ./network.sh up -ca && ./network.sh createChannel -c channel-standard -ca');
     console.log('   (use ../raft-variant/network if you are relying on the variant Fabric network)');
     console.log('2. Make sure the chaincode is deployed: ./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl javascript');
     console.log('3. Check that the crypto materials are generated in the correct location');

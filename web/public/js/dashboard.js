@@ -51,6 +51,23 @@ const networkBlockSummaryEl = document.getElementById('networkBlockSummary');
 const networkHealthSummaryEl = document.getElementById('networkHealthSummary');
 const networkHealthListEl = document.getElementById('networkHealthList');
 
+const networkOperationOverlay = document.getElementById('networkOperationOverlay');
+const networkOperationMessage = networkOperationOverlay
+    ? networkOperationOverlay.querySelector('[data-overlay-message]')
+    : null;
+const networkOperationTimer = networkOperationOverlay
+    ? networkOperationOverlay.querySelector('[data-overlay-timer]')
+    : null;
+const networkOperationHint = networkOperationOverlay
+    ? networkOperationOverlay.querySelector('[data-overlay-hint]')
+    : null;
+
+let networkOperationTimerHandle = null;
+let networkOperationOverlayStart = null;
+let networkOperationOverlayHideTimeout = null;
+
+const MIN_NETWORK_OPERATION_OVERLAY_DURATION = 600;
+
 let animateObserver;
 let wilayahDataset = null;
 const WILAYAH_DATA_BASE_URL = '/wilayah-indonesia';
@@ -433,7 +450,7 @@ async function confirmNetworkShutdown() {
 
 async function confirmNetworkStartup() {
     const title = 'Hidupkan seluruh jaringan Fabric?';
-    const text = 'Perintah ini akan menjalankan ./network.sh up createChannel dan deploy chaincode pelaporan pada jaringan RAFT Standard dan RAFT Variant. Pastikan server siap sebelum melanjutkan.';
+    const text = 'Perintah ini akan menjalankan ./network.sh up -ca, ./network.sh createChannel, dan deploy chaincode pelaporan untuk jaringan RAFT Standard serta RAFT Variant. Pastikan server siap sebelum melanjutkan.';
 
     if (isSwalAvailable()) {
         const result = await window.Swal.fire({
@@ -498,6 +515,10 @@ function updateNetworkStartupStatus(state = 'idle', message = DEFAULT_NETWORK_ST
     if (messageEl && typeof message === 'string') {
         messageEl.textContent = message;
     }
+
+    if (state !== 'idle') {
+        setNetworkOperationOverlayMessage(message);
+    }
 }
 
 function updateNetworkCheckStatus(state = 'idle', message = DEFAULT_NETWORK_STATUS_MESSAGE) {
@@ -531,6 +552,178 @@ function updateNetworkShutdownStatus(state = 'idle', message = DEFAULT_NETWORK_S
 
     if (messageEl && typeof message === 'string') {
         messageEl.textContent = message;
+    }
+
+    if (state !== 'idle') {
+        setNetworkOperationOverlayMessage(message);
+    }
+}
+
+function isNetworkOperationOverlayActive() {
+    return Boolean(networkOperationOverlay && !networkOperationOverlay.classList.contains('hidden'));
+}
+
+function setNetworkOperationOverlayMessage(message) {
+    if (!networkOperationMessage || !isNetworkOperationOverlayActive() || typeof message !== 'string') {
+        return;
+    }
+
+    networkOperationMessage.textContent = message;
+}
+
+function formatElapsedTime(milliseconds) {
+    if (!Number.isFinite(milliseconds) || milliseconds < 0) {
+        milliseconds = 0;
+    }
+
+    const totalSeconds = Math.floor(milliseconds / 1000);
+    const tenths = Math.floor((milliseconds % 1000) / 100);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+
+    if (minutes >= 60) {
+        const hours = Math.floor(minutes / 60);
+        const remainingMinutes = minutes % 60;
+        return [
+            String(hours).padStart(2, '0'),
+            String(remainingMinutes).padStart(2, '0'),
+            String(seconds).padStart(2, '0'),
+        ].join(':');
+    }
+
+    return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}.${tenths}`;
+}
+
+function updateNetworkOperationOverlayTimer() {
+    if (!isNetworkOperationOverlayActive() || networkOperationOverlayStart === null) {
+        return;
+    }
+
+    const elapsed = Math.max(0, performance.now() - networkOperationOverlayStart);
+
+    if (networkOperationTimer) {
+        networkOperationTimer.textContent = formatElapsedTime(elapsed);
+    }
+}
+
+function showNetworkOperationOverlay(mode = 'startup', message) {
+    if (!networkOperationOverlay) {
+        return;
+    }
+
+    if (networkOperationOverlayHideTimeout) {
+        window.clearTimeout(networkOperationOverlayHideTimeout);
+        networkOperationOverlayHideTimeout = null;
+    }
+
+    if (networkOperationTimerHandle) {
+        window.clearInterval(networkOperationTimerHandle);
+        networkOperationTimerHandle = null;
+    }
+
+    networkOperationOverlayStart = performance.now();
+
+    if (networkOperationTimer) {
+        networkOperationTimer.textContent = '00:00.0';
+    }
+
+    const defaultHint = mode === 'shutdown'
+        ? 'Menunggu seluruh node berhenti. Jangan tutup halaman hingga proses selesai.'
+        : 'Menyalakan jaringan dapat memerlukan beberapa menit. Jangan tutup halaman.';
+
+    if (typeof message === 'string') {
+        if (networkOperationMessage) {
+            networkOperationMessage.textContent = message;
+        }
+    } else if (networkOperationMessage) {
+        networkOperationMessage.textContent = 'Menjalankan perintah jaringan...';
+    }
+
+    if (networkOperationHint) {
+        networkOperationHint.textContent = defaultHint;
+    }
+
+    networkOperationOverlay.classList.remove('hidden');
+    networkOperationOverlay.classList.add('flex');
+    networkOperationOverlay.classList.remove('opacity-0', 'pointer-events-none');
+    networkOperationOverlay.classList.add('pointer-events-auto', 'opacity-100');
+    networkOperationOverlay.setAttribute('aria-hidden', 'false');
+
+    networkOperationTimerHandle = window.setInterval(updateNetworkOperationOverlayTimer, 100);
+    updateNetworkOperationOverlayTimer();
+}
+
+function hideNetworkOperationOverlay() {
+    if (!networkOperationOverlay) {
+        return;
+    }
+
+    if (networkOperationOverlayHideTimeout) {
+        window.clearTimeout(networkOperationOverlayHideTimeout);
+        networkOperationOverlayHideTimeout = null;
+    }
+
+    const overlayActive = isNetworkOperationOverlayActive();
+
+    if (!overlayActive) {
+        if (networkOperationTimerHandle) {
+            window.clearInterval(networkOperationTimerHandle);
+            networkOperationTimerHandle = null;
+        }
+
+        networkOperationOverlayStart = null;
+
+        networkOperationOverlay.classList.add('hidden', 'opacity-0', 'pointer-events-none');
+        networkOperationOverlay.classList.remove('flex', 'opacity-100', 'pointer-events-auto');
+        networkOperationOverlay.setAttribute('aria-hidden', 'true');
+
+        return;
+    }
+
+    const completeHide = () => {
+        if (!networkOperationOverlay) {
+            return;
+        }
+
+        networkOperationOverlay.classList.add('hidden');
+        networkOperationOverlay.classList.remove('flex');
+        networkOperationOverlay.setAttribute('aria-hidden', 'true');
+    };
+
+    const beginFade = () => {
+        if (!networkOperationOverlay) {
+            return;
+        }
+
+        networkOperationOverlay.classList.add('opacity-0', 'pointer-events-none');
+        networkOperationOverlay.classList.remove('opacity-100', 'pointer-events-auto');
+
+        networkOperationOverlayHideTimeout = window.setTimeout(() => {
+            completeHide();
+            networkOperationOverlayHideTimeout = null;
+        }, 200);
+    };
+
+    if (networkOperationTimerHandle) {
+        window.clearInterval(networkOperationTimerHandle);
+        networkOperationTimerHandle = null;
+    }
+
+    const elapsed = networkOperationOverlayStart === null
+        ? 0
+        : Math.max(0, performance.now() - networkOperationOverlayStart);
+    networkOperationOverlayStart = null;
+
+    const effectiveElapsed = Number.isFinite(elapsed) ? elapsed : 0;
+    const remainingDelay = Math.max(0, MIN_NETWORK_OPERATION_OVERLAY_DURATION - effectiveElapsed);
+
+    if (remainingDelay > 0) {
+        networkOperationOverlayHideTimeout = window.setTimeout(() => {
+            beginFade();
+            networkOperationOverlayHideTimeout = null;
+        }, remainingDelay);
+    } else {
+        beginFade();
     }
 }
 
@@ -3045,7 +3238,9 @@ async function handleNetworkStartupButtonClick() {
     networkStartupButton.classList.add('cursor-not-allowed', 'opacity-60');
     networkStartupButton.innerHTML = '<span class="text-base animate-spin">⚡</span><span>Menyalakan...</span>';
 
-    updateNetworkStartupStatus('loading', 'Menjalankan perintah penyalaan jaringan...');
+    const startupLoadingMessage = 'Menjalankan perintah penyalaan jaringan...';
+    showNetworkOperationOverlay('startup', startupLoadingMessage);
+    updateNetworkStartupStatus('loading', startupLoadingMessage);
 
     try {
         const response = await fetch('/api/start-network', {
@@ -3090,6 +3285,7 @@ async function handleNetworkStartupButtonClick() {
         updateNetworkStartupStatus('error', 'Perintah penyalaan jaringan gagal. Periksa log server.');
         await showErrorAlert('Gagal menjalankan perintah penyalaan jaringan. Periksa log server untuk detailnya.');
     } finally {
+        hideNetworkOperationOverlay();
         networkStartupButton.disabled = false;
         networkStartupButton.classList.remove('cursor-not-allowed', 'opacity-60');
         networkStartupButton.innerHTML = originalContent;
@@ -3183,7 +3379,9 @@ async function handleNetworkShutdownButtonClick() {
     networkShutdownButton.classList.add('cursor-not-allowed', 'opacity-60');
     networkShutdownButton.innerHTML = '<span class="text-base animate-pulse">⏻</span><span>Mematikan...</span>';
 
-    updateNetworkShutdownStatus('loading', 'Menjalankan perintah pemadaman jaringan...');
+    const shutdownLoadingMessage = 'Menjalankan perintah pemadaman jaringan...';
+    showNetworkOperationOverlay('shutdown', shutdownLoadingMessage);
+    updateNetworkShutdownStatus('loading', shutdownLoadingMessage);
 
     try {
         const response = await fetch('/api/shutdown-network', {
@@ -3228,6 +3426,7 @@ async function handleNetworkShutdownButtonClick() {
         updateNetworkShutdownStatus('error', 'Perintah pemadaman jaringan gagal. Periksa log server.');
         await showErrorAlert('Gagal menjalankan perintah pemadaman jaringan. Periksa log server untuk detailnya.');
     } finally {
+        hideNetworkOperationOverlay();
         networkShutdownButton.disabled = false;
         networkShutdownButton.classList.remove('cursor-not-allowed', 'opacity-60');
         networkShutdownButton.innerHTML = originalContent;

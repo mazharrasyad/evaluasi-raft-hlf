@@ -20,7 +20,7 @@ const networkConfigurations = [
         networkDir: path.resolve(__dirname, '../../raft-standard/network'),
         channelName: 'channel-standard',
         instructions: {
-            up: 'cd ../raft-standard/network && ./network.sh up createChannel -c channel-standard -ca',
+            up: 'cd ../raft-standard/network && ./network.sh up -ca && ./network.sh createChannel -c channel-standard -ca',
             deploy: './network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl javascript -c channel-standard'
         }
     },
@@ -29,7 +29,7 @@ const networkConfigurations = [
         networkDir: path.resolve(__dirname, '../../raft-variant/network'),
         channelName: 'channel-variant',
         instructions: {
-            up: 'cd ../raft-variant/network && ./network.sh up createChannel -c channel-variant -ca',
+            up: 'cd ../raft-variant/network && ./network.sh up -ca && ./network.sh createChannel -c channel-variant -ca',
             deploy: './network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl javascript -c channel-variant'
         }
     }

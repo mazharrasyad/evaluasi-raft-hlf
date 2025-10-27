@@ -1,6 +1,16 @@
-(function () {
+(async function () {
     if (typeof window === 'undefined') {
         return;
+    }
+
+    const readyPromise = window.componentLoaderReady instanceof Promise
+        ? window.componentLoaderReady
+        : Promise.resolve();
+
+    try {
+        await readyPromise;
+    } catch (error) {
+        console.error('Gagal menunggu komponen tata letak selesai dimuat:', error);
     }
 
     const navLinks = Array.from(document.querySelectorAll('[data-nav-target]'));

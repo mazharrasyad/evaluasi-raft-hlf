@@ -103,6 +103,21 @@
         </div>
     </div>
 
+    <div
+        id="networkOperationOverlay"
+        class="pointer-events-none fixed inset-0 z-[90] hidden items-center justify-center bg-soft/75 backdrop-blur-sm opacity-0 transition-opacity duration-200"
+        aria-hidden="true"
+    >
+        <div class="mx-4 w-full max-w-md rounded-3xl border border-white/10 bg-surface/95 p-8 text-center text-textdark shadow-2xl shadow-black/40" role="status" aria-live="assertive">
+            <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-accent/40 bg-accent/10 text-accent">
+                <span class="inline-block h-7 w-7 animate-spin rounded-full border-2 border-accent border-t-transparent"></span>
+            </div>
+            <h2 class="mt-6 text-lg font-semibold" data-overlay-message>Menyiapkan perintah jaringan...</h2>
+            <p class="mt-3 text-3xl font-semibold text-primary tabular-nums" data-overlay-timer>00:00.0</p>
+            <p class="mt-4 text-sm text-textdark/70" data-overlay-hint>Waktu tunggu akan diperbarui secara real-time.</p>
+        </div>
+    </div>
+
     <div id="simulationModal" class="fixed inset-0 z-50 hidden" aria-hidden="true">
         <div id="simulationModalOverlay" class="absolute inset-0 bg-soft/80 backdrop-blur-sm"></div>
         <div class="relative z-10 mx-auto flex min-h-full w-full max-w-4xl items-center justify-center px-4 py-12">

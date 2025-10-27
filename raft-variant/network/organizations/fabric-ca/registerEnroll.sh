@@ -1,5 +1,33 @@
 #!/usr/bin/env bash
 
+function registerIdentity() {
+  local ca_name="$1"
+  local identity_name="$2"
+  local identity_secret="$3"
+  local identity_type="$4"
+  local tls_cert="$5"
+
+  shift 5 || true
+
+  local extra_args=("$@")
+
+  set -x
+  local register_output
+  if ! register_output=$(fabric-ca-client register --caname "${ca_name}" \
+      --id.name "${identity_name}" --id.secret "${identity_secret}" \
+      --id.type "${identity_type}" "${extra_args[@]}" --tls.certfiles "${tls_cert}" 2>&1); then
+    { set +x; } 2>/dev/null
+    if echo "${register_output}" | grep -qi "is already registered"; then
+      warnln "Identity ${identity_name} already registered with ${ca_name}, skipping registration"
+    else
+      errorln "Failed to register identity ${identity_name} with ${ca_name}: ${register_output}"
+      fatalln "Unable to continue without registering ${identity_name}"
+    fi
+  else
+    { set +x; } 2>/dev/null
+  fi
+}
+
 function createOrg1() {
   infoln "Enrolling the CA admin"
   mkdir -p organizations/peerOrganizations/org1.example.com/
@@ -40,19 +68,13 @@ function createOrg1() {
   cp "${PWD}/organizations/fabric-ca/org1/ca-cert.pem" "${PWD}/organizations/peerOrganizations/org1.example.com/ca/ca.org1.example.com-cert.pem"
 
   infoln "Registering peer0"
-  set -x
-  fabric-ca-client register --caname ca-org1 --id.name peer0 --id.secret peer0pw --id.type peer --tls.certfiles "${PWD}/organizations/fabric-ca/org1/ca-cert.pem"
-  { set +x; } 2>/dev/null
+  registerIdentity ca-org1 peer0 peer0pw peer "${PWD}/organizations/fabric-ca/org1/ca-cert.pem"
 
   infoln "Registering user"
-  set -x
-  fabric-ca-client register --caname ca-org1 --id.name user1 --id.secret user1pw --id.type client --tls.certfiles "${PWD}/organizations/fabric-ca/org1/ca-cert.pem"
-  { set +x; } 2>/dev/null
+  registerIdentity ca-org1 user1 user1pw client "${PWD}/organizations/fabric-ca/org1/ca-cert.pem"
 
   infoln "Registering the org admin"
-  set -x
-  fabric-ca-client register --caname ca-org1 --id.name org1admin --id.secret org1adminpw --id.type admin --tls.certfiles "${PWD}/organizations/fabric-ca/org1/ca-cert.pem"
-  { set +x; } 2>/dev/null
+  registerIdentity ca-org1 org1admin org1adminpw admin "${PWD}/organizations/fabric-ca/org1/ca-cert.pem"
 
   infoln "Generating the peer0 msp"
   set -x
@@ -126,19 +148,13 @@ function createOrg2() {
   cp "${PWD}/organizations/fabric-ca/org2/ca-cert.pem" "${PWD}/organizations/peerOrganizations/org2.example.com/ca/ca.org2.example.com-cert.pem"
 
   infoln "Registering peer0"
-  set -x
-  fabric-ca-client register --caname ca-org2 --id.name peer0 --id.secret peer0pw --id.type peer --tls.certfiles "${PWD}/organizations/fabric-ca/org2/ca-cert.pem"
-  { set +x; } 2>/dev/null
+  registerIdentity ca-org2 peer0 peer0pw peer "${PWD}/organizations/fabric-ca/org2/ca-cert.pem"
 
   infoln "Registering user"
-  set -x
-  fabric-ca-client register --caname ca-org2 --id.name user1 --id.secret user1pw --id.type client --tls.certfiles "${PWD}/organizations/fabric-ca/org2/ca-cert.pem"
-  { set +x; } 2>/dev/null
+  registerIdentity ca-org2 user1 user1pw client "${PWD}/organizations/fabric-ca/org2/ca-cert.pem"
 
   infoln "Registering the org admin"
-  set -x
-  fabric-ca-client register --caname ca-org2 --id.name org2admin --id.secret org2adminpw --id.type admin --tls.certfiles "${PWD}/organizations/fabric-ca/org2/ca-cert.pem"
-  { set +x; } 2>/dev/null
+  registerIdentity ca-org2 org2admin org2adminpw admin "${PWD}/organizations/fabric-ca/org2/ca-cert.pem"
 
   infoln "Generating the peer0 msp"
   set -x
@@ -207,12 +223,17 @@ function createOrderer() {
   mkdir -p "${PWD}/organizations/ordererOrganizations/example.com/tlsca"
   cp "${PWD}/organizations/fabric-ca/ordererOrg/ca-cert.pem" "${PWD}/organizations/ordererOrganizations/example.com/tlsca/tlsca.example.com-cert.pem"
 
-# Loop through each orderer (orderer, orderer2, orderer3, orderer4) to register and generate artifacts
-  for ORDERER in orderer orderer2 orderer3 orderer4; do
+# Determine which orderer identities should be prepared. When BFT mode is active,
+# the environment variable BFT_ENABLED will be set to 1 by network.sh.
+  local orderer_identities=(orderer)
+  if [[ "${BFT_ENABLED}" == "1" ]]; then
+    orderer_identities+=(orderer2 orderer3 orderer4)
+  fi
+
+# Loop through each orderer to register and generate artifacts
+  for ORDERER in "${orderer_identities[@]}"; do
     infoln "Registering ${ORDERER}"
-    set -x
-    fabric-ca-client register --caname ca-orderer --id.name ${ORDERER} --id.secret ${ORDERER}pw --id.type orderer --tls.certfiles "${PWD}/organizations/fabric-ca/ordererOrg/ca-cert.pem"
-    { set +x; } 2>/dev/null
+    registerIdentity ca-orderer ${ORDERER} ${ORDERER}pw orderer "${PWD}/organizations/fabric-ca/ordererOrg/ca-cert.pem"
 
     infoln "Generating the ${ORDERER} MSP"
     set -x
@@ -241,9 +262,7 @@ function createOrderer() {
 
   # Register and generate artifacts for the orderer admin
   infoln "Registering the orderer admin"
-  set -x
-  fabric-ca-client register --caname ca-orderer --id.name ordererAdmin --id.secret ordererAdminpw --id.type admin --tls.certfiles "${PWD}/organizations/fabric-ca/ordererOrg/ca-cert.pem"
-  { set +x; } 2>/dev/null
+  registerIdentity ca-orderer ordererAdmin ordererAdminpw admin "${PWD}/organizations/fabric-ca/ordererOrg/ca-cert.pem"
 
   infoln "Generating the admin msp"
   set -x

@@ -224,6 +224,9 @@ function createOrgs() {
     infoln "Generating certificates using Fabric CA"
     ${CONTAINER_CLI_COMPOSE} -f compose/$COMPOSE_FILE_CA -f compose/$CONTAINER_CLI/${CONTAINER_CLI}-$COMPOSE_FILE_CA up -d 2>&1
 
+    # Surface whether the BFT flag is active so the registration script can decide
+    # how many orderer identities need to be created.
+    export BFT_ENABLED=${BFT}
     . organizations/fabric-ca/registerEnroll.sh
 
     # Make sure CA files have been created

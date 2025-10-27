@@ -35,6 +35,11 @@ const simulationModalTitle = document.getElementById('simulationModalTitle');
 const simulationModalContent = document.getElementById('simulationModalContent');
 const simulationModalOverlay = document.getElementById('simulationModalOverlay');
 const simulationModalClose = document.getElementById('simulationModalClose');
+const simulationEvaluationContainer = document.getElementById('simulationEvaluation');
+const simulationEvaluationList = document.getElementById('simulationEvaluationList');
+const simulationSubmitButton = simulationForm
+    ? simulationForm.querySelector('button[type="submit"]')
+    : null;
 const networkCheckButton = document.getElementById('networkCheckButton');
 const networkCheckStatusEl = document.getElementById('networkCheckStatus');
 const networkShutdownButton = document.getElementById('networkShutdownButton');
@@ -56,11 +61,32 @@ let currentChartItems = [];
 let activeHierarchyBarIndex = null;
 let isModalOpen = false;
 let lastFocusedElement = null;
+let isIngestingSimulation = false;
+
+const BLOCKCHAIN_TARGETS = [
+    {
+        id: 'channel-standard',
+        label: 'RAFT Standard',
+        channel: 'channel-standard',
+    },
+    {
+        id: 'channel-variant',
+        label: 'RAFT Variant',
+        channel: 'channel-variant',
+    },
+];
+
+const evaluationStats = new Map();
+const evaluationElements = new Map();
 
 const SESSION_STORAGE_KEY = 'simulasiPelaporan';
 const dateTimeFormatter = new Intl.DateTimeFormat('id-ID', {
     dateStyle: 'long',
     timeStyle: 'short'
+});
+const decimalFormatter = new Intl.NumberFormat('id-ID', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
 });
 
 const SWAL_PRIMARY_COLOR = '#38BDF8';
@@ -142,6 +168,30 @@ const SIMULATION_STATUS_VARIANT_CLASS_CACHE = Object.values(SIMULATION_STATUS_VA
 
 SIMULATION_STATUS_VARIANT_CLASS_CACHE.container = Array.from(SIMULATION_STATUS_VARIANT_CLASS_CACHE.container);
 SIMULATION_STATUS_VARIANT_CLASS_CACHE.indicator = Array.from(SIMULATION_STATUS_VARIANT_CLASS_CACHE.indicator);
+
+const EVALUATION_STATUS_VARIANTS = {
+    idle: {
+        label: 'Menunggu',
+        classes: ['border-secondary/40', 'bg-secondary/10', 'text-secondary'],
+    },
+    processing: {
+        label: 'Memproses',
+        classes: ['border-accent/40', 'bg-accent/10', 'text-accent'],
+    },
+    success: {
+        label: 'Berhasil',
+        classes: ['border-emerald-400/40', 'bg-emerald-500/10', 'text-emerald-200'],
+    },
+    error: {
+        label: 'Perlu perhatian',
+        classes: ['border-rose-400/40', 'bg-rose-500/10', 'text-rose-200'],
+    },
+};
+
+const EVALUATION_STATUS_CLASS_CACHE = Array.from(new Set(
+    Object.values(EVALUATION_STATUS_VARIANTS)
+        .flatMap(variant => (Array.isArray(variant.classes) ? variant.classes : [])),
+));
 
 const OVERALL_STATUS_META = {
     healthy: {
@@ -1985,6 +2035,456 @@ function renderSimulationData() {
     renderHierarchy(simulationData);
 }
 
+function setButtonState(button, disabled) {
+    if (!button) {
+        return;
+    }
+    button.disabled = !!disabled;
+    button.classList.toggle('cursor-not-allowed', !!disabled);
+    button.classList.toggle('opacity-60', !!disabled);
+}
+
+function disableSimulationControlsForProcessing() {
+    const previousState = {
+        inputDisabled: simulationCountInput ? simulationCountInput.disabled : false,
+        submitDisabled: simulationSubmitButton ? simulationSubmitButton.disabled : false,
+        clearDisabled: clearSimulationButton ? clearSimulationButton.disabled : false,
+    };
+
+    if (simulationCountInput) {
+        simulationCountInput.disabled = true;
+    }
+    setButtonState(simulationSubmitButton, true);
+    setButtonState(clearSimulationButton, true);
+
+    return previousState;
+}
+
+function restoreSimulationControls(previousState) {
+    if (!previousState) {
+        return;
+    }
+
+    if (simulationCountInput) {
+        simulationCountInput.disabled = !!previousState.inputDisabled;
+    }
+    setButtonState(simulationSubmitButton, !!previousState.submitDisabled);
+    setButtonState(clearSimulationButton, !!previousState.clearDisabled);
+}
+
+function createDefaultEvaluationStats() {
+    return {
+        totalCount: 0,
+        successCount: 0,
+        failureCount: 0,
+        totalLatencyMs: 0,
+        lastLatencyMs: null,
+        firstSubmittedAt: null,
+        lastUpdatedAt: null,
+        lastCommitStatus: null,
+        lastMessage: 'Belum ada transaksi yang dikirim.',
+        lastStatus: 'idle',
+        lastTransactionId: null,
+    };
+}
+
+function ensureEvaluationSectionInitialized() {
+    if (!simulationEvaluationContainer || !simulationEvaluationList) {
+        return;
+    }
+
+    if (simulationEvaluationList.dataset.initialized === 'true') {
+        return;
+    }
+
+    simulationEvaluationList.dataset.initialized = 'true';
+
+    BLOCKCHAIN_TARGETS.forEach((target, index) => {
+        if (!evaluationStats.has(target.id)) {
+            evaluationStats.set(target.id, createDefaultEvaluationStats());
+        }
+
+        const card = document.createElement('article');
+        card.className = 'flex flex-col gap-4 rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6 shadow-lg shadow-black/10 animate-on-scroll';
+        card.dataset.targetId = target.id;
+        card.dataset.animateDelay = String(90 + (index * 30));
+
+        const header = document.createElement('header');
+        header.className = 'flex items-start justify-between gap-3 border-b border-white/5 pb-4';
+
+        const info = document.createElement('div');
+        info.className = 'space-y-1';
+
+        const labelEl = document.createElement('p');
+        labelEl.className = 'text-[11px] font-semibold uppercase tracking-[0.3em] text-secondary/80';
+        labelEl.textContent = 'Jaringan blockchain';
+
+        const titleEl = document.createElement('h3');
+        titleEl.className = 'text-lg font-semibold text-textdark';
+        titleEl.textContent = target.label;
+
+        const channelEl = document.createElement('p');
+        channelEl.className = 'text-xs text-textdark/60';
+        channelEl.textContent = `Channel: ${target.channel}`;
+
+        info.appendChild(labelEl);
+        info.appendChild(titleEl);
+        info.appendChild(channelEl);
+
+        const statusBadge = document.createElement('span');
+        statusBadge.className = 'inline-flex items-center rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.25em] transition';
+        statusBadge.dataset.evalStatusBadge = 'true';
+
+        header.appendChild(info);
+        header.appendChild(statusBadge);
+
+        const metrics = document.createElement('dl');
+        metrics.className = 'grid gap-3 md:grid-cols-2';
+
+        function createMetric(label, attribute, accentClass = 'text-primary') {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'rounded-xl border border-white/5 bg-surface/70 px-4 py-3 shadow-inner shadow-black/5';
+
+            const dt = document.createElement('dt');
+            dt.className = 'text-xs font-semibold uppercase tracking-[0.25em] text-secondary/70';
+            dt.textContent = label;
+
+            const dd = document.createElement('dd');
+            dd.className = `text-lg font-semibold ${accentClass}`;
+            dd.textContent = '—';
+            dd.setAttribute(attribute, '');
+
+            wrapper.appendChild(dt);
+            wrapper.appendChild(dd);
+
+            return { wrapper, valueEl: dd };
+        }
+
+        const latencyMetric = createMetric('Latensi terbaru', 'data-eval-latency-latest');
+        const avgLatencyMetric = createMetric('Rata-rata latensi', 'data-eval-latency-average');
+        const throughputMetric = createMetric('Throughput', 'data-eval-throughput');
+        const successMetric = createMetric('Commit berhasil', 'data-eval-success-count', 'text-emerald-300');
+        const failureMetric = createMetric('Commit gagal', 'data-eval-failure-count', 'text-rose-300');
+        const commitCodeMetric = createMetric('Kode commit terakhir', 'data-eval-commit-code', 'text-highlight');
+        const commitBlockMetric = createMetric('Blok commit terakhir', 'data-eval-commit-block', 'text-secondary');
+
+        [
+            latencyMetric,
+            avgLatencyMetric,
+            throughputMetric,
+            successMetric,
+            failureMetric,
+            commitCodeMetric,
+            commitBlockMetric,
+        ].forEach(metricEntry => {
+            metrics.appendChild(metricEntry.wrapper);
+        });
+
+        const footer = document.createElement('footer');
+        footer.className = 'rounded-xl border border-white/5 bg-surface/60 px-4 py-3 text-xs text-textdark/70';
+
+        const messageEl = document.createElement('p');
+        messageEl.setAttribute('data-eval-message', '');
+        messageEl.textContent = 'Belum ada transaksi yang dikirim.';
+
+        const timestampEl = document.createElement('p');
+        timestampEl.className = 'mt-1 text-[11px] uppercase tracking-[0.25em] text-textdark/50';
+        timestampEl.setAttribute('data-eval-timestamp', '');
+        timestampEl.textContent = 'Belum ada pembaruan.';
+
+        footer.appendChild(messageEl);
+        footer.appendChild(timestampEl);
+
+        card.appendChild(header);
+        card.appendChild(metrics);
+        card.appendChild(footer);
+
+        simulationEvaluationList.appendChild(card);
+        observeAnimatedElement(card);
+
+        evaluationElements.set(target.id, {
+            card,
+            statusBadge,
+            message: messageEl,
+            timestamp: timestampEl,
+            latestLatency: latencyMetric.valueEl,
+            averageLatency: avgLatencyMetric.valueEl,
+            throughput: throughputMetric.valueEl,
+            successCount: successMetric.valueEl,
+            failureCount: failureMetric.valueEl,
+            commitCode: commitCodeMetric.valueEl,
+            commitBlock: commitBlockMetric.valueEl,
+        });
+
+        renderEvaluationStats(target.id);
+    });
+}
+
+function resetEvaluationStats() {
+    BLOCKCHAIN_TARGETS.forEach(target => {
+        evaluationStats.set(target.id, createDefaultEvaluationStats());
+        renderEvaluationStats(target.id);
+    });
+}
+
+function formatLatencyValue(value) {
+    if (typeof value === 'number' && Number.isFinite(value)) {
+        return `${decimalFormatter.format(value)} ms`;
+    }
+    return '—';
+}
+
+function formatThroughputValue(stats) {
+    if (!stats || !stats.firstSubmittedAt || !stats.lastUpdatedAt || stats.successCount === 0) {
+        return '0,00 tx/detik';
+    }
+
+    const durationMs = Math.max(stats.lastUpdatedAt - stats.firstSubmittedAt, 0);
+    if (durationMs <= 0) {
+        return `${decimalFormatter.format(stats.successCount)} tx/detik`;
+    }
+
+    const throughput = stats.successCount / (durationMs / 1000);
+    if (!Number.isFinite(throughput)) {
+        return '0,00 tx/detik';
+    }
+
+    return `${decimalFormatter.format(throughput)} tx/detik`;
+}
+
+function renderEvaluationStats(targetId) {
+    const stats = evaluationStats.get(targetId);
+    const elements = evaluationElements.get(targetId);
+
+    if (!stats || !elements) {
+        return;
+    }
+
+    const variantKey = EVALUATION_STATUS_VARIANTS[stats.lastStatus] ? stats.lastStatus : 'idle';
+    const variant = EVALUATION_STATUS_VARIANTS[variantKey];
+
+    if (variant) {
+        elements.statusBadge.textContent = variant.label;
+        elements.statusBadge.classList.remove(...EVALUATION_STATUS_CLASS_CACHE);
+        elements.statusBadge.classList.add(...variant.classes);
+    }
+
+    elements.latestLatency.textContent = formatLatencyValue(stats.lastLatencyMs);
+
+    const averageLatency = stats.successCount > 0
+        ? stats.totalLatencyMs / stats.successCount
+        : null;
+    elements.averageLatency.textContent = formatLatencyValue(averageLatency);
+
+    elements.throughput.textContent = formatThroughputValue(stats);
+    elements.successCount.textContent = formatCount(stats.successCount);
+    elements.failureCount.textContent = formatCount(stats.failureCount);
+
+    if (stats.lastCommitStatus) {
+        const { code, codeName, blockNumber } = stats.lastCommitStatus;
+        elements.commitCode.textContent = codeName || (code !== undefined ? String(code) : '—');
+        const normalizedBlock = normalizeBlockHeight(blockNumber);
+        elements.commitBlock.textContent = normalizedBlock ? `#${normalizedBlock.text}` : '—';
+    } else {
+        elements.commitCode.textContent = '—';
+        elements.commitBlock.textContent = '—';
+    }
+
+    elements.message.textContent = stats.lastMessage || 'Belum ada transaksi yang dikirim.';
+
+    if (stats.lastUpdatedAt) {
+        const timestampDate = new Date(stats.lastUpdatedAt);
+        elements.timestamp.textContent = Number.isNaN(timestampDate.getTime())
+            ? 'Pembaruan terakhir tidak diketahui.'
+            : `Pembaruan terakhir ${dateTimeFormatter.format(timestampDate)}`;
+    } else {
+        elements.timestamp.textContent = 'Belum ada pembaruan.';
+    }
+}
+
+function notifyEvaluationProgressStart(record, index, total) {
+    const now = Date.now();
+    const label = record?.kelurahan_desa || record?.id || `Catatan ${index}`;
+
+    BLOCKCHAIN_TARGETS.forEach(target => {
+        const stats = evaluationStats.get(target.id) || createDefaultEvaluationStats();
+        if (!stats.firstSubmittedAt) {
+            stats.firstSubmittedAt = now;
+        }
+        stats.lastUpdatedAt = now;
+        stats.lastStatus = 'processing';
+        stats.lastMessage = `Mengirim ${label} (${index}/${total}).`;
+        evaluationStats.set(target.id, stats);
+        renderEvaluationStats(target.id);
+    });
+}
+
+function updateEvaluationResult(result, { record } = {}) {
+    if (!result || !result.targetId) {
+        return;
+    }
+
+    const stats = evaluationStats.get(result.targetId) || createDefaultEvaluationStats();
+    const now = Date.now();
+
+    if (!stats.firstSubmittedAt) {
+        stats.firstSubmittedAt = now;
+    }
+
+    stats.lastUpdatedAt = now;
+    stats.totalCount += 1;
+
+    if (typeof result.latencyMs === 'number' && Number.isFinite(result.latencyMs)) {
+        stats.lastLatencyMs = result.latencyMs;
+        if (result.status === 'success') {
+            stats.totalLatencyMs += result.latencyMs;
+        }
+    } else {
+        stats.lastLatencyMs = null;
+    }
+
+    if (result.commitStatus) {
+        stats.lastCommitStatus = result.commitStatus;
+    } else if (result.status === 'error' || result.status === 'commit_failed') {
+        stats.lastCommitStatus = null;
+    }
+
+    if (result.status === 'success') {
+        stats.successCount += 1;
+        stats.lastStatus = 'success';
+    } else if (result.status === 'commit_failed' || result.status === 'error' || result.status === 'not_found' || result.status === 'incomplete') {
+        stats.failureCount += 1;
+        stats.lastStatus = 'error';
+    } else {
+        stats.lastStatus = 'processing';
+    }
+
+    const recordLabel = record?.kelurahan_desa || record?.id || 'catatan';
+
+    if (result.status === 'success') {
+        const blockInfo = normalizeBlockHeight(result.commitStatus?.blockNumber);
+        const blockLabel = blockInfo ? `blok ${blockInfo.text}` : 'blok tidak diketahui';
+        stats.lastMessage = `Catatan ${recordLabel} berhasil dikomit (${blockLabel}).`;
+    } else if (result.status === 'commit_failed') {
+        const codeLabel = result.commitStatus?.codeName || result.commitStatus?.code || 'tidak diketahui';
+        stats.lastMessage = `Commit catatan ${recordLabel} gagal (${codeLabel}).`;
+    } else if (result.status === 'not_found' || result.status === 'incomplete') {
+        stats.lastMessage = result.message || `Jaringan ${result.label} belum siap menerima transaksi.`;
+    } else if (result.status === 'error') {
+        stats.lastMessage = result.message || `Terjadi kesalahan saat mengirim catatan ${recordLabel}.`;
+    } else {
+        stats.lastMessage = result.message || `Memproses catatan ${recordLabel}.`;
+    }
+
+    stats.lastTransactionId = result.transactionId || result.commitStatus?.transactionId || null;
+
+    evaluationStats.set(result.targetId, stats);
+    renderEvaluationStats(result.targetId);
+}
+
+async function submitRecordToBlockchain(record) {
+    const response = await fetch('/api/simulations/records', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+        },
+        body: JSON.stringify({ record }),
+    });
+
+    if (!response.ok) {
+        let message = `Server mengembalikan status ${response.status}.`;
+        try {
+            const errorBody = await response.json();
+            if (errorBody?.error) {
+                message = errorBody.error;
+            }
+        } catch (error) {
+            // ignore JSON parse errors
+        }
+        throw new Error(message);
+    }
+
+    return response.json();
+}
+
+async function ingestSimulationRecords(records) {
+    if (!Array.isArray(records) || !records.length) {
+        return { summary: {}, errors: [] };
+    }
+
+    const summary = {};
+    const errors = [];
+
+    BLOCKCHAIN_TARGETS.forEach(target => {
+        summary[target.id] = { success: 0, failure: 0 };
+    });
+
+    for (let index = 0; index < records.length; index += 1) {
+        const record = records[index];
+        notifyEvaluationProgressStart(record, index + 1, records.length);
+
+        try {
+            const response = await submitRecordToBlockchain(record);
+            const results = Array.isArray(response?.results) ? response.results : [];
+
+            if (!results.length) {
+                BLOCKCHAIN_TARGETS.forEach(target => {
+                    summary[target.id].failure += 1;
+                    updateEvaluationResult({
+                        targetId: target.id,
+                        label: target.label,
+                        status: 'error',
+                        message: 'Tidak ada hasil dari server.',
+                    }, { record });
+                });
+                errors.push(`Tidak ada hasil untuk catatan ${record.id}.`);
+                updateSimulationStatus(`Pengiriman catatan ${record.id} tidak memberikan respons yang valid.`, 'error');
+                continue;
+            }
+
+            results.forEach(result => {
+                if (!summary[result.targetId]) {
+                    summary[result.targetId] = { success: 0, failure: 0 };
+                }
+                if (result.status === 'success') {
+                    summary[result.targetId].success += 1;
+                } else {
+                    summary[result.targetId].failure += 1;
+                }
+                updateEvaluationResult(result, { record });
+            });
+
+            const successfulTargets = results.filter(result => result.status === 'success');
+            if (successfulTargets.length === results.length) {
+                updateSimulationStatus(`Catatan ${record.id} berhasil dikomit pada seluruh jaringan (${index + 1}/${records.length}).`, 'success');
+            } else if (successfulTargets.length > 0) {
+                const labels = successfulTargets.map(result => result.label).join(', ');
+                updateSimulationStatus(`Catatan ${record.id} hanya berhasil di ${labels} (${index + 1}/${records.length}).`, 'error');
+            } else {
+                updateSimulationStatus(`Catatan ${record.id} gagal dikomit pada seluruh jaringan (${index + 1}/${records.length}).`, 'error');
+            }
+        } catch (error) {
+            const message = error instanceof Error ? error.message : String(error);
+            errors.push(message);
+
+            BLOCKCHAIN_TARGETS.forEach(target => {
+                summary[target.id].failure += 1;
+                updateEvaluationResult({
+                    targetId: target.id,
+                    label: target.label,
+                    status: 'error',
+                    message: 'Tidak dapat terhubung ke gateway atau jaringan blockchain.',
+                }, { record });
+            });
+
+            updateSimulationStatus(`Gagal mengirim catatan ${record.id}. (${index + 1}/${records.length})`, 'error');
+        }
+    }
+
+    return { summary, errors };
+}
+
 function createModalTable(records) {
     const table = document.createElement('table');
     table.className = 'min-w-full divide-y divide-secondary/15 text-sm text-left';
@@ -2344,6 +2844,11 @@ function generateSimulationRecords(count) {
 async function handleSimulationSubmit(event) {
     event.preventDefault();
 
+    if (isIngestingSimulation) {
+        updateSimulationStatus('Pengiriman data simulasi sebelumnya masih berlangsung. Harap tunggu.', 'info');
+        return;
+    }
+
     if (!simulationCountInput) {
         return;
     }
@@ -2374,9 +2879,53 @@ async function handleSimulationSubmit(event) {
     simulationData = [...simulationData, ...generated];
     saveSimulationDataToSession(simulationData);
     renderSimulationData();
-    const successMessage = `Berhasil membuat ${formatCount(generated.length)} data simulasi.`;
-    updateSimulationStatus(successMessage, 'success');
-    await showSuccessAlert(successMessage);
+    ensureEvaluationSectionInitialized();
+
+    const preparationMessage = `Berhasil membuat ${formatCount(generated.length)} data simulasi. Memulai pengiriman ke jaringan blockchain...`;
+    updateSimulationStatus(preparationMessage, 'info');
+
+    const previousControlState = disableSimulationControlsForProcessing();
+    isIngestingSimulation = true;
+
+    try {
+        const { summary, errors } = await ingestSimulationRecords(generated);
+
+        const hasFailure = BLOCKCHAIN_TARGETS.some(target => {
+            const stats = summary[target.id] ?? { success: 0, failure: 0 };
+            return (stats.failure ?? 0) > 0;
+        });
+
+        if (!hasFailure && errors.length === 0) {
+            const successMessage = `Berhasil mengirim ${formatCount(generated.length)} catatan ke seluruh jaringan blockchain.`;
+            updateSimulationStatus(successMessage, 'success');
+            await showSuccessAlert(successMessage);
+        } else {
+            const summaryLines = BLOCKCHAIN_TARGETS.map(target => {
+                const stats = summary[target.id] ?? { success: 0, failure: 0 };
+                const successText = formatCount(stats.success ?? 0);
+                const failureText = formatCount(stats.failure ?? 0);
+                return `${target.label}: ${successText} berhasil • ${failureText} gagal`;
+            });
+
+            if (errors.length) {
+                summaryLines.push('Catatan tambahan:');
+                errors.forEach(error => {
+                    summaryLines.push(`• ${error}`);
+                });
+            }
+
+            const errorDetails = summaryLines.join('\n');
+            updateSimulationStatus('Pengiriman data simulasi selesai dengan beberapa kegagalan.', 'error');
+            await showErrorAlert(errorDetails, { title: 'Sebagian transaksi gagal' });
+        }
+    } catch (error) {
+        console.error('Gagal mengirim data simulasi ke blockchain:', error);
+        updateSimulationStatus('Terjadi kesalahan saat mengirim data simulasi ke jaringan blockchain.', 'error');
+        await showErrorAlert('Terjadi kesalahan saat mengirim data simulasi. Periksa log server untuk detailnya.');
+    } finally {
+        isIngestingSimulation = false;
+        restoreSimulationControls(previousControlState);
+    }
 }
 
 async function handleNetworkCheckButtonClick() {
@@ -2531,6 +3080,11 @@ if (simulationForm) {
 
 if (clearSimulationButton) {
     clearSimulationButton.addEventListener('click', async () => {
+        if (isIngestingSimulation) {
+            updateSimulationStatus('Tunggu hingga proses pengiriman data selesai sebelum menghapus simulasi.', 'info');
+            return;
+        }
+
         if (!simulationData.length) {
             const message = 'Tidak ada data simulasi yang perlu dihapus.';
             updateSimulationStatus(message, 'info');
@@ -2546,6 +3100,7 @@ if (clearSimulationButton) {
         simulationData = [];
         saveSimulationDataToSession(simulationData);
         renderSimulationData();
+        resetEvaluationStats();
         const successMessage = 'Seluruh data simulasi berhasil dihapus.';
         updateSimulationStatus(successMessage, 'success');
         await showSuccessAlert(successMessage);
@@ -2565,6 +3120,8 @@ document.addEventListener('keydown', handleModalKeyDown);
 async function initialize() {
     simulationData = loadSimulationDataFromSession();
     renderSimulationData();
+    ensureEvaluationSectionInitialized();
+    resetEvaluationStats();
 
     if (simulationCountInput) {
         simulationCountInput.disabled = true;

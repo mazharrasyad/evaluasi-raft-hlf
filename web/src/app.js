@@ -212,13 +212,13 @@ const NETWORK_START_TARGETS = [
         commands: [
             {
                 label: 'Mulai layanan inti',
-                args: ['up', '-ca'],
-                displayCommand: './network.sh up -ca',
+                args: ['up', '-ca', '-bft'],
+                displayCommand: './network.sh up -ca -bft',
             },
             {
                 label: 'Buat channel',
-                args: ['createChannel', '-c', 'channel-variant', '-ca'],
-                displayCommand: './network.sh createChannel -c channel-variant -ca',
+                args: ['createChannel', '-c', 'channel-variant', '-ca', '-bft'],
+                displayCommand: './network.sh createChannel -c channel-variant -ca -bft',
             },
             {
                 label: 'Deploy chaincode',
@@ -232,9 +232,10 @@ const NETWORK_START_TARGETS = [
                     'javascript',
                     '-c',
                     'channel-variant',
+                    '-bft',
                 ],
                 displayCommand:
-                    './network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl javascript -c channel-variant',
+                    './network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl javascript -c channel-variant -bft',
             },
         ],
     },

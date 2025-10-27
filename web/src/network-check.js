@@ -29,8 +29,8 @@ const networkConfigurations = [
         networkDir: path.resolve(__dirname, '../../raft-variant/network'),
         channelName: 'channel-variant',
         instructions: {
-            up: 'cd ../raft-variant/network && ./network.sh up -ca && ./network.sh createChannel -c channel-variant -ca',
-            deploy: './network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl javascript -c channel-variant'
+            up: 'cd ../raft-variant/network && ./network.sh up -ca -bft && ./network.sh createChannel -c channel-variant -ca -bft',
+            deploy: './network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl javascript -c channel-variant -bft'
         }
     }
 ];

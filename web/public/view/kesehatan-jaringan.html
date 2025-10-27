@@ -80,13 +80,46 @@
                                         </header>
                                         <p class="text-sm text-textdark/70">Jalankan skrip <code>network.sh</code> untuk menyalakan jaringan RAFT.</p>
                                         <div class="flex flex-col gap-3">
-                                            <button type="button" id="networkStartupButton" class="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-500/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-emerald-500/40 transition duration-200 hover:-translate-y-0.5 hover:bg-emerald-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400">
-                                                <span>Hidupkan Jaringan</span>
-                                            </button>
-                                            <p id="networkStartupStatus" class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 py-2 text-xs font-medium text-textdark/80" role="status" aria-live="polite">
-                                                <span data-indicator class="h-2 w-2 rounded-full bg-secondary"></span>
-                                                <span data-message>Belum ada perintah penyalaan jaringan yang dijalankan.</span>
-                                            </p>
+                                            <div class="grid gap-3 sm:grid-cols-2">
+                                                <button
+                                                    type="button"
+                                                    class="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-500/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-emerald-500/40 transition duration-200 hover:-translate-y-0.5 hover:bg-emerald-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
+                                                    data-network-startup-button="standard"
+                                                    data-network-label="Jaringan RAFT Standard"
+                                                >
+                                                    <span>Hidupkan RAFT Standard</span>
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    class="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-400/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-emerald-400/40 transition duration-200 hover:-translate-y-0.5 hover:bg-emerald-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300"
+                                                    data-network-startup-button="variant"
+                                                    data-network-label="Jaringan RAFT Variant"
+                                                >
+                                                    <span>Hidupkan RAFT Variant</span>
+                                                </button>
+                                            </div>
+                                            <div class="grid gap-3 sm:grid-cols-2">
+                                                <p
+                                                    class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 py-2 text-xs font-medium text-textdark/80"
+                                                    role="status"
+                                                    aria-live="polite"
+                                                    data-network-startup-status="standard"
+                                                    data-network-label="Jaringan RAFT Standard"
+                                                >
+                                                    <span data-indicator class="h-2 w-2 rounded-full bg-secondary"></span>
+                                                    <span data-message>Belum ada perintah penyalaan untuk Jaringan RAFT Standard.</span>
+                                                </p>
+                                                <p
+                                                    class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 py-2 text-xs font-medium text-textdark/80"
+                                                    role="status"
+                                                    aria-live="polite"
+                                                    data-network-startup-status="variant"
+                                                    data-network-label="Jaringan RAFT Variant"
+                                                >
+                                                    <span data-indicator class="h-2 w-2 rounded-full bg-secondary"></span>
+                                                    <span data-message>Belum ada perintah penyalaan untuk Jaringan RAFT Variant.</span>
+                                                </p>
+                                            </div>
                                         </div>
                                     </article>
                                     <article class="flex flex-col gap-3 rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6 shadow-lg shadow-black/20">

@@ -196,6 +196,82 @@ const HIERARCHY_BAR_ANIMATION = {
     expandedBackground: 'rgba(99, 102, 241, 0.95)'
 };
 
+const NAME_COMPARISON_LOCALE = 'id-ID';
+
+function compareByTotalReportsDesc(a, b) {
+    const totalA = a?.totalReports ?? 0;
+    const totalB = b?.totalReports ?? 0;
+    if (totalA === totalB) {
+        const nameA = a?.name || '';
+        const nameB = b?.name || '';
+        return nameA.localeCompare(nameB, NAME_COMPARISON_LOCALE, { sensitivity: 'base' });
+    }
+    return totalB - totalA;
+}
+
+function sortItemsByTotalReports(items) {
+    if (!Array.isArray(items)) {
+        return [];
+    }
+    return items.slice().sort(compareByTotalReportsDesc);
+}
+
+const HIERARCHY_VALUE_LABEL_PLUGIN = {
+    id: 'hierarchyValueLabel',
+    afterDatasetsDraw(chart) {
+        const datasetMeta = chart.getDatasetMeta(0);
+        const dataset = chart.data?.datasets?.[0];
+        if (!datasetMeta || !dataset || !Array.isArray(datasetMeta.data)) {
+            return;
+        }
+
+        const pluginConfig = chart?.config?.options?.plugins?.hierarchyValueLabel || {};
+        if (pluginConfig.display === false) {
+            return;
+        }
+
+        const ctx = chart.ctx;
+        const baseFontFamily = window.Chart?.defaults?.font?.family || 'Inter, sans-serif';
+        const fontSize = pluginConfig.fontSize ?? 12;
+        const fontWeight = pluginConfig.fontWeight ?? 600;
+        const textPadding = pluginConfig.padding ?? 12;
+        const textColor = pluginConfig.color || '#E2E8F0';
+
+        ctx.save();
+        ctx.font = `${fontWeight} ${fontSize}px ${baseFontFamily}`;
+        ctx.fillStyle = textColor;
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+
+        datasetMeta.data.forEach((element, index) => {
+            if (!element || element.skip) {
+                return;
+            }
+
+            const rawValue = dataset.data[index];
+            const numericValue = typeof rawValue === 'number'
+                ? rawValue
+                : Number.parseFloat(rawValue);
+            const safeValue = Number.isFinite(numericValue) ? numericValue : 0;
+            const formatter = pluginConfig.formatter || (value => `${formatCount(value)} laporan`);
+            const label = formatter(safeValue, index, chart);
+            if (!label) {
+                return;
+            }
+
+            const text = String(label);
+            const position = element.tooltipPosition(true);
+            const maxX = chart.chartArea?.right ?? position.x;
+            const x = Math.min(position.x + textPadding, maxX - 4);
+            const y = position.y;
+
+            ctx.fillText(text, x, y);
+        });
+
+        ctx.restore();
+    }
+};
+
 function isSwalAvailable() {
     return typeof window !== 'undefined'
         && typeof window.Swal !== 'undefined'
@@ -1337,7 +1413,7 @@ function renderCurrentHierarchyLevel() {
         return;
     }
 
-    currentChartItems = Array.isArray(levelInfo.items) ? levelInfo.items.slice() : [];
+    currentChartItems = sortItemsByTotalReports(levelInfo.items);
     activeHierarchyBarIndex = null;
 
     if (!currentChartItems.length) {
@@ -1364,6 +1440,8 @@ function renderCurrentHierarchyLevel() {
                 {
                     label: levelInfo.datasetTitle,
                     data,
+                    barPercentage: 0.72,
+                    categoryPercentage: 0.78,
                     backgroundColor(context) {
                         if (!context || typeof context.dataIndex !== 'number') {
                             return HIERARCHY_BAR_ANIMATION.baseBackground;
@@ -1373,6 +1451,7 @@ function renderCurrentHierarchyLevel() {
                             : HIERARCHY_BAR_ANIMATION.baseBackground;
                     },
                     hoverBackgroundColor: 'rgba(99, 102, 241, 0.95)',
+                    borderWidth: 0,
                     borderRadius(context) {
                         if (!context || typeof context.dataIndex !== 'number') {
                             return 16;
@@ -1404,7 +1483,7 @@ function renderCurrentHierarchyLevel() {
             layout: {
                 padding: {
                     top: 16,
-                    right: 24,
+                    right: 72,
                     bottom: 16,
                     left: 12
                 }
@@ -1412,25 +1491,37 @@ function renderCurrentHierarchyLevel() {
             scales: {
                 x: {
                     beginAtZero: true,
+                    border: {
+                        display: false
+                    },
                     grid: {
                         color: 'rgba(148, 163, 184, 0.15)',
-                        drawBorder: false
+                        drawBorder: false,
+                        drawTicks: false
                     },
                     ticks: {
                         color: '#94A3B8',
                         callback: value => formatCount(value),
+                        maxRotation: 0,
+                        padding: 12,
                         font: {
                             size: 12
                         }
                     }
                 },
                 y: {
+                    border: {
+                        display: false
+                    },
                     grid: {
                         display: false,
-                        drawBorder: false
+                        drawBorder: false,
+                        drawTicks: false
                     },
                     ticks: {
                         color: '#E2E8F0',
+                        padding: 12,
+                        autoSkip: false,
                         font: {
                             size: 13,
                             weight: '600'
@@ -1443,6 +1534,7 @@ function renderCurrentHierarchyLevel() {
                     display: false
                 },
                 tooltip: {
+                    displayColors: false,
                     backgroundColor: '#0F172A',
                     borderColor: 'rgba(148, 163, 184, 0.15)',
                     borderWidth: 1,
@@ -1452,6 +1544,12 @@ function renderCurrentHierarchyLevel() {
                         label(context) {
                             const value = context?.parsed?.x ?? context?.parsed ?? 0;
                             return `${formatCount(value)} laporan`;
+                        },
+                        title(tooltipItems) {
+                            if (!Array.isArray(tooltipItems) || !tooltipItems.length) {
+                                return '';
+                            }
+                            return tooltipItems[0].label || '';
                         }
                     }
                 },
@@ -1466,6 +1564,15 @@ function renderCurrentHierarchyLevel() {
                     padding: {
                         bottom: 16
                     }
+                },
+                hierarchyValueLabel: {
+                    color: '#CBD5F5',
+                    padding: 16,
+                    fontWeight: 600,
+                    fontSize: 12,
+                    formatter(value) {
+                        return `${formatCount(value)} laporan`;
+                    }
                 }
             },
             onHover(event, elements) {
@@ -1476,7 +1583,8 @@ function renderCurrentHierarchyLevel() {
             onClick(event, elements) {
                 handleHierarchyChartInteraction(levelInfo.level, elements);
             }
-        }
+        },
+        plugins: [HIERARCHY_VALUE_LABEL_PLUGIN]
     });
 }
 
@@ -1615,15 +1723,15 @@ function getChildItemsForLevel(level, item) {
     }
 
     if (level === 'province') {
-        return Array.isArray(item.regencies) ? item.regencies.slice() : [];
+        return sortItemsByTotalReports(item.regencies);
     }
 
     if (level === 'regency') {
-        return Array.isArray(item.districts) ? item.districts.slice() : [];
+        return sortItemsByTotalReports(item.districts);
     }
 
     if (level === 'district') {
-        return Array.isArray(item.subdistricts) ? item.subdistricts.slice() : [];
+        return sortItemsByTotalReports(item.subdistricts);
     }
 
     return [];
@@ -1709,17 +1817,16 @@ function buildHierarchyFromRecords(records) {
         subdistrict.totalReports += 1;
     });
 
-    const provinces = Array.from(provincesMap.values()).map(province => {
-        const regencies = Array.from(province.regenciesMap.values()).map(regency => {
-            const districts = Array.from(regency.districtsMap.values()).map(district => {
-                const subdistricts = Array.from(district.subdistrictsMap.values())
-                    .sort((a, b) => a.name.localeCompare(b.name, 'id-ID'))
-                    .map(subdistrict => ({
-                        id: subdistrict.id,
-                        sanitizedId: subdistrict.sanitizedId,
-                        name: subdistrict.name,
-                        totalReports: subdistrict.totalReports
-                    }));
+    const provinces = sortItemsByTotalReports(Array.from(provincesMap.values()).map(province => {
+        const regencies = sortItemsByTotalReports(Array.from(province.regenciesMap.values()).map(regency => {
+            const districts = sortItemsByTotalReports(Array.from(regency.districtsMap.values()).map(district => {
+                const subdistricts = sortItemsByTotalReports(Array.from(district.subdistrictsMap.values()).map(subdistrict => ({
+                    id: subdistrict.id,
+                    sanitizedId: subdistrict.sanitizedId,
+                    name: subdistrict.name,
+                    totalReports: subdistrict.totalReports
+                })));
+
                 return {
                     id: district.id,
                     sanitizedId: district.sanitizedId,
@@ -1727,7 +1834,8 @@ function buildHierarchyFromRecords(records) {
                     totalReports: district.totalReports,
                     subdistricts
                 };
-            }).sort((a, b) => a.name.localeCompare(b.name, 'id-ID'));
+            }));
+
             return {
                 id: regency.id,
                 sanitizedId: regency.sanitizedId,
@@ -1735,7 +1843,8 @@ function buildHierarchyFromRecords(records) {
                 totalReports: regency.totalReports,
                 districts
             };
-        }).sort((a, b) => a.name.localeCompare(b.name, 'id-ID'));
+        }));
+
         return {
             id: province.id,
             sanitizedId: province.sanitizedId,
@@ -1743,7 +1852,7 @@ function buildHierarchyFromRecords(records) {
             totalReports: province.totalReports,
             regencies
         };
-    }).sort((a, b) => a.name.localeCompare(b.name, 'id-ID'));
+    }));
 
     return {
         totalReports: records.length,
@@ -1806,24 +1915,26 @@ function renderSimulationData() {
 
 function createModalTable(records) {
     const table = document.createElement('table');
-    table.className = 'min-w-full divide-y divide-secondary/20 text-sm';
+    table.className = 'min-w-full divide-y divide-secondary/15 text-sm text-left';
+    table.setAttribute('role', 'grid');
 
     const thead = document.createElement('thead');
-    thead.className = 'bg-soft/60';
+    thead.className = 'sticky top-0 z-10 bg-surfaceMuted/80 backdrop-blur-sm';
     const headerRow = document.createElement('tr');
 
     const headers = [
-        { label: 'ID', className: 'px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.3em] text-secondary' },
-        { label: 'Kecamatan', className: 'px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.3em] text-secondary' },
-        { label: 'Kabupaten/Kota', className: 'px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.3em] text-secondary' },
-        { label: 'Provinsi', className: 'px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.3em] text-secondary' },
-        { label: 'Waktu', className: 'px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.3em] text-secondary' },
-        { label: 'Deskripsi', className: 'px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.3em] text-secondary' }
+        { label: 'ID', className: 'px-4 py-3 text-xs font-semibold uppercase tracking-[0.3em] text-secondary' },
+        { label: 'Kecamatan', className: 'px-4 py-3 text-xs font-semibold uppercase tracking-[0.3em] text-secondary' },
+        { label: 'Kabupaten/Kota', className: 'px-4 py-3 text-xs font-semibold uppercase tracking-[0.3em] text-secondary' },
+        { label: 'Provinsi', className: 'px-4 py-3 text-xs font-semibold uppercase tracking-[0.3em] text-secondary' },
+        { label: 'Waktu', className: 'px-4 py-3 text-xs font-semibold uppercase tracking-[0.3em] text-secondary' },
+        { label: 'Deskripsi', className: 'px-4 py-3 text-xs font-semibold uppercase tracking-[0.3em] text-secondary' }
     ];
 
     headers.forEach(({ label, className }) => {
         const th = document.createElement('th');
         th.className = className;
+        th.scope = 'col';
         th.textContent = label;
         headerRow.appendChild(th);
     });
@@ -1832,7 +1943,7 @@ function createModalTable(records) {
     table.appendChild(thead);
 
     const tbody = document.createElement('tbody');
-    tbody.className = 'divide-y divide-secondary/10 bg-white';
+    tbody.className = 'divide-y divide-secondary/12 bg-surface/80';
 
     const orderedRecords = records.slice().sort((a, b) => {
         const aDate = a.createdAt ? new Date(a.createdAt).getTime() : 0;
@@ -1842,7 +1953,7 @@ function createModalTable(records) {
 
     orderedRecords.forEach(record => {
         const row = document.createElement('tr');
-        row.className = 'transition-colors hover:bg-secondary/5';
+        row.className = 'odd:bg-surface even:bg-surfaceMuted/40 transition-colors hover:bg-secondary/15';
 
         const cells = [
             { text: record.id, className: 'whitespace-nowrap px-4 py-3 font-mono text-xs text-textdark/80' },
@@ -1912,7 +2023,8 @@ function createChildSummaryList(items, childLevel) {
     const list = document.createElement('ul');
     list.className = 'space-y-2';
 
-    const limitedItems = items.slice(0, CHILD_SUMMARY_LIMIT);
+    const sortedItems = sortItemsByTotalReports(items);
+    const limitedItems = sortedItems.slice(0, CHILD_SUMMARY_LIMIT);
     limitedItems.forEach(child => {
         const itemRow = document.createElement('li');
         itemRow.className = 'flex items-center justify-between rounded-xl border border-white/10 bg-surface/80 px-4 py-3 text-sm text-textdark/80 shadow-inner shadow-black/5';
@@ -1932,10 +2044,10 @@ function createChildSummaryList(items, childLevel) {
 
     wrapper.appendChild(list);
 
-    if (items.length > CHILD_SUMMARY_LIMIT) {
+    if (sortedItems.length > CHILD_SUMMARY_LIMIT) {
         const remaining = document.createElement('p');
         remaining.className = 'text-xs text-textdark/60';
-        remaining.textContent = `+${formatCount(items.length - CHILD_SUMMARY_LIMIT)} ${childLabel.toLowerCase()} lainnya.`;
+        remaining.textContent = `+${formatCount(sortedItems.length - CHILD_SUMMARY_LIMIT)} ${childLabel.toLowerCase()} lainnya.`;
         wrapper.appendChild(remaining);
     }
 
@@ -2071,7 +2183,7 @@ function openHierarchyReportsModal({ level, item, records, onNavigate, childLeve
         }
 
         const tableWrapper = document.createElement('div');
-        tableWrapper.className = 'overflow-x-auto rounded-2xl border border-white/10 bg-surface shadow-inner shadow-black/10';
+        tableWrapper.className = 'max-h-[55vh] overflow-auto rounded-2xl border border-white/10 bg-surface shadow-inner shadow-black/10';
         tableWrapper.appendChild(createModalTable(safeRecords));
         simulationModalContent.appendChild(tableWrapper);
     }

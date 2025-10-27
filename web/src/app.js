@@ -11,13 +11,37 @@ const app = express();
 app.disable('x-powered-by');
 
 const staticRoot = path.resolve(__dirname, '../public');
-const dashboardFile = path.resolve(staticRoot, 'view', 'dashboard.html');
-const wilayahDatasetFile = path.resolve(staticRoot, 'view', 'wilayah-indonesia.html');
+const viewsRoot = path.resolve(staticRoot, 'view');
+
+const viewFiles = {
+    dashboard: path.resolve(viewsRoot, 'dashboard.html'),
+    kesehatanJaringan: path.resolve(viewsRoot, 'kesehatan-jaringan.html'),
+    ruteServer: path.resolve(viewsRoot, 'rute-server.html'),
+    simulasiData: path.resolve(viewsRoot, 'simulasi-data.html'),
+    petaLaporan: path.resolve(viewsRoot, 'peta-laporan.html'),
+    wilayahDataset: path.resolve(viewsRoot, 'wilayah-indonesia.html'),
+};
 
 app.use(express.static(staticRoot));
 
 app.get('/', (req, res) => {
-    res.sendFile(dashboardFile);
+    res.sendFile(viewFiles.dashboard);
+});
+
+app.get('/kesehatan-jaringan', (req, res) => {
+    res.sendFile(viewFiles.kesehatanJaringan);
+});
+
+app.get('/rute-server', (req, res) => {
+    res.sendFile(viewFiles.ruteServer);
+});
+
+app.get('/simulasi-data', (req, res) => {
+    res.sendFile(viewFiles.simulasiData);
+});
+
+app.get('/peta-laporan', (req, res) => {
+    res.sendFile(viewFiles.petaLaporan);
 });
 
 app.get('/api/check-network', async (req, res) => {
@@ -63,11 +87,11 @@ app.get('/api/check-network', async (req, res) => {
 });
 
 app.get('/wilayah-indonesia', (req, res) => {
-    res.sendFile(wilayahDatasetFile);
+    res.sendFile(viewFiles.wilayahDataset);
 });
 
 app.get('*', (req, res) => {
-    res.sendFile(dashboardFile);
+    res.sendFile(viewFiles.dashboard);
 });
 
 const PORT = process.env.PORT || 5176;

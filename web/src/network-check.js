@@ -37,6 +37,54 @@ const networkConfigurations = [
 const peerEndpoint = 'localhost:7051';
 const peerHostAlias = 'peer0.org1.example.com';
 
+const logsRoot = path.resolve(__dirname, '../logs');
+const networkCheckLogPath = path.resolve(logsRoot, 'network-check.log');
+
+async function logNetworkCheckIssue(result, error) {
+    try {
+        await fs.mkdir(logsRoot, { recursive: true });
+
+        const timestamp = new Date().toISOString();
+        const {
+            label,
+            networkDir,
+            channel,
+            chaincode,
+            peer,
+            status,
+            message,
+        } = result;
+
+        const logLines = [
+            `[${timestamp}] Pemeriksaan jaringan: ${label ?? '-'}`,
+            `Status: ${status ?? '-'}`,
+            `Direktori: ${networkDir ?? '-'}`,
+            `Channel: ${channel ?? '-'}`,
+            `Chaincode: ${chaincode ?? '-'}`,
+            `Peer: ${peer ?? '-'}`,
+        ];
+
+        if (message) {
+            logLines.push(`Pesan: ${message}`);
+        }
+
+        if (error) {
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            logLines.push(`Error: ${errorMessage}`);
+
+            if (error instanceof Error && error.stack) {
+                logLines.push('Stacktrace:');
+                logLines.push(error.stack);
+            }
+        }
+
+        const logEntry = `${logLines.join('\n')}\n\n`;
+        await fs.appendFile(networkCheckLogPath, logEntry, 'utf8');
+    } catch (loggingError) {
+        console.error('Failed to write network check log:', loggingError);
+    }
+}
+
 function readVarint(buffer, offset) {
     let result = 0n;
     let shift = 0n;
@@ -142,11 +190,15 @@ async function checkSingleNetwork({ label, networkDir, channelName, instructions
     };
 
     if (!existsSync(networkDir)) {
-        return {
+        const failureResult = {
             ...baseResult,
             status: 'not_found',
             message: 'Direktori jaringan tidak ditemukan.'
         };
+
+        await logNetworkCheckIssue(failureResult);
+
+        return failureResult;
     }
 
     const cryptoPath = path.resolve(networkDir, 'organizations/peerOrganizations/org1.example.com');
@@ -165,11 +217,15 @@ async function checkSingleNetwork({ label, networkDir, channelName, instructions
 
     const missing = requiredPaths.filter(entry => !existsSync(entry.path));
     if (missing.length) {
-        return {
+        const failureResult = {
             ...baseResult,
             status: 'incomplete',
             message: missing[0].description
         };
+
+        await logNetworkCheckIssue(failureResult);
+
+        return failureResult;
     }
 
     async function newGrpcConnection() {
@@ -242,11 +298,17 @@ async function checkSingleNetwork({ label, networkDir, channelName, instructions
             blockHeight
         };
     } catch (error) {
-        return {
+        const failureResult = {
             ...baseResult,
             status: 'unhealthy',
-            message: error.message || 'Terjadi kesalahan saat mengakses chaincode.'
+            message: error instanceof Error
+                ? error.message
+                : 'Terjadi kesalahan saat mengakses chaincode.'
         };
+
+        await logNetworkCheckIssue(failureResult, error);
+
+        return failureResult;
     } finally {
         if (gateway) {
             gateway.close();

@@ -64,11 +64,45 @@ const networkOperationSeconds = networkOperationOverlay
 const networkOperationHint = networkOperationOverlay
     ? networkOperationOverlay.querySelector('[data-overlay-hint]')
     : null;
+const networkOperationLogPanel = networkOperationOverlay
+    ? networkOperationOverlay.querySelector('[data-overlay-log-panel]')
+    : null;
+const networkOperationLogContent = networkOperationOverlay
+    ? networkOperationOverlay.querySelector('[data-overlay-log-content]')
+    : null;
+const networkOperationLogScroller = networkOperationOverlay
+    ? networkOperationOverlay.querySelector('[data-overlay-log-scroller]')
+    : null;
+const networkOperationLogEmpty = networkOperationOverlay
+    ? networkOperationOverlay.querySelector('[data-overlay-log-empty]')
+    : null;
 
 let networkOperationTimerHandle = null;
 let networkOperationOverlayStart = null;
 let networkOperationOverlayHideTimeout = null;
 let networkOperationLastDisplayedSeconds = null;
+
+const supportsNetworkOperationStreaming = typeof window.EventSource === 'function';
+const NETWORK_OPERATION_STREAM_ENDPOINT = '/api/network-operations/stream';
+const NETWORK_OPERATION_STREAM_RETRY_DELAY = 5000;
+const MAX_NETWORK_OPERATION_LOG_ENTRIES = 400;
+const MAX_NETWORK_OPERATION_OUTPUT_LINES = 40;
+
+let networkOperationEventSource = null;
+let networkOperationStreamRetryTimeout = null;
+let networkOperationLogEntries = [];
+let activeNetworkOperation = null;
+let networkOperationOverlayMode = null;
+
+if (networkOperationLogEmpty) {
+    networkOperationLogEmpty.textContent = supportsNetworkOperationStreaming
+        ? 'Log perintah akan muncul di sini.'
+        : 'Streaming log tidak tersedia di browser ini.';
+}
+
+if (supportsNetworkOperationStreaming) {
+    ensureNetworkOperationStream();
+}
 
 const MIN_NETWORK_OPERATION_OVERLAY_DURATION = 600;
 
@@ -661,6 +695,12 @@ function showNetworkOperationOverlay(mode = 'startup', message) {
         networkOperationHint.textContent = defaultHint;
     }
 
+    networkOperationOverlayMode = mode;
+
+    if (!activeNetworkOperation || activeNetworkOperation.type !== mode) {
+        hideNetworkOperationLogPanel();
+    }
+
     networkOperationOverlay.classList.remove('hidden');
     networkOperationOverlay.classList.add('flex');
     networkOperationOverlay.classList.remove('opacity-0', 'pointer-events-none');
@@ -708,6 +748,15 @@ function hideNetworkOperationOverlay() {
         networkOperationOverlay.classList.remove('flex');
         networkOperationOverlay.setAttribute('aria-hidden', 'true');
         networkOperationLastDisplayedSeconds = null;
+
+        const previousMode = networkOperationOverlayMode;
+        networkOperationOverlayMode = null;
+
+        if (!previousMode || (activeNetworkOperation && activeNetworkOperation.type === previousMode)) {
+            clearActiveNetworkOperationState();
+        }
+
+        hideNetworkOperationLogPanel();
     };
 
     const beginFade = () => {
@@ -746,6 +795,355 @@ function hideNetworkOperationOverlay() {
     } else {
         beginFade();
     }
+}
+
+function hideNetworkOperationLogPanel() {
+    if (!networkOperationLogPanel) {
+        return;
+    }
+
+    networkOperationLogPanel.classList.add('hidden');
+}
+
+function resetNetworkOperationLogs() {
+    networkOperationLogEntries = [];
+
+    if (networkOperationLogContent) {
+        networkOperationLogContent.textContent = '';
+    }
+
+    if (networkOperationLogPanel) {
+        networkOperationLogPanel.classList.remove('hidden');
+    }
+
+    if (networkOperationLogEmpty) {
+        networkOperationLogEmpty.classList.remove('hidden');
+    }
+
+    if (networkOperationLogScroller) {
+        networkOperationLogScroller.scrollTop = 0;
+    }
+}
+
+function appendNetworkOperationLogLines(lines) {
+    if (!Array.isArray(lines) || !lines.length) {
+        return;
+    }
+
+    networkOperationLogEntries.push(...lines);
+
+    if (networkOperationLogEntries.length > MAX_NETWORK_OPERATION_LOG_ENTRIES) {
+        networkOperationLogEntries.splice(0, networkOperationLogEntries.length - MAX_NETWORK_OPERATION_LOG_ENTRIES);
+    }
+
+    if (networkOperationLogContent) {
+        networkOperationLogContent.textContent = networkOperationLogEntries.join('\n');
+    }
+
+    if (networkOperationLogEmpty) {
+        networkOperationLogEmpty.classList.add('hidden');
+    }
+
+    if (networkOperationLogPanel) {
+        networkOperationLogPanel.classList.remove('hidden');
+    }
+
+    if (networkOperationLogScroller) {
+        networkOperationLogScroller.scrollTop = networkOperationLogScroller.scrollHeight;
+    }
+}
+
+function sanitizeLogText(value) {
+    if (typeof value !== 'string') {
+        return '';
+    }
+
+    return value
+        .replace(/\u001b\[[0-9;]*[A-Za-z]/g, '')
+        .replace(/\r/g, '')
+        .trimEnd();
+}
+
+function formatLogTimestamp(isoString) {
+    if (!isoString) {
+        return '';
+    }
+
+    const date = new Date(isoString);
+
+    if (Number.isNaN(date.getTime())) {
+        return '';
+    }
+
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+
+    return `[${hours}:${minutes}:${seconds}] `;
+}
+
+function formatLogOutputLines(text, { timestamp, targetLabel, channel }) {
+    const sanitized = sanitizeLogText(text);
+
+    if (!sanitized) {
+        return [];
+    }
+
+    const lines = sanitized.split('\n');
+    const limitedLines = lines.slice(0, MAX_NETWORK_OPERATION_OUTPUT_LINES);
+    const icon = channel === 'stderr' ? '📥' : '📤';
+    const label = channel === 'stderr' ? 'STDERR' : 'STDOUT';
+    const prefix = targetLabel ? `[${targetLabel}]` : '';
+    const formatted = limitedLines.map(line => `${timestamp}${icon} ${prefix} ${label}: ${line}`.trim());
+
+    if (lines.length > MAX_NETWORK_OPERATION_OUTPUT_LINES) {
+        const remaining = lines.length - MAX_NETWORK_OPERATION_OUTPUT_LINES;
+        formatted.push(`${timestamp}… (${remaining} baris tambahan disembunyikan)`);
+    }
+
+    return formatted;
+}
+
+function formatNetworkOperationLogEvent(event) {
+    if (!event || typeof event !== 'object') {
+        return [];
+    }
+
+    const timestamp = formatLogTimestamp(event.timestamp);
+    const targetLabel = event.targetLabel || 'Jaringan';
+    const lines = [];
+    const stepLabel = event.stepLabel || event.displayCommand || 'Langkah jaringan';
+
+    switch (event.phase) {
+        case 'begin':
+            lines.push(`${timestamp}⚡ Memulai perintah penyalaan jaringan.`);
+            break;
+        case 'dependency_error':
+            lines.push(`${timestamp}❌ Gagal menyiapkan penyalaan jaringan: ${event.message || 'Dependensi tidak tersedia.'}`);
+            if (event.resolution) {
+                lines.push(`${timestamp}🔧 ${event.resolution}`);
+            }
+            break;
+        case 'target_begin':
+            lines.push(`${timestamp}⚙️ [${targetLabel}] Menjalankan rangkaian perintah...`);
+            break;
+        case 'step_begin':
+            lines.push(`${timestamp}⏳ [${targetLabel}] ${stepLabel}`);
+            if (event.displayCommand) {
+                lines.push(`${timestamp}   Perintah: ${event.displayCommand}`);
+            }
+            break;
+        case 'step_success':
+            lines.push(`${timestamp}✅ [${targetLabel}] ${stepLabel} selesai.`);
+            lines.push(...formatLogOutputLines(event.stdout, { timestamp, targetLabel, channel: 'stdout' }));
+            lines.push(...formatLogOutputLines(event.stderr, { timestamp, targetLabel, channel: 'stderr' }));
+            break;
+        case 'step_error':
+            lines.push(`${timestamp}❌ [${targetLabel}] ${stepLabel} gagal.`);
+            if (event.message) {
+                lines.push(`${timestamp}   Pesan: ${event.message}`);
+            }
+            if (event.resolution) {
+                lines.push(`${timestamp}   Saran: ${event.resolution}`);
+            }
+            lines.push(...formatLogOutputLines(event.stdout, { timestamp, targetLabel, channel: 'stdout' }));
+            lines.push(...formatLogOutputLines(event.stderr, { timestamp, targetLabel, channel: 'stderr' }));
+            break;
+        case 'step_skipped':
+            lines.push(`${timestamp}⏭️ [${targetLabel}] ${stepLabel} dilewati. ${event.message || ''}`.trim());
+            break;
+        case 'target_error':
+            lines.push(`${timestamp}⚠️ [${targetLabel}] Gagal diselesaikan.`);
+            if (event.message) {
+                lines.push(`${timestamp}   Pesan: ${event.message}`);
+            }
+            if (event.resolution) {
+                lines.push(`${timestamp}   Saran: ${event.resolution}`);
+            }
+            break;
+        case 'target_complete':
+            lines.push(`${timestamp}✅ [${targetLabel}] Seluruh langkah selesai.`);
+            break;
+        case 'complete':
+            if (event.status === 'success') {
+                lines.push(`${timestamp}🏁 Seluruh jaringan berhasil dijalankan.`);
+            } else if (event.status === 'partial') {
+                lines.push(`${timestamp}⚠️ Sebagian jaringan berhasil dijalankan. Periksa detailnya.`);
+            } else {
+                lines.push(`${timestamp}❌ Perintah penyalaan jaringan berakhir dengan kegagalan.`);
+            }
+            break;
+        default:
+            break;
+    }
+
+    return lines;
+}
+
+function updateNetworkOperationOverlayFromEvent(event) {
+    if (!event || typeof event !== 'object') {
+        return;
+    }
+
+    const targetLabel = event.targetLabel || 'Jaringan';
+    const stepLabel = event.stepLabel || event.displayCommand || 'Langkah jaringan';
+
+    switch (event.phase) {
+        case 'step_begin':
+            setNetworkOperationOverlayMessage(`Menjalankan ${targetLabel} • ${stepLabel}`);
+            break;
+        case 'target_complete':
+            setNetworkOperationOverlayMessage(`Penyalaan ${targetLabel} selesai.`);
+            break;
+        case 'target_error':
+        case 'dependency_error':
+            setNetworkOperationOverlayMessage(event.message || 'Perintah penyalaan jaringan mengalami masalah.');
+            break;
+        case 'complete':
+            if (event.status === 'success') {
+                setNetworkOperationOverlayMessage('Seluruh jaringan berhasil dijalankan.');
+            } else if (event.status === 'partial') {
+                setNetworkOperationOverlayMessage('Sebagian jaringan berhasil dijalankan. Periksa log untuk detailnya.');
+            } else {
+                setNetworkOperationOverlayMessage('Perintah penyalaan jaringan gagal. Periksa log untuk detailnya.');
+            }
+            break;
+        default:
+            break;
+    }
+}
+
+function handleNetworkOperationEventPayload(event) {
+    if (!activeNetworkOperation || !event || typeof event !== 'object') {
+        return;
+    }
+
+    if (event.operationType && event.operationType !== activeNetworkOperation.type) {
+        return;
+    }
+
+    if (networkOperationOverlayMode && networkOperationOverlayMode !== activeNetworkOperation.type) {
+        return;
+    }
+
+    if (typeof event.clientOperationId === 'string' && activeNetworkOperation.clientId) {
+        if (event.clientOperationId !== activeNetworkOperation.clientId) {
+            return;
+        }
+    } else if (event.clientOperationId && !activeNetworkOperation.clientId) {
+        return;
+    } else if (!event.clientOperationId && activeNetworkOperation.clientId && activeNetworkOperation.serverId) {
+        if (event.operationId && event.operationId !== activeNetworkOperation.serverId) {
+            return;
+        }
+    }
+
+    if (!activeNetworkOperation.serverId && typeof event.operationId === 'string') {
+        activeNetworkOperation.serverId = event.operationId;
+    }
+
+    updateNetworkOperationOverlayFromEvent(event);
+
+    const lines = formatNetworkOperationLogEvent(event);
+    if (lines.length) {
+        appendNetworkOperationLogLines(lines);
+    }
+}
+
+function scheduleNetworkOperationStreamReconnect() {
+    if (!supportsNetworkOperationStreaming) {
+        return;
+    }
+
+    if (networkOperationStreamRetryTimeout !== null) {
+        return;
+    }
+
+    networkOperationStreamRetryTimeout = window.setTimeout(() => {
+        networkOperationStreamRetryTimeout = null;
+        ensureNetworkOperationStream();
+    }, NETWORK_OPERATION_STREAM_RETRY_DELAY);
+}
+
+function ensureNetworkOperationStream() {
+    if (!supportsNetworkOperationStreaming) {
+        return;
+    }
+
+    if (networkOperationEventSource) {
+        return;
+    }
+
+    if (networkOperationStreamRetryTimeout !== null) {
+        window.clearTimeout(networkOperationStreamRetryTimeout);
+        networkOperationStreamRetryTimeout = null;
+    }
+
+    try {
+        networkOperationEventSource = new EventSource(NETWORK_OPERATION_STREAM_ENDPOINT);
+
+        networkOperationEventSource.addEventListener('message', event => {
+            if (!event?.data) {
+                return;
+            }
+
+            try {
+                const payload = JSON.parse(event.data);
+                handleNetworkOperationEventPayload(payload);
+            } catch (error) {
+                console.error('Gagal memproses event operasi jaringan:', error);
+            }
+        });
+
+        networkOperationEventSource.addEventListener('error', () => {
+            if (networkOperationEventSource) {
+                networkOperationEventSource.close();
+                networkOperationEventSource = null;
+            }
+
+            scheduleNetworkOperationStreamReconnect();
+        });
+    } catch (error) {
+        console.error('Gagal menginisialisasi stream operasi jaringan:', error);
+        scheduleNetworkOperationStreamReconnect();
+    }
+}
+
+function setActiveNetworkOperation(clientId, operationType) {
+    activeNetworkOperation = {
+        clientId: typeof clientId === 'string' ? clientId : null,
+        serverId: null,
+        type: operationType,
+    };
+
+    resetNetworkOperationLogs();
+}
+
+function updateActiveNetworkOperationFromResponse({ clientId, operationId }) {
+    if (!activeNetworkOperation) {
+        return;
+    }
+
+    if (activeNetworkOperation.clientId && clientId && activeNetworkOperation.clientId !== clientId) {
+        return;
+    }
+
+    if (typeof operationId === 'string' && !activeNetworkOperation.serverId) {
+        activeNetworkOperation.serverId = operationId;
+    }
+}
+
+function clearActiveNetworkOperationState() {
+    activeNetworkOperation = null;
+    networkOperationLogEntries = [];
+}
+
+function generateClientOperationId() {
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+        return crypto.randomUUID();
+    }
+
+    return `op-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
 function formatNetworkStartupSummary(results) {
@@ -3248,11 +3646,16 @@ async function handleNetworkStartupButtonClick() {
         return;
     }
 
+    let clientOperationId = null;
     const confirmed = await confirmNetworkStartup();
     if (!confirmed) {
         updateNetworkStartupStatus('idle', 'Perintah penyalaan jaringan dibatalkan.');
         return;
     }
+
+    clientOperationId = generateClientOperationId();
+    setActiveNetworkOperation(clientOperationId, 'startup');
+    ensureNetworkOperationStream();
 
     const originalContent = networkStartupButton.innerHTML;
     networkStartupButton.disabled = true;
@@ -3264,11 +3667,17 @@ async function handleNetworkStartupButtonClick() {
     updateNetworkStartupStatus('loading', startupLoadingMessage);
 
     try {
+        const headers = {
+            Accept: 'application/json',
+        };
+
+        if (clientOperationId) {
+            headers['X-Client-Operation-Id'] = clientOperationId;
+        }
+
         const response = await fetch('/api/start-network', {
             method: 'POST',
-            headers: {
-                Accept: 'application/json',
-            },
+            headers,
         });
 
         if (!response.ok) {
@@ -3276,6 +3685,10 @@ async function handleNetworkStartupButtonClick() {
         }
 
         const data = await response.json();
+        updateActiveNetworkOperationFromResponse({
+            clientId: clientOperationId,
+            operationId: data?.operationId,
+        });
         const results = Array.isArray(data?.results) ? data.results : [];
         const successCount = results.filter(result => result?.status === 'success').length;
         const summaryLines = formatNetworkStartupSummary(results);

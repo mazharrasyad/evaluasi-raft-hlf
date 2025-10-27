@@ -1,0 +1,16 @@
+[2025-10-27T10:16:56.993Z] Pemeriksaan jaringan: RAFT Standard
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Channel: channel-standard
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-27T10:16:56.998Z] Pemeriksaan jaringan: RAFT Variant
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+

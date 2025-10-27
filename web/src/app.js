@@ -1,11 +1,86 @@
 import express from 'express';
+import fs from 'fs/promises';
+import { constants as fsConstants } from 'fs';
 import path from 'path';
+import { execFile } from 'child_process';
 import { fileURLToPath } from 'url';
+import { promisify } from 'util';
 
 import { checkNetworkHealth } from './network-check.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+const execFileAsync = promisify(execFile);
+
+const NETWORK_SHUTDOWN_TARGETS = [
+    {
+        label: 'Jaringan RAFT Standard',
+        directory: path.resolve(__dirname, '../../raft-standard/network'),
+    },
+    {
+        label: 'Jaringan RAFT Variant',
+        directory: path.resolve(__dirname, '../../raft-variant/network'),
+    },
+];
+
+async function executeNetworkShutdown({ label, directory }) {
+    const scriptPath = path.resolve(directory, 'network.sh');
+
+    try {
+        await fs.access(directory, fsConstants.R_OK | fsConstants.X_OK);
+    } catch (error) {
+        return {
+            label,
+            networkDir: directory,
+            command: './network.sh down',
+            status: 'not_found',
+            message: 'Direktori jaringan tidak ditemukan atau tidak dapat diakses.',
+            error: error instanceof Error ? error.message : String(error),
+        };
+    }
+
+    try {
+        await fs.access(scriptPath, fsConstants.X_OK);
+    } catch (error) {
+        return {
+            label,
+            networkDir: directory,
+            command: './network.sh down',
+            status: 'not_found',
+            message: 'Berkas network.sh tidak ditemukan atau tidak dapat dijalankan.',
+            error: error instanceof Error ? error.message : String(error),
+        };
+    }
+
+    try {
+        const { stdout, stderr } = await execFileAsync('./network.sh', ['down'], {
+            cwd: directory,
+        });
+
+        return {
+            label,
+            networkDir: directory,
+            command: './network.sh down',
+            status: 'success',
+            stdout,
+            stderr,
+        };
+    } catch (error) {
+        const stdout = error?.stdout ? String(error.stdout) : undefined;
+        const stderr = error?.stderr ? String(error.stderr) : undefined;
+
+        return {
+            label,
+            networkDir: directory,
+            command: './network.sh down',
+            status: 'error',
+            stdout,
+            stderr,
+            error: error instanceof Error ? error.message : String(error),
+        };
+    }
+}
 
 const app = express();
 app.disable('x-powered-by');
@@ -84,6 +159,31 @@ app.get('/api/check-network', async (req, res) => {
             error: errorMessage,
         });
     }
+});
+
+app.post('/api/shutdown-network', async (req, res) => {
+    const requestedAt = new Date().toISOString();
+    const results = [];
+
+    for (const target of NETWORK_SHUTDOWN_TARGETS) {
+        const result = await executeNetworkShutdown(target);
+        results.push(result);
+    }
+
+    const completedAt = new Date().toISOString();
+    const successCount = results.filter(result => result.status === 'success').length;
+    const overallStatus = successCount === results.length
+        ? 'success'
+        : successCount > 0
+            ? 'partial'
+            : 'error';
+
+    res.json({
+        requestedAt,
+        completedAt,
+        overallStatus,
+        results,
+    });
 });
 
 app.get('/wilayah-indonesia', (req, res) => {

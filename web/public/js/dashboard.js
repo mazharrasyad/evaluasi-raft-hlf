@@ -37,6 +37,8 @@ const simulationModalOverlay = document.getElementById('simulationModalOverlay')
 const simulationModalClose = document.getElementById('simulationModalClose');
 const networkCheckButton = document.getElementById('networkCheckButton');
 const networkCheckStatusEl = document.getElementById('networkCheckStatus');
+const networkShutdownButton = document.getElementById('networkShutdownButton');
+const networkShutdownStatusEl = document.getElementById('networkShutdownStatus');
 const networkHealthResultsContainer = document.getElementById('networkHealthResults');
 const networkBlockSummaryEl = document.getElementById('networkBlockSummary');
 const networkHealthSummaryEl = document.getElementById('networkHealthSummary');
@@ -64,6 +66,7 @@ const dateTimeFormatter = new Intl.DateTimeFormat('id-ID', {
 const SWAL_PRIMARY_COLOR = '#38BDF8';
 const SWAL_CANCEL_COLOR = '#64748B';
 const DEFAULT_NETWORK_STATUS_MESSAGE = 'Belum ada pemeriksaan yang dijalankan.';
+const DEFAULT_NETWORK_SHUTDOWN_STATUS_MESSAGE = 'Belum ada perintah pemadaman jaringan yang dijalankan.';
 
 const NETWORK_STATUS_META = {
     healthy: {
@@ -352,6 +355,29 @@ async function confirmSimulationCreation(count) {
     return window.confirm(`${title}\n\n${text}`);
 }
 
+async function confirmNetworkShutdown() {
+    const title = 'Matikan seluruh jaringan Fabric?';
+    const text = 'Perintah ini akan menjalankan ./network.sh down pada jaringan RAFT Standard dan RAFT Variant. Pastikan tidak ada operasi penting yang sedang berjalan sebelum melanjutkan.';
+
+    if (isSwalAvailable()) {
+        const result = await window.Swal.fire({
+            icon: 'warning',
+            title,
+            text,
+            showCancelButton: true,
+            confirmButtonText: 'Ya, matikan jaringan',
+            cancelButtonText: 'Batal',
+            confirmButtonColor: SWAL_PRIMARY_COLOR,
+            cancelButtonColor: SWAL_CANCEL_COLOR,
+            focusCancel: true,
+        });
+
+        return Boolean(result.isConfirmed);
+    }
+
+    return window.confirm(`${title}\n\n${text}`);
+}
+
 async function confirmSimulationDeletion() {
     const text = 'Hapus seluruh data simulasi pada session browser? Tindakan ini tidak dapat dibatalkan.';
     const title = 'Hapus data simulasi?';
@@ -396,6 +422,42 @@ function updateNetworkCheckStatus(state = 'idle', message = DEFAULT_NETWORK_STAT
     if (messageEl && typeof message === 'string') {
         messageEl.textContent = message;
     }
+}
+
+function updateNetworkShutdownStatus(state = 'idle', message = DEFAULT_NETWORK_SHUTDOWN_STATUS_MESSAGE) {
+    if (!networkShutdownStatusEl) {
+        return;
+    }
+
+    const indicator = networkShutdownStatusEl.querySelector('[data-indicator]');
+    const messageEl = networkShutdownStatusEl.querySelector('[data-message]');
+
+    if (indicator) {
+        indicator.className = `h-2 w-2 rounded-full ${NETWORK_STATUS_INDICATOR[state] || NETWORK_STATUS_INDICATOR.idle}`;
+    }
+
+    if (messageEl && typeof message === 'string') {
+        messageEl.textContent = message;
+    }
+}
+
+function formatNetworkShutdownSummary(results) {
+    if (!Array.isArray(results) || !results.length) {
+        return ['Tidak ada jaringan yang ditemukan untuk dimatikan.'];
+    }
+
+    return results.map(result => {
+        const label = result?.label || 'Jaringan';
+        let statusLabel = 'gagal dimatikan';
+
+        if (result?.status === 'success') {
+            statusLabel = 'berhasil dimatikan';
+        } else if (result?.status === 'not_found') {
+            statusLabel = 'tidak ditemukan';
+        }
+
+        return `${label} — ${statusLabel}.`;
+    });
 }
 
 function formatDateTimeFromIso(isoString) {
@@ -2388,6 +2450,80 @@ if (networkCheckButton) {
     networkCheckButton.addEventListener('click', handleNetworkCheckButtonClick);
 } else {
     updateNetworkCheckStatus('idle', DEFAULT_NETWORK_STATUS_MESSAGE);
+}
+
+async function handleNetworkShutdownButtonClick() {
+    if (!networkShutdownButton) {
+        return;
+    }
+
+    const confirmed = await confirmNetworkShutdown();
+    if (!confirmed) {
+        updateNetworkShutdownStatus('idle', 'Perintah pemadaman jaringan dibatalkan.');
+        return;
+    }
+
+    const originalContent = networkShutdownButton.innerHTML;
+    networkShutdownButton.disabled = true;
+    networkShutdownButton.classList.add('cursor-not-allowed', 'opacity-60');
+    networkShutdownButton.innerHTML = '<span class="text-base animate-pulse">⏻</span><span>Mematikan...</span>';
+
+    updateNetworkShutdownStatus('loading', 'Menjalankan perintah pemadaman jaringan...');
+
+    try {
+        const response = await fetch('/api/shutdown-network', {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(`Server mengembalikan status ${response.status}`);
+        }
+
+        const data = await response.json();
+        const results = Array.isArray(data?.results) ? data.results : [];
+        const successCount = results.filter(result => result?.status === 'success').length;
+        const summaryLines = formatNetworkShutdownSummary(results);
+        const summaryText = summaryLines.join('\n');
+
+        if (!results.length) {
+            updateNetworkShutdownStatus('error', 'Tidak ada jaringan yang ditemukan untuk dimatikan.');
+            await showErrorAlert(summaryText, { title: 'Perintah pemadaman gagal' });
+            return;
+        }
+
+        if (successCount === results.length) {
+            updateNetworkShutdownStatus('success', 'Seluruh jaringan berhasil dimatikan.');
+            await showSuccessAlert(summaryText, { title: 'Jaringan berhasil dimatikan' });
+            return;
+        }
+
+        if (successCount > 0) {
+            updateNetworkShutdownStatus('error', 'Sebagian jaringan gagal dimatikan. Periksa detail pemberitahuan.');
+            await showErrorAlert(summaryText, { title: 'Sebagian perintah gagal' });
+            return;
+        }
+
+        updateNetworkShutdownStatus('error', 'Perintah pemadaman jaringan gagal dijalankan.');
+        await showErrorAlert(summaryText || 'Perintah pemadaman jaringan gagal dijalankan.');
+    } catch (error) {
+        console.error('Gagal mematikan jaringan Fabric:', error);
+        updateNetworkShutdownStatus('error', 'Perintah pemadaman jaringan gagal. Periksa log server.');
+        await showErrorAlert('Gagal menjalankan perintah pemadaman jaringan. Periksa log server untuk detailnya.');
+    } finally {
+        networkShutdownButton.disabled = false;
+        networkShutdownButton.classList.remove('cursor-not-allowed', 'opacity-60');
+        networkShutdownButton.innerHTML = originalContent;
+    }
+}
+
+if (networkShutdownButton) {
+    updateNetworkShutdownStatus('idle', DEFAULT_NETWORK_SHUTDOWN_STATUS_MESSAGE);
+    networkShutdownButton.addEventListener('click', handleNetworkShutdownButtonClick);
+} else {
+    updateNetworkShutdownStatus('idle', DEFAULT_NETWORK_SHUTDOWN_STATUS_MESSAGE);
 }
 
 if (hierarchyBackButton) {

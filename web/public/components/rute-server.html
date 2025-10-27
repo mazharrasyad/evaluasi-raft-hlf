@@ -1,0 +1,28 @@
+<section id="rute-server" class="rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20 backdrop-blur-sm animate-on-scroll" data-animate="fade-up" data-animate-delay="180">
+    <header class="flex flex-col gap-2 border-b border-white/10 pb-6">
+        <h2 class="text-2xl font-semibold text-textdark">Daftar Rute Server</h2>
+        <p class="text-sm text-textdark/70">Ringkasan endpoint yang tersedia pada konfigurasi Express di <code>app.js</code>.</p>
+    </header>
+    <div class="mt-6 grid gap-4 rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6 text-sm text-textdark">
+        <article class="flex flex-col gap-1 rounded-xl border border-white/10 bg-surface p-4 shadow-lg shadow-black/10">
+            <h3 class="text-base font-semibold text-primary">GET <code>/</code></h3>
+            <p class="text-sm text-textdark/70">Menayangkan halaman dashboard utama.</p>
+        </article>
+        <article class="flex flex-col gap-1 rounded-xl border border-white/10 bg-surface p-4 shadow-lg shadow-black/10">
+            <h3 class="text-base font-semibold text-primary">GET <code>*</code></h3>
+            <p class="text-sm text-textdark/70">Fallback untuk seluruh jalur lain yang turut mengirimkan halaman dashboard.</p>
+        </article>
+        <article class="flex flex-col gap-1 rounded-xl border border-white/10 bg-surface p-4 shadow-lg shadow-black/10">
+            <h3 class="text-base font-semibold text-primary">Static <code>/</code></h3>
+            <p class="text-sm text-textdark/70">Melayani aset statis dari direktori <code>public</code>.</p>
+        </article>
+        <article class="flex flex-col gap-1 rounded-xl border border-white/10 bg-surface p-4 shadow-lg shadow-black/10">
+            <h3 class="text-base font-semibold text-primary">Static <code>/wilayah-indonesia</code></h3>
+            <p class="text-sm text-textdark/70">Dataset wilayah tersedia sebagai aset statis di direktori <code>wilayah-indonesia</code>.</p>
+        </article>
+        <article class="flex flex-col gap-1 rounded-xl border border-white/10 bg-surface p-4 shadow-lg shadow-black/10">
+            <h3 class="text-base font-semibold text-primary">GET <code>/api/check-network</code></h3>
+            <p class="text-sm text-textdark/70">Menjalankan pemeriksaan kesehatan jaringan dan mengembalikan ringkasan status dalam format JSON.</p>
+        </article>
+    </div>
+</section>

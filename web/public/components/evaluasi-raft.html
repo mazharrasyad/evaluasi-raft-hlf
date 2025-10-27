@@ -1,0 +1,36 @@
+<section id="evaluasi-raft" class="relative isolate rounded-3xl border border-white/10 bg-gradient-to-br from-surface via-soft to-[#020817] text-textdark shadow-lg">
+    <div class="mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 py-16">
+        <div class="flex flex-col items-start justify-between gap-4 text-sm text-textdark/70 md:flex-row md:items-center">
+            <div class="flex items-center gap-4">
+                <img src="../images/logo-ai-center.svg" alt="AI Center" class="h-14 w-14 rounded-xl border border-white/20 bg-white/10 p-2 shadow-lg" loading="lazy">
+                <div class="flex flex-col gap-1">
+                    <span class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-secondary/20 px-4 py-1 text-xs font-semibold uppercase tracking-[0.28em] text-textdark">Pelaporan Wilayah</span>
+                    <span class="text-xs text-textdark/70">Evaluasi RAFT HLF &mdash; AI Center</span>
+                </div>
+            </div>
+        </div>
+        <div class="flex flex-col gap-8 rounded-3xl border border-white/10 bg-surface/90 p-8 text-textdark shadow-2xl shadow-black/20 backdrop-blur-sm animate-on-scroll" data-animate="fade-up">
+            <div class="flex flex-col gap-4 text-left">
+                <h1 class="text-4xl font-semibold text-textdark md:text-5xl">Evaluasi RAFT Hyperledger Fabric</h1>
+                <p class="text-lg text-textdark/70">Gunakan tampilan hierarkis untuk menelusuri jumlah pelaporan dari tingkat provinsi hingga kelurahan. Klik setiap wilayah untuk melihat rincian di tingkat berikutnya.</p>
+            </div>
+            <div class="grid gap-4 rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6 text-sm text-textdark md:grid-cols-2 md:gap-6">
+                <article class="flex flex-col gap-2 rounded-2xl border border-white/10 bg-surface p-4 shadow-lg shadow-black/20 animate-on-scroll" data-animate="fade-up" data-animate-delay="100">
+                    <h2 class="text-base font-semibold text-primary">RAFT Standard</h2>
+                    <p class="text-sm text-textdark/70">Menggunakan konfigurasi RAFT default Hyperledger Fabric untuk mengukur kinerja baseline pada jaringan pengujian.</p>
+                </article>
+                <article class="flex flex-col gap-2 rounded-2xl border border-white/10 bg-surface p-4 shadow-lg shadow-black/20 animate-on-scroll" data-animate="fade-up" data-animate-delay="200">
+                    <h2 class="text-base font-semibold text-primary">RAFT Variant</h2>
+                    <p class="text-sm text-textdark/70">Menerapkan variasi parameter RAFT (timeout dan prioritas leader) guna membandingkan stabilitas dan throughput terhadap standar.</p>
+                </article>
+            </div>
+            <div class="flex flex-col gap-3 rounded-2xl border border-accent/40 bg-surfaceMuted/80 p-6 text-sm text-textdark md:flex-row md:items-center md:justify-between animate-on-scroll" data-animate="fade-up" data-animate-delay="300">
+                <div class="flex flex-col gap-1">
+                    <span class="text-xs uppercase tracking-[0.3em] text-secondary">Total pelaporan tercatat</span>
+                    <span class="text-3xl font-semibold text-accent" id="totalReports">0</span>
+                </div>
+                <p class="max-w-xl text-textdark/70">Jumlah pelaporan dihitung dari catatan digital yang tersimpan pada blockchain atau data sampel apabila jaringan belum aktif.</p>
+            </div>
+        </div>
+    </div>
+</section>

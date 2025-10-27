@@ -1,3 +1,8 @@
+const componentLoaderReady = window.componentLoaderReady instanceof Promise
+    ? window.componentLoaderReady
+    : Promise.resolve();
+
+componentLoaderReady.then(() => {
 const yearEl = document.getElementById('currentYear');
 if (yearEl) {
     yearEl.textContent = new Date().getFullYear();
@@ -2231,3 +2236,5 @@ async function initialize() {
 }
 
 initialize();
+
+});

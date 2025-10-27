@@ -43,6 +43,17 @@
             opacity: 1;
             transform: translateY(0);
         }
+
+        .component-link[data-active="true"] {
+            background-color: rgba(99, 102, 241, 0.25);
+            color: #E2E8F0;
+            border-color: rgba(99, 102, 241, 0.45);
+        }
+
+        .component-link[data-active="true"] .component-link__index {
+            background-color: rgba(99, 102, 241, 0.45);
+            color: #E2E8F0;
+        }
     </style>
 </head>
 <body class="bg-soft text-textdark">
@@ -52,186 +63,77 @@
             <div class="absolute -right-1/4 bottom-0 h-[620px] w-[620px] rounded-full bg-gradient-to-tr from-accent/40 via-secondary/20 to-primary/20 opacity-70 blur-3xl"></div>
         </div>
 
-        <div class="flex min-h-screen flex-col">
-            <header class="relative isolate bg-gradient-to-br from-surface via-soft to-[#020817] text-textdark shadow-lg">
-                <div class="mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 py-16">
-                    <div class="flex flex-col items-start justify-between gap-4 text-sm text-textdark/70 md:flex-row md:items-center">
-                        <div class="flex items-center gap-4">
-                            <img src="../images/logo-ai-center.svg" alt="AI Center" class="h-14 w-14 rounded-xl border border-white/20 bg-white/10 p-2 shadow-lg" loading="lazy">
-                            <div class="flex flex-col gap-1">
-                                <span class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-secondary/20 px-4 py-1 text-xs font-semibold uppercase tracking-[0.28em] text-textdark">Pelaporan Wilayah</span>
-                                <span class="text-xs text-textdark/70">Evaluasi RAFT HLF &mdash; AI Center</span>
-                            </div>
+        <div class="flex min-h-screen flex-col lg:flex-row">
+            <aside class="w-full border-b border-white/10 bg-surface/80 backdrop-blur lg:w-80 lg:border-r">
+                <div class="mx-auto flex h-full max-w-3xl flex-col gap-6 px-6 py-8">
+                    <div class="flex items-center gap-3 rounded-2xl border border-white/10 bg-surfaceMuted/70 p-4 shadow-lg shadow-black/10">
+                        <span class="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-secondary/20 text-2xl text-secondary">☰</span>
+                        <div class="flex flex-col">
+                            <span class="text-xs uppercase tracking-[0.28em] text-secondary">Navigasi</span>
+                            <span class="text-sm text-textdark/80">Pilih komponen dashboard</span>
                         </div>
                     </div>
-                    <div class="flex flex-col gap-8 rounded-3xl border border-white/10 bg-surface/90 p-8 text-textdark shadow-2xl shadow-black/20 backdrop-blur-sm animate-on-scroll" data-animate="fade-up">
-                        <div class="flex flex-col gap-4 text-left">
-                            <h1 class="text-4xl font-semibold text-textdark md:text-5xl">Evaluasi RAFT Hyperledger Fabric</h1>
-                            <p class="text-lg text-textdark/70">Gunakan tampilan hierarkis untuk menelusuri jumlah pelaporan dari tingkat provinsi hingga kelurahan. Klik setiap wilayah untuk melihat rincian di tingkat berikutnya.</p>
-                        </div>
-                        <div class="grid gap-4 rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6 text-sm text-textdark md:grid-cols-2 md:gap-6">
-                            <article class="flex flex-col gap-2 rounded-2xl border border-white/10 bg-surface p-4 shadow-lg shadow-black/20 animate-on-scroll" data-animate="fade-up" data-animate-delay="100">
-                                <h2 class="text-base font-semibold text-primary">RAFT Standard</h2>
-                                <p class="text-sm text-textdark/70">Menggunakan konfigurasi RAFT default Hyperledger Fabric untuk mengukur kinerja baseline pada jaringan pengujian.</p>
-                            </article>
-                            <article class="flex flex-col gap-2 rounded-2xl border border-white/10 bg-surface p-4 shadow-lg shadow-black/20 animate-on-scroll" data-animate="fade-up" data-animate-delay="200">
-                                <h2 class="text-base font-semibold text-primary">RAFT Variant</h2>
-                                <p class="text-sm text-textdark/70">Menerapkan variasi parameter RAFT (timeout dan prioritas leader) guna membandingkan stabilitas dan throughput terhadap standar.</p>
-                            </article>
-                        </div>
-                        <div class="flex flex-col gap-3 rounded-2xl border border-accent/40 bg-surfaceMuted/80 p-6 text-sm text-textdark md:flex-row md:items-center md:justify-between animate-on-scroll" data-animate="fade-up" data-animate-delay="300">
-                            <div class="flex flex-col gap-1">
-                                <span class="text-xs uppercase tracking-[0.3em] text-secondary">Total pelaporan tercatat</span>
-                                <span class="text-3xl font-semibold text-accent" id="totalReports">0</span>
-                            </div>
-                            <p class="max-w-xl text-textdark/70">Jumlah pelaporan dihitung dari catatan digital yang tersimpan pada blockchain atau data sampel apabila jaringan belum aktif.</p>
-                        </div>
+                    <nav aria-label="Navigasi komponen" class="flex-1">
+                        <ul class="space-y-2">
+                            <li>
+                                <button type="button" data-target="evaluasi-raft" class="component-link group flex w-full items-center gap-3 rounded-xl border border-white/10 bg-surface/60 px-4 py-3 text-left text-sm font-medium text-textdark/80 transition hover:-translate-y-0.5 hover:bg-secondary/20 hover:text-textdark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary">
+                                    <span class="component-link__index inline-flex h-8 w-8 flex-none items-center justify-center rounded-lg bg-secondary/20 text-secondary">1</span>
+                                    <span class="flex-1">Evaluasi RAFT Hyperledger Fabric</span>
+                                </button>
+                            </li>
+                            <li>
+                                <button type="button" data-target="kesehatan-jaringan" class="component-link group flex w-full items-center gap-3 rounded-xl border border-white/10 bg-surface/60 px-4 py-3 text-left text-sm font-medium text-textdark/80 transition hover:-translate-y-0.5 hover:bg-secondary/20 hover:text-textdark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary">
+                                    <span class="component-link__index inline-flex h-8 w-8 flex-none items-center justify-center rounded-lg bg-secondary/20 text-secondary">2</span>
+                                    <span class="flex-1">Kesehatan Jaringan Fabric</span>
+                                </button>
+                            </li>
+                            <li>
+                                <button type="button" data-target="rute-server" class="component-link group flex w-full items-center gap-3 rounded-xl border border-white/10 bg-surface/60 px-4 py-3 text-left text-sm font-medium text-textdark/80 transition hover:-translate-y-0.5 hover:bg-secondary/20 hover:text-textdark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary">
+                                    <span class="component-link__index inline-flex h-8 w-8 flex-none items-center justify-center rounded-lg bg-secondary/20 text-secondary">3</span>
+                                    <span class="flex-1">Daftar Rute Server</span>
+                                </button>
+                            </li>
+                            <li>
+                                <button type="button" data-target="simulasi-data" class="component-link group flex w-full items-center gap-3 rounded-xl border border-white/10 bg-surface/60 px-4 py-3 text-left text-sm font-medium text-textdark/80 transition hover:-translate-y-0.5 hover:bg-secondary/20 hover:text-textdark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary">
+                                    <span class="component-link__index inline-flex h-8 w-8 flex-none items-center justify-center rounded-lg bg-secondary/20 text-secondary">4</span>
+                                    <span class="flex-1">Simulasi Data Pelaporan</span>
+                                </button>
+                            </li>
+                            <li>
+                                <button type="button" data-target="peta-laporan" class="component-link group flex w-full items-center gap-3 rounded-xl border border-white/10 bg-surface/60 px-4 py-3 text-left text-sm font-medium text-textdark/80 transition hover:-translate-y-0.5 hover:bg-secondary/20 hover:text-textdark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary">
+                                    <span class="component-link__index inline-flex h-8 w-8 flex-none items-center justify-center rounded-lg bg-secondary/20 text-secondary">5</span>
+                                    <span class="flex-1">Peta Laporan Wilayah</span>
+                                </button>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </aside>
+
+            <div class="flex-1">
+                <main class="mx-auto w-full max-w-6xl px-6 py-12">
+                    <div class="space-y-10" id="componentStack">
+                        <div data-component="evaluasi-raft"></div>
+                        <div data-component="kesehatan-jaringan"></div>
+                        <div data-component="rute-server"></div>
+                        <div data-component="simulasi-data"></div>
+                        <div data-component="peta-laporan"></div>
                     </div>
-                </div>
-            </header>
+                </main>
 
-            <main class="flex-1">
-                <div class="mx-auto w-full max-w-6xl px-6 pb-24 pt-12">
-                    <div class="space-y-10">
-                        <section class="rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20 backdrop-blur-sm animate-on-scroll" data-animate="fade-up">
-                            <header class="flex flex-col gap-2 border-b border-white/10 pb-6">
-                                <h2 class="text-2xl font-semibold text-textdark">Simulasi Data Pelaporan</h2>
-                                <p class="text-sm text-textdark/70">Buat data pelaporan simulasi berdasarkan hierarki wilayah Indonesia. Hasil simulasi akan disimpan pada session browser dan dapat ditelusuri melalui ringkasan serta pop up detail di tingkat kelurahan.</p>
-                            </header>
-                            <form id="simulationForm" class="mt-6 space-y-6 overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-surfaceMuted/70 via-surface/95 to-surfaceMuted/70 p-6 text-sm text-textdark shadow-[0_20px_60px_-25px_rgba(0,0,0,0.55)]" autocomplete="off">
-                                <div class="flex items-center gap-4 rounded-2xl border border-white/10 bg-surface/60 p-4 shadow-inner shadow-black/10">
-                                    <span class="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/20 text-lg text-primary">✨</span>
-                                    <div class="space-y-1">
-                                        <p class="text-sm font-semibold text-textdark">Eksplorasi jumlah data simulasi</p>
-                                        <p class="text-xs text-textdark/70">Sesuaikan jumlah catatan sebelum membuat data uji coba.</p>
-                                    </div>
-                                </div>
-                                <div class="grid gap-5 md:grid-cols-[minmax(0,280px)_1fr] md:items-end md:gap-8">
-                                    <label class="flex flex-col gap-2">
-                                        <span class="text-xs font-semibold uppercase tracking-[0.2em] text-secondary">Jumlah data simulasi</span>
-                                        <input id="simulationCount" type="number" min="1" max="1000" step="1" required class="w-full rounded-xl border border-white/10 bg-surface/80 px-4 py-3 text-base text-textdark shadow-lg shadow-black/20 outline-none transition focus:border-secondary focus:ring-2 focus:ring-secondary/40" placeholder="Contoh: 25" />
-                                    </label>
-                                    <div class="flex flex-col items-stretch justify-end gap-4 md:flex-row md:items-center md:justify-between md:gap-6">
-                                        <div class="flex flex-wrap items-center gap-3">
-                                            <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-primary/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#041226] shadow-lg shadow-primary/20 transition duration-200 hover:-translate-y-0.5 hover:bg-secondary hover:text-textdark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary">
-                                                <span class="text-base">▶</span>
-                                                <span>Buat Data</span>
-                                            </button>
-                                            <button type="button" id="clearSimulationButton" class="inline-flex items-center gap-2 rounded-lg border border-highlight/50 bg-highlight/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-highlight transition duration-200 hover:-translate-y-0.5 hover:bg-highlight hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-highlight">
-                                                <span class="text-base">✕</span>
-                                                <span>Hapus Data</span>
-                                            </button>
-                                        </div>
-                                        <p id="simulationStatus" class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/60 px-4 py-2 text-xs font-medium text-textdark/80" role="status" aria-live="polite">
-                                            <span class="h-2 w-2 rounded-full bg-secondary"></span>
-                                            Formulir siap digunakan.
-                                        </p>
-                                    </div>
-                                </div>
-                            </form>
-                            <div id="simulationSummary" class="mt-6 grid gap-4 md:grid-cols-2"></div>
-                        </section>
-
-                        <section class="rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20 backdrop-blur-sm">
-                            <header class="flex flex-col gap-2 border-b border-white/10 pb-6">
-                                <h2 class="text-2xl font-semibold text-textdark">Peta Laporan Wilayah</h2>
-                                <p class="text-sm text-textdark/70">Grafik batang hierarkis ini menampilkan rekapitulasi laporan berdasarkan data simulasi yang tersimpan di session browser. Klik setiap batang wilayah untuk menelusuri rincian hingga tingkat kelurahan.</p>
-                            </header>
-                            <div class="mt-6 space-y-5" id="hierarchyContainer">
-                                <div id="hierarchyEmptyState" class="rounded-2xl border border-white/10 bg-surfaceMuted/60 p-6 text-sm text-textdark/70">
-                                    <p data-empty-message>
-                                        Belum ada data simulasi yang dapat ditampilkan. Buat data simulasi terlebih dahulu untuk melihat persebaran laporan per wilayah.
-                                    </p>
-                                </div>
-                                <div id="hierarchyChartWrapper" class="hidden space-y-4">
-                                    <div class="flex flex-wrap items-center justify-between gap-3">
-                                        <nav id="hierarchyBreadcrumb" class="flex flex-wrap items-center gap-2 text-sm text-textdark/70" aria-label="Hierarki wilayah"></nav>
-                                        <button type="button" id="hierarchyBackButton" class="hidden rounded-lg border border-secondary/40 bg-secondary/10 px-3 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-secondary transition hover:border-secondary hover:bg-secondary/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary">
-                                            Naik Tingkat
-                                        </button>
-                                    </div>
-                                    <div class="relative h-[420px] rounded-2xl border border-white/10 bg-surfaceMuted/60 p-4">
-                                        <canvas id="hierarchyChart" role="img" aria-label="Grafik laporan per wilayah" class="h-full w-full"></canvas>
-                                    </div>
-                                </div>
-                            </div>
-                            <footer class="mt-8 rounded-2xl border border-white/10 bg-surfaceMuted p-6 text-xs text-textdark/70">
-                                <p class="leading-relaxed">Dataset wilayah diambil dari repositori <code>wilayah-indonesia</code> dan dipadankan dengan catatan simulasi. Data tidak disimpan permanen dan akan hilang ketika sesi browser berakhir.</p>
-                            </footer>
-                        </section>
-
-                        <section class="rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20 backdrop-blur-sm animate-on-scroll" data-animate="fade-up" data-animate-delay="160">
-                            <header class="flex flex-col gap-2 border-b border-white/10 pb-6">
-                                <h2 class="text-2xl font-semibold text-textdark">Kesehatan Jaringan Fabric</h2>
-                                <p class="text-sm text-textdark/70">Jalankan pemeriksaan <code>npm run check-network</code> secara langsung dari dashboard untuk memastikan setiap jaringan RAFT siap digunakan.</p>
-                            </header>
-                            <div class="mt-6 space-y-6">
-                                <div class="flex flex-col gap-4 rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6 text-sm text-textdark md:flex-row md:items-center md:justify-between">
-                                    <div class="flex max-w-2xl flex-col gap-2">
-                                        <p class="text-sm text-textdark/70">Pemeriksaan akan menghubungi peer <code>peer0.org1.example.com</code> dan menjalankan transaksi <code>GetAllCatatan</code> untuk memastikan chaincode merespons.</p>
-                                        <p class="text-xs text-textdark/50">Pastikan jaringan Hyperledger Fabric telah dijalankan sebelum memulai pemeriksaan.</p>
-                                    </div>
-                                    <div class="flex flex-col items-stretch gap-3 md:items-end">
-                                        <button type="button" id="networkCheckButton" class="inline-flex items-center gap-2 rounded-lg bg-secondary/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-textdark shadow-lg shadow-secondary/40 transition duration-200 hover:-translate-y-0.5 hover:bg-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary">
-                                            <span class="text-base">⟳</span>
-                                            <span>Periksa Jaringan</span>
-                                        </button>
-                                        <p id="networkCheckStatus" class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 py-2 text-xs font-medium text-textdark/80" role="status" aria-live="polite">
-                                            <span data-indicator class="h-2 w-2 rounded-full bg-secondary"></span>
-                                            <span data-message>Belum ada pemeriksaan yang dijalankan.</span>
-                                        </p>
-                                    </div>
-                                </div>
-                                <div id="networkHealthResults" class="space-y-4 rounded-2xl border border-white/10 bg-surfaceMuted/60 p-6 text-sm text-textdark hidden">
-                                    <div id="networkBlockSummary" class="grid gap-4 md:grid-cols-2"></div>
-                                    <div id="networkHealthSummary" class="rounded-xl border border-white/10 bg-surface p-4 text-sm text-textdark/80 shadow-lg shadow-black/10"></div>
-                                    <div id="networkHealthList" class="grid gap-4 md:grid-cols-2"></div>
-                                </div>
-                            </div>
-                        </section>
-
-                        <section class="rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20 backdrop-blur-sm animate-on-scroll" data-animate="fade-up" data-animate-delay="180">
-                            <header class="flex flex-col gap-2 border-b border-white/10 pb-6">
-                                <h2 class="text-2xl font-semibold text-textdark">Daftar Rute Server</h2>
-                                <p class="text-sm text-textdark/70">Ringkasan endpoint yang tersedia pada konfigurasi Express di <code>app.js</code>.</p>
-                            </header>
-                            <div class="mt-6 grid gap-4 rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6 text-sm text-textdark">
-                                <article class="flex flex-col gap-1 rounded-xl border border-white/10 bg-surface p-4 shadow-lg shadow-black/10">
-                                    <h3 class="text-base font-semibold text-primary">GET <code>/</code></h3>
-                                    <p class="text-sm text-textdark/70">Menayangkan halaman dashboard utama.</p>
-                                </article>
-                                <article class="flex flex-col gap-1 rounded-xl border border-white/10 bg-surface p-4 shadow-lg shadow-black/10">
-                                    <h3 class="text-base font-semibold text-primary">GET <code>*</code></h3>
-                                    <p class="text-sm text-textdark/70">Fallback untuk seluruh jalur lain yang turut mengirimkan halaman dashboard.</p>
-                                </article>
-                                <article class="flex flex-col gap-1 rounded-xl border border-white/10 bg-surface p-4 shadow-lg shadow-black/10">
-                                    <h3 class="text-base font-semibold text-primary">Static <code>/</code></h3>
-                                    <p class="text-sm text-textdark/70">Melayani aset statis dari direktori <code>public</code>.</p>
-                                </article>
-                                <article class="flex flex-col gap-1 rounded-xl border border-white/10 bg-surface p-4 shadow-lg shadow-black/10">
-                                    <h3 class="text-base font-semibold text-primary">Static <code>/wilayah-indonesia</code></h3>
-                                    <p class="text-sm text-textdark/70">Dataset wilayah tersedia sebagai aset statis di direktori <code>wilayah-indonesia</code>.</p>
-                                </article>
-                                <article class="flex flex-col gap-1 rounded-xl border border-white/10 bg-surface p-4 shadow-lg shadow-black/10">
-                                    <h3 class="text-base font-semibold text-primary">GET <code>/api/check-network</code></h3>
-                                    <p class="text-sm text-textdark/70">Menjalankan pemeriksaan kesehatan jaringan dan mengembalikan ringkasan status dalam format JSON.</p>
-                                </article>
-                            </div>
-                        </section>
+                <footer class="border-t border-white/10 bg-soft/80 text-textdark/70">
+                    <div class="mx-auto flex max-w-6xl justify-center px-6 py-8 text-sm">
+                        <p>&copy; <span id="currentYear"></span> Evaluasi RAFT HLF.</p>
                     </div>
-                </div>
-            </main>
-
-            <footer class="border-t border-white/10 bg-soft text-textdark/70">
-                <div class="mx-auto flex max-w-6xl justify-center px-6 py-8 text-sm">
-                    <p>&copy; <span id="currentYear"></span> Evaluasi RAFT HLF.</p>
-                </div>
-            </footer>
+                </footer>
+            </div>
         </div>
     </div>
 
+    <script src="../js/component-loader.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js" defer></script>
     <script src="../js/dashboard.js" defer></script>
+
     <div id="simulationModal" class="fixed inset-0 z-50 hidden">
         <div id="simulationModalOverlay" class="absolute inset-0 bg-soft/80 backdrop-blur-sm"></div>
         <div class="relative z-10 mx-auto flex min-h-full w-full max-w-4xl items-center justify-center px-4 py-12">

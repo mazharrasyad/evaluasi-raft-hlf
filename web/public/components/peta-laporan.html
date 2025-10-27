@@ -1,0 +1,27 @@
+<section id="peta-laporan" class="rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20 backdrop-blur-sm">
+    <header class="flex flex-col gap-2 border-b border-white/10 pb-6">
+        <h2 class="text-2xl font-semibold text-textdark">Peta Laporan Wilayah</h2>
+        <p class="text-sm text-textdark/70">Grafik batang hierarkis ini menampilkan rekapitulasi laporan berdasarkan data simulasi yang tersimpan di session browser. Klik setiap batang wilayah untuk menelusuri rincian hingga tingkat kelurahan.</p>
+    </header>
+    <div class="mt-6 space-y-5" id="hierarchyContainer">
+        <div id="hierarchyEmptyState" class="rounded-2xl border border-white/10 bg-surfaceMuted/60 p-6 text-sm text-textdark/70">
+            <p data-empty-message>
+                Belum ada data simulasi yang dapat ditampilkan. Buat data simulasi terlebih dahulu untuk melihat persebaran laporan per wilayah.
+            </p>
+        </div>
+        <div id="hierarchyChartWrapper" class="hidden space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <nav id="hierarchyBreadcrumb" class="flex flex-wrap items-center gap-2 text-sm text-textdark/70" aria-label="Hierarki wilayah"></nav>
+                <button type="button" id="hierarchyBackButton" class="hidden rounded-lg border border-secondary/40 bg-secondary/10 px-3 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-secondary transition hover:border-secondary hover:bg-secondary/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary">
+                    Naik Tingkat
+                </button>
+            </div>
+            <div class="relative h-[420px] rounded-2xl border border-white/10 bg-surfaceMuted/60 p-4">
+                <canvas id="hierarchyChart" role="img" aria-label="Grafik laporan per wilayah" class="h-full w-full"></canvas>
+            </div>
+        </div>
+    </div>
+    <footer class="mt-8 rounded-2xl border border-white/10 bg-surfaceMuted p-6 text-xs text-textdark/70">
+        <p class="leading-relaxed">Dataset wilayah diambil dari repositori <code>wilayah-indonesia</code> dan dipadankan dengan catatan simulasi. Data tidak disimpan permanen dan akan hilang ketika sesi browser berakhir.</p>
+    </footer>
+</section>

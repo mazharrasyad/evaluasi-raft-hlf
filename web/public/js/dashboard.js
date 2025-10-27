@@ -11,6 +11,7 @@ if (yearEl) {
 const hierarchyContainer = document.getElementById('hierarchyContainer');
 const hierarchyChartCanvas = document.getElementById('hierarchyChart');
 const hierarchyChartWrapper = document.getElementById('hierarchyChartWrapper');
+const hierarchyChartContainer = document.getElementById('hierarchyChartContainer');
 const hierarchyEmptyState = document.getElementById('hierarchyEmptyState');
 const hierarchyEmptyStateMessage = hierarchyEmptyState
     ? hierarchyEmptyState.querySelector('[data-empty-message]')
@@ -194,6 +195,11 @@ const HIERARCHY_BAR_ANIMATION = {
     expandedThickness: 44,
     baseBackground: 'rgba(99, 102, 241, 0.75)',
     expandedBackground: 'rgba(99, 102, 241, 0.95)'
+};
+
+const HIERARCHY_CHART_HEIGHT = {
+    min: 420,
+    perItem: 36,
 };
 
 const NAME_COMPARISON_LOCALE = 'id-ID';
@@ -1174,6 +1180,17 @@ function destroyHierarchyChart() {
         hierarchyChartInstance = null;
     }
     currentChartItems = [];
+    setHierarchyChartContainerHeight(0);
+}
+
+function setHierarchyChartContainerHeight(itemCount) {
+    if (!hierarchyChartContainer) {
+        return;
+    }
+
+    const { min, perItem } = HIERARCHY_CHART_HEIGHT;
+    const computedHeight = Math.max(min, Number(itemCount || 0) * perItem);
+    hierarchyChartContainer.style.height = `${computedHeight}px`;
 }
 
 function showHierarchyEmptyState(message) {
@@ -1429,6 +1446,8 @@ function renderCurrentHierarchyLevel() {
     const labels = currentChartItems.map(item => item.name);
     const data = currentChartItems.map(item => item.totalReports);
 
+    setHierarchyChartContainerHeight(currentChartItems.length);
+
     destroyHierarchyChart();
 
     const chartContext = hierarchyChartCanvas.getContext('2d');
@@ -1440,8 +1459,8 @@ function renderCurrentHierarchyLevel() {
                 {
                     label: levelInfo.datasetTitle,
                     data,
-                    barPercentage: 0.72,
-                    categoryPercentage: 0.78,
+                    barPercentage: 0.62,
+                    categoryPercentage: 0.74,
                     backgroundColor(context) {
                         if (!context || typeof context.dataIndex !== 'number') {
                             return HIERARCHY_BAR_ANIMATION.baseBackground;

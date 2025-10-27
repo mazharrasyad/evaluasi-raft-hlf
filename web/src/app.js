@@ -197,7 +197,6 @@ const viewsRoot = path.resolve(staticRoot, 'view');
 const viewFiles = {
     dashboard: path.resolve(viewsRoot, 'dashboard.html'),
     kesehatanJaringan: path.resolve(viewsRoot, 'kesehatan-jaringan.html'),
-    ruteServer: path.resolve(viewsRoot, 'rute-server.html'),
     simulasiData: path.resolve(viewsRoot, 'simulasi-data.html'),
     wilayahDataset: path.resolve(viewsRoot, 'wilayah-indonesia.html'),
 };
@@ -210,10 +209,6 @@ app.get('/', (req, res) => {
 
 app.get('/kesehatan-jaringan', (req, res) => {
     res.sendFile(viewFiles.kesehatanJaringan);
-});
-
-app.get('/rute-server', (req, res) => {
-    res.sendFile(viewFiles.ruteServer);
 });
 
 app.get('/simulasi-data', (req, res) => {

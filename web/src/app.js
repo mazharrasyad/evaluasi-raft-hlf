@@ -5,6 +5,8 @@ import path from 'path';
 import { execFile } from 'child_process';
 import { fileURLToPath } from 'url';
 import { promisify } from 'util';
+import { EventEmitter } from 'events';
+import { randomUUID } from 'crypto';
 
 import { checkNetworkHealth } from './network-check.js';
 import { submitSimulationRecord } from './simulation-ingest.js';
@@ -18,6 +20,22 @@ const logsRoot = path.resolve(__dirname, '../logs');
 const networkShutdownLogPath = path.resolve(logsRoot, 'network-shutdown.log');
 const networkStartupLogPath = path.resolve(logsRoot, 'network-start.log');
 const EXEC_MAX_BUFFER = 20 * 1024 * 1024;
+
+const networkOperationEmitter = new EventEmitter();
+networkOperationEmitter.setMaxListeners(0);
+
+function broadcastNetworkOperationEvent(event) {
+    if (!event || typeof event !== 'object') {
+        return;
+    }
+
+    const payload = {
+        timestamp: new Date().toISOString(),
+        ...event,
+    };
+
+    networkOperationEmitter.emit('event', payload);
+}
 
 async function logNetworkShutdownFailure(result) {
     try {
@@ -353,9 +371,21 @@ async function executeNetworkShutdown({ label, directory }) {
     }
 }
 
-async function executeNetworkStartup({ label, directory, commands }) {
+async function executeNetworkStartup({ label, directory, commands }, context = {}) {
     const scriptPath = path.resolve(directory, 'network.sh');
     const commandList = Array.isArray(commands) ? commands : [];
+    const operationId = typeof context?.operationId === 'string' ? context.operationId : null;
+    const clientOperationId = typeof context?.clientOperationId === 'string'
+        ? context.clientOperationId
+        : null;
+
+    const baseEvent = {
+        operationType: 'startup',
+        operationId,
+        clientOperationId,
+        targetLabel: label,
+        networkDir: directory,
+    };
 
     try {
         await fs.access(directory, fsConstants.R_OK | fsConstants.X_OK);
@@ -369,6 +399,13 @@ async function executeNetworkStartup({ label, directory, commands }) {
         };
 
         await logNetworkStartupFailure(failureResult);
+        broadcastNetworkOperationEvent({
+            ...baseEvent,
+            phase: 'target_error',
+            status: 'not_found',
+            message: failureResult.message,
+            error: failureResult.error,
+        });
 
         return failureResult;
     }
@@ -385,6 +422,13 @@ async function executeNetworkStartup({ label, directory, commands }) {
         };
 
         await logNetworkStartupFailure(failureResult);
+        broadcastNetworkOperationEvent({
+            ...baseEvent,
+            phase: 'target_error',
+            status: 'not_found',
+            message: failureResult.message,
+            error: failureResult.error,
+        });
 
         return failureResult;
     }
@@ -398,6 +442,12 @@ async function executeNetworkStartup({ label, directory, commands }) {
         };
 
         await logNetworkStartupFailure(failureResult);
+        broadcastNetworkOperationEvent({
+            ...baseEvent,
+            phase: 'target_error',
+            status: 'error',
+            message: failureResult.message,
+        });
 
         return failureResult;
     }
@@ -405,12 +455,26 @@ async function executeNetworkStartup({ label, directory, commands }) {
     const steps = [];
     let hasSuccess = false;
 
+    broadcastNetworkOperationEvent({
+        ...baseEvent,
+        phase: 'target_begin',
+        status: 'running',
+    });
+
     for (const command of commandList) {
         const stepResult = {
             label: command.label,
             displayCommand: command.displayCommand,
             args: Array.isArray(command.args) ? command.args : [],
         };
+
+        broadcastNetworkOperationEvent({
+            ...baseEvent,
+            phase: 'step_begin',
+            status: 'running',
+            stepLabel: stepResult.label,
+            displayCommand: stepResult.displayCommand,
+        });
 
         try {
             const { stdout, stderr } = await execFileAsync('./network.sh', stepResult.args, {
@@ -423,6 +487,16 @@ async function executeNetworkStartup({ label, directory, commands }) {
             stepResult.stderr = stderr;
             steps.push(stepResult);
             hasSuccess = true;
+
+            broadcastNetworkOperationEvent({
+                ...baseEvent,
+                phase: 'step_success',
+                status: 'success',
+                stepLabel: stepResult.label,
+                displayCommand: stepResult.displayCommand,
+                stdout,
+                stderr,
+            });
         } catch (error) {
             const stdout = error?.stdout ? String(error.stdout) : undefined;
             const stderr = error?.stderr ? String(error.stderr) : undefined;
@@ -446,6 +520,19 @@ async function executeNetworkStartup({ label, directory, commands }) {
 
             steps.push(stepResult);
 
+            broadcastNetworkOperationEvent({
+                ...baseEvent,
+                phase: 'step_error',
+                status: hasSuccess ? 'partial' : 'error',
+                stepLabel: stepResult.label,
+                displayCommand: stepResult.displayCommand,
+                stdout,
+                stderr,
+                message: stepResult.message,
+                resolution: stepResult.resolution,
+                error: stepResult.error,
+            });
+
             const failureResult = {
                 label,
                 networkDir: directory,
@@ -464,9 +551,26 @@ async function executeNetworkStartup({ label, directory, commands }) {
                     status: 'skipped',
                     message: 'Langkah ini dilewati karena perintah sebelumnya gagal.',
                 });
+
+                broadcastNetworkOperationEvent({
+                    ...baseEvent,
+                    phase: 'step_skipped',
+                    status: hasSuccess ? 'partial' : 'error',
+                    stepLabel: remaining.label,
+                    displayCommand: remaining.displayCommand,
+                    message: 'Langkah ini dilewati karena perintah sebelumnya gagal.',
+                });
             }
 
             await logNetworkStartupFailure(failureResult);
+            broadcastNetworkOperationEvent({
+                ...baseEvent,
+                phase: 'target_error',
+                status: failureResult.status,
+                message: failureResult.message,
+                resolution: failureResult.resolution,
+                error: failureResult.error,
+            });
 
             return failureResult;
         }
@@ -478,6 +582,12 @@ async function executeNetworkStartup({ label, directory, commands }) {
         status: 'success',
         steps,
     };
+
+    broadcastNetworkOperationEvent({
+        ...baseEvent,
+        phase: 'target_complete',
+        status: 'success',
+    });
 
     return successResult;
 }
@@ -497,6 +607,35 @@ const viewFiles = {
 
 app.use(express.static(staticRoot));
 app.use(express.json({ limit: '2mb' }));
+
+app.get('/api/network-operations/stream', (req, res) => {
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+
+    if (typeof res.flushHeaders === 'function') {
+        res.flushHeaders();
+    }
+
+    const keepAliveInterval = setInterval(() => {
+        res.write(':keep-alive\n\n');
+    }, 15000);
+
+    const listener = event => {
+        try {
+            res.write(`data: ${JSON.stringify(event)}\n\n`);
+        } catch (error) {
+            console.error('Failed to write network operation event:', error);
+        }
+    };
+
+    networkOperationEmitter.on('event', listener);
+
+    req.on('close', () => {
+        clearInterval(keepAliveInterval);
+        networkOperationEmitter.off('event', listener);
+    });
+});
 
 app.get('/', (req, res) => {
     res.sendFile(viewFiles.dashboard);
@@ -556,8 +695,35 @@ app.post('/api/start-network', async (req, res) => {
     const requestedAt = new Date().toISOString();
     const results = [];
 
+    const rawClientOperationId = req.get('x-client-operation-id');
+    const clientOperationId = typeof rawClientOperationId === 'string'
+        ? rawClientOperationId.trim().slice(0, 200)
+        : null;
+    const operationId = randomUUID();
+    const operationContext = { operationId, clientOperationId };
+
+    broadcastNetworkOperationEvent({
+        operationType: 'startup',
+        phase: 'begin',
+        status: 'running',
+        operationId,
+        clientOperationId,
+        requestedAt,
+    });
+
     const dockerFailure = await ensureDockerAvailable();
     if (dockerFailure) {
+        broadcastNetworkOperationEvent({
+            operationType: 'startup',
+            phase: 'dependency_error',
+            status: dockerFailure.status,
+            operationId,
+            clientOperationId,
+            message: dockerFailure.message,
+            resolution: dockerFailure.resolution,
+            error: dockerFailure.error,
+        });
+
         for (const target of NETWORK_START_TARGETS) {
             const failureResult = {
                 label: target.label,
@@ -572,11 +738,22 @@ app.post('/api/start-network', async (req, res) => {
 
         const completedAt = new Date().toISOString();
 
+        broadcastNetworkOperationEvent({
+            operationType: 'startup',
+            phase: 'complete',
+            status: 'error',
+            operationId,
+            clientOperationId,
+            completedAt,
+        });
+
         res.json({
             requestedAt,
             completedAt,
             overallStatus: 'error',
             dependencyStatus: 'docker_unavailable',
+            operationId,
+            clientOperationId,
             results,
         });
 
@@ -584,7 +761,7 @@ app.post('/api/start-network', async (req, res) => {
     }
 
     for (const target of NETWORK_START_TARGETS) {
-        const result = await executeNetworkStartup(target);
+        const result = await executeNetworkStartup(target, operationContext);
         results.push(result);
     }
 
@@ -596,10 +773,21 @@ app.post('/api/start-network', async (req, res) => {
             ? 'partial'
             : 'error';
 
+    broadcastNetworkOperationEvent({
+        operationType: 'startup',
+        phase: 'complete',
+        status: overallStatus,
+        operationId,
+        clientOperationId,
+        completedAt,
+    });
+
     res.json({
         requestedAt,
         completedAt,
         overallStatus,
+        operationId,
+        clientOperationId,
         results,
     });
 });

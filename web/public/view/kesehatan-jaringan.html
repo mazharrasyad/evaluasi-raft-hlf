@@ -133,6 +133,14 @@
                                             <span data-indicator class="h-2 w-2 rounded-full bg-secondary"></span>
                                             <span data-message>Belum ada pemeriksaan yang dijalankan.</span>
                                         </p>
+                                        <button type="button" id="networkShutdownButton" class="inline-flex items-center gap-2 rounded-lg bg-rose-500/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-rose-500/40 transition duration-200 hover:-translate-y-0.5 hover:bg-rose-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-400">
+                                            <span class="text-base">⏻</span>
+                                            <span>Matikan Jaringan</span>
+                                        </button>
+                                        <p id="networkShutdownStatus" class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 py-2 text-xs font-medium text-textdark/80" role="status" aria-live="polite">
+                                            <span data-indicator class="h-2 w-2 rounded-full bg-secondary"></span>
+                                            <span data-message>Belum ada perintah pemadaman jaringan yang dijalankan.</span>
+                                        </p>
                                     </div>
                                 </div>
                                 <div id="networkHealthResults" class="hidden space-y-4 rounded-2xl border border-white/10 bg-surfaceMuted/60 p-6 text-sm text-textdark">

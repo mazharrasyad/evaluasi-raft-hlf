@@ -15,6 +15,15 @@ const simulationModalTitle = document.getElementById('simulationModalTitle');
 const simulationModalContent = document.getElementById('simulationModalContent');
 const simulationModalOverlay = document.getElementById('simulationModalOverlay');
 const simulationModalClose = document.getElementById('simulationModalClose');
+const networkCheckButton = document.getElementById('networkCheckButton');
+const networkCheckButtonLabel = networkCheckButton ? networkCheckButton.querySelector('[data-button-label]') : null;
+const networkStatusSummaryEl = document.getElementById('networkStatusSummary');
+const networkStatusIndicatorEl = document.getElementById('networkStatusIndicator');
+const networkStatusMessageEl = document.getElementById('networkStatusMessage');
+const networkStatusContainer = document.getElementById('networkStatusContainer');
+const networkStatusSummaryBaseClass = networkStatusSummaryEl
+    ? networkStatusSummaryEl.className.replace(/\btext-textdark\/80\b/, '').trim()
+    : '';
 
 let animateObserver;
 let wilayahDataset = null;
@@ -32,6 +41,51 @@ const dateTimeFormatter = new Intl.DateTimeFormat('id-ID', {
 
 const SWAL_PRIMARY_COLOR = '#38BDF8';
 const SWAL_CANCEL_COLOR = '#64748B';
+const NETWORK_SUMMARY_VARIANTS = {
+    info: {
+        summaryClass: 'text-textdark/80',
+        indicatorClass: 'bg-secondary'
+    },
+    success: {
+        summaryClass: 'text-emerald-400',
+        indicatorClass: 'bg-emerald-400'
+    },
+    warning: {
+        summaryClass: 'text-amber-300',
+        indicatorClass: 'bg-amber-400'
+    },
+    error: {
+        summaryClass: 'text-highlight',
+        indicatorClass: 'bg-highlight'
+    }
+};
+
+const NETWORK_RESULT_STATUS_META = {
+    healthy: {
+        label: 'Sehat',
+        description: 'Jaringan siap digunakan.',
+        badgeClass: 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300',
+        icon: '✅'
+    },
+    unhealthy: {
+        label: 'Tidak Sehat',
+        description: 'Jaringan tidak merespons.',
+        badgeClass: 'border-highlight/60 bg-highlight/15 text-highlight',
+        icon: '❌'
+    },
+    not_found: {
+        label: 'Tidak Ditemukan',
+        description: 'Direktori jaringan tidak tersedia.',
+        badgeClass: 'border-amber-500/40 bg-amber-500/10 text-amber-300',
+        icon: '⚠️'
+    },
+    incomplete: {
+        label: 'Belum Lengkap',
+        description: 'Material jaringan belum lengkap.',
+        badgeClass: 'border-amber-500/40 bg-amber-500/10 text-amber-300',
+        icon: '⚠️'
+    }
+};
 
 function isSwalAvailable() {
     return typeof window !== 'undefined'
@@ -160,6 +214,237 @@ function observeAnimatedElement(element) {
 }
 
 document.querySelectorAll('.animate-on-scroll').forEach(observeAnimatedElement);
+
+function updateNetworkSummary(message, variant = 'info') {
+    if (networkStatusMessageEl) {
+        networkStatusMessageEl.textContent = message;
+    }
+
+    const variantMeta = NETWORK_SUMMARY_VARIANTS[variant] || NETWORK_SUMMARY_VARIANTS.info;
+
+    if (networkStatusSummaryEl) {
+        const baseClass = networkStatusSummaryBaseClass ? `${networkStatusSummaryBaseClass} ` : '';
+        networkStatusSummaryEl.className = `${baseClass}${variantMeta.summaryClass}`.trim();
+    }
+
+    if (networkStatusIndicatorEl) {
+        networkStatusIndicatorEl.className = `h-2 w-2 rounded-full ${variantMeta.indicatorClass}`;
+    }
+}
+
+function getNetworkResultMeta(status) {
+    return NETWORK_RESULT_STATUS_META[status] || NETWORK_RESULT_STATUS_META.unhealthy;
+}
+
+function createDefinitionRow(term, value) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'flex flex-col gap-1 rounded-xl border border-white/5 bg-surface/60 p-3';
+
+    const termEl = document.createElement('dt');
+    termEl.className = 'text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-secondary';
+    termEl.textContent = term;
+
+    const valueEl = document.createElement('dd');
+    valueEl.className = 'text-xs text-textdark/80 break-words';
+    valueEl.textContent = value;
+
+    wrapper.appendChild(termEl);
+    wrapper.appendChild(valueEl);
+    return wrapper;
+}
+
+function createNetworkStatusCard(result) {
+    const meta = getNetworkResultMeta(result.status);
+
+    const card = document.createElement('article');
+    card.className = 'flex flex-col gap-4 rounded-2xl border border-white/10 bg-surface p-5 shadow-lg shadow-black/20 animate-on-scroll';
+    card.dataset.animate = 'fade-up';
+
+    const header = document.createElement('header');
+    header.className = 'flex flex-col gap-2';
+
+    const title = document.createElement('h3');
+    title.className = 'text-lg font-semibold text-primary';
+    title.textContent = result.label || 'Jaringan Tanpa Nama';
+
+    const badge = document.createElement('span');
+    badge.className = `inline-flex w-fit items-center gap-2 rounded-full border px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.3em] ${meta.badgeClass}`;
+    badge.textContent = `${meta.icon} ${meta.label}`;
+
+    header.appendChild(title);
+    header.appendChild(badge);
+    card.appendChild(header);
+
+    const description = document.createElement('p');
+    description.className = 'text-sm text-textdark/70';
+    description.textContent = result.status === 'healthy'
+        ? meta.description
+        : result.message || meta.description;
+    card.appendChild(description);
+
+    const detailsGrid = document.createElement('dl');
+    detailsGrid.className = 'grid gap-3 sm:grid-cols-2';
+
+    const details = [
+        ['Direktori Jaringan', result.networkDir || 'Tidak tersedia'],
+        ['Channel', result.channel || 'Tidak diketahui'],
+        ['Chaincode', result.chaincode || 'Tidak diketahui'],
+        ['Peer', result.peer || 'Tidak diketahui']
+    ];
+
+    details.forEach(([term, value]) => {
+        detailsGrid.appendChild(createDefinitionRow(term, value));
+    });
+
+    card.appendChild(detailsGrid);
+
+    if (result.instructions && (result.instructions.up || result.instructions.deploy)) {
+        const instructionsWrapper = document.createElement('div');
+        instructionsWrapper.className = 'space-y-2 rounded-2xl border border-white/5 bg-surfaceMuted/60 p-4';
+
+        const instructionsTitle = document.createElement('p');
+        instructionsTitle.className = 'text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-secondary';
+        instructionsTitle.textContent = 'Instruksi';
+        instructionsWrapper.appendChild(instructionsTitle);
+
+        const instructionsList = document.createElement('ul');
+        instructionsList.className = 'space-y-2 text-xs text-textdark/80';
+
+        if (result.instructions.up) {
+            const item = document.createElement('li');
+            item.className = 'flex flex-col gap-1';
+            const label = document.createElement('span');
+            label.className = 'font-semibold text-textdark';
+            label.textContent = 'Mulai jaringan:';
+            const command = document.createElement('code');
+            command.className = 'break-words rounded bg-surface px-2 py-1 text-[0.65rem] text-secondary';
+            command.textContent = result.instructions.up;
+            item.appendChild(label);
+            item.appendChild(command);
+            instructionsList.appendChild(item);
+        }
+
+        if (result.instructions.deploy) {
+            const item = document.createElement('li');
+            item.className = 'flex flex-col gap-1';
+            const label = document.createElement('span');
+            label.className = 'font-semibold text-textdark';
+            label.textContent = 'Deploy chaincode:';
+            const command = document.createElement('code');
+            command.className = 'break-words rounded bg-surface px-2 py-1 text-[0.65rem] text-secondary';
+            command.textContent = result.instructions.deploy;
+            item.appendChild(label);
+            item.appendChild(command);
+            instructionsList.appendChild(item);
+        }
+
+        instructionsWrapper.appendChild(instructionsList);
+        card.appendChild(instructionsWrapper);
+    }
+
+    if (result.timestamp) {
+        const timestampEl = document.createElement('p');
+        timestampEl.className = 'text-[0.65rem] uppercase tracking-[0.3em] text-textdark/60';
+        const date = new Date(result.timestamp);
+        timestampEl.textContent = `Terakhir diperiksa: ${Number.isNaN(date.getTime()) ? result.timestamp : dateTimeFormatter.format(date)}`;
+        card.appendChild(timestampEl);
+    }
+
+    observeAnimatedElement(card);
+
+    return card;
+}
+
+function renderNetworkStatusResults(results) {
+    if (!networkStatusContainer) {
+        return;
+    }
+
+    networkStatusContainer.innerHTML = '';
+
+    if (!Array.isArray(results) || !results.length) {
+        const emptyState = document.createElement('p');
+        emptyState.className = 'text-sm text-textdark/70';
+        emptyState.textContent = 'Tidak ada jaringan yang ditemukan pada konfigurasi saat ini.';
+        networkStatusContainer.appendChild(emptyState);
+        return;
+    }
+
+    results.forEach(result => {
+        networkStatusContainer.appendChild(createNetworkStatusCard(result));
+    });
+}
+
+async function handleNetworkCheck() {
+    if (!networkCheckButton) {
+        return;
+    }
+
+    const originalLabel = networkCheckButtonLabel ? networkCheckButtonLabel.textContent : networkCheckButton.textContent;
+
+    updateNetworkSummary('Memeriksa status jaringan, harap tunggu.', 'info');
+
+    if (networkStatusContainer) {
+        networkStatusContainer.innerHTML = '';
+    }
+
+    networkCheckButton.disabled = true;
+    networkCheckButton.setAttribute('aria-busy', 'true');
+
+    if (networkCheckButtonLabel) {
+        networkCheckButtonLabel.textContent = 'Memeriksa...';
+    } else {
+        networkCheckButton.textContent = 'Memeriksa...';
+    }
+
+    try {
+        const response = await fetch('/api/network-status', {
+            headers: {
+                Accept: 'application/json'
+            },
+            cache: 'no-store'
+        });
+
+        if (!response.ok) {
+            throw new Error(`Server merespons dengan status ${response.status}.`);
+        }
+
+        const payload = await response.json();
+        const results = Array.isArray(payload.results) ? payload.results : [];
+
+        renderNetworkStatusResults(results);
+
+        if (!results.length) {
+            updateNetworkSummary('Tidak ada jaringan yang dikonfigurasi untuk diperiksa.', 'warning');
+            return;
+        }
+
+        const allHealthy = results.every(item => item.status === 'healthy');
+        const summaryMessage = allHealthy
+            ? 'Seluruh jaringan RAFT siap digunakan.'
+            : 'Beberapa jaringan memerlukan perhatian lanjutan.';
+        updateNetworkSummary(summaryMessage, allHealthy ? 'success' : 'warning');
+    } catch (error) {
+        console.error('Gagal memeriksa kesehatan jaringan:', error);
+        updateNetworkSummary('Gagal memeriksa kesehatan jaringan. Cek log server untuk detailnya.', 'error');
+
+        if (networkStatusContainer) {
+            const errorMessage = document.createElement('p');
+            errorMessage.className = 'rounded-xl border border-highlight/40 bg-highlight/10 p-4 text-sm text-highlight';
+            errorMessage.textContent = error instanceof Error ? error.message : String(error);
+            networkStatusContainer.appendChild(errorMessage);
+        }
+    } finally {
+        networkCheckButton.disabled = false;
+        networkCheckButton.removeAttribute('aria-busy');
+
+        if (networkCheckButtonLabel) {
+            networkCheckButtonLabel.textContent = originalLabel;
+        } else {
+            networkCheckButton.textContent = originalLabel;
+        }
+    }
+}
 
 function formatCount(value) {
     return new Intl.NumberFormat('id-ID').format(value ?? 0);
@@ -1104,6 +1389,10 @@ async function handleSimulationSubmit(event) {
     const successMessage = `Berhasil membuat ${formatCount(generated.length)} data simulasi.`;
     updateSimulationStatus(successMessage, 'success');
     await showSuccessAlert(successMessage);
+}
+
+if (networkCheckButton) {
+    networkCheckButton.addEventListener('click', handleNetworkCheck);
 }
 
 if (simulationForm) {

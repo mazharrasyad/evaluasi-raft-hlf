@@ -2,6 +2,8 @@ import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+import { checkNetworkHealth } from './network-check.js';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -20,6 +22,23 @@ app.get('/', (req, res) => {
 
 app.get('/wilayah-indonesia', (req, res) => {
     res.sendFile(wilayahDatasetFile);
+});
+
+app.get('/api/network-status', async (req, res) => {
+    try {
+        const results = await checkNetworkHealth();
+        const payload = Array.isArray(results) ? results : [];
+        res.json({
+            status: 'ok',
+            results: payload
+        });
+    } catch (error) {
+        console.error('Gagal memeriksa kesehatan jaringan:', error);
+        res.status(500).json({
+            status: 'error',
+            message: error instanceof Error ? error.message : 'Terjadi kesalahan saat memeriksa jaringan.'
+        });
+    }
 });
 
 app.get('*', (req, res) => {

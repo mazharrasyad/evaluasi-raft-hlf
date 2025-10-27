@@ -132,6 +132,24 @@
                             <div id="simulationSummary" class="mt-6 grid gap-4 md:grid-cols-2"></div>
                         </section>
 
+                        <section class="rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20 backdrop-blur-sm animate-on-scroll" data-animate="fade-up" data-animate-delay="120">
+                            <header class="flex flex-col gap-2 border-b border-white/10 pb-6">
+                                <h2 class="text-2xl font-semibold text-textdark">Kesehatan Jaringan RAFT</h2>
+                                <p class="text-sm text-textdark/70">Periksa status jaringan Hyperledger Fabric langsung dari server Express untuk memastikan kesiapan pengujian.</p>
+                            </header>
+                            <div class="mt-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                                <button type="button" id="networkCheckButton" class="inline-flex items-center gap-2 rounded-lg bg-secondary/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#041226] shadow-lg shadow-secondary/30 transition duration-200 hover:-translate-y-0.5 hover:bg-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary">
+                                    <span aria-hidden="true">🩺</span>
+                                    <span data-button-label>Periksa Kesehatan</span>
+                                </button>
+                                <p id="networkStatusSummary" class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/60 px-4 py-2 text-xs font-medium text-textdark/80" role="status" aria-live="polite">
+                                    <span id="networkStatusIndicator" class="h-2 w-2 rounded-full bg-secondary"></span>
+                                    <span id="networkStatusMessage">Belum ada pemeriksaan jaringan.</span>
+                                </p>
+                            </div>
+                            <div id="networkStatusContainer" class="mt-6 grid gap-4 lg:grid-cols-2"></div>
+                        </section>
+
                         <section class="rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20 backdrop-blur-sm">
                             <header class="flex flex-col gap-2 border-b border-white/10 pb-6">
                                 <h2 class="text-2xl font-semibold text-textdark">Peta Laporan Wilayah</h2>

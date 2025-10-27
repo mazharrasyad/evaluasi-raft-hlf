@@ -13,6 +13,55 @@ const __dirname = path.dirname(__filename);
 
 const execFileAsync = promisify(execFile);
 
+const logsRoot = path.resolve(__dirname, '../logs');
+const networkShutdownLogPath = path.resolve(logsRoot, 'network-shutdown.log');
+
+async function logNetworkShutdownFailure(result) {
+    try {
+        await fs.mkdir(logsRoot, { recursive: true });
+
+        const timestamp = new Date().toISOString();
+        const {
+            label,
+            networkDir,
+            command,
+            status,
+            message,
+            error,
+            stdout,
+            stderr,
+        } = result;
+
+        const logLines = [
+            `[${timestamp}] Gagal mematikan jaringan: ${label}`,
+            `Status: ${status}`,
+            `Direktori: ${networkDir ?? '-'}`,
+            `Perintah: ${command ?? '-'}`,
+        ];
+
+        if (message) {
+            logLines.push(`Pesan: ${message}`);
+        }
+
+        if (error) {
+            logLines.push(`Error: ${error}`);
+        }
+
+        if (stdout) {
+            logLines.push(`STDOUT: ${stdout.trim()}`);
+        }
+
+        if (stderr) {
+            logLines.push(`STDERR: ${stderr.trim()}`);
+        }
+
+        const logEntry = `${logLines.join('\n')}\n\n`;
+        await fs.appendFile(networkShutdownLogPath, logEntry, 'utf8');
+    } catch (loggingError) {
+        console.error('Failed to write network shutdown log:', loggingError);
+    }
+}
+
 const NETWORK_SHUTDOWN_TARGETS = [
     {
         label: 'Jaringan RAFT Standard',
@@ -30,7 +79,7 @@ async function executeNetworkShutdown({ label, directory }) {
     try {
         await fs.access(directory, fsConstants.R_OK | fsConstants.X_OK);
     } catch (error) {
-        return {
+        const failureResult = {
             label,
             networkDir: directory,
             command: './network.sh down',
@@ -38,12 +87,16 @@ async function executeNetworkShutdown({ label, directory }) {
             message: 'Direktori jaringan tidak ditemukan atau tidak dapat diakses.',
             error: error instanceof Error ? error.message : String(error),
         };
+
+        await logNetworkShutdownFailure(failureResult);
+
+        return failureResult;
     }
 
     try {
         await fs.access(scriptPath, fsConstants.X_OK);
     } catch (error) {
-        return {
+        const failureResult = {
             label,
             networkDir: directory,
             command: './network.sh down',
@@ -51,6 +104,10 @@ async function executeNetworkShutdown({ label, directory }) {
             message: 'Berkas network.sh tidak ditemukan atau tidak dapat dijalankan.',
             error: error instanceof Error ? error.message : String(error),
         };
+
+        await logNetworkShutdownFailure(failureResult);
+
+        return failureResult;
     }
 
     try {
@@ -70,7 +127,7 @@ async function executeNetworkShutdown({ label, directory }) {
         const stdout = error?.stdout ? String(error.stdout) : undefined;
         const stderr = error?.stderr ? String(error.stderr) : undefined;
 
-        return {
+        const failureResult = {
             label,
             networkDir: directory,
             command: './network.sh down',
@@ -79,6 +136,10 @@ async function executeNetworkShutdown({ label, directory }) {
             stderr,
             error: error instanceof Error ? error.message : String(error),
         };
+
+        await logNetworkShutdownFailure(failureResult);
+
+        return failureResult;
     }
 }
 

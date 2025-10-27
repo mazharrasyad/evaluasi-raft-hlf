@@ -23,6 +23,11 @@ const simulationModalTitle = document.getElementById('simulationModalTitle');
 const simulationModalContent = document.getElementById('simulationModalContent');
 const simulationModalOverlay = document.getElementById('simulationModalOverlay');
 const simulationModalClose = document.getElementById('simulationModalClose');
+const networkCheckButton = document.getElementById('networkCheckButton');
+const networkCheckStatusEl = document.getElementById('networkCheckStatus');
+const networkHealthResultsContainer = document.getElementById('networkHealthResults');
+const networkHealthSummaryEl = document.getElementById('networkHealthSummary');
+const networkHealthListEl = document.getElementById('networkHealthList');
 
 let animateObserver;
 let wilayahDataset = null;
@@ -44,6 +49,68 @@ const dateTimeFormatter = new Intl.DateTimeFormat('id-ID', {
 
 const SWAL_PRIMARY_COLOR = '#38BDF8';
 const SWAL_CANCEL_COLOR = '#64748B';
+const DEFAULT_NETWORK_STATUS_MESSAGE = 'Belum ada pemeriksaan yang dijalankan.';
+
+const NETWORK_STATUS_META = {
+    healthy: {
+        label: 'Jaringan sehat',
+        icon: '✅',
+        description: 'Jaringan siap digunakan.',
+        badgeClass: 'border-emerald-400/40 bg-emerald-500/10 text-emerald-300',
+    },
+    unhealthy: {
+        label: 'Tidak merespons',
+        icon: '❌',
+        description: 'Jaringan tidak dapat diakses atau chaincode gagal merespons.',
+        badgeClass: 'border-rose-400/40 bg-rose-500/10 text-rose-300',
+    },
+    not_found: {
+        label: 'Direktori belum tersedia',
+        icon: '⚠️',
+        description: 'Direktori jaringan tidak ditemukan pada server.',
+        badgeClass: 'border-amber-400/40 bg-amber-500/10 text-amber-300',
+    },
+    incomplete: {
+        label: 'Material belum lengkap',
+        icon: '⚠️',
+        description: 'Material kriptografi belum lengkap.',
+        badgeClass: 'border-amber-400/40 bg-amber-500/10 text-amber-300',
+    },
+    unknown: {
+        label: 'Status tidak diketahui',
+        icon: 'ℹ️',
+        description: 'Status jaringan tidak dapat ditentukan.',
+        badgeClass: 'border-slate-400/40 bg-slate-500/10 text-slate-300',
+    },
+};
+
+const NETWORK_STATUS_INDICATOR = {
+    idle: 'bg-secondary',
+    loading: 'bg-accent',
+    success: 'bg-emerald-400',
+    error: 'bg-rose-400',
+};
+
+const OVERALL_STATUS_META = {
+    healthy: {
+        icon: '✅',
+        title: 'Semua jaringan siap digunakan.',
+        description: 'Seluruh jaringan RAFT merespons transaksi evaluasi.',
+        accentClass: 'text-emerald-300',
+    },
+    partial: {
+        icon: '⚠️',
+        title: 'Sebagian jaringan siap, beberapa membutuhkan perhatian.',
+        description: 'Periksa catatan pada jaringan yang belum siap sebelum melanjutkan pengujian.',
+        accentClass: 'text-amber-300',
+    },
+    unavailable: {
+        icon: '❌',
+        title: 'Tidak ada jaringan yang siap digunakan.',
+        description: 'Pastikan seluruh layanan dan material kriptografi tersedia sebelum mencoba kembali.',
+        accentClass: 'text-rose-300',
+    },
+};
 
 if (typeof window !== 'undefined' && window.Chart) {
     window.Chart.defaults.font.family = 'Inter, sans-serif';
@@ -168,6 +235,214 @@ async function confirmSimulationDeletion() {
     }
 
     return window.confirm(text);
+}
+
+function getNetworkStatusMeta(status) {
+    if (status && NETWORK_STATUS_META[status]) {
+        return NETWORK_STATUS_META[status];
+    }
+    return NETWORK_STATUS_META.unknown;
+}
+
+function updateNetworkCheckStatus(state = 'idle', message = DEFAULT_NETWORK_STATUS_MESSAGE) {
+    if (!networkCheckStatusEl) {
+        return;
+    }
+
+    const indicator = networkCheckStatusEl.querySelector('[data-indicator]');
+    const messageEl = networkCheckStatusEl.querySelector('[data-message]');
+
+    if (indicator) {
+        indicator.className = `h-2 w-2 rounded-full ${NETWORK_STATUS_INDICATOR[state] || NETWORK_STATUS_INDICATOR.idle}`;
+    }
+
+    if (messageEl && typeof message === 'string') {
+        messageEl.textContent = message;
+    }
+}
+
+function formatDateTimeFromIso(isoString) {
+    if (!isoString) {
+        return '';
+    }
+
+    try {
+        const parsed = new Date(isoString);
+        if (Number.isNaN(parsed.getTime())) {
+            return '';
+        }
+        return dateTimeFormatter.format(parsed);
+    } catch (error) {
+        console.warn('Gagal memformat waktu pemeriksaan jaringan:', error);
+        return '';
+    }
+}
+
+function createInstructionList(instructions) {
+    if (!instructions || typeof instructions !== 'object') {
+        return null;
+    }
+
+    const items = [];
+    if (instructions.up) {
+        items.push({ label: 'Mulai jaringan', command: instructions.up });
+    }
+    if (instructions.deploy) {
+        items.push({ label: 'Deploy chaincode', command: instructions.deploy });
+    }
+
+    if (!items.length) {
+        return null;
+    }
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'flex flex-col gap-2 rounded-lg border border-white/10 bg-surfaceMuted/60 px-3 py-3';
+
+    const heading = document.createElement('p');
+    heading.className = 'text-[11px] font-semibold uppercase tracking-[0.28em] text-secondary';
+    heading.textContent = 'Langkah pemulihan';
+    wrapper.append(heading);
+
+    const list = document.createElement('ul');
+    list.className = 'space-y-2 text-xs text-textdark/70';
+
+    items.forEach(item => {
+        const listItem = document.createElement('li');
+        listItem.className = 'flex flex-col gap-1';
+
+        const label = document.createElement('span');
+        label.className = 'text-textdark/60';
+        label.textContent = item.label;
+
+        const code = document.createElement('code');
+        code.className = 'break-words rounded bg-surface px-2 py-1 text-[11px] text-textdark';
+        code.textContent = item.command;
+
+        listItem.append(label, code);
+        list.append(listItem);
+    });
+
+    wrapper.append(list);
+    return wrapper;
+}
+
+function createNetworkResultCard(result) {
+    const card = document.createElement('article');
+    card.className = 'flex flex-col gap-3 rounded-xl border border-white/10 bg-surface p-4 shadow-lg shadow-black/10';
+
+    const meta = getNetworkStatusMeta(result?.status);
+
+    const header = document.createElement('header');
+    header.className = 'flex flex-col gap-2';
+
+    const title = document.createElement('h3');
+    title.className = 'text-base font-semibold text-primary';
+    title.textContent = result?.label || 'Jaringan tanpa nama';
+
+    const badge = document.createElement('span');
+    badge.className = `inline-flex w-fit items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium ${meta.badgeClass}`;
+    badge.textContent = `${meta.icon} ${meta.label}`;
+
+    header.append(title, badge);
+    card.append(header);
+
+    if (meta.description) {
+        const description = document.createElement('p');
+        description.className = 'text-xs text-textdark/70';
+        description.textContent = meta.description;
+        card.append(description);
+    }
+
+    const details = document.createElement('dl');
+    details.className = 'grid gap-3 text-xs text-textdark/60 sm:grid-cols-2';
+
+    const detailEntries = [
+        { term: 'Direktori jaringan', value: result?.networkDir },
+        { term: 'Channel', value: result?.channel },
+        { term: 'Chaincode', value: result?.chaincode },
+        { term: 'Peer', value: result?.peer },
+    ];
+
+    detailEntries.forEach(entry => {
+        if (!entry.value) {
+            return;
+        }
+        const termEl = document.createElement('dt');
+        termEl.className = 'font-semibold text-textdark/70';
+        termEl.textContent = entry.term;
+
+        const valueEl = document.createElement('dd');
+        valueEl.className = 'text-textdark/60';
+        valueEl.textContent = entry.value;
+
+        details.append(termEl, valueEl);
+    });
+
+    card.append(details);
+
+    if (result?.message && result.status !== 'healthy') {
+        const note = document.createElement('p');
+        note.className = 'rounded-lg border border-amber-400/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-200/90';
+        note.textContent = result.message;
+        card.append(note);
+    }
+
+    const instructions = createInstructionList(result?.instructions);
+    if (instructions) {
+        card.append(instructions);
+    }
+
+    return card;
+}
+
+function renderNetworkHealthResults(results, summary = {}) {
+    if (!networkHealthResultsContainer) {
+        return;
+    }
+
+    if (networkHealthSummaryEl) {
+        networkHealthSummaryEl.innerHTML = '';
+        const summaryMeta = OVERALL_STATUS_META[summary.overallStatus] || {
+            icon: 'ℹ️',
+            title: 'Pemeriksaan jaringan selesai.',
+            description: 'Periksa detail setiap jaringan pada daftar di bawah ini.',
+            accentClass: 'text-slate-200',
+        };
+
+        const title = document.createElement('p');
+        title.className = `text-sm font-semibold ${summaryMeta.accentClass}`;
+        title.textContent = `${summaryMeta.icon} ${summaryMeta.title}`;
+
+        const description = document.createElement('p');
+        description.className = 'text-xs text-textdark/70';
+        description.textContent = summaryMeta.description;
+
+        networkHealthSummaryEl.append(title, description);
+
+        const formattedDate = formatDateTimeFromIso(summary.checkedAt);
+        if (formattedDate) {
+            const timestamp = document.createElement('p');
+            timestamp.className = 'text-[11px] text-textdark/60';
+            timestamp.textContent = `Terakhir diperiksa: ${formattedDate}`;
+            networkHealthSummaryEl.append(timestamp);
+        }
+    }
+
+    if (networkHealthListEl) {
+        networkHealthListEl.innerHTML = '';
+        if (Array.isArray(results) && results.length) {
+            results.forEach(result => {
+                networkHealthListEl.append(createNetworkResultCard(result));
+            });
+        } else {
+            const emptyState = document.createElement('p');
+            emptyState.className = 'rounded-lg border border-white/10 bg-surface px-4 py-3 text-xs text-textdark/70';
+            emptyState.textContent = 'Pemeriksaan tidak mengembalikan data jaringan.';
+            networkHealthListEl.append(emptyState);
+        }
+    }
+
+    networkHealthResultsContainer.classList.remove('hidden');
 }
 
 function ensureAnimateObserver() {
@@ -1424,6 +1699,58 @@ async function handleSimulationSubmit(event) {
     const successMessage = `Berhasil membuat ${formatCount(generated.length)} data simulasi.`;
     updateSimulationStatus(successMessage, 'success');
     await showSuccessAlert(successMessage);
+}
+
+async function handleNetworkCheckButtonClick() {
+    if (!networkCheckButton) {
+        return;
+    }
+
+    const originalContent = networkCheckButton.innerHTML;
+    networkCheckButton.disabled = true;
+    networkCheckButton.classList.add('cursor-not-allowed', 'opacity-60');
+    networkCheckButton.innerHTML = '<span class="text-base animate-spin">⟳</span><span>Memeriksa...</span>';
+
+    updateNetworkCheckStatus('loading', 'Pemeriksaan jaringan sedang berjalan...');
+
+    try {
+        const response = await fetch('/api/check-network', {
+            headers: {
+                Accept: 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(`Server mengembalikan status ${response.status}`);
+        }
+
+        const data = await response.json();
+        renderNetworkHealthResults(data?.results, {
+            checkedAt: data?.checkedAt,
+            overallStatus: data?.overallStatus,
+        });
+
+        const summaryMeta = OVERALL_STATUS_META[data?.overallStatus];
+        const successMessage = summaryMeta
+            ? summaryMeta.title
+            : 'Pemeriksaan jaringan selesai.';
+        updateNetworkCheckStatus('success', successMessage);
+    } catch (error) {
+        console.error('Gagal menjalankan pemeriksaan jaringan:', error);
+        updateNetworkCheckStatus('error', 'Pemeriksaan jaringan gagal. Periksa log server.');
+        await showErrorAlert('Gagal menjalankan pemeriksaan jaringan. Pastikan jaringan Fabric aktif lalu coba lagi.');
+    } finally {
+        networkCheckButton.disabled = false;
+        networkCheckButton.classList.remove('cursor-not-allowed', 'opacity-60');
+        networkCheckButton.innerHTML = originalContent;
+    }
+}
+
+if (networkCheckButton) {
+    updateNetworkCheckStatus('idle', DEFAULT_NETWORK_STATUS_MESSAGE);
+    networkCheckButton.addEventListener('click', handleNetworkCheckButtonClick);
+} else {
+    updateNetworkCheckStatus('idle', DEFAULT_NETWORK_STATUS_MESSAGE);
 }
 
 if (hierarchyBackButton) {

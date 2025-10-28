@@ -21,7 +21,7 @@ PEER0_ORG3_CA=${DIR}/network/organizations/peerOrganizations/org3.example.com/tl
 if [[ ${ORG,,} == "org1" || ${ORG,,} == "digibank" ]]; then
    CORE_PEER_LOCALMSPID=Org1MSP
    CORE_PEER_MSPCONFIGPATH=${DIR}/network/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
-   CORE_PEER_ADDRESS=localhost:7151
+   CORE_PEER_ADDRESS=localhost:7052
    CORE_PEER_TLS_ROOTCERT_FILE=${DIR}/network/organizations/peerOrganizations/org1.example.com/tlsca/tlsca.org1.example.com-cert.pem
 
 elif [[ ${ORG,,} == "org2" || ${ORG,,} == "magnetocorp" ]]; then

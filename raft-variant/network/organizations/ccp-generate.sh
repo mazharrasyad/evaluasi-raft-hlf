@@ -27,7 +27,7 @@ function yaml_ccp {
 }
 
 ORG=1
-P0PORT=7151
+P0PORT=7052
 CAPORT=7154
 PEERPEM=organizations/peerOrganizations/org1.example.com/tlsca/tlsca.org1.example.com-cert.pem
 CAPEM=organizations/peerOrganizations/org1.example.com/ca/ca.org1.example.com-cert.pem

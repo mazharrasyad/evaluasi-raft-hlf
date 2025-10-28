@@ -854,11 +854,39 @@ app.post('/api/start-network', async (req, res) => {
 
 app.post('/api/shutdown-network', async (req, res) => {
     const requestedAt = new Date().toISOString();
+    const rawNetworkType = typeof req.body?.networkType === 'string'
+        ? req.body.networkType.trim().toLowerCase()
+        : null;
+
+    let selectedTargets = NETWORK_SHUTDOWN_TARGETS;
+    let normalizedNetworkType = null;
+
+    if (rawNetworkType) {
+        const matchingTarget = NETWORK_SHUTDOWN_TARGETS.find(target => target.id === rawNetworkType);
+
+        if (!matchingTarget) {
+            const completedAt = new Date().toISOString();
+
+            res.status(400).json({
+                requestedAt,
+                completedAt,
+                overallStatus: 'error',
+                error: 'Tipe jaringan tidak dikenal.',
+                code: 'unknown_network_type',
+            });
+
+            return;
+        }
+
+        normalizedNetworkType = matchingTarget.id;
+        selectedTargets = [matchingTarget];
+    }
+
     const results = [];
 
     const dockerFailure = await ensureDockerAvailable();
     if (dockerFailure) {
-        for (const target of NETWORK_SHUTDOWN_TARGETS) {
+        for (const target of selectedTargets) {
             const failureResult = {
                 label: target.label,
                 networkDir: target.directory,
@@ -877,12 +905,13 @@ app.post('/api/shutdown-network', async (req, res) => {
             overallStatus: 'error',
             dependencyStatus: 'docker_unavailable',
             results,
+            networkType: normalizedNetworkType,
         });
 
         return;
     }
 
-    for (const target of NETWORK_SHUTDOWN_TARGETS) {
+    for (const target of selectedTargets) {
         const result = await executeNetworkShutdown(target);
         results.push(result);
     }
@@ -900,6 +929,7 @@ app.post('/api/shutdown-network', async (req, res) => {
         completedAt,
         overallStatus,
         results,
+        networkType: normalizedNetworkType,
     });
 });
 

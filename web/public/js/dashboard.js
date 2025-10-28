@@ -46,7 +46,7 @@ const networkStartupStatusDefaults = new Map();
 const networkStartupLabels = new Map();
 const networkCheckButton = document.getElementById('networkCheckButton');
 const networkCheckStatusEl = document.getElementById('networkCheckStatus');
-const networkShutdownButton = document.getElementById('networkShutdownButton');
+const networkShutdownButtons = Array.from(document.querySelectorAll('[data-network-shutdown-button]'));
 const networkShutdownStatusEl = document.getElementById('networkShutdownStatus');
 const networkHealthResultsContainer = document.getElementById('networkHealthResults');
 const networkBlockSummaryEl = document.getElementById('networkBlockSummary');
@@ -496,9 +496,27 @@ async function confirmSimulationCreation(count) {
     return window.confirm(`${title}\n\n${text}`);
 }
 
-async function confirmNetworkShutdown() {
-    const title = 'Matikan seluruh jaringan Fabric?';
-    const text = 'Perintah ini akan menjalankan ./network.sh down pada jaringan RAFT Standard dan RAFT Variant. Pastikan tidak ada operasi penting yang sedang berjalan sebelum melanjutkan.';
+async function confirmNetworkShutdown(networkType, networkLabel) {
+    const normalizedType = typeof networkType === 'string'
+        ? networkType.trim().toLowerCase()
+        : null;
+    const label = typeof networkLabel === 'string' && networkLabel.trim().length
+        ? networkLabel.trim()
+        : getNetworkStartupLabel(normalizedType);
+
+    let title = 'Matikan seluruh jaringan Fabric?';
+    let text = 'Perintah ini akan menjalankan ./network.sh down pada semua jaringan RAFT yang tersedia. Pastikan tidak ada operasi penting yang sedang berjalan sebelum melanjutkan.';
+    let confirmButtonText = 'Ya, matikan jaringan';
+
+    if (normalizedType === 'standard') {
+        title = `Matikan ${label}?`;
+        text = 'Perintah ini akan menjalankan ./network.sh down pada Jaringan RAFT Standard.';
+        confirmButtonText = 'Ya, matikan RAFT Standard';
+    } else if (normalizedType === 'variant') {
+        title = `Matikan ${label}?`;
+        text = 'Perintah ini akan menjalankan ./network.sh down pada Jaringan RAFT Variant.';
+        confirmButtonText = 'Ya, matikan RAFT Variant';
+    }
 
     if (isSwalAvailable()) {
         const result = await window.Swal.fire({
@@ -506,7 +524,7 @@ async function confirmNetworkShutdown() {
             title,
             text,
             showCancelButton: true,
-            confirmButtonText: 'Ya, matikan jaringan',
+            confirmButtonText,
             cancelButtonText: 'Batal',
             confirmButtonColor: SWAL_PRIMARY_COLOR,
             cancelButtonColor: SWAL_CANCEL_COLOR,
@@ -3744,6 +3762,8 @@ async function handleNetworkStartupButtonClick(event) {
     setActiveNetworkOperation(clientOperationId, 'startup');
     ensureNetworkOperationStream();
 
+    let shouldTriggerNetworkCheck = false;
+
     const originalContent = button.innerHTML;
     button.disabled = true;
     button.classList.add('cursor-not-allowed', 'opacity-60');
@@ -3811,6 +3831,7 @@ async function handleNetworkStartupButtonClick(event) {
             const successMessage = `${networkLabel} berhasil dijalankan.`;
             updateNetworkStartupStatus('success', successMessage, networkType);
             await showSuccessAlert(summaryText, { title: 'Jaringan siap digunakan' });
+            shouldTriggerNetworkCheck = true;
             return;
         }
 
@@ -3838,6 +3859,10 @@ async function handleNetworkStartupButtonClick(event) {
         button.disabled = false;
         button.classList.remove('cursor-not-allowed', 'opacity-60');
         button.innerHTML = originalContent;
+
+        if (shouldTriggerNetworkCheck) {
+            await triggerAutomaticNetworkCheck();
+        }
     }
 }
 
@@ -3898,6 +3923,14 @@ async function handleNetworkCheckButtonClick() {
     }
 }
 
+async function triggerAutomaticNetworkCheck() {
+    if (!networkCheckButton || networkCheckButton.disabled) {
+        return;
+    }
+
+    await handleNetworkCheckButtonClick();
+}
+
 if (networkStartupStatusElements.size > 0) {
     networkStartupStatusElements.forEach((_, type) => {
         updateNetworkStartupStatus('idle', getNetworkStartupDefaultMessage(type), type);
@@ -3919,32 +3952,48 @@ if (networkCheckButton) {
     updateNetworkCheckStatus('idle', DEFAULT_NETWORK_STATUS_MESSAGE);
 }
 
-async function handleNetworkShutdownButtonClick() {
-    if (!networkShutdownButton) {
+async function handleNetworkShutdownButtonClick(event) {
+    const button = event?.currentTarget instanceof HTMLElement
+        ? event.currentTarget
+        : null;
+
+    if (!button) {
         return;
     }
 
-    const confirmed = await confirmNetworkShutdown();
+    const networkType = button?.dataset?.networkShutdownButton || null;
+    const networkLabel = button?.dataset?.networkLabel || getNetworkStartupLabel(networkType);
+
+    const confirmed = await confirmNetworkShutdown(networkType, networkLabel);
     if (!confirmed) {
-        updateNetworkShutdownStatus('idle', 'Perintah pemadaman jaringan dibatalkan.');
+        const cancelMessage = `Perintah pemadaman untuk ${networkLabel} dibatalkan.`;
+        updateNetworkShutdownStatus('idle', cancelMessage);
         return;
     }
 
-    const originalContent = networkShutdownButton.innerHTML;
-    networkShutdownButton.disabled = true;
-    networkShutdownButton.classList.add('cursor-not-allowed', 'opacity-60');
-    networkShutdownButton.innerHTML = '<span class="text-base animate-pulse">⏻</span><span>Mematikan...</span>';
+    let shouldTriggerNetworkCheck = false;
 
-    const shutdownLoadingMessage = 'Menjalankan perintah pemadaman jaringan...';
+    const originalContent = button.innerHTML;
+    button.disabled = true;
+    button.classList.add('cursor-not-allowed', 'opacity-60');
+    button.innerHTML = '<span class="text-base animate-pulse">⏻</span><span>Mematikan...</span>';
+
+    const shutdownLoadingMessage = networkLabel
+        ? `Menjalankan perintah pemadaman untuk ${networkLabel}...`
+        : 'Menjalankan perintah pemadaman jaringan...';
     showNetworkOperationOverlay('shutdown', shutdownLoadingMessage);
     updateNetworkShutdownStatus('loading', shutdownLoadingMessage);
 
     try {
+        const headers = {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+        };
+
         const response = await fetch('/api/shutdown-network', {
             method: 'POST',
-            headers: {
-                Accept: 'application/json',
-            },
+            headers,
+            body: JSON.stringify(networkType ? { networkType } : {}),
         });
 
         if (!response.ok) {
@@ -3958,40 +4007,62 @@ async function handleNetworkShutdownButtonClick() {
         const summaryText = summaryLines.join('\n');
 
         if (!results.length) {
-            updateNetworkShutdownStatus('error', 'Tidak ada jaringan yang ditemukan untuk dimatikan.');
-            await showErrorAlert(summaryText, { title: 'Perintah pemadaman gagal' });
+            const emptyMessage = networkLabel
+                ? `Tidak ada jaringan yang ditemukan untuk ${networkLabel}.`
+                : 'Tidak ada jaringan yang ditemukan untuk dimatikan.';
+            updateNetworkShutdownStatus('error', emptyMessage);
+            await showErrorAlert(summaryText || emptyMessage, { title: 'Perintah pemadaman gagal' });
             return;
         }
 
         if (successCount === results.length) {
-            updateNetworkShutdownStatus('success', 'Seluruh jaringan berhasil dimatikan.');
+            const successMessage = networkLabel
+                ? `${networkLabel} berhasil dimatikan.`
+                : 'Seluruh jaringan berhasil dimatikan.';
+            updateNetworkShutdownStatus('success', successMessage);
             await showSuccessAlert(summaryText, { title: 'Jaringan berhasil dimatikan' });
+            shouldTriggerNetworkCheck = true;
             return;
         }
 
         if (successCount > 0) {
-            updateNetworkShutdownStatus('error', 'Sebagian jaringan gagal dimatikan. Periksa detail pemberitahuan.');
+            const partialMessage = networkLabel
+                ? `Sebagian perintah pemadaman untuk ${networkLabel} gagal. Periksa detail pemberitahuan.`
+                : 'Sebagian jaringan gagal dimatikan. Periksa detail pemberitahuan.';
+            updateNetworkShutdownStatus('error', partialMessage);
             await showErrorAlert(summaryText, { title: 'Sebagian perintah gagal' });
             return;
         }
 
-        updateNetworkShutdownStatus('error', 'Perintah pemadaman jaringan gagal dijalankan.');
-        await showErrorAlert(summaryText || 'Perintah pemadaman jaringan gagal dijalankan.');
+        const failureMessage = networkLabel
+            ? `Perintah pemadaman untuk ${networkLabel} gagal dijalankan.`
+            : 'Perintah pemadaman jaringan gagal dijalankan.';
+        updateNetworkShutdownStatus('error', failureMessage);
+        await showErrorAlert(summaryText || failureMessage);
     } catch (error) {
         console.error('Gagal mematikan jaringan Fabric:', error);
-        updateNetworkShutdownStatus('error', 'Perintah pemadaman jaringan gagal. Periksa log server.');
+        const failureMessage = networkLabel
+            ? `Perintah pemadaman untuk ${networkLabel} gagal. Periksa log server.`
+            : 'Perintah pemadaman jaringan gagal. Periksa log server.';
+        updateNetworkShutdownStatus('error', failureMessage);
         await showErrorAlert('Gagal menjalankan perintah pemadaman jaringan. Periksa log server untuk detailnya.');
     } finally {
         hideNetworkOperationOverlay();
-        networkShutdownButton.disabled = false;
-        networkShutdownButton.classList.remove('cursor-not-allowed', 'opacity-60');
-        networkShutdownButton.innerHTML = originalContent;
+        button.disabled = false;
+        button.classList.remove('cursor-not-allowed', 'opacity-60');
+        button.innerHTML = originalContent;
+
+        if (shouldTriggerNetworkCheck) {
+            await triggerAutomaticNetworkCheck();
+        }
     }
 }
 
-if (networkShutdownButton) {
+if (networkShutdownButtons.length > 0) {
     updateNetworkShutdownStatus('idle', DEFAULT_NETWORK_SHUTDOWN_STATUS_MESSAGE);
-    networkShutdownButton.addEventListener('click', handleNetworkShutdownButtonClick);
+    networkShutdownButtons.forEach(button => {
+        button.addEventListener('click', handleNetworkShutdownButtonClick);
+    });
 } else {
     updateNetworkShutdownStatus('idle', DEFAULT_NETWORK_SHUTDOWN_STATUS_MESSAGE);
 }

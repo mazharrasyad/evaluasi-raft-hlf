@@ -139,13 +139,13 @@ startDockerContainer() {
     infoln "Starting the Chaincode-as-a-Service docker container..."
     set -x
     ${CONTAINER_CLI} run --rm -d --name peer0org1_${CC_NAME}_ccaas  \
-                  --network fabric_test \
+                  --network fabric_raft_variant \
                   -e CHAINCODE_SERVER_ADDRESS=0.0.0.0:${CCAAS_SERVER_PORT} \
                   -e CHAINCODE_ID=$PACKAGE_ID -e CORE_CHAINCODE_ID_NAME=$PACKAGE_ID \
                     ${CC_NAME}_ccaas_image:latest
 
     ${CONTAINER_CLI} run  --rm -d --name peer0org2_${CC_NAME}_ccaas \
-                  --network fabric_test \
+                  --network fabric_raft_variant \
                   -e CHAINCODE_SERVER_ADDRESS=0.0.0.0:${CCAAS_SERVER_PORT} \
                   -e CHAINCODE_ID=$PACKAGE_ID -e CORE_CHAINCODE_ID_NAME=$PACKAGE_ID \
                     ${CC_NAME}_ccaas_image:latest
@@ -158,12 +158,12 @@ startDockerContainer() {
   
     infoln "Not starting docker containers; these are the commands we would have run"
     infoln "    ${CONTAINER_CLI} run --rm -d --name peer0org1_${CC_NAME}_ccaas  \
-                  --network fabric_test \
+                  --network fabric_raft_variant \
                   -e CHAINCODE_SERVER_ADDRESS=0.0.0.0:${CCAAS_SERVER_PORT} \
                   -e CHAINCODE_ID=$PACKAGE_ID -e CORE_CHAINCODE_ID_NAME=$PACKAGE_ID \
                     ${CC_NAME}_ccaas_image:latest"
     infoln "    ${CONTAINER_CLI} run --rm -d --name peer0org2_${CC_NAME}_ccaas  \
-                  --network fabric_test \
+                  --network fabric_raft_variant \
                   -e CHAINCODE_SERVER_ADDRESS=0.0.0.0:${CCAAS_SERVER_PORT} \
                   -e CHAINCODE_ID=$PACKAGE_ID -e CORE_CHAINCODE_ID_NAME=$PACKAGE_ID \
                     ${CC_NAME}_ccaas_image:latest"

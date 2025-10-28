@@ -7,7 +7,7 @@ version: '3.7'
 
 networks:
   test:
-    name: fabric_raft_standard
+    name: fabric_raft_standard_net
 
 services:
 

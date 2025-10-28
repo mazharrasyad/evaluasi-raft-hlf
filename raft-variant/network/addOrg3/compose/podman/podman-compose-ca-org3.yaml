@@ -14,6 +14,7 @@ services:
     image: hyperledger/fabric-ca:latest
     labels:
       service: hyperledger-fabric
+      raft-network: raft-variant
     environment:
       - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
       - FABRIC_CA_SERVER_CA_NAME=ca-org3
@@ -24,4 +25,4 @@ services:
     command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
     volumes:
       - ../fabric-ca/org3:/etc/hyperledger/fabric-ca-server
-    container_name: ca_org3
+    hostname: ca_org3

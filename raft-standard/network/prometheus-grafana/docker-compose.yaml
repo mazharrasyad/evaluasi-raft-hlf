@@ -8,6 +8,8 @@ services:
   prometheus:
     image: prom/prometheus:v2.32.1
     container_name: prometheus
+    labels:
+      raft-network: raft-standard
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus_data:/prometheus
@@ -22,6 +24,8 @@ services:
   grafana:
     image: grafana/grafana:8.3.4
     container_name: grafana
+    labels:
+      raft-network: raft-standard
     user: "104"
     depends_on:
       - prometheus
@@ -38,6 +42,8 @@ services:
     image: google/cadvisor:latest # gcr.io/cadvisor/cadvisor:latest for ios
     privileged: true
     container_name: cadvisor
+    labels:
+      raft-network: raft-standard
     volumes:
       - /var/run:/var/run:rw
       - /sys:/sys:ro
@@ -50,6 +56,8 @@ services:
   node-exporter:
     image: prom/node-exporter:v1.3.1
     container_name: node-exporter
+    labels:
+      raft-network: raft-standard
     volumes:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro

@@ -15,10 +15,11 @@ networks:
 services:
 
   peer0.org3.example.com:
-    container_name: peer0.org3.example.com
+    hostname: peer0.org3.example.com
     image: hyperledger/fabric-peer:latest
     labels:
       service: hyperledger-fabric
+      raft-network: raft-variant
     environment:
       - FABRIC_CFG_PATH=/etc/hyperledger/peercfg
       #Generic peer variables

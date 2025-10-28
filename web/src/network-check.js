@@ -14,8 +14,8 @@ const __dirname = path.dirname(__filename);
 const mspId = 'Org1MSP';
 const mspUser = 'User1@org1.example.com';
 const chaincodeName = 'pelaporan';
-const standardNetworkDir = path.resolve(__dirname, '../../raft-standard/network');
-const variantNetworkDir = path.resolve(__dirname, '../../raft-variant/network');
+const standardNetworkDir = path.resolve(__dirname, '../../fabric-2/raft-standard/network');
+const variantNetworkDir = path.resolve(__dirname, '../../fabric-2/raft-variant/network');
 
 const networkConfigurations = [
     {

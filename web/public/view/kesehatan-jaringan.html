@@ -70,114 +70,134 @@
                                     <p class="text-xs text-textdark/50">Pastikan jaringan Hyperledger Fabric telah dijalankan sebelum memulai pemeriksaan.</p>
                                 </div>
                                 <div class="grid gap-4 md:grid-cols-2">
-                                    <article class="flex flex-col gap-3 rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6 shadow-lg shadow-black/20">
+                                    <article class="flex flex-col gap-4 rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6 shadow-lg shadow-black/20">
                                         <header class="flex items-center justify-between">
                                             <div>
-                                                <p class="text-xs uppercase tracking-[0.3em] text-emerald-300">Tindakan jaringan</p>
-                                                <h2 class="text-lg font-semibold text-textdark">Hidupkan RAFT Standard</h2>
+                                                <p class="text-xs uppercase tracking-[0.3em] text-emerald-300">Network actions</p>
+                                                <h2 class="text-lg font-semibold text-textdark">Start RAFT Networks</h2>
                                             </div>
                                             <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-300">⚡</span>
                                         </header>
-                                        <p class="text-sm text-textdark/70">Jalankan skrip <code>network.sh</code> untuk menyalakan jaringan RAFT Standard.</p>
-                                        <div class="flex flex-col gap-3">
-                                            <button
-                                                type="button"
-                                                class="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-500/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-emerald-500/40 transition duration-200 hover:-translate-y-0.5 hover:bg-emerald-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
-                                                data-network-startup-button="standard"
-                                                data-network-label="Jaringan RAFT Standard"
-                                            >
-                                                <span>Hidupkan RAFT Standard</span>
-                                            </button>
-                                            <p
-                                                class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 py-2 text-xs font-medium text-textdark/80"
-                                                role="status"
-                                                aria-live="polite"
-                                                data-network-startup-status="standard"
-                                                data-network-label="Jaringan RAFT Standard"
-                                            >
-                                                <span data-indicator class="h-2 w-2 rounded-full bg-secondary"></span>
-                                                <span data-message>Belum ada perintah penyalaan untuk Jaringan RAFT Standard.</span>
-                                            </p>
-                                        </div>
-                                    </article>
-                                    <article class="flex flex-col gap-3 rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6 shadow-lg shadow-black/20">
-                                        <header class="flex items-center justify-between">
-                                            <div>
-                                                <p class="text-xs uppercase tracking-[0.3em] text-emerald-200">Tindakan jaringan</p>
-                                                <h2 class="text-lg font-semibold text-textdark">Hidupkan RAFT Variant</h2>
+                                        <p class="text-sm text-textdark/70">Run the <code>network.sh</code> helpers to boot either RAFT network.</p>
+                                        <div class="space-y-4">
+                                            <div class="flex flex-col gap-3">
+                                                <button
+                                                    type="button"
+                                                    class="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-500/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-emerald-500/40 transition duration-200 hover:-translate-y-0.5 hover:bg-emerald-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
+                                                    data-network-startup-button="standard"
+                                                    data-network-label="RAFT Standard Network"
+                                                >
+                                                    <span>Start RAFT Standard</span>
+                                                </button>
+                                                <p
+                                                    class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 py-2 text-xs font-medium text-textdark/80"
+                                                    role="status"
+                                                    aria-live="polite"
+                                                    data-network-startup-status="standard"
+                                                    data-network-label="RAFT Standard Network"
+                                                >
+                                                    <span data-indicator class="h-2 w-2 rounded-full bg-secondary"></span>
+                                                    <span data-message>No startup command has been executed for the RAFT Standard network yet.</span>
+                                                </p>
                                             </div>
-                                            <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-400/10 text-emerald-200">⚡</span>
-                                        </header>
-                                        <p class="text-sm text-textdark/70">Jalankan skrip <code>network.sh</code> untuk menyalakan jaringan RAFT Variant.</p>
-                                        <div class="flex flex-col gap-3">
-                                            <button
-                                                type="button"
-                                                class="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-400/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-emerald-400/40 transition duration-200 hover:-translate-y-0.5 hover:bg-emerald-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300"
-                                                data-network-startup-button="variant"
-                                                data-network-label="Jaringan RAFT Variant"
-                                            >
-                                                <span>Hidupkan RAFT Variant</span>
-                                            </button>
-                                            <p
-                                                class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 py-2 text-xs font-medium text-textdark/80"
-                                                role="status"
-                                                aria-live="polite"
-                                                data-network-startup-status="variant"
-                                                data-network-label="Jaringan RAFT Variant"
-                                            >
-                                                <span data-indicator class="h-2 w-2 rounded-full bg-secondary"></span>
-                                                <span data-message>Belum ada perintah penyalaan untuk Jaringan RAFT Variant.</span>
-                                            </p>
-                                        </div>
-                                    </article>
-                                    <article class="flex flex-col gap-3 rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6 shadow-lg shadow-black/20">
-                                        <header class="flex items-center justify-between">
-                                            <div>
-                                                <p class="text-xs uppercase tracking-[0.3em] text-secondary">Tindakan jaringan</p>
-                                                <h2 class="text-lg font-semibold text-textdark">Periksa Jaringan</h2>
+                                            <div class="flex flex-col gap-3">
+                                                <button
+                                                    type="button"
+                                                    class="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-400/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-emerald-400/40 transition duration-200 hover:-translate-y-0.5 hover:bg-emerald-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300"
+                                                    data-network-startup-button="variant"
+                                                    data-network-label="RAFT Variant Network"
+                                                >
+                                                    <span>Start RAFT Variant</span>
+                                                </button>
+                                                <p
+                                                    class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 py-2 text-xs font-medium text-textdark/80"
+                                                    role="status"
+                                                    aria-live="polite"
+                                                    data-network-startup-status="variant"
+                                                    data-network-label="RAFT Variant Network"
+                                                >
+                                                    <span data-indicator class="h-2 w-2 rounded-full bg-secondary"></span>
+                                                    <span data-message>No startup command has been executed for the RAFT Variant network yet.</span>
+                                                </p>
                                             </div>
-                                            <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-secondary/20 text-secondary">⟳</span>
-                                        </header>
-                                        <p class="text-sm text-textdark/70">Jalankan pemeriksaan kesehatan jaringan RAFT secara otomatis.</p>
-                                        <div class="flex flex-col gap-3">
-                                            <button type="button" id="networkCheckButton" class="inline-flex items-center justify-center gap-2 rounded-lg bg-secondary/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-textdark shadow-lg shadow-secondary/40 transition duration-200 hover:-translate-y-0.5 hover:bg-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary">
-                                                <span>Periksa Jaringan</span>
-                                            </button>
-                                            <p id="networkCheckStatus" class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 py-2 text-xs font-medium text-textdark/80" role="status" aria-live="polite">
-                                                <span data-indicator class="h-2 w-2 rounded-full bg-secondary"></span>
-                                                <span data-message>Belum ada pemeriksaan yang dijalankan.</span>
-                                            </p>
                                         </div>
                                     </article>
-                                    <article class="flex flex-col gap-3 rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6 shadow-lg shadow-black/20">
+                                    <article class="flex flex-col gap-4 rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6 shadow-lg shadow-black/20">
                                         <header class="flex items-center justify-between">
                                             <div>
-                                                <p class="text-xs uppercase tracking-[0.3em] text-rose-300">Tindakan jaringan</p>
-                                                <h2 class="text-lg font-semibold text-textdark">Matikan Jaringan</h2>
+                                                <p class="text-xs uppercase tracking-[0.3em] text-rose-300">Network actions</p>
+                                                <h2 class="text-lg font-semibold text-textdark">Stop RAFT Networks</h2>
                                             </div>
                                             <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-rose-500/10 text-rose-400">⏻</span>
                                         </header>
-                                        <p class="text-sm text-textdark/70">Pilih jaringan RAFT yang ingin dimatikan secara terpisah.</p>
+                                        <p class="text-sm text-textdark/70">Choose which RAFT network to shut down.</p>
                                         <div class="flex flex-col gap-3">
                                             <button
                                                 type="button"
                                                 data-network-shutdown-button="standard"
-                                                data-network-label="Jaringan RAFT Standard"
+                                                data-network-label="RAFT Standard Network"
                                                 class="inline-flex items-center justify-center gap-2 rounded-lg bg-rose-500/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-rose-500/40 transition duration-200 hover:-translate-y-0.5 hover:bg-rose-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-400"
                                             >
-                                                <span>Matikan RAFT Standard</span>
+                                                <span>Stop RAFT Standard</span>
                                             </button>
                                             <button
                                                 type="button"
                                                 data-network-shutdown-button="variant"
-                                                data-network-label="Jaringan RAFT Variant"
+                                                data-network-label="RAFT Variant Network"
                                                 class="inline-flex items-center justify-center gap-2 rounded-lg bg-rose-500/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-rose-500/40 transition duration-200 hover:-translate-y-0.5 hover:bg-rose-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-400"
                                             >
-                                                <span>Matikan RAFT Variant</span>
+                                                <span>Stop RAFT Variant</span>
                                             </button>
                                             <p id="networkShutdownStatus" class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 py-2 text-xs font-medium text-textdark/80" role="status" aria-live="polite">
                                                 <span data-indicator class="h-2 w-2 rounded-full bg-secondary"></span>
-                                                <span data-message>Belum ada perintah pemadaman jaringan yang dijalankan.</span>
+                                                <span data-message>No shutdown command has been executed yet.</span>
+                                            </p>
+                                        </div>
+                                    </article>
+                                    <article class="flex flex-col gap-4 rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6 shadow-lg shadow-black/20">
+                                        <header class="flex items-center justify-between">
+                                            <div>
+                                                <p class="text-xs uppercase tracking-[0.3em] text-secondary">Network actions</p>
+                                                <h2 class="text-lg font-semibold text-textdark">Check RAFT Networks</h2>
+                                            </div>
+                                        <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-secondary/20 text-secondary">⟳</span>
+                                        </header>
+                                        <p class="text-sm text-textdark/70">Run a health check across both RAFT environments.</p>
+                                        <div class="flex flex-col gap-3">
+                                            <button type="button" id="networkCheckButton" class="inline-flex items-center justify-center gap-2 rounded-lg bg-secondary/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-textdark shadow-lg shadow-secondary/40 transition duration-200 hover:-translate-y-0.5 hover:bg-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary">
+                                                <span>Check network</span>
+                                            </button>
+                                            <p id="networkCheckStatus" class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 py-2 text-xs font-medium text-textdark/80" role="status" aria-live="polite">
+                                                <span data-indicator class="h-2 w-2 rounded-full bg-secondary"></span>
+                                                <span data-message>No network check has been executed yet.</span>
+                                            </p>
+                                        </div>
+                                    </article>
+                                    <article class="flex flex-col gap-4 rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6 shadow-lg shadow-black/20">
+                                        <header class="flex items-center justify-between">
+                                            <div>
+                                                <p class="text-xs uppercase tracking-[0.3em] text-sky-300">Network actions</p>
+                                                <h2 class="text-lg font-semibold text-textdark">Restart RAFT Networks</h2>
+                                            </div>
+                                            <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-sky-500/10 text-sky-300">⟳</span>
+                                        </header>
+                                        <p class="text-sm text-textdark/70">Shut down every RAFT network and immediately start the Standard and Variant clusters.</p>
+                                        <div class="flex flex-col gap-3">
+                                            <button
+                                                type="button"
+                                                id="networkRestartButton"
+                                                class="inline-flex items-center justify-center gap-2 rounded-lg bg-sky-500/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-sky-500/40 transition duration-200 hover:-translate-y-0.5 hover:bg-sky-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400"
+                                            >
+                                                <span>Restart RAFT Networks</span>
+                                            </button>
+                                            <p
+                                                id="networkRestartStatus"
+                                                class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 py-2 text-xs font-medium text-textdark/80"
+                                                role="status"
+                                                aria-live="polite"
+                                            >
+                                                <span data-indicator class="h-2 w-2 rounded-full bg-secondary"></span>
+                                                <span data-message>No restart command has been executed yet.</span>
                                             </p>
                                         </div>
                                     </article>

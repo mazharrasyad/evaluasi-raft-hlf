@@ -1236,3 +1236,431 @@ Chaincode: pelaporan
 Peer: localhost:7051
 Pesan: Material kriptografi tidak ditemukan.
 
+[2025-10-28T08:22:20.356Z] Pemeriksaan jaringan: RAFT Standard
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Channel: channel-standard
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-28T08:22:20.360Z] Pemeriksaan jaringan: RAFT Variant
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-28T08:29:11.435Z] Pemeriksaan jaringan: RAFT Variant
+Status: unhealthy
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+Error: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+Stacktrace:
+GatewayError: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+    at newGatewayError (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/gatewayerror.js:54:12)
+    at Object.callback (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/client.js:102:60)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client.js:193:36)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:367:141)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:327:181)
+    at /root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/resolving-call.js:135:78
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+
+[2025-10-28T08:30:05.006Z] Pemeriksaan jaringan: RAFT Variant
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-28T08:31:14.408Z] Pemeriksaan jaringan: RAFT Standard
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Channel: channel-standard
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-28T08:31:14.436Z] Pemeriksaan jaringan: RAFT Variant
+Status: unhealthy
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: 14 UNAVAILABLE: No connection established. Last error: Error: connect ECONNREFUSED 127.0.0.1:7051. Resolution note: 
+Error: 14 UNAVAILABLE: No connection established. Last error: Error: connect ECONNREFUSED 127.0.0.1:7051. Resolution note: 
+Stacktrace:
+GatewayError: 14 UNAVAILABLE: No connection established. Last error: Error: connect ECONNREFUSED 127.0.0.1:7051. Resolution note: 
+    at newGatewayError (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/gatewayerror.js:54:12)
+    at Object.callback (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/client.js:102:60)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client.js:193:36)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:367:141)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:327:181)
+    at /root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/resolving-call.js:135:78
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+
+[2025-10-28T08:41:39.585Z] Pemeriksaan jaringan: RAFT Standard
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Channel: channel-standard
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-28T08:41:40.079Z] Pemeriksaan jaringan: RAFT Variant
+Status: unhealthy
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: 14 UNAVAILABLE: No connection established. Last error: Error: connect ECONNREFUSED 127.0.0.1:7051. Resolution note: 
+Error: 14 UNAVAILABLE: No connection established. Last error: Error: connect ECONNREFUSED 127.0.0.1:7051. Resolution note: 
+Stacktrace:
+GatewayError: 14 UNAVAILABLE: No connection established. Last error: Error: connect ECONNREFUSED 127.0.0.1:7051. Resolution note: 
+    at newGatewayError (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/gatewayerror.js:54:12)
+    at Object.callback (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/client.js:102:60)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client.js:193:36)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:367:141)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:327:181)
+    at /root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/resolving-call.js:135:78
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+
+[2025-10-28T08:41:43.210Z] Pemeriksaan jaringan: RAFT Standard
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Channel: channel-standard
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-28T08:41:43.249Z] Pemeriksaan jaringan: RAFT Variant
+Status: unhealthy
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: 14 UNAVAILABLE: No connection established. Last error: Error: connect ECONNREFUSED 127.0.0.1:7051. Resolution note: 
+Error: 14 UNAVAILABLE: No connection established. Last error: Error: connect ECONNREFUSED 127.0.0.1:7051. Resolution note: 
+Stacktrace:
+GatewayError: 14 UNAVAILABLE: No connection established. Last error: Error: connect ECONNREFUSED 127.0.0.1:7051. Resolution note: 
+    at newGatewayError (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/gatewayerror.js:54:12)
+    at Object.callback (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/client.js:102:60)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client.js:193:36)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:367:141)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:327:181)
+    at /root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/resolving-call.js:135:78
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+
+[2025-10-28T08:41:48.563Z] Pemeriksaan jaringan: RAFT Standard
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Channel: channel-standard
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-28T08:41:48.577Z] Pemeriksaan jaringan: RAFT Variant
+Status: unhealthy
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: 14 UNAVAILABLE: No connection established. Last error: Error: connect ECONNREFUSED 127.0.0.1:7051. Resolution note: 
+Error: 14 UNAVAILABLE: No connection established. Last error: Error: connect ECONNREFUSED 127.0.0.1:7051. Resolution note: 
+Stacktrace:
+GatewayError: 14 UNAVAILABLE: No connection established. Last error: Error: connect ECONNREFUSED 127.0.0.1:7051. Resolution note: 
+    at newGatewayError (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/gatewayerror.js:54:12)
+    at Object.callback (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/client.js:102:60)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client.js:193:36)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:367:141)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:327:181)
+    at /root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/resolving-call.js:135:78
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+
+[2025-10-28T08:41:49.227Z] Pemeriksaan jaringan: RAFT Standard
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Channel: channel-standard
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-28T08:41:49.238Z] Pemeriksaan jaringan: RAFT Variant
+Status: unhealthy
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: 14 UNAVAILABLE: No connection established. Last error: Error: connect ECONNREFUSED 127.0.0.1:7051. Resolution note: 
+Error: 14 UNAVAILABLE: No connection established. Last error: Error: connect ECONNREFUSED 127.0.0.1:7051. Resolution note: 
+Stacktrace:
+GatewayError: 14 UNAVAILABLE: No connection established. Last error: Error: connect ECONNREFUSED 127.0.0.1:7051. Resolution note: 
+    at newGatewayError (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/gatewayerror.js:54:12)
+    at Object.callback (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/client.js:102:60)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client.js:193:36)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:367:141)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:327:181)
+    at /root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/resolving-call.js:135:78
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+
+[2025-10-28T08:41:49.690Z] Pemeriksaan jaringan: RAFT Standard
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Channel: channel-standard
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-28T08:41:49.705Z] Pemeriksaan jaringan: RAFT Variant
+Status: unhealthy
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: 14 UNAVAILABLE: No connection established. Last error: Error: connect ECONNREFUSED 127.0.0.1:7051. Resolution note: 
+Error: 14 UNAVAILABLE: No connection established. Last error: Error: connect ECONNREFUSED 127.0.0.1:7051. Resolution note: 
+Stacktrace:
+GatewayError: 14 UNAVAILABLE: No connection established. Last error: Error: connect ECONNREFUSED 127.0.0.1:7051. Resolution note: 
+    at newGatewayError (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/gatewayerror.js:54:12)
+    at Object.callback (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/client.js:102:60)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client.js:193:36)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:367:141)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:327:181)
+    at /root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/resolving-call.js:135:78
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+
+[2025-10-28T08:41:50.010Z] Pemeriksaan jaringan: RAFT Standard
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Channel: channel-standard
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-28T08:41:50.022Z] Pemeriksaan jaringan: RAFT Variant
+Status: unhealthy
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: 14 UNAVAILABLE: No connection established. Last error: Error: connect ECONNREFUSED 127.0.0.1:7051. Resolution note: 
+Error: 14 UNAVAILABLE: No connection established. Last error: Error: connect ECONNREFUSED 127.0.0.1:7051. Resolution note: 
+Stacktrace:
+GatewayError: 14 UNAVAILABLE: No connection established. Last error: Error: connect ECONNREFUSED 127.0.0.1:7051. Resolution note: 
+    at newGatewayError (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/gatewayerror.js:54:12)
+    at Object.callback (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/client.js:102:60)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client.js:193:36)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:367:141)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:327:181)
+    at /root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/resolving-call.js:135:78
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+
+[2025-10-28T08:41:50.172Z] Pemeriksaan jaringan: RAFT Standard
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Channel: channel-standard
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-28T08:41:50.182Z] Pemeriksaan jaringan: RAFT Variant
+Status: unhealthy
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: 14 UNAVAILABLE: No connection established. Last error: Error: connect ECONNREFUSED 127.0.0.1:7051. Resolution note: 
+Error: 14 UNAVAILABLE: No connection established. Last error: Error: connect ECONNREFUSED 127.0.0.1:7051. Resolution note: 
+Stacktrace:
+GatewayError: 14 UNAVAILABLE: No connection established. Last error: Error: connect ECONNREFUSED 127.0.0.1:7051. Resolution note: 
+    at newGatewayError (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/gatewayerror.js:54:12)
+    at Object.callback (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/client.js:102:60)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client.js:193:36)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:367:141)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:327:181)
+    at /root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/resolving-call.js:135:78
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+
+[2025-10-28T08:42:16.202Z] Pemeriksaan jaringan: RAFT Standard
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Channel: channel-standard
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-28T08:42:16.534Z] Pemeriksaan jaringan: RAFT Variant
+Status: unhealthy
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: 14 UNAVAILABLE: No connection established. Last error: Error: connect ECONNREFUSED 127.0.0.1:7051. Resolution note: 
+Error: 14 UNAVAILABLE: No connection established. Last error: Error: connect ECONNREFUSED 127.0.0.1:7051. Resolution note: 
+Stacktrace:
+GatewayError: 14 UNAVAILABLE: No connection established. Last error: Error: connect ECONNREFUSED 127.0.0.1:7051. Resolution note: 
+    at newGatewayError (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/gatewayerror.js:54:12)
+    at Object.callback (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/client.js:102:60)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client.js:193:36)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:367:141)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:327:181)
+    at /root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/resolving-call.js:135:78
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+
+[2025-10-28T08:43:48.111Z] Pemeriksaan jaringan: RAFT Variant
+Status: unhealthy
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+Error: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+Stacktrace:
+GatewayError: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+    at newGatewayError (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/gatewayerror.js:54:12)
+    at Object.callback (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/client.js:102:60)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client.js:193:36)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:367:141)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:327:181)
+    at /root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/resolving-call.js:135:78
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+
+[2025-10-28T08:43:48.349Z] Pemeriksaan jaringan: RAFT Variant
+Status: unhealthy
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+Error: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+Stacktrace:
+GatewayError: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+    at newGatewayError (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/gatewayerror.js:54:12)
+    at Object.callback (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/client.js:102:60)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client.js:193:36)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:367:141)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:327:181)
+    at /root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/resolving-call.js:135:78
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+
+[2025-10-28T08:49:23.887Z] Pemeriksaan jaringan: RAFT Variant
+Status: unhealthy
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+Error: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+Stacktrace:
+GatewayError: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+    at newGatewayError (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/gatewayerror.js:54:12)
+    at Object.callback (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/client.js:102:60)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client.js:193:36)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:367:141)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:327:181)
+    at /root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/resolving-call.js:135:78
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+
+[2025-10-28T08:49:31.054Z] Pemeriksaan jaringan: RAFT Variant
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-28T08:50:13.331Z] Pemeriksaan jaringan: RAFT Variant
+Status: unhealthy
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+Error: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+Stacktrace:
+GatewayError: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+    at newGatewayError (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/gatewayerror.js:54:12)
+    at Object.callback (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/client.js:102:60)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client.js:193:36)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:367:141)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:327:181)
+    at /root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/resolving-call.js:135:78
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+
+[2025-10-28T08:50:14.883Z] Pemeriksaan jaringan: RAFT Variant
+Status: unhealthy
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+Error: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+Stacktrace:
+GatewayError: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+    at newGatewayError (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/gatewayerror.js:54:12)
+    at Object.callback (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/client.js:102:60)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client.js:193:36)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:367:141)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:327:181)
+    at /root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/resolving-call.js:135:78
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+
+[2025-10-28T08:51:21.593Z] Pemeriksaan jaringan: RAFT Variant
+Status: unhealthy
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+Error: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+Stacktrace:
+GatewayError: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+    at newGatewayError (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/gatewayerror.js:54:12)
+    at Object.callback (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/client.js:102:60)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client.js:193:36)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:367:141)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:327:181)
+    at /root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/resolving-call.js:135:78
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+
+[2025-10-28T08:51:36.721Z] Pemeriksaan jaringan: RAFT Variant
+Status: unhealthy
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+Error: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+Stacktrace:
+GatewayError: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+    at newGatewayError (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/gatewayerror.js:54:12)
+    at Object.callback (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/client.js:102:60)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client.js:193:36)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:367:141)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:327:181)
+    at /root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/resolving-call.js:135:78
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+
+[2025-10-28T08:56:16.307Z] Pemeriksaan jaringan: RAFT Variant
+Status: unhealthy
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+Error: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+Stacktrace:
+GatewayError: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+    at newGatewayError (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/gatewayerror.js:54:12)
+    at Object.callback (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/client.js:102:60)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client.js:193:36)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:367:141)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:327:181)
+    at /root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/resolving-call.js:135:78
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+

@@ -20,7 +20,6 @@ const hierarchyBreadcrumbEl = document.getElementById('hierarchyBreadcrumb');
 const hierarchyBackButton = document.getElementById('hierarchyBackButton');
 const totalReportsEl = document.getElementById('totalReports');
 const simulationForm = document.getElementById('simulationForm');
-const simulationCountInput = document.getElementById('simulationCount');
 const simulationStatusEl = document.getElementById('simulationStatus');
 const simulationStatusIndicator = simulationStatusEl
     ? simulationStatusEl.querySelector('[data-status-indicator]')
@@ -2854,14 +2853,10 @@ function setButtonState(button, disabled) {
 
 function disableSimulationControlsForProcessing() {
     const previousState = {
-        inputDisabled: simulationCountInput ? simulationCountInput.disabled : false,
         submitDisabled: simulationSubmitButton ? simulationSubmitButton.disabled : false,
         clearDisabled: clearSimulationButton ? clearSimulationButton.disabled : false,
     };
 
-    if (simulationCountInput) {
-        simulationCountInput.disabled = true;
-    }
     setButtonState(simulationSubmitButton, true);
     setButtonState(clearSimulationButton, true);
 
@@ -2873,9 +2868,6 @@ function restoreSimulationControls(previousState) {
         return;
     }
 
-    if (simulationCountInput) {
-        simulationCountInput.disabled = !!previousState.inputDisabled;
-    }
     setButtonState(simulationSubmitButton, !!previousState.submitDisabled);
     setButtonState(clearSimulationButton, !!previousState.clearDisabled);
 }
@@ -3657,19 +3649,13 @@ async function handleSimulationSubmit(event) {
         return;
     }
 
-    if (!simulationCountInput) {
-        return;
-    }
-
     if (!wilayahDataset || !wilayahDataset.subdistricts.length) {
         updateSimulationStatus('Dataset wilayah belum siap. Tidak dapat membuat data simulasi.', 'error');
         await showErrorAlert('Dataset wilayah belum siap. Tidak dapat membuat data simulasi.');
         return;
     }
 
-    const requested = Number(simulationCountInput.value);
-    const count = Number.isFinite(requested) ? Math.min(Math.max(Math.floor(requested), 1), 1000) : 1;
-    simulationCountInput.value = String(count);
+    const count = 5;
 
     const confirmed = await confirmSimulationCreation(count);
     if (!confirmed) {
@@ -4067,18 +4053,13 @@ async function initialize() {
     ensureEvaluationSectionInitialized();
     resetEvaluationStats();
 
-    if (simulationCountInput) {
-        simulationCountInput.disabled = true;
-    }
-
     updateSimulationStatus('Dataset wilayah sedang dimuat, harap tunggu.', 'info');
 
     try {
         wilayahDataset = await loadWilayahDataset();
         updateSimulationStatus('Dataset wilayah siap digunakan untuk simulasi.', 'success');
-        if (simulationCountInput) {
-            simulationCountInput.disabled = false;
-            simulationCountInput.focus();
+        if (simulationSubmitButton) {
+            simulationSubmitButton.focus();
         }
     } catch (error) {
         console.error('Gagal memuat dataset wilayah:', error);

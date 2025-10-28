@@ -15,10 +15,11 @@ networks:
 services:
 
   orderer.example.com:
-    container_name: orderer.example.com
+    hostname: orderer.example.com
     image: hyperledger/fabric-orderer:latest
     labels:
       service: hyperledger-fabric
+      raft-network: raft-variant
     environment:
       - FABRIC_LOGGING_SPEC=INFO
       - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
@@ -57,10 +58,11 @@ services:
       - test
 
   orderer2.example.com:
-    container_name: orderer2.example.com
+    hostname: orderer2.example.com
     image: hyperledger/fabric-orderer:latest
     labels:
       service: hyperledger-fabric
+      raft-network: raft-variant
     environment:
       - FABRIC_LOGGING_SPEC=INFO
       - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
@@ -99,10 +101,11 @@ services:
       - test
 
   orderer3.example.com:
-    container_name: orderer3.example.com
+    hostname: orderer3.example.com
     image: hyperledger/fabric-orderer:latest
     labels:
       service: hyperledger-fabric
+      raft-network: raft-variant
     environment:
       - FABRIC_LOGGING_SPEC=INFO
       - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
@@ -141,10 +144,11 @@ services:
       - test
 
   orderer4.example.com:
-    container_name: orderer4.example.com
+    hostname: orderer4.example.com
     image: hyperledger/fabric-orderer:latest
     labels:
       service: hyperledger-fabric
+      raft-network: raft-variant
     environment:
       - FABRIC_LOGGING_SPEC=INFO
       - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
@@ -186,10 +190,11 @@ services:
 
 
   peer0.org1.example.com:
-    container_name: peer0.org1.example.com
+    hostname: peer0.org1.example.com
     image: hyperledger/fabric-peer:latest
     labels:
       service: hyperledger-fabric
+      raft-network: raft-variant
     environment:
       - FABRIC_CFG_PATH=/etc/hyperledger/peercfg
       - FABRIC_LOGGING_SPEC=INFO
@@ -225,10 +230,11 @@ services:
       - test
 
   peer0.org2.example.com:
-    container_name: peer0.org2.example.com
+    hostname: peer0.org2.example.com
     image: hyperledger/fabric-peer:latest
     labels:
       service: hyperledger-fabric
+      raft-network: raft-variant
     environment:
       - FABRIC_CFG_PATH=/etc/hyperledger/peercfg
       - FABRIC_LOGGING_SPEC=INFO

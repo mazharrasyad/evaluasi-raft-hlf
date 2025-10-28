@@ -65,4 +65,4 @@ services:
 networks:
   default:
       external: true
-      name: fabric_raft_standard
+      name: fabric_raft_standard_net

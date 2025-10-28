@@ -10,7 +10,7 @@ volumes:
 
 networks:
   test:
-    name: fabric_test
+    name: fabric_raft_standard
 
 services:
 

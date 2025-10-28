@@ -48,6 +48,8 @@ const networkCheckButton = document.getElementById('networkCheckButton');
 const networkCheckStatusEl = document.getElementById('networkCheckStatus');
 const networkShutdownButtons = Array.from(document.querySelectorAll('[data-network-shutdown-button]'));
 const networkShutdownStatusEl = document.getElementById('networkShutdownStatus');
+const networkRestartButton = document.getElementById('networkRestartButton');
+const networkRestartStatusEl = document.getElementById('networkRestartStatus');
 const networkHealthResultsContainer = document.getElementById('networkHealthResults');
 const networkBlockSummaryEl = document.getElementById('networkBlockSummary');
 const networkHealthSummaryEl = document.getElementById('networkHealthSummary');
@@ -325,8 +327,8 @@ let networkOperationOverlayMode = null;
 
 if (networkOperationLogEmpty) {
     networkOperationLogEmpty.textContent = supportsNetworkOperationStreaming
-        ? 'Log perintah akan muncul di sini.'
-        : 'Streaming log tidak tersedia di browser ini.';
+        ? 'Command output will appear here.'
+        : 'Streaming logs are not available in this browser.';
 }
 
 if (supportsNetworkOperationStreaming) {
@@ -377,45 +379,46 @@ const decimalFormatter = new Intl.NumberFormat('id-ID', {
 
 const SWAL_PRIMARY_COLOR = '#38BDF8';
 const SWAL_CANCEL_COLOR = '#64748B';
-const DEFAULT_NETWORK_START_STATUS_MESSAGE = 'Belum ada perintah penyalaan jaringan yang dijalankan.';
-const DEFAULT_NETWORK_STATUS_MESSAGE = 'Belum ada pemeriksaan yang dijalankan.';
-const DEFAULT_NETWORK_SHUTDOWN_STATUS_MESSAGE = 'Belum ada perintah pemadaman jaringan yang dijalankan.';
+const DEFAULT_NETWORK_START_STATUS_MESSAGE = 'No startup command has been executed yet.';
+const DEFAULT_NETWORK_STATUS_MESSAGE = 'No network check has been executed yet.';
+const DEFAULT_NETWORK_SHUTDOWN_STATUS_MESSAGE = 'No shutdown command has been executed yet.';
+const DEFAULT_NETWORK_RESTART_STATUS_MESSAGE = 'No restart command has been executed yet.';
 
 const NETWORK_STATUS_META = {
     healthy: {
-        label: 'Jaringan sehat',
+        label: 'Network healthy',
         icon: '✅',
-        description: 'Jaringan siap digunakan.',
+        description: 'The network is ready for use.',
         badgeClass: 'border-emerald-400/40 bg-emerald-500/10 text-emerald-300',
     },
     unhealthy: {
-        label: 'Tidak merespons',
+        label: 'No response',
         icon: '❌',
-        description: 'Jaringan tidak dapat diakses atau chaincode gagal merespons.',
+        description: 'The network is unreachable or the chaincode failed to respond.',
         badgeClass: 'border-rose-400/40 bg-rose-500/10 text-rose-300',
     },
     not_found: {
-        label: 'Direktori belum tersedia',
+        label: 'Directory unavailable',
         icon: '⚠️',
-        description: 'Direktori jaringan tidak ditemukan pada server.',
+        description: 'The network directory was not found on the server.',
         badgeClass: 'border-amber-400/40 bg-amber-500/10 text-amber-300',
     },
     incomplete: {
-        label: 'Material belum lengkap',
+        label: 'Material incomplete',
         icon: '⚠️',
-        description: 'Material kriptografi belum lengkap.',
+        description: 'Cryptographic material is incomplete.',
         badgeClass: 'border-amber-400/40 bg-amber-500/10 text-amber-300',
     },
     error: {
-        label: 'Pemeriksaan gagal',
+        label: 'Check failed',
         icon: '❌',
-        description: 'Pemeriksaan jaringan tidak dapat dijalankan.',
+        description: 'The network check could not be completed.',
         badgeClass: 'border-rose-400/40 bg-rose-500/10 text-rose-300',
     },
     unknown: {
-        label: 'Status tidak diketahui',
+        label: 'Status unknown',
         icon: 'ℹ️',
-        description: 'Status jaringan tidak dapat ditentukan.',
+        description: 'The network status could not be determined.',
         badgeClass: 'border-slate-400/40 bg-slate-500/10 text-slate-300',
     },
 };
@@ -434,7 +437,7 @@ document.querySelectorAll('[data-network-startup-status]').forEach(element => {
     }
 
     const defaultMessage = element?.dataset?.defaultMessage
-        || (label ? `Belum ada perintah penyalaan untuk ${label}.` : DEFAULT_NETWORK_START_STATUS_MESSAGE);
+        || (label ? `No startup command has been executed for ${label}.` : DEFAULT_NETWORK_START_STATUS_MESSAGE);
 
     networkStartupStatusDefaults.set(type, defaultMessage);
 });
@@ -655,7 +658,7 @@ function isSwalAvailable() {
         && typeof window.Swal.fire === 'function';
 }
 
-async function showInfoAlert(message, { title = 'Informasi', confirmText = 'Mengerti' } = {}) {
+async function showInfoAlert(message, { title = 'Information', confirmText = 'Understood' } = {}) {
     if (isSwalAvailable()) {
         await window.Swal.fire({
             icon: 'info',
@@ -670,7 +673,7 @@ async function showInfoAlert(message, { title = 'Informasi', confirmText = 'Meng
     window.alert([title, message].filter(Boolean).join('\n\n'));
 }
 
-async function showSuccessAlert(message, { title = 'Berhasil', confirmText = 'Baik' } = {}) {
+async function showSuccessAlert(message, { title = 'Success', confirmText = 'OK' } = {}) {
     if (isSwalAvailable()) {
         await window.Swal.fire({
             icon: 'success',
@@ -685,7 +688,7 @@ async function showSuccessAlert(message, { title = 'Berhasil', confirmText = 'Ba
     window.alert([title, message].filter(Boolean).join('\n\n'));
 }
 
-async function showErrorAlert(message, { title = 'Gagal', confirmText = 'Mengerti' } = {}) {
+async function showErrorAlert(message, { title = 'Error', confirmText = 'Understood' } = {}) {
     if (isSwalAvailable()) {
         await window.Swal.fire({
             icon: 'error',
@@ -731,18 +734,18 @@ async function confirmNetworkShutdown(networkType, networkLabel) {
         ? networkLabel.trim()
         : getNetworkStartupLabel(normalizedType);
 
-    let title = 'Matikan seluruh jaringan Fabric?';
-    let text = 'Perintah ini akan menjalankan ./network.sh down pada semua jaringan RAFT yang tersedia. Pastikan tidak ada operasi penting yang sedang berjalan sebelum melanjutkan.';
-    let confirmButtonText = 'Ya, matikan jaringan';
+    let title = 'Shut down every Fabric network?';
+    let text = 'This command runs ./network.sh down for all available RAFT networks. Make sure no critical operations are in progress before continuing.';
+    let confirmButtonText = 'Yes, shut down the networks';
 
     if (normalizedType === 'standard') {
-        title = `Matikan ${label}?`;
-        text = 'Perintah ini akan menjalankan ./network.sh down pada Jaringan RAFT Standard.';
-        confirmButtonText = 'Ya, matikan RAFT Standard';
+        title = `Shut down ${label}?`;
+        text = 'This command runs ./network.sh down for the RAFT Standard network.';
+        confirmButtonText = 'Yes, shut down RAFT Standard';
     } else if (normalizedType === 'variant') {
-        title = `Matikan ${label}?`;
-        text = 'Perintah ini akan menjalankan ./network.sh down pada Jaringan RAFT Variant.';
-        confirmButtonText = 'Ya, matikan RAFT Variant';
+        title = `Shut down ${label}?`;
+        text = 'This command runs ./network.sh down for the RAFT Variant network.';
+        confirmButtonText = 'Yes, shut down RAFT Variant';
     }
 
     if (isSwalAvailable()) {
@@ -752,7 +755,7 @@ async function confirmNetworkShutdown(networkType, networkLabel) {
             text,
             showCancelButton: true,
             confirmButtonText,
-            cancelButtonText: 'Batal',
+            cancelButtonText: 'Cancel',
             confirmButtonColor: SWAL_PRIMARY_COLOR,
             cancelButtonColor: SWAL_CANCEL_COLOR,
             focusCancel: true,
@@ -772,22 +775,22 @@ async function confirmNetworkStartup(networkType, networkLabel) {
         ? networkLabel.trim()
         : getNetworkStartupLabel(normalizedType);
 
-    let title = `Hidupkan ${label}?`;
-    let text = `Perintah ini akan menjalankan serangkaian skrip ./network.sh untuk menyalakan ${label}. Pastikan server siap sebelum melanjutkan.`;
+    let title = `Start ${label}?`;
+    let text = `This command runs a series of ./network.sh scripts to start ${label}. Ensure the server is ready before continuing.`;
 
     if (normalizedType === 'standard') {
-        text = 'Perintah ini akan menjalankan ./network.sh up -ca, ./network.sh createChannel -c channel-standard -ca, dan deploy chaincode pelaporan pada channel-standard.';
+        text = 'This will run ./network.sh up -ca, ./network.sh createChannel -c channel-standard -ca, and deploy the pelaporan chaincode on channel-standard.';
     } else if (normalizedType === 'variant') {
-        text = 'Perintah ini akan menjalankan ./network.sh up -ca -bft, ./network.sh createChannel -c channel-variant -ca -bft, dan deploy chaincode pelaporan pada channel-variant.';
+        text = 'This will run ./network.sh up -ca -bft, ./network.sh createChannel -c channel-variant -ca -bft, and deploy the pelaporan chaincode on channel-variant.';
     }
 
     if (!normalizedType) {
-        title = 'Hidupkan jaringan Fabric?';
+        title = 'Start the Fabric networks?';
     }
 
     const confirmButtonText = normalizedType
-        ? `Ya, hidupkan ${label}`
-        : 'Ya, hidupkan jaringan';
+        ? `Yes, start ${label}`
+        : 'Yes, start the networks';
 
     if (isSwalAvailable()) {
         const result = await window.Swal.fire({
@@ -796,7 +799,7 @@ async function confirmNetworkStartup(networkType, networkLabel) {
             text,
             showCancelButton: true,
             confirmButtonText,
-            cancelButtonText: 'Batal',
+            cancelButtonText: 'Cancel',
             confirmButtonColor: SWAL_PRIMARY_COLOR,
             cancelButtonColor: SWAL_CANCEL_COLOR,
             focusCancel: true,
@@ -936,6 +939,27 @@ function updateNetworkShutdownStatus(state = 'idle', message = DEFAULT_NETWORK_S
     }
 }
 
+function updateNetworkRestartStatus(state = 'idle', message = DEFAULT_NETWORK_RESTART_STATUS_MESSAGE) {
+    if (!networkRestartStatusEl) {
+        return;
+    }
+
+    const indicator = networkRestartStatusEl.querySelector('[data-indicator]');
+    const messageEl = networkRestartStatusEl.querySelector('[data-message]');
+
+    if (indicator) {
+        indicator.className = `h-2 w-2 rounded-full ${NETWORK_STATUS_INDICATOR[state] || NETWORK_STATUS_INDICATOR.idle}`;
+    }
+
+    if (messageEl && typeof message === 'string') {
+        messageEl.textContent = message;
+    }
+
+    if (state !== 'idle') {
+        setNetworkOperationOverlayMessage(message);
+    }
+}
+
 function isNetworkOperationOverlayActive() {
     return Boolean(networkOperationOverlay && !networkOperationOverlay.classList.contains('hidden'));
 }
@@ -986,7 +1010,8 @@ function updateNetworkOperationOverlayTimer() {
         const elapsedSeconds = Math.floor(elapsed / 1000);
 
         if (networkOperationLastDisplayedSeconds !== elapsedSeconds) {
-            networkOperationSeconds.textContent = `Waktu berlalu: ${elapsedSeconds} detik`;
+            const label = elapsedSeconds === 1 ? 'second' : 'seconds';
+            networkOperationSeconds.textContent = `Elapsed time: ${elapsedSeconds} ${label}`;
             networkOperationLastDisplayedSeconds = elapsedSeconds;
         }
     }
@@ -1015,19 +1040,25 @@ function showNetworkOperationOverlay(mode = 'startup', message) {
     }
 
     if (networkOperationSeconds) {
-        networkOperationSeconds.textContent = 'Waktu berlalu: 0 detik';
+        networkOperationSeconds.textContent = 'Elapsed time: 0 seconds';
     }
 
-    const defaultHint = mode === 'shutdown'
-        ? 'Menunggu seluruh node berhenti. Jangan tutup halaman hingga proses selesai.'
-        : 'Menyalakan jaringan dapat memerlukan beberapa menit. Jangan tutup halaman.';
+    let defaultHint;
+
+    if (mode === 'shutdown') {
+        defaultHint = 'Waiting for every node to stop. Keep this page open until the command finishes.';
+    } else if (mode === 'restart') {
+        defaultHint = 'Restarting every network. This may take a few minutes—please keep this page open.';
+    } else {
+        defaultHint = 'Starting the networks can take a few minutes. Please keep this page open.';
+    }
 
     if (typeof message === 'string') {
         if (networkOperationMessage) {
             networkOperationMessage.textContent = message;
         }
     } else if (networkOperationMessage) {
-        networkOperationMessage.textContent = 'Menjalankan perintah jaringan...';
+        networkOperationMessage.textContent = 'Running network command...';
     }
 
     if (networkOperationHint) {
@@ -1237,7 +1268,7 @@ function formatLogOutputLines(text, { timestamp, targetLabel, channel }) {
 
     if (lines.length > MAX_NETWORK_OPERATION_OUTPUT_LINES) {
         const remaining = lines.length - MAX_NETWORK_OPERATION_OUTPUT_LINES;
-        formatted.push(`${timestamp}… (${remaining} baris tambahan disembunyikan)`);
+        formatted.push(`${timestamp}… (${remaining} additional lines hidden)`);
     }
 
     return formatted;
@@ -1249,67 +1280,67 @@ function formatNetworkOperationLogEvent(event) {
     }
 
     const timestamp = formatLogTimestamp(event.timestamp);
-    const targetLabel = event.targetLabel || 'Jaringan';
+    const targetLabel = event.targetLabel || 'Network';
     const lines = [];
-    const stepLabel = event.stepLabel || event.displayCommand || 'Langkah jaringan';
+    const stepLabel = event.stepLabel || event.displayCommand || 'Network step';
 
     switch (event.phase) {
         case 'begin':
-            lines.push(`${timestamp}⚡ Memulai perintah penyalaan jaringan.`);
+            lines.push(`${timestamp}⚡ Starting network startup command.`);
             break;
         case 'dependency_error':
-            lines.push(`${timestamp}❌ Gagal menyiapkan penyalaan jaringan: ${event.message || 'Dependensi tidak tersedia.'}`);
+            lines.push(`${timestamp}❌ Failed to prepare the startup command: ${event.message || 'Dependencies are unavailable.'}`);
             if (event.resolution) {
                 lines.push(`${timestamp}🔧 ${event.resolution}`);
             }
             break;
         case 'target_begin':
-            lines.push(`${timestamp}⚙️ [${targetLabel}] Menjalankan rangkaian perintah...`);
+            lines.push(`${timestamp}⚙️ [${targetLabel}] Running command sequence...`);
             break;
         case 'step_begin':
             lines.push(`${timestamp}⏳ [${targetLabel}] ${stepLabel}`);
             if (event.displayCommand) {
-                lines.push(`${timestamp}   Perintah: ${event.displayCommand}`);
+                lines.push(`${timestamp}   Command: ${event.displayCommand}`);
             }
             break;
         case 'step_success':
-            lines.push(`${timestamp}✅ [${targetLabel}] ${stepLabel} selesai.`);
+            lines.push(`${timestamp}✅ [${targetLabel}] ${stepLabel} completed.`);
             lines.push(...formatLogOutputLines(event.stdout, { timestamp, targetLabel, channel: 'stdout' }));
             lines.push(...formatLogOutputLines(event.stderr, { timestamp, targetLabel, channel: 'stderr' }));
             break;
         case 'step_error':
-            lines.push(`${timestamp}❌ [${targetLabel}] ${stepLabel} gagal.`);
+            lines.push(`${timestamp}❌ [${targetLabel}] ${stepLabel} failed.`);
             if (event.message) {
-                lines.push(`${timestamp}   Pesan: ${event.message}`);
+                lines.push(`${timestamp}   Message: ${event.message}`);
             }
             if (event.resolution) {
-                lines.push(`${timestamp}   Saran: ${event.resolution}`);
+                lines.push(`${timestamp}   Suggestion: ${event.resolution}`);
             }
             lines.push(...formatLogOutputLines(event.stdout, { timestamp, targetLabel, channel: 'stdout' }));
             lines.push(...formatLogOutputLines(event.stderr, { timestamp, targetLabel, channel: 'stderr' }));
             break;
         case 'step_skipped':
-            lines.push(`${timestamp}⏭️ [${targetLabel}] ${stepLabel} dilewati. ${event.message || ''}`.trim());
+            lines.push(`${timestamp}⏭️ [${targetLabel}] ${stepLabel} skipped. ${event.message || ''}`.trim());
             break;
         case 'target_error':
-            lines.push(`${timestamp}⚠️ [${targetLabel}] Gagal diselesaikan.`);
+            lines.push(`${timestamp}⚠️ [${targetLabel}] Could not be completed.`);
             if (event.message) {
-                lines.push(`${timestamp}   Pesan: ${event.message}`);
+                lines.push(`${timestamp}   Message: ${event.message}`);
             }
             if (event.resolution) {
-                lines.push(`${timestamp}   Saran: ${event.resolution}`);
+                lines.push(`${timestamp}   Suggestion: ${event.resolution}`);
             }
             break;
         case 'target_complete':
-            lines.push(`${timestamp}✅ [${targetLabel}] Seluruh langkah selesai.`);
+            lines.push(`${timestamp}✅ [${targetLabel}] All steps completed.`);
             break;
         case 'complete':
             if (event.status === 'success') {
-                lines.push(`${timestamp}🏁 Seluruh jaringan berhasil dijalankan.`);
+                lines.push(`${timestamp}🏁 All networks started successfully.`);
             } else if (event.status === 'partial') {
-                lines.push(`${timestamp}⚠️ Sebagian jaringan berhasil dijalankan. Periksa detailnya.`);
+                lines.push(`${timestamp}⚠️ Some networks started successfully. Check the details.`);
             } else {
-                lines.push(`${timestamp}❌ Perintah penyalaan jaringan berakhir dengan kegagalan.`);
+                lines.push(`${timestamp}❌ The startup command finished with failures.`);
             }
             break;
         default:
@@ -1324,27 +1355,27 @@ function updateNetworkOperationOverlayFromEvent(event) {
         return;
     }
 
-    const targetLabel = event.targetLabel || 'Jaringan';
-    const stepLabel = event.stepLabel || event.displayCommand || 'Langkah jaringan';
+    const targetLabel = event.targetLabel || 'Network';
+    const stepLabel = event.stepLabel || event.displayCommand || 'Network step';
 
     switch (event.phase) {
         case 'step_begin':
-            setNetworkOperationOverlayMessage(`Menjalankan ${targetLabel} • ${stepLabel}`);
+            setNetworkOperationOverlayMessage(`Running ${targetLabel} • ${stepLabel}`);
             break;
         case 'target_complete':
-            setNetworkOperationOverlayMessage(`Penyalaan ${targetLabel} selesai.`);
+            setNetworkOperationOverlayMessage(`Startup for ${targetLabel} completed.`);
             break;
         case 'target_error':
         case 'dependency_error':
-            setNetworkOperationOverlayMessage(event.message || 'Perintah penyalaan jaringan mengalami masalah.');
+            setNetworkOperationOverlayMessage(event.message || 'The startup command encountered an issue.');
             break;
         case 'complete':
             if (event.status === 'success') {
-                setNetworkOperationOverlayMessage('Seluruh jaringan berhasil dijalankan.');
+                setNetworkOperationOverlayMessage('All networks started successfully.');
             } else if (event.status === 'partial') {
-                setNetworkOperationOverlayMessage('Sebagian jaringan berhasil dijalankan. Periksa log untuk detailnya.');
+                setNetworkOperationOverlayMessage('Some networks started successfully. Check the logs for details.');
             } else {
-                setNetworkOperationOverlayMessage('Perintah penyalaan jaringan gagal. Periksa log untuk detailnya.');
+                setNetworkOperationOverlayMessage('The startup command failed. Check the logs for details.');
             }
             break;
         default:
@@ -1487,34 +1518,34 @@ function generateClientOperationId() {
 
 function formatNetworkStartupSummary(results) {
     if (!Array.isArray(results) || !results.length) {
-        return ['Tidak ada jaringan yang ditemukan untuk dijalankan.'];
+        return ['No networks were found to start.'];
     }
 
     return results.map(result => {
-        const label = result?.label || 'Jaringan';
-        let statusLabel = 'gagal dijalankan';
+        const label = result?.label || 'Network';
+        let statusLabel = 'failed to start';
 
         if (result?.status === 'success') {
-            statusLabel = 'berhasil dijalankan';
+            statusLabel = 'started successfully';
         } else if (result?.status === 'partial') {
-            statusLabel = 'berhasil sebagian';
+            statusLabel = 'partially started';
         } else if (result?.status === 'not_found') {
-            statusLabel = 'tidak ditemukan';
+            statusLabel = 'not found';
         } else if (result?.status === 'dependency_missing') {
-            statusLabel = 'tidak dapat dijalankan karena dependensi hilang';
+            statusLabel = 'could not start because dependencies are missing';
         }
 
         const detailParts = [];
 
         if (Array.isArray(result?.steps)) {
             result.steps.forEach(step => {
-                const stepLabel = step?.label || step?.displayCommand || 'Langkah';
-                let stepStatusLabel = 'gagal';
+                const stepLabel = step?.label || step?.displayCommand || 'Step';
+                let stepStatusLabel = 'failed';
 
                 if (step?.status === 'success') {
-                    stepStatusLabel = 'berhasil';
+                    stepStatusLabel = 'succeeded';
                 } else if (step?.status === 'skipped') {
-                    stepStatusLabel = 'dilewati';
+                    stepStatusLabel = 'skipped';
                 }
 
                 detailParts.push(`${stepLabel} — ${stepStatusLabel}.`);
@@ -1545,19 +1576,19 @@ function formatNetworkStartupSummary(results) {
 
 function formatNetworkShutdownSummary(results) {
     if (!Array.isArray(results) || !results.length) {
-        return ['Tidak ada jaringan yang ditemukan untuk dimatikan.'];
+        return ['No networks were found to stop.'];
     }
 
     return results.map(result => {
-        const label = result?.label || 'Jaringan';
-        let statusLabel = 'gagal dimatikan';
+        const label = result?.label || 'Network';
+        let statusLabel = 'failed to stop';
 
         if (result?.status === 'success') {
-            statusLabel = 'berhasil dimatikan';
+            statusLabel = 'stopped successfully';
         } else if (result?.status === 'not_found') {
-            statusLabel = 'tidak ditemukan';
+            statusLabel = 'not found';
         } else if (result?.status === 'dependency_missing') {
-            statusLabel = 'tidak dapat dijalankan karena dependensi hilang';
+            statusLabel = 'could not run because dependencies are missing';
         }
 
         const additionalDetails = [];
@@ -3981,7 +4012,7 @@ async function handleNetworkStartupButtonClick(event) {
 
     const confirmed = await confirmNetworkStartup(networkType, networkLabel);
     if (!confirmed) {
-        updateNetworkStartupStatus('idle', `Perintah penyalaan untuk ${networkLabel} dibatalkan.`, networkType);
+        updateNetworkStartupStatus('idle', `Startup command for ${networkLabel} was cancelled.`, networkType);
         return;
     }
 
@@ -3994,9 +4025,9 @@ async function handleNetworkStartupButtonClick(event) {
     const originalContent = button.innerHTML;
     button.disabled = true;
     button.classList.add('cursor-not-allowed', 'opacity-60');
-    button.innerHTML = '<span class="text-base animate-spin">⚡</span><span>Menyalakan...</span>';
+    button.innerHTML = '<span class="text-base animate-spin">⚡</span><span>Starting...</span>';
 
-    const startupLoadingMessage = `Menjalankan perintah penyalaan untuk ${networkLabel}...`;
+    const startupLoadingMessage = `Running the startup command for ${networkLabel}...`;
     showNetworkOperationOverlay('startup', startupLoadingMessage);
     updateNetworkStartupStatus('loading', startupLoadingMessage, networkType);
 
@@ -4022,12 +4053,12 @@ async function handleNetworkStartupButtonClick(event) {
             try {
                 data = JSON.parse(rawBody);
             } catch (parseError) {
-                console.error('Gagal mengurai respons start-network:', parseError);
+                console.error('Failed to parse start-network response:', parseError);
             }
         }
 
         if (!response.ok) {
-            const errorMessage = data?.error || `Server mengembalikan status ${response.status}`;
+            const errorMessage = data?.error || `Server responded with status ${response.status}`;
             throw new Error(errorMessage);
         }
 
@@ -4043,43 +4074,43 @@ async function handleNetworkStartupButtonClick(event) {
 
         if (data?.error && !results.length) {
             updateNetworkStartupStatus('error', data.error, networkType);
-            await showErrorAlert(summaryText || data.error, { title: 'Perintah penyalaan gagal' });
+            await showErrorAlert(summaryText || data.error, { title: 'Startup command failed' });
             return;
         }
 
         if (!results.length) {
-            const emptyMessage = `Tidak ada jaringan yang ditemukan untuk ${networkLabel}.`;
+            const emptyMessage = `No networks were found for ${networkLabel}.`;
             updateNetworkStartupStatus('error', emptyMessage, networkType);
-            await showErrorAlert(summaryText || emptyMessage, { title: 'Perintah penyalaan gagal' });
+            await showErrorAlert(summaryText || emptyMessage, { title: 'Startup command failed' });
             return;
         }
 
         if (successCount === results.length) {
-            const successMessage = `${networkLabel} berhasil dijalankan.`;
+            const successMessage = `${networkLabel} started successfully.`;
             updateNetworkStartupStatus('success', successMessage, networkType);
-            await showSuccessAlert(summaryText, { title: 'Jaringan siap digunakan' });
+            await showSuccessAlert(summaryText, { title: 'Networks ready to use' });
             shouldTriggerNetworkCheck = true;
             return;
         }
 
         if (successCount > 0) {
-            const partialMessage = `Sebagian langkah penyalaan untuk ${networkLabel} gagal dijalankan. Periksa detail pemberitahuan.`;
+            const partialMessage = `Some startup steps for ${networkLabel} failed. Check the notification details.`;
             updateNetworkStartupStatus('error', partialMessage, networkType);
-            await showErrorAlert(summaryText, { title: 'Sebagian perintah gagal' });
+            await showErrorAlert(summaryText, { title: 'Some commands failed' });
             return;
         }
 
-        const failureMessage = `Perintah penyalaan untuk ${networkLabel} gagal dijalankan.`;
+        const failureMessage = `The startup command for ${networkLabel} failed to run.`;
         updateNetworkStartupStatus('error', failureMessage, networkType);
-        await showErrorAlert(summaryText || failureMessage, { title: 'Perintah penyalaan gagal' });
+        await showErrorAlert(summaryText || failureMessage, { title: 'Startup command failed' });
     } catch (error) {
-        console.error('Gagal menyalakan jaringan Fabric:', error);
+        console.error('Failed to start the Fabric network:', error);
         const errorMessage = error instanceof Error && error.message
             ? error.message
-            : `Perintah penyalaan untuk ${networkLabel} gagal. Periksa log server.`;
+            : `The startup command for ${networkLabel} failed. Check the server logs.`;
         updateNetworkStartupStatus('error', errorMessage, networkType);
         await showErrorAlert(errorMessage, {
-            title: 'Perintah penyalaan gagal',
+            title: 'Startup command failed',
         });
     } finally {
         hideNetworkOperationOverlay();
@@ -4101,9 +4132,9 @@ async function handleNetworkCheckButtonClick() {
     const originalContent = networkCheckButton.innerHTML;
     networkCheckButton.disabled = true;
     networkCheckButton.classList.add('cursor-not-allowed', 'opacity-60');
-    networkCheckButton.innerHTML = '<span class="text-base animate-spin">⟳</span><span>Memeriksa...</span>';
+    networkCheckButton.innerHTML = '<span class="text-base animate-spin">⟳</span><span>Checking...</span>';
 
-    updateNetworkCheckStatus('loading', 'Pemeriksaan jaringan sedang berjalan...');
+    updateNetworkCheckStatus('loading', 'Network check in progress...');
 
     try {
         const response = await fetch('/api/check-network', {
@@ -4113,7 +4144,7 @@ async function handleNetworkCheckButtonClick() {
         });
 
         if (!response.ok) {
-            throw new Error(`Server mengembalikan status ${response.status}`);
+            throw new Error(`Server responded with status ${response.status}`);
         }
 
         const data = await response.json();
@@ -4125,11 +4156,11 @@ async function handleNetworkCheckButtonClick() {
         if (data?.error) {
             const errorMessage = typeof data.error === 'string'
                 ? data.error
-                : 'Pemeriksaan jaringan gagal dijalankan. Periksa log server.';
+                : 'The network check could not be completed. Check the server logs.';
             updateNetworkCheckStatus('error', errorMessage);
             await showErrorAlert(
-                `Gagal menjalankan pemeriksaan jaringan. ${errorMessage}`,
-                { title: 'Pemeriksaan jaringan gagal' }
+                `Failed to run the network check. ${errorMessage}`,
+                { title: 'Network check failed' }
             );
             return;
         }
@@ -4137,12 +4168,12 @@ async function handleNetworkCheckButtonClick() {
         const summaryMeta = OVERALL_STATUS_META[data?.overallStatus];
         const successMessage = summaryMeta
             ? summaryMeta.title
-            : 'Pemeriksaan jaringan selesai.';
+            : 'Network check completed.';
         updateNetworkCheckStatus('success', successMessage);
     } catch (error) {
-        console.error('Gagal menjalankan pemeriksaan jaringan:', error);
-        updateNetworkCheckStatus('error', 'Pemeriksaan jaringan gagal. Periksa log server.');
-        await showErrorAlert('Gagal menjalankan pemeriksaan jaringan. Pastikan jaringan Fabric aktif lalu coba lagi.');
+        console.error('Failed to run the network check:', error);
+        updateNetworkCheckStatus('error', 'The network check failed. Check the server logs.');
+        await showErrorAlert('Failed to run the network check. Ensure the Fabric network is running and try again.');
     } finally {
         networkCheckButton.disabled = false;
         networkCheckButton.classList.remove('cursor-not-allowed', 'opacity-60');
@@ -4193,7 +4224,7 @@ async function handleNetworkShutdownButtonClick(event) {
 
     const confirmed = await confirmNetworkShutdown(networkType, networkLabel);
     if (!confirmed) {
-        const cancelMessage = `Perintah pemadaman untuk ${networkLabel} dibatalkan.`;
+        const cancelMessage = `Shutdown command for ${networkLabel} was cancelled.`;
         updateNetworkShutdownStatus('idle', cancelMessage);
         return;
     }
@@ -4203,11 +4234,11 @@ async function handleNetworkShutdownButtonClick(event) {
     const originalContent = button.innerHTML;
     button.disabled = true;
     button.classList.add('cursor-not-allowed', 'opacity-60');
-    button.innerHTML = '<span class="text-base animate-pulse">⏻</span><span>Mematikan...</span>';
+    button.innerHTML = '<span class="text-base animate-pulse">⏻</span><span>Stopping...</span>';
 
     const shutdownLoadingMessage = networkLabel
-        ? `Menjalankan perintah pemadaman untuk ${networkLabel}...`
-        : 'Menjalankan perintah pemadaman jaringan...';
+        ? `Running the shutdown command for ${networkLabel}...`
+        : 'Running the shutdown command for every network...';
     showNetworkOperationOverlay('shutdown', shutdownLoadingMessage);
     updateNetworkShutdownStatus('loading', shutdownLoadingMessage);
 
@@ -4224,7 +4255,7 @@ async function handleNetworkShutdownButtonClick(event) {
         });
 
         if (!response.ok) {
-            throw new Error(`Server mengembalikan status ${response.status}`);
+            throw new Error(`Server responded with status ${response.status}`);
         }
 
         const data = await response.json();
@@ -4235,49 +4266,216 @@ async function handleNetworkShutdownButtonClick(event) {
 
         if (!results.length) {
             const emptyMessage = networkLabel
-                ? `Tidak ada jaringan yang ditemukan untuk ${networkLabel}.`
-                : 'Tidak ada jaringan yang ditemukan untuk dimatikan.';
+                ? `No networks were found for ${networkLabel}.`
+                : 'No networks were found to stop.';
             updateNetworkShutdownStatus('error', emptyMessage);
-            await showErrorAlert(summaryText || emptyMessage, { title: 'Perintah pemadaman gagal' });
+            await showErrorAlert(summaryText || emptyMessage, { title: 'Shutdown command failed' });
             return;
         }
 
         if (successCount === results.length) {
             const successMessage = networkLabel
-                ? `${networkLabel} berhasil dimatikan.`
-                : 'Seluruh jaringan berhasil dimatikan.';
+                ? `${networkLabel} stopped successfully.`
+                : 'All networks stopped successfully.';
             updateNetworkShutdownStatus('success', successMessage);
-            await showSuccessAlert(summaryText, { title: 'Jaringan berhasil dimatikan' });
+            await showSuccessAlert(summaryText, { title: 'Networks stopped successfully' });
             shouldTriggerNetworkCheck = true;
             return;
         }
 
         if (successCount > 0) {
             const partialMessage = networkLabel
-                ? `Sebagian perintah pemadaman untuk ${networkLabel} gagal. Periksa detail pemberitahuan.`
-                : 'Sebagian jaringan gagal dimatikan. Periksa detail pemberitahuan.';
+                ? `Some shutdown commands for ${networkLabel} failed. Check the notification details.`
+                : 'Some networks could not be stopped. Check the notification details.';
             updateNetworkShutdownStatus('error', partialMessage);
-            await showErrorAlert(summaryText, { title: 'Sebagian perintah gagal' });
+            await showErrorAlert(summaryText, { title: 'Some commands failed' });
             return;
         }
 
         const failureMessage = networkLabel
-            ? `Perintah pemadaman untuk ${networkLabel} gagal dijalankan.`
-            : 'Perintah pemadaman jaringan gagal dijalankan.';
+            ? `The shutdown command for ${networkLabel} failed to run.`
+            : 'The shutdown command could not be completed.';
         updateNetworkShutdownStatus('error', failureMessage);
-        await showErrorAlert(summaryText || failureMessage);
+        await showErrorAlert(summaryText || failureMessage, { title: 'Shutdown command failed' });
     } catch (error) {
-        console.error('Gagal mematikan jaringan Fabric:', error);
+        console.error('Failed to shut down the Fabric network:', error);
         const failureMessage = networkLabel
-            ? `Perintah pemadaman untuk ${networkLabel} gagal. Periksa log server.`
-            : 'Perintah pemadaman jaringan gagal. Periksa log server.';
+            ? `The shutdown command for ${networkLabel} failed. Check the server logs.`
+            : 'The shutdown command failed. Check the server logs.';
         updateNetworkShutdownStatus('error', failureMessage);
-        await showErrorAlert('Gagal menjalankan perintah pemadaman jaringan. Periksa log server untuk detailnya.');
+        await showErrorAlert('Failed to run the shutdown command. Check the server logs for details.', { title: 'Shutdown command failed' });
     } finally {
         hideNetworkOperationOverlay();
         button.disabled = false;
         button.classList.remove('cursor-not-allowed', 'opacity-60');
         button.innerHTML = originalContent;
+
+        if (shouldTriggerNetworkCheck) {
+            await triggerAutomaticNetworkCheck();
+        }
+    }
+}
+
+async function handleNetworkRestartButtonClick() {
+    if (!networkRestartButton) {
+        return;
+    }
+
+    const originalContent = networkRestartButton.innerHTML;
+    networkRestartButton.disabled = true;
+    networkRestartButton.classList.add('cursor-not-allowed', 'opacity-60');
+    networkRestartButton.innerHTML = '<span class="text-base animate-spin">⟳</span><span>Restarting...</span>';
+
+    const overlayMessage = 'Restarting all RAFT networks...';
+    showNetworkOperationOverlay('restart', overlayMessage);
+    updateNetworkRestartStatus('loading', 'Restarting all RAFT networks. Stopping existing services...');
+
+    let shouldTriggerNetworkCheck = false;
+
+    try {
+        const shutdownHeaders = {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+        };
+
+        const shutdownResponse = await fetch('/api/shutdown-network', {
+            method: 'POST',
+            headers: shutdownHeaders,
+            body: JSON.stringify({}),
+        });
+
+        const shutdownRaw = await shutdownResponse.text();
+        let shutdownData = null;
+        if (shutdownRaw) {
+            try {
+                shutdownData = JSON.parse(shutdownRaw);
+            } catch (parseError) {
+                console.error('Failed to parse shutdown response during restart:', parseError);
+            }
+        }
+
+        if (!shutdownResponse.ok) {
+            const shutdownErrorMessage = shutdownData?.error || `Server responded with status ${shutdownResponse.status}`;
+            throw new Error(shutdownErrorMessage);
+        }
+
+        const shutdownResults = Array.isArray(shutdownData?.results) ? shutdownData.results : [];
+        const shutdownSummaryLines = formatNetworkShutdownSummary(shutdownResults);
+        const shutdownSummary = shutdownSummaryLines.join('\n');
+        const shutdownSuccessCount = shutdownResults.filter(result => result?.status === 'success').length;
+
+        if (!shutdownResults.length) {
+            const message = 'No networks were found to stop. Restart aborted.';
+            updateNetworkRestartStatus('error', message);
+            updateNetworkShutdownStatus('error', message);
+            updateNetworkStartupStatus('error', message, 'standard');
+            updateNetworkStartupStatus('error', message, 'variant');
+            await showErrorAlert(shutdownSummary || message, { title: 'Restart failed' });
+            return;
+        }
+
+        if (shutdownSuccessCount !== shutdownResults.length) {
+            const message = 'Some networks failed to stop. Restart aborted.';
+            updateNetworkRestartStatus('error', message);
+            updateNetworkShutdownStatus('error', message);
+            updateNetworkStartupStatus('error', message, 'standard');
+            updateNetworkStartupStatus('error', message, 'variant');
+            await showErrorAlert(shutdownSummary || message, { title: 'Restart failed' });
+            return;
+        }
+
+        updateNetworkShutdownStatus('success', 'All networks stopped successfully.');
+
+        const standardLabel = getNetworkStartupLabel('standard');
+        const variantLabel = getNetworkStartupLabel('variant');
+
+        updateNetworkRestartStatus('loading', 'All networks stopped. Starting RAFT Standard and RAFT Variant...');
+        updateNetworkStartupStatus('loading', `Restarting ${standardLabel}...`, 'standard');
+        updateNetworkStartupStatus('loading', `Restarting ${variantLabel}...`, 'variant');
+
+        const clientOperationId = generateClientOperationId();
+        setActiveNetworkOperation(clientOperationId, 'startup');
+        ensureNetworkOperationStream();
+
+        const startupHeaders = {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+        };
+
+        if (clientOperationId) {
+            startupHeaders['X-Client-Operation-Id'] = clientOperationId;
+        }
+
+        const startupResponse = await fetch('/api/start-network', {
+            method: 'POST',
+            headers: startupHeaders,
+            body: JSON.stringify({}),
+        });
+
+        const startupRaw = await startupResponse.text();
+        let startupData = null;
+        if (startupRaw) {
+            try {
+                startupData = JSON.parse(startupRaw);
+            } catch (parseError) {
+                console.error('Failed to parse start-network response during restart:', parseError);
+            }
+        }
+
+        if (!startupResponse.ok) {
+            const startupErrorMessage = startupData?.error || `Server responded with status ${startupResponse.status}`;
+            throw new Error(startupErrorMessage);
+        }
+
+        updateActiveNetworkOperationFromResponse({
+            clientId: clientOperationId,
+            operationId: startupData?.operationId,
+        });
+
+        const startupResults = Array.isArray(startupData?.results) ? startupData.results : [];
+        const startupSummaryLines = formatNetworkStartupSummary(startupResults);
+        const startupSummary = startupSummaryLines.join('\n');
+        const startupSuccessCount = startupResults.filter(result => result?.status === 'success').length;
+
+        if (!startupResults.length) {
+            const message = 'No networks were found to start. Restart aborted.';
+            updateNetworkRestartStatus('error', message);
+            updateNetworkStartupStatus('error', message, 'standard');
+            updateNetworkStartupStatus('error', message, 'variant');
+            await showErrorAlert(startupSummary || message, { title: 'Restart failed' });
+            return;
+        }
+
+        if (startupSuccessCount !== startupResults.length) {
+            const message = 'Some networks failed to start. Check the notification details.';
+            updateNetworkRestartStatus('error', message);
+            updateNetworkStartupStatus('error', message, 'standard');
+            updateNetworkStartupStatus('error', message, 'variant');
+            await showErrorAlert(startupSummary || message, { title: 'Restart partially failed' });
+            return;
+        }
+
+        const combinedSummary = `Shutdown summary:\n${shutdownSummary}\n\nStartup summary:\n${startupSummary}`;
+
+        updateNetworkStartupStatus('success', `${standardLabel} restarted successfully.`, 'standard');
+        updateNetworkStartupStatus('success', `${variantLabel} restarted successfully.`, 'variant');
+        updateNetworkRestartStatus('success', 'All RAFT networks restarted successfully.');
+        await showSuccessAlert(combinedSummary, { title: 'Networks restarted successfully' });
+        shouldTriggerNetworkCheck = true;
+    } catch (error) {
+        console.error('Failed to restart the Fabric networks:', error);
+        const message = error instanceof Error && error.message
+            ? error.message
+            : 'Failed to restart the networks. Check the server logs.';
+        updateNetworkRestartStatus('error', message);
+        updateNetworkStartupStatus('error', message, 'standard');
+        updateNetworkStartupStatus('error', message, 'variant');
+        await showErrorAlert(message, { title: 'Restart failed' });
+    } finally {
+        hideNetworkOperationOverlay();
+        networkRestartButton.disabled = false;
+        networkRestartButton.classList.remove('cursor-not-allowed', 'opacity-60');
+        networkRestartButton.innerHTML = originalContent;
 
         if (shouldTriggerNetworkCheck) {
             await triggerAutomaticNetworkCheck();
@@ -4292,6 +4490,14 @@ if (networkShutdownButtons.length > 0) {
     });
 } else {
     updateNetworkShutdownStatus('idle', DEFAULT_NETWORK_SHUTDOWN_STATUS_MESSAGE);
+}
+
+if (networkRestartStatusEl) {
+    updateNetworkRestartStatus('idle', DEFAULT_NETWORK_RESTART_STATUS_MESSAGE);
+}
+
+if (networkRestartButton) {
+    networkRestartButton.addEventListener('click', handleNetworkRestartButtonClick);
 }
 
 if (hierarchyBackButton) {

@@ -164,12 +164,12 @@ async function logNetworkStartupFailure(result) {
 const NETWORK_SHUTDOWN_TARGETS = [
     {
         id: 'standard',
-        label: 'Jaringan RAFT Standard',
+        label: 'RAFT Standard Network',
         directory: path.resolve(__dirname, '../../raft-standard/network'),
     },
     {
         id: 'variant',
-        label: 'Jaringan RAFT Variant',
+        label: 'RAFT Variant Network',
         directory: path.resolve(__dirname, '../../raft-variant/network'),
     },
 ];
@@ -177,17 +177,17 @@ const NETWORK_SHUTDOWN_TARGETS = [
 const NETWORK_START_TARGETS = [
     {
         id: 'standard',
-        label: 'Jaringan RAFT Standard',
+        label: 'RAFT Standard Network',
         directory: path.resolve(__dirname, '../../raft-standard/network'),
         channel: 'channel-standard',
         commands: [
             {
-                label: 'Mulai layanan inti',
+                label: 'Start core services',
                 args: ['up', '-ca'],
                 displayCommand: './network.sh up -ca',
             },
             {
-                label: 'Buat channel',
+                label: 'Create channel',
                 args: ['createChannel', '-c', 'channel-standard', '-ca'],
                 displayCommand: './network.sh createChannel -c channel-standard -ca',
             },
@@ -211,17 +211,17 @@ const NETWORK_START_TARGETS = [
     },
     {
         id: 'variant',
-        label: 'Jaringan RAFT Variant',
+        label: 'RAFT Variant Network',
         directory: path.resolve(__dirname, '../../raft-variant/network'),
         channel: 'channel-variant',
         commands: [
             {
-                label: 'Mulai layanan inti',
+                label: 'Start core services',
                 args: ['up', '-ca', '-bft'],
                 displayCommand: './network.sh up -ca -bft',
             },
             {
-                label: 'Buat channel',
+                label: 'Create channel',
                 args: ['createChannel', '-c', 'channel-variant', '-ca', '-bft'],
                 displayCommand: './network.sh createChannel -c channel-variant -ca -bft',
             },

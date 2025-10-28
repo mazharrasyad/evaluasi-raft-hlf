@@ -6,8 +6,8 @@
 version: '3.7'
 
 volumes:
-  orderer.variant.com:
-  peer0.org1.variant.com:
+  orderer.fabric2.variant.com:
+  peer0.org1.fabric2.variant.com:
   peer0.org2.variant.com:
 
 networks:
@@ -16,9 +16,9 @@ networks:
 
 services:
 
-  orderer.variant.com:
-    container_name: orderer.variant.com
-    hostname: orderer.variant.com
+  orderer.fabric2.variant.com:
+    container_name: orderer.fabric2.variant.com
+    hostname: orderer.fabric2.variant.com
     image: hyperledger/fabric-orderer:latest
     labels:
       service: hyperledger-fabric
@@ -45,14 +45,14 @@ services:
       - ORDERER_ADMIN_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
       - ORDERER_ADMIN_TLS_CLIENTROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
       - ORDERER_ADMIN_LISTENADDRESS=0.0.0.0:7053
-      - ORDERER_OPERATIONS_LISTENADDRESS=orderer.variant.com:9443
+      - ORDERER_OPERATIONS_LISTENADDRESS=orderer.fabric2.variant.com:9443
       - ORDERER_METRICS_PROVIDER=prometheus
     working_dir: /root
     command: orderer
     volumes:
-        - ../organizations/ordererOrganizations/variant.com/orderers/orderer.variant.com/msp:/var/hyperledger/orderer/msp
-        - ../organizations/ordererOrganizations/variant.com/orderers/orderer.variant.com/tls/:/var/hyperledger/orderer/tls
-        - orderer.variant.com:/var/hyperledger/production/orderer
+        - ../organizations/ordererOrganizations/variant.com/orderers/orderer.fabric2.variant.com/msp:/var/hyperledger/orderer/msp
+        - ../organizations/ordererOrganizations/variant.com/orderers/orderer.fabric2.variant.com/tls/:/var/hyperledger/orderer/tls
+        - orderer.fabric2.variant.com:/var/hyperledger/production/orderer
     ports:
       - 7150:7050
       - 7153:7053
@@ -60,9 +60,9 @@ services:
     networks:
       - test
 
-  peer0.org1.variant.com:
-    container_name: peer0.org1.variant.com
-    hostname: peer0.org1.variant.com
+  peer0.org1.fabric2.variant.com:
+    container_name: peer0.org1.fabric2.variant.com
+    hostname: peer0.org1.fabric2.variant.com
     image: hyperledger/fabric-peer:latest
     labels:
       service: hyperledger-fabric
@@ -77,22 +77,22 @@ services:
       - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
       - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
       # Peer specific variables
-      - CORE_PEER_ID=peer0.org1.variant.com
-      - CORE_PEER_ADDRESS=peer0.org1.variant.com:7051
+      - CORE_PEER_ID=peer0.org1.fabric2.variant.com
+      - CORE_PEER_ADDRESS=peer0.org1.fabric2.variant.com:7051
       - CORE_PEER_LISTENADDRESS=0.0.0.0:7051
-      - CORE_PEER_CHAINCODEADDRESS=peer0.org1.variant.com:7052
+      - CORE_PEER_CHAINCODEADDRESS=peer0.org1.fabric2.variant.com:7052
       - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
-      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org1.variant.com:7051
-      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org1.variant.com:7051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org1.fabric2.variant.com:7051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org1.fabric2.variant.com:7051
       - CORE_PEER_LOCALMSPID=Org1MSP
       - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp
-      - CORE_OPERATIONS_LISTENADDRESS=peer0.org1.variant.com:9444
+      - CORE_OPERATIONS_LISTENADDRESS=peer0.org1.fabric2.variant.com:9444
       - CORE_METRICS_PROVIDER=prometheus
       - CHAINCODE_AS_A_SERVICE_BUILDER_CONFIG={"peername":"peer0org1"}
       - CORE_CHAINCODE_EXECUTETIMEOUT=300s
     volumes:
-      - ../organizations/peerOrganizations/org1.variant.com/peers/peer0.org1.variant.com:/etc/hyperledger/fabric
-      - peer0.org1.variant.com:/var/hyperledger/production
+      - ../organizations/peerOrganizations/org1.variant.com/peers/peer0.org1.fabric2.variant.com:/etc/hyperledger/fabric
+      - peer0.org1.fabric2.variant.com:/var/hyperledger/production
     working_dir: /root
     command: peer node start
     ports:

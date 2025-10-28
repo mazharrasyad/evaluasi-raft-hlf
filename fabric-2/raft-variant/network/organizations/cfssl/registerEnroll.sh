@@ -55,7 +55,7 @@ function peer_cert() {
 
 function orderer_cert() {
     TYPE=$1 #orderer user
-    USER=$2 #orderer.variant.com
+    USER=$2 #orderer.fabric2.variant.com
 
     mkdir -p organizations/ordererOrganizations/variant.com/ca
     mkdir -p organizations/ordererOrganizations/variant.com/msp/cacerts

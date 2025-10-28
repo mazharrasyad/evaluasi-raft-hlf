@@ -26,17 +26,17 @@ export VERBOSE=false
 export COMPOSE_PROJECT_NAME
 
 VOLUME_SUFFIXES=(
-  "orderer.variant.com"
+  "orderer.fabric2.variant.com"
   "orderer2.variant.com"
   "orderer3.variant.com"
   "orderer4.variant.com"
-  "peer0.org1.variant.com"
+  "peer0.org1.fabric2.variant.com"
   "peer0.org2.variant.com"
 )
 
 LEGACY_VOLUME_SUFFIXES=(
-  "orderer.variant.com"
-  "peer0.org1.variant.com"
+  "orderer.fabric2.variant.com"
+  "peer0.org1.fabric2.variant.com"
   "peer0.org2.variant.com"
 )
 
@@ -238,7 +238,7 @@ function createOrgs() {
 
     . organizations/cfssl/registerEnroll.sh
     #function_name cert-type   CN   org
-    peer_cert peer peer0.org1.variant.com org1
+    peer_cert peer peer0.org1.fabric2.variant.com org1
     peer_cert admin Admin@org1.variant.com org1
 
     infoln "Creating Org2 Identities"
@@ -248,7 +248,7 @@ function createOrgs() {
 
     infoln "Creating Orderer Org Identities"
     #function_name cert-type   CN   
-    orderer_cert orderer orderer.variant.com
+    orderer_cert orderer orderer.fabric2.variant.com
     orderer_cert admin Admin@variant.com
 
   fi 

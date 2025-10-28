@@ -16,6 +16,11 @@ const networkCandidates = [
   variantNetworkPath
 ];
 
+const domainByNetworkPath = new Map([
+  [standardNetworkPath, 'standard.com'],
+  [variantNetworkPath, 'variant.com'],
+]);
+
 async function resolveNetworkPath() {
   for (const candidate of networkCandidates) {
     try {
@@ -33,8 +38,11 @@ async function checkFiles() {
 
   try {
     const networkPath = await resolveNetworkPath();
-    const cryptoPath = path.resolve(networkPath, 'organizations/peerOrganizations/org1.example.com');
-    const tlsCertPath = path.resolve(cryptoPath, 'peers/peer0.org1.example.com/tls/ca.crt');
+    const domain = domainByNetworkPath.get(networkPath) ?? 'standard.com';
+    const orgDomain = `org1.${domain}`;
+    const peerHost = `peer0.${orgDomain}`;
+    const cryptoPath = path.resolve(networkPath, `organizations/peerOrganizations/${orgDomain}`);
+    const tlsCertPath = path.resolve(cryptoPath, `peers/${peerHost}/tls/ca.crt`);
 
     // Check if network directory exists
     await fs.access(networkPath);

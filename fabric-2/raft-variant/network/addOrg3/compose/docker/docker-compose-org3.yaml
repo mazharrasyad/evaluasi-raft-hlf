@@ -11,7 +11,7 @@ networks:
 
 services:
 
-  peer0.org3.example.com:
+  peer0.org3.variant.com:
     image: hyperledger/fabric-peer:latest
     labels:
       service: hyperledger-fabric

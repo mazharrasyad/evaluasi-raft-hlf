@@ -13,11 +13,13 @@ const NETWORK_SOURCES = [
         id: 'raft-standard',
         label: 'RAFT Standard',
         root: STANDARD_NETWORK_ROOT,
+        domain: 'standard.com',
     },
     {
         id: 'raft-variant',
         label: 'RAFT Variant',
         root: VARIANT_NETWORK_ROOT,
+        domain: 'variant.com',
     },
 ];
 
@@ -300,7 +302,7 @@ function formatAddress(address) {
     return address.replace(/^0\.0\.0\.0:/, '');
 }
 
-function buildOrdererSummary(service, envMap) {
+function buildOrdererSummary(serviceName, service, envMap) {
     if (!service) {
         return null;
     }
@@ -317,7 +319,7 @@ function buildOrdererSummary(service, envMap) {
     const operationsMapping = operationsPort ? findPortMapping(ports, operationsPort) : null;
 
     return {
-        serviceName: 'orderer.example.com',
+        serviceName,
         containerName: service.container_name ?? null,
         hostname: service.hostname ?? null,
         image: service.image ?? null,
@@ -399,8 +401,10 @@ export async function loadFabricDescriptions() {
             const composeContent = await fs.readFile(composePath, 'utf8');
             const compose = parseComposeFile(composeContent);
             const services = compose?.services ?? {};
-            const ordererEnv = parseEnvironmentVariables(services?.['orderer.example.com']?.environment ?? []);
-            const ordererSummary = buildOrdererSummary(services?.['orderer.example.com'], ordererEnv);
+            const domain = source.domain ?? 'standard.com';
+            const ordererServiceName = `orderer.${domain}`;
+            const ordererEnv = parseEnvironmentVariables(services?.[ordererServiceName]?.environment ?? []);
+            const ordererSummary = buildOrdererSummary(ordererServiceName, services?.[ordererServiceName], ordererEnv);
             const peerSummaries = buildPeerSummaries(services);
 
             const networkConfigPath = path.resolve(source.root, NETWORK_CONFIG_RELATIVE_PATH);

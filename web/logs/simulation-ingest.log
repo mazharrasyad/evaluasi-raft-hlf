@@ -50,3 +50,703 @@ TypeError: contract.createTransaction is not a function
     at async submitSimulationRecord (file:///root/evaluasi-raft-hlf/web/src/simulation-ingest.js:374:24)
     at async file:///root/evaluasi-raft-hlf/web/src/app.js:671:25
 
+[2025-10-28T09:18:36.370Z] Pengiriman catatan ke RAFT Standard (channel-standard)
+Status: error
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Waktu mulai: 2025-10-28T09:18:36.356Z
+Waktu selesai: 2025-10-28T09:18:36.370Z
+Pesan: contract.createTransaction is not a function
+Error: contract.createTransaction is not a function
+Stacktrace:
+TypeError: contract.createTransaction is not a function
+    at submitToSingleNetwork (file:///root/evaluasi-raft-hlf/web/src/simulation-ingest.js:268:38)
+    at async submitSimulationRecord (file:///root/evaluasi-raft-hlf/web/src/simulation-ingest.js:374:24)
+    at async file:///root/evaluasi-raft-hlf/web/src/app.js:929:25
+
+[2025-10-28T09:18:36.373Z] Pengiriman catatan ke RAFT Variant (channel-variant)
+Status: error
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Waktu mulai: 2025-10-28T09:18:36.371Z
+Waktu selesai: 2025-10-28T09:18:36.373Z
+Pesan: contract.createTransaction is not a function
+Error: contract.createTransaction is not a function
+Stacktrace:
+TypeError: contract.createTransaction is not a function
+    at submitToSingleNetwork (file:///root/evaluasi-raft-hlf/web/src/simulation-ingest.js:268:38)
+    at async submitSimulationRecord (file:///root/evaluasi-raft-hlf/web/src/simulation-ingest.js:374:24)
+    at async file:///root/evaluasi-raft-hlf/web/src/app.js:929:25
+
+[2025-10-28T09:18:36.434Z] Pengiriman catatan ke RAFT Standard (channel-standard)
+Status: error
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Waktu mulai: 2025-10-28T09:18:36.432Z
+Waktu selesai: 2025-10-28T09:18:36.434Z
+Pesan: contract.createTransaction is not a function
+Error: contract.createTransaction is not a function
+Stacktrace:
+TypeError: contract.createTransaction is not a function
+    at submitToSingleNetwork (file:///root/evaluasi-raft-hlf/web/src/simulation-ingest.js:268:38)
+    at async submitSimulationRecord (file:///root/evaluasi-raft-hlf/web/src/simulation-ingest.js:374:24)
+    at async file:///root/evaluasi-raft-hlf/web/src/app.js:929:25
+
+[2025-10-28T09:18:36.436Z] Pengiriman catatan ke RAFT Variant (channel-variant)
+Status: error
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Waktu mulai: 2025-10-28T09:18:36.435Z
+Waktu selesai: 2025-10-28T09:18:36.436Z
+Pesan: contract.createTransaction is not a function
+Error: contract.createTransaction is not a function
+Stacktrace:
+TypeError: contract.createTransaction is not a function
+    at submitToSingleNetwork (file:///root/evaluasi-raft-hlf/web/src/simulation-ingest.js:268:38)
+    at async submitSimulationRecord (file:///root/evaluasi-raft-hlf/web/src/simulation-ingest.js:374:24)
+    at async file:///root/evaluasi-raft-hlf/web/src/app.js:929:25
+
+[2025-10-28T09:18:36.500Z] Pengiriman catatan ke RAFT Standard (channel-standard)
+Status: error
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Waktu mulai: 2025-10-28T09:18:36.497Z
+Waktu selesai: 2025-10-28T09:18:36.500Z
+Pesan: contract.createTransaction is not a function
+Error: contract.createTransaction is not a function
+Stacktrace:
+TypeError: contract.createTransaction is not a function
+    at submitToSingleNetwork (file:///root/evaluasi-raft-hlf/web/src/simulation-ingest.js:268:38)
+    at async submitSimulationRecord (file:///root/evaluasi-raft-hlf/web/src/simulation-ingest.js:374:24)
+    at async file:///root/evaluasi-raft-hlf/web/src/app.js:929:25
+
+[2025-10-28T09:18:36.502Z] Pengiriman catatan ke RAFT Variant (channel-variant)
+Status: error
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Waktu mulai: 2025-10-28T09:18:36.501Z
+Waktu selesai: 2025-10-28T09:18:36.502Z
+Pesan: contract.createTransaction is not a function
+Error: contract.createTransaction is not a function
+Stacktrace:
+TypeError: contract.createTransaction is not a function
+    at submitToSingleNetwork (file:///root/evaluasi-raft-hlf/web/src/simulation-ingest.js:268:38)
+    at async submitSimulationRecord (file:///root/evaluasi-raft-hlf/web/src/simulation-ingest.js:374:24)
+    at async file:///root/evaluasi-raft-hlf/web/src/app.js:929:25
+
+[2025-10-28T09:18:36.577Z] Pengiriman catatan ke RAFT Standard (channel-standard)
+Status: error
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Waktu mulai: 2025-10-28T09:18:36.572Z
+Waktu selesai: 2025-10-28T09:18:36.577Z
+Pesan: contract.createTransaction is not a function
+Error: contract.createTransaction is not a function
+Stacktrace:
+TypeError: contract.createTransaction is not a function
+    at submitToSingleNetwork (file:///root/evaluasi-raft-hlf/web/src/simulation-ingest.js:268:38)
+    at async submitSimulationRecord (file:///root/evaluasi-raft-hlf/web/src/simulation-ingest.js:374:24)
+    at async file:///root/evaluasi-raft-hlf/web/src/app.js:929:25
+
+[2025-10-28T09:18:36.583Z] Pengiriman catatan ke RAFT Variant (channel-variant)
+Status: error
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Waktu mulai: 2025-10-28T09:18:36.577Z
+Waktu selesai: 2025-10-28T09:18:36.583Z
+Pesan: contract.createTransaction is not a function
+Error: contract.createTransaction is not a function
+Stacktrace:
+TypeError: contract.createTransaction is not a function
+    at submitToSingleNetwork (file:///root/evaluasi-raft-hlf/web/src/simulation-ingest.js:268:38)
+    at async submitSimulationRecord (file:///root/evaluasi-raft-hlf/web/src/simulation-ingest.js:374:24)
+    at async file:///root/evaluasi-raft-hlf/web/src/app.js:929:25
+
+[2025-10-28T09:18:36.753Z] Pengiriman catatan ke RAFT Standard (channel-standard)
+Status: error
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Waktu mulai: 2025-10-28T09:18:36.739Z
+Waktu selesai: 2025-10-28T09:18:36.753Z
+Pesan: contract.createTransaction is not a function
+Error: contract.createTransaction is not a function
+Stacktrace:
+TypeError: contract.createTransaction is not a function
+    at submitToSingleNetwork (file:///root/evaluasi-raft-hlf/web/src/simulation-ingest.js:268:38)
+    at async submitSimulationRecord (file:///root/evaluasi-raft-hlf/web/src/simulation-ingest.js:374:24)
+    at async file:///root/evaluasi-raft-hlf/web/src/app.js:929:25
+
+[2025-10-28T09:18:36.759Z] Pengiriman catatan ke RAFT Variant (channel-variant)
+Status: error
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Waktu mulai: 2025-10-28T09:18:36.755Z
+Waktu selesai: 2025-10-28T09:18:36.759Z
+Pesan: contract.createTransaction is not a function
+Error: contract.createTransaction is not a function
+Stacktrace:
+TypeError: contract.createTransaction is not a function
+    at submitToSingleNetwork (file:///root/evaluasi-raft-hlf/web/src/simulation-ingest.js:268:38)
+    at async submitSimulationRecord (file:///root/evaluasi-raft-hlf/web/src/simulation-ingest.js:374:24)
+    at async file:///root/evaluasi-raft-hlf/web/src/app.js:929:25
+
+[2025-10-28T09:18:51.822Z] Pengiriman catatan ke RAFT Standard (channel-standard)
+Status: error
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Waktu mulai: 2025-10-28T09:18:51.806Z
+Waktu selesai: 2025-10-28T09:18:51.822Z
+Pesan: contract.createTransaction is not a function
+Error: contract.createTransaction is not a function
+Stacktrace:
+TypeError: contract.createTransaction is not a function
+    at submitToSingleNetwork (file:///root/evaluasi-raft-hlf/web/src/simulation-ingest.js:268:38)
+    at async submitSimulationRecord (file:///root/evaluasi-raft-hlf/web/src/simulation-ingest.js:374:24)
+    at async file:///root/evaluasi-raft-hlf/web/src/app.js:929:25
+
+[2025-10-28T09:18:51.829Z] Pengiriman catatan ke RAFT Variant (channel-variant)
+Status: error
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Waktu mulai: 2025-10-28T09:18:51.824Z
+Waktu selesai: 2025-10-28T09:18:51.828Z
+Pesan: contract.createTransaction is not a function
+Error: contract.createTransaction is not a function
+Stacktrace:
+TypeError: contract.createTransaction is not a function
+    at submitToSingleNetwork (file:///root/evaluasi-raft-hlf/web/src/simulation-ingest.js:268:38)
+    at async submitSimulationRecord (file:///root/evaluasi-raft-hlf/web/src/simulation-ingest.js:374:24)
+    at async file:///root/evaluasi-raft-hlf/web/src/app.js:929:25
+
+[2025-10-28T09:18:51.926Z] Pengiriman catatan ke RAFT Standard (channel-standard)
+Status: error
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Waktu mulai: 2025-10-28T09:18:51.921Z
+Waktu selesai: 2025-10-28T09:18:51.926Z
+Pesan: contract.createTransaction is not a function
+Error: contract.createTransaction is not a function
+Stacktrace:
+TypeError: contract.createTransaction is not a function
+    at submitToSingleNetwork (file:///root/evaluasi-raft-hlf/web/src/simulation-ingest.js:268:38)
+    at async submitSimulationRecord (file:///root/evaluasi-raft-hlf/web/src/simulation-ingest.js:374:24)
+    at async file:///root/evaluasi-raft-hlf/web/src/app.js:929:25
+
+[2025-10-28T09:18:51.930Z] Pengiriman catatan ke RAFT Variant (channel-variant)
+Status: error
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Waktu mulai: 2025-10-28T09:18:51.927Z
+Waktu selesai: 2025-10-28T09:18:51.930Z
+Pesan: contract.createTransaction is not a function
+Error: contract.createTransaction is not a function
+Stacktrace:
+TypeError: contract.createTransaction is not a function
+    at submitToSingleNetwork (file:///root/evaluasi-raft-hlf/web/src/simulation-ingest.js:268:38)
+    at async submitSimulationRecord (file:///root/evaluasi-raft-hlf/web/src/simulation-ingest.js:374:24)
+    at async file:///root/evaluasi-raft-hlf/web/src/app.js:929:25
+
+[2025-10-28T09:18:52.047Z] Pengiriman catatan ke RAFT Standard (channel-standard)
+Status: error
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Waktu mulai: 2025-10-28T09:18:52.042Z
+Waktu selesai: 2025-10-28T09:18:52.046Z
+Pesan: contract.createTransaction is not a function
+Error: contract.createTransaction is not a function
+Stacktrace:
+TypeError: contract.createTransaction is not a function
+    at submitToSingleNetwork (file:///root/evaluasi-raft-hlf/web/src/simulation-ingest.js:268:38)
+    at async submitSimulationRecord (file:///root/evaluasi-raft-hlf/web/src/simulation-ingest.js:374:24)
+    at async file:///root/evaluasi-raft-hlf/web/src/app.js:929:25
+
+[2025-10-28T09:18:52.051Z] Pengiriman catatan ke RAFT Variant (channel-variant)
+Status: error
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Waktu mulai: 2025-10-28T09:18:52.048Z
+Waktu selesai: 2025-10-28T09:18:52.051Z
+Pesan: contract.createTransaction is not a function
+Error: contract.createTransaction is not a function
+Stacktrace:
+TypeError: contract.createTransaction is not a function
+    at submitToSingleNetwork (file:///root/evaluasi-raft-hlf/web/src/simulation-ingest.js:268:38)
+    at async submitSimulationRecord (file:///root/evaluasi-raft-hlf/web/src/simulation-ingest.js:374:24)
+    at async file:///root/evaluasi-raft-hlf/web/src/app.js:929:25
+
+[2025-10-28T09:18:52.168Z] Pengiriman catatan ke RAFT Standard (channel-standard)
+Status: error
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Waktu mulai: 2025-10-28T09:18:52.163Z
+Waktu selesai: 2025-10-28T09:18:52.168Z
+Pesan: contract.createTransaction is not a function
+Error: contract.createTransaction is not a function
+Stacktrace:
+TypeError: contract.createTransaction is not a function
+    at submitToSingleNetwork (file:///root/evaluasi-raft-hlf/web/src/simulation-ingest.js:268:38)
+    at async submitSimulationRecord (file:///root/evaluasi-raft-hlf/web/src/simulation-ingest.js:374:24)
+    at async file:///root/evaluasi-raft-hlf/web/src/app.js:929:25
+
+[2025-10-28T09:18:52.173Z] Pengiriman catatan ke RAFT Variant (channel-variant)
+Status: error
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Waktu mulai: 2025-10-28T09:18:52.169Z
+Waktu selesai: 2025-10-28T09:18:52.173Z
+Pesan: contract.createTransaction is not a function
+Error: contract.createTransaction is not a function
+Stacktrace:
+TypeError: contract.createTransaction is not a function
+    at submitToSingleNetwork (file:///root/evaluasi-raft-hlf/web/src/simulation-ingest.js:268:38)
+    at async submitSimulationRecord (file:///root/evaluasi-raft-hlf/web/src/simulation-ingest.js:374:24)
+    at async file:///root/evaluasi-raft-hlf/web/src/app.js:929:25
+
+[2025-10-28T09:18:52.288Z] Pengiriman catatan ke RAFT Standard (channel-standard)
+Status: error
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Waktu mulai: 2025-10-28T09:18:52.283Z
+Waktu selesai: 2025-10-28T09:18:52.288Z
+Pesan: contract.createTransaction is not a function
+Error: contract.createTransaction is not a function
+Stacktrace:
+TypeError: contract.createTransaction is not a function
+    at submitToSingleNetwork (file:///root/evaluasi-raft-hlf/web/src/simulation-ingest.js:268:38)
+    at async submitSimulationRecord (file:///root/evaluasi-raft-hlf/web/src/simulation-ingest.js:374:24)
+    at async file:///root/evaluasi-raft-hlf/web/src/app.js:929:25
+
+[2025-10-28T09:18:52.291Z] Pengiriman catatan ke RAFT Variant (channel-variant)
+Status: error
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Waktu mulai: 2025-10-28T09:18:52.288Z
+Waktu selesai: 2025-10-28T09:18:52.290Z
+Pesan: contract.createTransaction is not a function
+Error: contract.createTransaction is not a function
+Stacktrace:
+TypeError: contract.createTransaction is not a function
+    at submitToSingleNetwork (file:///root/evaluasi-raft-hlf/web/src/simulation-ingest.js:268:38)
+    at async submitSimulationRecord (file:///root/evaluasi-raft-hlf/web/src/simulation-ingest.js:374:24)
+    at async file:///root/evaluasi-raft-hlf/web/src/app.js:929:25
+
+[2025-10-28T09:25:04.745Z] Pengiriman catatan ke RAFT Standard (channel-standard)
+Status: success
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Waktu mulai: 2025-10-28T09:24:55.348Z
+Waktu selesai: 2025-10-28T09:25:04.743Z
+Transaction ID: cd993133b39069d3b12939610614207d274e4037eeffb5e73d8879182c8b124b
+Commit: TX: cd993133b39069d3b12939610614207d274e4037eeffb5e73d8879182c8b124b, Status: VALID, Block: 6, Successful: true
+Pesan: Transaksi berhasil dikomit ke ledger.
+
+[2025-10-28T09:25:04.789Z] Pengiriman catatan ke RAFT Variant (channel-variant)
+Status: error
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Waktu mulai: 2025-10-28T09:25:04.747Z
+Waktu selesai: 2025-10-28T09:25:04.789Z
+Pesan: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+Error: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+Stacktrace:
+EndorseError: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+    at /root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/client.js:37:253
+    at Object.callback (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/client.js:102:20)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client.js:193:36)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:367:141)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:327:181)
+    at /root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/resolving-call.js:135:78
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+
+[2025-10-28T09:25:06.981Z] Pengiriman catatan ke RAFT Standard (channel-standard)
+Status: success
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Waktu mulai: 2025-10-28T09:25:04.888Z
+Waktu selesai: 2025-10-28T09:25:06.979Z
+Transaction ID: 24cc11186610437f5264c35667a445ee45b34936e9960167fa6ac47011a058c0
+Commit: TX: 24cc11186610437f5264c35667a445ee45b34936e9960167fa6ac47011a058c0, Status: VALID, Block: 7, Successful: true
+Pesan: Transaksi berhasil dikomit ke ledger.
+
+[2025-10-28T09:25:07.007Z] Pengiriman catatan ke RAFT Variant (channel-variant)
+Status: error
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Waktu mulai: 2025-10-28T09:25:06.981Z
+Waktu selesai: 2025-10-28T09:25:07.006Z
+Pesan: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+Error: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+Stacktrace:
+EndorseError: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+    at /root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/client.js:37:253
+    at Object.callback (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/client.js:102:20)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client.js:193:36)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:367:141)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:327:181)
+    at /root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/resolving-call.js:135:78
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+
+[2025-10-28T09:25:09.188Z] Pengiriman catatan ke RAFT Standard (channel-standard)
+Status: success
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Waktu mulai: 2025-10-28T09:25:07.093Z
+Waktu selesai: 2025-10-28T09:25:09.187Z
+Transaction ID: 5f4f0cf316df817b9bebda97119b6fefdc15018c13743a534c06bd9d2b4bb319
+Commit: TX: 5f4f0cf316df817b9bebda97119b6fefdc15018c13743a534c06bd9d2b4bb319, Status: VALID, Block: 8, Successful: true
+Pesan: Transaksi berhasil dikomit ke ledger.
+
+[2025-10-28T09:25:09.206Z] Pengiriman catatan ke RAFT Variant (channel-variant)
+Status: error
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Waktu mulai: 2025-10-28T09:25:09.188Z
+Waktu selesai: 2025-10-28T09:25:09.205Z
+Pesan: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+Error: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+Stacktrace:
+EndorseError: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+    at /root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/client.js:37:253
+    at Object.callback (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/client.js:102:20)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client.js:193:36)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:367:141)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:327:181)
+    at /root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/resolving-call.js:135:78
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+
+[2025-10-28T09:25:11.366Z] Pengiriman catatan ke RAFT Standard (channel-standard)
+Status: success
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Waktu mulai: 2025-10-28T09:25:09.282Z
+Waktu selesai: 2025-10-28T09:25:11.364Z
+Transaction ID: 8fb24907eb447e8362b4f3be4a2f3ed41c4d301ffbf342d9f7c5ab73ba71cb94
+Commit: TX: 8fb24907eb447e8362b4f3be4a2f3ed41c4d301ffbf342d9f7c5ab73ba71cb94, Status: VALID, Block: 9, Successful: true
+Pesan: Transaksi berhasil dikomit ke ledger.
+
+[2025-10-28T09:25:11.387Z] Pengiriman catatan ke RAFT Variant (channel-variant)
+Status: error
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Waktu mulai: 2025-10-28T09:25:11.367Z
+Waktu selesai: 2025-10-28T09:25:11.387Z
+Pesan: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+Error: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+Stacktrace:
+EndorseError: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+    at /root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/client.js:37:253
+    at Object.callback (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/client.js:102:20)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client.js:193:36)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:367:141)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:327:181)
+    at /root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/resolving-call.js:135:78
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+
+[2025-10-28T09:25:13.579Z] Pengiriman catatan ke RAFT Standard (channel-standard)
+Status: success
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Waktu mulai: 2025-10-28T09:25:11.460Z
+Waktu selesai: 2025-10-28T09:25:13.578Z
+Transaction ID: 4b79fcd1e8b16fd04f3d8aa0f82c446bbc07566497c7d6bf227c3b07203a1be3
+Commit: TX: 4b79fcd1e8b16fd04f3d8aa0f82c446bbc07566497c7d6bf227c3b07203a1be3, Status: VALID, Block: 10, Successful: true
+Pesan: Transaksi berhasil dikomit ke ledger.
+
+[2025-10-28T09:25:13.599Z] Pengiriman catatan ke RAFT Variant (channel-variant)
+Status: error
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Waktu mulai: 2025-10-28T09:25:13.580Z
+Waktu selesai: 2025-10-28T09:25:13.598Z
+Pesan: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+Error: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+Stacktrace:
+EndorseError: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+    at /root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/client.js:37:253
+    at Object.callback (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/client.js:102:20)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client.js:193:36)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:367:141)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:327:181)
+    at /root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/resolving-call.js:135:78
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+
+[2025-10-28T09:26:38.365Z] Pengiriman catatan ke RAFT Standard (channel-standard)
+Status: success
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Waktu mulai: 2025-10-28T09:26:33.100Z
+Waktu selesai: 2025-10-28T09:26:38.364Z
+Transaction ID: 1c8095c566496050b16faa88fa95b987012b7193e23aa2ca4edb3693e266ca3f
+Commit: TX: 1c8095c566496050b16faa88fa95b987012b7193e23aa2ca4edb3693e266ca3f, Status: VALID, Block: 11, Successful: true
+Pesan: Transaksi berhasil dikomit ke ledger.
+
+[2025-10-28T09:26:38.400Z] Pengiriman catatan ke RAFT Variant (channel-variant)
+Status: error
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Waktu mulai: 2025-10-28T09:26:38.366Z
+Waktu selesai: 2025-10-28T09:26:38.400Z
+Pesan: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+Error: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+Stacktrace:
+EndorseError: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+    at /root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/client.js:37:253
+    at Object.callback (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/client.js:102:20)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client.js:193:36)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:367:141)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:327:181)
+    at /root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/resolving-call.js:135:78
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+
+[2025-10-28T09:26:40.575Z] Pengiriman catatan ke RAFT Standard (channel-standard)
+Status: success
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Waktu mulai: 2025-10-28T09:26:38.458Z
+Waktu selesai: 2025-10-28T09:26:40.575Z
+Transaction ID: aaf512ae4ac8a28a57355f3323b3eac4f5258a4adfa968db166bbc5d95c3cdf3
+Commit: TX: aaf512ae4ac8a28a57355f3323b3eac4f5258a4adfa968db166bbc5d95c3cdf3, Status: VALID, Block: 12, Successful: true
+Pesan: Transaksi berhasil dikomit ke ledger.
+
+[2025-10-28T09:26:40.598Z] Pengiriman catatan ke RAFT Variant (channel-variant)
+Status: error
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Waktu mulai: 2025-10-28T09:26:40.577Z
+Waktu selesai: 2025-10-28T09:26:40.598Z
+Pesan: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+Error: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+Stacktrace:
+EndorseError: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+    at /root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/client.js:37:253
+    at Object.callback (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/client.js:102:20)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client.js:193:36)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:367:141)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:327:181)
+    at /root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/resolving-call.js:135:78
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+
+[2025-10-28T09:26:42.883Z] Pengiriman catatan ke RAFT Standard (channel-standard)
+Status: success
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Waktu mulai: 2025-10-28T09:26:40.750Z
+Waktu selesai: 2025-10-28T09:26:42.881Z
+Transaction ID: 870c5f75fb17cfbfb508cfdd44fa13fd91c56c751633bb9af469e383414ea142
+Commit: TX: 870c5f75fb17cfbfb508cfdd44fa13fd91c56c751633bb9af469e383414ea142, Status: VALID, Block: 13, Successful: true
+Pesan: Transaksi berhasil dikomit ke ledger.
+
+[2025-10-28T09:26:42.924Z] Pengiriman catatan ke RAFT Variant (channel-variant)
+Status: error
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Waktu mulai: 2025-10-28T09:26:42.884Z
+Waktu selesai: 2025-10-28T09:26:42.922Z
+Pesan: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+Error: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+Stacktrace:
+EndorseError: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+    at /root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/client.js:37:253
+    at Object.callback (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/client.js:102:20)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client.js:193:36)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:367:141)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:327:181)
+    at /root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/resolving-call.js:135:78
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+
+[2025-10-28T09:26:45.045Z] Pengiriman catatan ke RAFT Standard (channel-standard)
+Status: success
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Waktu mulai: 2025-10-28T09:26:42.956Z
+Waktu selesai: 2025-10-28T09:26:45.045Z
+Transaction ID: 5a0d1bc93a92a791d672729cad6999a2ce6ff4604f3a7063e3f7461f1b80b00a
+Commit: TX: 5a0d1bc93a92a791d672729cad6999a2ce6ff4604f3a7063e3f7461f1b80b00a, Status: VALID, Block: 14, Successful: true
+Pesan: Transaksi berhasil dikomit ke ledger.
+
+[2025-10-28T09:26:45.062Z] Pengiriman catatan ke RAFT Variant (channel-variant)
+Status: error
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Waktu mulai: 2025-10-28T09:26:45.045Z
+Waktu selesai: 2025-10-28T09:26:45.061Z
+Pesan: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+Error: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+Stacktrace:
+EndorseError: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+    at /root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/client.js:37:253
+    at Object.callback (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/client.js:102:20)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client.js:193:36)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:367:141)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:327:181)
+    at /root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/resolving-call.js:135:78
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+
+[2025-10-28T09:26:47.273Z] Pengiriman catatan ke RAFT Standard (channel-standard)
+Status: success
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Waktu mulai: 2025-10-28T09:26:45.180Z
+Waktu selesai: 2025-10-28T09:26:47.271Z
+Transaction ID: b790dd14f3c6480dbfbf3245a50e1f7c8d74384f1aa3b683f207fa69f52f0062
+Commit: TX: b790dd14f3c6480dbfbf3245a50e1f7c8d74384f1aa3b683f207fa69f52f0062, Status: VALID, Block: 15, Successful: true
+Pesan: Transaksi berhasil dikomit ke ledger.
+
+[2025-10-28T09:26:47.291Z] Pengiriman catatan ke RAFT Variant (channel-variant)
+Status: error
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Waktu mulai: 2025-10-28T09:26:47.273Z
+Waktu selesai: 2025-10-28T09:26:47.290Z
+Pesan: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+Error: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+Stacktrace:
+EndorseError: 14 UNAVAILABLE: No connection established. Last error: Error: unable to verify the first certificate. Resolution note: 
+    at /root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/client.js:37:253
+    at Object.callback (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/client.js:102:20)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client.js:193:36)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:367:141)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:327:181)
+    at /root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/resolving-call.js:135:78
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+
+[2025-10-28T09:49:47.281Z] Pengiriman catatan ke RAFT Standard (channel-standard)
+Status: success
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Waktu mulai: 2025-10-28T09:49:42.459Z
+Waktu selesai: 2025-10-28T09:49:47.280Z
+Transaction ID: 83439d5f141c540ba533263a1231198579a5a98af0be335a6bc523ae43835f62
+Commit: TX: 83439d5f141c540ba533263a1231198579a5a98af0be335a6bc523ae43835f62, Status: VALID, Block: 16, Successful: true
+Pesan: Transaksi berhasil dikomit ke ledger.
+
+[2025-10-28T09:49:54.621Z] Pengiriman catatan ke RAFT Variant (channel-variant)
+Status: success
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Waktu mulai: 2025-10-28T09:49:47.283Z
+Waktu selesai: 2025-10-28T09:49:54.621Z
+Transaction ID: c7601d45659151f7b8c363537cc3f3c157758762f8ca2e1db38b764df1c073d2
+Commit: TX: c7601d45659151f7b8c363537cc3f3c157758762f8ca2e1db38b764df1c073d2, Status: VALID, Block: 6, Successful: true
+Pesan: Transaksi berhasil dikomit ke ledger.
+
+[2025-10-28T09:50:02.705Z] Pengiriman catatan ke RAFT Standard (channel-standard)
+Status: success
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Waktu mulai: 2025-10-28T09:49:54.644Z
+Waktu selesai: 2025-10-28T09:50:02.705Z
+Transaction ID: f57b4a83fdf9d5aedcc20bed4de4778355f42afb2f3153dd9be90ab812d1afd4
+Commit: TX: f57b4a83fdf9d5aedcc20bed4de4778355f42afb2f3153dd9be90ab812d1afd4, Status: VALID, Block: 17, Successful: true
+Pesan: Transaksi berhasil dikomit ke ledger.
+
+[2025-10-28T09:50:10.459Z] Pengiriman catatan ke RAFT Variant (channel-variant)
+Status: success
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Waktu mulai: 2025-10-28T09:50:02.706Z
+Waktu selesai: 2025-10-28T09:50:10.458Z
+Transaction ID: cac4c0e4a000567df06b8ff99bcea455151f43ea4fac832aaddae62776acc980
+Commit: TX: cac4c0e4a000567df06b8ff99bcea455151f43ea4fac832aaddae62776acc980, Status: VALID, Block: 7, Successful: true
+Pesan: Transaksi berhasil dikomit ke ledger.
+
+[2025-10-28T09:50:17.638Z] Pengiriman catatan ke RAFT Standard (channel-standard)
+Status: success
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Waktu mulai: 2025-10-28T09:50:10.491Z
+Waktu selesai: 2025-10-28T09:50:17.638Z
+Transaction ID: 2eb2aed48589a17a54dd3006f64786ce3d76002fb2f3e51faf0694fd812ff6df
+Commit: TX: 2eb2aed48589a17a54dd3006f64786ce3d76002fb2f3e51faf0694fd812ff6df, Status: VALID, Block: 18, Successful: true
+Pesan: Transaksi berhasil dikomit ke ledger.
+
+[2025-10-28T09:50:25.624Z] Pengiriman catatan ke RAFT Variant (channel-variant)
+Status: success
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Waktu mulai: 2025-10-28T09:50:17.638Z
+Waktu selesai: 2025-10-28T09:50:25.623Z
+Transaction ID: 3911ca97f4de770b9dfcd915943e0f9f104e992ec9dad3b925362d11c3725a41
+Commit: TX: 3911ca97f4de770b9dfcd915943e0f9f104e992ec9dad3b925362d11c3725a41, Status: VALID, Block: 8, Successful: true
+Pesan: Transaksi berhasil dikomit ke ledger.
+
+[2025-10-28T09:50:33.756Z] Pengiriman catatan ke RAFT Standard (channel-standard)
+Status: success
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Waktu mulai: 2025-10-28T09:50:25.668Z
+Waktu selesai: 2025-10-28T09:50:33.756Z
+Transaction ID: bdddda49e8854233381e08eeb177f64a6dfcd70f63e6705f35ee5a3a0cc9cde0
+Commit: TX: bdddda49e8854233381e08eeb177f64a6dfcd70f63e6705f35ee5a3a0cc9cde0, Status: VALID, Block: 19, Successful: true
+Pesan: Transaksi berhasil dikomit ke ledger.
+
+[2025-10-28T09:50:40.688Z] Pengiriman catatan ke RAFT Variant (channel-variant)
+Status: success
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Waktu mulai: 2025-10-28T09:50:33.757Z
+Waktu selesai: 2025-10-28T09:50:40.688Z
+Transaction ID: b231b2809254ac257cf2bfa150440d644c8c843c2df06d5abd06bc3901ef5d68
+Commit: TX: b231b2809254ac257cf2bfa150440d644c8c843c2df06d5abd06bc3901ef5d68, Status: VALID, Block: 9, Successful: true
+Pesan: Transaksi berhasil dikomit ke ledger.
+
+[2025-10-28T09:50:47.832Z] Pengiriman catatan ke RAFT Standard (channel-standard)
+Status: success
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Waktu mulai: 2025-10-28T09:50:40.728Z
+Waktu selesai: 2025-10-28T09:50:47.829Z
+Transaction ID: 5db086879790ca2ad57ed703f57c056024e8840b54054574873223283698ebdf
+Commit: TX: 5db086879790ca2ad57ed703f57c056024e8840b54054574873223283698ebdf, Status: VALID, Block: 20, Successful: true
+Pesan: Transaksi berhasil dikomit ke ledger.
+
+[2025-10-28T09:50:56.011Z] Pengiriman catatan ke RAFT Variant (channel-variant)
+Status: success
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Waktu mulai: 2025-10-28T09:50:47.833Z
+Waktu selesai: 2025-10-28T09:50:56.010Z
+Transaction ID: ccfd738a143cced6d021ed7000c33ebdb8d890b03ca84bcfde1f7e6394c51a76
+Commit: TX: ccfd738a143cced6d021ed7000c33ebdb8d890b03ca84bcfde1f7e6394c51a76, Status: VALID, Block: 10, Successful: true
+Pesan: Transaksi berhasil dikomit ke ledger.
+
+[2025-10-28T11:28:35.973Z] Pengiriman catatan ke RAFT Standard (channel-standard)
+Status: success
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Waktu mulai: 2025-10-28T11:28:27.576Z
+Waktu selesai: 2025-10-28T11:28:35.972Z
+Transaction ID: b41c1c83263ebff8ac2d569480f53614cb02e6c12e3fd202573372845e034c38
+Commit: TX: b41c1c83263ebff8ac2d569480f53614cb02e6c12e3fd202573372845e034c38, Status: VALID, Block: 21, Successful: true
+Pesan: Transaksi berhasil dikomit ke ledger.
+
+[2025-10-28T11:28:38.095Z] Pengiriman catatan ke RAFT Standard (channel-standard)
+Status: success
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Waktu mulai: 2025-10-28T11:28:36.011Z
+Waktu selesai: 2025-10-28T11:28:38.095Z
+Transaction ID: d7999bf0837d96453daf87927cbec77eca1b0f28e0653bfa44c9908b66a663fc
+Commit: TX: d7999bf0837d96453daf87927cbec77eca1b0f28e0653bfa44c9908b66a663fc, Status: VALID, Block: 22, Successful: true
+Pesan: Transaksi berhasil dikomit ke ledger.
+
+[2025-10-28T11:28:40.223Z] Pengiriman catatan ke RAFT Standard (channel-standard)
+Status: success
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Waktu mulai: 2025-10-28T11:28:38.140Z
+Waktu selesai: 2025-10-28T11:28:40.222Z
+Transaction ID: daff6bca208664c24fb6fa8025ce9e03bfb5a5b9ae5d30cba6ace78bae093317
+Commit: TX: daff6bca208664c24fb6fa8025ce9e03bfb5a5b9ae5d30cba6ace78bae093317, Status: VALID, Block: 23, Successful: true
+Pesan: Transaksi berhasil dikomit ke ledger.
+
+[2025-10-28T11:28:42.291Z] Pengiriman catatan ke RAFT Standard (channel-standard)
+Status: success
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Waktu mulai: 2025-10-28T11:28:40.251Z
+Waktu selesai: 2025-10-28T11:28:42.290Z
+Transaction ID: 610b3099bd41a9c26e962b061efbfb438a62855cc3d11cec9fd054285e621f90
+Commit: TX: 610b3099bd41a9c26e962b061efbfb438a62855cc3d11cec9fd054285e621f90, Status: VALID, Block: 24, Successful: true
+Pesan: Transaksi berhasil dikomit ke ledger.
+
+[2025-10-28T11:28:44.445Z] Pengiriman catatan ke RAFT Standard (channel-standard)
+Status: success
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Waktu mulai: 2025-10-28T11:28:42.381Z
+Waktu selesai: 2025-10-28T11:28:44.445Z
+Transaction ID: 530e3e3a478f6f2a2fb052866c59a232eeca69e947f3ba998d56447dd5350bb2
+Commit: TX: 530e3e3a478f6f2a2fb052866c59a232eeca69e947f3ba998d56447dd5350bb2, Status: VALID, Block: 25, Successful: true
+Pesan: Transaksi berhasil dikomit ke ledger.
+
+[2025-10-28T11:28:52.094Z] Pengiriman catatan ke RAFT Variant (channel-variant)
+Status: success
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Waktu mulai: 2025-10-28T11:28:44.488Z
+Waktu selesai: 2025-10-28T11:28:52.092Z
+Transaction ID: e1320d1bffc1ff9b8a78a355ff1590b1cbd6cc1872ac128724a619cab3f777d9
+Commit: TX: e1320d1bffc1ff9b8a78a355ff1590b1cbd6cc1872ac128724a619cab3f777d9, Status: VALID, Block: 11, Successful: true
+Pesan: Transaksi berhasil dikomit ke ledger.
+
+[2025-10-28T11:28:54.245Z] Pengiriman catatan ke RAFT Variant (channel-variant)
+Status: success
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Waktu mulai: 2025-10-28T11:28:52.117Z
+Waktu selesai: 2025-10-28T11:28:54.244Z
+Transaction ID: 23e12d77329383271f3fa107e30704ec259b80cce8200bfd128afbc2710b33a6
+Commit: TX: 23e12d77329383271f3fa107e30704ec259b80cce8200bfd128afbc2710b33a6, Status: VALID, Block: 12, Successful: true
+Pesan: Transaksi berhasil dikomit ke ledger.
+
+[2025-10-28T11:28:56.405Z] Pengiriman catatan ke RAFT Variant (channel-variant)
+Status: success
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Waktu mulai: 2025-10-28T11:28:54.287Z
+Waktu selesai: 2025-10-28T11:28:56.405Z
+Transaction ID: 07d08354f3aca4d8a13cc4af29ddcd9a2d94b1077bdd498bcee15234055d63d4
+Commit: TX: 07d08354f3aca4d8a13cc4af29ddcd9a2d94b1077bdd498bcee15234055d63d4, Status: VALID, Block: 13, Successful: true
+Pesan: Transaksi berhasil dikomit ke ledger.
+
+[2025-10-28T11:28:58.516Z] Pengiriman catatan ke RAFT Variant (channel-variant)
+Status: success
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Waktu mulai: 2025-10-28T11:28:56.425Z
+Waktu selesai: 2025-10-28T11:28:58.516Z
+Transaction ID: 9c97aa604c48572ae0e30aba90a6314dc6b2237e6330ddd7ac8524f9254e8bf0
+Commit: TX: 9c97aa604c48572ae0e30aba90a6314dc6b2237e6330ddd7ac8524f9254e8bf0, Status: VALID, Block: 14, Successful: true
+Pesan: Transaksi berhasil dikomit ke ledger.
+
+[2025-10-28T11:29:00.678Z] Pengiriman catatan ke RAFT Variant (channel-variant)
+Status: success
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Waktu mulai: 2025-10-28T11:28:58.564Z
+Waktu selesai: 2025-10-28T11:29:00.677Z
+Transaction ID: b08718958c6a9cba095ae7df7a8b8d55670a96f283825284e7ae9c005dbfa98b
+Commit: TX: b08718958c6a9cba095ae7df7a8b8d55670a96f283825284e7ae9c005dbfa98b, Status: VALID, Block: 15, Successful: true
+Pesan: Transaksi berhasil dikomit ke ledger.
+

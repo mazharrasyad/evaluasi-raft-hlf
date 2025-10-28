@@ -1664,3 +1664,303 @@ GatewayError: 14 UNAVAILABLE: No connection established. Last error: Error: unab
     at /root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/resolving-call.js:135:78
     at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
 
+[2025-10-28T09:07:10.779Z] Pemeriksaan jaringan: RAFT Standard
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Channel: channel-standard
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-28T09:07:10.780Z] Pemeriksaan jaringan: RAFT Variant
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7052
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-28T09:08:49.501Z] Pemeriksaan jaringan: RAFT Variant
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7052
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-28T11:51:30.477Z] Pemeriksaan jaringan: RAFT Standard
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Channel: channel-standard
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-28T11:51:30.570Z] Pemeriksaan jaringan: RAFT Variant
+Status: unhealthy
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7052
+Pesan: 10 ABORTED: failed to evaluate transaction, see attached details for more info
+Error: 10 ABORTED: failed to evaluate transaction, see attached details for more info
+Stacktrace:
+GatewayError: 10 ABORTED: failed to evaluate transaction, see attached details for more info
+    at newGatewayError (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/gatewayerror.js:54:12)
+    at Object.callback (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/client.js:102:60)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client.js:193:36)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:367:141)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:327:181)
+    at /root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/resolving-call.js:135:78
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+
+[2025-10-28T11:51:38.731Z] Pemeriksaan jaringan: RAFT Standard
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Channel: channel-standard
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-28T11:51:38.766Z] Pemeriksaan jaringan: RAFT Variant
+Status: unhealthy
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7052
+Pesan: 10 ABORTED: failed to evaluate transaction, see attached details for more info
+Error: 10 ABORTED: failed to evaluate transaction, see attached details for more info
+Stacktrace:
+GatewayError: 10 ABORTED: failed to evaluate transaction, see attached details for more info
+    at newGatewayError (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/gatewayerror.js:54:12)
+    at Object.callback (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/client.js:102:60)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client.js:193:36)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:367:141)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:327:181)
+    at /root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/resolving-call.js:135:78
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+
+[2025-10-28T11:51:39.736Z] Pemeriksaan jaringan: RAFT Standard
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Channel: channel-standard
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-28T11:51:39.775Z] Pemeriksaan jaringan: RAFT Variant
+Status: unhealthy
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7052
+Pesan: 10 ABORTED: failed to evaluate transaction, see attached details for more info
+Error: 10 ABORTED: failed to evaluate transaction, see attached details for more info
+Stacktrace:
+GatewayError: 10 ABORTED: failed to evaluate transaction, see attached details for more info
+    at newGatewayError (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/gatewayerror.js:54:12)
+    at Object.callback (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/client.js:102:60)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client.js:193:36)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:367:141)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:327:181)
+    at /root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/resolving-call.js:135:78
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+
+[2025-10-28T11:51:40.449Z] Pemeriksaan jaringan: RAFT Standard
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Channel: channel-standard
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-28T11:51:40.467Z] Pemeriksaan jaringan: RAFT Variant
+Status: unhealthy
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7052
+Pesan: 10 ABORTED: failed to evaluate transaction, see attached details for more info
+Error: 10 ABORTED: failed to evaluate transaction, see attached details for more info
+Stacktrace:
+GatewayError: 10 ABORTED: failed to evaluate transaction, see attached details for more info
+    at newGatewayError (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/gatewayerror.js:54:12)
+    at Object.callback (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/client.js:102:60)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client.js:193:36)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:367:141)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:327:181)
+    at /root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/resolving-call.js:135:78
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+
+[2025-10-28T11:51:40.945Z] Pemeriksaan jaringan: RAFT Standard
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Channel: channel-standard
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-28T11:51:40.985Z] Pemeriksaan jaringan: RAFT Variant
+Status: unhealthy
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7052
+Pesan: 10 ABORTED: failed to evaluate transaction, see attached details for more info
+Error: 10 ABORTED: failed to evaluate transaction, see attached details for more info
+Stacktrace:
+GatewayError: 10 ABORTED: failed to evaluate transaction, see attached details for more info
+    at newGatewayError (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/gatewayerror.js:54:12)
+    at Object.callback (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/client.js:102:60)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client.js:193:36)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:367:141)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:327:181)
+    at /root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/resolving-call.js:135:78
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+
+[2025-10-28T11:51:41.745Z] Pemeriksaan jaringan: RAFT Standard
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Channel: channel-standard
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-28T11:51:41.784Z] Pemeriksaan jaringan: RAFT Variant
+Status: unhealthy
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7052
+Pesan: 10 ABORTED: failed to evaluate transaction, see attached details for more info
+Error: 10 ABORTED: failed to evaluate transaction, see attached details for more info
+Stacktrace:
+GatewayError: 10 ABORTED: failed to evaluate transaction, see attached details for more info
+    at newGatewayError (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/gatewayerror.js:54:12)
+    at Object.callback (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/client.js:102:60)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client.js:193:36)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:367:141)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:327:181)
+    at /root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/resolving-call.js:135:78
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+
+[2025-10-28T11:51:42.283Z] Pemeriksaan jaringan: RAFT Standard
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Channel: channel-standard
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-28T11:51:42.319Z] Pemeriksaan jaringan: RAFT Variant
+Status: unhealthy
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7052
+Pesan: 10 ABORTED: failed to evaluate transaction, see attached details for more info
+Error: 10 ABORTED: failed to evaluate transaction, see attached details for more info
+Stacktrace:
+GatewayError: 10 ABORTED: failed to evaluate transaction, see attached details for more info
+    at newGatewayError (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/gatewayerror.js:54:12)
+    at Object.callback (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/client.js:102:60)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client.js:193:36)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:367:141)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:327:181)
+    at /root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/resolving-call.js:135:78
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+
+[2025-10-28T11:51:42.689Z] Pemeriksaan jaringan: RAFT Standard
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Channel: channel-standard
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-28T11:51:42.722Z] Pemeriksaan jaringan: RAFT Variant
+Status: unhealthy
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7052
+Pesan: 10 ABORTED: failed to evaluate transaction, see attached details for more info
+Error: 10 ABORTED: failed to evaluate transaction, see attached details for more info
+Stacktrace:
+GatewayError: 10 ABORTED: failed to evaluate transaction, see attached details for more info
+    at newGatewayError (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/gatewayerror.js:54:12)
+    at Object.callback (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/client.js:102:60)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client.js:193:36)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:367:141)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:327:181)
+    at /root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/resolving-call.js:135:78
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+
+[2025-10-28T11:51:42.853Z] Pemeriksaan jaringan: RAFT Standard
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Channel: channel-standard
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-28T11:51:42.886Z] Pemeriksaan jaringan: RAFT Variant
+Status: unhealthy
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7052
+Pesan: 10 ABORTED: failed to evaluate transaction, see attached details for more info
+Error: 10 ABORTED: failed to evaluate transaction, see attached details for more info
+Stacktrace:
+GatewayError: 10 ABORTED: failed to evaluate transaction, see attached details for more info
+    at newGatewayError (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/gatewayerror.js:54:12)
+    at Object.callback (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/client.js:102:60)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client.js:193:36)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:367:141)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:327:181)
+    at /root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/resolving-call.js:135:78
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+
+[2025-10-28T11:51:43.013Z] Pemeriksaan jaringan: RAFT Standard
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Channel: channel-standard
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-28T11:51:43.046Z] Pemeriksaan jaringan: RAFT Variant
+Status: unhealthy
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7052
+Pesan: 10 ABORTED: failed to evaluate transaction, see attached details for more info
+Error: 10 ABORTED: failed to evaluate transaction, see attached details for more info
+Stacktrace:
+GatewayError: 10 ABORTED: failed to evaluate transaction, see attached details for more info
+    at newGatewayError (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/gatewayerror.js:54:12)
+    at Object.callback (/root/evaluasi-raft-hlf/web/node_modules/@hyperledger/fabric-gateway/dist/client.js:102:60)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client.js:193:36)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:367:141)
+    at Object.onReceiveStatus (/root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:327:181)
+    at /root/evaluasi-raft-hlf/web/node_modules/@grpc/grpc-js/build/src/resolving-call.js:135:78
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+
+[2025-10-28T11:52:08.244Z] Pemeriksaan jaringan: RAFT Standard
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Channel: channel-standard
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-28T11:52:08.245Z] Pemeriksaan jaringan: RAFT Variant
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7052
+Pesan: Material kriptografi tidak ditemukan.
+

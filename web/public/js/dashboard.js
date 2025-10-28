@@ -52,6 +52,233 @@ const networkHealthResultsContainer = document.getElementById('networkHealthResu
 const networkBlockSummaryEl = document.getElementById('networkBlockSummary');
 const networkHealthSummaryEl = document.getElementById('networkHealthSummary');
 const networkHealthListEl = document.getElementById('networkHealthList');
+const fabricNetworkSummaries = document.getElementById('fabricNetworkSummaries');
+
+const FABRIC_SUMMARY_STATUS_CLASSES = {
+    info: 'border-white/10 bg-surface/60 text-textdark/70',
+    error: 'border-rose-400/40 bg-rose-500/10 text-rose-200',
+    empty: 'border-amber-400/40 bg-amber-500/10 text-amber-200',
+};
+
+const FABRIC_SUMMARY_INDICATORS = {
+    info: 'bg-secondary/70',
+    error: 'bg-rose-400/70',
+    empty: 'bg-amber-400/70',
+};
+
+const htmlEscape = value => String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+
+function showFabricSummaryStatus(message, tone = 'info') {
+    if (!fabricNetworkSummaries) {
+        return;
+    }
+
+    fabricNetworkSummaries.dataset.state = 'status';
+
+    let statusElement = fabricNetworkSummaries.querySelector('[data-fabric-summary-status]');
+    if (!statusElement) {
+        statusElement = document.createElement('div');
+        statusElement.dataset.fabricSummaryStatus = '';
+        fabricNetworkSummaries.innerHTML = '';
+        fabricNetworkSummaries.append(statusElement);
+    }
+
+    const toneClass = FABRIC_SUMMARY_STATUS_CLASSES[tone] ?? FABRIC_SUMMARY_STATUS_CLASSES.info;
+    const indicatorClass = FABRIC_SUMMARY_INDICATORS[tone] ?? FABRIC_SUMMARY_INDICATORS.info;
+    statusElement.className = `flex items-center gap-3 rounded-2xl border px-4 py-3 ${toneClass}`;
+    statusElement.innerHTML = `<span class="inline-flex h-3 w-3 rounded-full ${indicatorClass}"></span><span>${htmlEscape(message)}</span>`;
+}
+
+function formatHostToContainer(mapping, containerPort) {
+    const host = mapping?.host ?? '—';
+    const container = containerPort ?? mapping?.container ?? '—';
+    return `${htmlEscape(host)} → ${htmlEscape(container)}`;
+}
+
+function buildOrdererMarkup(description) {
+    const { orderer } = description;
+    if (!orderer) {
+        return '<p class="text-textdark/70">Berkas komposisi tidak memuat layanan orderer.</p>';
+    }
+
+    const entries = [];
+
+    if (orderer.hostname) {
+        entries.push(`<li><span class="font-semibold text-textdark">Hostname</span> ${htmlEscape(orderer.hostname)}</li>`);
+    }
+
+    if (orderer.mspId) {
+        entries.push(`<li><span class="font-semibold text-textdark">MSP</span> ${htmlEscape(orderer.mspId)}</li>`);
+    }
+
+    if (orderer.listenPort) {
+        entries.push(`<li><span class="font-semibold text-textdark">gRPC</span> ${formatHostToContainer(orderer.grpcMapping, orderer.listenPort)}</li>`);
+    }
+
+    if (orderer.adminAddress) {
+        entries.push(`<li><span class="font-semibold text-textdark">Admin</span> ${formatHostToContainer(orderer.adminMapping, orderer.adminAddress.split(':').pop())}</li>`);
+    }
+
+    if (orderer.operationsAddress) {
+        entries.push(`<li><span class="font-semibold text-textdark">Operations</span> ${formatHostToContainer(orderer.operationsMapping, orderer.operationsAddress.split(':').pop())}</li>`);
+    }
+
+    entries.push(`<li><span class="font-semibold text-textdark">TLS</span> ${orderer.tlsEnabled ? 'Aktif' : 'Tidak aktif'}</li>`);
+
+    if (orderer.metricsProvider) {
+        entries.push(`<li><span class="font-semibold text-textdark">Metrik</span> ${htmlEscape(orderer.metricsProvider)}</li>`);
+    }
+
+    return `<ul class="space-y-1 text-textdark/70">${entries.join('')}</ul>`;
+}
+
+function buildPeerMarkup(peers) {
+    if (!Array.isArray(peers) || !peers.length) {
+        return '<p class="text-textdark/70">Tidak ada layanan peer yang ditemukan.</p>';
+    }
+
+    return peers.map(peer => {
+        const items = [];
+
+        if (peer.mspId) {
+            items.push(`<li><span class="font-semibold text-textdark">MSP</span> ${htmlEscape(peer.mspId)}</li>`);
+        }
+
+        if (peer.listenPort) {
+            items.push(`<li><span class="font-semibold text-textdark">gRPC</span> ${formatHostToContainer(peer.listenMapping, peer.listenPort)}</li>`);
+        }
+
+        if (peer.chaincodePort) {
+            items.push(`<li><span class="font-semibold text-textdark">Chaincode</span> ${formatHostToContainer(peer.chaincodeMapping, peer.chaincodePort)}</li>`);
+        }
+
+        if (peer.operationsAddress) {
+            items.push(`<li><span class="font-semibold text-textdark">Operations</span> ${formatHostToContainer(peer.operationsMapping, peer.operationsAddress.split(':').pop())}</li>`);
+        }
+
+        items.push(`<li><span class="font-semibold text-textdark">TLS</span> ${peer.tlsEnabled ? 'Aktif' : 'Tidak aktif'}</li>`);
+
+        return `<article class="flex flex-col gap-2 rounded-2xl border border-white/10 bg-surface/70 p-4">
+            <h4 class="text-base font-semibold text-primary">${htmlEscape(peer.hostname ?? peer.serviceName)}</h4>
+            <ul class="space-y-1 text-textdark/70">${items.join('')}</ul>
+        </article>`;
+    }).join('');
+}
+
+function renderFabricDescriptionCard(description) {
+    if (description.error) {
+        return `<article class="space-y-3 rounded-2xl border border-rose-400/40 bg-rose-500/10 p-6 text-sm text-rose-100">
+            <h3 class="text-lg font-semibold">${htmlEscape(description.label)}</h3>
+            <p>Gagal memuat deskripsi jaringan: ${htmlEscape(description.error)}</p>
+        </article>`;
+    }
+
+    const fabricVersionLabel = description.fabricVersion?.label ?? 'Tidak tersedia';
+    const fabricCAVersionLabel = description.fabricCAVersion?.label ?? 'Tidak tersedia';
+
+    const chaincodeParts = [];
+    if (description.chaincode?.name) {
+        chaincodeParts.push(htmlEscape(description.chaincode.name));
+    }
+    if (description.chaincode?.version) {
+        chaincodeParts.push(`v${htmlEscape(description.chaincode.version)}`);
+    }
+    if (description.chaincode?.language) {
+        chaincodeParts.push(htmlEscape(description.chaincode.language));
+    }
+
+    const chaincodeSummary = chaincodeParts.length
+        ? chaincodeParts.join(' • ')
+        : 'Tidak ada detail chaincode';
+
+    const chaincodePath = description.chaincode?.path
+        ? `<li><span class="font-semibold text-textdark">Lokasi</span> ${htmlEscape(description.chaincode.path)}</li>`
+        : '';
+
+    const networkName = description.composeNetwork
+        ? `<span class="inline-flex items-center rounded-full border border-white/10 bg-surface/70 px-3 py-1 text-xs font-semibold uppercase tracking-[0.25em] text-secondary/80">${htmlEscape(description.composeNetwork)}</span>`
+        : '';
+
+    return `<article class="space-y-6 rounded-2xl border border-white/10 bg-surface p-6 text-sm text-textdark shadow-inner shadow-black/20">
+        <header class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div class="space-y-1">
+                <p class="text-xs uppercase tracking-[0.3em] text-secondary/70">Konfigurasi RAFT</p>
+                <h3 class="text-2xl font-semibold text-textdark">${htmlEscape(description.label)}</h3>
+                ${networkName}
+            </div>
+            <div class="flex flex-wrap gap-2 text-xs">
+                <span class="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-3 py-1 font-medium text-primary">
+                    <span class="inline-flex h-2 w-2 rounded-full bg-primary"></span>
+                    Fabric ${htmlEscape(fabricVersionLabel)}
+                </span>
+                <span class="inline-flex items-center gap-2 rounded-full border border-accent/40 bg-accent/10 px-3 py-1 font-medium text-accent">
+                    <span class="inline-flex h-2 w-2 rounded-full bg-accent"></span>
+                    Fabric CA ${htmlEscape(fabricCAVersionLabel)}
+                </span>
+            </div>
+        </header>
+        <div class="grid gap-4 rounded-2xl border border-white/10 bg-surfaceMuted/60 p-4 md:grid-cols-2">
+            <section class="space-y-2">
+                <h4 class="text-base font-semibold text-primary">Parameter Umum</h4>
+                <ul class="space-y-1 text-textdark/70">
+                    <li><span class="font-semibold text-textdark">Channel</span> ${htmlEscape(description.channelName ?? 'Tidak ditentukan')}</li>
+                    <li><span class="font-semibold text-textdark">Database</span> ${htmlEscape(description.database ?? 'Tidak ditentukan')}</li>
+                    <li><span class="font-semibold text-textdark">Chaincode</span> ${chaincodeSummary}</li>
+                    ${chaincodePath}
+                </ul>
+            </section>
+            <section class="space-y-2">
+                <h4 class="text-base font-semibold text-primary">Orderer</h4>
+                ${buildOrdererMarkup(description)}
+            </section>
+        </div>
+        <section class="space-y-3">
+            <h4 class="text-base font-semibold text-primary">Daftar Peer</h4>
+            <div class="grid gap-3 md:grid-cols-2">
+                ${buildPeerMarkup(description.peers)}
+            </div>
+        </section>
+    </article>`;
+}
+
+async function fetchFabricDescriptions() {
+    showFabricSummaryStatus('Memuat detail konfigurasi jaringan RAFT dari berkas Fabric…');
+
+    try {
+        const response = await fetch('/api/fabric-descriptions', {
+            headers: {
+                Accept: 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(`Permintaan gagal dengan status ${response.status}`);
+        }
+
+        const payload = await response.json();
+        const descriptions = Array.isArray(payload?.descriptions) ? payload.descriptions : [];
+
+        if (!descriptions.length) {
+            showFabricSummaryStatus('Tidak ada deskripsi jaringan yang ditemukan di berkas konfigurasi Fabric.', 'empty');
+            return;
+        }
+
+        fabricNetworkSummaries.dataset.state = 'ready';
+        fabricNetworkSummaries.innerHTML = descriptions.map(renderFabricDescriptionCard).join('');
+    } catch (error) {
+        console.error('Failed to fetch Fabric descriptions:', error);
+        showFabricSummaryStatus('Gagal memuat detail jaringan dari konfigurasi Fabric.', 'error');
+    }
+}
+
+if (fabricNetworkSummaries) {
+    fetchFabricDescriptions();
+}
 
 const networkOperationOverlay = document.getElementById('networkOperationOverlay');
 const networkOperationMessage = networkOperationOverlay

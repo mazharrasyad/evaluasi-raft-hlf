@@ -10,6 +10,7 @@ import { randomUUID } from 'crypto';
 
 import { checkNetworkHealth } from './network-check.js';
 import { submitSimulationRecord } from './simulation-ingest.js';
+import { loadFabricDescriptions } from './fabric-description.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -698,6 +699,26 @@ app.get('/api/check-network', async (req, res) => {
             overallStatus: 'unavailable',
             results: [fallbackResult],
             error: errorMessage,
+        });
+    }
+});
+
+app.get('/api/fabric-descriptions', async (req, res) => {
+    try {
+        const descriptions = await loadFabricDescriptions();
+
+        res.json({
+            fetchedAt: new Date().toISOString(),
+            descriptions,
+        });
+    } catch (error) {
+        console.error('Failed to load Fabric descriptions:', error);
+        const message = error instanceof Error ? error.message : String(error);
+
+        res.status(500).json({
+            fetchedAt: new Date().toISOString(),
+            error: message,
+            descriptions: [],
         });
     }
 });

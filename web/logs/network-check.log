@@ -1228,3 +1228,11 @@ Chaincode: pelaporan
 Peer: localhost:7051
 Pesan: Material kriptografi tidak ditemukan.
 
+[2025-10-28T06:04:18.919Z] Pemeriksaan jaringan: RAFT Variant
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+

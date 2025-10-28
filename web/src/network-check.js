@@ -22,6 +22,7 @@ const networkConfigurations = [
         label: 'RAFT Standard',
         networkDir: standardNetworkDir,
         channelName: 'channel-standard',
+        peerEndpoint: 'localhost:7051',
         instructions: {
             up: `cd ${standardNetworkDir} && ./network.sh up -ca && ./network.sh createChannel -c channel-standard -ca`,
             deploy: `cd ${standardNetworkDir} && ./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl javascript -c channel-standard`
@@ -31,13 +32,13 @@ const networkConfigurations = [
         label: 'RAFT Variant',
         networkDir: variantNetworkDir,
         channelName: 'channel-variant',
+        peerEndpoint: 'localhost:7052',
         instructions: {
             up: `cd ${variantNetworkDir} && ./network.sh up -ca -bft && ./network.sh createChannel -c channel-variant -ca -bft`,
             deploy: `cd ${variantNetworkDir} && ./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl javascript -c channel-variant -bft`
         }
     }
 ];
-const peerEndpoint = 'localhost:7051';
 const peerHostAlias = 'peer0.org1.example.com';
 
 const logsRoot = path.resolve(__dirname, '../logs');
@@ -180,14 +181,15 @@ async function readFirstVisibleFile(directory) {
     return path.join(directory, candidate);
 }
 
-async function checkSingleNetwork({ label, networkDir, channelName, instructions }) {
+async function checkSingleNetwork({ label, networkDir, channelName, instructions, peerEndpoint }) {
+    const effectivePeerEndpoint = peerEndpoint || 'localhost:7051';
     const timestamp = new Date().toISOString();
     const baseResult = {
         label,
         networkDir,
         channel: channelName,
         chaincode: chaincodeName,
-        peer: peerEndpoint,
+        peer: effectivePeerEndpoint,
         instructions,
         timestamp
     };
@@ -234,7 +236,7 @@ async function checkSingleNetwork({ label, networkDir, channelName, instructions
     async function newGrpcConnection() {
         const tlsRootCert = await fs.readFile(tlsCertPath);
         const tlsCredentials = grpc.credentials.createSsl(tlsRootCert);
-        return new grpc.Client(peerEndpoint, tlsCredentials, {
+        return new grpc.Client(effectivePeerEndpoint, tlsCredentials, {
             'grpc.ssl_target_name_override': peerHostAlias,
             'grpc.keepalive_time_ms': 120000,
             'grpc.keepalive_timeout_ms': 20000,

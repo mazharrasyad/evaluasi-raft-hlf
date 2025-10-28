@@ -33,6 +33,8 @@ const networkTargets = [
     },
 ];
 
+const networkTargetIndex = new Map(networkTargets.map(target => [target.id, target]));
+
 const logsRoot = path.resolve(__dirname, '../logs');
 const ingestLogPath = path.resolve(logsRoot, 'simulation-ingest.log');
 
@@ -372,7 +374,47 @@ function validateRecord(record) {
     }
 }
 
-async function submitSimulationRecord(record) {
+function resolveRequestedTargets(targetIds) {
+    if (!Array.isArray(targetIds) || targetIds.length === 0) {
+        return networkTargets.slice();
+    }
+
+    const resolvedTargets = [];
+    const seen = new Set();
+
+    for (const rawId of targetIds) {
+        if (typeof rawId !== 'string') {
+            continue;
+        }
+
+        const trimmedId = rawId.trim();
+        if (!trimmedId || seen.has(trimmedId)) {
+            continue;
+        }
+
+        const target = networkTargetIndex.get(trimmedId);
+        if (!target) {
+            const error = new Error(`Target jaringan ${trimmedId} tidak dikenali.`);
+            error.statusCode = 400;
+            error.code = 'invalid_target_id';
+            throw error;
+        }
+
+        resolvedTargets.push(target);
+        seen.add(trimmedId);
+    }
+
+    if (!resolvedTargets.length) {
+        const error = new Error('Tidak ada target jaringan yang valid diberikan.');
+        error.statusCode = 400;
+        error.code = 'empty_target_selection';
+        throw error;
+    }
+
+    return resolvedTargets;
+}
+
+async function submitSimulationRecord(record, options = {}) {
     validateRecord(record);
 
     const enrichedRecord = {
@@ -383,8 +425,10 @@ async function submitSimulationRecord(record) {
         enrichedRecord.createdAt = new Date().toISOString();
     }
 
+    const targetsToSubmit = resolveRequestedTargets(options.targetIds);
     const results = [];
-    for (const target of networkTargets) {
+
+    for (const target of targetsToSubmit) {
         const result = await submitToSingleNetwork(target, enrichedRecord);
         results.push(result);
     }

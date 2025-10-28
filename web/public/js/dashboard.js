@@ -366,6 +366,12 @@ const BLOCKCHAIN_TARGETS = [
 
 const evaluationStats = new Map();
 const evaluationElements = new Map();
+const BLOCKCHAIN_TARGETS_BY_ID = new Map(BLOCKCHAIN_TARGETS.map(target => [target.id, target]));
+const BLOCKCHAIN_SUBMISSION_PHASES = BLOCKCHAIN_TARGETS.map(target => ({
+    id: target.id,
+    label: target.label,
+    targetIds: [target.id],
+}));
 
 const SESSION_STORAGE_KEY = 'simulasiPelaporan';
 const dateTimeFormatter = new Intl.DateTimeFormat('id-ID', {
@@ -3256,6 +3262,22 @@ function ensureEvaluationSectionInitialized() {
             metrics.appendChild(metricEntry.wrapper);
         });
 
+        const chartWrapper = document.createElement('div');
+        chartWrapper.className = 'h-48 rounded-2xl border border-white/5 bg-surface/60 p-4 animate-on-scroll';
+        chartWrapper.dataset.animateDelay = String(180 + (index * 30));
+
+        const chartCanvas = document.createElement('canvas');
+        chartCanvas.height = 160;
+        chartCanvas.setAttribute('role', 'img');
+        chartCanvas.setAttribute('aria-label', `Grafik performa ${target.label}`);
+        chartWrapper.appendChild(chartCanvas);
+
+        let chartInstance = null;
+        if (isChartJsAvailable()) {
+            const chartContext = chartCanvas.getContext('2d');
+            chartInstance = createEvaluationMetricChart(chartContext, target);
+        }
+
         const footer = document.createElement('footer');
         footer.className = 'rounded-xl border border-white/5 bg-surface/60 px-4 py-3 text-xs text-textdark/70';
 
@@ -3273,10 +3295,12 @@ function ensureEvaluationSectionInitialized() {
 
         card.appendChild(header);
         card.appendChild(metrics);
+        card.appendChild(chartWrapper);
         card.appendChild(footer);
 
         simulationEvaluationList.appendChild(card);
         observeAnimatedElement(card);
+        observeAnimatedElement(chartWrapper);
 
         evaluationElements.set(target.id, {
             card,
@@ -3290,6 +3314,8 @@ function ensureEvaluationSectionInitialized() {
             failureCount: failureMetric.valueEl,
             commitCode: commitCodeMetric.valueEl,
             commitBlock: commitBlockMetric.valueEl,
+            chart: chartInstance,
+            chartCanvas,
         });
 
         renderEvaluationStats(target.id);
@@ -3326,6 +3352,136 @@ function formatThroughputValue(stats) {
     }
 
     return `${decimalFormatter.format(throughput)} tx/detik`;
+}
+
+function computeThroughputNumber(stats) {
+    if (!stats || !stats.firstSubmittedAt || !stats.lastUpdatedAt || stats.successCount === 0) {
+        return 0;
+    }
+
+    const durationMs = Math.max(stats.lastUpdatedAt - stats.firstSubmittedAt, 0);
+    if (durationMs <= 0) {
+        return Number.isFinite(stats.successCount) ? stats.successCount : 0;
+    }
+
+    const throughput = stats.successCount / (durationMs / 1000);
+    return Number.isFinite(throughput) ? throughput : 0;
+}
+
+function getEvaluationChartData(stats) {
+    const latestLatency = Number.isFinite(stats?.lastLatencyMs) ? stats.lastLatencyMs : 0;
+    const averageLatency = stats && stats.successCount > 0 && Number.isFinite(stats.totalLatencyMs)
+        ? stats.totalLatencyMs / stats.successCount
+        : 0;
+    const throughput = computeThroughputNumber(stats);
+    const successCount = Number.isFinite(stats?.successCount) ? stats.successCount : 0;
+    const failureCount = Number.isFinite(stats?.failureCount) ? stats.failureCount : 0;
+
+    return [
+        Number.isFinite(latestLatency) ? latestLatency : 0,
+        Number.isFinite(averageLatency) ? averageLatency : 0,
+        Number.isFinite(throughput) ? throughput : 0,
+        Number.isFinite(successCount) ? successCount : 0,
+        Number.isFinite(failureCount) ? failureCount : 0,
+    ];
+}
+
+function createEvaluationMetricChart(context, target) {
+    if (!context || !isChartJsAvailable()) {
+        return null;
+    }
+
+    const labels = [
+        'Latensi terbaru (ms)',
+        'Rata-rata latensi (ms)',
+        'Throughput (tx/detik)',
+        'Berhasil',
+        'Gagal',
+    ];
+
+    const baseDataset = {
+        label: target?.label || 'Jaringan',
+        data: [0, 0, 0, 0, 0],
+        backgroundColor: [
+            'rgba(56, 189, 248, 0.6)',
+            'rgba(99, 102, 241, 0.6)',
+            'rgba(249, 115, 22, 0.6)',
+            'rgba(16, 185, 129, 0.6)',
+            'rgba(248, 113, 113, 0.6)',
+        ],
+        borderColor: [
+            'rgba(56, 189, 248, 0.9)',
+            'rgba(99, 102, 241, 0.9)',
+            'rgba(249, 115, 22, 0.9)',
+            'rgba(16, 185, 129, 0.9)',
+            'rgba(248, 113, 113, 0.9)',
+        ],
+        borderWidth: 1,
+        borderRadius: 12,
+        borderSkipped: false,
+        barPercentage: 0.75,
+    };
+
+    return new window.Chart(context, {
+        type: 'bar',
+        data: {
+            labels,
+            datasets: [baseDataset],
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: {
+                duration: 200,
+            },
+            plugins: {
+                legend: {
+                    display: false,
+                },
+                tooltip: {
+                    callbacks: {
+                        label(item) {
+                            const label = item.label || '';
+                            const value = item.parsed?.y ?? item.parsed ?? 0;
+                            if (item.dataIndex >= 3) {
+                                return `${label}: ${formatCount(value)}`;
+                            }
+                            return `${label}: ${decimalFormatter.format(value)}`;
+                        },
+                    },
+                },
+            },
+            scales: {
+                x: {
+                    ticks: {
+                        color: '#94A3B8',
+                        font: { size: 11 },
+                    },
+                    grid: {
+                        display: false,
+                    },
+                },
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        color: '#94A3B8',
+                        font: { size: 11 },
+                        callback(value) {
+                            if (value >= 1000) {
+                                return formatCount(value);
+                            }
+                            return Number.isInteger(value)
+                                ? formatCount(value)
+                                : decimalFormatter.format(value);
+                        },
+                    },
+                    grid: {
+                        color: 'rgba(148, 163, 184, 0.15)',
+                    },
+                },
+            },
+        },
+    });
 }
 
 function renderEvaluationStats(targetId) {
@@ -3375,6 +3531,15 @@ function renderEvaluationStats(targetId) {
             : `Pembaruan terakhir ${dateTimeFormatter.format(timestampDate)}`;
     } else {
         elements.timestamp.textContent = 'Belum ada pembaruan.';
+    }
+
+    if (elements.chart) {
+        const dataset = elements.chart.data?.datasets?.[0];
+        const chartData = getEvaluationChartData(stats);
+        if (dataset) {
+            dataset.data = chartData;
+        }
+        elements.chart.update('none');
     }
 }
 
@@ -3458,14 +3623,19 @@ function updateEvaluationResult(result, { record } = {}) {
     renderEvaluationStats(result.targetId);
 }
 
-async function submitRecordToBlockchain(record) {
+async function submitRecordToBlockchain(record, options = {}) {
+    const payload = { record };
+    if (Array.isArray(options?.targetIds) && options.targetIds.length) {
+        payload.targetIds = options.targetIds;
+    }
+
     const response = await fetch('/api/simulations/records', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             Accept: 'application/json',
         },
-        body: JSON.stringify({ record }),
+        body: JSON.stringify(payload),
     });
 
     if (!response.ok) {
@@ -3496,65 +3666,113 @@ async function ingestSimulationRecords(records) {
         summary[target.id] = { success: 0, failure: 0 };
     });
 
-    for (let index = 0; index < records.length; index += 1) {
-        const record = records[index];
-        notifyEvaluationProgressStart(record, index + 1, records.length);
+    const totalPhases = BLOCKCHAIN_SUBMISSION_PHASES.length || 1;
 
-        try {
-            const response = await submitRecordToBlockchain(record);
-            const results = Array.isArray(response?.results) ? response.results : [];
+    for (let phaseIndex = 0; phaseIndex < totalPhases; phaseIndex += 1) {
+        const phase = BLOCKCHAIN_SUBMISSION_PHASES[phaseIndex] || {};
+        const phaseTargets = Array.isArray(phase.targetIds) && phase.targetIds.length
+            ? phase.targetIds
+            : BLOCKCHAIN_TARGETS.map(target => target.id);
+        const phaseLabel = phase.label || 'Jaringan blockchain';
 
-            if (!results.length) {
-                BLOCKCHAIN_TARGETS.forEach(target => {
-                    summary[target.id].failure += 1;
+        for (let index = 0; index < records.length; index += 1) {
+            const record = records[index];
+            if (phaseIndex === 0) {
+                notifyEvaluationProgressStart(record, index + 1, records.length);
+            }
+
+            try {
+                const response = await submitRecordToBlockchain(record, { targetIds: phaseTargets });
+                const rawResults = Array.isArray(response?.results) ? response.results : [];
+                const results = rawResults.filter(result => phaseTargets.includes(result?.targetId));
+
+                const recordProgress = `${index + 1}/${records.length}`;
+                const phaseProgress = `${phaseIndex + 1}/${totalPhases}`;
+
+                if (!results.length) {
+                    phaseTargets.forEach(targetId => {
+                        if (!summary[targetId]) {
+                            summary[targetId] = { success: 0, failure: 0 };
+                        }
+                        summary[targetId].failure += 1;
+                        const targetMeta = BLOCKCHAIN_TARGETS_BY_ID.get(targetId);
+                        updateEvaluationResult({
+                            targetId,
+                            label: targetMeta?.label || targetId,
+                            status: 'error',
+                            message: 'Tidak ada hasil dari server.',
+                        }, { record });
+                    });
+                    errors.push(`Tidak ada hasil untuk catatan ${record.id} di ${phaseLabel}.`);
+                    updateSimulationStatus(`Pengiriman catatan ${record.id} ke ${phaseLabel} tidak memberikan respons yang valid (fase ${phaseProgress}, catatan ${recordProgress}).`, 'error');
+                    continue;
+                }
+
+                results.forEach(result => {
+                    if (!summary[result.targetId]) {
+                        summary[result.targetId] = { success: 0, failure: 0 };
+                    }
+                    if (result.status === 'success') {
+                        summary[result.targetId].success += 1;
+                    } else {
+                        summary[result.targetId].failure += 1;
+                    }
+                    updateEvaluationResult(result, { record });
+                });
+
+                const returnedTargetIds = new Set(results.map(result => result.targetId));
+                let missingTargetCount = 0;
+                phaseTargets.forEach(targetId => {
+                    if (!summary[targetId]) {
+                        summary[targetId] = { success: 0, failure: 0 };
+                    }
+                    if (!returnedTargetIds.has(targetId)) {
+                        missingTargetCount += 1;
+                        summary[targetId].failure += 1;
+                        const targetMeta = BLOCKCHAIN_TARGETS_BY_ID.get(targetId);
+                        updateEvaluationResult({
+                            targetId,
+                            label: targetMeta?.label || targetId,
+                            status: 'error',
+                            message: 'Tidak ada hasil dari server.',
+                        }, { record });
+                        errors.push(`Tidak ada hasil untuk catatan ${record.id} di ${targetMeta?.label || targetId}.`);
+                    }
+                });
+
+                const successfulTargets = results.filter(result => result.status === 'success');
+                const expectedTargetCount = phaseTargets.length;
+
+                if (successfulTargets.length === expectedTargetCount && missingTargetCount === 0) {
+                    updateSimulationStatus(`Catatan ${record.id} berhasil dikomit di ${phaseLabel} (fase ${phaseProgress}, catatan ${recordProgress}).`, 'success');
+                } else if (successfulTargets.length > 0) {
+                    const labels = successfulTargets.map(result => result.label || result.targetId).join(', ');
+                    updateSimulationStatus(`Catatan ${record.id} hanya berhasil di ${labels} (fase ${phaseProgress}, catatan ${recordProgress}).`, 'error');
+                } else {
+                    updateSimulationStatus(`Catatan ${record.id} gagal dikomit di ${phaseLabel} (fase ${phaseProgress}, catatan ${recordProgress}).`, 'error');
+                }
+            } catch (error) {
+                const message = error instanceof Error ? error.message : String(error);
+                errors.push(`${phaseLabel}: ${message}`);
+
+                phaseTargets.forEach(targetId => {
+                    if (!summary[targetId]) {
+                        summary[targetId] = { success: 0, failure: 0 };
+                    }
+                    summary[targetId].failure += 1;
+                    const targetMeta = BLOCKCHAIN_TARGETS_BY_ID.get(targetId);
                     updateEvaluationResult({
-                        targetId: target.id,
-                        label: target.label,
+                        targetId,
+                        label: targetMeta?.label || targetId,
                         status: 'error',
-                        message: 'Tidak ada hasil dari server.',
+                        message: 'Tidak dapat terhubung ke gateway atau jaringan blockchain.',
                     }, { record });
                 });
-                errors.push(`Tidak ada hasil untuk catatan ${record.id}.`);
-                updateSimulationStatus(`Pengiriman catatan ${record.id} tidak memberikan respons yang valid.`, 'error');
-                continue;
+
+                const recordProgress = `${index + 1}/${records.length}`;
+                const phaseProgress = `${phaseIndex + 1}/${totalPhases}`;
+                updateSimulationStatus(`Gagal mengirim catatan ${record.id} ke ${phaseLabel} (fase ${phaseProgress}, catatan ${recordProgress}).`, 'error');
             }
-
-            results.forEach(result => {
-                if (!summary[result.targetId]) {
-                    summary[result.targetId] = { success: 0, failure: 0 };
-                }
-                if (result.status === 'success') {
-                    summary[result.targetId].success += 1;
-                } else {
-                    summary[result.targetId].failure += 1;
-                }
-                updateEvaluationResult(result, { record });
-            });
-
-            const successfulTargets = results.filter(result => result.status === 'success');
-            if (successfulTargets.length === results.length) {
-                updateSimulationStatus(`Catatan ${record.id} berhasil dikomit pada seluruh jaringan (${index + 1}/${records.length}).`, 'success');
-            } else if (successfulTargets.length > 0) {
-                const labels = successfulTargets.map(result => result.label).join(', ');
-                updateSimulationStatus(`Catatan ${record.id} hanya berhasil di ${labels} (${index + 1}/${records.length}).`, 'error');
-            } else {
-                updateSimulationStatus(`Catatan ${record.id} gagal dikomit pada seluruh jaringan (${index + 1}/${records.length}).`, 'error');
-            }
-        } catch (error) {
-            const message = error instanceof Error ? error.message : String(error);
-            errors.push(message);
-
-            BLOCKCHAIN_TARGETS.forEach(target => {
-                summary[target.id].failure += 1;
-                updateEvaluationResult({
-                    targetId: target.id,
-                    label: target.label,
-                    status: 'error',
-                    message: 'Tidak dapat terhubung ke gateway atau jaringan blockchain.',
-                }, { record });
-            });
-
-            updateSimulationStatus(`Gagal mengirim catatan ${record.id}. (${index + 1}/${records.length})`, 'error');
         }
     }
 

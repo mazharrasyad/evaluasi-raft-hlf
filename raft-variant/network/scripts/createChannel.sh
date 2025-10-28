@@ -15,10 +15,12 @@ BFT="$5"
 : ${BFT:=0}
 
 : ${CONTAINER_CLI:="docker"}
-if command -v ${CONTAINER_CLI}-compose > /dev/null 2>&1; then
+if ${CONTAINER_CLI} compose version > /dev/null 2>&1; then
+    : ${CONTAINER_CLI_COMPOSE:="${CONTAINER_CLI} compose"}
+elif command -v ${CONTAINER_CLI}-compose > /dev/null 2>&1; then
     : ${CONTAINER_CLI_COMPOSE:="${CONTAINER_CLI}-compose"}
 else
-    : ${CONTAINER_CLI_COMPOSE:="${CONTAINER_CLI} compose"}
+    fatalln "Unable to locate docker compose plugin or docker-compose binary"
 fi
 infoln "Using ${CONTAINER_CLI} and ${CONTAINER_CLI_COMPOSE}"
 

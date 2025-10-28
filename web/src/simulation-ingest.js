@@ -265,13 +265,18 @@ async function submitToSingleNetwork(target, record) {
         const network = gateway.getNetwork(channelName);
         const contract = network.getContract(chaincodeName);
 
-        const transaction = contract.createTransaction('CreateCatatan');
-        const transactionId = transaction.getTransactionId();
         const payloadJson = JSON.stringify(record);
         const payloadSizeBytes = Buffer.byteLength(payloadJson, 'utf8');
 
         const timerStart = process.hrtime.bigint();
-        const submittedTransaction = await transaction.submit(record.id, payloadJson);
+        const submittedTransaction = await contract.submitAsync('CreateCatatan', {
+            arguments: [record.id, payloadJson],
+        });
+        const transactionId = submittedTransaction.getTransactionId();
+        const transactionResult = submittedTransaction.getResult();
+        const transactionResultBuffer = transactionResult
+            ? Buffer.from(transactionResult)
+            : null;
         let commitStatus;
         try {
             commitStatus = await submittedTransaction.getStatus();
@@ -291,6 +296,8 @@ async function submitToSingleNetwork(target, record) {
                 blockNumber: normalizedBlock,
             }
             : null;
+        const resultSizeBytes = transactionResultBuffer ? transactionResultBuffer.length : null;
+        const resultUtf8 = resultSizeBytes ? transactionResultBuffer.toString('utf8') : null;
 
         const completedAt = new Date().toISOString();
 
@@ -303,6 +310,8 @@ async function submitToSingleNetwork(target, record) {
                 transactionId,
                 latencyMs,
                 payloadSizeBytes,
+                resultSizeBytes,
+                resultUtf8,
                 commitStatus: commitStatusSummary,
                 completedAt,
                 resolution: formatResolutionFromError(message),
@@ -321,6 +330,8 @@ async function submitToSingleNetwork(target, record) {
             transactionId,
             latencyMs,
             payloadSizeBytes,
+            resultSizeBytes,
+            resultUtf8,
             commitStatus: commitStatusSummary,
             completedAt,
         };

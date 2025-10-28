@@ -47,7 +47,10 @@ const networkStartupLabels = new Map();
 const networkCheckButton = document.getElementById('networkCheckButton');
 const networkCheckStatusEl = document.getElementById('networkCheckStatus');
 const networkShutdownButtons = Array.from(document.querySelectorAll('[data-network-shutdown-button]'));
-const networkShutdownStatusEl = document.getElementById('networkShutdownStatus');
+const networkShutdownStatusFallbackEl = document.getElementById('networkShutdownStatus');
+const networkShutdownStatusElements = new Map();
+const networkShutdownStatusDefaults = new Map();
+const networkShutdownLabels = new Map();
 const networkRestartButton = document.getElementById('networkRestartButton');
 const networkRestartStatusEl = document.getElementById('networkRestartStatus');
 const networkHealthResultsContainer = document.getElementById('networkHealthResults');
@@ -295,6 +298,9 @@ const networkOperationSeconds = networkOperationOverlay
 const networkOperationHint = networkOperationOverlay
     ? networkOperationOverlay.querySelector('[data-overlay-hint]')
     : null;
+const networkOperationProgress = networkOperationOverlay
+    ? networkOperationOverlay.querySelector('[data-overlay-progress]')
+    : null;
 const networkOperationLogPanel = networkOperationOverlay
     ? networkOperationOverlay.querySelector('[data-overlay-log-panel]')
     : null;
@@ -514,6 +520,41 @@ networkStartupButtons.forEach(button => {
     const label = button?.dataset?.networkLabel || button.textContent?.trim();
     if (label && !networkStartupLabels.has(type)) {
         networkStartupLabels.set(type, label);
+    }
+});
+
+document.querySelectorAll('[data-network-shutdown-status]').forEach(element => {
+    const type = element?.dataset?.networkShutdownStatus;
+    if (!type) {
+        return;
+    }
+
+    networkShutdownStatusElements.set(type, element);
+
+    const label = element?.dataset?.networkLabel;
+    if (label && !networkShutdownLabels.has(type)) {
+        networkShutdownLabels.set(type, label);
+    }
+
+    const defaultMessage = element?.dataset?.defaultMessage
+        || (label ? `No shutdown command has been executed for ${label}.` : DEFAULT_NETWORK_SHUTDOWN_STATUS_MESSAGE);
+
+    networkShutdownStatusDefaults.set(type, defaultMessage);
+});
+
+networkShutdownButtons.forEach(button => {
+    const type = button?.dataset?.networkShutdownButton;
+    if (!type) {
+        return;
+    }
+
+    const label = button?.dataset?.networkLabel || button.textContent?.trim();
+    if (label && !networkShutdownLabels.has(type)) {
+        networkShutdownLabels.set(type, label);
+    }
+
+    if (!networkShutdownStatusDefaults.has(type) && label) {
+        networkShutdownStatusDefaults.set(type, `No shutdown command has been executed for ${label}.`);
     }
 });
 
@@ -931,6 +972,38 @@ function getNetworkStartupStatusTargets(type) {
     return networkStartupStatusEl ? [networkStartupStatusEl] : [];
 }
 
+function getNetworkShutdownLabel(type) {
+    if (type && networkShutdownLabels.has(type)) {
+        return networkShutdownLabels.get(type);
+    }
+
+    if (type && networkStartupLabels.has(type)) {
+        return networkStartupLabels.get(type);
+    }
+
+    return 'RAFT network';
+}
+
+function getNetworkShutdownDefaultMessage(type) {
+    if (type && networkShutdownStatusDefaults.has(type)) {
+        return networkShutdownStatusDefaults.get(type);
+    }
+
+    return DEFAULT_NETWORK_SHUTDOWN_STATUS_MESSAGE;
+}
+
+function getNetworkShutdownStatusTargets(type) {
+    if (type && networkShutdownStatusElements.has(type)) {
+        return [networkShutdownStatusElements.get(type)];
+    }
+
+    if (networkShutdownStatusElements.size > 0) {
+        return Array.from(networkShutdownStatusElements.values());
+    }
+
+    return networkShutdownStatusFallbackEl ? [networkShutdownStatusFallbackEl] : [];
+}
+
 function updateNetworkStartupStatus(state = 'idle', message, type) {
     const targets = getNetworkStartupStatusTargets(type);
 
@@ -981,24 +1054,36 @@ function updateNetworkCheckStatus(state = 'idle', message = DEFAULT_NETWORK_STAT
     }
 }
 
-function updateNetworkShutdownStatus(state = 'idle', message = DEFAULT_NETWORK_SHUTDOWN_STATUS_MESSAGE) {
-    if (!networkShutdownStatusEl) {
+function updateNetworkShutdownStatus(state = 'idle', message, type) {
+    const targets = getNetworkShutdownStatusTargets(type);
+
+    if (!targets.length) {
         return;
     }
 
-    const indicator = networkShutdownStatusEl.querySelector('[data-indicator]');
-    const messageEl = networkShutdownStatusEl.querySelector('[data-message]');
+    const resolvedMessage = typeof message === 'string'
+        ? message
+        : getNetworkShutdownDefaultMessage(type);
 
-    if (indicator) {
-        indicator.className = `h-2 w-2 rounded-full ${NETWORK_STATUS_INDICATOR[state] || NETWORK_STATUS_INDICATOR.idle}`;
-    }
+    targets.forEach(element => {
+        if (!element) {
+            return;
+        }
 
-    if (messageEl && typeof message === 'string') {
-        messageEl.textContent = message;
-    }
+        const indicator = element.querySelector('[data-indicator]');
+        const messageEl = element.querySelector('[data-message]');
 
-    if (state !== 'idle') {
-        setNetworkOperationOverlayMessage(message);
+        if (indicator) {
+            indicator.className = `h-2 w-2 rounded-full ${NETWORK_STATUS_INDICATOR[state] || NETWORK_STATUS_INDICATOR.idle}`;
+        }
+
+        if (messageEl) {
+            messageEl.textContent = resolvedMessage;
+        }
+    });
+
+    if (state !== 'idle' && typeof resolvedMessage === 'string') {
+        setNetworkOperationOverlayMessage(resolvedMessage);
     }
 }
 
@@ -1033,6 +1118,29 @@ function setNetworkOperationOverlayMessage(message) {
     }
 
     networkOperationMessage.textContent = message;
+}
+
+function clearNetworkOperationOverlayProgress() {
+    if (!networkOperationProgress) {
+        return;
+    }
+
+    networkOperationProgress.textContent = '';
+    networkOperationProgress.classList.add('hidden');
+}
+
+function setNetworkOperationOverlayProgress(message) {
+    if (!networkOperationProgress) {
+        return;
+    }
+
+    if (typeof message === 'string' && message.trim()) {
+        networkOperationProgress.textContent = message;
+        networkOperationProgress.classList.remove('hidden');
+        return;
+    }
+
+    clearNetworkOperationOverlayProgress();
 }
 
 function formatElapsedTime(milliseconds) {
@@ -1128,6 +1236,8 @@ function showNetworkOperationOverlay(mode = 'startup', message) {
         networkOperationHint.textContent = defaultHint;
     }
 
+    clearNetworkOperationOverlayProgress();
+
     networkOperationOverlayMode = mode;
 
     if (!activeNetworkOperation || activeNetworkOperation.type !== mode) {
@@ -1169,6 +1279,8 @@ function hideNetworkOperationOverlay() {
         networkOperationOverlay.classList.remove('flex', 'opacity-100', 'pointer-events-auto');
         networkOperationOverlay.setAttribute('aria-hidden', 'true');
 
+        clearNetworkOperationOverlayProgress();
+
         return;
     }
 
@@ -1181,6 +1293,8 @@ function hideNetworkOperationOverlay() {
         networkOperationOverlay.classList.remove('flex');
         networkOperationOverlay.setAttribute('aria-hidden', 'true');
         networkOperationLastDisplayedSeconds = null;
+
+        clearNetworkOperationOverlayProgress();
 
         const previousMode = networkOperationOverlayMode;
         networkOperationOverlayMode = null;
@@ -4717,12 +4831,12 @@ async function handleNetworkShutdownButtonClick(event) {
     }
 
     const networkType = button?.dataset?.networkShutdownButton || null;
-    const networkLabel = button?.dataset?.networkLabel || getNetworkStartupLabel(networkType);
+    const networkLabel = button?.dataset?.networkLabel || getNetworkShutdownLabel(networkType);
 
     const confirmed = await confirmNetworkShutdown(networkType, networkLabel);
     if (!confirmed) {
         const cancelMessage = `Shutdown command for ${networkLabel} was cancelled.`;
-        updateNetworkShutdownStatus('idle', cancelMessage);
+        updateNetworkShutdownStatus('idle', cancelMessage, networkType);
         return;
     }
 
@@ -4737,7 +4851,7 @@ async function handleNetworkShutdownButtonClick(event) {
         ? `Running the shutdown command for ${networkLabel}...`
         : 'Running the shutdown command for every network...';
     showNetworkOperationOverlay('shutdown', shutdownLoadingMessage);
-    updateNetworkShutdownStatus('loading', shutdownLoadingMessage);
+    updateNetworkShutdownStatus('loading', shutdownLoadingMessage, networkType);
 
     try {
         const headers = {
@@ -4765,7 +4879,7 @@ async function handleNetworkShutdownButtonClick(event) {
             const emptyMessage = networkLabel
                 ? `No networks were found for ${networkLabel}.`
                 : 'No networks were found to stop.';
-            updateNetworkShutdownStatus('error', emptyMessage);
+            updateNetworkShutdownStatus('error', emptyMessage, networkType);
             await showErrorAlert(summaryText || emptyMessage, { title: 'Shutdown command failed' });
             return;
         }
@@ -4774,7 +4888,7 @@ async function handleNetworkShutdownButtonClick(event) {
             const successMessage = networkLabel
                 ? `${networkLabel} stopped successfully.`
                 : 'All networks stopped successfully.';
-            updateNetworkShutdownStatus('success', successMessage);
+            updateNetworkShutdownStatus('success', successMessage, networkType);
             await showSuccessAlert(summaryText, { title: 'Networks stopped successfully' });
             shouldTriggerNetworkCheck = true;
             return;
@@ -4784,7 +4898,7 @@ async function handleNetworkShutdownButtonClick(event) {
             const partialMessage = networkLabel
                 ? `Some shutdown commands for ${networkLabel} failed. Check the notification details.`
                 : 'Some networks could not be stopped. Check the notification details.';
-            updateNetworkShutdownStatus('error', partialMessage);
+            updateNetworkShutdownStatus('error', partialMessage, networkType);
             await showErrorAlert(summaryText, { title: 'Some commands failed' });
             return;
         }
@@ -4792,14 +4906,14 @@ async function handleNetworkShutdownButtonClick(event) {
         const failureMessage = networkLabel
             ? `The shutdown command for ${networkLabel} failed to run.`
             : 'The shutdown command could not be completed.';
-        updateNetworkShutdownStatus('error', failureMessage);
+        updateNetworkShutdownStatus('error', failureMessage, networkType);
         await showErrorAlert(summaryText || failureMessage, { title: 'Shutdown command failed' });
     } catch (error) {
         console.error('Failed to shut down the Fabric network:', error);
         const failureMessage = networkLabel
             ? `The shutdown command for ${networkLabel} failed. Check the server logs.`
             : 'The shutdown command failed. Check the server logs.';
-        updateNetworkShutdownStatus('error', failureMessage);
+        updateNetworkShutdownStatus('error', failureMessage, networkType);
         await showErrorAlert('Failed to run the shutdown command. Check the server logs for details.', { title: 'Shutdown command failed' });
     } finally {
         hideNetworkOperationOverlay();
@@ -4826,6 +4940,13 @@ async function handleNetworkRestartButtonClick() {
     const overlayMessage = 'Restarting all RAFT networks...';
     showNetworkOperationOverlay('restart', overlayMessage);
     updateNetworkRestartStatus('loading', 'Restarting all RAFT networks. Stopping existing services...');
+    setNetworkOperationOverlayProgress('Step 1 of 3 · Stopping existing RAFT networks...');
+
+    const shutdownStandardLabel = getNetworkShutdownLabel('standard');
+    const shutdownVariantLabel = getNetworkShutdownLabel('variant');
+
+    updateNetworkShutdownStatus('loading', `Stopping ${shutdownStandardLabel} as part of the restart...`, 'standard');
+    updateNetworkShutdownStatus('loading', `Stopping ${shutdownVariantLabel} as part of the restart...`, 'variant');
 
     let shouldTriggerNetworkCheck = false;
 
@@ -4867,6 +4988,7 @@ async function handleNetworkRestartButtonClick() {
             updateNetworkShutdownStatus('error', message);
             updateNetworkStartupStatus('error', message, 'standard');
             updateNetworkStartupStatus('error', message, 'variant');
+            setNetworkOperationOverlayProgress('Restart aborted while stopping RAFT networks.');
             await showErrorAlert(shutdownSummary || message, { title: 'Restart failed' });
             return;
         }
@@ -4877,16 +4999,19 @@ async function handleNetworkRestartButtonClick() {
             updateNetworkShutdownStatus('error', message);
             updateNetworkStartupStatus('error', message, 'standard');
             updateNetworkStartupStatus('error', message, 'variant');
+            setNetworkOperationOverlayProgress('Restart failed while stopping RAFT networks.');
             await showErrorAlert(shutdownSummary || message, { title: 'Restart failed' });
             return;
         }
 
-        updateNetworkShutdownStatus('success', 'All networks stopped successfully.');
+        updateNetworkShutdownStatus('success', `${shutdownStandardLabel} stopped successfully.`, 'standard');
+        updateNetworkShutdownStatus('success', `${shutdownVariantLabel} stopped successfully.`, 'variant');
 
         const standardLabel = getNetworkStartupLabel('standard');
         const variantLabel = getNetworkStartupLabel('variant');
 
         updateNetworkRestartStatus('loading', 'All networks stopped. Starting RAFT Standard and RAFT Variant...');
+        setNetworkOperationOverlayProgress('Step 2 of 3 · Starting RAFT Standard and RAFT Variant...');
         updateNetworkStartupStatus('loading', `Restarting ${standardLabel}...`, 'standard');
         updateNetworkStartupStatus('loading', `Restarting ${variantLabel}...`, 'variant');
 
@@ -4939,6 +5064,7 @@ async function handleNetworkRestartButtonClick() {
             updateNetworkRestartStatus('error', message);
             updateNetworkStartupStatus('error', message, 'standard');
             updateNetworkStartupStatus('error', message, 'variant');
+            setNetworkOperationOverlayProgress('Restart aborted while starting RAFT networks.');
             await showErrorAlert(startupSummary || message, { title: 'Restart failed' });
             return;
         }
@@ -4948,6 +5074,7 @@ async function handleNetworkRestartButtonClick() {
             updateNetworkRestartStatus('error', message);
             updateNetworkStartupStatus('error', message, 'standard');
             updateNetworkStartupStatus('error', message, 'variant');
+            setNetworkOperationOverlayProgress('Restart incomplete while starting RAFT networks.');
             await showErrorAlert(startupSummary || message, { title: 'Restart partially failed' });
             return;
         }
@@ -4956,6 +5083,7 @@ async function handleNetworkRestartButtonClick() {
 
         updateNetworkStartupStatus('success', `${standardLabel} restarted successfully.`, 'standard');
         updateNetworkStartupStatus('success', `${variantLabel} restarted successfully.`, 'variant');
+        setNetworkOperationOverlayProgress('Step 3 of 3 · Finalizing restart...');
         updateNetworkRestartStatus('success', 'All RAFT networks restarted successfully.');
         await showSuccessAlert(combinedSummary, { title: 'Networks restarted successfully' });
         shouldTriggerNetworkCheck = true;
@@ -4967,6 +5095,7 @@ async function handleNetworkRestartButtonClick() {
         updateNetworkRestartStatus('error', message);
         updateNetworkStartupStatus('error', message, 'standard');
         updateNetworkStartupStatus('error', message, 'variant');
+        setNetworkOperationOverlayProgress('Restart process failed. Check the notification for details.');
         await showErrorAlert(message, { title: 'Restart failed' });
     } finally {
         hideNetworkOperationOverlay();
@@ -4980,13 +5109,18 @@ async function handleNetworkRestartButtonClick() {
     }
 }
 
-if (networkShutdownButtons.length > 0) {
-    updateNetworkShutdownStatus('idle', DEFAULT_NETWORK_SHUTDOWN_STATUS_MESSAGE);
-    networkShutdownButtons.forEach(button => {
-        button.addEventListener('click', handleNetworkShutdownButtonClick);
+if (networkShutdownStatusElements.size > 0) {
+    networkShutdownStatusElements.forEach((_, type) => {
+        updateNetworkShutdownStatus('idle', getNetworkShutdownDefaultMessage(type), type);
     });
 } else {
     updateNetworkShutdownStatus('idle', DEFAULT_NETWORK_SHUTDOWN_STATUS_MESSAGE);
+}
+
+if (networkShutdownButtons.length > 0) {
+    networkShutdownButtons.forEach(button => {
+        button.addEventListener('click', handleNetworkShutdownButtonClick);
+    });
 }
 
 if (networkRestartStatusEl) {

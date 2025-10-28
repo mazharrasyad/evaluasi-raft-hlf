@@ -925,8 +925,10 @@ app.post('/api/simulations/records', async (req, res) => {
         return;
     }
 
+    const targetIds = Array.isArray(req.body?.targetIds) ? req.body.targetIds : undefined;
+
     try {
-        const results = await submitSimulationRecord(record);
+        const results = await submitSimulationRecord(record, { targetIds });
         const processedAt = new Date().toISOString();
 
         res.json({
@@ -937,10 +939,17 @@ app.post('/api/simulations/records', async (req, res) => {
         });
     } catch (error) {
         console.error('Failed to submit simulation record:', error);
-        res.status(500).json({
+
+        const statusCode = Number.isInteger(error?.statusCode) ? error.statusCode : 500;
+        const errorCode = error?.code || (statusCode === 400 ? 'invalid_request' : 'ingest_failed');
+        const message = error instanceof Error
+            ? error.message
+            : 'Gagal mengirim data simulasi ke jaringan blockchain.';
+
+        res.status(statusCode).json({
             receivedAt,
-            error: 'Gagal mengirim data simulasi ke jaringan blockchain.',
-            code: 'ingest_failed',
+            error: message,
+            code: errorCode,
         });
     }
 });

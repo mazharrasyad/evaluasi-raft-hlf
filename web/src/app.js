@@ -165,12 +165,12 @@ const NETWORK_SHUTDOWN_TARGETS = [
     {
         id: 'standard',
         label: 'RAFT Standard Network',
-        directory: path.resolve(__dirname, '../../raft-standard/network'),
+        directory: path.resolve(__dirname, '../../fabric-2/raft-standard/network'),
     },
     {
         id: 'variant',
         label: 'RAFT Variant Network',
-        directory: path.resolve(__dirname, '../../raft-variant/network'),
+        directory: path.resolve(__dirname, '../../fabric-2/raft-variant/network'),
     },
 ];
 
@@ -178,7 +178,7 @@ const NETWORK_START_TARGETS = [
     {
         id: 'standard',
         label: 'RAFT Standard Network',
-        directory: path.resolve(__dirname, '../../raft-standard/network'),
+        directory: path.resolve(__dirname, '../../fabric-2/raft-standard/network'),
         channel: 'channel-standard',
         commands: [
             {
@@ -212,7 +212,7 @@ const NETWORK_START_TARGETS = [
     {
         id: 'variant',
         label: 'RAFT Variant Network',
-        directory: path.resolve(__dirname, '../../raft-variant/network'),
+        directory: path.resolve(__dirname, '../../fabric-2/raft-variant/network'),
         channel: 'channel-variant',
         commands: [
             {

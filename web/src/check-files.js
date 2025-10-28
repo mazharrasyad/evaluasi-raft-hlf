@@ -8,8 +8,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Define paths to check
-const standardNetworkPath = path.resolve(__dirname, '../../raft-standard/network');
-const variantNetworkPath = path.resolve(__dirname, '../../raft-variant/network');
+const standardNetworkPath = path.resolve(__dirname, '../../fabric-2/raft-standard/network');
+const variantNetworkPath = path.resolve(__dirname, '../../fabric-2/raft-variant/network');
 
 const networkCandidates = [
   standardNetworkPath,

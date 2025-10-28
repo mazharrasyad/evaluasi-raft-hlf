@@ -20,14 +20,14 @@ const networkTargets = [
     {
         id: 'channel-standard',
         label: 'RAFT Standard',
-        networkDir: path.resolve(__dirname, '../../raft-standard/network'),
+        networkDir: path.resolve(__dirname, '../../fabric-2/raft-standard/network'),
         channelName: 'channel-standard',
         peerEndpoint: 'localhost:7051',
     },
     {
         id: 'channel-variant',
         label: 'RAFT Variant',
-        networkDir: path.resolve(__dirname, '../../raft-variant/network'),
+        networkDir: path.resolve(__dirname, '../../fabric-2/raft-variant/network'),
         channelName: 'channel-variant',
         peerEndpoint: 'localhost:7052',
     },

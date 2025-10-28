@@ -2,8 +2,8 @@
 
 Repositori ini berisi dua set sumber daya untuk mengevaluasi konsensus RAFT pada Hyperledger Fabric:
 
-- **raft-standard** – konfigurasi dan artefak standar sesuai dokumentasi resmi Hyperledger Fabric.
-- **raft-variant** – variasi konfigurasi yang memungkinkan eksperimen terhadap parameter jaringan dan komponen tertentu.
+- **fabric-2/raft-standard** – konfigurasi dan artefak standar sesuai dokumentasi resmi Hyperledger Fabric.
+- **fabric-2/raft-variant** – variasi konfigurasi yang memungkinkan eksperimen terhadap parameter jaringan dan komponen tertentu.
 
 Selain dua paket utama tersebut, terdapat direktori pendukung untuk skrip utilitas dan antarmuka web.
 
@@ -12,14 +12,15 @@ Selain dua paket utama tersebut, terdapat direktori pendukung untuk skrip utilit
 ```
 .
 ├── bin/
-├── raft-standard/
-│   ├── chaincode/
-│   ├── config/
-│   └── network/
-├── raft-variant/
-│   ├── chaincode/
-│   ├── config/
-│   └── network/
+├── fabric-2/
+│   ├── raft-standard/
+│   │   ├── chaincode/
+│   │   ├── config/
+│   │   └── network/
+│   └── raft-variant/
+│       ├── chaincode/
+│       ├── config/
+│       └── network/
 └── web/
 ```
 
@@ -28,7 +29,7 @@ Selain dua paket utama tersebut, terdapat direktori pendukung untuk skrip utilit
 - **web/** – modul antarmuka web untuk memantau atau mengelola jaringan percobaan.
 
 ## RAFT Standard
-Direktori `raft-standard/` menyediakan baseline jaringan Fabric dengan konsensus RAFT standar. Komponennya terdiri dari:
+Direktori `fabric-2/raft-standard/` menyediakan baseline jaringan Fabric dengan konsensus RAFT standar. Komponennya terdiri dari:
 
 - **chaincode/** – contoh chaincode yang digunakan dalam jaringan standar.
 - **config/** – contoh profil konfigurasi `configtx` dan parameter kanal bawaan.
@@ -40,7 +41,7 @@ Direktori `raft-standard/` menyediakan baseline jaringan Fabric dengan konsensus
 Gunakan struktur ini ketika ingin mereplikasi perilaku RAFT sesuai praktik resmi Hyperledger Fabric.
 
 ## RAFT Variant
-Direktori `raft-variant/` memiliki struktur yang sama dengan paket standar agar mudah dibandingkan, namun isinya dioptimalkan untuk eksperimen atau penyesuaian lebih lanjut:
+Direktori `fabric-2/raft-variant/` memiliki struktur yang sama dengan paket standar agar mudah dibandingkan, namun isinya dioptimalkan untuk eksperimen atau penyesuaian lebih lanjut:
 
 - **chaincode/** – ruang untuk chaincode alternatif atau versi modifikasi yang digunakan dalam skenario uji.
 - **config/** – konfigurasi yang dapat diubah untuk mengevaluasi parameter RAFT (misalnya jumlah orderer, timeout, atau kanal khusus).
@@ -50,7 +51,7 @@ Variasi ini memudahkan Anda melakukan A/B testing terhadap perubahan pada layer 
 
 ## Cara Menggunakan
 1. Pastikan binary pada direktori `bin/` sudah dapat dieksekusi di lingkungan Anda.
-2. Pilih skenario `raft-standard` atau `raft-variant`.
+2. Pilih skenario `fabric-2/raft-standard` atau `fabric-2/raft-variant`.
 3. Ubah konfigurasi yang diperlukan di dalam folder `config/` dan `network/` pada skenario tersebut.
 4. Jalankan skrip `network.sh` di masing-masing direktori `network/` untuk menyalakan atau mematikan jaringan uji.
 5. Setelah jaringan siap, jalankan pemeriksaan integrasi dengan perintah:

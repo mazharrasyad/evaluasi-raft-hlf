@@ -5,8 +5,8 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const STANDARD_NETWORK_ROOT = path.resolve(__dirname, '..', '..', 'raft-standard', 'network');
-const VARIANT_NETWORK_ROOT = path.resolve(__dirname, '..', '..', 'raft-variant', 'network');
+const STANDARD_NETWORK_ROOT = path.resolve(__dirname, '..', '..', 'fabric-2', 'raft-standard', 'network');
+const VARIANT_NETWORK_ROOT = path.resolve(__dirname, '..', '..', 'fabric-2', 'raft-variant', 'network');
 
 const NETWORK_SOURCES = [
     {

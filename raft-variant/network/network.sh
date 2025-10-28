@@ -22,6 +22,24 @@ export PATH=${ROOTDIR}/../bin:${PWD}/../bin:$PATH
 export FABRIC_CFG_PATH=${PWD}/configtx
 export VERBOSE=false
 
+: ${COMPOSE_PROJECT_NAME:="raftvariant"}
+export COMPOSE_PROJECT_NAME
+
+VOLUME_SUFFIXES=(
+  "orderer.variant.example.com"
+  "orderer2.variant.example.com"
+  "orderer3.variant.example.com"
+  "orderer4.variant.example.com"
+  "peer0.org1.variant.example.com"
+  "peer0.org2.variant.example.com"
+)
+
+LEGACY_VOLUME_SUFFIXES=(
+  "orderer.example.com"
+  "peer0.org1.example.com"
+  "peer0.org2.example.com"
+)
+
 # push to the required directory & set a trap to go back if needed
 pushd ${ROOTDIR} > /dev/null
 trap "popd > /dev/null" EXIT
@@ -474,7 +492,19 @@ function networkDown() {
   # Don't remove the generated artifacts -- note, the ledgers are always removed
   if [ "$MODE" != "restart" ]; then
     # Bring down the network, deleting the volumes
-    ${CONTAINER_CLI} volume rm docker_orderer.variant.example.com docker_peer0.org1.variant.example.com docker_peer0.org2.variant.example.com docker_orderer.example.com docker_peer0.org1.example.com docker_peer0.org2.example.com 2>/dev/null || true
+    local volume_prefix="${COMPOSE_PROJECT_NAME}_"
+
+    for suffix in "${VOLUME_SUFFIXES[@]}"; do
+      ${CONTAINER_CLI} volume rm "${volume_prefix}${suffix}" >/dev/null 2>&1 || true
+    done
+
+    for suffix in "${LEGACY_VOLUME_SUFFIXES[@]}"; do
+      ${CONTAINER_CLI} volume rm "${volume_prefix}${suffix}" >/dev/null 2>&1 || true
+    done
+
+    for suffix in "${VOLUME_SUFFIXES[@]}" "${LEGACY_VOLUME_SUFFIXES[@]}"; do
+      ${CONTAINER_CLI} volume rm "docker_${suffix}" >/dev/null 2>&1 || true
+    done
     #Cleanup the chaincode containers
     clearContainers
     #Cleanup images

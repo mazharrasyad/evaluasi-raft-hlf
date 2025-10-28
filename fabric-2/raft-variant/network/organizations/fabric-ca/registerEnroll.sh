@@ -56,20 +56,20 @@ function createOrg1() {
 
   infoln "Generating the peer0 msp"
   set -x
-  fabric-ca-client enroll -u https://peer0:peer0pw@localhost:7154 --caname ca-org1 -M "${PWD}/organizations/peerOrganizations/org1.variant.com/peers/peer0.org1.variant.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/org1/ca-cert.pem"
+  fabric-ca-client enroll -u https://peer0:peer0pw@localhost:7154 --caname ca-org1 -M "${PWD}/organizations/peerOrganizations/org1.variant.com/peers/peer0.org1.fabric2.variant.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/org1/ca-cert.pem"
   { set +x; } 2>/dev/null
 
-  cp "${PWD}/organizations/peerOrganizations/org1.variant.com/msp/config.yaml" "${PWD}/organizations/peerOrganizations/org1.variant.com/peers/peer0.org1.variant.com/msp/config.yaml"
+  cp "${PWD}/organizations/peerOrganizations/org1.variant.com/msp/config.yaml" "${PWD}/organizations/peerOrganizations/org1.variant.com/peers/peer0.org1.fabric2.variant.com/msp/config.yaml"
 
   infoln "Generating the peer0-tls certificates, use --csr.hosts to specify Subject Alternative Names"
   set -x
-  fabric-ca-client enroll -u https://peer0:peer0pw@localhost:7154 --caname ca-org1 -M "${PWD}/organizations/peerOrganizations/org1.variant.com/peers/peer0.org1.variant.com/tls" --enrollment.profile tls --csr.hosts peer0.org1.variant.com --csr.hosts localhost --tls.certfiles "${PWD}/organizations/fabric-ca/org1/ca-cert.pem"
+  fabric-ca-client enroll -u https://peer0:peer0pw@localhost:7154 --caname ca-org1 -M "${PWD}/organizations/peerOrganizations/org1.variant.com/peers/peer0.org1.fabric2.variant.com/tls" --enrollment.profile tls --csr.hosts peer0.org1.fabric2.variant.com --csr.hosts localhost --tls.certfiles "${PWD}/organizations/fabric-ca/org1/ca-cert.pem"
   { set +x; } 2>/dev/null
 
   # Copy the tls CA cert, server cert, server keystore to well known file names in the peer's tls directory that are referenced by peer startup config
-  cp "${PWD}/organizations/peerOrganizations/org1.variant.com/peers/peer0.org1.variant.com/tls/tlscacerts/"* "${PWD}/organizations/peerOrganizations/org1.variant.com/peers/peer0.org1.variant.com/tls/ca.crt"
-  cp "${PWD}/organizations/peerOrganizations/org1.variant.com/peers/peer0.org1.variant.com/tls/signcerts/"* "${PWD}/organizations/peerOrganizations/org1.variant.com/peers/peer0.org1.variant.com/tls/server.crt"
-  cp "${PWD}/organizations/peerOrganizations/org1.variant.com/peers/peer0.org1.variant.com/tls/keystore/"* "${PWD}/organizations/peerOrganizations/org1.variant.com/peers/peer0.org1.variant.com/tls/server.key"
+  cp "${PWD}/organizations/peerOrganizations/org1.variant.com/peers/peer0.org1.fabric2.variant.com/tls/tlscacerts/"* "${PWD}/organizations/peerOrganizations/org1.variant.com/peers/peer0.org1.fabric2.variant.com/tls/ca.crt"
+  cp "${PWD}/organizations/peerOrganizations/org1.variant.com/peers/peer0.org1.fabric2.variant.com/tls/signcerts/"* "${PWD}/organizations/peerOrganizations/org1.variant.com/peers/peer0.org1.fabric2.variant.com/tls/server.crt"
+  cp "${PWD}/organizations/peerOrganizations/org1.variant.com/peers/peer0.org1.fabric2.variant.com/tls/keystore/"* "${PWD}/organizations/peerOrganizations/org1.variant.com/peers/peer0.org1.fabric2.variant.com/tls/server.key"
 
   infoln "Generating the user msp"
   set -x
@@ -209,6 +209,12 @@ function createOrderer() {
 
 # Loop through each orderer (orderer, orderer2, orderer3, orderer4) to register and generate artifacts
   for ORDERER in orderer orderer2 orderer3 orderer4; do
+    if [ "${ORDERER}" = "orderer" ]; then
+      HOST_DOMAIN="orderer.fabric2.variant.com"
+    else
+      HOST_DOMAIN="${ORDERER}.variant.com"
+    fi
+
     infoln "Registering ${ORDERER}"
     set -x
     fabric-ca-client register --caname ca-orderer --id.name ${ORDERER} --id.secret ${ORDERER}pw --id.type orderer --tls.certfiles "${PWD}/organizations/fabric-ca/ordererOrg/ca-cert.pem"
@@ -216,27 +222,27 @@ function createOrderer() {
 
     infoln "Generating the ${ORDERER} MSP"
     set -x
-    fabric-ca-client enroll -u https://${ORDERER}:${ORDERER}pw@localhost:9154 --caname ca-orderer -M "${PWD}/organizations/ordererOrganizations/variant.com/orderers/${ORDERER}.variant.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/ordererOrg/ca-cert.pem"
+    fabric-ca-client enroll -u https://${ORDERER}:${ORDERER}pw@localhost:9154 --caname ca-orderer -M "${PWD}/organizations/ordererOrganizations/variant.com/orderers/${HOST_DOMAIN}/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/ordererOrg/ca-cert.pem"
     { set +x; } 2>/dev/null
 
-    cp "${PWD}/organizations/ordererOrganizations/variant.com/msp/config.yaml" "${PWD}/organizations/ordererOrganizations/variant.com/orderers/${ORDERER}.variant.com/msp/config.yaml"
+    cp "${PWD}/organizations/ordererOrganizations/variant.com/msp/config.yaml" "${PWD}/organizations/ordererOrganizations/variant.com/orderers/${HOST_DOMAIN}/msp/config.yaml"
 
     # Workaround: Rename the signcert file to ensure consistency with Cryptogen generated artifacts
-    mv "${PWD}/organizations/ordererOrganizations/variant.com/orderers/${ORDERER}.variant.com/msp/signcerts/cert.pem" "${PWD}/organizations/ordererOrganizations/variant.com/orderers/${ORDERER}.variant.com/msp/signcerts/${ORDERER}.variant.com-cert.pem"
+    mv "${PWD}/organizations/ordererOrganizations/variant.com/orderers/${HOST_DOMAIN}/msp/signcerts/cert.pem" "${PWD}/organizations/ordererOrganizations/variant.com/orderers/${HOST_DOMAIN}/msp/signcerts/${HOST_DOMAIN}-cert.pem"
 
     infoln "Generating the ${ORDERER} TLS certificates, use --csr.hosts to specify Subject Alternative Names"
     set -x
-    fabric-ca-client enroll -u https://${ORDERER}:${ORDERER}pw@localhost:9154 --caname ca-orderer -M "${PWD}/organizations/ordererOrganizations/variant.com/orderers/${ORDERER}.variant.com/tls" --enrollment.profile tls --csr.hosts ${ORDERER}.variant.com --csr.hosts localhost --tls.certfiles "${PWD}/organizations/fabric-ca/ordererOrg/ca-cert.pem"
+    fabric-ca-client enroll -u https://${ORDERER}:${ORDERER}pw@localhost:9154 --caname ca-orderer -M "${PWD}/organizations/ordererOrganizations/variant.com/orderers/${HOST_DOMAIN}/tls" --enrollment.profile tls --csr.hosts ${HOST_DOMAIN} --csr.hosts localhost --tls.certfiles "${PWD}/organizations/fabric-ca/ordererOrg/ca-cert.pem"
     { set +x; } 2>/dev/null
 
     # Copy the tls CA cert, server cert, server keystore to well known file names in the orderer's tls directory that are referenced by orderer startup config
-    cp "${PWD}/organizations/ordererOrganizations/variant.com/orderers/${ORDERER}.variant.com/tls/tlscacerts/"* "${PWD}/organizations/ordererOrganizations/variant.com/orderers/${ORDERER}.variant.com/tls/ca.crt"
-    cp "${PWD}/organizations/ordererOrganizations/variant.com/orderers/${ORDERER}.variant.com/tls/signcerts/"* "${PWD}/organizations/ordererOrganizations/variant.com/orderers/${ORDERER}.variant.com/tls/server.crt"
-    cp "${PWD}/organizations/ordererOrganizations/variant.com/orderers/${ORDERER}.variant.com/tls/keystore/"* "${PWD}/organizations/ordererOrganizations/variant.com/orderers/${ORDERER}.variant.com/tls/server.key"
+    cp "${PWD}/organizations/ordererOrganizations/variant.com/orderers/${HOST_DOMAIN}/tls/tlscacerts/"* "${PWD}/organizations/ordererOrganizations/variant.com/orderers/${HOST_DOMAIN}/tls/ca.crt"
+    cp "${PWD}/organizations/ordererOrganizations/variant.com/orderers/${HOST_DOMAIN}/tls/signcerts/"* "${PWD}/organizations/ordererOrganizations/variant.com/orderers/${HOST_DOMAIN}/tls/server.crt"
+    cp "${PWD}/organizations/ordererOrganizations/variant.com/orderers/${HOST_DOMAIN}/tls/keystore/"* "${PWD}/organizations/ordererOrganizations/variant.com/orderers/${HOST_DOMAIN}/tls/server.key"
 
     # Copy orderer org's CA cert to orderer's /msp/tlscacerts directory (for use in the orderer MSP definition)
-    mkdir -p "${PWD}/organizations/ordererOrganizations/variant.com/orderers/${ORDERER}.variant.com/msp/tlscacerts"
-    cp "${PWD}/organizations/ordererOrganizations/variant.com/orderers/${ORDERER}.variant.com/tls/tlscacerts/"* "${PWD}/organizations/ordererOrganizations/variant.com/orderers/${ORDERER}.variant.com/msp/tlscacerts/tlsca.variant.com-cert.pem"
+    mkdir -p "${PWD}/organizations/ordererOrganizations/variant.com/orderers/${HOST_DOMAIN}/msp/tlscacerts"
+    cp "${PWD}/organizations/ordererOrganizations/variant.com/orderers/${HOST_DOMAIN}/tls/tlscacerts/"* "${PWD}/organizations/ordererOrganizations/variant.com/orderers/${HOST_DOMAIN}/msp/tlscacerts/tlsca.variant.com-cert.pem"
   done
 
   # Register and generate artifacts for the orderer admin

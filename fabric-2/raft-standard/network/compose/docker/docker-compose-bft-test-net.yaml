@@ -5,8 +5,8 @@
 
 version: '3.7'
 services:
-  peer0.org1.standard.com:
-    container_name: peer0.org1.standard.com
+  peer0.org1.fabric2.standard.com:
+    container_name: peer0.org1.fabric2.standard.com
     image: hyperledger/fabric-peer:latest
     labels:
       service: hyperledger-fabric

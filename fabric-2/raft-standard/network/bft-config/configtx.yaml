@@ -37,7 +37,7 @@ Organizations:
         Type: Signature
         Rule: "OR('OrdererMSP.admin')"
     OrdererEndpoints:
-      - orderer.standard.com:7050
+      - orderer.fabric2.standard.com:7050
       - orderer2.standard.com:7052
       - orderer3.standard.com:7056
       - orderer4.standard.com:7058
@@ -277,12 +277,12 @@ Profiles:
         LeaderHeartbeatCount: 10
       ConsenterMapping:
         - ID: 1
-          Host: orderer.standard.com
+          Host: orderer.fabric2.standard.com
           Port: 7050
           MSPID: OrdererMSP
-          Identity: ../organizations/ordererOrganizations/standard.com/orderers/orderer.standard.com/msp/signcerts/orderer.standard.com-cert.pem
-          ClientTLSCert: ../organizations/ordererOrganizations/standard.com/orderers/orderer.standard.com/tls/server.crt
-          ServerTLSCert: ../organizations/ordererOrganizations/standard.com/orderers/orderer.standard.com/tls/server.crt
+          Identity: ../organizations/ordererOrganizations/standard.com/orderers/orderer.fabric2.standard.com/msp/signcerts/orderer.fabric2.standard.com-cert.pem
+          ClientTLSCert: ../organizations/ordererOrganizations/standard.com/orderers/orderer.fabric2.standard.com/tls/server.crt
+          ServerTLSCert: ../organizations/ordererOrganizations/standard.com/orderers/orderer.fabric2.standard.com/tls/server.crt
         - ID: 2
           Host: orderer2.standard.com
           Port: 7052

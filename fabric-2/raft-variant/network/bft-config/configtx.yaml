@@ -37,7 +37,7 @@ Organizations:
         Type: Signature
         Rule: "OR('OrdererMSP.admin')"
     OrdererEndpoints:
-      - orderer.variant.com:7050
+      - orderer.fabric2.variant.com:7050
       - orderer2.variant.com:7052
       - orderer3.variant.com:7056
       - orderer4.variant.com:7058
@@ -277,12 +277,12 @@ Profiles:
         LeaderHeartbeatCount: 10
       ConsenterMapping:
         - ID: 1
-          Host: orderer.variant.com
+          Host: orderer.fabric2.variant.com
           Port: 7050
           MSPID: OrdererMSP
-          Identity: ../organizations/ordererOrganizations/variant.com/orderers/orderer.variant.com/msp/signcerts/orderer.variant.com-cert.pem
-          ClientTLSCert: ../organizations/ordererOrganizations/variant.com/orderers/orderer.variant.com/tls/server.crt
-          ServerTLSCert: ../organizations/ordererOrganizations/variant.com/orderers/orderer.variant.com/tls/server.crt
+          Identity: ../organizations/ordererOrganizations/variant.com/orderers/orderer.fabric2.variant.com/msp/signcerts/orderer.fabric2.variant.com-cert.pem
+          ClientTLSCert: ../organizations/ordererOrganizations/variant.com/orderers/orderer.fabric2.variant.com/tls/server.crt
+          ServerTLSCert: ../organizations/ordererOrganizations/variant.com/orderers/orderer.fabric2.variant.com/tls/server.crt
         - ID: 2
           Host: orderer2.variant.com
           Port: 7052

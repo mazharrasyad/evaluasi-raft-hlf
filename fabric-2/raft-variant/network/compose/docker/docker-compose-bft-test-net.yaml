@@ -5,7 +5,7 @@
 
 version: '3.7'
 services:
-  peer0.org1.variant.com:
+  peer0.org1.fabric2.variant.com:
     image: hyperledger/fabric-peer:latest
     labels:
       service: hyperledger-fabric

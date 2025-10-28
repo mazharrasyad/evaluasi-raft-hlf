@@ -6,9 +6,9 @@
 version: '3.7'
 
 volumes:
-  orderer.example.com:
-  peer0.org1.example.com:
-  peer0.org2.example.com:
+  orderer.variant.example.com:
+  peer0.org1.variant.example.com:
+  peer0.org2.variant.example.com:
 
 networks:
   test:
@@ -17,6 +17,7 @@ networks:
 services:
 
   orderer.example.com:
+    container_name: orderer.variant.example.com
     hostname: orderer.example.com
     image: hyperledger/fabric-orderer:latest
     labels:
@@ -51,7 +52,7 @@ services:
     volumes:
         - ../organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp:/var/hyperledger/orderer/msp
         - ../organizations/ordererOrganizations/example.com/orderers/orderer.example.com/tls/:/var/hyperledger/orderer/tls
-        - orderer.example.com:/var/hyperledger/production/orderer
+        - orderer.variant.example.com:/var/hyperledger/production/orderer
     ports:
       - 7150:7050
       - 7153:7053
@@ -60,6 +61,7 @@ services:
       - test
 
   peer0.org1.example.com:
+    container_name: peer0.org1.variant.example.com
     hostname: peer0.org1.example.com
     image: hyperledger/fabric-peer:latest
     labels:
@@ -90,7 +92,7 @@ services:
       - CORE_CHAINCODE_EXECUTETIMEOUT=300s
     volumes:
       - ../organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com:/etc/hyperledger/fabric
-      - peer0.org1.example.com:/var/hyperledger/production
+      - peer0.org1.variant.example.com:/var/hyperledger/production
     working_dir: /root
     command: peer node start
     ports:
@@ -100,6 +102,7 @@ services:
       - test
 
   peer0.org2.example.com:
+    container_name: peer0.org2.variant.example.com
     hostname: peer0.org2.example.com
     image: hyperledger/fabric-peer:latest
     labels:
@@ -130,7 +133,7 @@ services:
       - CORE_CHAINCODE_EXECUTETIMEOUT=300s
     volumes:
       - ../organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com:/etc/hyperledger/fabric
-      - peer0.org2.example.com:/var/hyperledger/production
+      - peer0.org2.variant.example.com:/var/hyperledger/production
     working_dir: /root
     command: peer node start
     ports:

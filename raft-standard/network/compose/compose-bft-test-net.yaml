@@ -1,12 +1,12 @@
 version: '3.7'
 
 volumes:
-  orderer.example.com:
-  orderer2.example.com:
-  orderer3.example.com:
-  orderer4.example.com:
-  peer0.org1.example.com:
-  peer0.org2.example.com:
+  orderer.standard.example.com:
+  orderer2.standard.example.com:
+  orderer3.standard.example.com:
+  orderer4.standard.example.com:
+  peer0.org1.standard.example.com:
+  peer0.org2.standard.example.com:
 
 networks:
   test:
@@ -15,7 +15,8 @@ networks:
 services:
 
   orderer.example.com:
-    container_name: orderer.example.com
+    container_name: orderer.standard.example.com
+    hostname: orderer.example.com
     image: hyperledger/fabric-orderer:latest
     labels:
       service: hyperledger-fabric
@@ -49,7 +50,7 @@ services:
     volumes:
       - ../organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp:/var/hyperledger/orderer/msp
       - ../organizations/ordererOrganizations/example.com/orderers/orderer.example.com/tls/:/var/hyperledger/orderer/tls
-      - orderer.example.com:/var/hyperledger/production/orderer
+      - orderer.standard.example.com:/var/hyperledger/production/orderer
     ports:
       - 7050:7050
       - 7053:7053
@@ -58,7 +59,8 @@ services:
       - test
 
   orderer2.example.com:
-    container_name: orderer2.example.com
+    container_name: orderer2.standard.example.com
+    hostname: orderer2.example.com
     image: hyperledger/fabric-orderer:latest
     labels:
       service: hyperledger-fabric
@@ -92,7 +94,7 @@ services:
     volumes:
       - ../organizations/ordererOrganizations/example.com/orderers/orderer2.example.com/msp:/var/hyperledger/orderer/msp
       - ../organizations/ordererOrganizations/example.com/orderers/orderer2.example.com/tls/:/var/hyperledger/orderer/tls
-      - orderer2.example.com:/var/hyperledger/production/orderer
+      - orderer2.standard.example.com:/var/hyperledger/production/orderer
     ports:
       - 7052:7052
       - 7055:7055
@@ -101,7 +103,8 @@ services:
       - test
 
   orderer3.example.com:
-    container_name: orderer3.example.com
+    container_name: orderer3.standard.example.com
+    hostname: orderer3.example.com
     image: hyperledger/fabric-orderer:latest
     labels:
       service: hyperledger-fabric
@@ -135,7 +138,7 @@ services:
     volumes:
       - ../organizations/ordererOrganizations/example.com/orderers/orderer3.example.com/msp:/var/hyperledger/orderer/msp
       - ../organizations/ordererOrganizations/example.com/orderers/orderer3.example.com/tls/:/var/hyperledger/orderer/tls
-      - orderer3.example.com:/var/hyperledger/production/orderer
+      - orderer3.standard.example.com:/var/hyperledger/production/orderer
     ports:
       - 7056:7056
       - 7057:7057
@@ -144,7 +147,8 @@ services:
       - test
 
   orderer4.example.com:
-    container_name: orderer4.example.com
+    container_name: orderer4.standard.example.com
+    hostname: orderer4.example.com
     image: hyperledger/fabric-orderer:latest
     labels:
       service: hyperledger-fabric
@@ -178,7 +182,7 @@ services:
     volumes:
       - ../organizations/ordererOrganizations/example.com/orderers/orderer4.example.com/msp:/var/hyperledger/orderer/msp
       - ../organizations/ordererOrganizations/example.com/orderers/orderer4.example.com/tls/:/var/hyperledger/orderer/tls
-      - orderer4.example.com:/var/hyperledger/production/orderer
+      - orderer4.standard.example.com:/var/hyperledger/production/orderer
     ports:
       - 7058:7058
       - 7059:7059
@@ -190,7 +194,8 @@ services:
 
 
   peer0.org1.example.com:
-    container_name: peer0.org1.example.com
+    container_name: peer0.org1.standard.example.com
+    hostname: peer0.org1.example.com
     image: hyperledger/fabric-peer:latest
     labels:
       service: hyperledger-fabric
@@ -220,7 +225,7 @@ services:
       - CORE_CHAINCODE_EXECUTETIMEOUT=300s
     volumes:
       - ../organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com:/etc/hyperledger/fabric
-      - peer0.org1.example.com:/var/hyperledger/production
+      - peer0.org1.standard.example.com:/var/hyperledger/production
     working_dir: /root
     command: peer node start
     ports:
@@ -230,7 +235,8 @@ services:
       - test
 
   peer0.org2.example.com:
-    container_name: peer0.org2.example.com
+    container_name: peer0.org2.standard.example.com
+    hostname: peer0.org2.example.com
     image: hyperledger/fabric-peer:latest
     labels:
       service: hyperledger-fabric
@@ -260,7 +266,7 @@ services:
       - CORE_CHAINCODE_EXECUTETIMEOUT=300s
     volumes:
       - ../organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com:/etc/hyperledger/fabric
-      - peer0.org2.example.com:/var/hyperledger/production
+      - peer0.org2.standard.example.com:/var/hyperledger/production
     working_dir: /root
     command: peer node start
     ports:

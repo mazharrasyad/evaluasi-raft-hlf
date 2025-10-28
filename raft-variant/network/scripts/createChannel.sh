@@ -30,21 +30,34 @@ fi
 
 createChannelGenesisBlock() {
   setGlobals 1
-	which configtxgen
-	if [ "$?" -ne 0 ]; then
-		fatalln "configtxgen tool not found."
-	fi
-	local bft_true=$1
-	set -x
+        which configtxgen
+        if [ "$?" -ne 0 ]; then
+                fatalln "configtxgen tool not found."
+        fi
+        local bft_true=$1
+        set -x
 
-	if [ $bft_true -eq 1 ]; then
-		configtxgen -profile ChannelUsingBFT -outputBlock ./channel-artifacts/${CHANNEL_NAME}.block -channelID $CHANNEL_NAME
-	else
-		configtxgen -profile ChannelUsingRaft -outputBlock ./channel-artifacts/${CHANNEL_NAME}.block -channelID $CHANNEL_NAME
-	fi
-	res=$?
-	{ set +x; } 2>/dev/null
+        if [ $bft_true -eq 1 ]; then
+                configtxgen -profile ChannelUsingBFT -outputBlock ./channel-artifacts/${CHANNEL_NAME}.block -channelID $CHANNEL_NAME
+        else
+                configtxgen -profile ChannelUsingRaft -outputBlock ./channel-artifacts/${CHANNEL_NAME}.block -channelID $CHANNEL_NAME
+        fi
+        res=$?
+        { set +x; } 2>/dev/null
+
+        if [ $res -ne 0 ] && [ $bft_true -eq 1 ]; then
+                warnln "BFT channel configuration failed. Falling back to Raft profile."
+                FABRIC_CFG_PATH=${PWD}/configtx
+                bft_true=0
+                BFT=0
+                set -x
+                configtxgen -profile ChannelUsingRaft -outputBlock ./channel-artifacts/${CHANNEL_NAME}.block -channelID $CHANNEL_NAME
+                res=$?
+                { set +x; } 2>/dev/null
+        fi
+
   verifyResult $res "Failed to generate channel configuration transaction..."
+  BFT=$bft_true
 }
 
 createChannel() {

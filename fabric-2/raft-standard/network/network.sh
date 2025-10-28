@@ -26,18 +26,18 @@ export VERBOSE=false
 export COMPOSE_PROJECT_NAME
 
 VOLUME_SUFFIXES=(
-  "orderer.standard.example.com"
-  "orderer2.standard.example.com"
-  "orderer3.standard.example.com"
-  "orderer4.standard.example.com"
-  "peer0.org1.standard.example.com"
-  "peer0.org2.standard.example.com"
+  "orderer.standard.com"
+  "orderer2.standard.com"
+  "orderer3.standard.com"
+  "orderer4.standard.com"
+  "peer0.org1.standard.com"
+  "peer0.org2.standard.com"
 )
 
 LEGACY_VOLUME_SUFFIXES=(
-  "orderer.example.com"
-  "peer0.org1.example.com"
-  "peer0.org2.example.com"
+  "orderer.standard.com"
+  "peer0.org1.standard.com"
+  "peer0.org2.standard.com"
 )
 
 # push to the required directory & set a trap to go back if needed
@@ -223,18 +223,18 @@ function createOrgs() {
 
     . organizations/cfssl/registerEnroll.sh
     #function_name cert-type   CN   org
-    peer_cert peer peer0.org1.example.com org1
-    peer_cert admin Admin@org1.example.com org1
+    peer_cert peer peer0.org1.standard.com org1
+    peer_cert admin Admin@org1.standard.com org1
 
     infoln "Creating Org2 Identities"
     #function_name cert-type   CN   org
-    peer_cert peer peer0.org2.example.com org2
-    peer_cert admin Admin@org2.example.com org2
+    peer_cert peer peer0.org2.standard.com org2
+    peer_cert admin Admin@org2.standard.com org2
 
     infoln "Creating Orderer Org Identities"
     #function_name cert-type   CN   
-    orderer_cert orderer orderer.example.com
-    orderer_cert admin Admin@example.com
+    orderer_cert orderer orderer.standard.com
+    orderer_cert admin Admin@standard.com
 
   fi 
 
@@ -256,7 +256,7 @@ function createOrgs() {
     done
 
     # Make sure CA service is initialized and can accept requests before making register and enroll calls
-    export FABRIC_CA_CLIENT_HOME=${PWD}/organizations/peerOrganizations/org1.example.com/
+    export FABRIC_CA_CLIENT_HOME=${PWD}/organizations/peerOrganizations/org1.standard.com/
     COUNTER=0
     rc=1
     while [[ $rc -ne 0 && $COUNTER -lt $MAX_RETRY ]]; do

@@ -11,10 +11,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const mspId = 'Org1MSP';
-const mspUser = 'User1@org1.example.com';
 const chaincodeName = 'pelaporan';
 const defaultPeerEndpoint = 'localhost:7051';
-const peerHostAlias = 'peer0.org1.example.com';
 
 const networkTargets = [
     {
@@ -23,6 +21,7 @@ const networkTargets = [
         networkDir: path.resolve(__dirname, '../../fabric-2/raft-standard/network'),
         channelName: 'channel-standard',
         peerEndpoint: 'localhost:7051',
+        domain: 'standard.com',
     },
     {
         id: 'channel-variant',
@@ -30,6 +29,7 @@ const networkTargets = [
         networkDir: path.resolve(__dirname, '../../fabric-2/raft-variant/network'),
         channelName: 'channel-variant',
         peerEndpoint: 'localhost:7052',
+        domain: 'variant.com',
     },
 ];
 
@@ -160,7 +160,7 @@ function normalizeBlockNumber(blockNumber) {
     return String(blockNumber);
 }
 
-async function newGrpcConnection(tlsCertPath, peerEndpoint) {
+async function newGrpcConnection(tlsCertPath, peerEndpoint, peerHostAlias) {
     const tlsRootCert = await fs.readFile(tlsCertPath);
     const tlsCredentials = grpc.credentials.createSsl(tlsRootCert);
     return new grpc.Client(peerEndpoint, tlsCredentials, {
@@ -206,6 +206,10 @@ function formatResolutionFromError(errorMessage) {
 async function submitToSingleNetwork(target, record) {
     const { id, label, networkDir, channelName } = target;
     const targetPeerEndpoint = target.peerEndpoint || defaultPeerEndpoint;
+    const domain = target.domain ?? 'standard.com';
+    const orgDomain = `org1.${domain}`;
+    const mspUser = `User1@${orgDomain}`;
+    const peerHostAlias = `peer0.${orgDomain}`;
     const startedAt = new Date().toISOString();
 
     const baseResult = {
@@ -229,11 +233,11 @@ async function submitToSingleNetwork(target, record) {
         return result;
     }
 
-    const cryptoPath = path.resolve(networkDir, 'organizations/peerOrganizations/org1.example.com');
+    const cryptoPath = path.resolve(networkDir, `organizations/peerOrganizations/${orgDomain}`);
     const userPath = path.resolve(cryptoPath, `users/${mspUser}/msp`);
     const keyDirPath = path.resolve(userPath, 'keystore');
     const certDirPath = path.resolve(userPath, 'signcerts');
-    const tlsCertPath = path.resolve(cryptoPath, 'peers/peer0.org1.example.com/tls/ca.crt');
+    const tlsCertPath = path.resolve(cryptoPath, `peers/${peerHostAlias}/tls/ca.crt`);
 
     const requiredPaths = [
         { path: cryptoPath, message: 'Material kriptografi tidak ditemukan.' },
@@ -259,7 +263,7 @@ async function submitToSingleNetwork(target, record) {
     let submitError;
 
     try {
-        client = await newGrpcConnection(tlsCertPath, targetPeerEndpoint);
+        client = await newGrpcConnection(tlsCertPath, targetPeerEndpoint, peerHostAlias);
         gateway = connect({
             client,
             identity: await newIdentity(certDirPath),

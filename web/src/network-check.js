@@ -12,7 +12,6 @@ const __dirname = path.dirname(__filename);
 
 // Configuration
 const mspId = 'Org1MSP';
-const mspUser = 'User1@org1.example.com';
 const chaincodeName = 'pelaporan';
 const standardNetworkDir = path.resolve(__dirname, '../../fabric-2/raft-standard/network');
 const variantNetworkDir = path.resolve(__dirname, '../../fabric-2/raft-variant/network');
@@ -23,6 +22,7 @@ const networkConfigurations = [
         networkDir: standardNetworkDir,
         channelName: 'channel-standard',
         peerEndpoint: 'localhost:7051',
+        domain: 'standard.com',
         instructions: {
             up: `cd ${standardNetworkDir} && ./network.sh up -ca && ./network.sh createChannel -c channel-standard -ca`,
             deploy: `cd ${standardNetworkDir} && ./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl javascript -c channel-standard`
@@ -33,13 +33,13 @@ const networkConfigurations = [
         networkDir: variantNetworkDir,
         channelName: 'channel-variant',
         peerEndpoint: 'localhost:7052',
+        domain: 'variant.com',
         instructions: {
             up: `cd ${variantNetworkDir} && ./network.sh up -ca -bft && ./network.sh createChannel -c channel-variant -ca -bft`,
             deploy: `cd ${variantNetworkDir} && ./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl javascript -c channel-variant -bft`
         }
     }
 ];
-const peerHostAlias = 'peer0.org1.example.com';
 
 const logsRoot = path.resolve(__dirname, '../logs');
 const networkCheckLogPath = path.resolve(logsRoot, 'network-check.log');
@@ -181,8 +181,12 @@ async function readFirstVisibleFile(directory) {
     return path.join(directory, candidate);
 }
 
-async function checkSingleNetwork({ label, networkDir, channelName, instructions, peerEndpoint }) {
+async function checkSingleNetwork({ label, networkDir, channelName, instructions, peerEndpoint, domain, orgName = 'org1', peerName = 'peer0' }) {
     const effectivePeerEndpoint = peerEndpoint || 'localhost:7051';
+    const effectiveDomain = domain ?? 'standard.com';
+    const orgDomain = `${orgName}.${effectiveDomain}`;
+    const mspUser = `User1@${orgDomain}`;
+    const peerHostAlias = `${peerName}.${orgDomain}`;
     const timestamp = new Date().toISOString();
     const baseResult = {
         label,
@@ -206,11 +210,11 @@ async function checkSingleNetwork({ label, networkDir, channelName, instructions
         return failureResult;
     }
 
-    const cryptoPath = path.resolve(networkDir, 'organizations/peerOrganizations/org1.example.com');
+    const cryptoPath = path.resolve(networkDir, `organizations/peerOrganizations/${orgDomain}`);
     const userPath = path.resolve(cryptoPath, `users/${mspUser}/msp`);
     const keyDirPath = path.resolve(userPath, 'keystore');
     const certDirPath = path.resolve(userPath, 'signcerts');
-    const tlsCertPath = path.resolve(cryptoPath, 'peers/peer0.org1.example.com/tls/ca.crt');
+    const tlsCertPath = path.resolve(cryptoPath, `peers/${peerHostAlias}/tls/ca.crt`);
 
     const requiredPaths = [
         { path: cryptoPath, description: 'Material kriptografi tidak ditemukan.' },

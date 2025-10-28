@@ -53,9 +53,9 @@ services:
         - ../organizations/ordererOrganizations/example.com/orderers/orderer.example.com/tls/:/var/hyperledger/orderer/tls
         - orderer.example.com:/var/hyperledger/production/orderer
     ports:
-      - 7050:7050
-      - 7053:7053
-      - 9443:9443
+      - 7150:7050
+      - 7153:7053
+      - 9543:9443
     networks:
       - test
 
@@ -94,8 +94,8 @@ services:
     working_dir: /root
     command: peer node start
     ports:
-      - 7051:7051
-      - 9444:9444
+      - 7151:7051
+      - 9544:9444
     networks:
       - test
 
@@ -134,7 +134,7 @@ services:
     working_dir: /root
     command: peer node start
     ports:
-      - 9051:9051
-      - 9445:9445
+      - 9151:9051
+      - 9545:9445
     networks:
       - test

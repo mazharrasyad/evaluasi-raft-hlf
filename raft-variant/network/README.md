@@ -24,6 +24,13 @@ Note that running the createChannel command will start the network, if it is not
 
 Before you can deploy the test network, you need to follow the instructions to [Install the Samples, Binaries and Docker Images](https://hyperledger-fabric.readthedocs.io/en/latest/install.html) in the Hyperledger Fabric documentation.
 
+> **Compatibility note**: the legacy `docker-compose` (v1) client relies on Docker
+> Engine APIs that are no longer available in recent Docker releases. If you can
+> install the `docker compose` plugin it will be used automatically. When the
+> plugin is not present the scripts now fall back to `docker-compose` and pin the
+> Docker API to version `1.43`, which prevents the `ContainerConfig` error that
+> appears while creating the Fabric CA containers.
+
 ## Using the Peer commands
 
 The `setOrgEnv.sh` script can be used to set up the environment variables for the organizations, this will help to be able to use the `peer` commands directly.

@@ -33,10 +33,23 @@ if ${CONTAINER_CLI} compose version > /dev/null 2>&1; then
     : ${CONTAINER_CLI_COMPOSE:="${CONTAINER_CLI} compose"}
 elif command -v ${CONTAINER_CLI}-compose > /dev/null 2>&1; then
     : ${CONTAINER_CLI_COMPOSE:="${CONTAINER_CLI}-compose"}
+    #
+    # Docker Compose V1 relies on deprecated Docker Engine APIs that were removed
+    # in newer Docker releases (26+). When those APIs are unavailable the python
+    # based docker-compose client raises the `ContainerConfig` error that breaks
+    # the CA bootstrap sequence. Pinning the client to an older API version keeps
+    # the legacy fields available and restores compatibility.
+    #
+    if [ -z "${DOCKER_API_VERSION:-}" ]; then
+      export DOCKER_API_VERSION=1.43
+    fi
 else
     fatalln "Unable to locate docker compose plugin or docker-compose binary"
 fi
 infoln "Using ${CONTAINER_CLI} and ${CONTAINER_CLI_COMPOSE}"
+if [ -n "${DOCKER_API_VERSION:-}" ]; then
+  infoln "Docker API version override set to ${DOCKER_API_VERSION}"
+fi
 
 # Obtain CONTAINER_IDS and remove them
 # This function is called when you bring a network down

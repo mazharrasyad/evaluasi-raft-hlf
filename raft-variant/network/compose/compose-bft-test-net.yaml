@@ -229,7 +229,7 @@ services:
     working_dir: /root
     command: peer node start
     ports:
-      - 7151:7051
+      - 7052:7051
       - 9544:9444
     networks:
       - test

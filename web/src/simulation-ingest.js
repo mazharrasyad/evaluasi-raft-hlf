@@ -13,7 +13,7 @@ const __dirname = path.dirname(__filename);
 const mspId = 'Org1MSP';
 const mspUser = 'User1@org1.example.com';
 const chaincodeName = 'pelaporan';
-const peerEndpoint = 'localhost:7051';
+const defaultPeerEndpoint = 'localhost:7051';
 const peerHostAlias = 'peer0.org1.example.com';
 
 const networkTargets = [
@@ -22,12 +22,14 @@ const networkTargets = [
         label: 'RAFT Standard',
         networkDir: path.resolve(__dirname, '../../raft-standard/network'),
         channelName: 'channel-standard',
+        peerEndpoint: 'localhost:7051',
     },
     {
         id: 'channel-variant',
         label: 'RAFT Variant',
         networkDir: path.resolve(__dirname, '../../raft-variant/network'),
         channelName: 'channel-variant',
+        peerEndpoint: 'localhost:7052',
     },
 ];
 
@@ -156,7 +158,7 @@ function normalizeBlockNumber(blockNumber) {
     return String(blockNumber);
 }
 
-async function newGrpcConnection(tlsCertPath) {
+async function newGrpcConnection(tlsCertPath, peerEndpoint) {
     const tlsRootCert = await fs.readFile(tlsCertPath);
     const tlsCredentials = grpc.credentials.createSsl(tlsRootCert);
     return new grpc.Client(peerEndpoint, tlsCredentials, {
@@ -201,6 +203,7 @@ function formatResolutionFromError(errorMessage) {
 
 async function submitToSingleNetwork(target, record) {
     const { id, label, networkDir, channelName } = target;
+    const targetPeerEndpoint = target.peerEndpoint || defaultPeerEndpoint;
     const startedAt = new Date().toISOString();
 
     const baseResult = {
@@ -208,7 +211,7 @@ async function submitToSingleNetwork(target, record) {
         label,
         networkDir,
         channel: channelName,
-        peer: peerEndpoint,
+        peer: targetPeerEndpoint,
         chaincode: chaincodeName,
         startedAt,
         status: 'unknown',
@@ -254,7 +257,7 @@ async function submitToSingleNetwork(target, record) {
     let submitError;
 
     try {
-        client = await newGrpcConnection(tlsCertPath);
+        client = await newGrpcConnection(tlsCertPath, targetPeerEndpoint);
         gateway = connect({
             client,
             identity: await newIdentity(certDirPath),

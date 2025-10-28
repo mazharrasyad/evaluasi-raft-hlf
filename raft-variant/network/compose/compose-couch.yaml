@@ -11,10 +11,11 @@ networks:
 
 services:
   couchdb0:
-    container_name: couchdb0
+    hostname: couchdb0
     image: couchdb:3.4.2
     labels:
       service: hyperledger-fabric
+      raft-network: raft-variant
     # Populate the COUCHDB_USER and COUCHDB_PASSWORD to set an admin user and password
     # for CouchDB.  This will prevent CouchDB from operating in an "Admin Party" mode.
     environment:
@@ -40,10 +41,11 @@ services:
       - couchdb0
 
   couchdb1:
-    container_name: couchdb1
+    hostname: couchdb1
     image: couchdb:3.4.2
     labels:
       service: hyperledger-fabric
+      raft-network: raft-variant
     # Populate the COUCHDB_USER and COUCHDB_PASSWORD to set an admin user and password
     # for CouchDB.  This will prevent CouchDB from operating in an "Admin Party" mode.
     environment:

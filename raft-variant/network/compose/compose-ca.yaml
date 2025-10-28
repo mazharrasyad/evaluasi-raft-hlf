@@ -15,6 +15,7 @@ services:
     image: hyperledger/fabric-ca:latest
     labels:
       service: hyperledger-fabric
+      raft-network: raft-variant
     environment:
       - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
       - FABRIC_CA_SERVER_CA_NAME=ca-org1
@@ -27,7 +28,7 @@ services:
     command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
     volumes:
       - ../organizations/fabric-ca/org1:/etc/hyperledger/fabric-ca-server
-    container_name: ca_org1
+    hostname: ca_org1
     networks:
       - test
 
@@ -35,6 +36,7 @@ services:
     image: hyperledger/fabric-ca:latest
     labels:
       service: hyperledger-fabric
+      raft-network: raft-variant
     environment:
       - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
       - FABRIC_CA_SERVER_CA_NAME=ca-org2
@@ -47,7 +49,7 @@ services:
     command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
     volumes:
       - ../organizations/fabric-ca/org2:/etc/hyperledger/fabric-ca-server
-    container_name: ca_org2
+    hostname: ca_org2
     networks:
       - test
 
@@ -55,6 +57,7 @@ services:
     image: hyperledger/fabric-ca:latest
     labels:
       service: hyperledger-fabric
+      raft-network: raft-variant
     environment:
       - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
       - FABRIC_CA_SERVER_CA_NAME=ca-orderer
@@ -67,6 +70,6 @@ services:
     command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
     volumes:
       - ../organizations/fabric-ca/ordererOrg:/etc/hyperledger/fabric-ca-server
-    container_name: ca_orderer
+    hostname: ca_orderer
     networks:
       - test

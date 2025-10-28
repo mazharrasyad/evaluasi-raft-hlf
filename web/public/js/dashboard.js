@@ -373,6 +373,8 @@ const BLOCKCHAIN_SUBMISSION_PHASES = BLOCKCHAIN_TARGETS.map(target => ({
     targetIds: [target.id],
 }));
 
+const MAX_EVALUATION_HISTORY_LENGTH = 50;
+
 const SESSION_STORAGE_KEY = 'simulasiPelaporan';
 const dateTimeFormatter = new Intl.DateTimeFormat('id-ID', {
     dateStyle: 'long',
@@ -382,6 +384,61 @@ const decimalFormatter = new Intl.NumberFormat('id-ID', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
 });
+
+const EVALUATION_CHART_CONFIGS = [
+    {
+        key: 'latency',
+        title: 'Latensi terbaru',
+        description: 'Waktu komit setiap blok.',
+        dataKey: 'latencies',
+        type: 'line',
+        datasetLabel: 'Latensi (ms)',
+        borderColor: 'rgba(56, 189, 248, 1)',
+        backgroundColor: 'rgba(56, 189, 248, 0.25)',
+        fill: true,
+        tooltipFormatter: value => `${decimalFormatter.format(value)} ms`,
+        yTickFormatter: value => `${decimalFormatter.format(value)} ms`,
+    },
+    {
+        key: 'averageLatency',
+        title: 'Rata-rata latensi',
+        description: 'Rerata kumulatif per komit.',
+        dataKey: 'averageLatencies',
+        type: 'line',
+        datasetLabel: 'Rata-rata (ms)',
+        borderColor: 'rgba(99, 102, 241, 1)',
+        backgroundColor: 'rgba(99, 102, 241, 0.25)',
+        fill: true,
+        tooltipFormatter: value => `${decimalFormatter.format(value)} ms`,
+        yTickFormatter: value => `${decimalFormatter.format(value)} ms`,
+    },
+    {
+        key: 'throughput',
+        title: 'Throughput',
+        description: 'Transaksi sukses per detik.',
+        dataKey: 'throughput',
+        type: 'line',
+        datasetLabel: 'Throughput (tx/detik)',
+        borderColor: 'rgba(249, 115, 22, 1)',
+        backgroundColor: 'rgba(249, 115, 22, 0.25)',
+        fill: true,
+        tooltipFormatter: value => `${decimalFormatter.format(value)} tx/detik`,
+        yTickFormatter: value => `${decimalFormatter.format(value)} tx/detik`,
+    },
+    {
+        key: 'success',
+        title: 'Commit berhasil',
+        description: 'Akumulasi transaksi berhasil.',
+        dataKey: 'successTotals',
+        type: 'bar',
+        datasetLabel: 'Total berhasil',
+        borderColor: 'rgba(16, 185, 129, 1)',
+        backgroundColor: 'rgba(16, 185, 129, 0.6)',
+        fill: false,
+        tooltipFormatter: value => `${formatCount(value)} commit`,
+        yTickFormatter: value => formatCount(value),
+    },
+];
 
 const SWAL_PRIMARY_COLOR = '#38BDF8';
 const SWAL_CANCEL_COLOR = '#64748B';
@@ -3167,7 +3224,147 @@ function createDefaultEvaluationStats() {
         lastMessage: 'Belum ada transaksi yang dikirim.',
         lastStatus: 'idle',
         lastTransactionId: null,
+        history: createEmptyEvaluationHistory(),
     };
+}
+
+function createEmptyEvaluationHistory() {
+    return {
+        labels: [],
+        blockNumbers: [],
+        blockTexts: [],
+        latencies: [],
+        averageLatencies: [],
+        throughput: [],
+        successTotals: [],
+    };
+}
+
+function trimEvaluationHistory(history) {
+    if (!history || !Array.isArray(history.labels)) {
+        return;
+    }
+
+    if (history.labels.length <= MAX_EVALUATION_HISTORY_LENGTH) {
+        return;
+    }
+
+    const excess = history.labels.length - MAX_EVALUATION_HISTORY_LENGTH;
+    const keys = [
+        'labels',
+        'blockNumbers',
+        'blockTexts',
+        'latencies',
+        'averageLatencies',
+        'throughput',
+        'successTotals',
+    ];
+
+    keys.forEach(key => {
+        if (Array.isArray(history[key])) {
+            history[key].splice(0, excess);
+        }
+    });
+}
+
+function buildEvaluationBlockLabel(blockInfo, fallbackIndex) {
+    if (blockInfo?.text) {
+        return `#${blockInfo.text}`;
+    }
+
+    if (typeof fallbackIndex === 'number' && Number.isFinite(fallbackIndex)) {
+        return `Tx ${formatCount(fallbackIndex)}`;
+    }
+
+    return 'Tx 1';
+}
+
+function appendEvaluationHistory(stats, entry) {
+    if (!stats) {
+        return;
+    }
+
+    if (!stats.history) {
+        stats.history = createEmptyEvaluationHistory();
+    }
+
+    const history = stats.history;
+    const fallbackIndex = history.labels.length + 1;
+    const label = buildEvaluationBlockLabel(entry.blockInfo, fallbackIndex);
+
+    history.labels.push(label);
+    history.blockNumbers.push(entry.blockInfo?.numeric ?? null);
+    history.blockTexts.push(entry.blockInfo?.text ?? null);
+
+    const latencyValue = Number.isFinite(entry.latencyMs) ? entry.latencyMs : null;
+    history.latencies.push(latencyValue);
+
+    const previousAverage = history.averageLatencies.length
+        ? history.averageLatencies[history.averageLatencies.length - 1]
+        : null;
+    const averageValue = Number.isFinite(entry.averageLatencyMs)
+        ? entry.averageLatencyMs
+        : previousAverage;
+    history.averageLatencies.push(averageValue);
+
+    const previousThroughput = history.throughput.length
+        ? history.throughput[history.throughput.length - 1]
+        : 0;
+    const throughputValue = Number.isFinite(entry.throughput)
+        ? entry.throughput
+        : previousThroughput;
+    history.throughput.push(throughputValue);
+
+    const previousSuccess = history.successTotals.length
+        ? history.successTotals[history.successTotals.length - 1]
+        : 0;
+    const successValue = Number.isFinite(entry.successTotal)
+        ? entry.successTotal
+        : previousSuccess;
+    history.successTotals.push(successValue);
+
+    trimEvaluationHistory(history);
+}
+
+function formatEvaluationHistoryRange(history) {
+    if (!history) {
+        return 'Belum ada data blok.';
+    }
+
+    const numericBlocks = Array.isArray(history.blockNumbers)
+        ? history.blockNumbers.filter(value => typeof value === 'number' && Number.isFinite(value))
+        : [];
+
+    if (numericBlocks.length) {
+        const min = Math.min(...numericBlocks);
+        const max = Math.max(...numericBlocks);
+        if (min === max) {
+            return `Blok #${formatCount(min)}`;
+        }
+        return `Blok #${formatCount(min)} – #${formatCount(max)}`;
+    }
+
+    const blockTexts = Array.isArray(history.blockTexts)
+        ? history.blockTexts.filter(Boolean)
+        : [];
+
+    if (blockTexts.length) {
+        const first = blockTexts[0];
+        const last = blockTexts[blockTexts.length - 1];
+        if (first && last) {
+            return `Blok #${first} – #${last}`;
+        }
+    }
+
+    if (Array.isArray(history.labels) && history.labels.length) {
+        const firstLabel = history.labels[0];
+        const lastLabel = history.labels[history.labels.length - 1];
+        if (firstLabel && lastLabel) {
+            return `${firstLabel} – ${lastLabel}`;
+        }
+    }
+
+    return 'Belum ada data blok.';
 }
 
 function ensureEvaluationSectionInitialized() {
@@ -3262,21 +3459,69 @@ function ensureEvaluationSectionInitialized() {
             metrics.appendChild(metricEntry.wrapper);
         });
 
-        const chartWrapper = document.createElement('div');
-        chartWrapper.className = 'h-48 rounded-2xl border border-white/5 bg-surface/60 p-4 animate-on-scroll';
-        chartWrapper.dataset.animateDelay = String(180 + (index * 30));
+        const chartsContainer = document.createElement('div');
+        chartsContainer.className = 'grid gap-4 md:grid-cols-2';
 
-        const chartCanvas = document.createElement('canvas');
-        chartCanvas.height = 160;
-        chartCanvas.setAttribute('role', 'img');
-        chartCanvas.setAttribute('aria-label', `Grafik performa ${target.label}`);
-        chartWrapper.appendChild(chartCanvas);
+        const chartRefs = {};
 
-        let chartInstance = null;
-        if (isChartJsAvailable()) {
-            const chartContext = chartCanvas.getContext('2d');
-            chartInstance = createEvaluationMetricChart(chartContext, target);
-        }
+        EVALUATION_CHART_CONFIGS.forEach((chartConfig, chartIndex) => {
+            const chartCard = document.createElement('article');
+            chartCard.className = 'flex flex-col gap-3 rounded-2xl border border-white/5 bg-surface/60 p-4 animate-on-scroll';
+            chartCard.dataset.animateDelay = String(180 + (index * 30) + (chartIndex * 10));
+
+            const chartHeader = document.createElement('div');
+            chartHeader.className = 'space-y-1';
+
+            const chartTitle = document.createElement('h4');
+            chartTitle.className = 'text-sm font-semibold text-textdark';
+            chartTitle.textContent = chartConfig.title;
+            chartHeader.appendChild(chartTitle);
+
+            if (chartConfig.description) {
+                const chartDescription = document.createElement('p');
+                chartDescription.className = 'text-xs text-textdark/60';
+                chartDescription.textContent = chartConfig.description;
+                chartHeader.appendChild(chartDescription);
+            }
+
+            const chartRange = document.createElement('p');
+            chartRange.className = 'text-[11px] uppercase tracking-[0.25em] text-textdark/50';
+            chartRange.textContent = 'Belum ada data blok.';
+            chartRange.dataset.evalChartRange = chartConfig.key;
+            chartHeader.appendChild(chartRange);
+
+            const canvasWrapper = document.createElement('div');
+            canvasWrapper.className = 'relative h-36';
+
+            const chartCanvas = document.createElement('canvas');
+            chartCanvas.height = 160;
+            chartCanvas.setAttribute('role', 'img');
+            chartCanvas.setAttribute('aria-label', `${chartConfig.title} — ${target.label}`);
+            canvasWrapper.appendChild(chartCanvas);
+
+            chartCard.appendChild(chartHeader);
+            chartCard.appendChild(canvasWrapper);
+            chartsContainer.appendChild(chartCard);
+
+            observeAnimatedElement(chartCard);
+
+            let chartInstance = null;
+            if (isChartJsAvailable()) {
+                const chartContext = chartCanvas.getContext('2d');
+                chartInstance = createEvaluationHistoryChart(chartContext, chartConfig);
+            }
+
+            if (!chartInstance) {
+                chartRange.textContent = 'Chart.js tidak tersedia untuk menampilkan grafik.';
+            }
+
+            chartRefs[chartConfig.key] = {
+                instance: chartInstance,
+                canvas: chartCanvas,
+                rangeEl: chartRange,
+                config: chartConfig,
+            };
+        });
 
         const footer = document.createElement('footer');
         footer.className = 'rounded-xl border border-white/5 bg-surface/60 px-4 py-3 text-xs text-textdark/70';
@@ -3295,12 +3540,11 @@ function ensureEvaluationSectionInitialized() {
 
         card.appendChild(header);
         card.appendChild(metrics);
-        card.appendChild(chartWrapper);
+        card.appendChild(chartsContainer);
         card.appendChild(footer);
 
         simulationEvaluationList.appendChild(card);
         observeAnimatedElement(card);
-        observeAnimatedElement(chartWrapper);
 
         evaluationElements.set(target.id, {
             card,
@@ -3314,8 +3558,7 @@ function ensureEvaluationSectionInitialized() {
             failureCount: failureMetric.valueEl,
             commitCode: commitCodeMetric.valueEl,
             commitBlock: commitBlockMetric.valueEl,
-            chart: chartInstance,
-            chartCanvas,
+            charts: chartRefs,
         });
 
         renderEvaluationStats(target.id);
@@ -3368,65 +3611,40 @@ function computeThroughputNumber(stats) {
     return Number.isFinite(throughput) ? throughput : 0;
 }
 
-function getEvaluationChartData(stats) {
-    const latestLatency = Number.isFinite(stats?.lastLatencyMs) ? stats.lastLatencyMs : 0;
-    const averageLatency = stats && stats.successCount > 0 && Number.isFinite(stats.totalLatencyMs)
-        ? stats.totalLatencyMs / stats.successCount
-        : 0;
-    const throughput = computeThroughputNumber(stats);
-    const successCount = Number.isFinite(stats?.successCount) ? stats.successCount : 0;
-    const failureCount = Number.isFinite(stats?.failureCount) ? stats.failureCount : 0;
-
-    return [
-        Number.isFinite(latestLatency) ? latestLatency : 0,
-        Number.isFinite(averageLatency) ? averageLatency : 0,
-        Number.isFinite(throughput) ? throughput : 0,
-        Number.isFinite(successCount) ? successCount : 0,
-        Number.isFinite(failureCount) ? failureCount : 0,
-    ];
-}
-
-function createEvaluationMetricChart(context, target) {
+function createEvaluationHistoryChart(context, config) {
     if (!context || !isChartJsAvailable()) {
         return null;
     }
 
-    const labels = [
-        'Latensi terbaru (ms)',
-        'Rata-rata latensi (ms)',
-        'Throughput (tx/detik)',
-        'Berhasil',
-        'Gagal',
-    ];
-
-    const baseDataset = {
-        label: target?.label || 'Jaringan',
-        data: [0, 0, 0, 0, 0],
-        backgroundColor: [
-            'rgba(56, 189, 248, 0.6)',
-            'rgba(99, 102, 241, 0.6)',
-            'rgba(249, 115, 22, 0.6)',
-            'rgba(16, 185, 129, 0.6)',
-            'rgba(248, 113, 113, 0.6)',
-        ],
-        borderColor: [
-            'rgba(56, 189, 248, 0.9)',
-            'rgba(99, 102, 241, 0.9)',
-            'rgba(249, 115, 22, 0.9)',
-            'rgba(16, 185, 129, 0.9)',
-            'rgba(248, 113, 113, 0.9)',
-        ],
-        borderWidth: 1,
-        borderRadius: 12,
-        borderSkipped: false,
-        barPercentage: 0.75,
+    const isBarChart = config.type === 'bar';
+    const datasetLabel = config.datasetLabel || config.title || 'Dataset';
+    const dataset = {
+        label: datasetLabel,
+        data: [],
+        borderColor: config.borderColor,
+        backgroundColor: config.backgroundColor,
+        tension: !isBarChart ? 0.35 : undefined,
+        fill: !isBarChart && config.fill ? 'origin' : false,
+        spanGaps: !isBarChart,
+        pointRadius: isBarChart ? 0 : 4,
+        pointHoverRadius: isBarChart ? 0 : 6,
+        pointBorderWidth: isBarChart ? 0 : 1.5,
+        pointBackgroundColor: config.borderColor,
+        pointBorderColor: isBarChart ? undefined : 'rgba(15, 23, 42, 0.85)',
     };
 
+    if (isBarChart) {
+        dataset.borderWidth = 1;
+        dataset.borderRadius = 10;
+        dataset.barPercentage = 0.6;
+        dataset.categoryPercentage = 0.7;
+    }
+
     return new window.Chart(context, {
-        type: 'bar',
+        type: config.type || 'line',
         data: {
-            labels,
-            datasets: [baseDataset],
+            labels: [],
+            datasets: [dataset],
         },
         options: {
             responsive: true,
@@ -3441,12 +3659,16 @@ function createEvaluationMetricChart(context, target) {
                 tooltip: {
                     callbacks: {
                         label(item) {
-                            const label = item.label || '';
-                            const value = item.parsed?.y ?? item.parsed ?? 0;
-                            if (item.dataIndex >= 3) {
-                                return `${label}: ${formatCount(value)}`;
+                            const parsedValue = typeof item.parsed === 'number'
+                                ? item.parsed
+                                : item.parsed?.y ?? 0;
+                            if (typeof config.tooltipFormatter === 'function') {
+                                return `${datasetLabel}: ${config.tooltipFormatter(parsedValue)}`;
                             }
-                            return `${label}: ${decimalFormatter.format(value)}`;
+                            if (isBarChart) {
+                                return `${datasetLabel}: ${formatCount(parsedValue)}`;
+                            }
+                            return `${datasetLabel}: ${decimalFormatter.format(parsedValue)}`;
                         },
                     },
                 },
@@ -3456,9 +3678,12 @@ function createEvaluationMetricChart(context, target) {
                     ticks: {
                         color: '#94A3B8',
                         font: { size: 11 },
+                        maxRotation: 0,
+                        autoSkip: true,
+                        maxTicksLimit: 8,
                     },
                     grid: {
-                        display: false,
+                        color: 'rgba(148, 163, 184, 0.08)',
                     },
                 },
                 y: {
@@ -3467,10 +3692,13 @@ function createEvaluationMetricChart(context, target) {
                         color: '#94A3B8',
                         font: { size: 11 },
                         callback(value) {
+                            if (typeof config.yTickFormatter === 'function') {
+                                return config.yTickFormatter(value);
+                            }
                             if (value >= 1000) {
                                 return formatCount(value);
                             }
-                            return Number.isInteger(value)
+                            return isBarChart
                                 ? formatCount(value)
                                 : decimalFormatter.format(value);
                         },
@@ -3533,13 +3761,41 @@ function renderEvaluationStats(targetId) {
         elements.timestamp.textContent = 'Belum ada pembaruan.';
     }
 
-    if (elements.chart) {
-        const dataset = elements.chart.data?.datasets?.[0];
-        const chartData = getEvaluationChartData(stats);
-        if (dataset) {
-            dataset.data = chartData;
-        }
-        elements.chart.update('none');
+    if (elements.charts) {
+        const history = stats.history || createEmptyEvaluationHistory();
+        const labels = Array.isArray(history.labels) ? history.labels.slice() : [];
+        const rangeLabel = formatEvaluationHistoryRange(history);
+
+        Object.values(elements.charts).forEach(chartEntry => {
+            if (!chartEntry) {
+                return;
+            }
+
+            if (!chartEntry.instance) {
+                return;
+            }
+
+            if (chartEntry.rangeEl) {
+                chartEntry.rangeEl.textContent = rangeLabel;
+            }
+
+            const dataKey = chartEntry.config?.dataKey;
+            const sourceData = dataKey && Array.isArray(history[dataKey])
+                ? history[dataKey]
+                : [];
+
+            if (Array.isArray(chartEntry.instance.data?.labels)) {
+                chartEntry.instance.data.labels = labels.slice();
+            } else {
+                chartEntry.instance.data.labels = labels.slice();
+            }
+
+            if (chartEntry.instance.data?.datasets?.[0]) {
+                chartEntry.instance.data.datasets[0].data = sourceData.slice();
+            }
+
+            chartEntry.instance.update('none');
+        });
     }
 }
 
@@ -3567,21 +3823,27 @@ function updateEvaluationResult(result, { record } = {}) {
 
     const stats = evaluationStats.get(result.targetId) || createDefaultEvaluationStats();
     const now = Date.now();
+    const completedTimestamp = typeof result.completedAt === 'string'
+        ? Date.parse(result.completedAt)
+        : Number.isFinite(result.completedAt)
+            ? Number(result.completedAt)
+            : Number.NaN;
+    const normalizedCompletion = Number.isNaN(completedTimestamp) ? now : completedTimestamp;
 
     if (!stats.firstSubmittedAt) {
-        stats.firstSubmittedAt = now;
+        stats.firstSubmittedAt = normalizedCompletion;
     }
 
-    stats.lastUpdatedAt = now;
+    stats.lastUpdatedAt = normalizedCompletion;
     stats.totalCount += 1;
 
-    if (typeof result.latencyMs === 'number' && Number.isFinite(result.latencyMs)) {
-        stats.lastLatencyMs = result.latencyMs;
-        if (result.status === 'success') {
-            stats.totalLatencyMs += result.latencyMs;
-        }
-    } else {
-        stats.lastLatencyMs = null;
+    const latencyValue = typeof result.latencyMs === 'number' && Number.isFinite(result.latencyMs)
+        ? result.latencyMs
+        : null;
+
+    stats.lastLatencyMs = latencyValue;
+    if (latencyValue !== null && result.status === 'success') {
+        stats.totalLatencyMs += latencyValue;
     }
 
     if (result.commitStatus) {
@@ -3601,9 +3863,9 @@ function updateEvaluationResult(result, { record } = {}) {
     }
 
     const recordLabel = record?.kelurahan_desa || record?.id || 'catatan';
+    const blockInfo = normalizeBlockHeight(result.commitStatus?.blockNumber);
 
     if (result.status === 'success') {
-        const blockInfo = normalizeBlockHeight(result.commitStatus?.blockNumber);
         const blockLabel = blockInfo ? `blok ${blockInfo.text}` : 'blok tidak diketahui';
         stats.lastMessage = `Catatan ${recordLabel} berhasil dikomit (${blockLabel}).`;
     } else if (result.status === 'commit_failed') {
@@ -3618,6 +3880,23 @@ function updateEvaluationResult(result, { record } = {}) {
     }
 
     stats.lastTransactionId = result.transactionId || result.commitStatus?.transactionId || null;
+
+    const averageLatencyMs = stats.successCount > 0 && Number.isFinite(stats.totalLatencyMs)
+        ? stats.totalLatencyMs / stats.successCount
+        : null;
+    const throughputSnapshot = computeThroughputNumber({
+        firstSubmittedAt: stats.firstSubmittedAt,
+        lastUpdatedAt: stats.lastUpdatedAt,
+        successCount: stats.successCount,
+    });
+
+    appendEvaluationHistory(stats, {
+        blockInfo,
+        latencyMs: latencyValue,
+        averageLatencyMs,
+        throughput: throughputSnapshot,
+        successTotal: stats.successCount,
+    });
 
     evaluationStats.set(result.targetId, stats);
     renderEvaluationStats(result.targetId);

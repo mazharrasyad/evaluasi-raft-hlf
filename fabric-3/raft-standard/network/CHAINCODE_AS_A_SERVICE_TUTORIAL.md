@@ -20,7 +20,7 @@ The `test-network` and some of the chaincodes have been updated to support runni
 
 It's useful to have two terminal windows open, one for starting the Fabric Network, and a second for monitoring all the docker containers.
 
-In your 'monitoring' window, run this to watch all activity from the all the docker containers on the `fabric_raft_standard_net` network; this will monitor all the docker containers that are added to the `fabric_raft_standard_net` network. The network is usually created by the `./network.sh up` command, so remember to delay running this until at least the network is created. It is possible to precreate the network with `docker network create fabric_raft_standard_net` if you wish.
+In your 'monitoring' window, run this to watch all activity from the all the docker containers on the `fabric3_raft_standard_net` network; this will monitor all the docker containers that are added to the `fabric3_raft_standard_net` network. The network is usually created by the `./network.sh up` command, so remember to delay running this until at least the network is created. It is possible to precreate the network with `docker network create fabric3_raft_standard_net` if you wish.
 
 ```bash
 # from the fabric-samples repo
@@ -48,7 +48,7 @@ This sequence can be run as follows
 ./network.sh deployCCAAS  -ccn basicts -ccp ../asset-transfer-basic/chaincode-typescript
 ```
 
-This is very similar to the `deployCC` command, it needs the name, and path. But also needs to have the port the chaincode container is going to use. As each container is on the `fabric_raft_standard_net` network, you might wish to alter this so there are no collisions with other chaincode containers.
+This is very similar to the `deployCC` command, it needs the name, and path. But also needs to have the port the chaincode container is going to use. As each container is on the `fabric3_raft_standard_net` network, you might wish to alter this so there are no collisions with other chaincode containers.
 
 You should be able to see the contract starting in the monitoring window. There will be two containers running, one for org1 and one for org2. The container names contain the organization/peer and the name of the chaincode.
 
@@ -100,7 +100,7 @@ A sample docker run command could be as follows. The two key variables that are 
 
 ```bash
     docker run --rm -d --name peer0org1_assettx_ccaas  \
-                  --network fabric_raft_standard_net \
+                  --network fabric3_raft_standard_net \
                   -e CHAINCODE_SERVER_ADDRESS=0.0.0.0:9999 \
                   -e CORE_CHAINCODE_ID_NAME=<use package id here> \
                    assettx_ccaas_image:latest
@@ -125,7 +125,7 @@ Not building docker image; this the command we would have run
 docker build -f ../asset-transfer-basic/chaincode-java/Dockerfile -t basicj_ccaas_image:latest --build-arg CC_SERVER_PORT=9999 ../asset-transfer-basic/chaincode-java
 #....
 Not starting docker containers; these are the commands we would have run
-    docker run --rm -d --name peer0org1_basicj_ccaas                    --network fabric_raft_standard_net                   -e CHAINCODE_SERVER_ADDRESS=0.0.0.0:9999                   -e CHAINCODE_ID=basicj_1.0:59dcd73a14e2db8eab7f7683343ce27ac242b93b4e8075605a460d63a0438405 -e CORE_CHAINCODE_ID_NAME=basicj_1.0:59dcd73a14e2db8eab7f7683343ce27ac242b93b4e8075605a460d63a0438405                     basicj_ccaas_image:latest
+    docker run --rm -d --name peer0org1_basicj_ccaas                    --network fabric3_raft_standard_net                   -e CHAINCODE_SERVER_ADDRESS=0.0.0.0:9999                   -e CHAINCODE_ID=basicj_1.0:59dcd73a14e2db8eab7f7683343ce27ac242b93b4e8075605a460d63a0438405 -e CORE_CHAINCODE_ID_NAME=basicj_1.0:59dcd73a14e2db8eab7f7683343ce27ac242b93b4e8075605a460d63a0438405                     basicj_ccaas_image:latest
 ```
 
 Depending on your directory, and what you need to debug you might need to adjust these commands.
@@ -147,13 +147,13 @@ You need to start the docker container.
 NodeJs for example, could be started like this
 
 ```bash
- docker run --rm -it -p 9229:9229 --name peer0org2_basic_ccaas --network fabric_raft_standard_net -e DEBUG=true -e CHAINCODE_SERVER_ADDRESS=0.0.0.0:9999 -e CHAINCODE_ID=basic_1.0:7c7dff5cdc43c77ccea028c422b3348c3c1fb5a26ace0077cf3cc627bd355ef0 -e CORE_CHAINCODE_ID_NAME=basic_1.0:7c7dff5cdc43c77ccea028c422b3348c3c1fb5a26ace0077cf3cc627bd355ef0 basic_ccaas_image:latest
+ docker run --rm -it -p 9229:9229 --name peer0org2_basic_ccaas --network fabric3_raft_standard_net -e DEBUG=true -e CHAINCODE_SERVER_ADDRESS=0.0.0.0:9999 -e CHAINCODE_ID=basic_1.0:7c7dff5cdc43c77ccea028c422b3348c3c1fb5a26ace0077cf3cc627bd355ef0 -e CORE_CHAINCODE_ID_NAME=basic_1.0:7c7dff5cdc43c77ccea028c422b3348c3c1fb5a26ace0077cf3cc627bd355ef0 basic_ccaas_image:latest
 ```
 
 Java for example, could be started like this
 
 ```bash
- docker run --rm -it --name peer0org1_basicj_ccaas -p 8000:8000 --network fabric_raft_standard_net -e DEBUG=true -e CHAINCODE_SERVER_ADDRESS=0.0.0.0:9999 -e CHAINCODE_ID=basicj_1.0:b014a03d8eb1898535e25b4dfeeb3f8244c9f07d91a06aec03e2d19174c45e4f -e CORE_CHAINCODE_ID_NAME=basicj_1.0:b014a03d8e
+ docker run --rm -it --name peer0org1_basicj_ccaas -p 8000:8000 --network fabric3_raft_standard_net -e DEBUG=true -e CHAINCODE_SERVER_ADDRESS=0.0.0.0:9999 -e CHAINCODE_ID=basicj_1.0:b014a03d8eb1898535e25b4dfeeb3f8244c9f07d91a06aec03e2d19174c45e4f -e CORE_CHAINCODE_ID_NAME=basicj_1.0:b014a03d8e
 b1898535e25b4dfeeb3f8244c9f07d91a06aec03e2d19174c45e4f  basicj_ccaas_image:latest
 ```
 

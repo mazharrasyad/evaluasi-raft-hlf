@@ -22,6 +22,7 @@ const networkConfigurations = [
         networkDir: standardNetworkDir,
         channelName: 'channel-standard',
         peerEndpoint: 'localhost:7051',
+        peerHostAlias: 'peer0.org1.fabric2.standard.com',
         domain: 'standard.com',
         instructions: {
             up: `cd ${standardNetworkDir} && ./network.sh up -ca && ./network.sh createChannel -c channel-standard -ca`,
@@ -33,6 +34,7 @@ const networkConfigurations = [
         networkDir: variantNetworkDir,
         channelName: 'channel-variant',
         peerEndpoint: 'localhost:7052',
+        peerHostAlias: 'peer0.org1.fabric2.variant.com',
         domain: 'variant.com',
         instructions: {
             up: `cd ${variantNetworkDir} && ./network.sh up -ca -bft && ./network.sh createChannel -c channel-variant -ca -bft`,
@@ -181,12 +183,12 @@ async function readFirstVisibleFile(directory) {
     return path.join(directory, candidate);
 }
 
-async function checkSingleNetwork({ label, networkDir, channelName, instructions, peerEndpoint, domain, orgName = 'org1', peerName = 'peer0' }) {
+async function checkSingleNetwork({ label, networkDir, channelName, instructions, peerEndpoint, domain, peerHostAlias: configuredPeerHostAlias, orgName = 'org1', peerName = 'peer0' }) {
     const effectivePeerEndpoint = peerEndpoint || 'localhost:7051';
     const effectiveDomain = domain ?? 'standard.com';
     const orgDomain = `${orgName}.${effectiveDomain}`;
     const mspUser = `User1@${orgDomain}`;
-    const peerHostAlias = `${peerName}.${orgDomain}`;
+    const peerHostAlias = configuredPeerHostAlias ?? `${peerName}.${orgDomain}`;
     const timestamp = new Date().toISOString();
     const baseResult = {
         label,

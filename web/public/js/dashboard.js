@@ -69,8 +69,8 @@ const fabricContext = currentPath.startsWith('/fabric-3/')
         : DEFAULT_FABRIC_CONTEXT;
 
 const FABRIC_CONTEXT_RESULT_LABELS = {
-    'fabric-2': ['RAFT Standard', 'RAFT Variant'],
-    'fabric-3': ['Fabric 3 RAFT Standard'],
+    'fabric-2': ['Fabric 2 Channel Standard', 'Fabric 2 Channel Variant'],
+    'fabric-3': ['Fabric 3 Channel Standard'],
 };
 
 if (document && document.documentElement) {
@@ -446,17 +446,17 @@ let isIngestingSimulation = false;
 const BLOCKCHAIN_TARGETS = [
     {
         id: 'channel-standard',
-        label: 'RAFT Standard',
+        label: 'Fabric 2 Channel Standard',
         channel: 'channel-standard',
     },
     {
         id: 'channel-variant',
-        label: 'RAFT Variant',
+        label: 'Fabric 2 Channel Variant',
         channel: 'channel-variant',
     },
     {
         id: 'channel-fabric3-standard',
-        label: 'Fabric 3 RAFT Standard',
+        label: 'Fabric 3 Channel Standard',
         channel: 'channel-standard',
     },
 ];
@@ -935,16 +935,16 @@ async function confirmNetworkShutdown(networkType, networkLabel) {
 
     if (normalizedType === 'standard') {
         title = `Shut down ${label}?`;
-        text = 'This command runs ./network.sh down for the RAFT Standard network.';
-        confirmButtonText = 'Yes, shut down RAFT Standard';
+        text = 'This command runs ./network.sh down for the Fabric 2 Channel Standard network.';
+        confirmButtonText = 'Yes, shut down Fabric 2 Channel Standard';
     } else if (normalizedType === 'variant') {
         title = `Shut down ${label}?`;
-        text = 'This command runs ./network.sh down for the RAFT Variant network.';
-        confirmButtonText = 'Yes, shut down RAFT Variant';
+        text = 'This command runs ./network.sh down for the Fabric 2 Channel Variant network.';
+        confirmButtonText = 'Yes, shut down Fabric 2 Channel Variant';
     } else if (normalizedType === 'fabric3-standard') {
         title = `Shut down ${label}?`;
-        text = 'This command runs ./network.sh down for the Fabric 3 RAFT Standard network.';
-        confirmButtonText = 'Yes, shut down Fabric 3 RAFT Standard';
+        text = 'This command runs ./network.sh down for the Fabric 3 Channel Standard network.';
+        confirmButtonText = 'Yes, shut down Fabric 3 Channel Standard';
     }
 
     if (isSwalAvailable()) {

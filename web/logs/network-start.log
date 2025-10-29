@@ -1,6 +1,6 @@
-[2025-10-27T13:35:58.745Z] Gagal menyalakan jaringan: Jaringan RAFT Standard
+[2025-10-27T13:35:58.745Z] Gagal menyalakan jaringan: Jaringan Fabric 2 Channel Standard
 Status: partial
-Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Direktori: /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network
 Pesan: Perintah ./network.sh createChannel -c channel-standard -ca gagal dijalankan.
 Tindakan: Periksa log penyalaan jaringan untuk rincian lebih lanjut.
 Langkah 1: Mulai layanan inti — success
@@ -34,7 +34,7 @@ Langkah 2: Buat channel — error
 [34m2025-10-27 13:35:43.112 UTC 0001 INFO[0m [common.tools.configtxgen] [34;1mmain[0m -> Loading configuration
 [34m2025-10-27 13:35:43.118 UTC 0002 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> orderer type: etcdraft
 [34m2025-10-27 13:35:43.118 UTC 0003 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> Orderer.EtcdRaft.Options unset, setting to tick_interval:"500ms" election_tick:10 heartbeat_tick:1 max_inflight_blocks:5 snapshot_interval_size:16777216 
-[34m2025-10-27 13:35:43.118 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/raft-standard/network/configtx/configtx.yaml
+[34m2025-10-27 13:35:43.118 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/configtx/configtx.yaml
 [34m2025-10-27 13:35:43.120 UTC 0005 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Generating genesis block
 [34m2025-10-27 13:35:43.120 UTC 0006 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Creating application channel genesis block
 [34m2025-10-27 13:35:43.121 UTC 0007 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Writing genesis block
@@ -96,7 +96,7 @@ Error: proposal failed (err: bad proposal response 500: cannot create ledger fro
 [34m2025-10-27 13:35:43.112 UTC 0001 INFO[0m [common.tools.configtxgen] [34;1mmain[0m -> Loading configuration
 [34m2025-10-27 13:35:43.118 UTC 0002 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> orderer type: etcdraft
 [34m2025-10-27 13:35:43.118 UTC 0003 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> Orderer.EtcdRaft.Options unset, setting to tick_interval:"500ms" election_tick:10 heartbeat_tick:1 max_inflight_blocks:5 snapshot_interval_size:16777216 
-[34m2025-10-27 13:35:43.118 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/raft-standard/network/configtx/configtx.yaml
+[34m2025-10-27 13:35:43.118 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/configtx/configtx.yaml
 [34m2025-10-27 13:35:43.120 UTC 0005 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Generating genesis block
 [34m2025-10-27 13:35:43.120 UTC 0006 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Creating application channel genesis block
 [34m2025-10-27 13:35:43.121 UTC 0007 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Writing genesis block
@@ -121,7 +121,7 @@ Error: Command failed: ./network.sh createChannel -c channel-standard -ca
 [34m2025-10-27 13:35:43.112 UTC 0001 INFO[0m [common.tools.configtxgen] [34;1mmain[0m -> Loading configuration
 [34m2025-10-27 13:35:43.118 UTC 0002 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> orderer type: etcdraft
 [34m2025-10-27 13:35:43.118 UTC 0003 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> Orderer.EtcdRaft.Options unset, setting to tick_interval:"500ms" election_tick:10 heartbeat_tick:1 max_inflight_blocks:5 snapshot_interval_size:16777216 
-[34m2025-10-27 13:35:43.118 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/raft-standard/network/configtx/configtx.yaml
+[34m2025-10-27 13:35:43.118 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/configtx/configtx.yaml
 [34m2025-10-27 13:35:43.120 UTC 0005 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Generating genesis block
 [34m2025-10-27 13:35:43.120 UTC 0006 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Creating application channel genesis block
 [34m2025-10-27 13:35:43.121 UTC 0007 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Writing genesis block
@@ -139,9 +139,9 @@ Error: Command failed: ./network.sh createChannel -c channel-standard -ca
 + res=1
 
 
-[2025-10-27T16:32:57.287Z] Gagal menyalakan jaringan: Jaringan RAFT Standard
+[2025-10-27T16:32:57.287Z] Gagal menyalakan jaringan: Jaringan Fabric 2 Channel Standard
 Status: partial
-Direktori: /root/evaluasi-raft-hlf/raft-standard/network
+Direktori: /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network
 Pesan: Perintah ./network.sh createChannel -c channel-standard -ca gagal dijalankan.
 Tindakan: Periksa log penyalaan jaringan untuk rincian lebih lanjut.
 Langkah 1: Mulai layanan inti — success
@@ -175,7 +175,7 @@ Langkah 2: Buat channel — error
 [34m2025-10-27 16:32:41.633 UTC 0001 INFO[0m [common.tools.configtxgen] [34;1mmain[0m -> Loading configuration
 [34m2025-10-27 16:32:41.641 UTC 0002 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> orderer type: etcdraft
 [34m2025-10-27 16:32:41.643 UTC 0003 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> Orderer.EtcdRaft.Options unset, setting to tick_interval:"500ms" election_tick:10 heartbeat_tick:1 max_inflight_blocks:5 snapshot_interval_size:16777216 
-[34m2025-10-27 16:32:41.643 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/raft-standard/network/configtx/configtx.yaml
+[34m2025-10-27 16:32:41.643 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/configtx/configtx.yaml
 [34m2025-10-27 16:32:41.646 UTC 0005 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Generating genesis block
 [34m2025-10-27 16:32:41.646 UTC 0006 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Creating application channel genesis block
 [34m2025-10-27 16:32:41.647 UTC 0007 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Writing genesis block
@@ -220,7 +220,7 @@ Error: proposal failed (err: bad proposal response 500: cannot create ledger fro
 [34m2025-10-27 16:32:41.633 UTC 0001 INFO[0m [common.tools.configtxgen] [34;1mmain[0m -> Loading configuration
 [34m2025-10-27 16:32:41.641 UTC 0002 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> orderer type: etcdraft
 [34m2025-10-27 16:32:41.643 UTC 0003 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> Orderer.EtcdRaft.Options unset, setting to tick_interval:"500ms" election_tick:10 heartbeat_tick:1 max_inflight_blocks:5 snapshot_interval_size:16777216 
-[34m2025-10-27 16:32:41.643 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/raft-standard/network/configtx/configtx.yaml
+[34m2025-10-27 16:32:41.643 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/configtx/configtx.yaml
 [34m2025-10-27 16:32:41.646 UTC 0005 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Generating genesis block
 [34m2025-10-27 16:32:41.646 UTC 0006 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Creating application channel genesis block
 [34m2025-10-27 16:32:41.647 UTC 0007 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Writing genesis block
@@ -245,7 +245,7 @@ Error: Command failed: ./network.sh createChannel -c channel-standard -ca
 [34m2025-10-27 16:32:41.633 UTC 0001 INFO[0m [common.tools.configtxgen] [34;1mmain[0m -> Loading configuration
 [34m2025-10-27 16:32:41.641 UTC 0002 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> orderer type: etcdraft
 [34m2025-10-27 16:32:41.643 UTC 0003 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> Orderer.EtcdRaft.Options unset, setting to tick_interval:"500ms" election_tick:10 heartbeat_tick:1 max_inflight_blocks:5 snapshot_interval_size:16777216 
-[34m2025-10-27 16:32:41.643 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/raft-standard/network/configtx/configtx.yaml
+[34m2025-10-27 16:32:41.643 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/configtx/configtx.yaml
 [34m2025-10-27 16:32:41.646 UTC 0005 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Generating genesis block
 [34m2025-10-27 16:32:41.646 UTC 0006 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Creating application channel genesis block
 [34m2025-10-27 16:32:41.647 UTC 0007 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Writing genesis block
@@ -263,9 +263,9 @@ Error: Command failed: ./network.sh createChannel -c channel-standard -ca
 + res=1
 
 
-[2025-10-28T23:09:06.686Z] Gagal menyalakan jaringan: RAFT Variant Network
+[2025-10-28T23:09:06.686Z] Gagal menyalakan jaringan: Fabric 2 Channel Variant Network
 Status: partial
-Direktori: /root/evaluasi-raft-hlf/fabric-2/raft-variant/network
+Direktori: /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-variant/network
 Pesan: Perintah ./network.sh createChannel -c channel-variant -ca -bft gagal dijalankan.
 Tindakan: Periksa log penyalaan jaringan untuk rincian lebih lanjut.
 Langkah 1: Start core services — success
@@ -407,8 +407,8 @@ main.main()
 [34m2025-10-28 23:09:06.678 UTC 0001 INFO[0m [common.tools.configtxgen] [34;1mmain[0m -> Loading configuration
 [34m2025-10-28 23:09:06.681 UTC 0002 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> orderer type: etcdraft
 [34m2025-10-28 23:09:06.681 UTC 0003 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> Orderer.EtcdRaft.Options unset, setting to tick_interval:"500ms" election_tick:10 heartbeat_tick:1 max_inflight_blocks:5 snapshot_interval_size:16777216 
-[34m2025-10-28 23:09:06.681 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/fabric-2/raft-variant/network/configtx/configtx.yaml
-[35m2025-10-28 23:09:06.682 UTC 0005 FATA[0m [common.tools.configtxgen] [35;1mmain[0m -> Error on outputBlock: could not create bootstrapper: could not create channel group: could not create orderer group: cannot marshal metadata for orderer type etcdraft: cannot load client cert for consenter orderer.variant.com:7050: open /root/evaluasi-raft-hlf/fabric-2/raft-variant/network/organizations/ordererOrganizations/variant.com/orderers/orderer.variant.com/tls/server.crt: no such file or directory
+[34m2025-10-28 23:09:06.681 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-variant/network/configtx/configtx.yaml
+[35m2025-10-28 23:09:06.682 UTC 0005 FATA[0m [common.tools.configtxgen] [35;1mmain[0m -> Error on outputBlock: could not create bootstrapper: could not create channel group: could not create orderer group: cannot marshal metadata for orderer type etcdraft: cannot load client cert for consenter orderer.variant.com:7050: open /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-variant/network/organizations/ordererOrganizations/variant.com/orderers/orderer.variant.com/tls/server.crt: no such file or directory
 + res=1
 
   STDOUT: [0;34mUsing docker and docker-compose[0m
@@ -419,7 +419,7 @@ Network Running Already
 [0;34mUsing docker and docker-compose[0m
 [0;34mGenerating channel genesis block 'channel-variant.block'[0m
 [0;34mUsing organization 1[0m
-/root/evaluasi-raft-hlf/fabric-2/raft-variant/network/../bin/configtxgen
+/root/evaluasi-raft-hlf/fabric-2/fabric2-channel-variant/network/../bin/configtxgen
 [1;33mBFT channel configuration failed. Falling back to Raft profile.[0m
 [0;31mFailed to generate channel configuration transaction...[0m
   STDERR: + '[' 1 -eq 1 ']'
@@ -472,8 +472,8 @@ main.main()
 [34m2025-10-28 23:09:06.678 UTC 0001 INFO[0m [common.tools.configtxgen] [34;1mmain[0m -> Loading configuration
 [34m2025-10-28 23:09:06.681 UTC 0002 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> orderer type: etcdraft
 [34m2025-10-28 23:09:06.681 UTC 0003 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> Orderer.EtcdRaft.Options unset, setting to tick_interval:"500ms" election_tick:10 heartbeat_tick:1 max_inflight_blocks:5 snapshot_interval_size:16777216 
-[34m2025-10-28 23:09:06.681 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/fabric-2/raft-variant/network/configtx/configtx.yaml
-[35m2025-10-28 23:09:06.682 UTC 0005 FATA[0m [common.tools.configtxgen] [35;1mmain[0m -> Error on outputBlock: could not create bootstrapper: could not create channel group: could not create orderer group: cannot marshal metadata for orderer type etcdraft: cannot load client cert for consenter orderer.variant.com:7050: open /root/evaluasi-raft-hlf/fabric-2/raft-variant/network/organizations/ordererOrganizations/variant.com/orderers/orderer.variant.com/tls/server.crt: no such file or directory
+[34m2025-10-28 23:09:06.681 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-variant/network/configtx/configtx.yaml
+[35m2025-10-28 23:09:06.682 UTC 0005 FATA[0m [common.tools.configtxgen] [35;1mmain[0m -> Error on outputBlock: could not create bootstrapper: could not create channel group: could not create orderer group: cannot marshal metadata for orderer type etcdraft: cannot load client cert for consenter orderer.variant.com:7050: open /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-variant/network/organizations/ordererOrganizations/variant.com/orderers/orderer.variant.com/tls/server.crt: no such file or directory
 + res=1
 Langkah 3: Deploy chaincode — skipped
   Perintah: ./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl javascript -c channel-variant -bft
@@ -529,14 +529,14 @@ main.main()
 [34m2025-10-28 23:09:06.678 UTC 0001 INFO[0m [common.tools.configtxgen] [34;1mmain[0m -> Loading configuration
 [34m2025-10-28 23:09:06.681 UTC 0002 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> orderer type: etcdraft
 [34m2025-10-28 23:09:06.681 UTC 0003 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> Orderer.EtcdRaft.Options unset, setting to tick_interval:"500ms" election_tick:10 heartbeat_tick:1 max_inflight_blocks:5 snapshot_interval_size:16777216 
-[34m2025-10-28 23:09:06.681 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/fabric-2/raft-variant/network/configtx/configtx.yaml
-[35m2025-10-28 23:09:06.682 UTC 0005 FATA[0m [common.tools.configtxgen] [35;1mmain[0m -> Error on outputBlock: could not create bootstrapper: could not create channel group: could not create orderer group: cannot marshal metadata for orderer type etcdraft: cannot load client cert for consenter orderer.variant.com:7050: open /root/evaluasi-raft-hlf/fabric-2/raft-variant/network/organizations/ordererOrganizations/variant.com/orderers/orderer.variant.com/tls/server.crt: no such file or directory
+[34m2025-10-28 23:09:06.681 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-variant/network/configtx/configtx.yaml
+[35m2025-10-28 23:09:06.682 UTC 0005 FATA[0m [common.tools.configtxgen] [35;1mmain[0m -> Error on outputBlock: could not create bootstrapper: could not create channel group: could not create orderer group: cannot marshal metadata for orderer type etcdraft: cannot load client cert for consenter orderer.variant.com:7050: open /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-variant/network/organizations/ordererOrganizations/variant.com/orderers/orderer.variant.com/tls/server.crt: no such file or directory
 + res=1
 
 
-[2025-10-28T23:28:08.658Z] Gagal menyalakan jaringan: RAFT Variant Network
+[2025-10-28T23:28:08.658Z] Gagal menyalakan jaringan: Fabric 2 Channel Variant Network
 Status: partial
-Direktori: /root/evaluasi-raft-hlf/fabric-2/raft-variant/network
+Direktori: /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-variant/network
 Pesan: Perintah ./network.sh createChannel -c channel-variant -ca -bft gagal dijalankan.
 Tindakan: Periksa log penyalaan jaringan untuk rincian lebih lanjut.
 Langkah 1: Start core services — success
@@ -672,8 +672,8 @@ main.main()
 [34m2025-10-28 23:28:08.639 UTC 0001 INFO[0m [common.tools.configtxgen] [34;1mmain[0m -> Loading configuration
 [34m2025-10-28 23:28:08.647 UTC 0002 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> orderer type: etcdraft
 [34m2025-10-28 23:28:08.647 UTC 0003 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> Orderer.EtcdRaft.Options unset, setting to tick_interval:"500ms" election_tick:10 heartbeat_tick:1 max_inflight_blocks:5 snapshot_interval_size:16777216 
-[34m2025-10-28 23:28:08.647 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/fabric-2/raft-variant/network/configtx/configtx.yaml
-[35m2025-10-28 23:28:08.648 UTC 0005 FATA[0m [common.tools.configtxgen] [35;1mmain[0m -> Error on outputBlock: could not create bootstrapper: could not create channel group: could not create orderer group: cannot marshal metadata for orderer type etcdraft: cannot load client cert for consenter orderer.variant.com:7050: open /root/evaluasi-raft-hlf/fabric-2/raft-variant/network/organizations/ordererOrganizations/variant.com/orderers/orderer.variant.com/tls/server.crt: no such file or directory
+[34m2025-10-28 23:28:08.647 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-variant/network/configtx/configtx.yaml
+[35m2025-10-28 23:28:08.648 UTC 0005 FATA[0m [common.tools.configtxgen] [35;1mmain[0m -> Error on outputBlock: could not create bootstrapper: could not create channel group: could not create orderer group: cannot marshal metadata for orderer type etcdraft: cannot load client cert for consenter orderer.variant.com:7050: open /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-variant/network/organizations/ordererOrganizations/variant.com/orderers/orderer.variant.com/tls/server.crt: no such file or directory
 + res=1
 
   STDOUT: [0;34mUsing docker and docker-compose[0m
@@ -684,7 +684,7 @@ Network Running Already
 [0;34mUsing docker and docker-compose[0m
 [0;34mGenerating channel genesis block 'channel-variant.block'[0m
 [0;34mUsing organization 1[0m
-/root/evaluasi-raft-hlf/fabric-2/raft-variant/network/../bin/configtxgen
+/root/evaluasi-raft-hlf/fabric-2/fabric2-channel-variant/network/../bin/configtxgen
 [1;33mBFT channel configuration failed. Falling back to Raft profile.[0m
 [0;31mFailed to generate channel configuration transaction...[0m
   STDERR: + '[' 1 -eq 1 ']'
@@ -737,8 +737,8 @@ main.main()
 [34m2025-10-28 23:28:08.639 UTC 0001 INFO[0m [common.tools.configtxgen] [34;1mmain[0m -> Loading configuration
 [34m2025-10-28 23:28:08.647 UTC 0002 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> orderer type: etcdraft
 [34m2025-10-28 23:28:08.647 UTC 0003 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> Orderer.EtcdRaft.Options unset, setting to tick_interval:"500ms" election_tick:10 heartbeat_tick:1 max_inflight_blocks:5 snapshot_interval_size:16777216 
-[34m2025-10-28 23:28:08.647 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/fabric-2/raft-variant/network/configtx/configtx.yaml
-[35m2025-10-28 23:28:08.648 UTC 0005 FATA[0m [common.tools.configtxgen] [35;1mmain[0m -> Error on outputBlock: could not create bootstrapper: could not create channel group: could not create orderer group: cannot marshal metadata for orderer type etcdraft: cannot load client cert for consenter orderer.variant.com:7050: open /root/evaluasi-raft-hlf/fabric-2/raft-variant/network/organizations/ordererOrganizations/variant.com/orderers/orderer.variant.com/tls/server.crt: no such file or directory
+[34m2025-10-28 23:28:08.647 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-variant/network/configtx/configtx.yaml
+[35m2025-10-28 23:28:08.648 UTC 0005 FATA[0m [common.tools.configtxgen] [35;1mmain[0m -> Error on outputBlock: could not create bootstrapper: could not create channel group: could not create orderer group: cannot marshal metadata for orderer type etcdraft: cannot load client cert for consenter orderer.variant.com:7050: open /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-variant/network/organizations/ordererOrganizations/variant.com/orderers/orderer.variant.com/tls/server.crt: no such file or directory
 + res=1
 Langkah 3: Deploy chaincode — skipped
   Perintah: ./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl javascript -c channel-variant -bft
@@ -794,14 +794,14 @@ main.main()
 [34m2025-10-28 23:28:08.639 UTC 0001 INFO[0m [common.tools.configtxgen] [34;1mmain[0m -> Loading configuration
 [34m2025-10-28 23:28:08.647 UTC 0002 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> orderer type: etcdraft
 [34m2025-10-28 23:28:08.647 UTC 0003 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> Orderer.EtcdRaft.Options unset, setting to tick_interval:"500ms" election_tick:10 heartbeat_tick:1 max_inflight_blocks:5 snapshot_interval_size:16777216 
-[34m2025-10-28 23:28:08.647 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/fabric-2/raft-variant/network/configtx/configtx.yaml
-[35m2025-10-28 23:28:08.648 UTC 0005 FATA[0m [common.tools.configtxgen] [35;1mmain[0m -> Error on outputBlock: could not create bootstrapper: could not create channel group: could not create orderer group: cannot marshal metadata for orderer type etcdraft: cannot load client cert for consenter orderer.variant.com:7050: open /root/evaluasi-raft-hlf/fabric-2/raft-variant/network/organizations/ordererOrganizations/variant.com/orderers/orderer.variant.com/tls/server.crt: no such file or directory
+[34m2025-10-28 23:28:08.647 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-variant/network/configtx/configtx.yaml
+[35m2025-10-28 23:28:08.648 UTC 0005 FATA[0m [common.tools.configtxgen] [35;1mmain[0m -> Error on outputBlock: could not create bootstrapper: could not create channel group: could not create orderer group: cannot marshal metadata for orderer type etcdraft: cannot load client cert for consenter orderer.variant.com:7050: open /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-variant/network/organizations/ordererOrganizations/variant.com/orderers/orderer.variant.com/tls/server.crt: no such file or directory
 + res=1
 
 
-[2025-10-28T23:50:41.751Z] Gagal menyalakan jaringan: RAFT Standard Network
+[2025-10-28T23:50:41.751Z] Gagal menyalakan jaringan: Fabric 2 Channel Standard Network
 Status: partial
-Direktori: /root/evaluasi-raft-hlf/fabric-2/raft-standard/network
+Direktori: /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network
 Pesan: Perintah ./network.sh createChannel -c channel-standard -ca gagal dijalankan.
 Tindakan: Periksa log penyalaan jaringan untuk rincian lebih lanjut.
 Langkah 1: Start core services — success
@@ -884,220 +884,220 @@ af6937b4b6c4   hyperledger/fabric-orderer:latest   "orderer"                2 se
 7f1344d423e3   hyperledger/fabric-ca:latest        "sh -c 'fabric-ca-se…"   13 seconds ago   Up 12 seconds                       0.0.0.0:8054->8054/tcp, [::]:8054->8054/tcp, 7054/tcp, 0.0.0.0:18054->18054/tcp, [::]:18054->18054/tcp   ca_org2
 ef7ce3dd7595   hyperledger/fabric-ca:latest        "sh -c 'fabric-ca-se…"   13 seconds ago   Up 12 seconds                       0.0.0.0:9054->9054/tcp, [::]:9054->9054/tcp, 7054/tcp, 0.0.0.0:19054->19054/tcp, [::]:19054->19054/tcp   ca_orderer
 2ad8bf2c5351   hyperledger/fabric-ca:latest        "sh -c 'fabric-ca-se…"   13 seconds ago   Up 12 seconds                       0.0.0.0:7054->7054/tcp, [::]:7054->7054/tcp, 0.0.0.0:17054->17054/tcp, [::]:17054->17054/tcp             ca_org1
-  STDERR: + fabric-ca-client getcainfo -u https://admin:adminpw@localhost:7054 --caname ca-org1 --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/org1/ca-cert.pem
-2025/10/28 23:50:32 [INFO] Configuration file location: /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/fabric-ca-client-config.yaml
+  STDERR: + fabric-ca-client getcainfo -u https://admin:adminpw@localhost:7054 --caname ca-org1 --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/fabric-ca/org1/ca-cert.pem
+2025/10/28 23:50:32 [INFO] Configuration file location: /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org1.standard.com/fabric-ca-client-config.yaml
 2025/10/28 23:50:32 [INFO] TLS Enabled
-2025/10/28 23:50:32 [INFO] Stored root CA certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/msp/cacerts/localhost-7054-ca-org1.pem
-2025/10/28 23:50:32 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/msp/IssuerPublicKey
-2025/10/28 23:50:32 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/msp/IssuerRevocationPublicKey
+2025/10/28 23:50:32 [INFO] Stored root CA certificate at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org1.standard.com/msp/cacerts/localhost-7054-ca-org1.pem
+2025/10/28 23:50:32 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org1.standard.com/msp/IssuerPublicKey
+2025/10/28 23:50:32 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org1.standard.com/msp/IssuerRevocationPublicKey
 + res=0
-+ fabric-ca-client enroll -u https://admin:adminpw@localhost:7054 --caname ca-org1 --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/org1/ca-cert.pem
-2025/10/28 23:50:32 [INFO] Created a default configuration file at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/fabric-ca-client-config.yaml
++ fabric-ca-client enroll -u https://admin:adminpw@localhost:7054 --caname ca-org1 --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/fabric-ca/org1/ca-cert.pem
+2025/10/28 23:50:32 [INFO] Created a default configuration file at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org1.standard.com/fabric-ca-client-config.yaml
 2025/10/28 23:50:32 [INFO] TLS Enabled
 2025/10/28 23:50:32 [INFO] generating key: &{A:ecdsa S:256}
 2025/10/28 23:50:32 [INFO] encoded CSR
-2025/10/28 23:50:32 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/msp/signcerts/cert.pem
-2025/10/28 23:50:32 [INFO] Stored root CA certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/msp/cacerts/localhost-7054-ca-org1.pem
-2025/10/28 23:50:32 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/msp/IssuerPublicKey
-2025/10/28 23:50:32 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/msp/IssuerRevocationPublicKey
-+ fabric-ca-client register --caname ca-org1 --id.name peer0 --id.secret peer0pw --id.type peer --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/org1/ca-cert.pem
-2025/10/28 23:50:32 [INFO] Configuration file location: /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/fabric-ca-client-config.yaml
+2025/10/28 23:50:32 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org1.standard.com/msp/signcerts/cert.pem
+2025/10/28 23:50:32 [INFO] Stored root CA certificate at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org1.standard.com/msp/cacerts/localhost-7054-ca-org1.pem
+2025/10/28 23:50:32 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org1.standard.com/msp/IssuerPublicKey
+2025/10/28 23:50:32 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org1.standard.com/msp/IssuerRevocationPublicKey
++ fabric-ca-client register --caname ca-org1 --id.name peer0 --id.secret peer0pw --id.type peer --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/fabric-ca/org1/ca-cert.pem
+2025/10/28 23:50:32 [INFO] Configuration file location: /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org1.standard.com/fabric-ca-client-config.yaml
 2025/10/28 23:50:32 [INFO] TLS Enabled
 2025/10/28 23:50:32 [INFO] TLS Enabled
-+ fabric-ca-client register --caname ca-org1 --id.name user1 --id.secret user1pw --id.type client --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/org1/ca-cert.pem
-2025/10/28 23:50:32 [INFO] Configuration file location: /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/fabric-ca-client-config.yaml
++ fabric-ca-client register --caname ca-org1 --id.name user1 --id.secret user1pw --id.type client --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/fabric-ca/org1/ca-cert.pem
+2025/10/28 23:50:32 [INFO] Configuration file location: /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org1.standard.com/fabric-ca-client-config.yaml
 2025/10/28 23:50:32 [INFO] TLS Enabled
 2025/10/28 23:50:32 [INFO] TLS Enabled
-+ fabric-ca-client register --caname ca-org1 --id.name org1admin --id.secret org1adminpw --id.type admin --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/org1/ca-cert.pem
-2025/10/28 23:50:33 [INFO] Configuration file location: /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/fabric-ca-client-config.yaml
++ fabric-ca-client register --caname ca-org1 --id.name org1admin --id.secret org1adminpw --id.type admin --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/fabric-ca/org1/ca-cert.pem
+2025/10/28 23:50:33 [INFO] Configuration file location: /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org1.standard.com/fabric-ca-client-config.yaml
 2025/10/28 23:50:33 [INFO] TLS Enabled
 2025/10/28 23:50:33 [INFO] TLS Enabled
-+ fabric-ca-client enroll -u https://peer0:peer0pw@localhost:7054 --caname ca-org1 -M /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/peers/peer0.org1.fabric2.standard.com/msp --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/org1/ca-cert.pem
++ fabric-ca-client enroll -u https://peer0:peer0pw@localhost:7054 --caname ca-org1 -M /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org1.standard.com/peers/peer0.org1.fabric2.standard.com/msp --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/fabric-ca/org1/ca-cert.pem
 2025/10/28 23:50:33 [INFO] TLS Enabled
 2025/10/28 23:50:33 [INFO] generating key: &{A:ecdsa S:256}
 2025/10/28 23:50:33 [INFO] encoded CSR
-2025/10/28 23:50:33 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/peers/peer0.org1.fabric2.standard.com/msp/signcerts/cert.pem
-2025/10/28 23:50:33 [INFO] Stored root CA certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/peers/peer0.org1.fabric2.standard.com/msp/cacerts/localhost-7054-ca-org1.pem
-2025/10/28 23:50:33 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/peers/peer0.org1.fabric2.standard.com/msp/IssuerPublicKey
-2025/10/28 23:50:33 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/peers/peer0.org1.fabric2.standard.com/msp/IssuerRevocationPublicKey
-+ fabric-ca-client enroll -u https://peer0:peer0pw@localhost:7054 --caname ca-org1 -M /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/peers/peer0.org1.fabric2.standard.com/tls --enrollment.profile tls --csr.hosts peer0.org1.fabric2.standard.com --csr.hosts localhost --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/org1/ca-cert.pem
+2025/10/28 23:50:33 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org1.standard.com/peers/peer0.org1.fabric2.standard.com/msp/signcerts/cert.pem
+2025/10/28 23:50:33 [INFO] Stored root CA certificate at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org1.standard.com/peers/peer0.org1.fabric2.standard.com/msp/cacerts/localhost-7054-ca-org1.pem
+2025/10/28 23:50:33 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org1.standard.com/peers/peer0.org1.fabric2.standard.com/msp/IssuerPublicKey
+2025/10/28 23:50:33 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org1.standard.com/peers/peer0.org1.fabric2.standard.com/msp/IssuerRevocationPublicKey
++ fabric-ca-client enroll -u https://peer0:peer0pw@localhost:7054 --caname ca-org1 -M /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org1.standard.com/peers/peer0.org1.fabric2.standard.com/tls --enrollment.profile tls --csr.hosts peer0.org1.fabric2.standard.com --csr.hosts localhost --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/fabric-ca/org1/ca-cert.pem
 2025/10/28 23:50:33 [INFO] TLS Enabled
 2025/10/28 23:50:33 [INFO] generating key: &{A:ecdsa S:256}
 2025/10/28 23:50:33 [INFO] encoded CSR
-2025/10/28 23:50:33 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/peers/peer0.org1.fabric2.standard.com/tls/signcerts/cert.pem
-2025/10/28 23:50:33 [INFO] Stored TLS root CA certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/peers/peer0.org1.fabric2.standard.com/tls/tlscacerts/tls-localhost-7054-ca-org1.pem
-2025/10/28 23:50:33 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/peers/peer0.org1.fabric2.standard.com/tls/IssuerPublicKey
-2025/10/28 23:50:33 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/peers/peer0.org1.fabric2.standard.com/tls/IssuerRevocationPublicKey
-+ fabric-ca-client enroll -u https://user1:user1pw@localhost:7054 --caname ca-org1 -M /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/users/User1@org1.standard.com/msp --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/org1/ca-cert.pem
+2025/10/28 23:50:33 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org1.standard.com/peers/peer0.org1.fabric2.standard.com/tls/signcerts/cert.pem
+2025/10/28 23:50:33 [INFO] Stored TLS root CA certificate at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org1.standard.com/peers/peer0.org1.fabric2.standard.com/tls/tlscacerts/tls-localhost-7054-ca-org1.pem
+2025/10/28 23:50:33 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org1.standard.com/peers/peer0.org1.fabric2.standard.com/tls/IssuerPublicKey
+2025/10/28 23:50:33 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org1.standard.com/peers/peer0.org1.fabric2.standard.com/tls/IssuerRevocationPublicKey
++ fabric-ca-client enroll -u https://user1:user1pw@localhost:7054 --caname ca-org1 -M /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org1.standard.com/users/User1@org1.standard.com/msp --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/fabric-ca/org1/ca-cert.pem
 2025/10/28 23:50:33 [INFO] TLS Enabled
 2025/10/28 23:50:33 [INFO] generating key: &{A:ecdsa S:256}
 2025/10/28 23:50:33 [INFO] encoded CSR
-2025/10/28 23:50:33 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/users/User1@org1.standard.com/msp/signcerts/cert.pem
-2025/10/28 23:50:33 [INFO] Stored root CA certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/users/User1@org1.standard.com/msp/cacerts/localhost-7054-ca-org1.pem
-2025/10/28 23:50:33 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/users/User1@org1.standard.com/msp/IssuerPublicKey
-2025/10/28 23:50:33 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/users/User1@org1.standard.com/msp/IssuerRevocationPublicKey
-+ fabric-ca-client enroll -u https://org1admin:org1adminpw@localhost:7054 --caname ca-org1 -M /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/users/Admin@org1.standard.com/msp --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/org1/ca-cert.pem
+2025/10/28 23:50:33 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org1.standard.com/users/User1@org1.standard.com/msp/signcerts/cert.pem
+2025/10/28 23:50:33 [INFO] Stored root CA certificate at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org1.standard.com/users/User1@org1.standard.com/msp/cacerts/localhost-7054-ca-org1.pem
+2025/10/28 23:50:33 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org1.standard.com/users/User1@org1.standard.com/msp/IssuerPublicKey
+2025/10/28 23:50:33 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org1.standard.com/users/User1@org1.standard.com/msp/IssuerRevocationPublicKey
++ fabric-ca-client enroll -u https://org1admin:org1adminpw@localhost:7054 --caname ca-org1 -M /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org1.standard.com/users/Admin@org1.standard.com/msp --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/fabric-ca/org1/ca-cert.pem
 2025/10/28 23:50:33 [INFO] TLS Enabled
 2025/10/28 23:50:33 [INFO] generating key: &{A:ecdsa S:256}
 2025/10/28 23:50:33 [INFO] encoded CSR
-2025/10/28 23:50:34 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/users/Admin@org1.standard.com/msp/signcerts/cert.pem
-2025/10/28 23:50:34 [INFO] Stored root CA certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/users/Admin@org1.standard.com/msp/cacerts/localhost-7054-ca-org1.pem
-2025/10/28 23:50:34 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/users/Admin@org1.standard.com/msp/IssuerPublicKey
-2025/10/28 23:50:34 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/users/Admin@org1.standard.com/msp/IssuerRevocationPublicKey
-+ fabric-ca-client enroll -u https://admin:adminpw@localhost:8054 --caname ca-org2 --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/org2/ca-cert.pem
-2025/10/28 23:50:34 [INFO] Created a default configuration file at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org2.standard.com/fabric-ca-client-config.yaml
+2025/10/28 23:50:34 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org1.standard.com/users/Admin@org1.standard.com/msp/signcerts/cert.pem
+2025/10/28 23:50:34 [INFO] Stored root CA certificate at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org1.standard.com/users/Admin@org1.standard.com/msp/cacerts/localhost-7054-ca-org1.pem
+2025/10/28 23:50:34 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org1.standard.com/users/Admin@org1.standard.com/msp/IssuerPublicKey
+2025/10/28 23:50:34 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org1.standard.com/users/Admin@org1.standard.com/msp/IssuerRevocationPublicKey
++ fabric-ca-client enroll -u https://admin:adminpw@localhost:8054 --caname ca-org2 --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/fabric-ca/org2/ca-cert.pem
+2025/10/28 23:50:34 [INFO] Created a default configuration file at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org2.standard.com/fabric-ca-client-config.yaml
 2025/10/28 23:50:34 [INFO] TLS Enabled
 2025/10/28 23:50:34 [INFO] generating key: &{A:ecdsa S:256}
 2025/10/28 23:50:34 [INFO] encoded CSR
-2025/10/28 23:50:34 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org2.standard.com/msp/signcerts/cert.pem
-2025/10/28 23:50:34 [INFO] Stored root CA certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org2.standard.com/msp/cacerts/localhost-8054-ca-org2.pem
-2025/10/28 23:50:34 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org2.standard.com/msp/IssuerPublicKey
-2025/10/28 23:50:34 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org2.standard.com/msp/IssuerRevocationPublicKey
-+ fabric-ca-client register --caname ca-org2 --id.name peer0 --id.secret peer0pw --id.type peer --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/org2/ca-cert.pem
-2025/10/28 23:50:34 [INFO] Configuration file location: /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org2.standard.com/fabric-ca-client-config.yaml
+2025/10/28 23:50:34 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org2.standard.com/msp/signcerts/cert.pem
+2025/10/28 23:50:34 [INFO] Stored root CA certificate at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org2.standard.com/msp/cacerts/localhost-8054-ca-org2.pem
+2025/10/28 23:50:34 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org2.standard.com/msp/IssuerPublicKey
+2025/10/28 23:50:34 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org2.standard.com/msp/IssuerRevocationPublicKey
++ fabric-ca-client register --caname ca-org2 --id.name peer0 --id.secret peer0pw --id.type peer --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/fabric-ca/org2/ca-cert.pem
+2025/10/28 23:50:34 [INFO] Configuration file location: /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org2.standard.com/fabric-ca-client-config.yaml
 2025/10/28 23:50:34 [INFO] TLS Enabled
 2025/10/28 23:50:34 [INFO] TLS Enabled
-+ fabric-ca-client register --caname ca-org2 --id.name user1 --id.secret user1pw --id.type client --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/org2/ca-cert.pem
-2025/10/28 23:50:34 [INFO] Configuration file location: /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org2.standard.com/fabric-ca-client-config.yaml
++ fabric-ca-client register --caname ca-org2 --id.name user1 --id.secret user1pw --id.type client --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/fabric-ca/org2/ca-cert.pem
+2025/10/28 23:50:34 [INFO] Configuration file location: /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org2.standard.com/fabric-ca-client-config.yaml
 2025/10/28 23:50:34 [INFO] TLS Enabled
 2025/10/28 23:50:34 [INFO] TLS Enabled
-+ fabric-ca-client register --caname ca-org2 --id.name org2admin --id.secret org2adminpw --id.type admin --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/org2/ca-cert.pem
-2025/10/28 23:50:34 [INFO] Configuration file location: /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org2.standard.com/fabric-ca-client-config.yaml
++ fabric-ca-client register --caname ca-org2 --id.name org2admin --id.secret org2adminpw --id.type admin --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/fabric-ca/org2/ca-cert.pem
+2025/10/28 23:50:34 [INFO] Configuration file location: /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org2.standard.com/fabric-ca-client-config.yaml
 2025/10/28 23:50:34 [INFO] TLS Enabled
 2025/10/28 23:50:34 [INFO] TLS Enabled
-+ fabric-ca-client enroll -u https://peer0:peer0pw@localhost:8054 --caname ca-org2 -M /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org2.standard.com/peers/peer0.org2.standard.com/msp --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/org2/ca-cert.pem
++ fabric-ca-client enroll -u https://peer0:peer0pw@localhost:8054 --caname ca-org2 -M /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org2.standard.com/peers/peer0.org2.standard.com/msp --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/fabric-ca/org2/ca-cert.pem
 2025/10/28 23:50:34 [INFO] TLS Enabled
 2025/10/28 23:50:34 [INFO] generating key: &{A:ecdsa S:256}
 2025/10/28 23:50:34 [INFO] encoded CSR
-2025/10/28 23:50:34 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org2.standard.com/peers/peer0.org2.standard.com/msp/signcerts/cert.pem
-2025/10/28 23:50:34 [INFO] Stored root CA certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org2.standard.com/peers/peer0.org2.standard.com/msp/cacerts/localhost-8054-ca-org2.pem
-2025/10/28 23:50:34 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org2.standard.com/peers/peer0.org2.standard.com/msp/IssuerPublicKey
-2025/10/28 23:50:34 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org2.standard.com/peers/peer0.org2.standard.com/msp/IssuerRevocationPublicKey
-+ fabric-ca-client enroll -u https://peer0:peer0pw@localhost:8054 --caname ca-org2 -M /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org2.standard.com/peers/peer0.org2.standard.com/tls --enrollment.profile tls --csr.hosts peer0.org2.standard.com --csr.hosts localhost --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/org2/ca-cert.pem
+2025/10/28 23:50:34 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org2.standard.com/peers/peer0.org2.standard.com/msp/signcerts/cert.pem
+2025/10/28 23:50:34 [INFO] Stored root CA certificate at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org2.standard.com/peers/peer0.org2.standard.com/msp/cacerts/localhost-8054-ca-org2.pem
+2025/10/28 23:50:34 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org2.standard.com/peers/peer0.org2.standard.com/msp/IssuerPublicKey
+2025/10/28 23:50:34 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org2.standard.com/peers/peer0.org2.standard.com/msp/IssuerRevocationPublicKey
++ fabric-ca-client enroll -u https://peer0:peer0pw@localhost:8054 --caname ca-org2 -M /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org2.standard.com/peers/peer0.org2.standard.com/tls --enrollment.profile tls --csr.hosts peer0.org2.standard.com --csr.hosts localhost --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/fabric-ca/org2/ca-cert.pem
 2025/10/28 23:50:35 [INFO] TLS Enabled
 2025/10/28 23:50:35 [INFO] generating key: &{A:ecdsa S:256}
 2025/10/28 23:50:35 [INFO] encoded CSR
-2025/10/28 23:50:35 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org2.standard.com/peers/peer0.org2.standard.com/tls/signcerts/cert.pem
-2025/10/28 23:50:35 [INFO] Stored TLS root CA certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org2.standard.com/peers/peer0.org2.standard.com/tls/tlscacerts/tls-localhost-8054-ca-org2.pem
-2025/10/28 23:50:35 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org2.standard.com/peers/peer0.org2.standard.com/tls/IssuerPublicKey
-2025/10/28 23:50:35 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org2.standard.com/peers/peer0.org2.standard.com/tls/IssuerRevocationPublicKey
-+ fabric-ca-client enroll -u https://user1:user1pw@localhost:8054 --caname ca-org2 -M /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org2.standard.com/users/User1@org2.standard.com/msp --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/org2/ca-cert.pem
+2025/10/28 23:50:35 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org2.standard.com/peers/peer0.org2.standard.com/tls/signcerts/cert.pem
+2025/10/28 23:50:35 [INFO] Stored TLS root CA certificate at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org2.standard.com/peers/peer0.org2.standard.com/tls/tlscacerts/tls-localhost-8054-ca-org2.pem
+2025/10/28 23:50:35 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org2.standard.com/peers/peer0.org2.standard.com/tls/IssuerPublicKey
+2025/10/28 23:50:35 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org2.standard.com/peers/peer0.org2.standard.com/tls/IssuerRevocationPublicKey
++ fabric-ca-client enroll -u https://user1:user1pw@localhost:8054 --caname ca-org2 -M /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org2.standard.com/users/User1@org2.standard.com/msp --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/fabric-ca/org2/ca-cert.pem
 2025/10/28 23:50:35 [INFO] TLS Enabled
 2025/10/28 23:50:35 [INFO] generating key: &{A:ecdsa S:256}
 2025/10/28 23:50:35 [INFO] encoded CSR
-2025/10/28 23:50:35 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org2.standard.com/users/User1@org2.standard.com/msp/signcerts/cert.pem
-2025/10/28 23:50:35 [INFO] Stored root CA certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org2.standard.com/users/User1@org2.standard.com/msp/cacerts/localhost-8054-ca-org2.pem
-2025/10/28 23:50:35 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org2.standard.com/users/User1@org2.standard.com/msp/IssuerPublicKey
-2025/10/28 23:50:35 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org2.standard.com/users/User1@org2.standard.com/msp/IssuerRevocationPublicKey
-+ fabric-ca-client enroll -u https://org2admin:org2adminpw@localhost:8054 --caname ca-org2 -M /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org2.standard.com/users/Admin@org2.standard.com/msp --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/org2/ca-cert.pem
+2025/10/28 23:50:35 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org2.standard.com/users/User1@org2.standard.com/msp/signcerts/cert.pem
+2025/10/28 23:50:35 [INFO] Stored root CA certificate at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org2.standard.com/users/User1@org2.standard.com/msp/cacerts/localhost-8054-ca-org2.pem
+2025/10/28 23:50:35 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org2.standard.com/users/User1@org2.standard.com/msp/IssuerPublicKey
+2025/10/28 23:50:35 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org2.standard.com/users/User1@org2.standard.com/msp/IssuerRevocationPublicKey
++ fabric-ca-client enroll -u https://org2admin:org2adminpw@localhost:8054 --caname ca-org2 -M /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org2.standard.com/users/Admin@org2.standard.com/msp --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/fabric-ca/org2/ca-cert.pem
 2025/10/28 23:50:35 [INFO] TLS Enabled
 2025/10/28 23:50:35 [INFO] generating key: &{A:ecdsa S:256}
 2025/10/28 23:50:35 [INFO] encoded CSR
-2025/10/28 23:50:35 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org2.standard.com/users/Admin@org2.standard.com/msp/signcerts/cert.pem
-2025/10/28 23:50:35 [INFO] Stored root CA certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org2.standard.com/users/Admin@org2.standard.com/msp/cacerts/localhost-8054-ca-org2.pem
-2025/10/28 23:50:35 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org2.standard.com/users/Admin@org2.standard.com/msp/IssuerPublicKey
-2025/10/28 23:50:35 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org2.standard.com/users/Admin@org2.standard.com/msp/IssuerRevocationPublicKey
-+ fabric-ca-client enroll -u https://admin:adminpw@localhost:9054 --caname ca-orderer --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/ordererOrg/ca-cert.pem
-2025/10/28 23:50:35 [INFO] Created a default configuration file at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/fabric-ca-client-config.yaml
+2025/10/28 23:50:35 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org2.standard.com/users/Admin@org2.standard.com/msp/signcerts/cert.pem
+2025/10/28 23:50:35 [INFO] Stored root CA certificate at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org2.standard.com/users/Admin@org2.standard.com/msp/cacerts/localhost-8054-ca-org2.pem
+2025/10/28 23:50:35 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org2.standard.com/users/Admin@org2.standard.com/msp/IssuerPublicKey
+2025/10/28 23:50:35 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/peerOrganizations/org2.standard.com/users/Admin@org2.standard.com/msp/IssuerRevocationPublicKey
++ fabric-ca-client enroll -u https://admin:adminpw@localhost:9054 --caname ca-orderer --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/fabric-ca/ordererOrg/ca-cert.pem
+2025/10/28 23:50:35 [INFO] Created a default configuration file at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/fabric-ca-client-config.yaml
 2025/10/28 23:50:35 [INFO] TLS Enabled
 2025/10/28 23:50:35 [INFO] generating key: &{A:ecdsa S:256}
 2025/10/28 23:50:35 [INFO] encoded CSR
-2025/10/28 23:50:35 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/msp/signcerts/cert.pem
-2025/10/28 23:50:35 [INFO] Stored root CA certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/msp/cacerts/localhost-9054-ca-orderer.pem
-2025/10/28 23:50:35 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/msp/IssuerPublicKey
-2025/10/28 23:50:35 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/msp/IssuerRevocationPublicKey
-+ fabric-ca-client register --caname ca-orderer --id.name orderer --id.secret ordererpw --id.type orderer --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/ordererOrg/ca-cert.pem
-2025/10/28 23:50:35 [INFO] Configuration file location: /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/fabric-ca-client-config.yaml
+2025/10/28 23:50:35 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/msp/signcerts/cert.pem
+2025/10/28 23:50:35 [INFO] Stored root CA certificate at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/msp/cacerts/localhost-9054-ca-orderer.pem
+2025/10/28 23:50:35 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/msp/IssuerPublicKey
+2025/10/28 23:50:35 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/msp/IssuerRevocationPublicKey
++ fabric-ca-client register --caname ca-orderer --id.name orderer --id.secret ordererpw --id.type orderer --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/fabric-ca/ordererOrg/ca-cert.pem
+2025/10/28 23:50:35 [INFO] Configuration file location: /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/fabric-ca-client-config.yaml
 2025/10/28 23:50:35 [INFO] TLS Enabled
 2025/10/28 23:50:35 [INFO] TLS Enabled
-+ fabric-ca-client enroll -u https://orderer:ordererpw@localhost:9054 --caname ca-orderer -M /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer.standard.com/msp --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/ordererOrg/ca-cert.pem
++ fabric-ca-client enroll -u https://orderer:ordererpw@localhost:9054 --caname ca-orderer -M /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer.standard.com/msp --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/fabric-ca/ordererOrg/ca-cert.pem
 2025/10/28 23:50:36 [INFO] TLS Enabled
 2025/10/28 23:50:36 [INFO] generating key: &{A:ecdsa S:256}
 2025/10/28 23:50:36 [INFO] encoded CSR
-2025/10/28 23:50:36 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer.standard.com/msp/signcerts/cert.pem
-2025/10/28 23:50:36 [INFO] Stored root CA certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer.standard.com/msp/cacerts/localhost-9054-ca-orderer.pem
-2025/10/28 23:50:36 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer.standard.com/msp/IssuerPublicKey
-2025/10/28 23:50:36 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer.standard.com/msp/IssuerRevocationPublicKey
-+ fabric-ca-client enroll -u https://orderer:ordererpw@localhost:9054 --caname ca-orderer -M /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer.standard.com/tls --enrollment.profile tls --csr.hosts orderer.standard.com --csr.hosts localhost --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/ordererOrg/ca-cert.pem
+2025/10/28 23:50:36 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer.standard.com/msp/signcerts/cert.pem
+2025/10/28 23:50:36 [INFO] Stored root CA certificate at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer.standard.com/msp/cacerts/localhost-9054-ca-orderer.pem
+2025/10/28 23:50:36 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer.standard.com/msp/IssuerPublicKey
+2025/10/28 23:50:36 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer.standard.com/msp/IssuerRevocationPublicKey
++ fabric-ca-client enroll -u https://orderer:ordererpw@localhost:9054 --caname ca-orderer -M /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer.standard.com/tls --enrollment.profile tls --csr.hosts orderer.standard.com --csr.hosts localhost --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/fabric-ca/ordererOrg/ca-cert.pem
 2025/10/28 23:50:36 [INFO] TLS Enabled
 2025/10/28 23:50:36 [INFO] generating key: &{A:ecdsa S:256}
 2025/10/28 23:50:36 [INFO] encoded CSR
-2025/10/28 23:50:36 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer.standard.com/tls/signcerts/cert.pem
-2025/10/28 23:50:36 [INFO] Stored TLS root CA certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer.standard.com/tls/tlscacerts/tls-localhost-9054-ca-orderer.pem
-2025/10/28 23:50:36 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer.standard.com/tls/IssuerPublicKey
-2025/10/28 23:50:36 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer.standard.com/tls/IssuerRevocationPublicKey
-+ fabric-ca-client register --caname ca-orderer --id.name orderer2 --id.secret orderer2pw --id.type orderer --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/ordererOrg/ca-cert.pem
-2025/10/28 23:50:36 [INFO] Configuration file location: /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/fabric-ca-client-config.yaml
+2025/10/28 23:50:36 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer.standard.com/tls/signcerts/cert.pem
+2025/10/28 23:50:36 [INFO] Stored TLS root CA certificate at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer.standard.com/tls/tlscacerts/tls-localhost-9054-ca-orderer.pem
+2025/10/28 23:50:36 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer.standard.com/tls/IssuerPublicKey
+2025/10/28 23:50:36 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer.standard.com/tls/IssuerRevocationPublicKey
++ fabric-ca-client register --caname ca-orderer --id.name orderer2 --id.secret orderer2pw --id.type orderer --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/fabric-ca/ordererOrg/ca-cert.pem
+2025/10/28 23:50:36 [INFO] Configuration file location: /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/fabric-ca-client-config.yaml
 2025/10/28 23:50:36 [INFO] TLS Enabled
 2025/10/28 23:50:36 [INFO] TLS Enabled
-+ fabric-ca-client enroll -u https://orderer2:orderer2pw@localhost:9054 --caname ca-orderer -M /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer2.standard.com/msp --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/ordererOrg/ca-cert.pem
-2025/10/28 23:50:36 [INFO] TLS Enabled
-2025/10/28 23:50:36 [INFO] generating key: &{A:ecdsa S:256}
-2025/10/28 23:50:36 [INFO] encoded CSR
-2025/10/28 23:50:36 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer2.standard.com/msp/signcerts/cert.pem
-2025/10/28 23:50:36 [INFO] Stored root CA certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer2.standard.com/msp/cacerts/localhost-9054-ca-orderer.pem
-2025/10/28 23:50:36 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer2.standard.com/msp/IssuerPublicKey
-2025/10/28 23:50:36 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer2.standard.com/msp/IssuerRevocationPublicKey
-+ fabric-ca-client enroll -u https://orderer2:orderer2pw@localhost:9054 --caname ca-orderer -M /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer2.standard.com/tls --enrollment.profile tls --csr.hosts orderer2.standard.com --csr.hosts localhost --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/ordererOrg/ca-cert.pem
++ fabric-ca-client enroll -u https://orderer2:orderer2pw@localhost:9054 --caname ca-orderer -M /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer2.standard.com/msp --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/fabric-ca/ordererOrg/ca-cert.pem
 2025/10/28 23:50:36 [INFO] TLS Enabled
 2025/10/28 23:50:36 [INFO] generating key: &{A:ecdsa S:256}
 2025/10/28 23:50:36 [INFO] encoded CSR
-2025/10/28 23:50:37 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer2.standard.com/tls/signcerts/cert.pem
-2025/10/28 23:50:37 [INFO] Stored TLS root CA certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer2.standard.com/tls/tlscacerts/tls-localhost-9054-ca-orderer.pem
-2025/10/28 23:50:37 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer2.standard.com/tls/IssuerPublicKey
-2025/10/28 23:50:37 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer2.standard.com/tls/IssuerRevocationPublicKey
-+ fabric-ca-client register --caname ca-orderer --id.name orderer3 --id.secret orderer3pw --id.type orderer --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/ordererOrg/ca-cert.pem
-2025/10/28 23:50:37 [INFO] Configuration file location: /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/fabric-ca-client-config.yaml
+2025/10/28 23:50:36 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer2.standard.com/msp/signcerts/cert.pem
+2025/10/28 23:50:36 [INFO] Stored root CA certificate at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer2.standard.com/msp/cacerts/localhost-9054-ca-orderer.pem
+2025/10/28 23:50:36 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer2.standard.com/msp/IssuerPublicKey
+2025/10/28 23:50:36 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer2.standard.com/msp/IssuerRevocationPublicKey
++ fabric-ca-client enroll -u https://orderer2:orderer2pw@localhost:9054 --caname ca-orderer -M /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer2.standard.com/tls --enrollment.profile tls --csr.hosts orderer2.standard.com --csr.hosts localhost --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/fabric-ca/ordererOrg/ca-cert.pem
+2025/10/28 23:50:36 [INFO] TLS Enabled
+2025/10/28 23:50:36 [INFO] generating key: &{A:ecdsa S:256}
+2025/10/28 23:50:36 [INFO] encoded CSR
+2025/10/28 23:50:37 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer2.standard.com/tls/signcerts/cert.pem
+2025/10/28 23:50:37 [INFO] Stored TLS root CA certificate at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer2.standard.com/tls/tlscacerts/tls-localhost-9054-ca-orderer.pem
+2025/10/28 23:50:37 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer2.standard.com/tls/IssuerPublicKey
+2025/10/28 23:50:37 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer2.standard.com/tls/IssuerRevocationPublicKey
++ fabric-ca-client register --caname ca-orderer --id.name orderer3 --id.secret orderer3pw --id.type orderer --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/fabric-ca/ordererOrg/ca-cert.pem
+2025/10/28 23:50:37 [INFO] Configuration file location: /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/fabric-ca-client-config.yaml
 2025/10/28 23:50:37 [INFO] TLS Enabled
 2025/10/28 23:50:37 [INFO] TLS Enabled
-+ fabric-ca-client enroll -u https://orderer3:orderer3pw@localhost:9054 --caname ca-orderer -M /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer3.standard.com/msp --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/ordererOrg/ca-cert.pem
++ fabric-ca-client enroll -u https://orderer3:orderer3pw@localhost:9054 --caname ca-orderer -M /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer3.standard.com/msp --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/fabric-ca/ordererOrg/ca-cert.pem
 2025/10/28 23:50:37 [INFO] TLS Enabled
 2025/10/28 23:50:37 [INFO] generating key: &{A:ecdsa S:256}
 2025/10/28 23:50:37 [INFO] encoded CSR
-2025/10/28 23:50:37 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer3.standard.com/msp/signcerts/cert.pem
-2025/10/28 23:50:37 [INFO] Stored root CA certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer3.standard.com/msp/cacerts/localhost-9054-ca-orderer.pem
-2025/10/28 23:50:37 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer3.standard.com/msp/IssuerPublicKey
-2025/10/28 23:50:37 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer3.standard.com/msp/IssuerRevocationPublicKey
-+ fabric-ca-client enroll -u https://orderer3:orderer3pw@localhost:9054 --caname ca-orderer -M /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer3.standard.com/tls --enrollment.profile tls --csr.hosts orderer3.standard.com --csr.hosts localhost --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/ordererOrg/ca-cert.pem
+2025/10/28 23:50:37 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer3.standard.com/msp/signcerts/cert.pem
+2025/10/28 23:50:37 [INFO] Stored root CA certificate at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer3.standard.com/msp/cacerts/localhost-9054-ca-orderer.pem
+2025/10/28 23:50:37 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer3.standard.com/msp/IssuerPublicKey
+2025/10/28 23:50:37 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer3.standard.com/msp/IssuerRevocationPublicKey
++ fabric-ca-client enroll -u https://orderer3:orderer3pw@localhost:9054 --caname ca-orderer -M /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer3.standard.com/tls --enrollment.profile tls --csr.hosts orderer3.standard.com --csr.hosts localhost --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/fabric-ca/ordererOrg/ca-cert.pem
 2025/10/28 23:50:37 [INFO] TLS Enabled
 2025/10/28 23:50:37 [INFO] generating key: &{A:ecdsa S:256}
 2025/10/28 23:50:37 [INFO] encoded CSR
-2025/10/28 23:50:37 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer3.standard.com/tls/signcerts/cert.pem
-2025/10/28 23:50:37 [INFO] Stored TLS root CA certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer3.standard.com/tls/tlscacerts/tls-localhost-9054-ca-orderer.pem
-2025/10/28 23:50:37 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer3.standard.com/tls/IssuerPublicKey
-2025/10/28 23:50:37 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer3.standard.com/tls/IssuerRevocationPublicKey
-+ fabric-ca-client register --caname ca-orderer --id.name orderer4 --id.secret orderer4pw --id.type orderer --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/ordererOrg/ca-cert.pem
-2025/10/28 23:50:37 [INFO] Configuration file location: /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/fabric-ca-client-config.yaml
+2025/10/28 23:50:37 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer3.standard.com/tls/signcerts/cert.pem
+2025/10/28 23:50:37 [INFO] Stored TLS root CA certificate at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer3.standard.com/tls/tlscacerts/tls-localhost-9054-ca-orderer.pem
+2025/10/28 23:50:37 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer3.standard.com/tls/IssuerPublicKey
+2025/10/28 23:50:37 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer3.standard.com/tls/IssuerRevocationPublicKey
++ fabric-ca-client register --caname ca-orderer --id.name orderer4 --id.secret orderer4pw --id.type orderer --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/fabric-ca/ordererOrg/ca-cert.pem
+2025/10/28 23:50:37 [INFO] Configuration file location: /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/fabric-ca-client-config.yaml
 2025/10/28 23:50:37 [INFO] TLS Enabled
 2025/10/28 23:50:37 [INFO] TLS Enabled
-+ fabric-ca-client enroll -u https://orderer4:orderer4pw@localhost:9054 --caname ca-orderer -M /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer4.standard.com/msp --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/ordererOrg/ca-cert.pem
++ fabric-ca-client enroll -u https://orderer4:orderer4pw@localhost:9054 --caname ca-orderer -M /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer4.standard.com/msp --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/fabric-ca/ordererOrg/ca-cert.pem
 2025/10/28 23:50:38 [INFO] TLS Enabled
 2025/10/28 23:50:38 [INFO] generating key: &{A:ecdsa S:256}
 2025/10/28 23:50:38 [INFO] encoded CSR
-2025/10/28 23:50:38 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer4.standard.com/msp/signcerts/cert.pem
-2025/10/28 23:50:38 [INFO] Stored root CA certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer4.standard.com/msp/cacerts/localhost-9054-ca-orderer.pem
-2025/10/28 23:50:38 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer4.standard.com/msp/IssuerPublicKey
-2025/10/28 23:50:38 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer4.standard.com/msp/IssuerRevocationPublicKey
-+ fabric-ca-client enroll -u https://orderer4:orderer4pw@localhost:9054 --caname ca-orderer -M /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer4.standard.com/tls --enrollment.profile tls --csr.hosts orderer4.standard.com --csr.hosts localhost --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/ordererOrg/ca-cert.pem
+2025/10/28 23:50:38 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer4.standard.com/msp/signcerts/cert.pem
+2025/10/28 23:50:38 [INFO] Stored root CA certificate at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer4.standard.com/msp/cacerts/localhost-9054-ca-orderer.pem
+2025/10/28 23:50:38 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer4.standard.com/msp/IssuerPublicKey
+2025/10/28 23:50:38 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer4.standard.com/msp/IssuerRevocationPublicKey
++ fabric-ca-client enroll -u https://orderer4:orderer4pw@localhost:9054 --caname ca-orderer -M /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer4.standard.com/tls --enrollment.profile tls --csr.hosts orderer4.standard.com --csr.hosts localhost --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/fabric-ca/ordererOrg/ca-cert.pem
 2025/10/28 23:50:38 [INFO] TLS Enabled
 2025/10/28 23:50:38 [INFO] generating key: &{A:ecdsa S:256}
 2025/10/28 23:50:38 [INFO] encoded CSR
-2025/10/28 23:50:38 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer4.standard.com/tls/signcerts/cert.pem
-2025/10/28 23:50:38 [INFO] Stored TLS root CA certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer4.standard.com/tls/tlscacerts/tls-localhost-9054-ca-orderer.pem
-2025/10/28 23:50:38 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer4.standard.com/tls/IssuerPublicKey
-2025/10/28 23:50:38 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer4.standard.com/tls/IssuerRevocationPublicKey
-+ fabric-ca-client register --caname ca-orderer --id.name ordererAdmin --id.secret ordererAdminpw --id.type admin --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/ordererOrg/ca-cert.pem
-2025/10/28 23:50:38 [INFO] Configuration file location: /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/fabric-ca-client-config.yaml
+2025/10/28 23:50:38 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer4.standard.com/tls/signcerts/cert.pem
+2025/10/28 23:50:38 [INFO] Stored TLS root CA certificate at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer4.standard.com/tls/tlscacerts/tls-localhost-9054-ca-orderer.pem
+2025/10/28 23:50:38 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer4.standard.com/tls/IssuerPublicKey
+2025/10/28 23:50:38 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer4.standard.com/tls/IssuerRevocationPublicKey
++ fabric-ca-client register --caname ca-orderer --id.name ordererAdmin --id.secret ordererAdminpw --id.type admin --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/fabric-ca/ordererOrg/ca-cert.pem
+2025/10/28 23:50:38 [INFO] Configuration file location: /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/fabric-ca-client-config.yaml
 2025/10/28 23:50:38 [INFO] TLS Enabled
 2025/10/28 23:50:38 [INFO] TLS Enabled
-+ fabric-ca-client enroll -u https://ordererAdmin:ordererAdminpw@localhost:9054 --caname ca-orderer -M /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/users/Admin@standard.com/msp --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/ordererOrg/ca-cert.pem
++ fabric-ca-client enroll -u https://ordererAdmin:ordererAdminpw@localhost:9054 --caname ca-orderer -M /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/users/Admin@standard.com/msp --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/fabric-ca/ordererOrg/ca-cert.pem
 2025/10/28 23:50:38 [INFO] TLS Enabled
 2025/10/28 23:50:38 [INFO] generating key: &{A:ecdsa S:256}
 2025/10/28 23:50:38 [INFO] encoded CSR
-2025/10/28 23:50:38 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/users/Admin@standard.com/msp/signcerts/cert.pem
-2025/10/28 23:50:38 [INFO] Stored root CA certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/users/Admin@standard.com/msp/cacerts/localhost-9054-ca-orderer.pem
-2025/10/28 23:50:38 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/users/Admin@standard.com/msp/IssuerPublicKey
-2025/10/28 23:50:38 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/users/Admin@standard.com/msp/IssuerRevocationPublicKey
+2025/10/28 23:50:38 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/users/Admin@standard.com/msp/signcerts/cert.pem
+2025/10/28 23:50:38 [INFO] Stored root CA certificate at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/users/Admin@standard.com/msp/cacerts/localhost-9054-ca-orderer.pem
+2025/10/28 23:50:38 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/users/Admin@standard.com/msp/IssuerPublicKey
+2025/10/28 23:50:38 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/users/Admin@standard.com/msp/IssuerRevocationPublicKey
 Langkah 2: Create channel — error
   Perintah: ./network.sh createChannel -c channel-standard -ca
   Pesan: Perintah ./network.sh createChannel -c channel-standard -ca gagal dijalankan.
@@ -1108,8 +1108,8 @@ Langkah 2: Create channel — error
 [34m2025-10-28 23:50:41.731 UTC 0001 INFO[0m [common.tools.configtxgen] [34;1mmain[0m -> Loading configuration
 [34m2025-10-28 23:50:41.739 UTC 0002 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> orderer type: etcdraft
 [34m2025-10-28 23:50:41.740 UTC 0003 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> Orderer.EtcdRaft.Options unset, setting to tick_interval:"500ms" election_tick:10 heartbeat_tick:1 max_inflight_blocks:5 snapshot_interval_size:16777216 
-[34m2025-10-28 23:50:41.740 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/configtx/configtx.yaml
-[35m2025-10-28 23:50:41.741 UTC 0005 FATA[0m [common.tools.configtxgen] [35;1mmain[0m -> Error on outputBlock: could not create bootstrapper: could not create channel group: could not create orderer group: cannot marshal metadata for orderer type etcdraft: cannot load client cert for consenter orderer.fabric2.standard.com:7050: open /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer.fabric2.standard.com/tls/server.crt: no such file or directory
+[34m2025-10-28 23:50:41.740 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/configtx/configtx.yaml
+[35m2025-10-28 23:50:41.741 UTC 0005 FATA[0m [common.tools.configtxgen] [35;1mmain[0m -> Error on outputBlock: could not create bootstrapper: could not create channel group: could not create orderer group: cannot marshal metadata for orderer type etcdraft: cannot load client cert for consenter orderer.fabric2.standard.com:7050: open /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer.fabric2.standard.com/tls/server.crt: no such file or directory
 + res=1
 
   STDOUT: [0;34mUsing docker and docker-compose[0m
@@ -1119,15 +1119,15 @@ Network Running Already
 [0;34mUsing docker and docker-compose[0m
 [0;34mGenerating channel genesis block 'channel-standard.block'[0m
 [0;34mUsing organization 1[0m
-/root/evaluasi-raft-hlf/fabric-2/raft-standard/network/../bin/configtxgen
+/root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/../bin/configtxgen
 [0;31mFailed to generate channel configuration transaction...[0m
   STDERR: + '[' 0 -eq 1 ']'
 + configtxgen -profile ChannelUsingRaft -outputBlock ./channel-artifacts/channel-standard.block -channelID channel-standard
 [34m2025-10-28 23:50:41.731 UTC 0001 INFO[0m [common.tools.configtxgen] [34;1mmain[0m -> Loading configuration
 [34m2025-10-28 23:50:41.739 UTC 0002 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> orderer type: etcdraft
 [34m2025-10-28 23:50:41.740 UTC 0003 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> Orderer.EtcdRaft.Options unset, setting to tick_interval:"500ms" election_tick:10 heartbeat_tick:1 max_inflight_blocks:5 snapshot_interval_size:16777216 
-[34m2025-10-28 23:50:41.740 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/configtx/configtx.yaml
-[35m2025-10-28 23:50:41.741 UTC 0005 FATA[0m [common.tools.configtxgen] [35;1mmain[0m -> Error on outputBlock: could not create bootstrapper: could not create channel group: could not create orderer group: cannot marshal metadata for orderer type etcdraft: cannot load client cert for consenter orderer.fabric2.standard.com:7050: open /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer.fabric2.standard.com/tls/server.crt: no such file or directory
+[34m2025-10-28 23:50:41.740 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/configtx/configtx.yaml
+[35m2025-10-28 23:50:41.741 UTC 0005 FATA[0m [common.tools.configtxgen] [35;1mmain[0m -> Error on outputBlock: could not create bootstrapper: could not create channel group: could not create orderer group: cannot marshal metadata for orderer type etcdraft: cannot load client cert for consenter orderer.fabric2.standard.com:7050: open /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer.fabric2.standard.com/tls/server.crt: no such file or directory
 + res=1
 Langkah 3: Deploy chaincode — skipped
   Perintah: ./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl javascript -c channel-standard
@@ -1138,14 +1138,14 @@ Error: Command failed: ./network.sh createChannel -c channel-standard -ca
 [34m2025-10-28 23:50:41.731 UTC 0001 INFO[0m [common.tools.configtxgen] [34;1mmain[0m -> Loading configuration
 [34m2025-10-28 23:50:41.739 UTC 0002 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> orderer type: etcdraft
 [34m2025-10-28 23:50:41.740 UTC 0003 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> Orderer.EtcdRaft.Options unset, setting to tick_interval:"500ms" election_tick:10 heartbeat_tick:1 max_inflight_blocks:5 snapshot_interval_size:16777216 
-[34m2025-10-28 23:50:41.740 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/configtx/configtx.yaml
-[35m2025-10-28 23:50:41.741 UTC 0005 FATA[0m [common.tools.configtxgen] [35;1mmain[0m -> Error on outputBlock: could not create bootstrapper: could not create channel group: could not create orderer group: cannot marshal metadata for orderer type etcdraft: cannot load client cert for consenter orderer.fabric2.standard.com:7050: open /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer.fabric2.standard.com/tls/server.crt: no such file or directory
+[34m2025-10-28 23:50:41.740 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/configtx/configtx.yaml
+[35m2025-10-28 23:50:41.741 UTC 0005 FATA[0m [common.tools.configtxgen] [35;1mmain[0m -> Error on outputBlock: could not create bootstrapper: could not create channel group: could not create orderer group: cannot marshal metadata for orderer type etcdraft: cannot load client cert for consenter orderer.fabric2.standard.com:7050: open /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer.fabric2.standard.com/tls/server.crt: no such file or directory
 + res=1
 
 
-[2025-10-28T23:52:41.973Z] Gagal menyalakan jaringan: RAFT Standard Network
+[2025-10-28T23:52:41.973Z] Gagal menyalakan jaringan: Fabric 2 Channel Standard Network
 Status: partial
-Direktori: /root/evaluasi-raft-hlf/fabric-2/raft-standard/network
+Direktori: /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network
 Pesan: Perintah ./network.sh createChannel -c channel-standard -ca gagal dijalankan.
 Tindakan: Periksa log penyalaan jaringan untuk rincian lebih lanjut.
 Langkah 1: Start core services — success
@@ -1190,8 +1190,8 @@ Langkah 2: Create channel — error
 [34m2025-10-28 23:52:41.956 UTC 0001 INFO[0m [common.tools.configtxgen] [34;1mmain[0m -> Loading configuration
 [34m2025-10-28 23:52:41.964 UTC 0002 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> orderer type: etcdraft
 [34m2025-10-28 23:52:41.964 UTC 0003 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> Orderer.EtcdRaft.Options unset, setting to tick_interval:"500ms" election_tick:10 heartbeat_tick:1 max_inflight_blocks:5 snapshot_interval_size:16777216 
-[34m2025-10-28 23:52:41.964 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/configtx/configtx.yaml
-[35m2025-10-28 23:52:41.965 UTC 0005 FATA[0m [common.tools.configtxgen] [35;1mmain[0m -> Error on outputBlock: could not create bootstrapper: could not create channel group: could not create orderer group: cannot marshal metadata for orderer type etcdraft: cannot load client cert for consenter orderer.fabric2.standard.com:7050: open /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer.fabric2.standard.com/tls/server.crt: no such file or directory
+[34m2025-10-28 23:52:41.964 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/configtx/configtx.yaml
+[35m2025-10-28 23:52:41.965 UTC 0005 FATA[0m [common.tools.configtxgen] [35;1mmain[0m -> Error on outputBlock: could not create bootstrapper: could not create channel group: could not create orderer group: cannot marshal metadata for orderer type etcdraft: cannot load client cert for consenter orderer.fabric2.standard.com:7050: open /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer.fabric2.standard.com/tls/server.crt: no such file or directory
 + res=1
 
   STDOUT: [0;34mUsing docker and docker-compose[0m
@@ -1201,15 +1201,15 @@ Network Running Already
 [0;34mUsing docker and docker-compose[0m
 [0;34mGenerating channel genesis block 'channel-standard.block'[0m
 [0;34mUsing organization 1[0m
-/root/evaluasi-raft-hlf/fabric-2/raft-standard/network/../bin/configtxgen
+/root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/../bin/configtxgen
 [0;31mFailed to generate channel configuration transaction...[0m
   STDERR: + '[' 0 -eq 1 ']'
 + configtxgen -profile ChannelUsingRaft -outputBlock ./channel-artifacts/channel-standard.block -channelID channel-standard
 [34m2025-10-28 23:52:41.956 UTC 0001 INFO[0m [common.tools.configtxgen] [34;1mmain[0m -> Loading configuration
 [34m2025-10-28 23:52:41.964 UTC 0002 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> orderer type: etcdraft
 [34m2025-10-28 23:52:41.964 UTC 0003 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> Orderer.EtcdRaft.Options unset, setting to tick_interval:"500ms" election_tick:10 heartbeat_tick:1 max_inflight_blocks:5 snapshot_interval_size:16777216 
-[34m2025-10-28 23:52:41.964 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/configtx/configtx.yaml
-[35m2025-10-28 23:52:41.965 UTC 0005 FATA[0m [common.tools.configtxgen] [35;1mmain[0m -> Error on outputBlock: could not create bootstrapper: could not create channel group: could not create orderer group: cannot marshal metadata for orderer type etcdraft: cannot load client cert for consenter orderer.fabric2.standard.com:7050: open /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer.fabric2.standard.com/tls/server.crt: no such file or directory
+[34m2025-10-28 23:52:41.964 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/configtx/configtx.yaml
+[35m2025-10-28 23:52:41.965 UTC 0005 FATA[0m [common.tools.configtxgen] [35;1mmain[0m -> Error on outputBlock: could not create bootstrapper: could not create channel group: could not create orderer group: cannot marshal metadata for orderer type etcdraft: cannot load client cert for consenter orderer.fabric2.standard.com:7050: open /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer.fabric2.standard.com/tls/server.crt: no such file or directory
 + res=1
 Langkah 3: Deploy chaincode — skipped
   Perintah: ./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl javascript -c channel-standard
@@ -1220,14 +1220,14 @@ Error: Command failed: ./network.sh createChannel -c channel-standard -ca
 [34m2025-10-28 23:52:41.956 UTC 0001 INFO[0m [common.tools.configtxgen] [34;1mmain[0m -> Loading configuration
 [34m2025-10-28 23:52:41.964 UTC 0002 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> orderer type: etcdraft
 [34m2025-10-28 23:52:41.964 UTC 0003 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> Orderer.EtcdRaft.Options unset, setting to tick_interval:"500ms" election_tick:10 heartbeat_tick:1 max_inflight_blocks:5 snapshot_interval_size:16777216 
-[34m2025-10-28 23:52:41.964 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/configtx/configtx.yaml
-[35m2025-10-28 23:52:41.965 UTC 0005 FATA[0m [common.tools.configtxgen] [35;1mmain[0m -> Error on outputBlock: could not create bootstrapper: could not create channel group: could not create orderer group: cannot marshal metadata for orderer type etcdraft: cannot load client cert for consenter orderer.fabric2.standard.com:7050: open /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer.fabric2.standard.com/tls/server.crt: no such file or directory
+[34m2025-10-28 23:52:41.964 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/configtx/configtx.yaml
+[35m2025-10-28 23:52:41.965 UTC 0005 FATA[0m [common.tools.configtxgen] [35;1mmain[0m -> Error on outputBlock: could not create bootstrapper: could not create channel group: could not create orderer group: cannot marshal metadata for orderer type etcdraft: cannot load client cert for consenter orderer.fabric2.standard.com:7050: open /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer.fabric2.standard.com/tls/server.crt: no such file or directory
 + res=1
 
 
-[2025-10-28T23:53:15.473Z] Gagal menyalakan jaringan: RAFT Standard Network
+[2025-10-28T23:53:15.473Z] Gagal menyalakan jaringan: Fabric 2 Channel Standard Network
 Status: partial
-Direktori: /root/evaluasi-raft-hlf/fabric-2/raft-standard/network
+Direktori: /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network
 Pesan: Perintah ./network.sh createChannel -c channel-standard -ca gagal dijalankan.
 Tindakan: Periksa log penyalaan jaringan untuk rincian lebih lanjut.
 Langkah 1: Start core services — success
@@ -1272,8 +1272,8 @@ Langkah 2: Create channel — error
 [34m2025-10-28 23:53:15.461 UTC 0001 INFO[0m [common.tools.configtxgen] [34;1mmain[0m -> Loading configuration
 [34m2025-10-28 23:53:15.467 UTC 0002 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> orderer type: etcdraft
 [34m2025-10-28 23:53:15.467 UTC 0003 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> Orderer.EtcdRaft.Options unset, setting to tick_interval:"500ms" election_tick:10 heartbeat_tick:1 max_inflight_blocks:5 snapshot_interval_size:16777216 
-[34m2025-10-28 23:53:15.467 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/configtx/configtx.yaml
-[35m2025-10-28 23:53:15.468 UTC 0005 FATA[0m [common.tools.configtxgen] [35;1mmain[0m -> Error on outputBlock: could not create bootstrapper: could not create channel group: could not create orderer group: cannot marshal metadata for orderer type etcdraft: cannot load client cert for consenter orderer.fabric2.standard.com:7050: open /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer.fabric2.standard.com/tls/server.crt: no such file or directory
+[34m2025-10-28 23:53:15.467 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/configtx/configtx.yaml
+[35m2025-10-28 23:53:15.468 UTC 0005 FATA[0m [common.tools.configtxgen] [35;1mmain[0m -> Error on outputBlock: could not create bootstrapper: could not create channel group: could not create orderer group: cannot marshal metadata for orderer type etcdraft: cannot load client cert for consenter orderer.fabric2.standard.com:7050: open /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer.fabric2.standard.com/tls/server.crt: no such file or directory
 + res=1
 
   STDOUT: [0;34mUsing docker and docker-compose[0m
@@ -1283,15 +1283,15 @@ Network Running Already
 [0;34mUsing docker and docker-compose[0m
 [0;34mGenerating channel genesis block 'channel-standard.block'[0m
 [0;34mUsing organization 1[0m
-/root/evaluasi-raft-hlf/fabric-2/raft-standard/network/../bin/configtxgen
+/root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/../bin/configtxgen
 [0;31mFailed to generate channel configuration transaction...[0m
   STDERR: + '[' 0 -eq 1 ']'
 + configtxgen -profile ChannelUsingRaft -outputBlock ./channel-artifacts/channel-standard.block -channelID channel-standard
 [34m2025-10-28 23:53:15.461 UTC 0001 INFO[0m [common.tools.configtxgen] [34;1mmain[0m -> Loading configuration
 [34m2025-10-28 23:53:15.467 UTC 0002 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> orderer type: etcdraft
 [34m2025-10-28 23:53:15.467 UTC 0003 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> Orderer.EtcdRaft.Options unset, setting to tick_interval:"500ms" election_tick:10 heartbeat_tick:1 max_inflight_blocks:5 snapshot_interval_size:16777216 
-[34m2025-10-28 23:53:15.467 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/configtx/configtx.yaml
-[35m2025-10-28 23:53:15.468 UTC 0005 FATA[0m [common.tools.configtxgen] [35;1mmain[0m -> Error on outputBlock: could not create bootstrapper: could not create channel group: could not create orderer group: cannot marshal metadata for orderer type etcdraft: cannot load client cert for consenter orderer.fabric2.standard.com:7050: open /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer.fabric2.standard.com/tls/server.crt: no such file or directory
+[34m2025-10-28 23:53:15.467 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/configtx/configtx.yaml
+[35m2025-10-28 23:53:15.468 UTC 0005 FATA[0m [common.tools.configtxgen] [35;1mmain[0m -> Error on outputBlock: could not create bootstrapper: could not create channel group: could not create orderer group: cannot marshal metadata for orderer type etcdraft: cannot load client cert for consenter orderer.fabric2.standard.com:7050: open /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer.fabric2.standard.com/tls/server.crt: no such file or directory
 + res=1
 Langkah 3: Deploy chaincode — skipped
   Perintah: ./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl javascript -c channel-standard
@@ -1302,8 +1302,8 @@ Error: Command failed: ./network.sh createChannel -c channel-standard -ca
 [34m2025-10-28 23:53:15.461 UTC 0001 INFO[0m [common.tools.configtxgen] [34;1mmain[0m -> Loading configuration
 [34m2025-10-28 23:53:15.467 UTC 0002 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> orderer type: etcdraft
 [34m2025-10-28 23:53:15.467 UTC 0003 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> Orderer.EtcdRaft.Options unset, setting to tick_interval:"500ms" election_tick:10 heartbeat_tick:1 max_inflight_blocks:5 snapshot_interval_size:16777216 
-[34m2025-10-28 23:53:15.467 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/configtx/configtx.yaml
-[35m2025-10-28 23:53:15.468 UTC 0005 FATA[0m [common.tools.configtxgen] [35;1mmain[0m -> Error on outputBlock: could not create bootstrapper: could not create channel group: could not create orderer group: cannot marshal metadata for orderer type etcdraft: cannot load client cert for consenter orderer.fabric2.standard.com:7050: open /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer.fabric2.standard.com/tls/server.crt: no such file or directory
+[34m2025-10-28 23:53:15.467 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/configtx/configtx.yaml
+[35m2025-10-28 23:53:15.468 UTC 0005 FATA[0m [common.tools.configtxgen] [35;1mmain[0m -> Error on outputBlock: could not create bootstrapper: could not create channel group: could not create orderer group: cannot marshal metadata for orderer type etcdraft: cannot load client cert for consenter orderer.fabric2.standard.com:7050: open /root/evaluasi-raft-hlf/fabric-2/fabric2-channel-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer.fabric2.standard.com/tls/server.crt: no such file or directory
 + res=1
 
 

@@ -2,9 +2,9 @@
 
 Repositori ini berisi dua set sumber daya untuk mengevaluasi konsensus RAFT pada Hyperledger Fabric:
 
-- **fabric-2/raft-standard** – konfigurasi dan artefak standar sesuai dokumentasi resmi Hyperledger Fabric.
-- **fabric-2/raft-variant** – variasi konfigurasi yang memungkinkan eksperimen terhadap parameter jaringan dan komponen tertentu.
-- **fabric-3/raft-standard** – pembaruan baseline untuk Fabric v3 yang mempertahankan pola direktori v2 sekaligus membawa default terbaru dari skrip `test-network` resmi.
+- **fabric-2/fabric2-channel-standard** – konfigurasi dan artefak standar sesuai dokumentasi resmi Hyperledger Fabric.
+- **fabric-2/fabric2-channel-variant** – variasi konfigurasi yang memungkinkan eksperimen terhadap parameter jaringan dan komponen tertentu.
+- **fabric-3/fabric3-channel-standard** – pembaruan baseline untuk Fabric v3 yang mempertahankan pola direktori v2 sekaligus membawa default terbaru dari skrip `test-network` resmi.
 
 Selain dua paket utama tersebut, terdapat direktori pendukung untuk skrip utilitas dan antarmuka web.
 
@@ -14,16 +14,16 @@ Selain dua paket utama tersebut, terdapat direktori pendukung untuk skrip utilit
 .
 ├── bin/
 ├── fabric-2/
-│   ├── raft-standard/
+│   ├── fabric2-channel-standard/
 │   │   ├── chaincode/
 │   │   ├── config/
 │   │   └── network/
-│   └── raft-variant/
+│   └── fabric2-channel-variant/
 │       ├── chaincode/
 │       ├── config/
 │       └── network/
 ├── fabric-3/
-│   └── raft-standard/
+│   └── fabric3-channel-standard/
 │       ├── chaincode/
 │       ├── config/
 │       └── network/
@@ -34,8 +34,8 @@ Selain dua paket utama tersebut, terdapat direktori pendukung untuk skrip utilit
 - **bin/** – berisi binary CLI Hyperledger Fabric yang dibutuhkan oleh kedua skenario RAFT.
 - **web/** – modul antarmuka web untuk memantau atau mengelola jaringan percobaan.
 
-## RAFT Standard
-Direktori `fabric-2/raft-standard/` menyediakan baseline jaringan Fabric dengan konsensus RAFT standar. Komponennya terdiri dari:
+## Fabric 2 Channel Standard
+Direktori `fabric-2/fabric2-channel-standard/` menyediakan baseline jaringan Fabric dengan konsensus RAFT standar. Komponennya terdiri dari:
 
 - **chaincode/** – contoh chaincode yang digunakan dalam jaringan standar.
 - **config/** – contoh profil konfigurasi `configtx` dan parameter kanal bawaan.
@@ -46,8 +46,8 @@ Direktori `fabric-2/raft-standard/` menyediakan baseline jaringan Fabric dengan 
 
 Gunakan struktur ini ketika ingin mereplikasi perilaku RAFT sesuai praktik resmi Hyperledger Fabric.
 
-## Fabric 3 RAFT Standard
-Direktori `fabric-3/raft-standard/` menyajikan baseline terbaru berbasis Fabric v3 dengan struktur yang familiar:
+## Fabric 3 Channel Standard
+Direktori `fabric-3/fabric3-channel-standard/` menyajikan baseline terbaru berbasis Fabric v3 dengan struktur yang familiar:
 
 - **bin/** – kumpulan binary CLI terbaru hasil distribusi Fabric v3. Pastikan direktori ini masuk ke dalam variabel `PATH` atau jalankan skrip `env.sh` di akar direktori untuk mengekspor `PATH`, `FABRIC_CFG_PATH`, dan `COMPOSE_PROJECT_NAME` secara otomatis.
 - **chaincode/** – contoh chaincode Node.js `pelaporan` yang dapat dijadikan baseline aplikasi saat menguji Fabric 3.
@@ -59,8 +59,8 @@ Direktori `fabric-3/raft-standard/` menyajikan baseline terbaru berbasis Fabric 
 
 Paket ini dapat digunakan sebagai starting point ketika ingin membandingkan perilaku RAFT di Fabric 3 terhadap baseline Fabric 2 tanpa mengubah kebiasaan kerja tim.
 
-## RAFT Variant
-Direktori `fabric-2/raft-variant/` memiliki struktur yang sama dengan paket standar agar mudah dibandingkan, namun isinya dioptimalkan untuk eksperimen atau penyesuaian lebih lanjut:
+## Fabric 2 Channel Variant
+Direktori `fabric-2/fabric2-channel-variant/` memiliki struktur yang sama dengan paket standar agar mudah dibandingkan, namun isinya dioptimalkan untuk eksperimen atau penyesuaian lebih lanjut:
 
 - **chaincode/** – ruang untuk chaincode alternatif atau versi modifikasi yang digunakan dalam skenario uji.
 - **config/** – konfigurasi yang dapat diubah untuk mengevaluasi parameter RAFT (misalnya jumlah orderer, timeout, atau kanal khusus).
@@ -70,7 +70,7 @@ Variasi ini memudahkan Anda melakukan A/B testing terhadap perubahan pada layer 
 
 ## Cara Menggunakan
 1. Pastikan binary pada direktori `bin/` sudah dapat dieksekusi di lingkungan Anda.
-2. Pilih skenario `fabric-2/raft-standard`, `fabric-2/raft-variant`, atau baseline terbaru `fabric-3/raft-standard`.
+2. Pilih skenario `fabric-2/fabric2-channel-standard`, `fabric-2/fabric2-channel-variant`, atau baseline terbaru `fabric-3/fabric3-channel-standard`.
 3. Ubah konfigurasi yang diperlukan di dalam folder `config/` dan `network/` pada skenario tersebut.
 4. Jalankan skrip `network.sh` di masing-masing direktori `network/` untuk menyalakan atau mematikan jaringan uji.
 5. Setelah jaringan siap, jalankan pemeriksaan integrasi dengan perintah:

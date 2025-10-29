@@ -17,8 +17,8 @@ const defaultPeerEndpoint = 'localhost:7051';
 const networkTargets = [
     {
         id: 'channel-standard',
-        label: 'RAFT Standard',
-        networkDir: path.resolve(__dirname, '../../fabric-2/raft-standard/network'),
+        label: 'Fabric 2 Channel Standard',
+        networkDir: path.resolve(__dirname, '../../fabric-2/fabric2-channel-standard/network'),
         channelName: 'channel-standard',
         peerEndpoint: 'localhost:7051',
         domain: 'standard.com',
@@ -26,8 +26,8 @@ const networkTargets = [
     },
     {
         id: 'channel-variant',
-        label: 'RAFT Variant',
-        networkDir: path.resolve(__dirname, '../../fabric-2/raft-variant/network'),
+        label: 'Fabric 2 Channel Variant',
+        networkDir: path.resolve(__dirname, '../../fabric-2/fabric2-channel-variant/network'),
         channelName: 'channel-variant',
         peerEndpoint: 'localhost:7052',
         domain: 'variant.com',
@@ -35,8 +35,8 @@ const networkTargets = [
     },
     {
         id: 'channel-fabric3-standard',
-        label: 'Fabric 3 RAFT Standard',
-        networkDir: path.resolve(__dirname, '../../fabric-3/raft-standard/network'),
+        label: 'Fabric 3 Channel Standard',
+        networkDir: path.resolve(__dirname, '../../fabric-3/fabric3-channel-standard/network'),
         channelName: 'channel-standard',
         peerEndpoint: 'localhost:7051',
         domain: 'fabric3.standard',

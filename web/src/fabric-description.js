@@ -5,26 +5,47 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const STANDARD_NETWORK_ROOT = path.resolve(__dirname, '..', '..', 'fabric-2', 'raft-standard', 'network');
-const VARIANT_NETWORK_ROOT = path.resolve(__dirname, '..', '..', 'fabric-2', 'raft-variant', 'network');
-const FABRIC3_STANDARD_NETWORK_ROOT = path.resolve(__dirname, '..', '..', 'fabric-3', 'raft-standard', 'network');
+const STANDARD_NETWORK_ROOT = path.resolve(
+    __dirname,
+    '..',
+    '..',
+    'fabric-2',
+    'fabric2-channel-standard',
+    'network',
+);
+const VARIANT_NETWORK_ROOT = path.resolve(
+    __dirname,
+    '..',
+    '..',
+    'fabric-2',
+    'fabric2-channel-variant',
+    'network',
+);
+const FABRIC3_STANDARD_NETWORK_ROOT = path.resolve(
+    __dirname,
+    '..',
+    '..',
+    'fabric-3',
+    'fabric3-channel-standard',
+    'network',
+);
 
 const NETWORK_SOURCES = [
     {
-        id: 'raft-standard',
-        label: 'RAFT Standard',
+        id: 'fabric2-channel-standard',
+        label: 'Fabric 2 Channel Standard',
         root: STANDARD_NETWORK_ROOT,
         ordererServiceName: 'orderer.fabric2.standard.com',
     },
     {
-        id: 'raft-variant',
-        label: 'RAFT Variant',
+        id: 'fabric2-channel-variant',
+        label: 'Fabric 2 Channel Variant',
         root: VARIANT_NETWORK_ROOT,
         ordererServiceName: 'orderer.fabric2.variant.com',
     },
     {
-        id: 'fabric3-raft-standard',
-        label: 'Fabric 3 RAFT Standard',
+        id: 'fabric3-channel-standard',
+        label: 'Fabric 3 Channel Standard',
         root: FABRIC3_STANDARD_NETWORK_ROOT,
         ordererServiceName: 'orderer.fabric3.standard',
     },

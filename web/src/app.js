@@ -164,26 +164,26 @@ async function logNetworkStartupFailure(result) {
 const NETWORK_SHUTDOWN_TARGETS = [
     {
         id: 'standard',
-        label: 'RAFT Standard Network',
-        directory: path.resolve(__dirname, '../../fabric-2/raft-standard/network'),
+        label: 'Fabric 2 Channel Standard Network',
+        directory: path.resolve(__dirname, '../../fabric-2/fabric2-channel-standard/network'),
     },
     {
         id: 'variant',
-        label: 'RAFT Variant Network',
-        directory: path.resolve(__dirname, '../../fabric-2/raft-variant/network'),
+        label: 'Fabric 2 Channel Variant Network',
+        directory: path.resolve(__dirname, '../../fabric-2/fabric2-channel-variant/network'),
     },
     {
         id: 'fabric3-standard',
-        label: 'Fabric 3 RAFT Standard Network',
-        directory: path.resolve(__dirname, '../../fabric-3/raft-standard/network'),
+        label: 'Fabric 3 Channel Standard Network',
+        directory: path.resolve(__dirname, '../../fabric-3/fabric3-channel-standard/network'),
     },
 ];
 
 const NETWORK_START_TARGETS = [
     {
         id: 'standard',
-        label: 'RAFT Standard Network',
-        directory: path.resolve(__dirname, '../../fabric-2/raft-standard/network'),
+        label: 'Fabric 2 Channel Standard Network',
+        directory: path.resolve(__dirname, '../../fabric-2/fabric2-channel-standard/network'),
         channel: 'channel-standard',
         commands: [
             {
@@ -216,8 +216,8 @@ const NETWORK_START_TARGETS = [
     },
     {
         id: 'variant',
-        label: 'RAFT Variant Network',
-        directory: path.resolve(__dirname, '../../fabric-2/raft-variant/network'),
+        label: 'Fabric 2 Channel Variant Network',
+        directory: path.resolve(__dirname, '../../fabric-2/fabric2-channel-variant/network'),
         channel: 'channel-variant',
         commands: [
             {
@@ -251,8 +251,8 @@ const NETWORK_START_TARGETS = [
     },
     {
         id: 'fabric3-standard',
-        label: 'Fabric 3 RAFT Standard Network',
-        directory: path.resolve(__dirname, '../../fabric-3/raft-standard/network'),
+        label: 'Fabric 3 Channel Standard Network',
+        directory: path.resolve(__dirname, '../../fabric-3/fabric3-channel-standard/network'),
         channel: 'channel-standard',
         commands: [
             {

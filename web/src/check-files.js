@@ -8,8 +8,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Define paths to check
-const standardNetworkPath = path.resolve(__dirname, '../../fabric-2/raft-standard/network');
-const variantNetworkPath = path.resolve(__dirname, '../../fabric-2/raft-variant/network');
+const standardNetworkPath = path.resolve(__dirname, '../../fabric-2/fabric2-channel-standard/network');
+const variantNetworkPath = path.resolve(__dirname, '../../fabric-2/fabric2-channel-variant/network');
 
 const networkCandidates = [
   standardNetworkPath,
@@ -66,7 +66,7 @@ async function checkFiles() {
     console.log(`1. Make sure the network is running: cd ${standardNetworkPath} && ./network.sh up -ca && ./network.sh createChannel -c channel-standard -ca`);
     console.log(`   (use ${variantNetworkPath} if you are relying on the variant Fabric network)`);
     console.log(`2. Make sure the chaincode is deployed: cd ${standardNetworkPath} && ./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl javascript`);
-    console.log(`   (use ${variantNetworkPath} for the RAFT Variant network when deploying chaincode)`);
+    console.log(`   (use ${variantNetworkPath} for the Fabric 2 Channel Variant network when deploying chaincode)`);
     console.log('3. Check that the crypto materials are generated in the correct location');
 
     return false;

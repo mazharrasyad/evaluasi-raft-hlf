@@ -13,13 +13,13 @@ const __dirname = path.dirname(__filename);
 // Configuration
 const mspId = 'Org1MSP';
 const chaincodeName = 'pelaporan';
-const standardNetworkDir = path.resolve(__dirname, '../../fabric-2/raft-standard/network');
-const variantNetworkDir = path.resolve(__dirname, '../../fabric-2/raft-variant/network');
-const fabric3StandardNetworkDir = path.resolve(__dirname, '../../fabric-3/raft-standard/network');
+const standardNetworkDir = path.resolve(__dirname, '../../fabric-2/fabric2-channel-standard/network');
+const variantNetworkDir = path.resolve(__dirname, '../../fabric-2/fabric2-channel-variant/network');
+const fabric3StandardNetworkDir = path.resolve(__dirname, '../../fabric-3/fabric3-channel-standard/network');
 
 const networkConfigurations = [
     {
-        label: 'RAFT Standard',
+        label: 'Fabric 2 Channel Standard',
         networkDir: standardNetworkDir,
         channelName: 'channel-standard',
         peerEndpoint: 'localhost:7051',
@@ -31,7 +31,7 @@ const networkConfigurations = [
         }
     },
     {
-        label: 'RAFT Variant',
+        label: 'Fabric 2 Channel Variant',
         networkDir: variantNetworkDir,
         channelName: 'channel-variant',
         peerEndpoint: 'localhost:7052',
@@ -43,7 +43,7 @@ const networkConfigurations = [
         }
     },
     {
-        label: 'Fabric 3 RAFT Standard',
+        label: 'Fabric 3 Channel Standard',
         networkDir: fabric3StandardNetworkDir,
         channelName: 'channel-standard',
         peerEndpoint: 'localhost:7051',

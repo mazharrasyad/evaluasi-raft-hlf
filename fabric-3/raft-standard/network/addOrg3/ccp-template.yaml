@@ -11,20 +11,20 @@ organizations:
   Org${ORG}:
     mspid: Org${ORG}MSP
     peers:
-    - peer0.org${ORG}.standard.com
+    - peer0.org${ORG}.fabric3.standard
     certificateAuthorities:
-    - ca.org${ORG}.standard.com
+    - ca.org${ORG}.fabric3.standard
 peers:
-  peer0.org${ORG}.standard.com:
+  peer0.org${ORG}.fabric3.standard:
     url: grpcs://localhost:${P0PORT}
     tlsCACerts:
       pem: |
           ${PEERPEM}
     grpcOptions:
-      ssl-target-name-override: peer0.org${ORG}.standard.com
-      hostnameOverride: peer0.org${ORG}.standard.com
+      ssl-target-name-override: peer0.org${ORG}.fabric3.standard
+      hostnameOverride: peer0.org${ORG}.fabric3.standard
 certificateAuthorities:
-  ca.org${ORG}.standard.com:
+  ca.org${ORG}.fabric3.standard:
     url: https://localhost:${CAPORT}
     caName: ca-org${ORG}
     tlsCACerts:

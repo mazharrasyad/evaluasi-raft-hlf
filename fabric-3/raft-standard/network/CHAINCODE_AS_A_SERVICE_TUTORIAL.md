@@ -59,8 +59,8 @@ To test things are working you can invoke the 'Contract Metadata' function. For 
 
 export CORE_PEER_TLS_ENABLED=true
 export CORE_PEER_LOCALMSPID=Org1MSP
-export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org1.standard.com/tlsca/tlsca.org1.standard.com-cert.pem
-export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org1.standard.com/users/Admin@org1.standard.com/msp
+export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org1.fabric3.standard/tlsca/tlsca.org1.fabric3.standard-cert.pem
+export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org1.fabric3.standard/users/Admin@org1.fabric3.standard/msp
 export CORE_PEER_ADDRESS=localhost:7051
 export PATH=${PWD}/../bin:$PATH
 export FABRIC_CFG_PATH=${PWD}/../config

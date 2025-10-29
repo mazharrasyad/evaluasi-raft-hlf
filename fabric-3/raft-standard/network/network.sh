@@ -26,18 +26,18 @@ export VERBOSE=false
 export COMPOSE_PROJECT_NAME
 
 VOLUME_SUFFIXES=(
-  "orderer.fabric2.standard.com"
-  "orderer2.standard.com"
-  "orderer3.standard.com"
-  "orderer4.standard.com"
-  "peer0.org1.fabric2.standard.com"
-  "peer0.org2.fabric2.standard.com"
+  "orderer.fabric3.standard"
+  "orderer2.fabric3.standard"
+  "orderer3.fabric3.standard"
+  "orderer4.fabric3.standard"
+  "peer0.org1.fabric3.standard"
+  "peer0.org2.fabric3.standard"
 )
 
 LEGACY_VOLUME_SUFFIXES=(
-  "orderer.fabric2.standard.com"
-  "peer0.org1.fabric2.standard.com"
-  "peer0.org2.standard.com"
+  "orderer.fabric3.standard"
+  "peer0.org1.fabric3.standard"
+  "peer0.org2.fabric3.standard"
 )
 
 # push to the required directory & set a trap to go back if needed
@@ -223,18 +223,18 @@ function createOrgs() {
 
     . organizations/cfssl/registerEnroll.sh
     #function_name cert-type   CN   org
-    peer_cert peer peer0.org1.fabric2.standard.com org1
-    peer_cert admin Admin@org1.standard.com org1
+    peer_cert peer peer0.org1.fabric3.standard org1
+    peer_cert admin Admin@org1.fabric3.standard org1
 
     infoln "Creating Org2 Identities"
     #function_name cert-type   CN   org
-    peer_cert peer peer0.org2.fabric2.standard.com org2
-    peer_cert admin Admin@org2.standard.com org2
+    peer_cert peer peer0.org2.fabric3.standard org2
+    peer_cert admin Admin@org2.fabric3.standard org2
 
     infoln "Creating Orderer Org Identities"
     #function_name cert-type   CN   
-    orderer_cert orderer orderer.fabric2.standard.com
-    orderer_cert admin Admin@standard.com
+    orderer_cert orderer orderer.fabric3.standard
+    orderer_cert admin Admin@fabric3.standard
 
   fi 
 
@@ -256,7 +256,7 @@ function createOrgs() {
     done
 
     # Make sure CA service is initialized and can accept requests before making register and enroll calls
-    export FABRIC_CA_CLIENT_HOME=${PWD}/organizations/peerOrganizations/org1.standard.com/
+    export FABRIC_CA_CLIENT_HOME=${PWD}/organizations/peerOrganizations/org1.fabric3.standard/
     COUNTER=0
     rc=1
     while [[ $rc -ne 0 && $COUNTER -lt $MAX_RETRY ]]; do

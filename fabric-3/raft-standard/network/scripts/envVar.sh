@@ -18,10 +18,10 @@ TEST_NETWORK_HOME=${TEST_NETWORK_HOME:-${PWD}}
 . ${TEST_NETWORK_HOME}/scripts/utils.sh
 
 export CORE_PEER_TLS_ENABLED=true
-export ORDERER_CA=${TEST_NETWORK_HOME}/organizations/ordererOrganizations/standard.com/tlsca/tlsca.standard.com-cert.pem
-export PEER0_ORG1_CA=${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.standard.com/tlsca/tlsca.org1.standard.com-cert.pem
-export PEER0_ORG2_CA=${TEST_NETWORK_HOME}/organizations/peerOrganizations/org2.standard.com/tlsca/tlsca.org2.standard.com-cert.pem
-export PEER0_ORG3_CA=${TEST_NETWORK_HOME}/organizations/peerOrganizations/org3.standard.com/tlsca/tlsca.org3.standard.com-cert.pem
+export ORDERER_CA=${TEST_NETWORK_HOME}/organizations/ordererOrganizations/fabric3.standard/tlsca/tlsca.fabric3.standard-cert.pem
+export PEER0_ORG1_CA=${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.fabric3.standard/tlsca/tlsca.org1.fabric3.standard-cert.pem
+export PEER0_ORG2_CA=${TEST_NETWORK_HOME}/organizations/peerOrganizations/org2.fabric3.standard/tlsca/tlsca.org2.fabric3.standard-cert.pem
+export PEER0_ORG3_CA=${TEST_NETWORK_HOME}/organizations/peerOrganizations/org3.fabric3.standard/tlsca/tlsca.org3.fabric3.standard-cert.pem
 
 # Set environment variables for the peer org
 setGlobals() {
@@ -35,17 +35,17 @@ setGlobals() {
   if [ $USING_ORG -eq 1 ]; then
     export CORE_PEER_LOCALMSPID=Org1MSP
     export CORE_PEER_TLS_ROOTCERT_FILE=$PEER0_ORG1_CA
-    export CORE_PEER_MSPCONFIGPATH=${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.standard.com/users/Admin@org1.standard.com/msp
+    export CORE_PEER_MSPCONFIGPATH=${TEST_NETWORK_HOME}/organizations/peerOrganizations/org1.fabric3.standard/users/Admin@org1.fabric3.standard/msp
     export CORE_PEER_ADDRESS=localhost:7051
   elif [ $USING_ORG -eq 2 ]; then
     export CORE_PEER_LOCALMSPID=Org2MSP
     export CORE_PEER_TLS_ROOTCERT_FILE=$PEER0_ORG2_CA
-    export CORE_PEER_MSPCONFIGPATH=${TEST_NETWORK_HOME}/organizations/peerOrganizations/org2.standard.com/users/Admin@org2.standard.com/msp
+    export CORE_PEER_MSPCONFIGPATH=${TEST_NETWORK_HOME}/organizations/peerOrganizations/org2.fabric3.standard/users/Admin@org2.fabric3.standard/msp
     export CORE_PEER_ADDRESS=localhost:9051
   elif [ $USING_ORG -eq 3 ]; then
     export CORE_PEER_LOCALMSPID=Org3MSP
     export CORE_PEER_TLS_ROOTCERT_FILE=$PEER0_ORG3_CA
-    export CORE_PEER_MSPCONFIGPATH=${TEST_NETWORK_HOME}/organizations/peerOrganizations/org3.standard.com/users/Admin@org3.standard.com/msp
+    export CORE_PEER_MSPCONFIGPATH=${TEST_NETWORK_HOME}/organizations/peerOrganizations/org3.fabric3.standard/users/Admin@org3.fabric3.standard/msp
     export CORE_PEER_ADDRESS=localhost:11051
   else
     errorln "ORG Unknown"

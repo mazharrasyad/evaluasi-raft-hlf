@@ -22,7 +22,7 @@ export PATH=${ROOTDIR}/../bin:${PWD}/../bin:$PATH
 export FABRIC_CFG_PATH=${PWD}/configtx
 export VERBOSE=false
 
-: ${COMPOSE_PROJECT_NAME:="raftstandard"}
+: ${COMPOSE_PROJECT_NAME:="raftstandard3"}
 export COMPOSE_PROJECT_NAME
 
 VOLUME_SUFFIXES=(
@@ -58,7 +58,7 @@ infoln "Using ${CONTAINER_CLI} and ${CONTAINER_CLI_COMPOSE}"
 # This function is called when you bring a network down
 function clearContainers() {
   infoln "Removing remaining containers"
-  local network_filter="network=fabric_raft_standard_net"
+  local network_filter="network=fabric3_raft_standard_net"
   ${CONTAINER_CLI} rm -f $(${CONTAINER_CLI} ps -aq --filter label=raft-network=raft-standard) 2>/dev/null || true
   ${CONTAINER_CLI} rm -f $(${CONTAINER_CLI} ps -aq --filter name='dev-peer*' --filter ${network_filter}) 2>/dev/null || true
   ${CONTAINER_CLI} kill "$(${CONTAINER_CLI} ps -q --filter name=ccaas --filter ${network_filter})" 2>/dev/null || true

@@ -7,13 +7,14 @@ version: '3.7'
 
 networks:
   test:
-    name: fabric_test
+    name: fabric_raft_standard_net
 
 services:
   ca_org3:
     image: hyperledger/fabric-ca:latest
     labels:
       service: hyperledger-fabric
+      raft-network: raft-standard
     environment:
       - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
       - FABRIC_CA_SERVER_CA_NAME=ca-org3

@@ -22,6 +22,24 @@ export PATH=${ROOTDIR}/../bin:${PWD}/../bin:$PATH
 export FABRIC_CFG_PATH=${PWD}/configtx
 export VERBOSE=false
 
+: ${COMPOSE_PROJECT_NAME:="raftstandard"}
+export COMPOSE_PROJECT_NAME
+
+VOLUME_SUFFIXES=(
+  "orderer.fabric2.standard.com"
+  "orderer2.standard.com"
+  "orderer3.standard.com"
+  "orderer4.standard.com"
+  "peer0.org1.fabric2.standard.com"
+  "peer0.org2.fabric2.standard.com"
+)
+
+LEGACY_VOLUME_SUFFIXES=(
+  "orderer.fabric2.standard.com"
+  "peer0.org1.fabric2.standard.com"
+  "peer0.org2.standard.com"
+)
+
 # push to the required directory & set a trap to go back if needed
 pushd ${ROOTDIR} > /dev/null
 trap "popd > /dev/null" EXIT
@@ -40,9 +58,10 @@ infoln "Using ${CONTAINER_CLI} and ${CONTAINER_CLI_COMPOSE}"
 # This function is called when you bring a network down
 function clearContainers() {
   infoln "Removing remaining containers"
-  ${CONTAINER_CLI} rm -f $(${CONTAINER_CLI} ps -aq --filter label=service=hyperledger-fabric) 2>/dev/null || true
-  ${CONTAINER_CLI} rm -f $(${CONTAINER_CLI} ps -aq --filter name='dev-peer*') 2>/dev/null || true
-  ${CONTAINER_CLI} kill "$(${CONTAINER_CLI} ps -q --filter name=ccaas)" 2>/dev/null || true
+  local network_filter="network=fabric_raft_standard_net"
+  ${CONTAINER_CLI} rm -f $(${CONTAINER_CLI} ps -aq --filter label=raft-network=raft-standard) 2>/dev/null || true
+  ${CONTAINER_CLI} rm -f $(${CONTAINER_CLI} ps -aq --filter name='dev-peer*' --filter ${network_filter}) 2>/dev/null || true
+  ${CONTAINER_CLI} kill "$(${CONTAINER_CLI} ps -q --filter name=ccaas --filter ${network_filter})" 2>/dev/null || true
 }
 
 # Delete any images that were generated as a part of this setup
@@ -204,18 +223,18 @@ function createOrgs() {
 
     . organizations/cfssl/registerEnroll.sh
     #function_name cert-type   CN   org
-    peer_cert peer peer0.org1.example.com org1
-    peer_cert admin Admin@org1.example.com org1
+    peer_cert peer peer0.org1.fabric2.standard.com org1
+    peer_cert admin Admin@org1.standard.com org1
 
     infoln "Creating Org2 Identities"
     #function_name cert-type   CN   org
-    peer_cert peer peer0.org2.example.com org2
-    peer_cert admin Admin@org2.example.com org2
+    peer_cert peer peer0.org2.fabric2.standard.com org2
+    peer_cert admin Admin@org2.standard.com org2
 
     infoln "Creating Orderer Org Identities"
     #function_name cert-type   CN   
-    orderer_cert orderer orderer.example.com
-    orderer_cert admin Admin@example.com
+    orderer_cert orderer orderer.fabric2.standard.com
+    orderer_cert admin Admin@standard.com
 
   fi 
 
@@ -237,7 +256,7 @@ function createOrgs() {
     done
 
     # Make sure CA service is initialized and can accept requests before making register and enroll calls
-    export FABRIC_CA_CLIENT_HOME=${PWD}/organizations/peerOrganizations/org1.example.com/
+    export FABRIC_CA_CLIENT_HOME=${PWD}/organizations/peerOrganizations/org1.standard.com/
     COUNTER=0
     rc=1
     while [[ $rc -ne 0 && $COUNTER -lt $MAX_RETRY ]]; do
@@ -458,7 +477,19 @@ function networkDown() {
   # Don't remove the generated artifacts -- note, the ledgers are always removed
   if [ "$MODE" != "restart" ]; then
     # Bring down the network, deleting the volumes
-    ${CONTAINER_CLI} volume rm docker_orderer.example.com docker_peer0.org1.example.com docker_peer0.org2.example.com
+    local volume_prefix="${COMPOSE_PROJECT_NAME}_"
+
+    for suffix in "${VOLUME_SUFFIXES[@]}"; do
+      ${CONTAINER_CLI} volume rm "${volume_prefix}${suffix}" >/dev/null 2>&1 || true
+    done
+
+    for suffix in "${LEGACY_VOLUME_SUFFIXES[@]}"; do
+      ${CONTAINER_CLI} volume rm "${volume_prefix}${suffix}" >/dev/null 2>&1 || true
+    done
+
+    for suffix in "${VOLUME_SUFFIXES[@]}" "${LEGACY_VOLUME_SUFFIXES[@]}"; do
+      ${CONTAINER_CLI} volume rm "docker_${suffix}" >/dev/null 2>&1 || true
+    done
     #Cleanup the chaincode containers
     clearContainers
     #Cleanup images

@@ -27,7 +27,7 @@ if [[ ${ORG,,} == "org1" || ${ORG,,} == "digibank" ]]; then
 elif [[ ${ORG,,} == "org2" || ${ORG,,} == "magnetocorp" ]]; then
    CORE_PEER_LOCALMSPID=Org2MSP
    CORE_PEER_MSPCONFIGPATH=${DIR}/network/organizations/peerOrganizations/org2.fabric3.standard/users/Admin@org2.fabric3.standard/msp
-   CORE_PEER_ADDRESS=localhost:9051
+   CORE_PEER_ADDRESS=localhost:9053
    CORE_PEER_TLS_ROOTCERT_FILE=${DIR}/network/organizations/peerOrganizations/org2.fabric3.standard/tlsca/tlsca.org2.fabric3.standard-cert.pem
 
 else

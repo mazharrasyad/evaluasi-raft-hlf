@@ -467,8 +467,28 @@ function queryChaincode() {
 # Tear down running network
 function networkDown() {
   local temp_compose=$COMPOSE_FILE_BASE
-  COMPOSE_FILE_BASE=compose-bft-test-net.yaml
-  COMPOSE_BASE_FILES="-f compose/${COMPOSE_FILE_BASE} -f compose/${CONTAINER_CLI}/${CONTAINER_CLI}-${COMPOSE_FILE_BASE}"
+  local shutdown_compose=$COMPOSE_FILE_BASE
+
+  if [ $BFT -eq 1 ]; then
+    shutdown_compose=compose-bft-test-net.yaml
+  fi
+
+  local shutdown_cli_compose="compose/${CONTAINER_CLI}/${CONTAINER_CLI}-${shutdown_compose}"
+
+  if [ ! -f "${shutdown_cli_compose}" ]; then
+    if [ "${shutdown_compose}" != "${temp_compose}" ]; then
+      warnln "BFT compose file ${shutdown_cli_compose} not found, falling back to ${temp_compose}."
+    fi
+    shutdown_compose=$temp_compose
+    shutdown_cli_compose="compose/${CONTAINER_CLI}/${CONTAINER_CLI}-${shutdown_compose}"
+  fi
+
+  if [ ! -f "${shutdown_cli_compose}" ]; then
+    fatalln "Required compose file ${shutdown_cli_compose} not found."
+  fi
+
+  COMPOSE_FILE_BASE=$shutdown_compose
+  COMPOSE_BASE_FILES="-f compose/${COMPOSE_FILE_BASE} -f ${shutdown_cli_compose}"
   COMPOSE_COUCH_FILES="-f compose/${COMPOSE_FILE_COUCH} -f compose/${CONTAINER_CLI}/${CONTAINER_CLI}-${COMPOSE_FILE_COUCH}"
   COMPOSE_CA_FILES="-f compose/${COMPOSE_FILE_CA} -f compose/${CONTAINER_CLI}/${CONTAINER_CLI}-${COMPOSE_FILE_CA}"
   COMPOSE_FILES="${COMPOSE_BASE_FILES} ${COMPOSE_COUCH_FILES} ${COMPOSE_CA_FILES}"

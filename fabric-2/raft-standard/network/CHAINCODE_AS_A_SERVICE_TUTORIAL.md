@@ -66,7 +66,7 @@ export PATH=${PWD}/../bin:$PATH
 export FABRIC_CFG_PATH=${PWD}/../config
 
 # invoke the function
-peer chaincode query -C channel-standard -n basicts -c '{"Args":["org.hyperledger.fabric:GetMetadata"]}' | jq
+peer chaincode query -C fabric2-channel-standard -n basicts -c '{"Args":["org.hyperledger.fabric:GetMetadata"]}' | jq
 ```
 
 If you don't have `jq` installed omit `| jq`.  The metadata shows the details of the deployed contract and is JSON, so jq makes it easier to read.  You can repeat the above commands for org2 to confirm that is working.

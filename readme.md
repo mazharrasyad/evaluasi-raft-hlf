@@ -43,6 +43,7 @@ Direktori `fabric-2/raft-standard/` menyediakan baseline jaringan Fabric dengan 
   - `network.sh`, `monitordocker.sh`, dan folder `scripts/` untuk orkestrasi jaringan.
   - folder `organizations/` dan `configtx/` untuk artefak MSP serta konfigurasi genesis.
   - dukungan monitoring (folder `prometheus-grafana/`) dan dokumentasi tambahan.
+  - berkas `network.config` dengan parameter default seperti nama kanal (`fabric2-channel-standard`).
 
 Gunakan struktur ini ketika ingin mereplikasi perilaku RAFT sesuai praktik resmi Hyperledger Fabric.
 
@@ -65,6 +66,7 @@ Direktori `fabric-2/raft-variant/` memiliki struktur yang sama dengan paket stan
 - **chaincode/** – ruang untuk chaincode alternatif atau versi modifikasi yang digunakan dalam skenario uji.
 - **config/** – konfigurasi yang dapat diubah untuk mengevaluasi parameter RAFT (misalnya jumlah orderer, timeout, atau kanal khusus).
 - **network/** – salinan skrip jaringan dengan penyesuaian yang memudahkan perbandingan terhadap baseline, termasuk folder `configtx/`, `organizations/`, dan utilitas orkestrasi lainnya.
+  - berkas `network.config` dengan parameter default seperti nama kanal (`fabric2-channel-variant`).
 
 Variasi ini memudahkan Anda melakukan A/B testing terhadap perubahan pada layer konsensus maupun komponen jaringan lainnya tanpa mengubah baseline standar.
 

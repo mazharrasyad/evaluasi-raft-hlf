@@ -26,7 +26,7 @@ createAnchorPeerUpdate() {
     HOST="peer0.org1.fabric2.standard.com"
     PORT=7051
   elif [ $ORG -eq 2 ]; then
-    HOST="peer0.org2.standard.com"
+    HOST="peer0.org2.fabric2.standard.com"
     PORT=9051
   elif [ $ORG -eq 3 ]; then
     HOST="peer0.org3.standard.com"

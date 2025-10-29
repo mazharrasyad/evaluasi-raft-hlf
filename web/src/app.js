@@ -253,7 +253,7 @@ const NETWORK_START_TARGETS = [
         id: 'fabric3-standard',
         label: 'Fabric 3 RAFT Standard Network',
         directory: path.resolve(__dirname, '../../fabric-3/raft-standard/network'),
-        channel: 'channel-standard',
+        channel: 'fabric3-channel-standard',
         commands: [
             {
                 label: 'Start core services',
@@ -262,8 +262,8 @@ const NETWORK_START_TARGETS = [
             },
             {
                 label: 'Create channel',
-                args: ['createChannel'],
-                displayCommand: './network.sh createChannel',
+                args: ['createChannel', '-c', 'fabric3-channel-standard'],
+                displayCommand: './network.sh createChannel -c fabric3-channel-standard',
             },
             {
                 label: 'Deploy chaincode',
@@ -275,8 +275,11 @@ const NETWORK_START_TARGETS = [
                     '../chaincode/pelaporan',
                     '-ccl',
                     'node',
+                    '-c',
+                    'fabric3-channel-standard',
                 ],
-                displayCommand: './network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl node',
+                displayCommand:
+                    './network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl node -c fabric3-channel-standard',
             },
         ],
     },

@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Status Network Blockchain &mdash; Evaluasi RAFT HLF</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#38BDF8',
+                        secondary: '#6366F1',
+                        accent: '#F59E0B',
+                        highlight: '#F97316',
+                        soft: '#050B16',
+                        surface: '#0F172A',
+                        surfaceMuted: '#16213F',
+                        border: '#1E293B',
+                        muted: '#94A3B8',
+                        textdark: '#E2E8F0'
+                    }
+                }
+            }
+        };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="../images/logo-ai-center.svg">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+
+        .component-link[data-active="true"] {
+            background-color: rgba(99, 102, 241, 0.25);
+            color: #E2E8F0;
+            border-color: rgba(99, 102, 241, 0.45);
+        }
+
+        .component-link[data-active="true"] .component-link__index {
+            background-color: rgba(99, 102, 241, 0.45);
+            color: #E2E8F0;
+        }
+    </style>
+</head>
+<body class="bg-soft text-textdark">
+    <div data-component="header"></div>
+    <div class="relative min-h-screen overflow-hidden">
+        <div class="absolute inset-0 -z-10 h-full w-full">
+            <div class="absolute -left-1/3 top-0 h-[720px] w-[720px] rounded-full bg-gradient-to-br from-secondary/30 via-primary/40 to-transparent opacity-70 blur-3xl"></div>
+            <div class="absolute -right-1/4 bottom-0 h-[620px] w-[620px] rounded-full bg-gradient-to-tr from-accent/40 via-secondary/20 to-primary/20 opacity-70 blur-3xl"></div>
+        </div>
+
+        <div class="flex min-h-screen flex-col lg:flex-row">
+            <div data-component="sidebar"></div>
+
+            <div class="flex-1">
+                <main class="mx-auto w-full max-w-6xl px-6 py-12">
+                    <div class="space-y-10">
+                        <section id="kesehatan-jaringan" class="rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20 backdrop-blur-sm">
+                            <header class="flex flex-col gap-2 border-b border-white/10 pb-6">
+                                <h1 class="text-3xl font-semibold text-textdark md:text-4xl">Status Network Blockchain</h1>
+                                <p class="text-sm text-textdark/70">Jalankan pemeriksaan <code>npm run check-network</code> secara langsung dari dashboard untuk memastikan setiap jaringan RAFT siap digunakan.</p>
+                            </header>
+                            <div class="mt-6 space-y-6">
+                                <div class="flex flex-col gap-2 rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6 text-sm text-textdark">
+                                    <p class="text-sm text-textdark/70">Pemeriksaan akan menghubungi peer utama pada klaster Fabric 3 dan menjalankan transaksi <code>GetAllCatatan</code> untuk memastikan chaincode merespons.</p>
+                                    <p class="text-xs text-textdark/50">Pastikan jaringan Hyperledger Fabric telah dijalankan sebelum memulai pemeriksaan.</p>
+                                </div>
+                                <div
+                                    class="flex flex-col gap-6 rounded-2xl border border-emerald-400/20 bg-emerald-500/5 p-6 shadow-inner"
+                                    data-fabric-scope="fabric-3"
+                                >
+                                    <header class="flex flex-col gap-2">
+                                        <p class="text-xs uppercase tracking-[0.3em] text-emerald-300">Fabric 3 controls</p>
+                                        <h2 class="text-xl font-semibold text-textdark">Kelola jaringan Fabric 3</h2>
+                                        <p class="text-sm text-textdark/70">Gunakan tombol berikut untuk menyalakan atau mematikan jaringan Fabric 3 RAFT Standard tanpa keluar dari dashboard.</p>
+                                    </header>
+                                    <div class="grid gap-4 md:grid-cols-2">
+                                        <article class="flex flex-col gap-3 rounded-2xl border border-white/10 bg-surface/60 p-5 shadow-lg shadow-black/10">
+                                            <header class="flex items-center justify-between">
+                                                <h3 class="text-sm font-semibold text-textdark">Mulai jaringan</h3>
+                                                <span class="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-300">Start</span>
+                                            </header>
+                                            <p class="text-xs text-textdark/70">Menjalankan rangkaian skrip <code>network.sh</code> untuk menyiapkan jaringan Fabric 3 RAFT Standard.</p>
+                                            <button
+                                                type="button"
+                                                class="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-300/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-emerald-300/40 transition duration-200 hover:-translate-y-0.5 hover:bg-emerald-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-200"
+                                                data-network-startup-button="fabric3-standard"
+                                                data-network-label="Fabric 3 RAFT Standard Network"
+                                            >
+                                                <span>Start Fabric 3</span>
+                                            </button>
+                                            <p
+                                                class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 py-2 text-xs font-medium text-textdark/80"
+                                                role="status"
+                                                aria-live="polite"
+                                                data-network-startup-status="fabric3-standard"
+                                                data-network-label="Fabric 3 RAFT Standard Network"
+                                                data-default-message="Belum ada perintah start yang dijalankan untuk jaringan Fabric 3 RAFT Standard."
+                                            >
+                                                <span data-indicator class="h-2 w-2 rounded-full bg-secondary"></span>
+                                                <span data-message>Belum ada perintah start yang dijalankan untuk jaringan Fabric 3 RAFT Standard.</span>
+                                            </p>
+                                        </article>
+                                        <article class="flex flex-col gap-3 rounded-2xl border border-white/10 bg-surface/60 p-5 shadow-lg shadow-black/10">
+                                            <header class="flex items-center justify-between">
+                                                <h3 class="text-sm font-semibold text-textdark">Matikan jaringan</h3>
+                                                <span class="text-xs font-semibold uppercase tracking-[0.3em] text-rose-300">Shutdown</span>
+                                            </header>
+                                            <p class="text-xs text-textdark/70">Menjalankan perintah <code>./network.sh down</code> pada direktori Fabric 3 RAFT Standard.</p>
+                                            <button
+                                                type="button"
+                                                class="inline-flex items-center justify-center gap-2 rounded-lg bg-rose-400/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-rose-400/40 transition duration-200 hover:-translate-y-0.5 hover:bg-rose-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-300"
+                                                data-network-shutdown-button="fabric3-standard"
+                                                data-network-label="Fabric 3 RAFT Standard Network"
+                                            >
+                                                <span>Shutdown Fabric 3</span>
+                                            </button>
+                                            <p
+                                                class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 py-2 text-xs font-medium text-textdark/80"
+                                                role="status"
+                                                aria-live="polite"
+                                                data-network-shutdown-status="fabric3-standard"
+                                                data-network-label="Fabric 3 RAFT Standard Network"
+                                                data-default-message="Belum ada perintah shutdown yang dijalankan untuk jaringan Fabric 3 RAFT Standard."
+                                            >
+                                                <span data-indicator class="h-2 w-2 rounded-full bg-secondary"></span>
+                                                <span data-message>Belum ada perintah shutdown yang dijalankan untuk jaringan Fabric 3 RAFT Standard.</span>
+                                            </p>
+                                        </article>
+                                    </div>
+                                </div>
+                                <div class="grid gap-4 md:grid-cols-2">
+                                    <article class="flex flex-col gap-4 rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6 shadow-lg shadow-black/20">
+                                        <header class="flex items-center justify-between">
+                                            <div>
+                                                <p class="text-xs uppercase tracking-[0.3em] text-secondary">Network actions</p>
+                                                <h2 class="text-lg font-semibold text-textdark">Check Fabric 3 Network</h2>
+                                            </div>
+                                            <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-secondary/20 text-secondary">⟳</span>
+                                        </header>
+                                        <p class="text-sm text-textdark/70">Jalankan pemeriksaan kesehatan untuk memastikan setiap komponen Fabric 3 merespons.</p>
+                                        <div class="flex flex-col gap-3">
+                                            <button type="button" id="networkCheckButton" class="inline-flex items-center justify-center gap-2 rounded-lg bg-secondary/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-textdark shadow-lg shadow-secondary/40 transition duration-200 hover:-translate-y-0.5 hover:bg-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary">
+                                                <span>Check Fabric 3</span>
+                                            </button>
+                                            <p id="networkCheckStatus" class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 py-2 text-xs font-medium text-textdark/80" role="status" aria-live="polite">
+                                                <span data-indicator class="h-2 w-2 rounded-full bg-secondary"></span>
+                                                <span data-message>No network check has been executed yet.</span>
+                                            </p>
+                                        </div>
+                                    </article>
+                                    <article class="flex flex-col gap-4 rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6 shadow-lg shadow-black/20">
+                                        <header class="flex items-center justify-between">
+                                            <div>
+                                                <p class="text-xs uppercase tracking-[0.3em] text-sky-300">Network actions</p>
+                                                <h2 class="text-lg font-semibold text-textdark">Restart Fabric 3</h2>
+                                            </div>
+                                            <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-sky-500/10 text-sky-300">⟳</span>
+                                        </header>
+                                        <p class="text-sm text-textdark/70">Matikan jaringan Fabric 3 lalu nyalakan kembali seluruh komponen yang tersedia.</p>
+                                        <div class="flex flex-col gap-3">
+                                            <button
+                                                type="button"
+                                                id="networkRestartButton"
+                                                class="inline-flex items-center justify-center gap-2 rounded-lg bg-sky-500/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-sky-500/40 transition duration-200 hover:-translate-y-0.5 hover:bg-sky-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400"
+                                            >
+                                                <span>Restart Fabric 3</span>
+                                            </button>
+                                            <p
+                                                id="networkRestartStatus"
+                                                class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 py-2 text-xs font-medium text-textdark/80"
+                                                role="status"
+                                                aria-live="polite"
+                                            >
+                                                <span data-indicator class="h-2 w-2 rounded-full bg-secondary"></span>
+                                                <span data-message>No restart command has been executed yet.</span>
+                                            </p>
+                                        </div>
+                                    </article>
+                                </div>
+                                <div id="networkHealthResults" class="hidden space-y-4 rounded-2xl border border-white/10 bg-surfaceMuted/60 p-6 text-sm text-textdark">
+                                    <div id="networkBlockSummary" class="grid gap-4 md:grid-cols-2"></div>
+                                    <div id="networkHealthSummary" class="rounded-xl border border-white/10 bg-surface p-4 text-sm text-textdark/80 shadow-lg shadow-black/10"></div>
+                                    <div id="networkHealthList" class="grid gap-4 md:grid-cols-2"></div>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </main>
+
+                <div data-component="footer"></div>
+            </div>
+        </div>
+    </div>
+
+    <div
+        id="networkOperationOverlay"
+        class="pointer-events-none fixed inset-0 z-[90] hidden items-center justify-center bg-soft/75 backdrop-blur-sm opacity-0 transition-opacity duration-200"
+        aria-hidden="true"
+    >
+        <div class="mx-4 w-full max-w-md rounded-3xl border border-white/10 bg-surface/95 p-8 text-center text-textdark shadow-2xl shadow-black/40" role="status" aria-live="assertive">
+            <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-accent/40 bg-accent/10 text-accent">
+                <span class="inline-block h-7 w-7 animate-spin rounded-full border-2 border-accent border-t-transparent"></span>
+            </div>
+            <h2 class="mt-6 text-lg font-semibold" data-overlay-message>Menyiapkan perintah jaringan...</h2>
+            <p class="mt-3 text-3xl font-semibold text-primary tabular-nums" data-overlay-timer>00:00.0</p>
+            <p class="mt-2 text-sm text-textdark/70" data-overlay-seconds>Waktu berlalu: 0 detik</p>
+            <p class="mt-4 text-sm text-textdark/70" data-overlay-hint>Waktu tunggu akan diperbarui secara real-time.</p>
+            <p class="mt-3 hidden text-sm font-medium text-textdark" data-overlay-progress></p>
+        </div>
+    </div>
+
+    <div id="simulationModal" class="fixed inset-0 z-50 hidden" aria-hidden="true">
+        <div id="simulationModalOverlay" class="absolute inset-0 bg-soft/80 backdrop-blur-sm"></div>
+        <div class="relative z-10 mx-auto flex min-h-full w-full max-w-4xl items-center justify-center px-4 py-12">
+            <div class="w-full overflow-hidden rounded-3xl border border-white/10 bg-surface shadow-2xl shadow-black/30" role="dialog" aria-modal="true" aria-labelledby="simulationModalTitle" tabindex="-1">
+                <header class="flex items-start justify-between gap-4 border-b border-white/10 bg-surfaceMuted/80 px-6 py-4">
+                    <div class="space-y-1">
+                        <p class="text-xs uppercase tracking-[0.3em] text-secondary">Detail Data Simulasi</p>
+                        <h3 id="simulationModalTitle" class="text-lg font-semibold text-textdark">Kelurahan</h3>
+                    </div>
+                    <button type="button" id="simulationModalClose" class="inline-flex items-center justify-center rounded-full border border-white/10 bg-soft px-3 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-textdark transition hover:bg-highlight hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-highlight">
+                        Tutup
+                    </button>
+                </header>
+                <div id="simulationModalContent" class="max-h-[65vh] overflow-y-auto bg-surfaceMuted/60 p-6 text-sm text-textdark"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/layout.js" defer></script>
+    <script src="../js/navigation.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js" defer></script>
+    <script src="../js/dashboard.js" defer></script>
+</body>
+</html>

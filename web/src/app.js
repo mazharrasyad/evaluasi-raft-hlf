@@ -652,7 +652,8 @@ const viewsRoot = path.resolve(staticRoot, 'view');
 
 const viewFiles = {
     dashboard: path.resolve(viewsRoot, 'dashboard.html'),
-    kesehatanJaringan: path.resolve(viewsRoot, 'kesehatan-jaringan.html'),
+    fabric2NetworkHealth: path.resolve(viewsRoot, 'kesehatan-jaringan-fabric-2.html'),
+    fabric3NetworkHealth: path.resolve(viewsRoot, 'kesehatan-jaringan-fabric-3.html'),
     simulasiData: path.resolve(viewsRoot, 'simulasi-data.html'),
     fabric3Dummy: path.resolve(viewsRoot, 'fabric3-dummy.html'),
     wilayahDataset: path.resolve(viewsRoot, 'wilayah-indonesia.html'),
@@ -699,11 +700,11 @@ app.get('/kesehatan-jaringan', (req, res) => {
 });
 
 app.get('/fabric-2/kesehatan-jaringan', (req, res) => {
-    res.sendFile(viewFiles.kesehatanJaringan);
+    res.sendFile(viewFiles.fabric2NetworkHealth);
 });
 
 app.get('/fabric-3/kesehatan-jaringan', (req, res) => {
-    res.sendFile(viewFiles.kesehatanJaringan);
+    res.sendFile(viewFiles.fabric3NetworkHealth);
 });
 
 app.get('/simulasi-data', (req, res) => {

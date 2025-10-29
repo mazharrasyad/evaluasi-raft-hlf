@@ -1964,3 +1964,259 @@ Chaincode: pelaporan
 Peer: localhost:7052
 Pesan: Material kriptografi tidak ditemukan.
 
+[2025-10-28T23:05:35.146Z] Pemeriksaan jaringan: RAFT Standard
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/fabric-2/raft-standard/network
+Channel: channel-standard
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-28T23:05:35.149Z] Pemeriksaan jaringan: RAFT Variant
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/fabric-2/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7052
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-28T23:08:55.591Z] Pemeriksaan jaringan: RAFT Variant
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/fabric-2/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7052
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-28T23:27:45.742Z] Pemeriksaan jaringan: RAFT Variant
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/fabric-2/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7052
+Pesan: Identitas User1@org1.variant.com tidak ditemukan.
+
+[2025-10-28T23:29:05.718Z] Pemeriksaan jaringan: RAFT Variant
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/fabric-2/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7052
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-28T23:52:32.910Z] Pemeriksaan jaringan: RAFT Standard
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/fabric-2/raft-standard/network
+Channel: channel-standard
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Berkas TLS CA tidak ditemukan.
+
+[2025-10-28T23:52:32.912Z] Pemeriksaan jaringan: RAFT Variant
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/fabric-2/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7052
+Pesan: Berkas TLS CA tidak ditemukan.
+
+[2025-10-28T23:53:08.498Z] Pemeriksaan jaringan: RAFT Standard
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/fabric-2/raft-standard/network
+Channel: channel-standard
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Berkas TLS CA tidak ditemukan.
+
+[2025-10-28T23:53:08.501Z] Pemeriksaan jaringan: RAFT Variant
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/fabric-2/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7052
+Pesan: Berkas TLS CA tidak ditemukan.
+
+[2025-10-28T23:53:19.296Z] Pemeriksaan jaringan: RAFT Standard
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/fabric-2/raft-standard/network
+Channel: channel-standard
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Berkas TLS CA tidak ditemukan.
+
+[2025-10-28T23:53:19.297Z] Pemeriksaan jaringan: RAFT Variant
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/fabric-2/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7052
+Pesan: Berkas TLS CA tidak ditemukan.
+
+[2025-10-29T00:47:31.274Z] Pemeriksaan jaringan: RAFT Standard
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/fabric-2/raft-standard/network
+Channel: channel-standard
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-29T00:47:31.277Z] Pemeriksaan jaringan: RAFT Variant
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/fabric-2/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7052
+Pesan: Material kriptografi tidak ditemukan.
+
+[2025-10-29T01:01:42.820Z] Pemeriksaan jaringan: RAFT Standard
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/fabric-2/raft-standard/network
+Channel: channel-standard
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Berkas TLS CA tidak ditemukan.
+
+[2025-10-29T01:01:42.822Z] Pemeriksaan jaringan: RAFT Variant
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/fabric-2/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7052
+Pesan: Berkas TLS CA tidak ditemukan.
+
+[2025-10-29T01:01:45.514Z] Pemeriksaan jaringan: RAFT Standard
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/fabric-2/raft-standard/network
+Channel: channel-standard
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Berkas TLS CA tidak ditemukan.
+
+[2025-10-29T01:01:45.515Z] Pemeriksaan jaringan: RAFT Variant
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/fabric-2/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7052
+Pesan: Berkas TLS CA tidak ditemukan.
+
+[2025-10-29T01:02:12.892Z] Pemeriksaan jaringan: RAFT Standard
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/fabric-2/raft-standard/network
+Channel: channel-standard
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Berkas TLS CA tidak ditemukan.
+
+[2025-10-29T01:02:12.896Z] Pemeriksaan jaringan: RAFT Variant
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/fabric-2/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7052
+Pesan: Berkas TLS CA tidak ditemukan.
+
+[2025-10-29T01:06:20.507Z] Pemeriksaan jaringan: RAFT Standard
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/fabric-2/raft-standard/network
+Channel: channel-standard
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Berkas TLS CA tidak ditemukan.
+
+[2025-10-29T01:06:20.509Z] Pemeriksaan jaringan: RAFT Variant
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/fabric-2/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7052
+Pesan: Berkas TLS CA tidak ditemukan.
+
+[2025-10-29T01:06:21.113Z] Pemeriksaan jaringan: RAFT Standard
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/fabric-2/raft-standard/network
+Channel: channel-standard
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Berkas TLS CA tidak ditemukan.
+
+[2025-10-29T01:06:21.115Z] Pemeriksaan jaringan: RAFT Variant
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/fabric-2/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7052
+Pesan: Berkas TLS CA tidak ditemukan.
+
+[2025-10-29T01:06:21.553Z] Pemeriksaan jaringan: RAFT Standard
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/fabric-2/raft-standard/network
+Channel: channel-standard
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Berkas TLS CA tidak ditemukan.
+
+[2025-10-29T01:06:21.554Z] Pemeriksaan jaringan: RAFT Variant
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/fabric-2/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7052
+Pesan: Berkas TLS CA tidak ditemukan.
+
+[2025-10-29T01:06:21.704Z] Pemeriksaan jaringan: RAFT Standard
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/fabric-2/raft-standard/network
+Channel: channel-standard
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Berkas TLS CA tidak ditemukan.
+
+[2025-10-29T01:06:21.705Z] Pemeriksaan jaringan: RAFT Variant
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/fabric-2/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7052
+Pesan: Berkas TLS CA tidak ditemukan.
+
+[2025-10-29T01:06:21.861Z] Pemeriksaan jaringan: RAFT Standard
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/fabric-2/raft-standard/network
+Channel: channel-standard
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Berkas TLS CA tidak ditemukan.
+
+[2025-10-29T01:06:21.862Z] Pemeriksaan jaringan: RAFT Variant
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/fabric-2/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7052
+Pesan: Berkas TLS CA tidak ditemukan.
+
+[2025-10-29T01:06:22.011Z] Pemeriksaan jaringan: RAFT Standard
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/fabric-2/raft-standard/network
+Channel: channel-standard
+Chaincode: pelaporan
+Peer: localhost:7051
+Pesan: Berkas TLS CA tidak ditemukan.
+
+[2025-10-29T01:06:22.012Z] Pemeriksaan jaringan: RAFT Variant
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/fabric-2/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7052
+Pesan: Berkas TLS CA tidak ditemukan.
+
+[2025-10-29T01:32:21.408Z] Pemeriksaan jaringan: RAFT Variant
+Status: incomplete
+Direktori: /root/evaluasi-raft-hlf/fabric-2/raft-variant/network
+Channel: channel-variant
+Chaincode: pelaporan
+Peer: localhost:7052
+Pesan: Material kriptografi tidak ditemukan.
+

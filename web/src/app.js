@@ -172,6 +172,11 @@ const NETWORK_SHUTDOWN_TARGETS = [
         label: 'RAFT Variant Network',
         directory: path.resolve(__dirname, '../../fabric-2/raft-variant/network'),
     },
+    {
+        id: 'fabric3-standard',
+        label: 'Fabric 3 RAFT Standard Network',
+        directory: path.resolve(__dirname, '../../fabric-3/raft-standard/network'),
+    },
 ];
 
 const NETWORK_START_TARGETS = [
@@ -244,6 +249,37 @@ const NETWORK_START_TARGETS = [
             },
         ],
     },
+    {
+        id: 'fabric3-standard',
+        label: 'Fabric 3 RAFT Standard Network',
+        directory: path.resolve(__dirname, '../../fabric-3/raft-standard/network'),
+        channel: 'channel-standard',
+        commands: [
+            {
+                label: 'Start core services',
+                args: ['up'],
+                displayCommand: './network.sh up',
+            },
+            {
+                label: 'Create channel',
+                args: ['createChannel'],
+                displayCommand: './network.sh createChannel',
+            },
+            {
+                label: 'Deploy chaincode',
+                args: [
+                    'deployCC',
+                    '-ccn',
+                    'pelaporan',
+                    '-ccp',
+                    '../chaincode/pelaporan',
+                    '-ccl',
+                    'node',
+                ],
+                displayCommand: './network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl node',
+            },
+        ],
+    },
 ];
 
 function getContainerCliVersionCommand() {
@@ -289,13 +325,14 @@ async function ensureDockerAvailable() {
     }
 }
 
-async function executeNetworkShutdown({ label, directory }) {
+async function executeNetworkShutdown({ id, label, directory }) {
     const scriptPath = path.resolve(directory, 'network.sh');
 
     try {
         await fs.access(directory, fsConstants.R_OK | fsConstants.X_OK);
     } catch (error) {
         const failureResult = {
+            targetId: id,
             label,
             networkDir: directory,
             command: './network.sh down',
@@ -313,6 +350,7 @@ async function executeNetworkShutdown({ label, directory }) {
         await fs.access(scriptPath, fsConstants.X_OK);
     } catch (error) {
         const failureResult = {
+            targetId: id,
             label,
             networkDir: directory,
             command: './network.sh down',
@@ -333,6 +371,7 @@ async function executeNetworkShutdown({ label, directory }) {
         });
 
         return {
+            targetId: id,
             label,
             networkDir: directory,
             command: './network.sh down',
@@ -345,6 +384,7 @@ async function executeNetworkShutdown({ label, directory }) {
         const stderr = error?.stderr ? String(error.stderr) : undefined;
 
         const failureResult = {
+            targetId: id,
             label,
             networkDir: directory,
             command: './network.sh down',

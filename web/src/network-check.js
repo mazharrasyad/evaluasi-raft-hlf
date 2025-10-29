@@ -15,6 +15,7 @@ const mspId = 'Org1MSP';
 const chaincodeName = 'pelaporan';
 const standardNetworkDir = path.resolve(__dirname, '../../fabric-2/raft-standard/network');
 const variantNetworkDir = path.resolve(__dirname, '../../fabric-2/raft-variant/network');
+const fabric3StandardNetworkDir = path.resolve(__dirname, '../../fabric-3/raft-standard/network');
 
 const networkConfigurations = [
     {
@@ -39,6 +40,18 @@ const networkConfigurations = [
         instructions: {
             up: `cd ${variantNetworkDir} && ./network.sh up -ca -bft && ./network.sh createChannel -c channel-variant -ca -bft`,
             deploy: `cd ${variantNetworkDir} && ./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl javascript -c channel-variant -bft`
+        }
+    },
+    {
+        label: 'Fabric 3 RAFT Standard',
+        networkDir: fabric3StandardNetworkDir,
+        channelName: 'channel-standard',
+        peerEndpoint: 'localhost:7051',
+        peerHostAlias: 'peer0.org1.fabric2.standard.com',
+        domain: 'standard.com',
+        instructions: {
+            up: `cd ${fabric3StandardNetworkDir} && ./network.sh up && ./network.sh createChannel`,
+            deploy: `cd ${fabric3StandardNetworkDir} && ./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl node`
         }
     }
 ];

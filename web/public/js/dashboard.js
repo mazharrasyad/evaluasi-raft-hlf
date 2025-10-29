@@ -368,6 +368,11 @@ const BLOCKCHAIN_TARGETS = [
         label: 'RAFT Variant',
         channel: 'channel-variant',
     },
+    {
+        id: 'channel-fabric3-standard',
+        label: 'Fabric 3 RAFT Standard',
+        channel: 'channel-standard',
+    },
 ];
 
 const evaluationStats = new Map();
@@ -850,6 +855,10 @@ async function confirmNetworkShutdown(networkType, networkLabel) {
         title = `Shut down ${label}?`;
         text = 'This command runs ./network.sh down for the RAFT Variant network.';
         confirmButtonText = 'Yes, shut down RAFT Variant';
+    } else if (normalizedType === 'fabric3-standard') {
+        title = `Shut down ${label}?`;
+        text = 'This command runs ./network.sh down for the Fabric 3 RAFT Standard network.';
+        confirmButtonText = 'Yes, shut down Fabric 3 RAFT Standard';
     }
 
     if (isSwalAvailable()) {
@@ -886,6 +895,8 @@ async function confirmNetworkStartup(networkType, networkLabel) {
         text = 'This will run ./network.sh up -ca, ./network.sh createChannel -c channel-standard -ca, and deploy the pelaporan chaincode on channel-standard.';
     } else if (normalizedType === 'variant') {
         text = 'This will run ./network.sh up -ca -bft, ./network.sh createChannel -c channel-variant -ca -bft, and deploy the pelaporan chaincode on channel-variant.';
+    } else if (normalizedType === 'fabric3-standard') {
+        text = 'This will run ./network.sh up, ./network.sh createChannel, and deploy the pelaporan chaincode using Fabric 3 defaults.';
     }
 
     if (!normalizedType) {
@@ -4937,18 +4948,55 @@ async function handleNetworkRestartButtonClick() {
     networkRestartButton.classList.add('cursor-not-allowed', 'opacity-60');
     networkRestartButton.innerHTML = '<span class="text-base animate-spin">⟳</span><span>Restarting...</span>';
 
-    const overlayMessage = 'Restarting all RAFT networks...';
+    const networkTypes = Array.from(new Set([
+        ...networkShutdownStatusElements.keys(),
+        ...networkStartupStatusElements.keys(),
+    ]));
+    const networkCount = networkTypes.length;
+    const overlayMessage = networkCount
+        ? `Restarting ${networkCount} RAFT network${networkCount > 1 ? 's' : ''}...`
+        : 'Restarting RAFT networks...';
+
     showNetworkOperationOverlay('restart', overlayMessage);
-    updateNetworkRestartStatus('loading', 'Restarting all RAFT networks. Stopping existing services...');
-    setNetworkOperationOverlayProgress('Step 1 of 3 · Stopping existing RAFT networks...');
+    updateNetworkRestartStatus('loading', overlayMessage);
 
-    const shutdownStandardLabel = getNetworkShutdownLabel('standard');
-    const shutdownVariantLabel = getNetworkShutdownLabel('variant');
+    const shutdownProgressLabel = networkCount > 1
+        ? `Step 1 of 3 · Stopping ${networkCount} RAFT networks...`
+        : 'Step 1 of 3 · Stopping the RAFT network...';
+    setNetworkOperationOverlayProgress(shutdownProgressLabel);
 
-    updateNetworkShutdownStatus('loading', `Stopping ${shutdownStandardLabel} as part of the restart...`, 'standard');
-    updateNetworkShutdownStatus('loading', `Stopping ${shutdownVariantLabel} as part of the restart...`, 'variant');
+    if (!networkCount) {
+        updateNetworkShutdownStatus('loading', 'Stopping RAFT networks as part of the restart...');
+    }
+
+    const shutdownLabelByType = new Map();
+    const startupLabelByType = new Map();
+
+    networkTypes.forEach(type => {
+        const shutdownLabel = getNetworkShutdownLabel(type);
+        const startupLabel = getNetworkStartupLabel(type);
+        shutdownLabelByType.set(type, shutdownLabel);
+        startupLabelByType.set(type, startupLabel);
+        updateNetworkShutdownStatus('loading', `Stopping ${shutdownLabel} as part of the restart...`, type);
+    });
 
     let shouldTriggerNetworkCheck = false;
+
+    const mapResultsByType = (results, types) => {
+        const mapping = new Map();
+        if (!Array.isArray(results)) {
+            return mapping;
+        }
+
+        results.forEach((result, index) => {
+            const type = result?.targetId || types?.[index] || null;
+            if (type && !mapping.has(type)) {
+                mapping.set(type, result);
+            }
+        });
+
+        return mapping;
+    };
 
     try {
         const shutdownHeaders = {
@@ -4980,40 +5028,85 @@ async function handleNetworkRestartButtonClick() {
         const shutdownResults = Array.isArray(shutdownData?.results) ? shutdownData.results : [];
         const shutdownSummaryLines = formatNetworkShutdownSummary(shutdownResults);
         const shutdownSummary = shutdownSummaryLines.join('\n');
-        const shutdownSuccessCount = shutdownResults.filter(result => result?.status === 'success').length;
+        const shutdownByType = mapResultsByType(shutdownResults, networkTypes);
+        const evaluatedShutdown = shutdownByType.size
+            ? Array.from(shutdownByType.values())
+            : shutdownResults;
+        const shutdownSuccessCount = evaluatedShutdown.filter(result => result?.status === 'success').length;
+        const shutdownTotal = evaluatedShutdown.length;
 
         if (!shutdownResults.length) {
             const message = 'No networks were found to stop. Restart aborted.';
             updateNetworkRestartStatus('error', message);
-            updateNetworkShutdownStatus('error', message);
-            updateNetworkStartupStatus('error', message, 'standard');
-            updateNetworkStartupStatus('error', message, 'variant');
+            if (networkCount) {
+                networkTypes.forEach(type => {
+                    updateNetworkShutdownStatus('error', message, type);
+                });
+            } else {
+                updateNetworkShutdownStatus('error', message);
+            }
             setNetworkOperationOverlayProgress('Restart aborted while stopping RAFT networks.');
             await showErrorAlert(shutdownSummary || message, { title: 'Restart failed' });
             return;
         }
 
-        if (shutdownSuccessCount !== shutdownResults.length) {
-            const message = 'Some networks failed to stop. Restart aborted.';
+        if (shutdownSuccessCount !== shutdownTotal) {
+            const message = shutdownSuccessCount === 0
+                ? 'The shutdown command could not be completed.'
+                : 'Some networks failed to stop. Restart aborted.';
             updateNetworkRestartStatus('error', message);
-            updateNetworkShutdownStatus('error', message);
-            updateNetworkStartupStatus('error', message, 'standard');
-            updateNetworkStartupStatus('error', message, 'variant');
+            if (networkCount) {
+                networkTypes.forEach(type => {
+                    const label = shutdownLabelByType.get(type) || getNetworkShutdownLabel(type);
+                    const result = shutdownByType.get(type);
+                    if (result?.status === 'success') {
+                        updateNetworkShutdownStatus('success', `${label} stopped successfully.`, type);
+                    } else if (result) {
+                        const detail = result.message
+                            ? `${label} failed to stop. ${result.message}`
+                            : `The shutdown command for ${label} failed.`;
+                        updateNetworkShutdownStatus('error', detail, type);
+                    } else {
+                        updateNetworkShutdownStatus('error', `No shutdown result returned for ${label}.`, type);
+                    }
+                });
+            } else {
+                updateNetworkShutdownStatus('error', message);
+            }
             setNetworkOperationOverlayProgress('Restart failed while stopping RAFT networks.');
-            await showErrorAlert(shutdownSummary || message, { title: 'Restart failed' });
+            await showErrorAlert(shutdownSummary || message, {
+                title: shutdownSuccessCount ? 'Restart failed' : 'Shutdown command failed',
+            });
             return;
         }
 
-        updateNetworkShutdownStatus('success', `${shutdownStandardLabel} stopped successfully.`, 'standard');
-        updateNetworkShutdownStatus('success', `${shutdownVariantLabel} stopped successfully.`, 'variant');
+        if (networkCount) {
+            networkTypes.forEach(type => {
+                const label = shutdownLabelByType.get(type) || getNetworkShutdownLabel(type);
+                updateNetworkShutdownStatus('success', `${label} stopped successfully.`, type);
+            });
+        } else {
+            updateNetworkShutdownStatus('success', 'All RAFT networks stopped successfully.');
+        }
 
-        const standardLabel = getNetworkStartupLabel('standard');
-        const variantLabel = getNetworkStartupLabel('variant');
+        const startupIntroMessage = networkCount > 1
+            ? 'All networks stopped. Starting RAFT networks...'
+            : 'Network stopped. Starting RAFT network...';
+        updateNetworkRestartStatus('loading', startupIntroMessage);
 
-        updateNetworkRestartStatus('loading', 'All networks stopped. Starting RAFT Standard and RAFT Variant...');
-        setNetworkOperationOverlayProgress('Step 2 of 3 · Starting RAFT Standard and RAFT Variant...');
-        updateNetworkStartupStatus('loading', `Restarting ${standardLabel}...`, 'standard');
-        updateNetworkStartupStatus('loading', `Restarting ${variantLabel}...`, 'variant');
+        const startupProgressLabel = networkCount > 1
+            ? `Step 2 of 3 · Starting ${networkCount} RAFT networks...`
+            : 'Step 2 of 3 · Starting the RAFT network...';
+        setNetworkOperationOverlayProgress(startupProgressLabel);
+
+        if (networkCount) {
+            networkTypes.forEach(type => {
+                const label = startupLabelByType.get(type) || getNetworkStartupLabel(type);
+                updateNetworkStartupStatus('loading', `Restarting ${label}...`, type);
+            });
+        } else {
+            updateNetworkStartupStatus('loading', 'Restarting RAFT networks...');
+        }
 
         const clientOperationId = generateClientOperationId();
         setActiveNetworkOperation(clientOperationId, 'startup');
@@ -5057,34 +5150,72 @@ async function handleNetworkRestartButtonClick() {
         const startupResults = Array.isArray(startupData?.results) ? startupData.results : [];
         const startupSummaryLines = formatNetworkStartupSummary(startupResults);
         const startupSummary = startupSummaryLines.join('\n');
-        const startupSuccessCount = startupResults.filter(result => result?.status === 'success').length;
+        const startupByType = mapResultsByType(startupResults, networkTypes);
+        const evaluatedStartup = startupByType.size
+            ? Array.from(startupByType.values())
+            : startupResults;
+        const startupSuccessCount = evaluatedStartup.filter(result => result?.status === 'success').length;
+        const startupTotal = evaluatedStartup.length;
 
         if (!startupResults.length) {
             const message = 'No networks were found to start. Restart aborted.';
             updateNetworkRestartStatus('error', message);
-            updateNetworkStartupStatus('error', message, 'standard');
-            updateNetworkStartupStatus('error', message, 'variant');
+            if (networkCount) {
+                networkTypes.forEach(type => {
+                    updateNetworkStartupStatus('error', message, type);
+                });
+            } else {
+                updateNetworkStartupStatus('error', message);
+            }
             setNetworkOperationOverlayProgress('Restart aborted while starting RAFT networks.');
             await showErrorAlert(startupSummary || message, { title: 'Restart failed' });
             return;
         }
 
-        if (startupSuccessCount !== startupResults.length) {
-            const message = 'Some networks failed to start. Check the notification details.';
+        if (startupSuccessCount !== startupTotal) {
+            const message = startupSuccessCount === 0
+                ? 'The startup command could not be completed.'
+                : 'Some networks failed to start. Check the notification details.';
             updateNetworkRestartStatus('error', message);
-            updateNetworkStartupStatus('error', message, 'standard');
-            updateNetworkStartupStatus('error', message, 'variant');
+            if (networkCount) {
+                networkTypes.forEach(type => {
+                    const label = startupLabelByType.get(type) || getNetworkStartupLabel(type);
+                    const result = startupByType.get(type);
+                    if (result?.status === 'success') {
+                        updateNetworkStartupStatus('success', `${label} restarted successfully.`, type);
+                    } else if (result) {
+                        const detail = result.message
+                            ? `${label} failed to start. ${result.message}`
+                            : `The startup command for ${label} failed.`;
+                        updateNetworkStartupStatus('error', detail, type);
+                    } else {
+                        updateNetworkStartupStatus('error', `No startup result returned for ${label}.`, type);
+                    }
+                });
+            } else {
+                updateNetworkStartupStatus('error', message);
+            }
             setNetworkOperationOverlayProgress('Restart incomplete while starting RAFT networks.');
             await showErrorAlert(startupSummary || message, { title: 'Restart partially failed' });
             return;
         }
 
-        const combinedSummary = `Shutdown summary:\n${shutdownSummary}\n\nStartup summary:\n${startupSummary}`;
+        if (networkCount) {
+            networkTypes.forEach(type => {
+                const label = startupLabelByType.get(type) || getNetworkStartupLabel(type);
+                updateNetworkStartupStatus('success', `${label} restarted successfully.`, type);
+            });
+        } else {
+            updateNetworkStartupStatus('success', 'RAFT networks restarted successfully.');
+        }
 
-        updateNetworkStartupStatus('success', `${standardLabel} restarted successfully.`, 'standard');
-        updateNetworkStartupStatus('success', `${variantLabel} restarted successfully.`, 'variant');
         setNetworkOperationOverlayProgress('Step 3 of 3 · Finalizing restart...');
-        updateNetworkRestartStatus('success', 'All RAFT networks restarted successfully.');
+        const completionMessage = networkCount > 1
+            ? 'All RAFT networks restarted successfully.'
+            : 'RAFT network restarted successfully.';
+        updateNetworkRestartStatus('success', completionMessage);
+
+        const combinedSummary = `Shutdown summary:\n${shutdownSummary}\n\nStartup summary:\n${startupSummary}`;
         await showSuccessAlert(combinedSummary, { title: 'Networks restarted successfully' });
         shouldTriggerNetworkCheck = true;
     } catch (error) {
@@ -5093,8 +5224,15 @@ async function handleNetworkRestartButtonClick() {
             ? error.message
             : 'Failed to restart the networks. Check the server logs.';
         updateNetworkRestartStatus('error', message);
-        updateNetworkStartupStatus('error', message, 'standard');
-        updateNetworkStartupStatus('error', message, 'variant');
+        if (networkCount) {
+            networkTypes.forEach(type => {
+                updateNetworkStartupStatus('error', message, type);
+                updateNetworkShutdownStatus('error', message, type);
+            });
+        } else {
+            updateNetworkStartupStatus('error', message);
+            updateNetworkShutdownStatus('error', message);
+        }
         setNetworkOperationOverlayProgress('Restart process failed. Check the notification for details.');
         await showErrorAlert(message, { title: 'Restart failed' });
     } finally {

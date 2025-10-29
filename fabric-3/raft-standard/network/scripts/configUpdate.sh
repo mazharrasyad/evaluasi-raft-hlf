@@ -33,7 +33,7 @@ fetchChannelConfig() {
 
   while [ $rc -ne 0 ] && [ $counter -le $max_retry ]; do
     set -x
-    peer channel fetch config ${TEST_NETWORK_HOME}/channel-artifacts/config_block.pb -o localhost:7053 --ordererTLSHostnameOverride orderer.fabric3.standard -c $CHANNEL --tls --cafile "$ORDERER_CA"
+    peer channel fetch config ${TEST_NETWORK_HOME}/channel-artifacts/config_block.pb -o localhost:7055 --ordererTLSHostnameOverride orderer.fabric3.standard -c $CHANNEL --tls --cafile "$ORDERER_CA"
     rc=$?
     { set +x; } 2>/dev/null
 

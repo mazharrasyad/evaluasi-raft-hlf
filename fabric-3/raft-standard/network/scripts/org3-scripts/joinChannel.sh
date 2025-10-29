@@ -14,7 +14,7 @@ CHANNEL_NAME="$1"
 DELAY="$2"
 TIMEOUT="$3"
 VERBOSE="$4"
-: ${CHANNEL_NAME:="mychannel"}
+: ${CHANNEL_NAME:="channel-standard"}
 : ${DELAY:="3"}
 : ${TIMEOUT:="10"}
 : ${VERBOSE:="false"}
@@ -60,7 +60,7 @@ BLOCKFILE="${TEST_NETWORK_HOME}/channel-artifacts/${CHANNEL_NAME}.block"
 
 echo "Fetching channel config block from orderer..."
 set -x
-peer channel fetch 0 $BLOCKFILE -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com -c $CHANNEL_NAME --tls --cafile "$ORDERER_CA" >&log.txt
+peer channel fetch 0 $BLOCKFILE -o localhost:7050 --ordererTLSHostnameOverride orderer.fabric2.standard.com -c $CHANNEL_NAME --tls --cafile "$ORDERER_CA" >&log.txt
 res=$?
 { set +x; } 2>/dev/null
 cat log.txt

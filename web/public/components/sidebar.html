@@ -7,6 +7,7 @@
                 </span>
                 <div class="flex flex-col">
                     <span class="text-base font-semibold text-secondary">Evaluasi RAFT HLF</span>
+                    <span class="text-xs text-textdark/60">Eksperimen Hyperledger Fabric</span>
                 </div>
             </div>
             <button type="button" data-sidebar-close aria-label="Tutup navigasi" class="hidden inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-surface/70 text-lg text-textdark transition hover:bg-secondary/20 hover:text-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary lg:hidden">
@@ -14,26 +15,50 @@
             </button>
         </div>
         <nav aria-label="Navigasi komponen" class="flex-1">
-            <ul class="space-y-2">
-                <li>
-                    <a href="/" data-nav-target="/" class="component-link group flex w-full items-center gap-3 rounded-xl border border-white/10 bg-surface/60 px-4 py-3 text-left text-sm font-medium text-textdark/80 transition hover:-translate-y-0.5 hover:bg-secondary/20 hover:text-textdark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary">
-                        <span class="component-link__index inline-flex h-8 w-8 flex-none items-center justify-center rounded-lg bg-secondary/20 text-secondary">1</span>
-                        <span class="flex-1">Evaluasi RAFT Hyperledger Fabric</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="/kesehatan-jaringan" data-nav-target="/kesehatan-jaringan" class="component-link group flex w-full items-center gap-3 rounded-xl border border-white/10 bg-surface/60 px-4 py-3 text-left text-sm font-medium text-textdark/80 transition hover:-translate-y-0.5 hover:bg-secondary/20 hover:text-textdark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary">
-                        <span class="component-link__index inline-flex h-8 w-8 flex-none items-center justify-center rounded-lg bg-secondary/20 text-secondary">2</span>
-                        <span class="flex-1">Status Network Blockchain</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="/simulasi-data" data-nav-target="/simulasi-data" class="component-link group flex w-full items-center gap-3 rounded-xl border border-white/10 bg-surface/60 px-4 py-3 text-left text-sm font-medium text-textdark/80 transition hover:-translate-y-0.5 hover:bg-secondary/20 hover:text-textdark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary">
-                        <span class="component-link__index inline-flex h-8 w-8 flex-none items-center justify-center rounded-lg bg-secondary/20 text-secondary">3</span>
-                        <span class="flex-1">Simulasi Data Pelaporan</span>
-                    </a>
-                </li>
-            </ul>
+            <div class="space-y-6">
+                <div role="group" aria-labelledby="navGroupFabric2" class="space-y-3">
+                    <div class="flex items-center justify-between gap-2">
+                        <p id="navGroupFabric2" class="text-xs font-semibold uppercase tracking-[0.28em] text-secondary/80">Fabric 2</p>
+                        <span class="rounded-full border border-secondary/30 bg-secondary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.3em] text-secondary/80">Stable</span>
+                    </div>
+                    <ul class="space-y-2">
+                        <li>
+                            <a href="/" data-nav-target="/" class="component-link group flex w-full items-center gap-3 rounded-xl border border-white/10 bg-surface/60 px-4 py-3 text-left text-sm font-medium text-textdark/80 transition hover:-translate-y-0.5 hover:bg-secondary/20 hover:text-textdark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary">
+                                <span class="component-link__index inline-flex h-8 w-8 flex-none items-center justify-center rounded-lg bg-secondary/20 text-secondary">2.1</span>
+                                <span class="flex-1">Evaluasi RAFT Hyperledger Fabric</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/kesehatan-jaringan" data-nav-target="/kesehatan-jaringan" class="component-link group flex w-full items-center gap-3 rounded-xl border border-white/10 bg-surface/60 px-4 py-3 text-left text-sm font-medium text-textdark/80 transition hover:-translate-y-0.5 hover:bg-secondary/20 hover:text-textdark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary">
+                                <span class="component-link__index inline-flex h-8 w-8 flex-none items-center justify-center rounded-lg bg-secondary/20 text-secondary">2.2</span>
+                                <span class="flex-1">Status Network Blockchain</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/simulasi-data" data-nav-target="/simulasi-data" class="component-link group flex w-full items-center gap-3 rounded-xl border border-white/10 bg-surface/60 px-4 py-3 text-left text-sm font-medium text-textdark/80 transition hover:-translate-y-0.5 hover:bg-secondary/20 hover:text-textdark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary">
+                                <span class="component-link__index inline-flex h-8 w-8 flex-none items-center justify-center rounded-lg bg-secondary/20 text-secondary">2.3</span>
+                                <span class="flex-1">Simulasi Data Pelaporan</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="h-px bg-white/10"></div>
+                <div role="group" aria-labelledby="navGroupFabric3" class="space-y-3">
+                    <div class="flex items-center justify-between gap-2">
+                        <p id="navGroupFabric3" class="text-xs font-semibold uppercase tracking-[0.28em] text-accent/80">Fabric 3</p>
+                        <span class="rounded-full border border-accent/30 bg-accent/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.3em] text-accent/80">Preview</span>
+                    </div>
+                    <ul class="space-y-2">
+                        <li>
+                            <a href="/fabric-3/dummy-1" data-nav-target="/fabric-3/dummy-1" class="component-link group flex w-full items-center gap-3 rounded-xl border border-dashed border-white/15 bg-surface/50 px-4 py-3 text-left text-sm font-medium text-textdark/80 transition hover:-translate-y-0.5 hover:border-white/20 hover:bg-accent/20 hover:text-textdark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">
+                                <span class="component-link__index inline-flex h-8 w-8 flex-none items-center justify-center rounded-lg bg-accent/20 text-accent">3.1</span>
+                                <span class="flex-1">Dummy Halaman 1</span>
+                                <span class="rounded-full border border-accent/40 bg-accent/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.3em] text-accent/80">Segera</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
         </nav>
     </div>
 </aside>

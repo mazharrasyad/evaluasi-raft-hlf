@@ -73,6 +73,11 @@ const FABRIC_CONTEXT_RESULT_LABELS = {
     'fabric-3': ['Fabric 3 RAFT Standard'],
 };
 
+const FABRIC_CONTEXT_LABELS = {
+    'fabric-2': 'Fabric 2',
+    'fabric-3': 'Fabric 3',
+};
+
 if (document && document.documentElement) {
     document.documentElement.dataset.fabricContext = fabricContext;
 }
@@ -338,7 +343,8 @@ function renderFabricDescriptionCard(description) {
 }
 
 async function fetchFabricDescriptions() {
-    showFabricSummaryStatus('Memuat detail konfigurasi jaringan RAFT dari berkas Fabric…');
+    const contextLabel = FABRIC_CONTEXT_LABELS[fabricContext] ?? 'Fabric';
+    showFabricSummaryStatus(`Memuat detail konfigurasi jaringan RAFT dari berkas ${contextLabel}…`);
 
     try {
         const response = await fetch('/api/fabric-descriptions', {
@@ -359,8 +365,15 @@ async function fetchFabricDescriptions() {
             return;
         }
 
+        const filteredDescriptions = filterResultsByFabricContext(descriptions);
+
+        if (!filteredDescriptions.length) {
+            showFabricSummaryStatus(`Tidak ada deskripsi jaringan yang relevan untuk ${contextLabel}.`, 'empty');
+            return;
+        }
+
         fabricNetworkSummaries.dataset.state = 'ready';
-        fabricNetworkSummaries.innerHTML = descriptions.map(renderFabricDescriptionCard).join('');
+        fabricNetworkSummaries.innerHTML = filteredDescriptions.map(renderFabricDescriptionCard).join('');
     } catch (error) {
         console.error('Failed to fetch Fabric descriptions:', error);
         showFabricSummaryStatus('Gagal memuat detail jaringan dari konfigurasi Fabric.', 'error');

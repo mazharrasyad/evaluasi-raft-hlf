@@ -46,7 +46,7 @@ const networkConfigurations = [
         label: 'Fabric 3 RAFT Standard',
         networkDir: fabric3StandardNetworkDir,
         channelName: 'fabric3-channel-standard',
-        peerEndpoint: 'localhost:7051',
+        peerEndpoint: 'localhost:7053',
         peerHostAlias: 'peer0.org1.fabric3.standard',
         domain: 'fabric3.standard',
         instructions: {

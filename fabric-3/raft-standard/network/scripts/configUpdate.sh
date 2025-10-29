@@ -25,9 +25,12 @@ fetchChannelConfig() {
   setGlobals $ORG
 
   infoln "Fetching the most recent configuration block for the channel"
+  mkdir -p ${TEST_NETWORK_HOME}/channel-artifacts
   set -x
   peer channel fetch config ${TEST_NETWORK_HOME}/channel-artifacts/config_block.pb -o localhost:7053 --ordererTLSHostnameOverride orderer.fabric3.standard -c $CHANNEL --tls --cafile "$ORDERER_CA"
+  res=$?
   { set +x; } 2>/dev/null
+  verifyResult $res "Failed to fetch channel configuration block, ensure the channel exists and the peer CLI is configured correctly"
 
   infoln "Decoding config block to JSON and isolating config to ${OUTPUT}"
   set -x

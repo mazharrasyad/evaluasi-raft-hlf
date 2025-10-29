@@ -209,6 +209,7 @@ function createOrderer() {
 
 # Loop through each orderer (orderer, orderer2, orderer3, orderer4) to register and generate artifacts
   for ORDERER in orderer orderer2 orderer3 orderer4; do
+    local HOST_DOMAIN
     if [ "${ORDERER}" = "orderer" ]; then
       HOST_DOMAIN="orderer.fabric2.variant.com"
     else

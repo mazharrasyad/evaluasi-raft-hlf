@@ -58,6 +58,9 @@ elif [ "$CC_SRC_LANGUAGE" = "java" ]; then
 elif [ "$CC_SRC_LANGUAGE" = "javascript" ]; then
   CC_RUNTIME_LANGUAGE=node
 
+elif [ "$CC_SRC_LANGUAGE" = "node" ]; then
+  CC_RUNTIME_LANGUAGE=node
+
 elif [ "$CC_SRC_LANGUAGE" = "typescript" ]; then
   CC_RUNTIME_LANGUAGE=node
 

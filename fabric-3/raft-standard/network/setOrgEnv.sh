@@ -21,7 +21,7 @@ PEER0_ORG3_CA=${DIR}/network/organizations/peerOrganizations/org3.fabric3.standa
 if [[ ${ORG,,} == "org1" || ${ORG,,} == "digibank" ]]; then
    CORE_PEER_LOCALMSPID=Org1MSP
    CORE_PEER_MSPCONFIGPATH=${DIR}/network/organizations/peerOrganizations/org1.fabric3.standard/users/Admin@org1.fabric3.standard/msp
-   CORE_PEER_ADDRESS=localhost:7051
+   CORE_PEER_ADDRESS=localhost:7053
    CORE_PEER_TLS_ROOTCERT_FILE=${DIR}/network/organizations/peerOrganizations/org1.fabric3.standard/tlsca/tlsca.org1.fabric3.standard-cert.pem
 
 elif [[ ${ORG,,} == "org2" || ${ORG,,} == "magnetocorp" ]]; then

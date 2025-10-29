@@ -78,12 +78,12 @@ services:
       - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
       # Peer specific variables
       - CORE_PEER_ID=peer0.org1.fabric3.standard
-      - CORE_PEER_ADDRESS=peer0.org1.fabric3.standard:7051
-      - CORE_PEER_LISTENADDRESS=0.0.0.0:7051
+      - CORE_PEER_ADDRESS=peer0.org1.fabric3.standard:7053
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:7053
       - CORE_PEER_CHAINCODEADDRESS=peer0.org1.fabric3.standard:7052
       - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
-      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org1.fabric3.standard:7051
-      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org1.fabric3.standard:7051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org1.fabric3.standard:7053
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org1.fabric3.standard:7053
       - CORE_PEER_LOCALMSPID=Org1MSP
       - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp
       - CORE_OPERATIONS_LISTENADDRESS=peer0.org1.fabric3.standard:9444
@@ -96,7 +96,7 @@ services:
     working_dir: /root
     command: peer node start
     ports:
-      - 7051:7051
+      - 7053:7053
       - 9444:9444
     networks:
       - test

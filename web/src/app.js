@@ -695,6 +695,14 @@ app.get('/', (req, res) => {
 });
 
 app.get('/kesehatan-jaringan', (req, res) => {
+    res.redirect(302, '/fabric-2/kesehatan-jaringan');
+});
+
+app.get('/fabric-2/kesehatan-jaringan', (req, res) => {
+    res.sendFile(viewFiles.kesehatanJaringan);
+});
+
+app.get('/fabric-3/kesehatan-jaringan', (req, res) => {
     res.sendFile(viewFiles.kesehatanJaringan);
 });
 

@@ -59,6 +59,92 @@ const networkHealthSummaryEl = document.getElementById('networkHealthSummary');
 const networkHealthListEl = document.getElementById('networkHealthList');
 const fabricNetworkSummaries = document.getElementById('fabricNetworkSummaries');
 
+const DEFAULT_FABRIC_CONTEXT = 'fabric-2';
+const DEFAULT_OVERALL_STATUS = 'unknown';
+const currentPath = typeof window !== 'undefined' ? window.location.pathname : '/';
+const fabricContext = currentPath.startsWith('/fabric-3/')
+    ? 'fabric-3'
+    : currentPath.startsWith('/fabric-2/')
+        ? 'fabric-2'
+        : DEFAULT_FABRIC_CONTEXT;
+
+const FABRIC_CONTEXT_RESULT_LABELS = {
+    'fabric-2': ['RAFT Standard', 'RAFT Variant'],
+    'fabric-3': ['Fabric 3 RAFT Standard'],
+};
+
+if (document && document.documentElement) {
+    document.documentElement.dataset.fabricContext = fabricContext;
+}
+
+function applyFabricScopeVisibility() {
+    const scopedElements = document.querySelectorAll('[data-fabric-scope]');
+
+    scopedElements.forEach((element) => {
+        const scopes = (element.dataset.fabricScope || '')
+            .split(/\s+/)
+            .map(scope => scope.trim())
+            .filter(Boolean);
+
+        if (scopes.length === 0) {
+            return;
+        }
+
+        if (scopes.includes(fabricContext)) {
+            element.classList.remove('hidden');
+            element.removeAttribute('aria-hidden');
+        } else {
+            element.classList.add('hidden');
+            element.setAttribute('aria-hidden', 'true');
+        }
+    });
+}
+
+function filterResultsByFabricContext(results) {
+    if (!Array.isArray(results)) {
+        return [];
+    }
+
+    const allowedLabels = FABRIC_CONTEXT_RESULT_LABELS[fabricContext];
+    if (!Array.isArray(allowedLabels) || allowedLabels.length === 0) {
+        return results;
+    }
+
+    return results.filter((result) => {
+        if (!result || typeof result !== 'object') {
+            return false;
+        }
+
+        return allowedLabels.includes(result.label);
+    });
+}
+
+function computeOverallStatusForResults(results, fallbackStatus = DEFAULT_OVERALL_STATUS) {
+    if (!Array.isArray(results) || results.length === 0) {
+        return fallbackStatus;
+    }
+
+    const statuses = results
+        .map((result) => result?.status)
+        .filter((status) => typeof status === 'string' && status.length > 0);
+
+    if (statuses.length === 0) {
+        return fallbackStatus;
+    }
+
+    if (statuses.every((status) => status === 'healthy')) {
+        return 'healthy';
+    }
+
+    if (statuses.some((status) => status === 'healthy')) {
+        return 'partial';
+    }
+
+    return 'unavailable';
+}
+
+applyFabricScopeVisibility();
+
 const FABRIC_SUMMARY_STATUS_CLASSES = {
     info: 'border-white/10 bg-surface/60 text-textdark/70',
     error: 'border-rose-400/40 bg-rose-500/10 text-rose-200',
@@ -1973,10 +2059,17 @@ function renderNetworkHealthResults(results, summary = {}) {
         return;
     }
 
+    const normalizedResults = Array.isArray(results) ? results : [];
+    const contextualResults = filterResultsByFabricContext(normalizedResults);
+    const effectiveOverallStatus = summary?.overallStatus
+        ? summary.overallStatus
+        : computeOverallStatusForResults(contextualResults, DEFAULT_OVERALL_STATUS);
+    const checkedAt = summary?.checkedAt;
+
     if (networkBlockSummaryEl) {
         networkBlockSummaryEl.innerHTML = '';
-        if (Array.isArray(results) && results.length) {
-            results.forEach((result, index) => {
+        if (Array.isArray(contextualResults) && contextualResults.length) {
+            contextualResults.forEach((result, index) => {
                 networkBlockSummaryEl.append(createNetworkBlockSummaryCard(result, index));
             });
         }
@@ -1984,7 +2077,7 @@ function renderNetworkHealthResults(results, summary = {}) {
 
     if (networkHealthSummaryEl) {
         networkHealthSummaryEl.innerHTML = '';
-        const summaryMeta = OVERALL_STATUS_META[summary.overallStatus] || {
+        const summaryMeta = OVERALL_STATUS_META[effectiveOverallStatus] || {
             icon: 'ℹ️',
             title: 'Pemeriksaan jaringan selesai.',
             description: 'Periksa detail setiap jaringan pada daftar di bawah ini.',
@@ -2001,7 +2094,7 @@ function renderNetworkHealthResults(results, summary = {}) {
 
         networkHealthSummaryEl.append(title, description);
 
-        const formattedDate = formatDateTimeFromIso(summary.checkedAt);
+        const formattedDate = formatDateTimeFromIso(checkedAt);
         if (formattedDate) {
             const timestamp = document.createElement('p');
             timestamp.className = 'text-[11px] text-textdark/60';
@@ -2012,8 +2105,8 @@ function renderNetworkHealthResults(results, summary = {}) {
 
     if (networkHealthListEl) {
         networkHealthListEl.innerHTML = '';
-        if (Array.isArray(results) && results.length) {
-            results.forEach(result => {
+        if (Array.isArray(contextualResults) && contextualResults.length) {
+            contextualResults.forEach(result => {
                 networkHealthListEl.append(createNetworkResultCard(result));
             });
         } else {
@@ -4770,9 +4863,17 @@ async function handleNetworkCheckButtonClick() {
         }
 
         const data = await response.json();
-        renderNetworkHealthResults(data?.results, {
+        const normalizedResults = Array.isArray(data?.results) ? data.results : [];
+        const contextualOverallStatus = computeOverallStatusForResults(
+            filterResultsByFabricContext(normalizedResults),
+            typeof data?.overallStatus === 'string' && data.overallStatus.length > 0
+                ? data.overallStatus
+                : DEFAULT_OVERALL_STATUS,
+        );
+
+        renderNetworkHealthResults(normalizedResults, {
             checkedAt: data?.checkedAt,
-            overallStatus: data?.overallStatus,
+            overallStatus: contextualOverallStatus,
         });
 
         if (data?.error) {
@@ -4787,7 +4888,7 @@ async function handleNetworkCheckButtonClick() {
             return;
         }
 
-        const summaryMeta = OVERALL_STATUS_META[data?.overallStatus];
+        const summaryMeta = OVERALL_STATUS_META[contextualOverallStatus];
         const successMessage = summaryMeta
             ? summaryMeta.title
             : 'Network check completed.';

@@ -21,25 +21,25 @@ const networkConfigurations = [
     {
         label: 'RAFT Standard',
         networkDir: standardNetworkDir,
-        channelName: 'channel-standard',
+        channelName: 'fabric2-channel-standard',
         peerEndpoint: 'localhost:7051',
         peerHostAlias: 'peer0.org1.fabric2.standard.com',
         domain: 'standard.com',
         instructions: {
-            up: `cd ${standardNetworkDir} && ./network.sh up -ca && ./network.sh createChannel -c channel-standard -ca`,
-            deploy: `cd ${standardNetworkDir} && ./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl javascript -c channel-standard`
+            up: `cd ${standardNetworkDir} && ./network.sh up -ca && ./network.sh createChannel -c fabric2-channel-standard -ca`,
+            deploy: `cd ${standardNetworkDir} && ./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl javascript -c fabric2-channel-standard`
         }
     },
     {
         label: 'RAFT Variant',
         networkDir: variantNetworkDir,
-        channelName: 'channel-variant',
+        channelName: 'fabric2-channel-variant',
         peerEndpoint: 'localhost:7052',
         peerHostAlias: 'peer0.org1.fabric2.variant.com',
         domain: 'variant.com',
         instructions: {
-            up: `cd ${variantNetworkDir} && ./network.sh up -ca -bft && ./network.sh createChannel -c channel-variant -ca -bft`,
-            deploy: `cd ${variantNetworkDir} && ./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl javascript -c channel-variant -bft`
+            up: `cd ${variantNetworkDir} && ./network.sh up -ca -bft && ./network.sh createChannel -c fabric2-channel-variant -ca -bft`,
+            deploy: `cd ${variantNetworkDir} && ./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl javascript -c fabric2-channel-variant -bft`
         }
     },
     {

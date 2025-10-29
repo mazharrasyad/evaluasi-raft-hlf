@@ -1,9 +1,24 @@
 #!/usr/bin/env bash
 
 # installChaincode PEER ORG
+function ensureChaincodePackage() {
+  local package_file="${CC_NAME}.tar.gz"
+  local packaged_dir="packagedChaincode/${CC_NAME}_${CC_VERSION}.tar.gz"
+
+  if [ ! -f "$package_file" ]; then
+    if [ -f "$packaged_dir" ]; then
+      infoln "Chaincode package ${package_file} not found. Using pre-packaged artifact ${packaged_dir}."
+      cp "$packaged_dir" "$package_file"
+    else
+      fatalln "Chaincode package ${package_file} not found. Please run ./network.sh packageCC or deployCC to create it."
+    fi
+  fi
+}
+
 function installChaincode() {
   ORG=$1
   setGlobals $ORG
+  ensureChaincodePackage
   set -x
   peer lifecycle chaincode queryinstalled --output json | jq -r 'try (.installed_chaincodes[].package_id)' | grep ^${PACKAGE_ID}$ >&log.txt
   if test $? -ne 0; then

@@ -81,16 +81,17 @@ verifyResult() {
 
 packageChaincode() {
   set -x
+  local package_file="${CC_NAME}.tar.gz"
   if [ ${CC_PACKAGE_ONLY} = true ] ; then
     mkdir -p packagedChaincode
-    peer lifecycle chaincode package packagedChaincode/${CC_NAME}_${CC_VERSION}.tar.gz --path ${CC_SRC_PATH} --lang ${CC_RUNTIME_LANGUAGE} --label ${CC_NAME}_${CC_VERSION} >&log.txt
-  else
-    peer lifecycle chaincode package ${CC_NAME}.tar.gz --path ${CC_SRC_PATH} --lang ${CC_RUNTIME_LANGUAGE} --label ${CC_NAME}_${CC_VERSION} >&log.txt
+    package_file="packagedChaincode/${CC_NAME}_${CC_VERSION}.tar.gz"
   fi
+
+  peer lifecycle chaincode package ${package_file} --path ${CC_SRC_PATH} --lang ${CC_RUNTIME_LANGUAGE} --label ${CC_NAME}_${CC_VERSION} >&log.txt
   res=$?
   { set +x; } 2>/dev/null
   cat log.txt
-  PACKAGE_ID=$(peer lifecycle chaincode calculatepackageid ${CC_NAME}.tar.gz)
+  PACKAGE_ID=$(peer lifecycle chaincode calculatepackageid ${package_file})
   verifyResult $res "Chaincode packaging has failed"
   successln "Chaincode is packaged"
 }

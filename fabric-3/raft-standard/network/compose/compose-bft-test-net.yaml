@@ -1,12 +1,12 @@
 version: '3.7'
 
 volumes:
-  orderer.fabric2.standard.com:
-  orderer2.standard.com:
-  orderer3.standard.com:
-  orderer4.standard.com:
-  peer0.org1.fabric2.standard.com:
-  peer0.org2.fabric2.standard.com:
+  orderer.fabric3.standard:
+  orderer2.fabric3.standard:
+  orderer3.fabric3.standard:
+  orderer4.fabric3.standard:
+  peer0.org1.fabric3.standard:
+  peer0.org2.fabric3.standard:
 
 networks:
   test:
@@ -14,9 +14,9 @@ networks:
 
 services:
 
-  orderer.fabric2.standard.com:
-    container_name: orderer.fabric2.standard.com
-    hostname: orderer.fabric2.standard.com
+  orderer.fabric3.standard:
+    container_name: orderer.fabric3.standard
+    hostname: orderer.fabric3.standard
     image: hyperledger/fabric-orderer:latest
     labels:
       service: hyperledger-fabric
@@ -42,15 +42,15 @@ services:
       - ORDERER_ADMIN_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/server.key
       - ORDERER_ADMIN_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
       - ORDERER_ADMIN_TLS_CLIENTROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
-      - ORDERER_ADMIN_LISTENADDRESS=0.0.0.0:7053
-      - ORDERER_OPERATIONS_LISTENADDRESS=orderer.fabric2.standard.com:9443
+      - ORDERER_ADMIN_LISTENADDRESS=localhost:7053
+      - ORDERER_OPERATIONS_LISTENADDRESS=orderer.fabric3.standard:9443
       - ORDERER_METRICS_PROVIDER=prometheus
     working_dir: /root
     command: orderer
     volumes:
-      - ../organizations/ordererOrganizations/standard.com/orderers/orderer.fabric2.standard.com/msp:/var/hyperledger/orderer/msp
-      - ../organizations/ordererOrganizations/standard.com/orderers/orderer.fabric2.standard.com/tls/:/var/hyperledger/orderer/tls
-      - orderer.fabric2.standard.com:/var/hyperledger/production/orderer
+      - ../organizations/ordererOrganizations/fabric3.standard/orderers/orderer.fabric3.standard/msp:/var/hyperledger/orderer/msp
+      - ../organizations/ordererOrganizations/fabric3.standard/orderers/orderer.fabric3.standard/tls/:/var/hyperledger/orderer/tls
+      - orderer.fabric3.standard:/var/hyperledger/production/orderer
     ports:
       - 7050:7050
       - 7053:7053
@@ -58,9 +58,9 @@ services:
     networks:
       - test
 
-  orderer2.standard.com:
-    container_name: orderer2.standard.com
-    hostname: orderer2.standard.com
+  orderer2.fabric3.standard:
+    container_name: orderer2.fabric3.standard
+    hostname: orderer2.fabric3.standard
     image: hyperledger/fabric-orderer:latest
     labels:
       service: hyperledger-fabric
@@ -86,15 +86,15 @@ services:
       - ORDERER_ADMIN_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/server.key
       - ORDERER_ADMIN_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
       - ORDERER_ADMIN_TLS_CLIENTROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
-      - ORDERER_ADMIN_LISTENADDRESS=0.0.0.0:7055
-      - ORDERER_OPERATIONS_LISTENADDRESS=orderer2.standard.com:9446
+      - ORDERER_ADMIN_LISTENADDRESS=localhost:7055
+      - ORDERER_OPERATIONS_LISTENADDRESS=orderer2.fabric3.standard:9446
       - ORDERER_METRICS_PROVIDER=prometheus
     working_dir: /root
     command: orderer
     volumes:
-      - ../organizations/ordererOrganizations/standard.com/orderers/orderer2.standard.com/msp:/var/hyperledger/orderer/msp
-      - ../organizations/ordererOrganizations/standard.com/orderers/orderer2.standard.com/tls/:/var/hyperledger/orderer/tls
-      - orderer2.standard.com:/var/hyperledger/production/orderer
+      - ../organizations/ordererOrganizations/fabric3.standard/orderers/orderer2.fabric3.standard/msp:/var/hyperledger/orderer/msp
+      - ../organizations/ordererOrganizations/fabric3.standard/orderers/orderer2.fabric3.standard/tls/:/var/hyperledger/orderer/tls
+      - orderer2.fabric3.standard:/var/hyperledger/production/orderer
     ports:
       - 7052:7052
       - 7055:7055
@@ -102,9 +102,9 @@ services:
     networks:
       - test
 
-  orderer3.standard.com:
-    container_name: orderer3.standard.com
-    hostname: orderer3.standard.com
+  orderer3.fabric3.standard:
+    container_name: orderer3.fabric3.standard
+    hostname: orderer3.fabric3.standard
     image: hyperledger/fabric-orderer:latest
     labels:
       service: hyperledger-fabric
@@ -130,15 +130,15 @@ services:
       - ORDERER_ADMIN_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/server.key
       - ORDERER_ADMIN_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
       - ORDERER_ADMIN_TLS_CLIENTROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
-      - ORDERER_ADMIN_LISTENADDRESS=0.0.0.0:7057
-      - ORDERER_OPERATIONS_LISTENADDRESS=orderer3.standard.com:9447
+      - ORDERER_ADMIN_LISTENADDRESS=localhost:7057
+      - ORDERER_OPERATIONS_LISTENADDRESS=orderer3.fabric3.standard:9447
       - ORDERER_METRICS_PROVIDER=prometheus
     working_dir: /root
     command: orderer
     volumes:
-      - ../organizations/ordererOrganizations/standard.com/orderers/orderer3.standard.com/msp:/var/hyperledger/orderer/msp
-      - ../organizations/ordererOrganizations/standard.com/orderers/orderer3.standard.com/tls/:/var/hyperledger/orderer/tls
-      - orderer3.standard.com:/var/hyperledger/production/orderer
+      - ../organizations/ordererOrganizations/fabric3.standard/orderers/orderer3.fabric3.standard/msp:/var/hyperledger/orderer/msp
+      - ../organizations/ordererOrganizations/fabric3.standard/orderers/orderer3.fabric3.standard/tls/:/var/hyperledger/orderer/tls
+      - orderer3.fabric3.standard:/var/hyperledger/production/orderer
     ports:
       - 7056:7056
       - 7057:7057
@@ -146,9 +146,9 @@ services:
     networks:
       - test
 
-  orderer4.standard.com:
-    container_name: orderer4.standard.com
-    hostname: orderer4.standard.com
+  orderer4.fabric3.standard:
+    container_name: orderer4.fabric3.standard
+    hostname: orderer4.fabric3.standard
     image: hyperledger/fabric-orderer:latest
     labels:
       service: hyperledger-fabric
@@ -174,15 +174,15 @@ services:
       - ORDERER_ADMIN_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/server.key
       - ORDERER_ADMIN_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
       - ORDERER_ADMIN_TLS_CLIENTROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
-      - ORDERER_ADMIN_LISTENADDRESS=0.0.0.0:7059
-      - ORDERER_OPERATIONS_LISTENADDRESS=orderer4.standard.com:9448
+      - ORDERER_ADMIN_LISTENADDRESS=localhost:7059
+      - ORDERER_OPERATIONS_LISTENADDRESS=orderer4.fabric3.standard:9448
       - ORDERER_METRICS_PROVIDER=prometheus
     working_dir: /root
     command: orderer
     volumes:
-      - ../organizations/ordererOrganizations/standard.com/orderers/orderer4.standard.com/msp:/var/hyperledger/orderer/msp
-      - ../organizations/ordererOrganizations/standard.com/orderers/orderer4.standard.com/tls/:/var/hyperledger/orderer/tls
-      - orderer4.standard.com:/var/hyperledger/production/orderer
+      - ../organizations/ordererOrganizations/fabric3.standard/orderers/orderer4.fabric3.standard/msp:/var/hyperledger/orderer/msp
+      - ../organizations/ordererOrganizations/fabric3.standard/orderers/orderer4.fabric3.standard/tls/:/var/hyperledger/orderer/tls
+      - orderer4.fabric3.standard:/var/hyperledger/production/orderer
     ports:
       - 7058:7058
       - 7059:7059
@@ -193,9 +193,9 @@ services:
 
 
 
-  peer0.org1.fabric2.standard.com:
-    container_name: peer0.org1.fabric2.standard.com
-    hostname: peer0.org1.fabric2.standard.com
+  peer0.org1.fabric3.standard:
+    container_name: peer0.org1.fabric3.standard
+    hostname: peer0.org1.fabric3.standard
     image: hyperledger/fabric-peer:latest
     labels:
       service: hyperledger-fabric
@@ -210,22 +210,22 @@ services:
       - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
       - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
       # Peer specific variables
-      - CORE_PEER_ID=peer0.org1.fabric2.standard.com
-      - CORE_PEER_ADDRESS=peer0.org1.fabric2.standard.com:7051
+      - CORE_PEER_ID=peer0.org1.fabric3.standard
+      - CORE_PEER_ADDRESS=peer0.org1.fabric3.standard:7051
       - CORE_PEER_LISTENADDRESS=0.0.0.0:7051
-      - CORE_PEER_CHAINCODEADDRESS=peer0.org1.fabric2.standard.com:7052
+      - CORE_PEER_CHAINCODEADDRESS=peer0.org1.fabric3.standard:7052
       - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
-      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org1.fabric2.standard.com:7051
-      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org1.fabric2.standard.com:7051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org1.fabric3.standard:7051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org1.fabric3.standard:7051
       - CORE_PEER_LOCALMSPID=Org1MSP
       - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp
-      - CORE_OPERATIONS_LISTENADDRESS=peer0.org1.fabric2.standard.com:9444
+      - CORE_OPERATIONS_LISTENADDRESS=peer0.org1.fabric3.standard:9444
       - CORE_METRICS_PROVIDER=prometheus
       - CHAINCODE_AS_A_SERVICE_BUILDER_CONFIG={"peername":"peer0org1"}
       - CORE_CHAINCODE_EXECUTETIMEOUT=300s
     volumes:
-      - ../organizations/peerOrganizations/org1.standard.com/peers/peer0.org1.fabric2.standard.com:/etc/hyperledger/fabric
-      - peer0.org1.fabric2.standard.com:/var/hyperledger/production
+      - ../organizations/peerOrganizations/org1.fabric3.standard/peers/peer0.org1.fabric3.standard:/etc/hyperledger/fabric
+      - peer0.org1.fabric3.standard:/var/hyperledger/production
     working_dir: /root
     command: peer node start
     ports:
@@ -234,9 +234,9 @@ services:
     networks:
       - test
 
-  peer0.org2.fabric2.standard.com:
-    container_name: peer0.org2.fabric2.standard.com
-    hostname: peer0.org2.fabric2.standard.com
+  peer0.org2.fabric3.standard:
+    container_name: peer0.org2.fabric3.standard
+    hostname: peer0.org2.fabric3.standard
     image: hyperledger/fabric-peer:latest
     labels:
       service: hyperledger-fabric
@@ -251,22 +251,22 @@ services:
       - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
       - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
       # Peer specific variables
-      - CORE_PEER_ID=peer0.org2.fabric2.standard.com
-      - CORE_PEER_ADDRESS=peer0.org2.fabric2.standard.com:9051
+      - CORE_PEER_ID=peer0.org2.fabric3.standard
+      - CORE_PEER_ADDRESS=peer0.org2.fabric3.standard:9051
       - CORE_PEER_LISTENADDRESS=0.0.0.0:9051
-      - CORE_PEER_CHAINCODEADDRESS=peer0.org2.fabric2.standard.com:9052
+      - CORE_PEER_CHAINCODEADDRESS=peer0.org2.fabric3.standard:9052
       - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:9052
-      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org2.fabric2.standard.com:9051
-      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org2.fabric2.standard.com:9051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org2.fabric3.standard:9051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org2.fabric3.standard:9051
       - CORE_PEER_LOCALMSPID=Org2MSP
       - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp
-      - CORE_OPERATIONS_LISTENADDRESS=peer0.org2.fabric2.standard.com:9445
+      - CORE_OPERATIONS_LISTENADDRESS=peer0.org2.fabric3.standard:9445
       - CORE_METRICS_PROVIDER=prometheus
       - CHAINCODE_AS_A_SERVICE_BUILDER_CONFIG={"peername":"peer0org2"}
       - CORE_CHAINCODE_EXECUTETIMEOUT=300s
     volumes:
-      - ../organizations/peerOrganizations/org2.standard.com/peers/peer0.org2.fabric2.standard.com:/etc/hyperledger/fabric
-      - peer0.org2.fabric2.standard.com:/var/hyperledger/production
+      - ../organizations/peerOrganizations/org2.fabric3.standard/peers/peer0.org2.fabric3.standard:/etc/hyperledger/fabric
+      - peer0.org2.fabric3.standard:/var/hyperledger/production
     working_dir: /root
     command: peer node start
     ports:

@@ -26,7 +26,7 @@ const NETWORK_SOURCES = [
         id: 'fabric3-raft-standard',
         label: 'Fabric 3 RAFT Standard',
         root: FABRIC3_STANDARD_NETWORK_ROOT,
-        ordererServiceName: 'orderer.fabric2.standard.com',
+        ordererServiceName: 'orderer.fabric3.standard',
     },
 ];
 

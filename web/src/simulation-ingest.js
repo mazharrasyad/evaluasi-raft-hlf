@@ -39,8 +39,8 @@ const networkTargets = [
         networkDir: path.resolve(__dirname, '../../fabric-3/raft-standard/network'),
         channelName: 'channel-standard',
         peerEndpoint: 'localhost:7051',
-        domain: 'standard.com',
-        peerHostAlias: 'peer0.org1.fabric2.standard.com',
+        domain: 'fabric3.standard',
+        peerHostAlias: 'peer0.org1.fabric3.standard',
     },
 ];
 

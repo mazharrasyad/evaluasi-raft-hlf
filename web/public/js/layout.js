@@ -4,9 +4,9 @@
     }
 
     const COMPONENT_PATHS = {
-        header: '../components/header.html',
-        sidebar: '../components/sidebar.html',
-        footer: '../components/footer.html',
+        header: '/components/header.html',
+        sidebar: '/components/sidebar.html',
+        footer: '/components/footer.html',
     };
 
     async function loadComponent(name) {

@@ -37,7 +37,7 @@ Organizations:
         Type: Signature
         Rule: "OR('OrdererMSP.admin')"
     OrdererEndpoints:
-      - orderer.fabric3.standard:7050
+      - orderer.fabric3.standard:7053
   - &Org1
     # DefaultOrg defines the organization which is used in the sampleconfig
     # of the fabric.git development environment
@@ -183,7 +183,7 @@ Orderer: &OrdererDefaults
   # as TLS validation.  The preferred way to specify orderer addresses is now
   # to include the OrdererEndpoints item in your org definition
   Addresses:
-    - orderer.fabric3.standard:7050
+    - orderer.fabric3.standard:7053
   # Batch Timeout: The amount of time to wait before creating a batch
   BatchTimeout: 2s
   # Batch Size: Controls the number of messages batched into a block
@@ -265,7 +265,7 @@ Profiles:
       EtcdRaft:
         Consenters:
           - Host: orderer.fabric3.standard
-            Port: 7050
+            Port: 7053
             ClientTLSCert: ../organizations/ordererOrganizations/fabric3.standard/orderers/orderer.fabric3.standard/tls/server.crt
             ServerTLSCert: ../organizations/ordererOrganizations/fabric3.standard/orderers/orderer.fabric3.standard/tls/server.crt
       Organizations:

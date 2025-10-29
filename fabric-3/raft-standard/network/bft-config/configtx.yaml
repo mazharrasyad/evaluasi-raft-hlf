@@ -37,7 +37,7 @@ Organizations:
         Type: Signature
         Rule: "OR('OrdererMSP.admin')"
     OrdererEndpoints:
-      - orderer.fabric3.standard:7050
+      - orderer.fabric3.standard:7053
       - orderer2.fabric3.standard:7052
       - orderer3.fabric3.standard:7056
       - orderer4.fabric3.standard:7058
@@ -278,7 +278,7 @@ Profiles:
       ConsenterMapping:
         - ID: 1
           Host: orderer.fabric3.standard
-          Port: 7050
+          Port: 7053
           MSPID: OrdererMSP
           Identity: ../organizations/ordererOrganizations/fabric3.standard/orderers/orderer.fabric3.standard/msp/signcerts/orderer.fabric3.standard-cert.pem
           ClientTLSCert: ../organizations/ordererOrganizations/fabric3.standard/orderers/orderer.fabric3.standard/tls/server.crt

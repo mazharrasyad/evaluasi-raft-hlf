@@ -24,7 +24,7 @@ services:
     environment:
       - FABRIC_LOGGING_SPEC=INFO
       - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
-      - ORDERER_GENERAL_LISTENPORT=7050
+      - ORDERER_GENERAL_LISTENPORT=7053
       - ORDERER_GENERAL_LOCALMSPID=OrdererMSP
       - ORDERER_GENERAL_LOCALMSPDIR=/var/hyperledger/orderer/msp
       # enabled TLS
@@ -42,7 +42,7 @@ services:
       - ORDERER_ADMIN_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/server.key
       - ORDERER_ADMIN_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
       - ORDERER_ADMIN_TLS_CLIENTROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
-      - ORDERER_ADMIN_LISTENADDRESS=localhost:7053
+      - ORDERER_ADMIN_LISTENADDRESS=localhost:8053
       - ORDERER_OPERATIONS_LISTENADDRESS=orderer.fabric3.standard:9443
       - ORDERER_METRICS_PROVIDER=prometheus
     working_dir: /root
@@ -52,8 +52,8 @@ services:
       - ../organizations/ordererOrganizations/fabric3.standard/orderers/orderer.fabric3.standard/tls/:/var/hyperledger/orderer/tls
       - orderer.fabric3.standard:/var/hyperledger/production/orderer
     ports:
-      - 7050:7050
       - 7053:7053
+      - 8053:8053
       - 9443:9443
     networks:
       - test

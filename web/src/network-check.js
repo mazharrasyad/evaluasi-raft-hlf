@@ -45,13 +45,13 @@ const networkConfigurations = [
     {
         label: 'Fabric 3 RAFT Standard',
         networkDir: fabric3StandardNetworkDir,
-        channelName: 'channel-standard',
+        channelName: 'fabric3-channel-standard',
         peerEndpoint: 'localhost:7051',
         peerHostAlias: 'peer0.org1.fabric3.standard',
         domain: 'fabric3.standard',
         instructions: {
-            up: `cd ${fabric3StandardNetworkDir} && ./network.sh up && ./network.sh createChannel`,
-            deploy: `cd ${fabric3StandardNetworkDir} && ./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl node`
+            up: `cd ${fabric3StandardNetworkDir} && ./network.sh up && ./network.sh createChannel -c fabric3-channel-standard`,
+            deploy: `cd ${fabric3StandardNetworkDir} && ./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl node -c fabric3-channel-standard`
         }
     }
 ];

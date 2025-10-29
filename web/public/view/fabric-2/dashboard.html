@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Evaluasi RAFT HLF &mdash; Dashboard</title>
+    <title>Evaluasi RAFT HLF &mdash; Dashboard Fabric 2</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
     <script>
@@ -29,7 +29,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/svg+xml" href="../images/logo-ai-center.svg">
+    <link rel="icon" type="image/svg+xml" href="/images/logo-ai-center.svg">
     <style>
         body { font-family: 'Inter', sans-serif; }
 
@@ -63,22 +63,22 @@
                             <div class="mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 py-16">
                                 <div class="flex flex-col items-start justify-between gap-4 text-sm text-textdark/70 md:flex-row md:items-center">
                                     <div class="flex items-center gap-4">
-                                        <img src="../images/logo-ai-center.svg" alt="AI Center" class="h-14 w-14 rounded-xl border border-white/20 bg-white/10 p-2 shadow-lg" loading="lazy">
+                                        <img src="/images/logo-ai-center.svg" alt="AI Center" class="h-14 w-14 rounded-xl border border-white/20 bg-white/10 p-2 shadow-lg" loading="lazy">
                                         <div class="flex flex-col gap-1">
-                                            <span class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-secondary/20 px-4 py-1 text-xs font-semibold uppercase tracking-[0.28em] text-textdark">Pelaporan Wilayah</span>
+                                            <span class="inline-flex items-center gap-2 rounded-full border border-secondary/40 bg-secondary/20 px-4 py-1 text-xs font-semibold uppercase tracking-[0.28em] text-secondary/90">Fabric 2 Stable</span>
                                             <span class="text-xs text-textdark/70">Evaluasi RAFT HLF &mdash; AI Center</span>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="flex flex-col gap-8 rounded-3xl border border-white/10 bg-surface/90 p-8 text-textdark shadow-2xl shadow-black/20 backdrop-blur-sm">
                                     <div class="flex flex-col gap-4 text-left">
-                                        <h1 class="text-4xl font-semibold text-textdark md:text-5xl">Detail Jaringan Hyperledger Fabric</h1>
-                                        <p class="text-lg text-textdark/70">Ringkasan konfigurasi jaringan Fabric yang digunakan untuk evaluasi konsensus RAFT. Data diambil langsung dari berkas konfigurasi pada paket <span class="font-semibold text-textdark">raft-standard</span>, <span class="font-semibold text-textdark">fabric-3/raft-standard</span>, dan <span class="font-semibold text-textdark">raft-variant</span>.</p>
+                                        <h1 class="text-4xl font-semibold text-textdark md:text-5xl">Detail Jaringan Hyperledger Fabric 2</h1>
+                                        <p class="text-lg text-textdark/70">Ringkasan konfigurasi klaster Fabric 2 dan eksperimen varian yang digunakan untuk evaluasi konsensus RAFT. Data diambil langsung dari berkas konfigurasi pada paket <span class="font-semibold text-textdark">raft-standard</span> dan <span class="font-semibold text-textdark">raft-variant</span>, dengan konteks tambahan untuk integrasi Fabric 3.</p>
                                     </div>
                                     <div id="fabricNetworkSummaries" class="space-y-6 rounded-2xl border border-white/10 bg-surfaceMuted/80 p-6 text-sm text-textdark" data-state="loading">
                                         <div class="flex items-center gap-3 rounded-2xl border border-white/10 bg-surface/60 px-4 py-3 text-textdark/70" data-fabric-summary-status>
                                             <span class="flex h-3 w-3 animate-ping rounded-full bg-secondary/70"></span>
-                                            <span>Memuat detail konfigurasi jaringan RAFT dari berkas Fabric…</span>
+                                            <span>Memuat detail konfigurasi jaringan RAFT dari berkas Fabric 2…</span>
                                         </div>
                                     </div>
                                 </div>
@@ -136,9 +136,9 @@
         </div>
     </div>
 
-    <script src="../js/layout.js" defer></script>
-    <script src="../js/navigation.js" defer></script>
+    <script src="/js/layout.js" defer></script>
+    <script src="/js/navigation.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js" defer></script>
-    <script src="../js/dashboard.js" defer></script>
+    <script src="/js/dashboard.js" defer></script>
 </body>
 </html>

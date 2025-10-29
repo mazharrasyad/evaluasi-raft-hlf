@@ -651,11 +651,19 @@ const staticRoot = path.resolve(__dirname, '../public');
 const viewsRoot = path.resolve(staticRoot, 'view');
 
 const viewFiles = {
-    dashboard: path.resolve(viewsRoot, 'dashboard.html'),
-    kesehatanJaringan: path.resolve(viewsRoot, 'kesehatan-jaringan.html'),
-    simulasiData: path.resolve(viewsRoot, 'simulasi-data.html'),
-    fabric3Dummy: path.resolve(viewsRoot, 'fabric3-dummy.html'),
-    wilayahDataset: path.resolve(viewsRoot, 'wilayah-indonesia.html'),
+    fabric2: {
+        dashboard: path.resolve(viewsRoot, 'fabric-2/dashboard.html'),
+        networkHealth: path.resolve(viewsRoot, 'fabric-2/kesehatan-jaringan.html'),
+        simulasiData: path.resolve(viewsRoot, 'fabric-2/simulasi-data.html'),
+        wilayahDataset: path.resolve(viewsRoot, 'fabric-2/wilayah-indonesia.html'),
+    },
+    fabric3: {
+        dashboard: path.resolve(viewsRoot, 'fabric-3/dashboard.html'),
+        networkHealth: path.resolve(viewsRoot, 'fabric-3/kesehatan-jaringan.html'),
+        simulasiData: path.resolve(viewsRoot, 'fabric-3/simulasi-data.html'),
+        dummy1: path.resolve(viewsRoot, 'fabric-3/dummy-1.html'),
+        wilayahDataset: path.resolve(viewsRoot, 'fabric-3/wilayah-indonesia.html'),
+    },
 };
 
 app.use(express.static(staticRoot));
@@ -691,7 +699,19 @@ app.get('/api/network-operations/stream', (req, res) => {
 });
 
 app.get('/', (req, res) => {
-    res.sendFile(viewFiles.dashboard);
+    res.redirect(302, '/fabric-2/dashboard');
+});
+
+app.get('/dashboard', (req, res) => {
+    res.redirect(302, '/fabric-2/dashboard');
+});
+
+app.get('/fabric-2/dashboard', (req, res) => {
+    res.sendFile(viewFiles.fabric2.dashboard);
+});
+
+app.get('/fabric-3/dashboard', (req, res) => {
+    res.sendFile(viewFiles.fabric3.dashboard);
 });
 
 app.get('/kesehatan-jaringan', (req, res) => {
@@ -699,19 +719,39 @@ app.get('/kesehatan-jaringan', (req, res) => {
 });
 
 app.get('/fabric-2/kesehatan-jaringan', (req, res) => {
-    res.sendFile(viewFiles.kesehatanJaringan);
+    res.sendFile(viewFiles.fabric2.networkHealth);
 });
 
 app.get('/fabric-3/kesehatan-jaringan', (req, res) => {
-    res.sendFile(viewFiles.kesehatanJaringan);
+    res.sendFile(viewFiles.fabric3.networkHealth);
 });
 
 app.get('/simulasi-data', (req, res) => {
-    res.sendFile(viewFiles.simulasiData);
+    res.redirect(302, '/fabric-2/simulasi-data');
+});
+
+app.get('/fabric-2/simulasi-data', (req, res) => {
+    res.sendFile(viewFiles.fabric2.simulasiData);
+});
+
+app.get('/fabric-3/simulasi-data', (req, res) => {
+    res.sendFile(viewFiles.fabric3.simulasiData);
+});
+
+app.get('/wilayah-indonesia', (req, res) => {
+    res.redirect(302, '/fabric-2/wilayah-indonesia');
+});
+
+app.get('/fabric-2/wilayah-indonesia', (req, res) => {
+    res.sendFile(viewFiles.fabric2.wilayahDataset);
+});
+
+app.get('/fabric-3/wilayah-indonesia', (req, res) => {
+    res.sendFile(viewFiles.fabric3.wilayahDataset);
 });
 
 app.get('/fabric-3/dummy-1', (req, res) => {
-    res.sendFile(viewFiles.fabric3Dummy);
+    res.sendFile(viewFiles.fabric3.dummy1);
 });
 
 app.get('/api/check-network', async (req, res) => {
@@ -1058,12 +1098,8 @@ app.post('/api/simulations/records', async (req, res) => {
     }
 });
 
-app.get('/wilayah-indonesia', (req, res) => {
-    res.sendFile(viewFiles.wilayahDataset);
-});
-
 app.get('*', (req, res) => {
-    res.sendFile(viewFiles.dashboard);
+    res.sendFile(viewFiles.fabric2.dashboard);
 });
 
 const PORT = process.env.PORT || 5176;

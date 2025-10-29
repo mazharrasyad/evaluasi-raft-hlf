@@ -452,8 +452,28 @@ function queryChaincode() {
 # Tear down running network
 function networkDown() {
   local temp_compose=$COMPOSE_FILE_BASE
-  COMPOSE_FILE_BASE=compose-bft-test-net.yaml
-  COMPOSE_BASE_FILES="-f compose/${COMPOSE_FILE_BASE} -f compose/${CONTAINER_CLI}/${CONTAINER_CLI}-${COMPOSE_FILE_BASE}"
+  local shutdown_compose=$COMPOSE_FILE_BASE
+
+  if [ $BFT -eq 1 ]; then
+    shutdown_compose=$BFT_COMPOSE_FILE
+  fi
+
+  local shutdown_cli_compose="compose/${CONTAINER_CLI}/${CONTAINER_CLI}-${shutdown_compose}"
+
+  if [ ! -f "${shutdown_cli_compose}" ]; then
+    if [ "${shutdown_compose}" != "${temp_compose}" ]; then
+      warnln "BFT compose file ${shutdown_cli_compose} not found, falling back to ${temp_compose}."
+    fi
+    shutdown_compose=$temp_compose
+    shutdown_cli_compose="compose/${CONTAINER_CLI}/${CONTAINER_CLI}-${shutdown_compose}"
+  fi
+
+  if [ ! -f "${shutdown_cli_compose}" ]; then
+    fatalln "Required compose file ${shutdown_cli_compose} not found."
+  fi
+
+  COMPOSE_FILE_BASE=$shutdown_compose
+  COMPOSE_BASE_FILES="-f compose/${COMPOSE_FILE_BASE} -f ${shutdown_cli_compose}"
   COMPOSE_COUCH_FILES="-f compose/${COMPOSE_FILE_COUCH} -f compose/${CONTAINER_CLI}/${CONTAINER_CLI}-${COMPOSE_FILE_COUCH}"
   COMPOSE_CA_FILES="-f compose/${COMPOSE_FILE_CA} -f compose/${CONTAINER_CLI}/${CONTAINER_CLI}-${COMPOSE_FILE_CA}"
   COMPOSE_FILES="${COMPOSE_BASE_FILES} ${COMPOSE_COUCH_FILES} ${COMPOSE_CA_FILES}"
@@ -506,10 +526,51 @@ function networkDown() {
   fi
 }
 
+function configureNetworkProfile() {
+  local requested_bft=$1
+
+  if [ "${requested_bft}" -eq 1 ]; then
+    local bft_compose_path="compose/${BFT_COMPOSE_FILE}"
+    local bft_cli_compose_path="compose/${CONTAINER_CLI}/${CONTAINER_CLI}-${BFT_COMPOSE_FILE}"
+
+    if [ -f "${bft_compose_path}" ] && [ -f "${bft_cli_compose_path}" ]; then
+      COMPOSE_FILE_BASE=${BFT_COMPOSE_FILE}
+      export FABRIC_CFG_PATH=${PWD}/bft-config
+    else
+      local missing_paths=()
+      if [ ! -f "${bft_compose_path}" ]; then
+        missing_paths+=("${bft_compose_path}")
+      fi
+      if [ ! -f "${bft_cli_compose_path}" ]; then
+        missing_paths+=("${bft_cli_compose_path}")
+      fi
+      warnln "BFT compose file(s) ${missing_paths[*]} not found, falling back to ${DEFAULT_COMPOSE_FILE_BASE}."
+      BFT=0
+      COMPOSE_FILE_BASE=${DEFAULT_COMPOSE_FILE_BASE}
+      export FABRIC_CFG_PATH=${PWD}/configtx
+    fi
+  else
+    COMPOSE_FILE_BASE=${DEFAULT_COMPOSE_FILE_BASE}
+  fi
+
+  local resolved_compose_path="compose/${COMPOSE_FILE_BASE}"
+  local resolved_cli_compose_path="compose/${CONTAINER_CLI}/${CONTAINER_CLI}-${COMPOSE_FILE_BASE}"
+
+  if [ ! -f "${resolved_compose_path}" ]; then
+    fatalln "Required compose file ${resolved_compose_path} not found."
+  fi
+
+  if [ ! -f "${resolved_cli_compose_path}" ]; then
+    fatalln "Required compose file ${resolved_cli_compose_path} not found."
+  fi
+}
+
 . ./network.config
 
 # use this as the default docker-compose yaml definition
-COMPOSE_FILE_BASE=compose-test-net.yaml
+DEFAULT_COMPOSE_FILE_BASE=compose-test-net.yaml
+BFT_COMPOSE_FILE=compose-bft-test-net.yaml
+COMPOSE_FILE_BASE=${DEFAULT_COMPOSE_FILE_BASE}
 # docker-compose.yaml file if you are using couchdb
 COMPOSE_FILE_COUCH=compose-couch.yaml
 # certificate authorities compose file
@@ -665,10 +726,7 @@ while [[ $# -ge 1 ]] ; do
   shift
 done
 
-if [ $BFT -eq 1 ]; then
-  export FABRIC_CFG_PATH=${PWD}/bft-config
-  COMPOSE_FILE_BASE=compose-bft-test-net.yaml
-fi
+configureNetworkProfile "$BFT"
 
 # Are we generating crypto material with this command?
 if [ ! -d "organizations/peerOrganizations" ]; then

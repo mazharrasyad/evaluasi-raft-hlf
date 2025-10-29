@@ -614,6 +614,7 @@ const viewFiles = {
     dashboard: path.resolve(viewsRoot, 'dashboard.html'),
     kesehatanJaringan: path.resolve(viewsRoot, 'kesehatan-jaringan.html'),
     simulasiData: path.resolve(viewsRoot, 'simulasi-data.html'),
+    fabric3Dummy: path.resolve(viewsRoot, 'fabric3-dummy.html'),
     wilayahDataset: path.resolve(viewsRoot, 'wilayah-indonesia.html'),
 };
 
@@ -659,6 +660,10 @@ app.get('/kesehatan-jaringan', (req, res) => {
 
 app.get('/simulasi-data', (req, res) => {
     res.sendFile(viewFiles.simulasiData);
+});
+
+app.get('/fabric-3/dummy-1', (req, res) => {
+    res.sendFile(viewFiles.fabric3Dummy);
 });
 
 app.get('/api/check-network', async (req, res) => {

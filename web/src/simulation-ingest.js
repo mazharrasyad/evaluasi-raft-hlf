@@ -22,6 +22,7 @@ const networkTargets = [
         channelName: 'channel-standard',
         peerEndpoint: 'localhost:7051',
         domain: 'standard.com',
+        peerHostAlias: 'peer0.org1.fabric2.standard.com',
     },
     {
         id: 'channel-variant',
@@ -30,6 +31,16 @@ const networkTargets = [
         channelName: 'channel-variant',
         peerEndpoint: 'localhost:7052',
         domain: 'variant.com',
+        peerHostAlias: 'peer0.org1.fabric2.variant.com',
+    },
+    {
+        id: 'channel-fabric3-standard',
+        label: 'Fabric 3 RAFT Standard',
+        networkDir: path.resolve(__dirname, '../../fabric-3/raft-standard/network'),
+        channelName: 'channel-standard',
+        peerEndpoint: 'localhost:7051',
+        domain: 'standard.com',
+        peerHostAlias: 'peer0.org1.fabric2.standard.com',
     },
 ];
 
@@ -209,7 +220,7 @@ async function submitToSingleNetwork(target, record) {
     const domain = target.domain ?? 'standard.com';
     const orgDomain = `org1.${domain}`;
     const mspUser = `User1@${orgDomain}`;
-    const peerHostAlias = `peer0.${orgDomain}`;
+    const peerHostAlias = target.peerHostAlias ?? `peer0.${orgDomain}`;
     const startedAt = new Date().toISOString();
 
     const baseResult = {

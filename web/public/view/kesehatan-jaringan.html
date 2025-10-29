@@ -78,7 +78,7 @@
                                             </div>
                                             <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-300">⚡</span>
                                         </header>
-                                        <p class="text-sm text-textdark/70">Run the <code>network.sh</code> helpers to boot either RAFT network.</p>
+                                        <p class="text-sm text-textdark/70">Run the <code>network.sh</code> helpers to boot any available RAFT network.</p>
                                         <div class="space-y-4">
                                             <div class="flex flex-col gap-3">
                                                 <button
@@ -117,9 +117,29 @@
                                                     data-network-label="RAFT Variant Network"
                                                 >
                                                     <span data-indicator class="h-2 w-2 rounded-full bg-secondary"></span>
-                                                    <span data-message>No startup command has been executed for the RAFT Variant network yet.</span>
+                                                <span data-message>No startup command has been executed for the RAFT Variant network yet.</span>
+                                            </p>
+                                            <div class="flex flex-col gap-3">
+                                                <button
+                                                    type="button"
+                                                    class="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-300/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-emerald-300/40 transition duration-200 hover:-translate-y-0.5 hover:bg-emerald-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-200"
+                                                    data-network-startup-button="fabric3-standard"
+                                                    data-network-label="Fabric 3 RAFT Standard Network"
+                                                >
+                                                    <span>Start Fabric 3 RAFT Standard</span>
+                                                </button>
+                                                <p
+                                                    class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 py-2 text-xs font-medium text-textdark/80"
+                                                    role="status"
+                                                    aria-live="polite"
+                                                    data-network-startup-status="fabric3-standard"
+                                                    data-network-label="Fabric 3 RAFT Standard Network"
+                                                >
+                                                    <span data-indicator class="h-2 w-2 rounded-full bg-secondary"></span>
+                                                    <span data-message>No startup command has been executed for the Fabric 3 RAFT Standard network yet.</span>
                                                 </p>
                                             </div>
+                                        </div>
                                         </div>
                                     </article>
                                     <article class="flex flex-col gap-4 rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6 shadow-lg shadow-black/20">
@@ -171,9 +191,30 @@
                                                     data-default-message="No shutdown command has been executed for the RAFT Variant network yet."
                                                 >
                                                     <span data-indicator class="h-2 w-2 rounded-full bg-secondary"></span>
-                                                    <span data-message>No shutdown command has been executed for the RAFT Variant network yet.</span>
+                                                <span data-message>No shutdown command has been executed for the RAFT Variant network yet.</span>
+                                            </p>
+                                            <div class="flex flex-col gap-3">
+                                                <button
+                                                    type="button"
+                                                    data-network-shutdown-button="fabric3-standard"
+                                                    data-network-label="Fabric 3 RAFT Standard Network"
+                                                    class="inline-flex items-center justify-center gap-2 rounded-lg bg-rose-400/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-rose-400/40 transition duration-200 hover:-translate-y-0.5 hover:bg-rose-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-300"
+                                                >
+                                                    <span>Stop Fabric 3 RAFT Standard</span>
+                                                </button>
+                                                <p
+                                                    class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 py-2 text-xs font-medium text-textdark/80"
+                                                    role="status"
+                                                    aria-live="polite"
+                                                    data-network-shutdown-status="fabric3-standard"
+                                                    data-network-label="Fabric 3 RAFT Standard Network"
+                                                    data-default-message="No shutdown command has been executed for the Fabric 3 RAFT Standard network yet."
+                                                >
+                                                    <span data-indicator class="h-2 w-2 rounded-full bg-secondary"></span>
+                                                    <span data-message>No shutdown command has been executed for the Fabric 3 RAFT Standard network yet.</span>
                                                 </p>
                                             </div>
+                                        </div>
                                         </div>
                                     </article>
                                     <article class="flex flex-col gap-4 rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6 shadow-lg shadow-black/20">
@@ -184,7 +225,7 @@
                                             </div>
                                         <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-secondary/20 text-secondary">⟳</span>
                                         </header>
-                                        <p class="text-sm text-textdark/70">Run a health check across both RAFT environments.</p>
+                                        <p class="text-sm text-textdark/70">Run a health check across all configured RAFT environments.</p>
                                         <div class="flex flex-col gap-3">
                                             <button type="button" id="networkCheckButton" class="inline-flex items-center justify-center gap-2 rounded-lg bg-secondary/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-textdark shadow-lg shadow-secondary/40 transition duration-200 hover:-translate-y-0.5 hover:bg-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary">
                                                 <span>Check network</span>
@@ -203,7 +244,7 @@
                                             </div>
                                             <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-sky-500/10 text-sky-300">⟳</span>
                                         </header>
-                                        <p class="text-sm text-textdark/70">Shut down every RAFT network and immediately start the Standard and Variant clusters.</p>
+                                        <p class="text-sm text-textdark/70">Shut down every RAFT network and immediately start each configured cluster.</p>
                                         <div class="flex flex-col gap-3">
                                             <button
                                                 type="button"

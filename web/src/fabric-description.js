@@ -7,19 +7,26 @@ const __dirname = path.dirname(__filename);
 
 const STANDARD_NETWORK_ROOT = path.resolve(__dirname, '..', '..', 'fabric-2', 'raft-standard', 'network');
 const VARIANT_NETWORK_ROOT = path.resolve(__dirname, '..', '..', 'fabric-2', 'raft-variant', 'network');
+const FABRIC3_STANDARD_NETWORK_ROOT = path.resolve(__dirname, '..', '..', 'fabric-3', 'raft-standard', 'network');
 
 const NETWORK_SOURCES = [
     {
         id: 'raft-standard',
         label: 'RAFT Standard',
         root: STANDARD_NETWORK_ROOT,
-        domain: 'standard.com',
+        ordererServiceName: 'orderer.fabric2.standard.com',
     },
     {
         id: 'raft-variant',
         label: 'RAFT Variant',
         root: VARIANT_NETWORK_ROOT,
-        domain: 'variant.com',
+        ordererServiceName: 'orderer.fabric2.variant.com',
+    },
+    {
+        id: 'fabric3-raft-standard',
+        label: 'Fabric 3 RAFT Standard',
+        root: FABRIC3_STANDARD_NETWORK_ROOT,
+        ordererServiceName: 'orderer.fabric2.standard.com',
     },
 ];
 
@@ -318,8 +325,10 @@ function buildOrdererSummary(serviceName, service, envMap) {
     const operationsPort = operationsAddress?.split(':').pop() ?? null;
     const operationsMapping = operationsPort ? findPortMapping(ports, operationsPort) : null;
 
+    const resolvedServiceName = serviceName ?? service.container_name ?? service.hostname ?? null;
+
     return {
-        serviceName,
+        serviceName: resolvedServiceName,
         containerName: service.container_name ?? null,
         hostname: service.hostname ?? null,
         image: service.image ?? null,
@@ -401,10 +410,10 @@ export async function loadFabricDescriptions() {
             const composeContent = await fs.readFile(composePath, 'utf8');
             const compose = parseComposeFile(composeContent);
             const services = compose?.services ?? {};
-            const domain = source.domain ?? 'standard.com';
-            const ordererServiceName = `orderer.${domain}`;
-            const ordererEnv = parseEnvironmentVariables(services?.[ordererServiceName]?.environment ?? []);
-            const ordererSummary = buildOrdererSummary(ordererServiceName, services?.[ordererServiceName], ordererEnv);
+            const preferredOrderer = source.ordererServiceName ?? null;
+            const ordererEntry = findOrdererService(services, preferredOrderer);
+            const ordererEnv = parseEnvironmentVariables(ordererEntry.service?.environment ?? []);
+            const ordererSummary = buildOrdererSummary(ordererEntry.name, ordererEntry.service, ordererEnv);
             const peerSummaries = buildPeerSummaries(services);
 
             const networkConfigPath = path.resolve(source.root, NETWORK_CONFIG_RELATIVE_PATH);
@@ -448,4 +457,30 @@ export async function loadFabricDescriptions() {
     }
 
     return descriptions;
+}
+
+function findOrdererService(services, preferredName) {
+    if (!services || typeof services !== 'object') {
+        return { name: null, service: null };
+    }
+
+    if (preferredName && services[preferredName]) {
+        return { name: preferredName, service: services[preferredName] };
+    }
+
+    const ordererEntry = Object.entries(services).find(([, service]) => {
+        const image = service?.image;
+        if (typeof image === 'string' && image.includes('fabric-orderer')) {
+            return true;
+        }
+
+        const env = parseEnvironmentVariables(service?.environment);
+        return env.ORDERER_GENERAL_LOCALMSPID !== undefined;
+    });
+
+    if (!ordererEntry) {
+        return { name: null, service: null };
+    }
+
+    return { name: ordererEntry[0], service: ordererEntry[1] };
 }

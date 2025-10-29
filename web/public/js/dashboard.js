@@ -460,12 +460,12 @@ const BLOCKCHAIN_TARGETS = [
     {
         id: 'channel-standard',
         label: 'RAFT Standard',
-        channel: 'channel-standard',
+        channel: 'fabric2-channel-standard',
     },
     {
         id: 'channel-variant',
         label: 'RAFT Variant',
-        channel: 'channel-variant',
+        channel: 'fabric2-channel-variant',
     },
     {
         id: 'channel-fabric3-standard',
@@ -991,9 +991,9 @@ async function confirmNetworkStartup(networkType, networkLabel) {
     let text = `This command runs a series of ./network.sh scripts to start ${label}. Ensure the server is ready before continuing.`;
 
     if (normalizedType === 'standard') {
-        text = 'This will run ./network.sh up -ca, ./network.sh createChannel -c channel-standard -ca, and deploy the pelaporan chaincode on channel-standard.';
+        text = 'This will run ./network.sh up -ca, ./network.sh createChannel -c fabric2-channel-standard -ca, and deploy the pelaporan chaincode on fabric2-channel-standard.';
     } else if (normalizedType === 'variant') {
-        text = 'This will run ./network.sh up -ca -bft, ./network.sh createChannel -c channel-variant -ca -bft, and deploy the pelaporan chaincode on channel-variant.';
+        text = 'This will run ./network.sh up -ca -bft, ./network.sh createChannel -c fabric2-channel-variant -ca -bft, and deploy the pelaporan chaincode on fabric2-channel-variant.';
     } else if (normalizedType === 'fabric3-standard') {
         text = 'This will run ./network.sh up, ./network.sh createChannel, and deploy the pelaporan chaincode using Fabric 3 defaults.';
     }

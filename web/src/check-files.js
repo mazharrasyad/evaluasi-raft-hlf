@@ -63,10 +63,10 @@ async function checkFiles() {
     console.error(error.message);
 
     console.log('\nPlease ensure the Hyperledger Fabric network is set up correctly:');
-    console.log(`1. Make sure the network is running: cd ${standardNetworkPath} && ./network.sh up -ca && ./network.sh createChannel -c channel-standard -ca`);
-    console.log(`   (use ${variantNetworkPath} if you are relying on the variant Fabric network)`);
-    console.log(`2. Make sure the chaincode is deployed: cd ${standardNetworkPath} && ./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl javascript`);
-    console.log(`   (use ${variantNetworkPath} for the RAFT Variant network when deploying chaincode)`);
+    console.log(`1. Make sure the network is running: cd ${standardNetworkPath} && ./network.sh up -ca && ./network.sh createChannel -c fabric2-channel-standard -ca`);
+    console.log(`   (use ${variantNetworkPath} if you are relying on the variant Fabric network with channel fabric2-channel-variant)`);
+    console.log(`2. Make sure the chaincode is deployed: cd ${standardNetworkPath} && ./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl javascript -c fabric2-channel-standard`);
+    console.log(`   (use ${variantNetworkPath} for the RAFT Variant network when deploying chaincode with -c fabric2-channel-variant)`);
     console.log('3. Check that the crypto materials are generated in the correct location');
 
     return false;

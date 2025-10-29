@@ -142,20 +142,20 @@ function createOrg2() {
 
   infoln "Generating the peer0 msp"
   set -x
-  fabric-ca-client enroll -u https://peer0:peer0pw@localhost:8054 --caname ca-org2 -M "${PWD}/organizations/peerOrganizations/org2.standard.com/peers/peer0.org2.standard.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/org2/ca-cert.pem"
+  fabric-ca-client enroll -u https://peer0:peer0pw@localhost:8054 --caname ca-org2 -M "${PWD}/organizations/peerOrganizations/org2.standard.com/peers/peer0.org2.fabric2.standard.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/org2/ca-cert.pem"
   { set +x; } 2>/dev/null
 
-  cp "${PWD}/organizations/peerOrganizations/org2.standard.com/msp/config.yaml" "${PWD}/organizations/peerOrganizations/org2.standard.com/peers/peer0.org2.standard.com/msp/config.yaml"
+  cp "${PWD}/organizations/peerOrganizations/org2.standard.com/msp/config.yaml" "${PWD}/organizations/peerOrganizations/org2.standard.com/peers/peer0.org2.fabric2.standard.com/msp/config.yaml"
 
   infoln "Generating the peer0-tls certificates, use --csr.hosts to specify Subject Alternative Names"
   set -x
-  fabric-ca-client enroll -u https://peer0:peer0pw@localhost:8054 --caname ca-org2 -M "${PWD}/organizations/peerOrganizations/org2.standard.com/peers/peer0.org2.standard.com/tls" --enrollment.profile tls --csr.hosts peer0.org2.standard.com --csr.hosts localhost --tls.certfiles "${PWD}/organizations/fabric-ca/org2/ca-cert.pem"
+  fabric-ca-client enroll -u https://peer0:peer0pw@localhost:8054 --caname ca-org2 -M "${PWD}/organizations/peerOrganizations/org2.standard.com/peers/peer0.org2.fabric2.standard.com/tls" --enrollment.profile tls --csr.hosts peer0.org2.fabric2.standard.com --csr.hosts localhost --tls.certfiles "${PWD}/organizations/fabric-ca/org2/ca-cert.pem"
   { set +x; } 2>/dev/null
 
   # Copy the tls CA cert, server cert, server keystore to well known file names in the peer's tls directory that are referenced by peer startup config
-  cp "${PWD}/organizations/peerOrganizations/org2.standard.com/peers/peer0.org2.standard.com/tls/tlscacerts/"* "${PWD}/organizations/peerOrganizations/org2.standard.com/peers/peer0.org2.standard.com/tls/ca.crt"
-  cp "${PWD}/organizations/peerOrganizations/org2.standard.com/peers/peer0.org2.standard.com/tls/signcerts/"* "${PWD}/organizations/peerOrganizations/org2.standard.com/peers/peer0.org2.standard.com/tls/server.crt"
-  cp "${PWD}/organizations/peerOrganizations/org2.standard.com/peers/peer0.org2.standard.com/tls/keystore/"* "${PWD}/organizations/peerOrganizations/org2.standard.com/peers/peer0.org2.standard.com/tls/server.key"
+  cp "${PWD}/organizations/peerOrganizations/org2.standard.com/peers/peer0.org2.fabric2.standard.com/tls/tlscacerts/"* "${PWD}/organizations/peerOrganizations/org2.standard.com/peers/peer0.org2.fabric2.standard.com/tls/ca.crt"
+  cp "${PWD}/organizations/peerOrganizations/org2.standard.com/peers/peer0.org2.fabric2.standard.com/tls/signcerts/"* "${PWD}/organizations/peerOrganizations/org2.standard.com/peers/peer0.org2.fabric2.standard.com/tls/server.crt"
+  cp "${PWD}/organizations/peerOrganizations/org2.standard.com/peers/peer0.org2.fabric2.standard.com/tls/keystore/"* "${PWD}/organizations/peerOrganizations/org2.standard.com/peers/peer0.org2.fabric2.standard.com/tls/server.key"
 
   infoln "Generating the user msp"
   set -x

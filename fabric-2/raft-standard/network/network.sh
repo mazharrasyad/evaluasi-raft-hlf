@@ -31,7 +31,7 @@ VOLUME_SUFFIXES=(
   "orderer3.standard.com"
   "orderer4.standard.com"
   "peer0.org1.fabric2.standard.com"
-  "peer0.org2.standard.com"
+  "peer0.org2.fabric2.standard.com"
 )
 
 LEGACY_VOLUME_SUFFIXES=(
@@ -228,7 +228,7 @@ function createOrgs() {
 
     infoln "Creating Org2 Identities"
     #function_name cert-type   CN   org
-    peer_cert peer peer0.org2.standard.com org2
+    peer_cert peer peer0.org2.fabric2.standard.com org2
     peer_cert admin Admin@org2.standard.com org2
 
     infoln "Creating Orderer Org Identities"

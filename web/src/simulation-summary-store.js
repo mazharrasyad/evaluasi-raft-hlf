@@ -15,6 +15,50 @@ function createEmptySummary() {
     };
 }
 
+function normalizeBlockNumber(blockNumber) {
+    if (blockNumber === null || blockNumber === undefined) {
+        return null;
+    }
+
+    if (typeof blockNumber === 'bigint') {
+        return blockNumber <= BigInt(Number.MAX_SAFE_INTEGER)
+            ? Number(blockNumber)
+            : blockNumber.toString();
+    }
+
+    if (typeof blockNumber === 'number' && Number.isFinite(blockNumber)) {
+        return blockNumber;
+    }
+
+    if (typeof blockNumber === 'string') {
+        const trimmed = blockNumber.trim();
+        if (!trimmed) {
+            return null;
+        }
+
+        const parsed = Number.parseInt(trimmed, 10);
+        if (Number.isFinite(parsed)) {
+            return parsed;
+        }
+
+        return trimmed;
+    }
+
+    return null;
+}
+
+function formatBlockLabel(normalizedBlockNumber) {
+    if (normalizedBlockNumber === null || normalizedBlockNumber === undefined) {
+        return null;
+    }
+
+    if (typeof normalizedBlockNumber === 'number' && Number.isFinite(normalizedBlockNumber)) {
+        return `#${normalizedBlockNumber}`;
+    }
+
+    return `#${normalizedBlockNumber}`;
+}
+
 async function ensureLogsDirectory() {
     await fs.mkdir(logsRoot, { recursive: true });
 }
@@ -27,6 +71,22 @@ async function readSummaryFile() {
             parsed.networks = parsed.networks && typeof parsed.networks === 'object'
                 ? parsed.networks
                 : {};
+
+            Object.values(parsed.networks).forEach(network => {
+                if (!network || typeof network !== 'object') {
+                    return;
+                }
+
+                network.blocks = network.blocks && typeof network.blocks === 'object'
+                    ? network.blocks
+                    : {};
+                network.blockCount = Number.isFinite(network.blockCount)
+                    ? network.blockCount
+                    : Object.keys(network.blocks).length;
+                if (!network.lastBlockLabel && network.lastBlockNumber !== undefined && network.lastBlockNumber !== null) {
+                    network.lastBlockLabel = formatBlockLabel(network.lastBlockNumber);
+                }
+            });
             return parsed;
         }
         return createEmptySummary();
@@ -95,6 +155,11 @@ function ensureNetworkSummary(summary, result) {
         lastStatus: null,
         lastMessage: null,
         lastTransactionId: null,
+        blocks: {},
+        blockCount: 0,
+        lastBlockNumber: null,
+        lastBlockLabel: null,
+        lastBlockUpdatedAt: null,
     };
 
     networks[result.targetId] = networkSummary;
@@ -152,6 +217,62 @@ function applyResultToSummary(networkSummary, result) {
 
     if (result.transactionId) {
         networkSummary.lastTransactionId = result.transactionId;
+    }
+
+    const rawBlockNumber = result.commitStatus?.blockNumber ?? result.blockNumber ?? null;
+    const normalizedBlock = normalizeBlockNumber(rawBlockNumber);
+
+    if (normalizedBlock !== null) {
+        if (!networkSummary.blocks || typeof networkSummary.blocks !== 'object') {
+            networkSummary.blocks = {};
+        }
+
+        const blockKey = typeof normalizedBlock === 'number' ? String(normalizedBlock) : String(normalizedBlock);
+        const existingBlock = networkSummary.blocks[blockKey];
+
+        const blockSummary = existingBlock && typeof existingBlock === 'object'
+            ? existingBlock
+            : {
+                blockNumber: normalizedBlock,
+                blockLabel: formatBlockLabel(normalizedBlock),
+                totalCount: 0,
+                successCount: 0,
+                failureCount: 0,
+                totalLatencyMs: 0,
+                lastUpdatedAt: null,
+                lastStatus: null,
+                lastMessage: null,
+                lastTransactionId: null,
+            };
+
+        blockSummary.totalCount = (blockSummary.totalCount || 0) + 1;
+        if (result.status === 'success') {
+            blockSummary.successCount = (blockSummary.successCount || 0) + 1;
+            if (typeof result.latencyMs === 'number' && Number.isFinite(result.latencyMs)) {
+                blockSummary.totalLatencyMs = (blockSummary.totalLatencyMs || 0) + result.latencyMs;
+            }
+        } else {
+            blockSummary.failureCount = (blockSummary.failureCount || 0) + 1;
+        }
+
+        if (networkSummary.lastUpdatedAt) {
+            blockSummary.lastUpdatedAt = networkSummary.lastUpdatedAt;
+        }
+        if (result.status) {
+            blockSummary.lastStatus = result.status;
+        }
+        if (result.message) {
+            blockSummary.lastMessage = result.message;
+        }
+        if (result.transactionId) {
+            blockSummary.lastTransactionId = result.transactionId;
+        }
+
+        networkSummary.blocks[blockKey] = blockSummary;
+        networkSummary.blockCount = Object.keys(networkSummary.blocks).length;
+        networkSummary.lastBlockNumber = normalizedBlock;
+        networkSummary.lastBlockLabel = blockSummary.blockLabel;
+        networkSummary.lastBlockUpdatedAt = blockSummary.lastUpdatedAt;
     }
 }
 

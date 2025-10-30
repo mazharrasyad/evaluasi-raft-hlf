@@ -883,6 +883,109 @@ app.get('/api/simulations/summary', async (req, res) => {
                     ? successCount / totalCount
                     : null;
 
+                const blocksRecord = item.blocks && typeof item.blocks === 'object'
+                    ? item.blocks
+                    : {};
+                const blockSummaries = Object.values(blocksRecord)
+                    .filter(block => block && typeof block === 'object')
+                    .map(block => {
+                        const blockSuccessCount = Number.isFinite(block.successCount) ? block.successCount : 0;
+                        const blockFailureCount = Number.isFinite(block.failureCount) ? block.failureCount : 0;
+                        const blockTotalCount = Number.isFinite(block.totalCount)
+                            ? block.totalCount
+                            : blockSuccessCount + blockFailureCount;
+                        const blockTotalLatencyMs = Number.isFinite(block.totalLatencyMs) ? block.totalLatencyMs : 0;
+                        const blockAverageLatencyMs = blockSuccessCount > 0
+                            ? blockTotalLatencyMs / blockSuccessCount
+                            : null;
+
+                        return {
+                            blockNumber: block.blockNumber ?? null,
+                            blockLabel: block.blockLabel || (block.blockNumber !== undefined && block.blockNumber !== null
+                                ? `#${block.blockNumber}`
+                                : null),
+                            totalCount: blockTotalCount,
+                            successCount: blockSuccessCount,
+                            failureCount: blockFailureCount,
+                            totalLatencyMs: blockTotalLatencyMs,
+                            averageLatencyMs: blockAverageLatencyMs,
+                            lastUpdatedAt: block.lastUpdatedAt || null,
+                            lastStatus: block.lastStatus || null,
+                            lastMessage: block.lastMessage || null,
+                            lastTransactionId: block.lastTransactionId || null,
+                        };
+                    })
+                    .sort((a, b) => {
+                        const aNumeric = typeof a.blockNumber === 'number' && Number.isFinite(a.blockNumber)
+                            ? a.blockNumber
+                            : null;
+                        const bNumeric = typeof b.blockNumber === 'number' && Number.isFinite(b.blockNumber)
+                            ? b.blockNumber
+                            : null;
+
+                        if (aNumeric !== null || bNumeric !== null) {
+                            if (aNumeric === null) {
+                                return 1;
+                            }
+                            if (bNumeric === null) {
+                                return -1;
+                            }
+                            return aNumeric - bNumeric;
+                        }
+
+                        const aLabel = a.blockLabel || '';
+                        const bLabel = b.blockLabel || '';
+                        return aLabel.localeCompare(bLabel);
+                    });
+
+                const blockCount = Number.isFinite(item.blockCount)
+                    ? item.blockCount
+                    : blockSummaries.length;
+
+                const fallbackLatestBlock = blockSummaries.reduce((latest, current) => {
+                    if (!current) {
+                        return latest;
+                    }
+                    if (!latest) {
+                        return current;
+                    }
+
+                    const latestTime = latest.lastUpdatedAt ? Date.parse(latest.lastUpdatedAt) : Number.NaN;
+                    const currentTime = current.lastUpdatedAt ? Date.parse(current.lastUpdatedAt) : Number.NaN;
+
+                    const latestTimeValid = Number.isFinite(latestTime);
+                    const currentTimeValid = Number.isFinite(currentTime);
+
+                    if (latestTimeValid || currentTimeValid) {
+                        if (!latestTimeValid) {
+                            return current;
+                        }
+                        if (!currentTimeValid) {
+                            return latest;
+                        }
+                        return currentTime >= latestTime ? current : latest;
+                    }
+
+                    const latestNumeric = typeof latest.blockNumber === 'number' && Number.isFinite(latest.blockNumber)
+                        ? latest.blockNumber
+                        : Number.NEGATIVE_INFINITY;
+                    const currentNumeric = typeof current.blockNumber === 'number' && Number.isFinite(current.blockNumber)
+                        ? current.blockNumber
+                        : Number.NEGATIVE_INFINITY;
+
+                    if (currentNumeric !== latestNumeric) {
+                        return currentNumeric > latestNumeric ? current : latest;
+                    }
+
+                    const latestLabel = latest.blockLabel || '';
+                    const currentLabel = current.blockLabel || '';
+                    return currentLabel.localeCompare(latestLabel) >= 0 ? current : latest;
+                }, null);
+
+                const lastBlockNumber = item.lastBlockNumber ?? fallbackLatestBlock?.blockNumber ?? null;
+                const lastBlockLabel = item.lastBlockLabel ?? fallbackLatestBlock?.blockLabel ?? null;
+                const lastBlockUpdatedAt = item.lastBlockUpdatedAt ?? fallbackLatestBlock?.lastUpdatedAt ?? null;
+
                 return {
                     id: item.id || null,
                     label: item.label || item.id || 'Jaringan',
@@ -894,6 +997,11 @@ app.get('/api/simulations/summary', async (req, res) => {
                     averageLatencyMs,
                     successRate,
                     totalLatencyMs,
+                    blockCount,
+                    blocks: blockSummaries,
+                    lastBlockNumber,
+                    lastBlockLabel,
+                    lastBlockUpdatedAt,
                     lastUpdatedAt: item.lastUpdatedAt || null,
                     lastStatus: item.lastStatus || null,
                     lastMessage: item.lastMessage || null,
@@ -914,12 +1022,14 @@ app.get('/api/simulations/summary', async (req, res) => {
             acc.successCount += item.successCount || 0;
             acc.failureCount += item.failureCount || 0;
             acc.totalLatencyMs += item.totalLatencyMs || 0;
+            acc.blockCount += item.blockCount || 0;
             return acc;
         }, {
             totalCount: 0,
             successCount: 0,
             failureCount: 0,
             totalLatencyMs: 0,
+            blockCount: 0,
         });
 
         const averageLatencyMs = overallTotals.successCount > 0
@@ -939,6 +1049,7 @@ app.get('/api/simulations/summary', async (req, res) => {
                 failureCount: overallTotals.failureCount,
                 averageLatencyMs,
                 successRate,
+                blockCount: overallTotals.blockCount,
             },
         });
     } catch (error) {
@@ -955,6 +1066,7 @@ app.get('/api/simulations/summary', async (req, res) => {
                 failureCount: 0,
                 averageLatencyMs: null,
                 successRate: null,
+                blockCount: 0,
             },
         });
     }

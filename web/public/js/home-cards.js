@@ -5,14 +5,14 @@ const DEFAULT_MESSAGES = {
     restart: 'Belum ada perintah restart yang dijalankan.',
 };
 
-const STATUS_BASE_CLASS = 'flex w-full flex-col gap-2 rounded-2xl border px-5 py-4 text-sm shadow-inner shadow-black/30 backdrop-blur transition-colors duration-200';
+const STATUS_BASE_CLASS = 'alert small mb-0';
 
 const ALERT_VARIANTS = {
-    idle: 'border-white/10 bg-surface/80 text-textdark/80',
-    loading: 'border-secondary/50 bg-secondary/10 text-secondary',
-    success: 'border-emerald-400/50 bg-emerald-400/10 text-emerald-200',
-    error: 'border-rose-400/50 bg-rose-400/10 text-rose-200',
-    warning: 'border-amber-400/50 bg-amber-400/10 text-amber-200',
+    idle: 'alert-secondary',
+    loading: 'alert-info',
+    success: 'alert-success',
+    error: 'alert-danger',
+    warning: 'alert-warning',
 };
 
 const STATUS_TRANSLATIONS = {
@@ -47,8 +47,8 @@ Object.entries(statusElements).forEach(([key, element]) => {
     }
     element.className = `${STATUS_BASE_CLASS} ${ALERT_VARIANTS.idle}`;
     element.innerHTML = `
-        <div class="text-sm font-medium uppercase tracking-[0.2em] text-current">Status</div>
-        <p class="text-sm text-current opacity-80">${DEFAULT_MESSAGES[key] || DEFAULT_MESSAGES.start}</p>
+        <div class="fw-semibold text-uppercase small mb-1">Status</div>
+        <p class="mb-0">${DEFAULT_MESSAGES[key] || DEFAULT_MESSAGES.start}</p>
     `;
 });
 
@@ -64,18 +64,18 @@ function setStatus(type, variant, message, details = []) {
     const fragment = document.createDocumentFragment();
 
     const label = document.createElement('div');
-    label.className = 'text-[11px] font-semibold uppercase tracking-[0.25em] text-current opacity-70';
+    label.className = 'fw-semibold text-uppercase small mb-1';
     label.textContent = 'Status';
     fragment.appendChild(label);
 
     const messageEl = document.createElement('p');
-    messageEl.className = 'text-sm font-medium text-current';
+    messageEl.className = 'mb-0';
     messageEl.textContent = message;
     fragment.appendChild(messageEl);
 
     if (Array.isArray(details) && details.length) {
         const list = document.createElement('ul');
-        list.className = 'mt-2 list-disc space-y-1 pl-5 text-xs text-current opacity-90';
+        list.className = 'mb-0 mt-2 small ps-3';
         details.forEach(line => {
             if (!line) {
                 return;
@@ -99,20 +99,15 @@ function setButtonLoading(button, loadingLabel) {
 
     const original = button.innerHTML;
     button.disabled = true;
-    button.classList.add('opacity-70');
     button.innerHTML = `
-        <span class="inline-flex items-center gap-2">
-            <svg class="h-4 w-4 animate-spin text-current" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
-            </svg>
+        <span class="d-inline-flex align-items-center gap-2">
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
             <span>${loadingLabel}</span>
         </span>
     `;
 
     return () => {
         button.disabled = false;
-        button.classList.remove('opacity-70');
         button.innerHTML = original;
     };
 }
@@ -245,22 +240,22 @@ function formatDateTime(value) {
     });
 }
 
-const BADGE_BASE_CLASS = 'inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.3em]';
+const BADGE_BASE_CLASS = 'badge rounded-pill';
 
 function mapStatusToBadge(status) {
     switch (status) {
     case 'healthy':
-        return { label: 'Sehat', className: `${BADGE_BASE_CLASS} border-emerald-400/50 bg-emerald-400/10 text-emerald-200` };
+        return { label: 'Sehat', className: `${BADGE_BASE_CLASS} text-bg-success` };
     case 'unhealthy':
     case 'error':
-        return { label: 'Gangguan', className: `${BADGE_BASE_CLASS} border-rose-400/50 bg-rose-400/10 text-rose-200` };
+        return { label: 'Gangguan', className: `${BADGE_BASE_CLASS} text-bg-danger` };
     case 'partial':
     case 'warning':
-        return { label: 'Sebagian', className: `${BADGE_BASE_CLASS} border-amber-400/50 bg-amber-400/10 text-amber-200` };
+        return { label: 'Sebagian', className: `${BADGE_BASE_CLASS} text-bg-warning text-dark` };
     case 'not_found':
-        return { label: 'Tidak ditemukan', className: `${BADGE_BASE_CLASS} border-white/10 bg-surface/60 text-textdark/70` };
+        return { label: 'Tidak ditemukan', className: `${BADGE_BASE_CLASS} text-bg-secondary` };
     default:
-        return { label: status || 'Tidak diketahui', className: `${BADGE_BASE_CLASS} border-white/10 bg-surface/60 text-textdark/70` };
+        return { label: status || 'Tidak diketahui', className: `${BADGE_BASE_CLASS} text-bg-secondary` };
     }
 }
 
@@ -277,7 +272,7 @@ function renderCheckResults(data) {
 
     if (data.checkedAt) {
         const timestamp = document.createElement('p');
-        timestamp.className = 'text-[11px] font-semibold uppercase tracking-[0.3em] text-textdark/60';
+        timestamp.className = 'small text-muted mb-3';
         timestamp.textContent = `Terakhir diperiksa: ${formatDateTime(data.checkedAt) ?? 'tidak diketahui'}`;
         checkResultsContainer.appendChild(timestamp);
     }
@@ -285,21 +280,35 @@ function renderCheckResults(data) {
     const results = Array.isArray(data.results) ? data.results : [];
     if (!results.length) {
         const empty = document.createElement('p');
-        empty.className = 'text-sm text-textdark/70';
+        empty.className = 'small text-muted mb-0';
         empty.textContent = 'Pemeriksaan selesai tanpa data jaringan.';
         checkResultsContainer.appendChild(empty);
         return;
     }
 
+    const list = document.createElement('div');
+    list.className = 'row g-3';
+    checkResultsContainer.appendChild(list);
+
     results.forEach(result => {
-        const item = document.createElement('article');
-        item.className = 'flex flex-col gap-3 rounded-2xl border border-white/10 bg-surface/80 p-5 text-sm text-textdark/80 shadow-lg shadow-black/30 backdrop-blur';
+        const col = document.createElement('div');
+        col.className = 'col-12';
+        list.appendChild(col);
+
+        const card = document.createElement('div');
+        card.className = 'card border-0 shadow-sm';
+        col.appendChild(card);
+
+        const body = document.createElement('div');
+        body.className = 'card-body';
+        card.appendChild(body);
 
         const header = document.createElement('div');
-        header.className = 'flex items-start justify-between gap-4';
+        header.className = 'd-flex justify-content-between align-items-start gap-2 mb-2';
+        body.appendChild(header);
 
         const title = document.createElement('h3');
-        title.className = 'text-base font-semibold text-textdark';
+        title.className = 'h6 mb-0';
         title.textContent = result?.label || result?.networkDir || 'Jaringan';
         header.appendChild(title);
 
@@ -309,13 +318,11 @@ function renderCheckResults(data) {
         badge.textContent = badgeInfo.label;
         header.appendChild(badge);
 
-        item.appendChild(header);
-
         if (result?.message) {
             const message = document.createElement('p');
-            message.className = 'text-sm text-textdark/70';
+            message.className = 'small text-body-secondary mb-2';
             message.textContent = result.message;
-            item.appendChild(message);
+            body.appendChild(message);
         }
 
         const metaLines = [];
@@ -335,19 +342,19 @@ function renderCheckResults(data) {
         }
 
         if (metaLines.length) {
-            const meta = document.createElement('div');
-            meta.className = 'space-y-1 text-xs text-textdark/60';
+            const meta = document.createElement('ul');
+            meta.className = 'small text-body-secondary mb-0 ps-3';
             metaLines.forEach(line => {
-                const row = document.createElement('div');
+                const row = document.createElement('li');
                 row.textContent = line;
                 meta.appendChild(row);
             });
-            item.appendChild(meta);
+            body.appendChild(meta);
         }
 
         if (Array.isArray(result?.instructions) && result.instructions.length) {
             const instructions = document.createElement('ul');
-            instructions.className = 'mt-2 list-disc space-y-1 pl-5 text-xs text-textdark/60';
+            instructions.className = 'small text-body-secondary mb-0 mt-3 ps-3';
             result.instructions.forEach(instruction => {
                 if (!instruction) {
                     return;
@@ -357,11 +364,9 @@ function renderCheckResults(data) {
                 instructions.appendChild(li);
             });
             if (instructions.childElementCount > 0) {
-                item.appendChild(instructions);
+                body.appendChild(instructions);
             }
         }
-
-        checkResultsContainer.appendChild(item);
     });
 }
 

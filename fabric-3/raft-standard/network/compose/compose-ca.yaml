@@ -23,12 +23,12 @@ services:
       - FABRIC_CA_SERVER_PORT=7054
       - FABRIC_CA_SERVER_OPERATIONS_LISTENADDRESS=0.0.0.0:17054
     ports:
-      - "7054:7054"
-      - "17054:17054"
+      - "7254:7054"
+      - "17254:17054"
     command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
     volumes:
       - ../organizations/fabric-ca/org1:/etc/hyperledger/fabric-ca-server
-    container_name: ca_org1
+    container_name: ca_org1_fabric3
     networks:
       - test
 
@@ -44,12 +44,12 @@ services:
       - FABRIC_CA_SERVER_PORT=8054
       - FABRIC_CA_SERVER_OPERATIONS_LISTENADDRESS=0.0.0.0:18054
     ports:
-      - "8054:8054"
-      - "18054:18054"
+      - "8254:8054"
+      - "18254:18054"
     command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
     volumes:
       - ../organizations/fabric-ca/org2:/etc/hyperledger/fabric-ca-server
-    container_name: ca_org2
+    container_name: ca_org2_fabric3
     networks:
       - test
 
@@ -65,11 +65,11 @@ services:
       - FABRIC_CA_SERVER_PORT=9054
       - FABRIC_CA_SERVER_OPERATIONS_LISTENADDRESS=0.0.0.0:19054
     ports:
-      - "9054:9054"
-      - "19054:19054"
+      - "9254:9054"
+      - "19254:19054"
     command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
     volumes:
       - ../organizations/fabric-ca/ordererOrg:/etc/hyperledger/fabric-ca-server
-    container_name: ca_orderer
+    container_name: ca_orderer_fabric3
     networks:
       - test

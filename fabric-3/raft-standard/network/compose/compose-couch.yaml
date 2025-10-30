@@ -11,7 +11,7 @@ networks:
 
 services:
   couchdb0:
-    container_name: couchdb0
+    container_name: couchdb0.fabric3.standard
     image: couchdb:3.4.2
     labels:
       service: hyperledger-fabric
@@ -24,7 +24,7 @@ services:
     # Comment/Uncomment the port mapping if you want to hide/expose the CouchDB service,
     # for example map it to utilize Fauxton User Interface in dev environments.
     ports:
-      - "5984:5984"
+      - "6084:5984"
     networks:
       - test
 
@@ -41,7 +41,7 @@ services:
       - couchdb0
 
   couchdb1:
-    container_name: couchdb1
+    container_name: couchdb1.fabric3.standard
     image: couchdb:3.4.2
     labels:
       service: hyperledger-fabric
@@ -54,7 +54,7 @@ services:
     # Comment/Uncomment the port mapping if you want to hide/expose the CouchDB service,
     # for example map it to utilize Fauxton User Interface in dev environments.
     ports:
-      - "7984:5984"
+      - "8084:5984"
     networks:
       - test
 

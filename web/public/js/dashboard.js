@@ -62,18 +62,25 @@ const fabricNetworkSummaries = document.getElementById('fabricNetworkSummaries')
 const DEFAULT_FABRIC_CONTEXT = 'fabric-2';
 const DEFAULT_OVERALL_STATUS = 'unknown';
 const currentPath = typeof window !== 'undefined' ? window.location.pathname : '/';
-const fabricContext = currentPath.startsWith('/fabric-3/')
-    ? 'fabric-3'
-    : currentPath.startsWith('/fabric-2/')
-        ? 'fabric-2'
-        : DEFAULT_FABRIC_CONTEXT;
+const normalizedPath = typeof currentPath === 'string' && currentPath.length > 1 && currentPath.endsWith('/')
+    ? currentPath.slice(0, -1)
+    : currentPath;
+const fabricContext = normalizedPath === '/'
+    ? 'all'
+    : normalizedPath.startsWith('/fabric-3/')
+        ? 'fabric-3'
+        : normalizedPath.startsWith('/fabric-2/')
+            ? 'fabric-2'
+            : DEFAULT_FABRIC_CONTEXT;
 
 const FABRIC_CONTEXT_RESULT_LABELS = {
+    all: null,
     'fabric-2': ['RAFT Standard', 'RAFT Variant'],
     'fabric-3': ['Fabric 3 RAFT Standard', 'Fabric 3 RAFT Variant'],
 };
 
 const FABRIC_CONTEXT_LABELS = {
+    all: 'Fabric 2 & Fabric 3',
     'fabric-2': 'Fabric 2',
     'fabric-3': 'Fabric 3',
 };
@@ -95,7 +102,11 @@ function applyFabricScopeVisibility() {
             return;
         }
 
-        if (scopes.includes(fabricContext)) {
+        const shouldShow = fabricContext === 'all'
+            || scopes.includes('all')
+            || scopes.includes(fabricContext);
+
+        if (shouldShow) {
             element.classList.remove('hidden');
             element.removeAttribute('aria-hidden');
         } else {
@@ -108,6 +119,10 @@ function applyFabricScopeVisibility() {
 function filterResultsByFabricContext(results) {
     if (!Array.isArray(results)) {
         return [];
+    }
+
+    if (fabricContext === 'all') {
+        return results;
     }
 
     const allowedLabels = FABRIC_CONTEXT_RESULT_LABELS[fabricContext];
@@ -4961,7 +4976,10 @@ async function handleNetworkShutdownButtonClick(event) {
         return;
     }
 
-    const networkType = button?.dataset?.networkShutdownButton || null;
+    const rawNetworkType = button?.dataset?.networkShutdownButton;
+    const networkType = typeof rawNetworkType === 'string' && rawNetworkType.trim().length
+        ? rawNetworkType.trim().toLowerCase()
+        : null;
     const networkLabel = button?.dataset?.networkLabel || getNetworkShutdownLabel(networkType);
 
     const confirmed = await confirmNetworkShutdown(networkType, networkLabel);
@@ -4990,10 +5008,13 @@ async function handleNetworkShutdownButtonClick(event) {
             'Content-Type': 'application/json',
         };
 
+        const requestNetworkType = networkType === 'all' ? null : networkType;
+        const payload = requestNetworkType ? { networkType: requestNetworkType } : {};
+
         const response = await fetch('/api/shutdown-network', {
             method: 'POST',
             headers,
-            body: JSON.stringify(networkType ? { networkType } : {}),
+            body: JSON.stringify(payload),
         });
 
         if (!response.ok) {
@@ -5071,7 +5092,7 @@ async function handleNetworkRestartButtonClick() {
     const networkTypes = Array.from(new Set([
         ...networkShutdownStatusElements.keys(),
         ...networkStartupStatusElements.keys(),
-    ]));
+    ])).filter(type => type && type !== 'all');
     const networkCount = networkTypes.length;
     const overlayMessage = networkCount
         ? `Restarting ${networkCount} RAFT network${networkCount > 1 ? 's' : ''}...`

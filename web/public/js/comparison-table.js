@@ -25,6 +25,7 @@
     const overallFailureEl = document.querySelector('[data-overall-failure]');
     const overallLatencyEl = document.querySelector('[data-overall-latency]');
     const overallSuccessRateEl = document.querySelector('[data-overall-success-rate]');
+    const overallBlockCountEl = document.querySelector('[data-overall-block-count]');
 
     const refreshButton = document.getElementById('refreshSummaryButton');
 
@@ -149,6 +150,20 @@
                 ? `<span class="text-xs text-textdark/60">Channel: ${network.channel}</span>`
                 : '';
 
+            const blockCount = typeof network.blockCount === 'number'
+                ? network.blockCount
+                : 0;
+            const blockLabel = network.lastBlockLabel || '—';
+            const summaryUpdatedLabel = formatTimestamp(network.lastUpdatedAt);
+            const blockUpdatedLabelRaw = network.lastBlockUpdatedAt
+                ? formatTimestamp(network.lastBlockUpdatedAt)
+                : null;
+            const blockUpdatedLabel = blockUpdatedLabelRaw
+                && blockUpdatedLabelRaw !== summaryUpdatedLabel
+                && blockUpdatedLabelRaw !== 'Belum ada pembaruan.'
+                ? blockUpdatedLabelRaw
+                : null;
+
             row.innerHTML = `
                 <td class="px-4 py-4 align-middle">
                     <div class="flex flex-col gap-1">
@@ -159,12 +174,19 @@
                         </div>
                     </div>
                 </td>
+                <td class="px-4 py-4 text-right text-sm font-semibold text-textdark tabular-nums">${formatCount(blockCount)}</td>
                 <td class="px-4 py-4 text-right text-sm font-semibold text-textdark tabular-nums">${formatCount(network.totalCount)}</td>
                 <td class="px-4 py-4 text-right text-sm font-semibold text-emerald-300 tabular-nums">${formatCount(network.successCount)}</td>
                 <td class="px-4 py-4 text-right text-sm font-semibold text-rose-300 tabular-nums">${formatCount(network.failureCount)}</td>
                 <td class="px-4 py-4 text-right text-sm font-medium text-amber-200 tabular-nums">${formatLatency(network.averageLatencyMs)}</td>
                 <td class="px-4 py-4 text-right text-sm font-medium text-primary tabular-nums">${formatSuccessRate(network.successRate)}</td>
-                <td class="px-4 py-4 text-left text-xs text-textdark/60">${formatTimestamp(network.lastUpdatedAt)}</td>
+                <td class="px-4 py-4 text-left text-xs text-textdark/60">
+                    <div class="flex flex-col gap-1">
+                        <span>Blok terakhir: <span class="font-semibold text-textdark">${blockLabel}</span></span>
+                        <span>Ringkasan: ${summaryUpdatedLabel}</span>
+                        ${blockUpdatedLabel ? `<span>Pembaruan blok: ${blockUpdatedLabel}</span>` : ''}
+                    </div>
+                </td>
             `;
 
             tableBody.appendChild(row);
@@ -192,6 +214,9 @@
         }
         if (summaryTimestampEl) {
             summaryTimestampEl.textContent = formatTimestamp(updatedAt);
+        }
+        if (overallBlockCountEl) {
+            overallBlockCountEl.textContent = formatCount(overall.blockCount);
         }
     }
 

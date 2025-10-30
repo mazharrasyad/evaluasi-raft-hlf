@@ -1043,13 +1043,16 @@ async function confirmNetworkStartup(networkType, networkLabel) {
         text = 'This will run ./network.sh up, ./network.sh createChannel -c fabric3-channel-variant, and deploy the pelaporan chaincode on fabric3-channel-variant.';
     }
 
-    if (!normalizedType) {
+    if (normalizedType === 'all') {
+        title = 'Start all RAFT networks?';
+        text = 'This will sequentially run the Fabric 2 Standard, Fabric 2 Variant, Fabric 3 Standard, and Fabric 3 Variant startup scripts. Ensure Docker and the host environment are ready before continuing.';
+    } else if (!normalizedType) {
         title = 'Start the Fabric networks?';
     }
 
-    const confirmButtonText = normalizedType
+    const confirmButtonText = normalizedType && normalizedType !== 'all'
         ? `Yes, start ${label}`
-        : 'Yes, start the networks';
+        : 'Yes, start all networks';
 
     if (isSwalAvailable()) {
         const result = await window.Swal.fire({
@@ -4786,12 +4789,18 @@ async function handleNetworkStartupButtonClick(event) {
         return;
     }
 
-    const networkType = button?.dataset?.networkStartupButton || null;
-    const networkLabel = button?.dataset?.networkLabel || getNetworkStartupLabel(networkType);
+    const rawNetworkType = typeof button?.dataset?.networkStartupButton === 'string'
+        ? button.dataset.networkStartupButton.trim()
+        : '';
+    const statusType = rawNetworkType || null;
+    const requestNetworkType = rawNetworkType && rawNetworkType !== 'all'
+        ? rawNetworkType
+        : null;
+    const networkLabel = button?.dataset?.networkLabel || getNetworkStartupLabel(statusType || requestNetworkType);
 
-    const confirmed = await confirmNetworkStartup(networkType, networkLabel);
+    const confirmed = await confirmNetworkStartup(statusType, networkLabel);
     if (!confirmed) {
-        updateNetworkStartupStatus('idle', `Startup command for ${networkLabel} was cancelled.`, networkType);
+        updateNetworkStartupStatus('idle', `Startup command for ${networkLabel} was cancelled.`, statusType);
         return;
     }
 
@@ -4806,9 +4815,11 @@ async function handleNetworkStartupButtonClick(event) {
     button.classList.add('cursor-not-allowed', 'opacity-60');
     button.innerHTML = '<span class="text-base animate-spin">⚡</span><span>Starting...</span>';
 
-    const startupLoadingMessage = `Running the startup command for ${networkLabel}...`;
+    const startupLoadingMessage = statusType === 'all'
+        ? 'Starting all RAFT networks sequentially (2S → 2V → 3S → 3V)...'
+        : `Running the startup command for ${networkLabel}...`;
     showNetworkOperationOverlay('startup', startupLoadingMessage);
-    updateNetworkStartupStatus('loading', startupLoadingMessage, networkType);
+    updateNetworkStartupStatus('loading', startupLoadingMessage, statusType);
 
     try {
         const headers = {
@@ -4823,7 +4834,7 @@ async function handleNetworkStartupButtonClick(event) {
         const response = await fetch('/api/start-network', {
             method: 'POST',
             headers,
-            body: JSON.stringify(networkType ? { networkType } : {}),
+            body: JSON.stringify(requestNetworkType ? { networkType: requestNetworkType } : {}),
         });
 
         const rawBody = await response.text();
@@ -4852,21 +4863,25 @@ async function handleNetworkStartupButtonClick(event) {
         const summaryText = summaryLines.join('\n');
 
         if (data?.error && !results.length) {
-            updateNetworkStartupStatus('error', data.error, networkType);
+            updateNetworkStartupStatus('error', data.error, statusType);
             await showErrorAlert(summaryText || data.error, { title: 'Startup command failed' });
             return;
         }
 
         if (!results.length) {
-            const emptyMessage = `No networks were found for ${networkLabel}.`;
-            updateNetworkStartupStatus('error', emptyMessage, networkType);
+            const emptyMessage = statusType === 'all'
+                ? 'No RAFT networks were found to start.'
+                : `No networks were found for ${networkLabel}.`;
+            updateNetworkStartupStatus('error', emptyMessage, statusType);
             await showErrorAlert(summaryText || emptyMessage, { title: 'Startup command failed' });
             return;
         }
 
         if (successCount === results.length) {
-            const successMessage = `${networkLabel} started successfully.`;
-            updateNetworkStartupStatus('success', successMessage, networkType);
+            const successMessage = statusType === 'all'
+                ? 'All RAFT networks started successfully.'
+                : `${networkLabel} started successfully.`;
+            updateNetworkStartupStatus('success', successMessage, statusType);
             await showSuccessAlert(summaryText, { title: 'Networks ready to use' });
             shouldTriggerNetworkCheck = true;
             return;
@@ -4874,20 +4889,20 @@ async function handleNetworkStartupButtonClick(event) {
 
         if (successCount > 0) {
             const partialMessage = `Some startup steps for ${networkLabel} failed. Check the notification details.`;
-            updateNetworkStartupStatus('error', partialMessage, networkType);
+            updateNetworkStartupStatus('error', partialMessage, statusType);
             await showErrorAlert(summaryText, { title: 'Some commands failed' });
             return;
         }
 
         const failureMessage = `The startup command for ${networkLabel} failed to run.`;
-        updateNetworkStartupStatus('error', failureMessage, networkType);
+        updateNetworkStartupStatus('error', failureMessage, statusType);
         await showErrorAlert(summaryText || failureMessage, { title: 'Startup command failed' });
     } catch (error) {
         console.error('Failed to start the Fabric network:', error);
         const errorMessage = error instanceof Error && error.message
             ? error.message
             : `The startup command for ${networkLabel} failed. Check the server logs.`;
-        updateNetworkStartupStatus('error', errorMessage, networkType);
+        updateNetworkStartupStatus('error', errorMessage, statusType);
         await showErrorAlert(errorMessage, {
             title: 'Startup command failed',
         });

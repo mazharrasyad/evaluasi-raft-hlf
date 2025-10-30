@@ -42,6 +42,15 @@ const networkTargets = [
         domain: 'fabric3.standard',
         peerHostAlias: 'peer0.org1.fabric3.standard',
     },
+    {
+        id: 'channel-fabric3-variant',
+        label: 'Fabric 3 RAFT Variant',
+        networkDir: path.resolve(__dirname, '../../fabric-3/raft-variant/network'),
+        channelName: 'fabric3-channel-variant',
+        peerEndpoint: 'localhost:7353',
+        domain: 'fabric3.variant',
+        peerHostAlias: 'peer0.org1.fabric3.variant',
+    },
 ];
 
 const networkTargetIndex = new Map(networkTargets.map(target => [target.id, target]));

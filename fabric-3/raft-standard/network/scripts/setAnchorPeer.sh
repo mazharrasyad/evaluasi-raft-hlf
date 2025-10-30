@@ -24,10 +24,10 @@ createAnchorPeerUpdate() {
 
   if [ $ORG -eq 1 ]; then
     HOST="peer0.org1.fabric3.standard"
-    PORT=7053
+    PORT=7153
   elif [ $ORG -eq 2 ]; then
     HOST="peer0.org2.fabric3.standard"
-    PORT=9053
+    PORT=9153
   elif [ $ORG -eq 3 ]; then
     HOST="peer0.org3.fabric3.standard"
     PORT=11051
@@ -50,7 +50,7 @@ createAnchorPeerUpdate() {
 }
 
 updateAnchorPeer() {
-  peer channel update -o localhost:7055 --ordererTLSHostnameOverride orderer.fabric3.standard -c $CHANNEL_NAME -f ${TEST_NETWORK_HOME}/channel-artifacts/${CORE_PEER_LOCALMSPID}anchors.tx --tls --cafile "$ORDERER_CA" >&log.txt
+  peer channel update -o localhost:8055 --ordererTLSHostnameOverride orderer.fabric3.standard -c $CHANNEL_NAME -f ${TEST_NETWORK_HOME}/channel-artifacts/${CORE_PEER_LOCALMSPID}anchors.tx --tls --cafile "$ORDERER_CA" >&log.txt
   res=$?
   cat log.txt
   verifyResult $res "Anchor peer update failed"

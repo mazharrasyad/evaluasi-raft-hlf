@@ -1307,3 +1307,1183 @@ Error: Command failed: ./network.sh createChannel -c channel-standard -ca
 + res=1
 
 
+[2025-10-29T03:07:56.962Z] Gagal menyalakan jaringan: Fabric 3 RAFT Standard Network
+Status: partial
+Direktori: /root/evaluasi-raft-hlf/fabric-3/raft-standard/network
+Pesan: Perintah ./network.sh createChannel gagal dijalankan.
+Tindakan: Periksa log penyalaan jaringan untuk rincian lebih lanjut.
+Langkah 1: Start core services — success
+  Perintah: ./network.sh up
+  STDOUT: [0;34mUsing docker and docker-compose[0m
+[0;34mStarting nodes with CLI timeout of '5' tries and CLI delay of '3' seconds and using database 'leveldb' [0m
+[0;34mLOCAL_VERSION=v3.1.3[0m
+[0;34mDOCKER_IMAGE_VERSION=v3.1.3[0m
+Found orphan containers (ca_org2, ca_org1, ca_orderer) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up.
+Recreating 2622617f6125_peer0.org1.fabric2.standard.com ... 
+Recreating db596e135b6e_orderer.fabric2.standard.com    ... 
+Recreating fcb09c8b7a92_peer0.org2.fabric2.standard.com ... 
+
+ERROR: for db596e135b6e_orderer.fabric2.standard.com  'ContainerConfig'
+
+ERROR: for 2622617f6125_peer0.org1.fabric2.standard.com  'ContainerConfig'
+
+ERROR: for fcb09c8b7a92_peer0.org2.fabric2.standard.com  'ContainerConfig'
+
+ERROR: for orderer.fabric2.standard.com  'ContainerConfig'
+
+ERROR: for peer0.org1.fabric2.standard.com  'ContainerConfig'
+
+ERROR: for peer0.org2.fabric2.standard.com  'ContainerConfig'
+Traceback (most recent call last):
+  File "/usr/bin/docker-compose", line 33, in <module>
+    sys.exit(load_entry_point('docker-compose==1.29.2', 'console_scripts', 'docker-compose')())
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/compose/cli/main.py", line 81, in main
+    command_func()
+  File "/usr/lib/python3/dist-packages/compose/cli/main.py", line 203, in perform_command
+    handler(command, command_options)
+  File "/usr/lib/python3/dist-packages/compose/metrics/decorator.py", line 18, in wrapper
+    result = fn(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/compose/cli/main.py", line 1186, in up
+    to_attach = up(False)
+                ^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/compose/cli/main.py", line 1166, in up
+    return self.project.up(
+           ^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/compose/project.py", line 697, in up
+    results, errors = parallel.parallel_execute(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/compose/parallel.py", line 108, in parallel_execute
+    raise error_to_reraise
+  File "/usr/lib/python3/dist-packages/compose/parallel.py", line 206, in producer
+    result = func(obj)
+             ^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/compose/project.py", line 679, in do
+    return service.execute_convergence_plan(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/compose/service.py", line 579, in execute_convergence_plan
+    return self._execute_convergence_recreate(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/compose/service.py", line 499, in _execute_convergence_recreate
+    containers, errors = parallel_execute(
+                         ^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/compose/parallel.py", line 108, in parallel_execute
+    raise error_to_reraise
+  File "/usr/lib/python3/dist-packages/compose/parallel.py", line 206, in producer
+    result = func(obj)
+             ^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/compose/service.py", line 494, in recreate
+    return self.recreate_container(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/compose/service.py", line 612, in recreate_container
+    new_container = self.create_container(
+                    ^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/compose/service.py", line 330, in create_container
+    container_options = self._get_container_create_options(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/compose/service.py", line 921, in _get_container_create_options
+    container_options, override_options = self._build_container_volume_options(
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/compose/service.py", line 960, in _build_container_volume_options
+    binds, affinity = merge_volume_bindings(
+                      ^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/compose/service.py", line 1548, in merge_volume_bindings
+    old_volumes, old_mounts = get_container_data_volumes(
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/compose/service.py", line 1579, in get_container_data_volumes
+    container.image_config['ContainerConfig'].get('Volumes') or {}
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+KeyError: 'ContainerConfig'
+CONTAINER ID   IMAGE                                                                                                                                                                                COMMAND                  CREATED              STATUS                      PORTS                                                                                                                                             NAMES
+612892e8c110   dev-peer0.org2.fabric2.variant.com-pelaporan_1.0-b0cdc47f9832a4e4f69bf8d0f60d51740cadcb0648a7239c0409c8f1e8caaac0-ed127e02163a637c2fc8816f132081a7a0647c6b1bbe1b1526ea1ac881b703e2   "docker-entrypoint.s…"   10 seconds ago       Up 10 seconds                                                                                                                                                                 dev-peer0.org2.fabric2.variant.com-pelaporan_1.0-b0cdc47f9832a4e4f69bf8d0f60d51740cadcb0648a7239c0409c8f1e8caaac0
+ea5a4ac8c697   dev-peer0.org1.fabric2.variant.com-pelaporan_1.0-b0cdc47f9832a4e4f69bf8d0f60d51740cadcb0648a7239c0409c8f1e8caaac0-55f6300be595c538589962b21082280518a4e28bfcba506e1d29b689a9826584   "docker-entrypoint.s…"   10 seconds ago       Up 10 seconds                                                                                                                                                                 dev-peer0.org1.fabric2.variant.com-pelaporan_1.0-b0cdc47f9832a4e4f69bf8d0f60d51740cadcb0648a7239c0409c8f1e8caaac0
+02e50d2c4dc0   hyperledger/fabric-orderer:latest                                                                                                                                                    "orderer"                About a minute ago   Up About a minute           0.0.0.0:7150->7050/tcp, [::]:7150->7050/tcp, 0.0.0.0:7153->7053/tcp, [::]:7153->7053/tcp, 0.0.0.0:9543->9443/tcp, [::]:9543->9443/tcp             orderer.fabric2.variant.com
+9088b0ec37eb   hyperledger/fabric-peer:latest                                                                                                                                                       "peer node start"        About a minute ago   Up About a minute           7051/tcp, 0.0.0.0:9151->9051/tcp, [::]:9151->9051/tcp, 0.0.0.0:9545->9445/tcp, [::]:9545->9445/tcp                                                peer0.org2.fabric2.variant.com
+f55c8617eb06   hyperledger/fabric-orderer:latest                                                                                                                                                    "orderer"                About a minute ago   Up About a minute           7050/tcp, 0.0.0.0:7152->7052/tcp, [::]:7152->7052/tcp, 0.0.0.0:7155->7055/tcp, [::]:7155->7055/tcp, 0.0.0.0:9546->9446/tcp, [::]:9546->9446/tcp   orderer2.variant.com
+7266d89f214f   hyperledger/fabric-orderer:latest                                                                                                                                                    "orderer"                About a minute ago   Up About a minute           7050/tcp, 0.0.0.0:7156->7056/tcp, [::]:7156->7056/tcp, 0.0.0.0:7157->7057/tcp, [::]:7157->7057/tcp, 0.0.0.0:9547->9447/tcp, [::]:9547->9447/tcp   orderer3.variant.com
+efb7c69a89fc   hyperledger/fabric-peer:latest                                                                                                                                                       "peer node start"        About a minute ago   Up About a minute           0.0.0.0:7052->7051/tcp, [::]:7052->7051/tcp, 0.0.0.0:9544->9444/tcp, [::]:9544->9444/tcp                                                          peer0.org1.fabric2.variant.com
+8fba71caa37e   hyperledger/fabric-orderer:latest                                                                                                                                                    "orderer"                About a minute ago   Up About a minute           7050/tcp, 0.0.0.0:7158->7058/tcp, [::]:7158->7058/tcp, 0.0.0.0:7159->7059/tcp, [::]:7159->7059/tcp, 0.0.0.0:9548->9448/tcp, [::]:9548->9448/tcp   orderer4.variant.com
+fa9ff4e7d821   hyperledger/fabric-ca:latest                                                                                                                                                         "sh -c 'fabric-ca-se…"   About a minute ago   Up About a minute           7054/tcp, 0.0.0.0:9154->9054/tcp, [::]:9154->9054/tcp, 0.0.0.0:19154->19054/tcp, [::]:19154->19054/tcp                                            raftvariant_ca_orderer_1
+cc558cd63a19   hyperledger/fabric-ca:latest                                                                                                                                                         "sh -c 'fabric-ca-se…"   About a minute ago   Up About a minute           0.0.0.0:7154->7054/tcp, [::]:7154->7054/tcp, 0.0.0.0:17154->17054/tcp, [::]:17154->17054/tcp                                                      raftvariant_ca_org1_1
+51ac80fc996a   hyperledger/fabric-ca:latest                                                                                                                                                         "sh -c 'fabric-ca-se…"   About a minute ago   Up About a minute           7054/tcp, 0.0.0.0:8154->8054/tcp, [::]:8154->8054/tcp, 0.0.0.0:18154->18054/tcp, [::]:18154->18054/tcp                                            raftvariant_ca_org2_1
+db596e135b6e   hyperledger/fabric-orderer:latest                                                                                                                                                    "orderer"                2 minutes ago        Exited (0) 44 seconds ago                                                                                                                                                     db596e135b6e_orderer.fabric2.standard.com
+2622617f6125   hyperledger/fabric-peer:latest                                                                                                                                                       "peer node start"        2 minutes ago        Exited (0) 42 seconds ago                                                                                                                                                     2622617f6125_peer0.org1.fabric2.standard.com
+fcb09c8b7a92   hyperledger/fabric-peer:latest                                                                                                                                                       "peer node start"        2 minutes ago        Exited (0) 42 seconds ago                                                                                                                                                     fcb09c8b7a92_peer0.org2.fabric2.standard.com
+44ff4d823eae   hyperledger/fabric-ca:latest                                                                                                                                                         "sh -c 'fabric-ca-se…"   3 minutes ago        Up 3 minutes                0.0.0.0:8054->8054/tcp, [::]:8054->8054/tcp, 7054/tcp, 0.0.0.0:18054->18054/tcp, [::]:18054->18054/tcp                                            ca_org2
+ea1403961e8e   hyperledger/fabric-ca:latest                                                                                                                                                         "sh -c 'fabric-ca-se…"   3 minutes ago        Up 3 minutes                0.0.0.0:9054->9054/tcp, [::]:9054->9054/tcp, 7054/tcp, 0.0.0.0:19054->19054/tcp, [::]:19054->19054/tcp                                            ca_orderer
+63c392685851   hyperledger/fabric-ca:latest                                                                                                                                                         "sh -c 'fabric-ca-se…"   3 minutes ago        Up 3 minutes                0.0.0.0:7054->7054/tcp, [::]:7054->7054/tcp, 0.0.0.0:17054->17054/tcp, [::]:17054->17054/tcp                                                      ca_org1
+Langkah 2: Create channel — error
+  Perintah: ./network.sh createChannel
+  Pesan: Perintah ./network.sh createChannel gagal dijalankan.
+  Tindakan: Periksa log penyalaan jaringan untuk rincian lebih lanjut.
+  Error: Command failed: ./network.sh createChannel
++ '[' 0 -eq 1 ']'
++ configtxgen -profile ChannelUsingRaft -outputBlock ./channel-artifacts/channel-standard.block -channelID channel-standard
+[34m2025-10-29 03:07:56.944 UTC 0001 INFO[0m [common.tools.configtxgen] [34;1mmain[0m -> Loading configuration
+[34m2025-10-29 03:07:56.951 UTC 0002 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> orderer type: etcdraft
+[34m2025-10-29 03:07:56.952 UTC 0003 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> Orderer.EtcdRaft.Options unset, setting to tick_interval:"500ms"  election_tick:10  heartbeat_tick:1  max_inflight_blocks:5  snapshot_interval_size:16777216
+[34m2025-10-29 03:07:56.952 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/fabric-3/raft-standard/network/configtx/configtx.yaml
+[35m2025-10-29 03:07:56.953 UTC 0005 FATA[0m [common.tools.configtxgen] [35;1mmain[0m -> Error on outputBlock: could not create bootstrapper: could not create channel group: could not create orderer group: cannot marshal metadata for orderer type etcdraft: cannot load client cert for consenter orderer.fabric2.standard.com:7050: open /root/evaluasi-raft-hlf/fabric-3/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer.fabric2.standard.com/tls/server.crt: no such file or directory
++ res=1
+
+  STDOUT: [0;34mUsing docker and docker-compose[0m
+[0;34mCreating channel 'channel-standard'.[0m
+[0;34mIf network is not up, starting nodes with CLI timeout of '5' tries and CLI delay of '3' seconds and using database 'leveldb [0m
+Network Running Already
+[0;34mUsing docker and docker-compose[0m
+[0;34mGenerating channel genesis block 'channel-standard.block'[0m
+[0;34mUsing organization 1[0m
+/root/evaluasi-raft-hlf/fabric-3/raft-standard/network/../bin/configtxgen
+[0;31mFailed to generate channel configuration transaction...[0m
+  STDERR: + '[' 0 -eq 1 ']'
++ configtxgen -profile ChannelUsingRaft -outputBlock ./channel-artifacts/channel-standard.block -channelID channel-standard
+[34m2025-10-29 03:07:56.944 UTC 0001 INFO[0m [common.tools.configtxgen] [34;1mmain[0m -> Loading configuration
+[34m2025-10-29 03:07:56.951 UTC 0002 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> orderer type: etcdraft
+[34m2025-10-29 03:07:56.952 UTC 0003 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> Orderer.EtcdRaft.Options unset, setting to tick_interval:"500ms"  election_tick:10  heartbeat_tick:1  max_inflight_blocks:5  snapshot_interval_size:16777216
+[34m2025-10-29 03:07:56.952 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/fabric-3/raft-standard/network/configtx/configtx.yaml
+[35m2025-10-29 03:07:56.953 UTC 0005 FATA[0m [common.tools.configtxgen] [35;1mmain[0m -> Error on outputBlock: could not create bootstrapper: could not create channel group: could not create orderer group: cannot marshal metadata for orderer type etcdraft: cannot load client cert for consenter orderer.fabric2.standard.com:7050: open /root/evaluasi-raft-hlf/fabric-3/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer.fabric2.standard.com/tls/server.crt: no such file or directory
++ res=1
+Langkah 3: Deploy chaincode — skipped
+  Perintah: ./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl node
+  Pesan: Langkah ini dilewati karena perintah sebelumnya gagal.
+Error: Command failed: ./network.sh createChannel
++ '[' 0 -eq 1 ']'
++ configtxgen -profile ChannelUsingRaft -outputBlock ./channel-artifacts/channel-standard.block -channelID channel-standard
+[34m2025-10-29 03:07:56.944 UTC 0001 INFO[0m [common.tools.configtxgen] [34;1mmain[0m -> Loading configuration
+[34m2025-10-29 03:07:56.951 UTC 0002 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> orderer type: etcdraft
+[34m2025-10-29 03:07:56.952 UTC 0003 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> Orderer.EtcdRaft.Options unset, setting to tick_interval:"500ms"  election_tick:10  heartbeat_tick:1  max_inflight_blocks:5  snapshot_interval_size:16777216
+[34m2025-10-29 03:07:56.952 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/fabric-3/raft-standard/network/configtx/configtx.yaml
+[35m2025-10-29 03:07:56.953 UTC 0005 FATA[0m [common.tools.configtxgen] [35;1mmain[0m -> Error on outputBlock: could not create bootstrapper: could not create channel group: could not create orderer group: cannot marshal metadata for orderer type etcdraft: cannot load client cert for consenter orderer.fabric2.standard.com:7050: open /root/evaluasi-raft-hlf/fabric-3/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer.fabric2.standard.com/tls/server.crt: no such file or directory
++ res=1
+
+
+[2025-10-29T06:41:40.003Z] Gagal menyalakan jaringan: Fabric 3 RAFT Standard Network
+Status: partial
+Direktori: /root/evaluasi-raft-hlf/fabric-3/raft-standard/network
+Pesan: Perintah ./network.sh createChannel gagal dijalankan.
+Tindakan: Periksa log penyalaan jaringan untuk rincian lebih lanjut.
+Langkah 1: Start core services — success
+  Perintah: ./network.sh up
+  STDOUT: [0;34mUsing docker and docker-compose[0m
+[0;34mStarting nodes with CLI timeout of '5' tries and CLI delay of '3' seconds and using database 'leveldb' [0m
+[0;34mLOCAL_VERSION=v3.1.3[0m
+[0;34mDOCKER_IMAGE_VERSION=v3.1.3[0m
+Found orphan containers (ca_org2, orderer.fabric2.standard.com, peer0.org2.fabric2.standard.com, peer0.org1.fabric2.standard.com, ca_orderer, ca_org1) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up.
+Creating peer0.org2.fabric3.standard ... 
+Creating peer0.org1.fabric3.standard ... 
+Creating orderer.fabric3.standard    ... 
+Host is already in use by another container
+Creating peer0.org1.fabric3.standard ... error
+
+ERROR: for peer0.org1.fabric3.standard  Cannot start service peer0.org1.fabric3.standard: failed to set up container networking: driver failed programming external connectivity on endpoint peer0.org1.fabric3.standard (0bda149e3f9d128a2fdcb8b43d8ec2bcb20886ee6da49ea83e02491c1089d16a): Bind for 0.0.0.0:7051 failed: port is already allocated
+Host is already in use by another container
+Creating orderer.fabric3.standard    ... error
+
+ERROR: for orderer.fabric3.standard  Cannot start service orderer.fabric3.standard: failed to set up container networking: driver failed programming external connectivity on endpoint orderer.fabric3.standard (8468262d0c46bc9986f75f13d787c2e23ac64884728bf5ec350e2c6f85b84008): Bind for 0.0.0.0:7050 failed: port is already allocated
+Host is already in use by another container
+Creating peer0.org2.fabric3.standard ... error
+
+ERROR: for peer0.org2.fabric3.standard  Cannot start service peer0.org2.fabric3.standard: failed to set up container networking: driver failed programming external connectivity on endpoint peer0.org2.fabric3.standard (e9bfdc016e14c3fe2bd23115b0db6b085a683ea2003bd7f3551f628e231ba07e): Bind for 0.0.0.0:9051 failed: port is already allocated
+
+ERROR: for peer0.org1.fabric3.standard  Cannot start service peer0.org1.fabric3.standard: failed to set up container networking: driver failed programming external connectivity on endpoint peer0.org1.fabric3.standard (0bda149e3f9d128a2fdcb8b43d8ec2bcb20886ee6da49ea83e02491c1089d16a): Bind for 0.0.0.0:7051 failed: port is already allocated
+
+ERROR: for orderer.fabric3.standard  Cannot start service orderer.fabric3.standard: failed to set up container networking: driver failed programming external connectivity on endpoint orderer.fabric3.standard (8468262d0c46bc9986f75f13d787c2e23ac64884728bf5ec350e2c6f85b84008): Bind for 0.0.0.0:7050 failed: port is already allocated
+
+ERROR: for peer0.org2.fabric3.standard  Cannot start service peer0.org2.fabric3.standard: failed to set up container networking: driver failed programming external connectivity on endpoint peer0.org2.fabric3.standard (e9bfdc016e14c3fe2bd23115b0db6b085a683ea2003bd7f3551f628e231ba07e): Bind for 0.0.0.0:9051 failed: port is already allocated
+Encountered errors while bringing up the project.
+CONTAINER ID   IMAGE                                                                                                                                                                                 COMMAND                  CREATED          STATUS          PORTS                                                                                                                                             NAMES
+56b4111d6537   hyperledger/fabric-peer:latest                                                                                                                                                        "peer node start"        1 second ago     Created                                                                                                                                                           peer0.org2.fabric3.standard
+394797313d39   hyperledger/fabric-orderer:latest                                                                                                                                                     "orderer"                1 second ago     Created                                                                                                                                                           orderer.fabric3.standard
+8e880d21a002   hyperledger/fabric-peer:latest                                                                                                                                                        "peer node start"        1 second ago     Created                                                                                                                                                           peer0.org1.fabric3.standard
+d9eeee3c078d   dev-peer0.org2.fabric2.variant.com-pelaporan_1.0-b0cdc47f9832a4e4f69bf8d0f60d51740cadcb0648a7239c0409c8f1e8caaac0-ed127e02163a637c2fc8816f132081a7a0647c6b1bbe1b1526ea1ac881b703e2    "docker-entrypoint.s…"   19 minutes ago   Up 19 minutes                                                                                                                                                     dev-peer0.org2.fabric2.variant.com-pelaporan_1.0-b0cdc47f9832a4e4f69bf8d0f60d51740cadcb0648a7239c0409c8f1e8caaac0
+2cf874beb1c7   dev-peer0.org1.fabric2.variant.com-pelaporan_1.0-b0cdc47f9832a4e4f69bf8d0f60d51740cadcb0648a7239c0409c8f1e8caaac0-55f6300be595c538589962b21082280518a4e28bfcba506e1d29b689a9826584    "docker-entrypoint.s…"   19 minutes ago   Up 19 minutes                                                                                                                                                     dev-peer0.org1.fabric2.variant.com-pelaporan_1.0-b0cdc47f9832a4e4f69bf8d0f60d51740cadcb0648a7239c0409c8f1e8caaac0
+fa116e83a42f   hyperledger/fabric-peer:latest                                                                                                                                                        "peer node start"        20 minutes ago   Up 20 minutes   7051/tcp, 0.0.0.0:9151->9051/tcp, [::]:9151->9051/tcp, 0.0.0.0:9545->9445/tcp, [::]:9545->9445/tcp                                                peer0.org2.fabric2.variant.com
+ee9eea7d24f3   hyperledger/fabric-orderer:latest                                                                                                                                                     "orderer"                20 minutes ago   Up 20 minutes   0.0.0.0:7150->7050/tcp, [::]:7150->7050/tcp, 0.0.0.0:7153->7053/tcp, [::]:7153->7053/tcp, 0.0.0.0:9543->9443/tcp, [::]:9543->9443/tcp             orderer.fabric2.variant.com
+d8655da16adc   hyperledger/fabric-orderer:latest                                                                                                                                                     "orderer"                20 minutes ago   Up 20 minutes   7050/tcp, 0.0.0.0:7152->7052/tcp, [::]:7152->7052/tcp, 0.0.0.0:7155->7055/tcp, [::]:7155->7055/tcp, 0.0.0.0:9546->9446/tcp, [::]:9546->9446/tcp   orderer2.variant.com
+13258635fa82   hyperledger/fabric-orderer:latest                                                                                                                                                     "orderer"                20 minutes ago   Up 20 minutes   7050/tcp, 0.0.0.0:7158->7058/tcp, [::]:7158->7058/tcp, 0.0.0.0:7159->7059/tcp, [::]:7159->7059/tcp, 0.0.0.0:9548->9448/tcp, [::]:9548->9448/tcp   orderer4.variant.com
+ab2abcfa480e   hyperledger/fabric-orderer:latest                                                                                                                                                     "orderer"                20 minutes ago   Up 20 minutes   7050/tcp, 0.0.0.0:7156->7056/tcp, [::]:7156->7056/tcp, 0.0.0.0:7157->7057/tcp, [::]:7157->7057/tcp, 0.0.0.0:9547->9447/tcp, [::]:9547->9447/tcp   orderer3.variant.com
+7db6c4281465   hyperledger/fabric-peer:latest                                                                                                                                                        "peer node start"        20 minutes ago   Up 20 minutes   0.0.0.0:7052->7051/tcp, [::]:7052->7051/tcp, 0.0.0.0:9544->9444/tcp, [::]:9544->9444/tcp                                                          peer0.org1.fabric2.variant.com
+21b51e73311f   hyperledger/fabric-ca:latest                                                                                                                                                          "sh -c 'fabric-ca-se…"   20 minutes ago   Up 20 minutes   0.0.0.0:7154->7054/tcp, [::]:7154->7054/tcp, 0.0.0.0:17154->17054/tcp, [::]:17154->17054/tcp                                                      raftvariant_ca_org1_1
+2da3a5a158fa   hyperledger/fabric-ca:latest                                                                                                                                                          "sh -c 'fabric-ca-se…"   20 minutes ago   Up 20 minutes   7054/tcp, 0.0.0.0:8154->8054/tcp, [::]:8154->8054/tcp, 0.0.0.0:18154->18054/tcp, [::]:18154->18054/tcp                                            raftvariant_ca_org2_1
+2ebbbb50a212   hyperledger/fabric-ca:latest                                                                                                                                                          "sh -c 'fabric-ca-se…"   20 minutes ago   Up 20 minutes   7054/tcp, 0.0.0.0:9154->9054/tcp, [::]:9154->9054/tcp, 0.0.0.0:19154->19054/tcp, [::]:19154->19054/tcp                                            raftvariant_ca_orderer_1
+567d9bac7a7c   dev-peer0.org2.fabric2.standard.com-pelaporan_1.0-b0cdc47f9832a4e4f69bf8d0f60d51740cadcb0648a7239c0409c8f1e8caaac0-33d3acb967a93e4692e00df27c4928574139cc4e745af83c5dd5aa8ae8511c9c   "docker-entrypoint.s…"   21 minutes ago   Up 21 minutes                                                                                                                                                     dev-peer0.org2.fabric2.standard.com-pelaporan_1.0-b0cdc47f9832a4e4f69bf8d0f60d51740cadcb0648a7239c0409c8f1e8caaac0
+1cbb5208303a   dev-peer0.org1.fabric2.standard.com-pelaporan_1.0-b0cdc47f9832a4e4f69bf8d0f60d51740cadcb0648a7239c0409c8f1e8caaac0-d190f973579b2afd5cabc419596110e0a269e53596d7052fa82792a8768c3b7d   "docker-entrypoint.s…"   21 minutes ago   Up 21 minutes                                                                                                                                                     dev-peer0.org1.fabric2.standard.com-pelaporan_1.0-b0cdc47f9832a4e4f69bf8d0f60d51740cadcb0648a7239c0409c8f1e8caaac0
+d6ba4be08b13   hyperledger/fabric-orderer:latest                                                                                                                                                     "orderer"                23 minutes ago   Up 23 minutes   0.0.0.0:7050->7050/tcp, [::]:7050->7050/tcp, 0.0.0.0:7053->7053/tcp, [::]:7053->7053/tcp, 0.0.0.0:9443->9443/tcp, [::]:9443->9443/tcp             orderer.fabric2.standard.com
+7133e233b38e   hyperledger/fabric-peer:latest                                                                                                                                                        "peer node start"        23 minutes ago   Up 23 minutes   0.0.0.0:7051->7051/tcp, [::]:7051->7051/tcp, 0.0.0.0:9444->9444/tcp, [::]:9444->9444/tcp                                                          peer0.org1.fabric2.standard.com
+729030d70f1f   hyperledger/fabric-peer:latest                                                                                                                                                        "peer node start"        23 minutes ago   Up 23 minutes   0.0.0.0:9051->9051/tcp, [::]:9051->9051/tcp, 7051/tcp, 0.0.0.0:9445->9445/tcp, [::]:9445->9445/tcp                                                peer0.org2.fabric2.standard.com
+1c48427bce3d   hyperledger/fabric-ca:latest                                                                                                                                                          "sh -c 'fabric-ca-se…"   23 minutes ago   Up 23 minutes   0.0.0.0:8054->8054/tcp, [::]:8054->8054/tcp, 7054/tcp, 0.0.0.0:18054->18054/tcp, [::]:18054->18054/tcp                                            ca_org2
+647cae596525   hyperledger/fabric-ca:latest                                                                                                                                                          "sh -c 'fabric-ca-se…"   23 minutes ago   Up 23 minutes   0.0.0.0:7054->7054/tcp, [::]:7054->7054/tcp, 0.0.0.0:17054->17054/tcp, [::]:17054->17054/tcp                                                      ca_org1
+4e042e855da6   hyperledger/fabric-ca:latest                                                                                                                                                          "sh -c 'fabric-ca-se…"   23 minutes ago   Up 23 minutes   0.0.0.0:9054->9054/tcp, [::]:9054->9054/tcp, 7054/tcp, 0.0.0.0:19054->19054/tcp, [::]:19054->19054/tcp                                            ca_orderer
+Langkah 2: Create channel — error
+  Perintah: ./network.sh createChannel
+  Pesan: Perintah ./network.sh createChannel gagal dijalankan.
+  Tindakan: Periksa log penyalaan jaringan untuk rincian lebih lanjut.
+  Error: Command failed: ./network.sh createChannel
++ '[' 0 -eq 1 ']'
++ configtxgen -profile ChannelUsingRaft -outputBlock ./channel-artifacts/channel-standard.block -channelID channel-standard
+[34m2025-10-29 06:41:39.987 UTC 0001 INFO[0m [common.tools.configtxgen] [34;1mmain[0m -> Loading configuration
+[34m2025-10-29 06:41:39.993 UTC 0002 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> orderer type: etcdraft
+[34m2025-10-29 06:41:39.994 UTC 0003 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> Orderer.EtcdRaft.Options unset, setting to tick_interval:"500ms"  election_tick:10  heartbeat_tick:1  max_inflight_blocks:5  snapshot_interval_size:16777216
+[34m2025-10-29 06:41:39.994 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/fabric-3/raft-standard/network/configtx/configtx.yaml
+[35m2025-10-29 06:41:39.995 UTC 0005 FATA[0m [common.tools.configtxgen] [35;1mmain[0m -> Error on outputBlock: could not create bootstrapper: could not create channel group: could not create orderer group: cannot marshal metadata for orderer type etcdraft: cannot load client cert for consenter orderer.fabric3.standard:7050: open /root/evaluasi-raft-hlf/fabric-3/raft-standard/network/organizations/ordererOrganizations/fabric3.standard/orderers/orderer.fabric3.standard/tls/server.crt: no such file or directory
++ res=1
+
+  STDOUT: [0;34mUsing docker and docker-compose[0m
+[0;34mCreating channel 'channel-standard'.[0m
+[0;34mIf network is not up, starting nodes with CLI timeout of '5' tries and CLI delay of '3' seconds and using database 'leveldb [0m
+Network Running Already
+[0;34mUsing docker and docker-compose[0m
+[0;34mGenerating channel genesis block 'channel-standard.block'[0m
+[0;34mUsing organization 1[0m
+/root/evaluasi-raft-hlf/fabric-3/raft-standard/network/../bin/configtxgen
+[0;31mFailed to generate channel configuration transaction...[0m
+  STDERR: + '[' 0 -eq 1 ']'
++ configtxgen -profile ChannelUsingRaft -outputBlock ./channel-artifacts/channel-standard.block -channelID channel-standard
+[34m2025-10-29 06:41:39.987 UTC 0001 INFO[0m [common.tools.configtxgen] [34;1mmain[0m -> Loading configuration
+[34m2025-10-29 06:41:39.993 UTC 0002 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> orderer type: etcdraft
+[34m2025-10-29 06:41:39.994 UTC 0003 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> Orderer.EtcdRaft.Options unset, setting to tick_interval:"500ms"  election_tick:10  heartbeat_tick:1  max_inflight_blocks:5  snapshot_interval_size:16777216
+[34m2025-10-29 06:41:39.994 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/fabric-3/raft-standard/network/configtx/configtx.yaml
+[35m2025-10-29 06:41:39.995 UTC 0005 FATA[0m [common.tools.configtxgen] [35;1mmain[0m -> Error on outputBlock: could not create bootstrapper: could not create channel group: could not create orderer group: cannot marshal metadata for orderer type etcdraft: cannot load client cert for consenter orderer.fabric3.standard:7050: open /root/evaluasi-raft-hlf/fabric-3/raft-standard/network/organizations/ordererOrganizations/fabric3.standard/orderers/orderer.fabric3.standard/tls/server.crt: no such file or directory
++ res=1
+Langkah 3: Deploy chaincode — skipped
+  Perintah: ./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl node
+  Pesan: Langkah ini dilewati karena perintah sebelumnya gagal.
+Error: Command failed: ./network.sh createChannel
++ '[' 0 -eq 1 ']'
++ configtxgen -profile ChannelUsingRaft -outputBlock ./channel-artifacts/channel-standard.block -channelID channel-standard
+[34m2025-10-29 06:41:39.987 UTC 0001 INFO[0m [common.tools.configtxgen] [34;1mmain[0m -> Loading configuration
+[34m2025-10-29 06:41:39.993 UTC 0002 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> orderer type: etcdraft
+[34m2025-10-29 06:41:39.994 UTC 0003 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> Orderer.EtcdRaft.Options unset, setting to tick_interval:"500ms"  election_tick:10  heartbeat_tick:1  max_inflight_blocks:5  snapshot_interval_size:16777216
+[34m2025-10-29 06:41:39.994 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/fabric-3/raft-standard/network/configtx/configtx.yaml
+[35m2025-10-29 06:41:39.995 UTC 0005 FATA[0m [common.tools.configtxgen] [35;1mmain[0m -> Error on outputBlock: could not create bootstrapper: could not create channel group: could not create orderer group: cannot marshal metadata for orderer type etcdraft: cannot load client cert for consenter orderer.fabric3.standard:7050: open /root/evaluasi-raft-hlf/fabric-3/raft-standard/network/organizations/ordererOrganizations/fabric3.standard/orderers/orderer.fabric3.standard/tls/server.crt: no such file or directory
++ res=1
+
+
+[2025-10-29T09:57:33.417Z] Gagal menyalakan jaringan: Fabric 3 RAFT Standard Network
+Status: partial
+Direktori: /root/evaluasi-raft-hlf/fabric-3/raft-standard/network
+Pesan: Perintah ./network.sh createChannel gagal dijalankan.
+Tindakan: Periksa log penyalaan jaringan untuk rincian lebih lanjut.
+Langkah 1: Start core services — success
+  Perintah: ./network.sh up
+  STDOUT: [0;34mUsing docker and docker-compose[0m
+[0;34mStarting nodes with CLI timeout of '5' tries and CLI delay of '3' seconds and using database 'leveldb' with crypto from 'cryptogen'[0m
+[0;34mLOCAL_VERSION=v3.1.3[0m
+[0;34mDOCKER_IMAGE_VERSION=v3.1.3[0m
+/root/evaluasi-raft-hlf/fabric-3/raft-standard/network/../bin/cryptogen
+[0;34mGenerating certificates using cryptogen tool[0m
+[0;34mCreating Org1 Identities[0m
+org1.fabric3.standard
+[0;34mCreating Org2 Identities[0m
+org2.fabric3.standard
+[0;34mCreating Orderer Org Identities[0m
+[0;34mGenerating CCP files for Org1 and Org2[0m
+Creating network "fabric3_raft_standard_net" with the default driver
+Creating volume "raftstandard3_orderer.fabric3.standard" with default driver
+Creating volume "raftstandard3_peer0.org1.fabric3.standard" with default driver
+Creating volume "raftstandard3_peer0.org2.fabric3.standard" with default driver
+Creating peer0.org2.fabric3.standard ... 
+Creating peer0.org1.fabric3.standard ... 
+Creating orderer.fabric3.standard    ... 
+Host is already in use by another container
+Creating peer0.org1.fabric3.standard ... error
+
+ERROR: for peer0.org1.fabric3.standard  Cannot start service peer0.org1.fabric3.standard: failed to set up container networking: driver failed programming external connectivity on endpoint peer0.org1.fabric3.standard (2c53c11965b4ae6ad9276132a71e84e2b679d26aff1fcb1841819338573c0a77): Bind for 0.0.0.0:7051 failed: port is already allocated
+Host is already in use by another container
+Creating peer0.org2.fabric3.standard ... error
+
+ERROR: for peer0.org2.fabric3.standard  Cannot start service peer0.org2.fabric3.standard: failed to set up container networking: driver failed programming external connectivity on endpoint peer0.org2.fabric3.standard (2b6602875df03365fdedc11df2d24534e88cf0884ca8ce200cf0f99c76d6f280): Bind for 0.0.0.0:9051 failed: port is already allocated
+Host is already in use by another container
+Creating orderer.fabric3.standard    ... error
+
+ERROR: for orderer.fabric3.standard  Cannot start service orderer.fabric3.standard: failed to set up container networking: driver failed programming external connectivity on endpoint orderer.fabric3.standard (6aa9905035b3b20dd73db8e94c34b19ffada794b97f12fc8a360a42740e119b4): Bind for 0.0.0.0:7050 failed: port is already allocated
+
+ERROR: for peer0.org1.fabric3.standard  Cannot start service peer0.org1.fabric3.standard: failed to set up container networking: driver failed programming external connectivity on endpoint peer0.org1.fabric3.standard (2c53c11965b4ae6ad9276132a71e84e2b679d26aff1fcb1841819338573c0a77): Bind for 0.0.0.0:7051 failed: port is already allocated
+
+ERROR: for peer0.org2.fabric3.standard  Cannot start service peer0.org2.fabric3.standard: failed to set up container networking: driver failed programming external connectivity on endpoint peer0.org2.fabric3.standard (2b6602875df03365fdedc11df2d24534e88cf0884ca8ce200cf0f99c76d6f280): Bind for 0.0.0.0:9051 failed: port is already allocated
+
+ERROR: for orderer.fabric3.standard  Cannot start service orderer.fabric3.standard: failed to set up container networking: driver failed programming external connectivity on endpoint orderer.fabric3.standard (6aa9905035b3b20dd73db8e94c34b19ffada794b97f12fc8a360a42740e119b4): Bind for 0.0.0.0:7050 failed: port is already allocated
+Encountered errors while bringing up the project.
+CONTAINER ID   IMAGE                                                                                                                                                                                 COMMAND                  CREATED              STATUS              PORTS                                                                                                                                             NAMES
+f0b53cdaf8ad   hyperledger/fabric-orderer:latest                                                                                                                                                     "orderer"                2 seconds ago        Created                                                                                                                                                               orderer.fabric3.standard
+5c52058be2ce   hyperledger/fabric-peer:latest                                                                                                                                                        "peer node start"        2 seconds ago        Created                                                                                                                                                               peer0.org1.fabric3.standard
+c0ef264823fc   hyperledger/fabric-peer:latest                                                                                                                                                        "peer node start"        2 seconds ago        Created                                                                                                                                                               peer0.org2.fabric3.standard
+d3faa055994d   dev-peer0.org2.fabric2.variant.com-pelaporan_1.0-b0cdc47f9832a4e4f69bf8d0f60d51740cadcb0648a7239c0409c8f1e8caaac0-ed127e02163a637c2fc8816f132081a7a0647c6b1bbe1b1526ea1ac881b703e2    "docker-entrypoint.s…"   9 seconds ago        Up 8 seconds                                                                                                                                                          dev-peer0.org2.fabric2.variant.com-pelaporan_1.0-b0cdc47f9832a4e4f69bf8d0f60d51740cadcb0648a7239c0409c8f1e8caaac0
+6d7f843ff525   dev-peer0.org1.fabric2.variant.com-pelaporan_1.0-b0cdc47f9832a4e4f69bf8d0f60d51740cadcb0648a7239c0409c8f1e8caaac0-55f6300be595c538589962b21082280518a4e28bfcba506e1d29b689a9826584    "docker-entrypoint.s…"   9 seconds ago        Up 8 seconds                                                                                                                                                          dev-peer0.org1.fabric2.variant.com-pelaporan_1.0-b0cdc47f9832a4e4f69bf8d0f60d51740cadcb0648a7239c0409c8f1e8caaac0
+a24d1d0ddbc7   hyperledger/fabric-orderer:latest                                                                                                                                                     "orderer"                About a minute ago   Up About a minute   7050/tcp, 0.0.0.0:7158->7058/tcp, [::]:7158->7058/tcp, 0.0.0.0:7159->7059/tcp, [::]:7159->7059/tcp, 0.0.0.0:9548->9448/tcp, [::]:9548->9448/tcp   orderer4.variant.com
+8004c4e88e43   hyperledger/fabric-peer:latest                                                                                                                                                        "peer node start"        About a minute ago   Up About a minute   7051/tcp, 0.0.0.0:9151->9051/tcp, [::]:9151->9051/tcp, 0.0.0.0:9545->9445/tcp, [::]:9545->9445/tcp                                                peer0.org2.fabric2.variant.com
+c2a87ac54986   hyperledger/fabric-peer:latest                                                                                                                                                        "peer node start"        About a minute ago   Up About a minute   0.0.0.0:7052->7051/tcp, [::]:7052->7051/tcp, 0.0.0.0:9544->9444/tcp, [::]:9544->9444/tcp                                                          peer0.org1.fabric2.variant.com
+ceb13436e214   hyperledger/fabric-orderer:latest                                                                                                                                                     "orderer"                About a minute ago   Up About a minute   7050/tcp, 0.0.0.0:7156->7056/tcp, [::]:7156->7056/tcp, 0.0.0.0:7157->7057/tcp, [::]:7157->7057/tcp, 0.0.0.0:9547->9447/tcp, [::]:9547->9447/tcp   orderer3.variant.com
+d34bbba06156   hyperledger/fabric-orderer:latest                                                                                                                                                     "orderer"                About a minute ago   Up About a minute   0.0.0.0:7150->7050/tcp, [::]:7150->7050/tcp, 0.0.0.0:7153->7053/tcp, [::]:7153->7053/tcp, 0.0.0.0:9543->9443/tcp, [::]:9543->9443/tcp             orderer.fabric2.variant.com
+873fb4e6137f   hyperledger/fabric-orderer:latest                                                                                                                                                     "orderer"                About a minute ago   Up About a minute   7050/tcp, 0.0.0.0:7152->7052/tcp, [::]:7152->7052/tcp, 0.0.0.0:7155->7055/tcp, [::]:7155->7055/tcp, 0.0.0.0:9546->9446/tcp, [::]:9546->9446/tcp   orderer2.variant.com
+51870bb0a7e5   hyperledger/fabric-ca:latest                                                                                                                                                          "sh -c 'fabric-ca-se…"   About a minute ago   Up About a minute   7054/tcp, 0.0.0.0:8154->8054/tcp, [::]:8154->8054/tcp, 0.0.0.0:18154->18054/tcp, [::]:18154->18054/tcp                                            raftvariant_ca_org2_1
+ee620f786544   hyperledger/fabric-ca:latest                                                                                                                                                          "sh -c 'fabric-ca-se…"   About a minute ago   Up About a minute   0.0.0.0:7154->7054/tcp, [::]:7154->7054/tcp, 0.0.0.0:17154->17054/tcp, [::]:17154->17054/tcp                                                      raftvariant_ca_org1_1
+ca801cd78aab   hyperledger/fabric-ca:latest                                                                                                                                                          "sh -c 'fabric-ca-se…"   About a minute ago   Up About a minute   7054/tcp, 0.0.0.0:9154->9054/tcp, [::]:9154->9054/tcp, 0.0.0.0:19154->19054/tcp, [::]:19154->19054/tcp                                            raftvariant_ca_orderer_1
+b83616f2382a   dev-peer0.org1.fabric2.standard.com-pelaporan_1.0-b0cdc47f9832a4e4f69bf8d0f60d51740cadcb0648a7239c0409c8f1e8caaac0-d190f973579b2afd5cabc419596110e0a269e53596d7052fa82792a8768c3b7d   "docker-entrypoint.s…"   About a minute ago   Up About a minute                                                                                                                                                     dev-peer0.org1.fabric2.standard.com-pelaporan_1.0-b0cdc47f9832a4e4f69bf8d0f60d51740cadcb0648a7239c0409c8f1e8caaac0
+4ee1be8a2289   dev-peer0.org2.fabric2.standard.com-pelaporan_1.0-b0cdc47f9832a4e4f69bf8d0f60d51740cadcb0648a7239c0409c8f1e8caaac0-33d3acb967a93e4692e00df27c4928574139cc4e745af83c5dd5aa8ae8511c9c   "docker-entrypoint.s…"   About a minute ago   Up About a minute                                                                                                                                                     dev-peer0.org2.fabric2.standard.com-pelaporan_1.0-b0cdc47f9832a4e4f69bf8d0f60d51740cadcb0648a7239c0409c8f1e8caaac0
+dab1dcc083db   hyperledger/fabric-orderer:latest                                                                                                                                                     "orderer"                2 minutes ago        Up 2 minutes        0.0.0.0:7050->7050/tcp, [::]:7050->7050/tcp, 0.0.0.0:7053->7053/tcp, [::]:7053->7053/tcp, 0.0.0.0:9443->9443/tcp, [::]:9443->9443/tcp             orderer.fabric2.standard.com
+db5c0570a8e5   hyperledger/fabric-peer:latest                                                                                                                                                        "peer node start"        2 minutes ago        Up 2 minutes        0.0.0.0:9051->9051/tcp, [::]:9051->9051/tcp, 7051/tcp, 0.0.0.0:9445->9445/tcp, [::]:9445->9445/tcp                                                peer0.org2.fabric2.standard.com
+457efb513222   hyperledger/fabric-peer:latest                                                                                                                                                        "peer node start"        2 minutes ago        Up 2 minutes        0.0.0.0:7051->7051/tcp, [::]:7051->7051/tcp, 0.0.0.0:9444->9444/tcp, [::]:9444->9444/tcp                                                          peer0.org1.fabric2.standard.com
+60d701a61553   hyperledger/fabric-ca:latest                                                                                                                                                          "sh -c 'fabric-ca-se…"   2 minutes ago        Up 2 minutes        0.0.0.0:7054->7054/tcp, [::]:7054->7054/tcp, 0.0.0.0:17054->17054/tcp, [::]:17054->17054/tcp                                                      ca_org1
+7a25f54d1865   hyperledger/fabric-ca:latest                                                                                                                                                          "sh -c 'fabric-ca-se…"   2 minutes ago        Up 2 minutes        0.0.0.0:8054->8054/tcp, [::]:8054->8054/tcp, 7054/tcp, 0.0.0.0:18054->18054/tcp, [::]:18054->18054/tcp                                            ca_org2
+ee9c12bd0c3b   hyperledger/fabric-ca:latest                                                                                                                                                          "sh -c 'fabric-ca-se…"   2 minutes ago        Up 2 minutes        0.0.0.0:9054->9054/tcp, [::]:9054->9054/tcp, 7054/tcp, 0.0.0.0:19054->19054/tcp, [::]:19054->19054/tcp                                            ca_orderer
+  STDERR: + cryptogen generate --config=./organizations/cryptogen/crypto-config-org1.yaml --output=organizations
++ res=0
++ cryptogen generate --config=./organizations/cryptogen/crypto-config-org2.yaml --output=organizations
++ res=0
++ cryptogen generate --config=./organizations/cryptogen/crypto-config-orderer.yaml --output=organizations
++ res=0
+Langkah 2: Create channel — error
+  Perintah: ./network.sh createChannel
+  Pesan: Perintah ./network.sh createChannel gagal dijalankan.
+  Tindakan: Periksa log penyalaan jaringan untuk rincian lebih lanjut.
+  Error: Command failed: ./network.sh createChannel
++ '[' 0 -eq 1 ']'
++ configtxgen -profile ChannelUsingRaft -outputBlock ./channel-artifacts/channel-standard.block -channelID channel-standard
+[34m2025-10-29 09:57:06.128 UTC 0001 INFO[0m [common.tools.configtxgen] [34;1mmain[0m -> Loading configuration
+[34m2025-10-29 09:57:06.131 UTC 0002 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> orderer type: etcdraft
+[34m2025-10-29 09:57:06.131 UTC 0003 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> Orderer.EtcdRaft.Options unset, setting to tick_interval:"500ms"  election_tick:10  heartbeat_tick:1  max_inflight_blocks:5  snapshot_interval_size:16777216
+[34m2025-10-29 09:57:06.131 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/fabric-3/raft-standard/network/configtx/configtx.yaml
+[34m2025-10-29 09:57:06.133 UTC 0005 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Generating genesis block
+[34m2025-10-29 09:57:06.133 UTC 0006 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Creating application channel genesis block
+[34m2025-10-29 09:57:06.134 UTC 0007 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Writing genesis block
++ res=0
++ . scripts/orderer.sh channel-standard
++ '[' 0 -eq 1 ']'
++ res=0
++ peer channel join -b ./channel-artifacts/channel-standard.block
++ res=1
++ peer channel join -b ./channel-artifacts/channel-standard.block
++ res=1
++ peer channel join -b ./channel-artifacts/channel-standard.block
++ res=1
++ peer channel join -b ./channel-artifacts/channel-standard.block
++ res=1
+
+  STDOUT: [0;34mUsing docker and docker-compose[0m
+[0;34mCreating channel 'channel-standard'.[0m
+[0;34mIf network is not up, starting nodes with CLI timeout of '5' tries and CLI delay of '3' seconds and using database 'leveldb [0m
+Network Running Already
+[0;34mUsing docker and docker-compose[0m
+[0;34mGenerating channel genesis block 'channel-standard.block'[0m
+[0;34mUsing organization 1[0m
+/root/evaluasi-raft-hlf/fabric-3/raft-standard/network/../bin/configtxgen
+[0;34mCreating channel channel-standard[0m
+[0;34mAdding orderers[0m
+Error: Post "https://localhost:7053/participation/v1/channels": tls: failed to verify certificate: x509: certificate signed by unknown authority
+
+[0;32mChannel 'channel-standard' created[0m
+[0;34mJoining org1 peer to the channel...[0m
+[0;34mUsing organization 1[0m
+[34m2025-10-29 09:57:30.402 UTC 0001 INFO[0m [grpc] [34;1mInfof[0m -> [core] original dial target is: "localhost:7051"
+[34m2025-10-29 09:57:30.402 UTC 0002 INFO[0m [grpc] [34;1mAddTraceEvent[0m -> [core] [Channel #1]Channel created
+[34m2025-10-29 09:57:30.403 UTC 0003 INFO[0m [grpc] [34;1mAddTraceEvent[0m -> [core] [Channel #1]parsed dial target is: resolver.Target{URL:url.URL{Scheme:"passthrough", Opaque:"", User:(*url.Userinfo)(nil), Host:"", Path:"/localhost:7051", RawPath:"", OmitHost:false, ForceQuery:false, RawQuery:"", Fragment:"", RawFragment:""}}
+[34m2025-10-29 09:57:30.403 UTC 0004 INFO[0m [grpc] [34;1mAddTraceEvent[0m -> [core] [Channel #1]Channel authority set to "localhost:7051"
+[34m2025-10-29 09:57:30.404 UTC 0005 INFO[0m [grpc] [34;1mAddTraceEvent[0m -> [core] [Channel #1]Resolver state updated: {
+  "Addresses": [
+    {
+      "Addr": "localhost:7051",
+      "ServerName": "",
+      "Attributes": null,
+      "BalancerAttributes": null,
+      "Metadata": null
+    }
+  ],
+  "Endpoints": [
+    {
+      "Addresses": [
+        {
+          "Addr": "localhost:7051",
+          "ServerName": "",
+          "Attributes": null,
+          "BalancerAttributes": null,
+          "Metadata": null
+        }
+      ],
+      "Attributes": null
+    }
+  ],
+  "ServiceConfig": null,
+  "Attributes": null
+} (resolver returned new addresses)
+[34m2025-10-29 09:57:30.404 UTC 0006 INFO[0m [grpc] [34;1mAddTraceEvent[0m -> [core] [Channel #1]Channel switches to new LB policy "pick_first"
+[34m2025-10-29 09:57:30.404 UTC 0007 INFO[0m [grpc] [34;1mInfof[0m -> [pick-first-leaf-lb] [pick-first-leaf-lb 0xc0003625a0] Received new config {
+  "shuffleAddressList": false
+}, resolver state {
+  "Addresses": [
+    {
+      "Addr": "localhost:7051",
+      "ServerName": "",
+      "Attributes": null,
+      "BalancerAttributes": null,
+      "Metadata": null
+    }
+  ],
+  "Endpoints": [
+    {
+      "Addresses": [
+        {
+          "Addr": "localhost:7051",
+          "ServerName": "",
+          "Attributes": null,
+          "BalancerAttributes": null,
+          "Metadata": null
+        }
+      ],
+      "Attributes": null
+    }
+  ],
+  "ServiceConfig": null,
+  "Attributes": null
+}
+[34m2025-10-29 09:57:30.404 UTC 0008 INFO[0m [grpc] [34;1mAddTraceEvent[0m -> [core] [Channel #1]Channel Connectivity change to CONNECTING
+[34m2025-10-29 09:57:30.404 UTC 0009 INFO[0m [grpc] [34;1mAddTraceEvent[0m -> [core] [Channel #1 SubChannel #2]Subchannel created
+[34m2025-10-29 09:57:30.404 UTC 000a INFO[0m [grpc] [34;1mAddTraceEvent[0m -> [core] [Channel #1]Channel exiting idle mode
+[34m2025-10-29 09:57:30.404 UTC 000b INFO[0m [grpc] [34;1mAddTraceEvent[0m -> [core] [Channel #1 SubChannel #2]Subchannel Connectivity change to CONNECTING
+[34m2025-10-29 09:57:30.404 UTC 000c INFO[0m [grpc] [34;1mAddTraceEvent[0m -> [core] [Channel #1 SubChannel #2]Subchannel picks a new address "localhost:7051" to connect
+[31m2025-10-29 09:57:30.407 UTC 000d ERRO[0m [comm.tls] [31;1mClientHandshake[0m -> Client TLS handshake failed after 1.701834ms with error: tls: failed to verify certificate: x509: certificate signed by unknown authority remoteaddress=[::1]:7051
+[34m2025-10-29 09:57:30.407 UTC 000e INFO[0m [grpc] [34;1mInfof[0m -> [core] Creating new client transport to "{Addr: \"localhost:7051\", ServerName: \"localhost:7051\", BalancerAttributes: {\"<%!p(pickfirstleaf.managedByPickfirstKeyType={})>\": \"<%!p(bool=true)>\" }}": connection error: desc = "transport: authentication handshake failed: tls: failed to verify certificate: x509: certificate signed by unknown authority"
+[33m2025-10-29 09:57:30.407 UTC 000f WARN[0m [grpc] [33;1mAddTraceEvent[0m -> [core] [Channel #1 SubChannel #2]grpc: addrConn.createTransport failed to connect to {Addr: "localhost:7051", ServerName: "localhost:7051", BalancerAttributes: {"<%!p(pickfirstleaf.managedByPickfirstKeyType={})>": "<%!p(bool=true)>" }}. Err: connection error: desc = "transport: authentication handshake failed: tls: failed to verify certificate: x509: certificate signed by unknown authority"
+[34m2025-10-29 09:57:30.407 UTC 0010 INFO[0m [grpc] [34;1mAddTraceEvent[0m -> [core] [Channel #1 SubChannel #2]Subchannel Connectivity change to TRANSIENT_FAILURE, last error: connection error: desc = "transport: authentication handshake failed: tls: failed to verify certificate: x509: certificate signed by unknown authority"
+[34m2025-10-29 09:57:30.407 UTC 0011 INFO[0m [grpc] [34;1mAddTraceEvent[0m -> [core] [Channel #1]Channel Connectivity change to TRANSIENT_FAILURE
+[34m2025-10-29 09:57:31.407 UTC 0012 INFO[0m [grpc] [34;1mAddTraceEvent[0m -> [core] [Channel #1 SubChannel #2]Subchannel Connectivity change to IDLE, last error: connection error: desc = "transport: authentication handshake failed: tls: failed to verify certificate: x509: certificate signed by unknown authority"
+[34m2025-10-29 09:57:31.407 UTC 0013 INFO[0m [grpc] [34;1mAddTraceEvent[0m -> [core] [Channel #1 SubChannel #2]Subchannel Connectivity change to CONNECTING
+[34m2025-10-29 09:57:31.407 UTC 0014 INFO[0m [grpc] [34;1mAddTraceEvent[0m -> [core] [Channel #1 SubChannel #2]Subchannel picks a new address "localhost:7051" to connect
+[31m2025-10-29 09:57:31.410 UTC 0015 ERRO[0m [comm.tls] [31;1mClientHandshake[0m -> Client TLS handshake failed after 2.169505ms with error: tls: failed to verify certificate: x509: certificate signed by unknown authority remoteaddress=[::1]:7051
+[34m2025-10-29 09:57:31.410 UTC 0016 INFO[0m [grpc] [34;1mInfof[0m -> [core] Creating new client transport to "{Addr: \"localhost:7051\", ServerName: \"localhost:7051\", BalancerAttributes: {\"<%!p(pickfirstleaf.managedByPickfirstKeyType={})>\": \"<%!p(bool=true)>\" }}": connection error: desc = "transport: authentication handshake failed: tls: failed to verify certificate: x509: certificate signed by unknown authority"
+[33m2025-10-29 09:57:31.410 UTC 0017 WARN[0m [grpc] [33;1mAddTraceEvent[0m -> [core] [Channel #1 SubChannel #2]grpc: addrConn.createTransport failed to connect to {Addr: "localhost:7051", ServerName: "localhost:7051", BalancerAttributes: {"<%!p(pickfirstleaf.managedByPickfirstKeyType={})>": "<%!p(bool=true)>" }}. Err: connection error: desc = "transport: authentication handshake failed: tls: failed to verify certificate: x509: certificate signed by unknown authority"
+[34m2025-10-29 09:57:31.410 UTC 0018 INFO[0m [grpc] [34;1mAddTraceEvent[0m -> [core] [Channel #1 SubChannel #2]Subchannel Connectivity change to TRANSIENT_FAILURE, last error: connection error: desc = "transport: authentication handshake failed: tls: failed to verify certificate: x509: certificate signed by unknown authority"
+[34m2025-10-29 09:57:32.877 UTC 0019 INFO[0m [grpc] [34;1mAddTraceEvent[0m -> [core] [Channel #1 SubChannel #2]Subchannel Connectivity change to IDLE, last error: connection error: desc = "transport: authentication handshake failed: tls: failed to verify certificate: x509: certificate signed by unknown authority"
+[34m2025-10-29 09:57:32.877 UTC 001a INFO[0m [grpc] [34;1mAddTraceEvent[0m -> [core] [Channel #1 SubChannel #2]Subchannel Connectivity change to CONNECTING
+[34m2025-10-29 09:57:32.877 UTC 001b INFO[0m [grpc] [34;1mAddTraceEvent[0m -> [core] [Channel #1 SubChannel #2]Subchannel picks a new address "localhost:7051" to connect
+[31m2025-10-29 09:57:32.879 UTC 001c ERRO[0m [comm.tls] [31;1mClientHandshake[0m -> Client TLS handshake failed after 2.071828ms with error: tls: failed to verify certificate: x509: certificate signed by unknown authority remoteaddress=[::1]:7051
+[34m2025-10-29 09:57:32.880 UTC 001d INFO[0m [grpc] [34;1mInfof[0m -> [core] Creating new client transport to "{Addr: \"localhost:7051\", ServerName: \"localhost:7051\", BalancerAttributes: {\"<%!p(pickfirstleaf.managedByPickfirstKeyType={})>\": \"<%!p(bool=true)>\" }}": connection error: desc = "transport: authentication handshake failed: tls: failed to verify certificate: x509: certificate signed by unknown authority"
+[33m2025-10-29 09:57:32.880 UTC 001e WARN[0m [grpc] [33;1mAddTraceEvent[0m -> [core] [Channel #1 SubChannel #2]grpc: addrConn.createTransport failed to connect to {Addr: "localhost:7051", ServerName: "localhost:7051", BalancerAttributes: {"<%!p(pickfirstleaf.managedByPickfirstKeyType={})>": "<%!p(bool=true)>" }}. Err: connection error: desc = "transport: authentication handshake failed: tls: failed to verify certificate: x509: certificate signed by unknown authority"
+[34m2025-10-29 09:57:32.880 UTC 001f INFO[0m [grpc] [34;1mAddTraceEvent[0m -> [core] [Channel #1 SubChannel #2]Subchannel Connectivity change to TRANSIENT_FAILURE, last error: connection error: desc = "transport: authentication handshake failed: tls: failed to verify certificate: x509: certificate signed by unknown authority"
+[34m2025-10-29 09:57:33.403 UTC 0020 INFO[0m [grpc] [34;1mAddTraceEvent[0m -> [core] [Channel #1]Channel Connectivity change to SHUTDOWN
+[34m2025-10-29 09:57:33.403 UTC 0021 INFO[0m [grpc] [34;1mAddTraceEvent[0m -> [core] [Channel #1]Closing the name resolver
+[34m2025-10-29 09:57:33.403 UTC 0022 INFO[0m [grpc] [34;1mAddTraceEvent[0m -> [core] [Channel #1]ccBalancerWrapper: closing
+[34m2025-10-29 09:57:33.404 UTC 0023 INFO[0m [grpc] [34;1mAddTraceEvent[0m -> [core] [Channel #1 SubChannel #2]Subchannel Connectivity change to SHUTDOWN
+[34m2025-10-29 09:57:33.404 UTC 0024 INFO[0m [grpc] [34;1mAddTraceEvent[0m -> [core] [Channel #1 SubChannel #2]Subchannel deleted
+[34m2025-10-29 09:57:33.404 UTC 0025 INFO[0m [grpc] [34;1mAddTraceEvent[0m -> [core] [Channel #1]Channel deleted
+Error: error getting endorser client for channel: endorser client failed to connect to localhost:7051: failed to create new connection: context deadline exceeded
+[0;31mAfter 5 attempts, peer0.org1 has failed to join channel 'channel-standard' [0m
+  STDERR: + '[' 0 -eq 1 ']'
++ configtxgen -profile ChannelUsingRaft -outputBlock ./channel-artifacts/channel-standard.block -channelID channel-standard
+[34m2025-10-29 09:57:06.128 UTC 0001 INFO[0m [common.tools.configtxgen] [34;1mmain[0m -> Loading configuration
+[34m2025-10-29 09:57:06.131 UTC 0002 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> orderer type: etcdraft
+[34m2025-10-29 09:57:06.131 UTC 0003 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> Orderer.EtcdRaft.Options unset, setting to tick_interval:"500ms"  election_tick:10  heartbeat_tick:1  max_inflight_blocks:5  snapshot_interval_size:16777216
+[34m2025-10-29 09:57:06.131 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/fabric-3/raft-standard/network/configtx/configtx.yaml
+[34m2025-10-29 09:57:06.133 UTC 0005 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Generating genesis block
+[34m2025-10-29 09:57:06.133 UTC 0006 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Creating application channel genesis block
+[34m2025-10-29 09:57:06.134 UTC 0007 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Writing genesis block
++ res=0
++ . scripts/orderer.sh channel-standard
++ '[' 0 -eq 1 ']'
++ res=0
++ peer channel join -b ./channel-artifacts/channel-standard.block
++ res=1
++ peer channel join -b ./channel-artifacts/channel-standard.block
++ res=1
++ peer channel join -b ./channel-artifacts/channel-standard.block
++ res=1
++ peer channel join -b ./channel-artifacts/channel-standard.block
++ res=1
+Langkah 3: Deploy chaincode — skipped
+  Perintah: ./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl node
+  Pesan: Langkah ini dilewati karena perintah sebelumnya gagal.
+Error: Command failed: ./network.sh createChannel
++ '[' 0 -eq 1 ']'
++ configtxgen -profile ChannelUsingRaft -outputBlock ./channel-artifacts/channel-standard.block -channelID channel-standard
+[34m2025-10-29 09:57:06.128 UTC 0001 INFO[0m [common.tools.configtxgen] [34;1mmain[0m -> Loading configuration
+[34m2025-10-29 09:57:06.131 UTC 0002 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> orderer type: etcdraft
+[34m2025-10-29 09:57:06.131 UTC 0003 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> Orderer.EtcdRaft.Options unset, setting to tick_interval:"500ms"  election_tick:10  heartbeat_tick:1  max_inflight_blocks:5  snapshot_interval_size:16777216
+[34m2025-10-29 09:57:06.131 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/fabric-3/raft-standard/network/configtx/configtx.yaml
+[34m2025-10-29 09:57:06.133 UTC 0005 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Generating genesis block
+[34m2025-10-29 09:57:06.133 UTC 0006 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Creating application channel genesis block
+[34m2025-10-29 09:57:06.134 UTC 0007 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Writing genesis block
++ res=0
++ . scripts/orderer.sh channel-standard
++ '[' 0 -eq 1 ']'
++ res=0
++ peer channel join -b ./channel-artifacts/channel-standard.block
++ res=1
++ peer channel join -b ./channel-artifacts/channel-standard.block
++ res=1
++ peer channel join -b ./channel-artifacts/channel-standard.block
++ res=1
++ peer channel join -b ./channel-artifacts/channel-standard.block
++ res=1
+
+
+[2025-10-29T15:25:12.251Z] Gagal menyalakan jaringan: RAFT Standard Network
+Status: partial
+Direktori: /root/evaluasi-raft-hlf/fabric-2/raft-standard/network
+Pesan: Perintah ./network.sh createChannel -c fabric2-channel-standard -ca gagal dijalankan.
+Tindakan: Periksa log penyalaan jaringan untuk rincian lebih lanjut.
+Langkah 1: Start core services — success
+  Perintah: ./network.sh up -ca
+  STDOUT: [0;34mUsing docker and docker-compose[0m
+[0;34mStarting nodes with CLI timeout of '5' tries and CLI delay of '3' seconds and using database 'leveldb' with crypto from 'Certificate Authorities'[0m
+[0;34mLOCAL_VERSION=v2.5.12[0m
+[0;34mDOCKER_IMAGE_VERSION=v3.1.3[0m
+[1;33mLocal fabric binaries and docker images are out of sync. This may cause problems.[0m
+[0;34mCA_LOCAL_VERSION=v1.5.15[0m
+[0;34mCA_DOCKER_IMAGE_VERSION=v1.5.15[0m
+[0;34mGenerating certificates using Fabric CA[0m
+Creating network "fabric_raft_standard_net" with the default driver
+Found orphan containers (orderer.fabric3.standard, peer0.org2.fabric3.standard, peer0.org1.fabric3.standard) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up.
+Creating ca_org1 ... 
+Creating ca_orderer ... 
+Creating ca_org2    ... 
+Creating ca_org1    ... done
+Creating ca_orderer ... done
+Creating ca_org2    ... done
+[0;34mCreating Org1 Identities[0m
+[0;34mEnrolling the CA admin[0m
+[0;34mRegistering peer0[0m
+Password: peer0pw
+[0;34mRegistering user[0m
+Password: user1pw
+[0;34mRegistering the org admin[0m
+Password: org1adminpw
+[0;34mGenerating the peer0 msp[0m
+[0;34mGenerating the peer0-tls certificates, use --csr.hosts to specify Subject Alternative Names[0m
+[0;34mGenerating the user msp[0m
+[0;34mGenerating the org admin msp[0m
+[0;34mCreating Org2 Identities[0m
+[0;34mEnrolling the CA admin[0m
+[0;34mRegistering peer0[0m
+Password: peer0pw
+[0;34mRegistering user[0m
+Password: user1pw
+[0;34mRegistering the org admin[0m
+Password: org2adminpw
+[0;34mGenerating the peer0 msp[0m
+[0;34mGenerating the peer0-tls certificates, use --csr.hosts to specify Subject Alternative Names[0m
+[0;34mGenerating the user msp[0m
+[0;34mGenerating the org admin msp[0m
+[0;34mCreating Orderer Org Identities[0m
+[0;34mEnrolling the CA admin[0m
+[0;34mRegistering orderer[0m
+Password: ordererpw
+[0;34mGenerating the orderer MSP[0m
+[0;34mGenerating the orderer TLS certificates, use --csr.hosts to specify Subject Alternative Names[0m
+[0;34mRegistering orderer2[0m
+Password: orderer2pw
+[0;34mGenerating the orderer2 MSP[0m
+[0;34mGenerating the orderer2 TLS certificates, use --csr.hosts to specify Subject Alternative Names[0m
+[0;34mRegistering orderer3[0m
+Password: orderer3pw
+[0;34mGenerating the orderer3 MSP[0m
+[0;34mGenerating the orderer3 TLS certificates, use --csr.hosts to specify Subject Alternative Names[0m
+[0;34mRegistering orderer4[0m
+Password: orderer4pw
+[0;34mGenerating the orderer4 MSP[0m
+[0;34mGenerating the orderer4 TLS certificates, use --csr.hosts to specify Subject Alternative Names[0m
+[0;34mRegistering the orderer admin[0m
+Password: ordererAdminpw
+[0;34mGenerating the admin msp[0m
+[0;34mGenerating CCP files for Org1 and Org2[0m
+Creating volume "raftstandard_orderer.fabric2.standard.com" with default driver
+Creating volume "raftstandard_peer0.org1.fabric2.standard.com" with default driver
+Creating volume "raftstandard_peer0.org2.fabric2.standard.com" with default driver
+Found orphan containers (ca_orderer, peer0.org2.fabric3.standard, ca_org2, ca_org1, peer0.org1.fabric3.standard, orderer.fabric3.standard) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up.
+Creating peer0.org1.fabric2.standard.com ... 
+Creating peer0.org2.fabric2.standard.com ... 
+Creating orderer.fabric2.standard.com    ... 
+Host is already in use by another container
+Creating orderer.fabric2.standard.com    ... error
+
+ERROR: for orderer.fabric2.standard.com  Cannot start service orderer.fabric2.standard.com: failed to set up container networking: driver failed programming external connectivity on endpoint orderer.fabric2.standard.com (2f2009fd27fd3dc5a936003fc5c2bac3428e49b261db285d28be9efa35df5d88): Bind for 0.0.0.0:7053 failed: port is already allocated
+Host is already in use by another container
+Creating peer0.org2.fabric2.standard.com ... error
+
+ERROR: for peer0.org2.fabric2.standard.com  Cannot start service peer0.org2.fabric2.standard.com: failed to set up container networking: driver failed programming external connectivity on endpoint peer0.org2.fabric2.standard.com (a48337a9dbc970e6a65bc78d46da623cf9322aefc6ecd769e9d1576fa17d5a72): Bind for 0.0.0.0:9445 failed: port is already allocated
+Host is already in use by another container
+Creating peer0.org1.fabric2.standard.com ... error
+
+ERROR: for peer0.org1.fabric2.standard.com  Cannot start service peer0.org1.fabric2.standard.com: failed to set up container networking: driver failed programming external connectivity on endpoint peer0.org1.fabric2.standard.com (91415c7f5f412f5a7cfdaecbf9892ed9c8c655575fa0fc21b0edf135d80e06ec): Bind for 0.0.0.0:9444 failed: port is already allocated
+
+ERROR: for orderer.fabric2.standard.com  Cannot start service orderer.fabric2.standard.com: failed to set up container networking: driver failed programming external connectivity on endpoint orderer.fabric2.standard.com (2f2009fd27fd3dc5a936003fc5c2bac3428e49b261db285d28be9efa35df5d88): Bind for 0.0.0.0:7053 failed: port is already allocated
+
+ERROR: for peer0.org2.fabric2.standard.com  Cannot start service peer0.org2.fabric2.standard.com: failed to set up container networking: driver failed programming external connectivity on endpoint peer0.org2.fabric2.standard.com (a48337a9dbc970e6a65bc78d46da623cf9322aefc6ecd769e9d1576fa17d5a72): Bind for 0.0.0.0:9445 failed: port is already allocated
+
+ERROR: for peer0.org1.fabric2.standard.com  Cannot start service peer0.org1.fabric2.standard.com: failed to set up container networking: driver failed programming external connectivity on endpoint peer0.org1.fabric2.standard.com (91415c7f5f412f5a7cfdaecbf9892ed9c8c655575fa0fc21b0edf135d80e06ec): Bind for 0.0.0.0:9444 failed: port is already allocated
+Encountered errors while bringing up the project.
+CONTAINER ID   IMAGE                                                                                                                                                                             COMMAND                  CREATED         STATUS         PORTS                                                                                                                                             NAMES
+c5336b065ca6   hyperledger/fabric-peer:latest                                                                                                                                                    "peer node start"        1 second ago    Created                                                                                                                                                          peer0.org1.fabric2.standard.com
+563dce0723b9   hyperledger/fabric-orderer:latest                                                                                                                                                 "orderer"                1 second ago    Created                                                                                                                                                          orderer.fabric2.standard.com
+68a105ea68f2   hyperledger/fabric-peer:latest                                                                                                                                                    "peer node start"        1 second ago    Created                                                                                                                                                          peer0.org2.fabric2.standard.com
+6b4c1b839405   hyperledger/fabric-ca:latest                                                                                                                                                      "sh -c 'fabric-ca-se…"   8 seconds ago   Up 7 seconds   0.0.0.0:8054->8054/tcp, [::]:8054->8054/tcp, 7054/tcp, 0.0.0.0:18054->18054/tcp, [::]:18054->18054/tcp                                            ca_org2
+628c73257ba1   hyperledger/fabric-ca:latest                                                                                                                                                      "sh -c 'fabric-ca-se…"   8 seconds ago   Up 7 seconds   0.0.0.0:7054->7054/tcp, [::]:7054->7054/tcp, 0.0.0.0:17054->17054/tcp, [::]:17054->17054/tcp                                                      ca_org1
+20c20db1996a   hyperledger/fabric-ca:latest                                                                                                                                                      "sh -c 'fabric-ca-se…"   8 seconds ago   Up 7 seconds   0.0.0.0:9054->9054/tcp, [::]:9054->9054/tcp, 7054/tcp, 0.0.0.0:19054->19054/tcp, [::]:19054->19054/tcp                                            ca_orderer
+0aa57d99daa7   dev-peer0.org2.fabric3.standard-pelaporan_1.0-b0cdc47f9832a4e4f69bf8d0f60d51740cadcb0648a7239c0409c8f1e8caaac0-89f23f07809f53db8638c49dd99dab1390de343018fed6073af04609e80ce1c8   "docker-entrypoint.s…"   5 minutes ago   Up 5 minutes                                                                                                                                                     dev-peer0.org2.fabric3.standard-pelaporan_1.0-b0cdc47f9832a4e4f69bf8d0f60d51740cadcb0648a7239c0409c8f1e8caaac0
+29a2bc5f084c   dev-peer0.org1.fabric3.standard-pelaporan_1.0-b0cdc47f9832a4e4f69bf8d0f60d51740cadcb0648a7239c0409c8f1e8caaac0-b03d67ff930f872a864538771ac9e3ed14e9ca6bbea6f6071bfc535f67c7ddd2   "docker-entrypoint.s…"   5 minutes ago   Up 5 minutes                                                                                                                                                     dev-peer0.org1.fabric3.standard-pelaporan_1.0-b0cdc47f9832a4e4f69bf8d0f60d51740cadcb0648a7239c0409c8f1e8caaac0
+d620dcb2ec85   hyperledger/fabric-peer:latest                                                                                                                                                    "peer node start"        6 minutes ago   Up 6 minutes   0.0.0.0:7053->7053/tcp, [::]:7053->7053/tcp, 7051/tcp, 0.0.0.0:9444->9444/tcp, [::]:9444->9444/tcp                                                peer0.org1.fabric3.standard
+bb2acf88ee98   hyperledger/fabric-orderer:latest                                                                                                                                                 "orderer"                6 minutes ago   Up 6 minutes   0.0.0.0:7055->7055/tcp, [::]:7055->7055/tcp, 0.0.0.0:8053->8053/tcp, [::]:8053->8053/tcp, 7050/tcp, 0.0.0.0:9443->9443/tcp, [::]:9443->9443/tcp   orderer.fabric3.standard
+58feb849fba4   hyperledger/fabric-peer:latest                                                                                                                                                    "peer node start"        6 minutes ago   Up 6 minutes   0.0.0.0:9053->9053/tcp, [::]:9053->9053/tcp, 7051/tcp, 0.0.0.0:9445->9445/tcp, [::]:9445->9445/tcp                                                peer0.org2.fabric3.standard
+  STDERR: + fabric-ca-client getcainfo -u https://admin:adminpw@localhost:7054 --caname ca-org1 --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/org1/ca-cert.pem
+2025/10/29 15:24:51 [INFO] Configuration file location: /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/fabric-ca-client-config.yaml
+2025/10/29 15:24:51 [INFO] TLS Enabled
+2025/10/29 15:24:51 [INFO] Stored root CA certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/msp/cacerts/localhost-7054-ca-org1.pem
+2025/10/29 15:24:51 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/msp/IssuerPublicKey
+2025/10/29 15:24:51 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/msp/IssuerRevocationPublicKey
++ res=0
++ fabric-ca-client enroll -u https://admin:adminpw@localhost:7054 --caname ca-org1 --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/org1/ca-cert.pem
+2025/10/29 15:24:51 [INFO] Created a default configuration file at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/fabric-ca-client-config.yaml
+2025/10/29 15:24:51 [INFO] TLS Enabled
+2025/10/29 15:24:51 [INFO] generating key: &{A:ecdsa S:256}
+2025/10/29 15:24:51 [INFO] encoded CSR
+2025/10/29 15:24:51 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/msp/signcerts/cert.pem
+2025/10/29 15:24:51 [INFO] Stored root CA certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/msp/cacerts/localhost-7054-ca-org1.pem
+2025/10/29 15:24:51 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/msp/IssuerPublicKey
+2025/10/29 15:24:51 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/msp/IssuerRevocationPublicKey
++ fabric-ca-client register --caname ca-org1 --id.name peer0 --id.secret peer0pw --id.type peer --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/org1/ca-cert.pem
+2025/10/29 15:24:51 [INFO] Configuration file location: /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/fabric-ca-client-config.yaml
+2025/10/29 15:24:51 [INFO] TLS Enabled
+2025/10/29 15:24:51 [INFO] TLS Enabled
++ fabric-ca-client register --caname ca-org1 --id.name user1 --id.secret user1pw --id.type client --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/org1/ca-cert.pem
+2025/10/29 15:24:51 [INFO] Configuration file location: /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/fabric-ca-client-config.yaml
+2025/10/29 15:24:51 [INFO] TLS Enabled
+2025/10/29 15:24:51 [INFO] TLS Enabled
++ fabric-ca-client register --caname ca-org1 --id.name org1admin --id.secret org1adminpw --id.type admin --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/org1/ca-cert.pem
+2025/10/29 15:24:51 [INFO] Configuration file location: /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/fabric-ca-client-config.yaml
+2025/10/29 15:24:51 [INFO] TLS Enabled
+2025/10/29 15:24:51 [INFO] TLS Enabled
++ fabric-ca-client enroll -u https://peer0:peer0pw@localhost:7054 --caname ca-org1 -M /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/peers/peer0.org1.fabric2.standard.com/msp --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/org1/ca-cert.pem
+2025/10/29 15:24:52 [INFO] TLS Enabled
+2025/10/29 15:24:52 [INFO] generating key: &{A:ecdsa S:256}
+2025/10/29 15:24:52 [INFO] encoded CSR
+2025/10/29 15:24:52 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/peers/peer0.org1.fabric2.standard.com/msp/signcerts/cert.pem
+2025/10/29 15:24:52 [INFO] Stored root CA certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/peers/peer0.org1.fabric2.standard.com/msp/cacerts/localhost-7054-ca-org1.pem
+2025/10/29 15:24:52 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/peers/peer0.org1.fabric2.standard.com/msp/IssuerPublicKey
+2025/10/29 15:24:52 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/peers/peer0.org1.fabric2.standard.com/msp/IssuerRevocationPublicKey
++ fabric-ca-client enroll -u https://peer0:peer0pw@localhost:7054 --caname ca-org1 -M /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/peers/peer0.org1.fabric2.standard.com/tls --enrollment.profile tls --csr.hosts peer0.org1.fabric2.standard.com --csr.hosts localhost --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/org1/ca-cert.pem
+2025/10/29 15:24:52 [INFO] TLS Enabled
+2025/10/29 15:24:52 [INFO] generating key: &{A:ecdsa S:256}
+2025/10/29 15:24:52 [INFO] encoded CSR
+2025/10/29 15:24:52 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/peers/peer0.org1.fabric2.standard.com/tls/signcerts/cert.pem
+2025/10/29 15:24:52 [INFO] Stored TLS root CA certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/peers/peer0.org1.fabric2.standard.com/tls/tlscacerts/tls-localhost-7054-ca-org1.pem
+2025/10/29 15:24:52 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/peers/peer0.org1.fabric2.standard.com/tls/IssuerPublicKey
+2025/10/29 15:24:52 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/peers/peer0.org1.fabric2.standard.com/tls/IssuerRevocationPublicKey
++ fabric-ca-client enroll -u https://user1:user1pw@localhost:7054 --caname ca-org1 -M /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/users/User1@org1.standard.com/msp --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/org1/ca-cert.pem
+2025/10/29 15:24:52 [INFO] TLS Enabled
+2025/10/29 15:24:52 [INFO] generating key: &{A:ecdsa S:256}
+2025/10/29 15:24:52 [INFO] encoded CSR
+2025/10/29 15:24:52 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/users/User1@org1.standard.com/msp/signcerts/cert.pem
+2025/10/29 15:24:52 [INFO] Stored root CA certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/users/User1@org1.standard.com/msp/cacerts/localhost-7054-ca-org1.pem
+2025/10/29 15:24:52 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/users/User1@org1.standard.com/msp/IssuerPublicKey
+2025/10/29 15:24:52 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/users/User1@org1.standard.com/msp/IssuerRevocationPublicKey
++ fabric-ca-client enroll -u https://org1admin:org1adminpw@localhost:7054 --caname ca-org1 -M /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/users/Admin@org1.standard.com/msp --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/org1/ca-cert.pem
+2025/10/29 15:24:52 [INFO] TLS Enabled
+2025/10/29 15:24:52 [INFO] generating key: &{A:ecdsa S:256}
+2025/10/29 15:24:52 [INFO] encoded CSR
+2025/10/29 15:24:52 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/users/Admin@org1.standard.com/msp/signcerts/cert.pem
+2025/10/29 15:24:52 [INFO] Stored root CA certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/users/Admin@org1.standard.com/msp/cacerts/localhost-7054-ca-org1.pem
+2025/10/29 15:24:52 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/users/Admin@org1.standard.com/msp/IssuerPublicKey
+2025/10/29 15:24:52 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org1.standard.com/users/Admin@org1.standard.com/msp/IssuerRevocationPublicKey
++ fabric-ca-client enroll -u https://admin:adminpw@localhost:8054 --caname ca-org2 --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/org2/ca-cert.pem
+2025/10/29 15:24:52 [INFO] Created a default configuration file at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org2.standard.com/fabric-ca-client-config.yaml
+2025/10/29 15:24:52 [INFO] TLS Enabled
+2025/10/29 15:24:52 [INFO] generating key: &{A:ecdsa S:256}
+2025/10/29 15:24:52 [INFO] encoded CSR
+2025/10/29 15:24:52 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org2.standard.com/msp/signcerts/cert.pem
+2025/10/29 15:24:52 [INFO] Stored root CA certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org2.standard.com/msp/cacerts/localhost-8054-ca-org2.pem
+2025/10/29 15:24:52 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org2.standard.com/msp/IssuerPublicKey
+2025/10/29 15:24:52 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org2.standard.com/msp/IssuerRevocationPublicKey
++ fabric-ca-client register --caname ca-org2 --id.name peer0 --id.secret peer0pw --id.type peer --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/org2/ca-cert.pem
+2025/10/29 15:24:52 [INFO] Configuration file location: /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org2.standard.com/fabric-ca-client-config.yaml
+2025/10/29 15:24:52 [INFO] TLS Enabled
+2025/10/29 15:24:52 [INFO] TLS Enabled
++ fabric-ca-client register --caname ca-org2 --id.name user1 --id.secret user1pw --id.type client --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/org2/ca-cert.pem
+2025/10/29 15:24:52 [INFO] Configuration file location: /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org2.standard.com/fabric-ca-client-config.yaml
+2025/10/29 15:24:52 [INFO] TLS Enabled
+2025/10/29 15:24:52 [INFO] TLS Enabled
++ fabric-ca-client register --caname ca-org2 --id.name org2admin --id.secret org2adminpw --id.type admin --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/org2/ca-cert.pem
+2025/10/29 15:24:52 [INFO] Configuration file location: /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org2.standard.com/fabric-ca-client-config.yaml
+2025/10/29 15:24:52 [INFO] TLS Enabled
+2025/10/29 15:24:52 [INFO] TLS Enabled
++ fabric-ca-client enroll -u https://peer0:peer0pw@localhost:8054 --caname ca-org2 -M /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org2.standard.com/peers/peer0.org2.fabric2.standard.com/msp --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/org2/ca-cert.pem
+2025/10/29 15:24:53 [INFO] TLS Enabled
+2025/10/29 15:24:53 [INFO] generating key: &{A:ecdsa S:256}
+2025/10/29 15:24:53 [INFO] encoded CSR
+2025/10/29 15:24:53 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org2.standard.com/peers/peer0.org2.fabric2.standard.com/msp/signcerts/cert.pem
+2025/10/29 15:24:53 [INFO] Stored root CA certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org2.standard.com/peers/peer0.org2.fabric2.standard.com/msp/cacerts/localhost-8054-ca-org2.pem
+2025/10/29 15:24:53 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org2.standard.com/peers/peer0.org2.fabric2.standard.com/msp/IssuerPublicKey
+2025/10/29 15:24:53 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org2.standard.com/peers/peer0.org2.fabric2.standard.com/msp/IssuerRevocationPublicKey
++ fabric-ca-client enroll -u https://peer0:peer0pw@localhost:8054 --caname ca-org2 -M /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org2.standard.com/peers/peer0.org2.fabric2.standard.com/tls --enrollment.profile tls --csr.hosts peer0.org2.fabric2.standard.com --csr.hosts localhost --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/org2/ca-cert.pem
+2025/10/29 15:24:53 [INFO] TLS Enabled
+2025/10/29 15:24:53 [INFO] generating key: &{A:ecdsa S:256}
+2025/10/29 15:24:53 [INFO] encoded CSR
+2025/10/29 15:24:53 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org2.standard.com/peers/peer0.org2.fabric2.standard.com/tls/signcerts/cert.pem
+2025/10/29 15:24:53 [INFO] Stored TLS root CA certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org2.standard.com/peers/peer0.org2.fabric2.standard.com/tls/tlscacerts/tls-localhost-8054-ca-org2.pem
+2025/10/29 15:24:53 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org2.standard.com/peers/peer0.org2.fabric2.standard.com/tls/IssuerPublicKey
+2025/10/29 15:24:53 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org2.standard.com/peers/peer0.org2.fabric2.standard.com/tls/IssuerRevocationPublicKey
++ fabric-ca-client enroll -u https://user1:user1pw@localhost:8054 --caname ca-org2 -M /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org2.standard.com/users/User1@org2.standard.com/msp --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/org2/ca-cert.pem
+2025/10/29 15:24:53 [INFO] TLS Enabled
+2025/10/29 15:24:53 [INFO] generating key: &{A:ecdsa S:256}
+2025/10/29 15:24:53 [INFO] encoded CSR
+2025/10/29 15:24:53 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org2.standard.com/users/User1@org2.standard.com/msp/signcerts/cert.pem
+2025/10/29 15:24:53 [INFO] Stored root CA certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org2.standard.com/users/User1@org2.standard.com/msp/cacerts/localhost-8054-ca-org2.pem
+2025/10/29 15:24:53 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org2.standard.com/users/User1@org2.standard.com/msp/IssuerPublicKey
+2025/10/29 15:24:53 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org2.standard.com/users/User1@org2.standard.com/msp/IssuerRevocationPublicKey
++ fabric-ca-client enroll -u https://org2admin:org2adminpw@localhost:8054 --caname ca-org2 -M /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org2.standard.com/users/Admin@org2.standard.com/msp --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/org2/ca-cert.pem
+2025/10/29 15:24:53 [INFO] TLS Enabled
+2025/10/29 15:24:53 [INFO] generating key: &{A:ecdsa S:256}
+2025/10/29 15:24:53 [INFO] encoded CSR
+2025/10/29 15:24:53 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org2.standard.com/users/Admin@org2.standard.com/msp/signcerts/cert.pem
+2025/10/29 15:24:53 [INFO] Stored root CA certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org2.standard.com/users/Admin@org2.standard.com/msp/cacerts/localhost-8054-ca-org2.pem
+2025/10/29 15:24:53 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org2.standard.com/users/Admin@org2.standard.com/msp/IssuerPublicKey
+2025/10/29 15:24:53 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/peerOrganizations/org2.standard.com/users/Admin@org2.standard.com/msp/IssuerRevocationPublicKey
++ fabric-ca-client enroll -u https://admin:adminpw@localhost:9054 --caname ca-orderer --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/ordererOrg/ca-cert.pem
+2025/10/29 15:24:53 [INFO] Created a default configuration file at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/fabric-ca-client-config.yaml
+2025/10/29 15:24:53 [INFO] TLS Enabled
+2025/10/29 15:24:53 [INFO] generating key: &{A:ecdsa S:256}
+2025/10/29 15:24:53 [INFO] encoded CSR
+2025/10/29 15:24:53 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/msp/signcerts/cert.pem
+2025/10/29 15:24:53 [INFO] Stored root CA certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/msp/cacerts/localhost-9054-ca-orderer.pem
+2025/10/29 15:24:53 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/msp/IssuerPublicKey
+2025/10/29 15:24:53 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/msp/IssuerRevocationPublicKey
++ fabric-ca-client register --caname ca-orderer --id.name orderer --id.secret ordererpw --id.type orderer --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/ordererOrg/ca-cert.pem
+2025/10/29 15:24:53 [INFO] Configuration file location: /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/fabric-ca-client-config.yaml
+2025/10/29 15:24:53 [INFO] TLS Enabled
+2025/10/29 15:24:53 [INFO] TLS Enabled
++ fabric-ca-client enroll -u https://orderer:ordererpw@localhost:9054 --caname ca-orderer -M /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer.fabric2.standard.com/msp --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/ordererOrg/ca-cert.pem
+2025/10/29 15:24:53 [INFO] TLS Enabled
+2025/10/29 15:24:53 [INFO] generating key: &{A:ecdsa S:256}
+2025/10/29 15:24:53 [INFO] encoded CSR
+2025/10/29 15:24:53 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer.fabric2.standard.com/msp/signcerts/cert.pem
+2025/10/29 15:24:53 [INFO] Stored root CA certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer.fabric2.standard.com/msp/cacerts/localhost-9054-ca-orderer.pem
+2025/10/29 15:24:53 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer.fabric2.standard.com/msp/IssuerPublicKey
+2025/10/29 15:24:53 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer.fabric2.standard.com/msp/IssuerRevocationPublicKey
++ fabric-ca-client enroll -u https://orderer:ordererpw@localhost:9054 --caname ca-orderer -M /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer.fabric2.standard.com/tls --enrollment.profile tls --csr.hosts orderer.fabric2.standard.com --csr.hosts localhost --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/ordererOrg/ca-cert.pem
+2025/10/29 15:24:53 [INFO] TLS Enabled
+2025/10/29 15:24:53 [INFO] generating key: &{A:ecdsa S:256}
+2025/10/29 15:24:53 [INFO] encoded CSR
+2025/10/29 15:24:53 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer.fabric2.standard.com/tls/signcerts/cert.pem
+2025/10/29 15:24:53 [INFO] Stored TLS root CA certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer.fabric2.standard.com/tls/tlscacerts/tls-localhost-9054-ca-orderer.pem
+2025/10/29 15:24:53 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer.fabric2.standard.com/tls/IssuerPublicKey
+2025/10/29 15:24:53 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer.fabric2.standard.com/tls/IssuerRevocationPublicKey
++ fabric-ca-client register --caname ca-orderer --id.name orderer2 --id.secret orderer2pw --id.type orderer --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/ordererOrg/ca-cert.pem
+2025/10/29 15:24:54 [INFO] Configuration file location: /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/fabric-ca-client-config.yaml
+2025/10/29 15:24:54 [INFO] TLS Enabled
+2025/10/29 15:24:54 [INFO] TLS Enabled
++ fabric-ca-client enroll -u https://orderer2:orderer2pw@localhost:9054 --caname ca-orderer -M /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer2.standard.com/msp --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/ordererOrg/ca-cert.pem
+2025/10/29 15:24:54 [INFO] TLS Enabled
+2025/10/29 15:24:54 [INFO] generating key: &{A:ecdsa S:256}
+2025/10/29 15:24:54 [INFO] encoded CSR
+2025/10/29 15:24:54 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer2.standard.com/msp/signcerts/cert.pem
+2025/10/29 15:24:54 [INFO] Stored root CA certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer2.standard.com/msp/cacerts/localhost-9054-ca-orderer.pem
+2025/10/29 15:24:54 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer2.standard.com/msp/IssuerPublicKey
+2025/10/29 15:24:54 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer2.standard.com/msp/IssuerRevocationPublicKey
++ fabric-ca-client enroll -u https://orderer2:orderer2pw@localhost:9054 --caname ca-orderer -M /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer2.standard.com/tls --enrollment.profile tls --csr.hosts orderer2.standard.com --csr.hosts localhost --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/ordererOrg/ca-cert.pem
+2025/10/29 15:24:54 [INFO] TLS Enabled
+2025/10/29 15:24:54 [INFO] generating key: &{A:ecdsa S:256}
+2025/10/29 15:24:54 [INFO] encoded CSR
+2025/10/29 15:24:54 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer2.standard.com/tls/signcerts/cert.pem
+2025/10/29 15:24:54 [INFO] Stored TLS root CA certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer2.standard.com/tls/tlscacerts/tls-localhost-9054-ca-orderer.pem
+2025/10/29 15:24:54 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer2.standard.com/tls/IssuerPublicKey
+2025/10/29 15:24:54 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer2.standard.com/tls/IssuerRevocationPublicKey
++ fabric-ca-client register --caname ca-orderer --id.name orderer3 --id.secret orderer3pw --id.type orderer --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/ordererOrg/ca-cert.pem
+2025/10/29 15:24:54 [INFO] Configuration file location: /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/fabric-ca-client-config.yaml
+2025/10/29 15:24:54 [INFO] TLS Enabled
+2025/10/29 15:24:54 [INFO] TLS Enabled
++ fabric-ca-client enroll -u https://orderer3:orderer3pw@localhost:9054 --caname ca-orderer -M /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer3.standard.com/msp --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/ordererOrg/ca-cert.pem
+2025/10/29 15:24:54 [INFO] TLS Enabled
+2025/10/29 15:24:54 [INFO] generating key: &{A:ecdsa S:256}
+2025/10/29 15:24:54 [INFO] encoded CSR
+2025/10/29 15:24:54 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer3.standard.com/msp/signcerts/cert.pem
+2025/10/29 15:24:54 [INFO] Stored root CA certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer3.standard.com/msp/cacerts/localhost-9054-ca-orderer.pem
+2025/10/29 15:24:54 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer3.standard.com/msp/IssuerPublicKey
+2025/10/29 15:24:54 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer3.standard.com/msp/IssuerRevocationPublicKey
++ fabric-ca-client enroll -u https://orderer3:orderer3pw@localhost:9054 --caname ca-orderer -M /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer3.standard.com/tls --enrollment.profile tls --csr.hosts orderer3.standard.com --csr.hosts localhost --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/ordererOrg/ca-cert.pem
+2025/10/29 15:24:54 [INFO] TLS Enabled
+2025/10/29 15:24:54 [INFO] generating key: &{A:ecdsa S:256}
+2025/10/29 15:24:54 [INFO] encoded CSR
+2025/10/29 15:24:54 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer3.standard.com/tls/signcerts/cert.pem
+2025/10/29 15:24:54 [INFO] Stored TLS root CA certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer3.standard.com/tls/tlscacerts/tls-localhost-9054-ca-orderer.pem
+2025/10/29 15:24:54 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer3.standard.com/tls/IssuerPublicKey
+2025/10/29 15:24:54 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer3.standard.com/tls/IssuerRevocationPublicKey
++ fabric-ca-client register --caname ca-orderer --id.name orderer4 --id.secret orderer4pw --id.type orderer --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/ordererOrg/ca-cert.pem
+2025/10/29 15:24:54 [INFO] Configuration file location: /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/fabric-ca-client-config.yaml
+2025/10/29 15:24:54 [INFO] TLS Enabled
+2025/10/29 15:24:54 [INFO] TLS Enabled
++ fabric-ca-client enroll -u https://orderer4:orderer4pw@localhost:9054 --caname ca-orderer -M /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer4.standard.com/msp --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/ordererOrg/ca-cert.pem
+2025/10/29 15:24:54 [INFO] TLS Enabled
+2025/10/29 15:24:54 [INFO] generating key: &{A:ecdsa S:256}
+2025/10/29 15:24:54 [INFO] encoded CSR
+2025/10/29 15:24:54 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer4.standard.com/msp/signcerts/cert.pem
+2025/10/29 15:24:54 [INFO] Stored root CA certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer4.standard.com/msp/cacerts/localhost-9054-ca-orderer.pem
+2025/10/29 15:24:54 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer4.standard.com/msp/IssuerPublicKey
+2025/10/29 15:24:54 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer4.standard.com/msp/IssuerRevocationPublicKey
++ fabric-ca-client enroll -u https://orderer4:orderer4pw@localhost:9054 --caname ca-orderer -M /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer4.standard.com/tls --enrollment.profile tls --csr.hosts orderer4.standard.com --csr.hosts localhost --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/ordererOrg/ca-cert.pem
+2025/10/29 15:24:55 [INFO] TLS Enabled
+2025/10/29 15:24:55 [INFO] generating key: &{A:ecdsa S:256}
+2025/10/29 15:24:55 [INFO] encoded CSR
+2025/10/29 15:24:55 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer4.standard.com/tls/signcerts/cert.pem
+2025/10/29 15:24:55 [INFO] Stored TLS root CA certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer4.standard.com/tls/tlscacerts/tls-localhost-9054-ca-orderer.pem
+2025/10/29 15:24:55 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer4.standard.com/tls/IssuerPublicKey
+2025/10/29 15:24:55 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/orderers/orderer4.standard.com/tls/IssuerRevocationPublicKey
++ fabric-ca-client register --caname ca-orderer --id.name ordererAdmin --id.secret ordererAdminpw --id.type admin --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/ordererOrg/ca-cert.pem
+2025/10/29 15:24:55 [INFO] Configuration file location: /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/fabric-ca-client-config.yaml
+2025/10/29 15:24:55 [INFO] TLS Enabled
+2025/10/29 15:24:55 [INFO] TLS Enabled
++ fabric-ca-client enroll -u https://ordererAdmin:ordererAdminpw@localhost:9054 --caname ca-orderer -M /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/users/Admin@standard.com/msp --tls.certfiles /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/fabric-ca/ordererOrg/ca-cert.pem
+2025/10/29 15:24:55 [INFO] TLS Enabled
+2025/10/29 15:24:55 [INFO] generating key: &{A:ecdsa S:256}
+2025/10/29 15:24:55 [INFO] encoded CSR
+2025/10/29 15:24:55 [INFO] Stored client certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/users/Admin@standard.com/msp/signcerts/cert.pem
+2025/10/29 15:24:55 [INFO] Stored root CA certificate at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/users/Admin@standard.com/msp/cacerts/localhost-9054-ca-orderer.pem
+2025/10/29 15:24:55 [INFO] Stored Issuer public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/users/Admin@standard.com/msp/IssuerPublicKey
+2025/10/29 15:24:55 [INFO] Stored Issuer revocation public key at /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/organizations/ordererOrganizations/standard.com/users/Admin@standard.com/msp/IssuerRevocationPublicKey
+Langkah 2: Create channel — error
+  Perintah: ./network.sh createChannel -c fabric2-channel-standard -ca
+  Pesan: Perintah ./network.sh createChannel -c fabric2-channel-standard -ca gagal dijalankan.
+  Tindakan: Periksa log penyalaan jaringan untuk rincian lebih lanjut.
+  Error: Command failed: ./network.sh createChannel -c fabric2-channel-standard -ca
++ '[' 0 -eq 1 ']'
++ configtxgen -profile ChannelUsingRaft -outputBlock ./channel-artifacts/fabric2-channel-standard.block -channelID fabric2-channel-standard
+[34m2025-10-29 15:24:56.862 UTC 0001 INFO[0m [common.tools.configtxgen] [34;1mmain[0m -> Loading configuration
+[34m2025-10-29 15:24:56.870 UTC 0002 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> orderer type: etcdraft
+[34m2025-10-29 15:24:56.871 UTC 0003 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> Orderer.EtcdRaft.Options unset, setting to tick_interval:"500ms" election_tick:10 heartbeat_tick:1 max_inflight_blocks:5 snapshot_interval_size:16777216 
+[34m2025-10-29 15:24:56.871 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/configtx/configtx.yaml
+[34m2025-10-29 15:24:56.874 UTC 0005 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Generating genesis block
+[34m2025-10-29 15:24:56.874 UTC 0006 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Creating application channel genesis block
+[34m2025-10-29 15:24:56.875 UTC 0007 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Writing genesis block
++ res=0
++ . scripts/orderer.sh fabric2-channel-standard
++ '[' 0 -eq 1 ']'
++ res=0
++ peer channel join -b ./channel-artifacts/fabric2-channel-standard.block
++ res=1
++ peer channel join -b ./channel-artifacts/fabric2-channel-standard.block
++ res=1
++ peer channel join -b ./channel-artifacts/fabric2-channel-standard.block
++ res=1
++ peer channel join -b ./channel-artifacts/fabric2-channel-standard.block
++ res=1
+
+  STDOUT: [0;34mUsing docker and docker-compose[0m
+[0;34mCreating channel 'fabric2-channel-standard'.[0m
+[0;34mIf network is not up, starting nodes with CLI timeout of '5' tries and CLI delay of '3' seconds and using database 'leveldb [0m
+Network Running Already
+[0;34mUsing docker and docker-compose[0m
+[0;34mGenerating channel genesis block 'fabric2-channel-standard.block'[0m
+[0;34mUsing organization 1[0m
+/root/evaluasi-raft-hlf/fabric-2/raft-standard/network/../bin/configtxgen
+[0;34mCreating channel fabric2-channel-standard[0m
+[0;34mAdding orderers[0m
+Error: Post "https://localhost:7053/participation/v1/channels": tls: failed to verify certificate: x509: certificate signed by unknown authority
+
+[0;32mChannel 'fabric2-channel-standard' created[0m
+[0;34mJoining org1 peer to the channel...[0m
+[0;34mUsing organization 1[0m
+Error: error getting endorser client for channel: endorser client failed to connect to localhost:7051: failed to create new connection: connection error: desc = "transport: error while dialing: dial tcp [::1]:7051: connect: connection refused"
+[0;31mAfter 5 attempts, peer0.org1 has failed to join channel 'fabric2-channel-standard' [0m
+  STDERR: + '[' 0 -eq 1 ']'
++ configtxgen -profile ChannelUsingRaft -outputBlock ./channel-artifacts/fabric2-channel-standard.block -channelID fabric2-channel-standard
+[34m2025-10-29 15:24:56.862 UTC 0001 INFO[0m [common.tools.configtxgen] [34;1mmain[0m -> Loading configuration
+[34m2025-10-29 15:24:56.870 UTC 0002 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> orderer type: etcdraft
+[34m2025-10-29 15:24:56.871 UTC 0003 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> Orderer.EtcdRaft.Options unset, setting to tick_interval:"500ms" election_tick:10 heartbeat_tick:1 max_inflight_blocks:5 snapshot_interval_size:16777216 
+[34m2025-10-29 15:24:56.871 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/configtx/configtx.yaml
+[34m2025-10-29 15:24:56.874 UTC 0005 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Generating genesis block
+[34m2025-10-29 15:24:56.874 UTC 0006 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Creating application channel genesis block
+[34m2025-10-29 15:24:56.875 UTC 0007 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Writing genesis block
++ res=0
++ . scripts/orderer.sh fabric2-channel-standard
++ '[' 0 -eq 1 ']'
++ res=0
++ peer channel join -b ./channel-artifacts/fabric2-channel-standard.block
++ res=1
++ peer channel join -b ./channel-artifacts/fabric2-channel-standard.block
++ res=1
++ peer channel join -b ./channel-artifacts/fabric2-channel-standard.block
++ res=1
++ peer channel join -b ./channel-artifacts/fabric2-channel-standard.block
++ res=1
+Langkah 3: Deploy chaincode — skipped
+  Perintah: ./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl javascript -c fabric2-channel-standard
+  Pesan: Langkah ini dilewati karena perintah sebelumnya gagal.
+Error: Command failed: ./network.sh createChannel -c fabric2-channel-standard -ca
++ '[' 0 -eq 1 ']'
++ configtxgen -profile ChannelUsingRaft -outputBlock ./channel-artifacts/fabric2-channel-standard.block -channelID fabric2-channel-standard
+[34m2025-10-29 15:24:56.862 UTC 0001 INFO[0m [common.tools.configtxgen] [34;1mmain[0m -> Loading configuration
+[34m2025-10-29 15:24:56.870 UTC 0002 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> orderer type: etcdraft
+[34m2025-10-29 15:24:56.871 UTC 0003 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> Orderer.EtcdRaft.Options unset, setting to tick_interval:"500ms" election_tick:10 heartbeat_tick:1 max_inflight_blocks:5 snapshot_interval_size:16777216 
+[34m2025-10-29 15:24:56.871 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/fabric-2/raft-standard/network/configtx/configtx.yaml
+[34m2025-10-29 15:24:56.874 UTC 0005 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Generating genesis block
+[34m2025-10-29 15:24:56.874 UTC 0006 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Creating application channel genesis block
+[34m2025-10-29 15:24:56.875 UTC 0007 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Writing genesis block
++ res=0
++ . scripts/orderer.sh fabric2-channel-standard
++ '[' 0 -eq 1 ']'
++ res=0
++ peer channel join -b ./channel-artifacts/fabric2-channel-standard.block
++ res=1
++ peer channel join -b ./channel-artifacts/fabric2-channel-standard.block
++ res=1
++ peer channel join -b ./channel-artifacts/fabric2-channel-standard.block
++ res=1
++ peer channel join -b ./channel-artifacts/fabric2-channel-standard.block
++ res=1
+
+
+[2025-10-30T02:57:44.717Z] Gagal menyalakan jaringan: Fabric 3 RAFT Standard Network
+Status: partial
+Direktori: /root/evaluasi-raft-hlf/fabric-3/raft-standard/network
+Pesan: Perintah ./network.sh createChannel -c fabric3-channel-standard gagal dijalankan.
+Tindakan: Periksa log penyalaan jaringan untuk rincian lebih lanjut.
+Langkah 1: Start core services — success
+  Perintah: ./network.sh up
+  STDOUT: [0;34mUsing docker and docker-compose[0m
+[0;34mStarting nodes with CLI timeout of '5' tries and CLI delay of '3' seconds and using database 'leveldb' with crypto from 'cryptogen'[0m
+[0;34mLOCAL_VERSION=v3.1.3[0m
+[0;34mDOCKER_IMAGE_VERSION=v3.1.3[0m
+/root/evaluasi-raft-hlf/fabric-3/raft-standard/network/../bin/cryptogen
+[0;34mGenerating certificates using cryptogen tool[0m
+[0;34mCreating Org1 Identities[0m
+org1.fabric3.standard
+[0;34mCreating Org2 Identities[0m
+org2.fabric3.standard
+[0;34mCreating Orderer Org Identities[0m
+[0;34mGenerating CCP files for Org1 and Org2[0m
+Creating network "fabric3_raft_standard_net" with the default driver
+Creating volume "raftstandard3_orderer.fabric3.standard" with default driver
+Creating volume "raftstandard3_peer0.org1.fabric3.standard" with default driver
+Creating volume "raftstandard3_peer0.org2.fabric3.standard" with default driver
+Creating peer0.org2.fabric3.standard ... 
+Creating orderer.fabric3.standard    ... 
+Creating peer0.org1.fabric3.standard ... 
+Host is already in use by another container
+Creating orderer.fabric3.standard    ... error
+
+ERROR: for orderer.fabric3.standard  Cannot start service orderer.fabric3.standard: failed to set up container networking: driver failed programming external connectivity on endpoint orderer.fabric3.standard (408495b5d1ab7d6a991b467d4a32ceb8002f196a8314311182cb271af63b30ee): Bind for 0.0.0.0:9543 failed: port is already allocated
+Host is already in use by another container
+Creating peer0.org1.fabric3.standard ... error
+
+ERROR: for peer0.org1.fabric3.standard  Cannot start service peer0.org1.fabric3.standard: failed to set up container networking: driver failed programming external connectivity on endpoint peer0.org1.fabric3.standard (1a6e9245f4113a244a057001e7ca4b916a066032c42caa6c055277c5b48eff60): Bind for 0.0.0.0:7153 failed: port is already allocated
+Host is already in use by another container
+Creating peer0.org2.fabric3.standard ... error
+
+ERROR: for peer0.org2.fabric3.standard  Cannot start service peer0.org2.fabric3.standard: failed to set up container networking: driver failed programming external connectivity on endpoint peer0.org2.fabric3.standard (7b39b1cc4355f6d6fad2199ea16646d1fb612f5af87bb70f0b5d85e3c61975e5): Bind for 0.0.0.0:9545 failed: port is already allocated
+
+ERROR: for orderer.fabric3.standard  Cannot start service orderer.fabric3.standard: failed to set up container networking: driver failed programming external connectivity on endpoint orderer.fabric3.standard (408495b5d1ab7d6a991b467d4a32ceb8002f196a8314311182cb271af63b30ee): Bind for 0.0.0.0:9543 failed: port is already allocated
+
+ERROR: for peer0.org1.fabric3.standard  Cannot start service peer0.org1.fabric3.standard: failed to set up container networking: driver failed programming external connectivity on endpoint peer0.org1.fabric3.standard (1a6e9245f4113a244a057001e7ca4b916a066032c42caa6c055277c5b48eff60): Bind for 0.0.0.0:7153 failed: port is already allocated
+
+ERROR: for peer0.org2.fabric3.standard  Cannot start service peer0.org2.fabric3.standard: failed to set up container networking: driver failed programming external connectivity on endpoint peer0.org2.fabric3.standard (7b39b1cc4355f6d6fad2199ea16646d1fb612f5af87bb70f0b5d85e3c61975e5): Bind for 0.0.0.0:9545 failed: port is already allocated
+Encountered errors while bringing up the project.
+CONTAINER ID   IMAGE                                                                                                                                                                                 COMMAND                  CREATED              STATUS              PORTS                                                                                                                                             NAMES
+e31b88dafcbf   hyperledger/fabric-orderer:latest                                                                                                                                                     "orderer"                1 second ago         Created                                                                                                                                                               orderer.fabric3.standard
+9db93ef53c06   hyperledger/fabric-peer:latest                                                                                                                                                        "peer node start"        1 second ago         Created                                                                                                                                                               peer0.org2.fabric3.standard
+12963341d86f   hyperledger/fabric-peer:latest                                                                                                                                                        "peer node start"        1 second ago         Created                                                                                                                                                               peer0.org1.fabric3.standard
+2c33b44dafaa   dev-peer0.org1.fabric2.standard.com-pelaporan_1.0-b0cdc47f9832a4e4f69bf8d0f60d51740cadcb0648a7239c0409c8f1e8caaac0-d190f973579b2afd5cabc419596110e0a269e53596d7052fa82792a8768c3b7d   "docker-entrypoint.s…"   24 seconds ago       Up 24 seconds                                                                                                                                                         dev-peer0.org1.fabric2.standard.com-pelaporan_1.0-b0cdc47f9832a4e4f69bf8d0f60d51740cadcb0648a7239c0409c8f1e8caaac0
+002cb5739d55   dev-peer0.org2.fabric2.standard.com-pelaporan_1.0-b0cdc47f9832a4e4f69bf8d0f60d51740cadcb0648a7239c0409c8f1e8caaac0-33d3acb967a93e4692e00df27c4928574139cc4e745af83c5dd5aa8ae8511c9c   "docker-entrypoint.s…"   24 seconds ago       Up 24 seconds                                                                                                                                                         dev-peer0.org2.fabric2.standard.com-pelaporan_1.0-b0cdc47f9832a4e4f69bf8d0f60d51740cadcb0648a7239c0409c8f1e8caaac0
+e60d2e7e2168   hyperledger/fabric-peer:latest                                                                                                                                                        "peer node start"        About a minute ago   Up About a minute   0.0.0.0:9051->9051/tcp, [::]:9051->9051/tcp, 7051/tcp, 0.0.0.0:9445->9445/tcp, [::]:9445->9445/tcp                                                peer0.org2.fabric2.standard.com
+0dff3cc5ea8b   hyperledger/fabric-orderer:latest                                                                                                                                                     "orderer"                About a minute ago   Up About a minute   0.0.0.0:7050->7050/tcp, [::]:7050->7050/tcp, 0.0.0.0:7053->7053/tcp, [::]:7053->7053/tcp, 0.0.0.0:9443->9443/tcp, [::]:9443->9443/tcp             orderer.fabric2.standard.com
+2f9cb9aa21c3   hyperledger/fabric-peer:latest                                                                                                                                                        "peer node start"        About a minute ago   Up About a minute   0.0.0.0:7051->7051/tcp, [::]:7051->7051/tcp, 0.0.0.0:9444->9444/tcp, [::]:9444->9444/tcp                                                          peer0.org1.fabric2.standard.com
+45326b3d4097   hyperledger/fabric-ca:latest                                                                                                                                                          "sh -c 'fabric-ca-se…"   About a minute ago   Up About a minute   0.0.0.0:7054->7054/tcp, [::]:7054->7054/tcp, 0.0.0.0:17054->17054/tcp, [::]:17054->17054/tcp                                                      ca_org1
+44b4d85668a6   hyperledger/fabric-ca:latest                                                                                                                                                          "sh -c 'fabric-ca-se…"   About a minute ago   Up About a minute   0.0.0.0:8054->8054/tcp, [::]:8054->8054/tcp, 7054/tcp, 0.0.0.0:18054->18054/tcp, [::]:18054->18054/tcp                                            ca_org2
+10ba957f10ef   hyperledger/fabric-ca:latest                                                                                                                                                          "sh -c 'fabric-ca-se…"   About a minute ago   Up About a minute   0.0.0.0:9054->9054/tcp, [::]:9054->9054/tcp, 7054/tcp, 0.0.0.0:19054->19054/tcp, [::]:19054->19054/tcp                                            ca_orderer
+28b715a2e928   dev-peer0.org2.fabric2.variant.com-pelaporan_1.0-b0cdc47f9832a4e4f69bf8d0f60d51740cadcb0648a7239c0409c8f1e8caaac0-ed127e02163a637c2fc8816f132081a7a0647c6b1bbe1b1526ea1ac881b703e2    "docker-entrypoint.s…"   About a minute ago   Up About a minute                                                                                                                                                     dev-peer0.org2.fabric2.variant.com-pelaporan_1.0-b0cdc47f9832a4e4f69bf8d0f60d51740cadcb0648a7239c0409c8f1e8caaac0
+c8075c16822e   dev-peer0.org1.fabric2.variant.com-pelaporan_1.0-b0cdc47f9832a4e4f69bf8d0f60d51740cadcb0648a7239c0409c8f1e8caaac0-55f6300be595c538589962b21082280518a4e28bfcba506e1d29b689a9826584    "docker-entrypoint.s…"   About a minute ago   Up About a minute                                                                                                                                                     dev-peer0.org1.fabric2.variant.com-pelaporan_1.0-b0cdc47f9832a4e4f69bf8d0f60d51740cadcb0648a7239c0409c8f1e8caaac0
+8034d236032c   hyperledger/fabric-orderer:latest                                                                                                                                                     "orderer"                2 minutes ago        Up 2 minutes        7050/tcp, 0.0.0.0:7152->7052/tcp, [::]:7152->7052/tcp, 0.0.0.0:7155->7055/tcp, [::]:7155->7055/tcp, 0.0.0.0:9546->9446/tcp, [::]:9546->9446/tcp   orderer2.variant.com
+f3ef7e0049dd   hyperledger/fabric-peer:latest                                                                                                                                                        "peer node start"        2 minutes ago        Up 2 minutes        7051/tcp, 0.0.0.0:9151->9051/tcp, [::]:9151->9051/tcp, 0.0.0.0:9545->9445/tcp, [::]:9545->9445/tcp                                                peer0.org2.fabric2.variant.com
+167662fd2c79   hyperledger/fabric-orderer:latest                                                                                                                                                     "orderer"                2 minutes ago        Up 2 minutes        7050/tcp, 0.0.0.0:7158->7058/tcp, [::]:7158->7058/tcp, 0.0.0.0:7159->7059/tcp, [::]:7159->7059/tcp, 0.0.0.0:9548->9448/tcp, [::]:9548->9448/tcp   orderer4.variant.com
+0a93debaf1c9   hyperledger/fabric-peer:latest                                                                                                                                                        "peer node start"        2 minutes ago        Up 2 minutes        0.0.0.0:7052->7051/tcp, [::]:7052->7051/tcp, 0.0.0.0:9544->9444/tcp, [::]:9544->9444/tcp                                                          peer0.org1.fabric2.variant.com
+ef3a5941eff2   hyperledger/fabric-orderer:latest                                                                                                                                                     "orderer"                2 minutes ago        Up 2 minutes        0.0.0.0:7150->7050/tcp, [::]:7150->7050/tcp, 0.0.0.0:7153->7053/tcp, [::]:7153->7053/tcp, 0.0.0.0:9543->9443/tcp, [::]:9543->9443/tcp             orderer.fabric2.variant.com
+e7b33fdd41b9   hyperledger/fabric-orderer:latest                                                                                                                                                     "orderer"                2 minutes ago        Up 2 minutes        7050/tcp, 0.0.0.0:7156->7056/tcp, [::]:7156->7056/tcp, 0.0.0.0:7157->7057/tcp, [::]:7157->7057/tcp, 0.0.0.0:9547->9447/tcp, [::]:9547->9447/tcp   orderer3.variant.com
+d207c2564ed0   hyperledger/fabric-ca:latest                                                                                                                                                          "sh -c 'fabric-ca-se…"   2 minutes ago        Up 2 minutes        7054/tcp, 0.0.0.0:9154->9054/tcp, [::]:9154->9054/tcp, 0.0.0.0:19154->19054/tcp, [::]:19154->19054/tcp                                            raftvariant_ca_orderer_1
+5c1387742763   hyperledger/fabric-ca:latest                                                                                                                                                          "sh -c 'fabric-ca-se…"   2 minutes ago        Up 2 minutes        7054/tcp, 0.0.0.0:8154->8054/tcp, [::]:8154->8054/tcp, 0.0.0.0:18154->18054/tcp, [::]:18154->18054/tcp                                            raftvariant_ca_org2_1
+37e42ae98a7d   hyperledger/fabric-ca:latest                                                                                                                                                          "sh -c 'fabric-ca-se…"   2 minutes ago        Up 2 minutes        0.0.0.0:7154->7054/tcp, [::]:7154->7054/tcp, 0.0.0.0:17154->17054/tcp, [::]:17154->17054/tcp                                                      raftvariant_ca_org1_1
+  STDERR: + cryptogen generate --config=./organizations/cryptogen/crypto-config-org1.yaml --output=organizations
++ res=0
++ cryptogen generate --config=./organizations/cryptogen/crypto-config-org2.yaml --output=organizations
++ res=0
++ cryptogen generate --config=./organizations/cryptogen/crypto-config-orderer.yaml --output=organizations
++ res=0
+Langkah 2: Create channel — error
+  Perintah: ./network.sh createChannel -c fabric3-channel-standard
+  Pesan: Perintah ./network.sh createChannel -c fabric3-channel-standard gagal dijalankan.
+  Tindakan: Periksa log penyalaan jaringan untuk rincian lebih lanjut.
+  Error: Command failed: ./network.sh createChannel -c fabric3-channel-standard
++ '[' 0 -eq 1 ']'
++ configtxgen -profile ChannelUsingRaft -outputBlock ./channel-artifacts/fabric3-channel-standard.block -channelID fabric3-channel-standard
+[34m2025-10-30 02:57:17.412 UTC 0001 INFO[0m [common.tools.configtxgen] [34;1mmain[0m -> Loading configuration
+[34m2025-10-30 02:57:17.415 UTC 0002 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> orderer type: etcdraft
+[34m2025-10-30 02:57:17.415 UTC 0003 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> Orderer.EtcdRaft.Options unset, setting to tick_interval:"500ms"  election_tick:10  heartbeat_tick:1  max_inflight_blocks:5  snapshot_interval_size:16777216
+[34m2025-10-30 02:57:17.415 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/fabric-3/raft-standard/network/configtx/configtx.yaml
+[34m2025-10-30 02:57:17.418 UTC 0005 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Generating genesis block
+[34m2025-10-30 02:57:17.418 UTC 0006 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Creating application channel genesis block
+[34m2025-10-30 02:57:17.419 UTC 0007 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Writing genesis block
++ res=0
++ . scripts/orderer.sh fabric3-channel-standard
++ '[' 0 -eq 1 ']'
++ res=0
++ peer channel join -b ./channel-artifacts/fabric3-channel-standard.block
++ res=1
++ peer channel join -b ./channel-artifacts/fabric3-channel-standard.block
++ res=1
++ peer channel join -b ./channel-artifacts/fabric3-channel-standard.block
++ res=1
++ peer channel join -b ./channel-artifacts/fabric3-channel-standard.block
++ res=1
+
+  STDOUT: [0;34mUsing docker and docker-compose[0m
+[0;34mCreating channel 'fabric3-channel-standard'.[0m
+[0;34mIf network is not up, starting nodes with CLI timeout of '5' tries and CLI delay of '3' seconds and using database 'leveldb [0m
+Network Running Already
+[0;34mUsing docker and docker-compose[0m
+[0;34mGenerating channel genesis block 'fabric3-channel-standard.block'[0m
+[0;34mUsing organization 1[0m
+/root/evaluasi-raft-hlf/fabric-3/raft-standard/network/../bin/configtxgen
+[0;34mCreating channel fabric3-channel-standard[0m
+[0;34mAdding orderers[0m
+Error: Post "https://localhost:8053/participation/v1/channels": dial tcp [::1]:8053: connect: connection refused
+
+[0;32mChannel 'fabric3-channel-standard' created[0m
+[0;34mJoining org1 peer to the channel...[0m
+[0;34mUsing organization 1[0m
+[34m2025-10-30 02:57:41.705 UTC 0001 INFO[0m [grpc] [34;1mInfof[0m -> [core] original dial target is: "localhost:7153"
+[34m2025-10-30 02:57:41.705 UTC 0002 INFO[0m [grpc] [34;1mAddTraceEvent[0m -> [core] [Channel #1]Channel created
+[34m2025-10-30 02:57:41.705 UTC 0003 INFO[0m [grpc] [34;1mAddTraceEvent[0m -> [core] [Channel #1]parsed dial target is: resolver.Target{URL:url.URL{Scheme:"passthrough", Opaque:"", User:(*url.Userinfo)(nil), Host:"", Path:"/localhost:7153", RawPath:"", OmitHost:false, ForceQuery:false, RawQuery:"", Fragment:"", RawFragment:""}}
+[34m2025-10-30 02:57:41.705 UTC 0004 INFO[0m [grpc] [34;1mAddTraceEvent[0m -> [core] [Channel #1]Channel authority set to "localhost:7153"
+[34m2025-10-30 02:57:41.706 UTC 0005 INFO[0m [grpc] [34;1mAddTraceEvent[0m -> [core] [Channel #1]Resolver state updated: {
+  "Addresses": [
+    {
+      "Addr": "localhost:7153",
+      "ServerName": "",
+      "Attributes": null,
+      "BalancerAttributes": null,
+      "Metadata": null
+    }
+  ],
+  "Endpoints": [
+    {
+      "Addresses": [
+        {
+          "Addr": "localhost:7153",
+          "ServerName": "",
+          "Attributes": null,
+          "BalancerAttributes": null,
+          "Metadata": null
+        }
+      ],
+      "Attributes": null
+    }
+  ],
+  "ServiceConfig": null,
+  "Attributes": null
+} (resolver returned new addresses)
+[34m2025-10-30 02:57:41.706 UTC 0006 INFO[0m [grpc] [34;1mAddTraceEvent[0m -> [core] [Channel #1]Channel switches to new LB policy "pick_first"
+[34m2025-10-30 02:57:41.706 UTC 0007 INFO[0m [grpc] [34;1mInfof[0m -> [pick-first-leaf-lb] [pick-first-leaf-lb 0xc0003685a0] Received new config {
+  "shuffleAddressList": false
+}, resolver state {
+  "Addresses": [
+    {
+      "Addr": "localhost:7153",
+      "ServerName": "",
+      "Attributes": null,
+      "BalancerAttributes": null,
+      "Metadata": null
+    }
+  ],
+  "Endpoints": [
+    {
+      "Addresses": [
+        {
+          "Addr": "localhost:7153",
+          "ServerName": "",
+          "Attributes": null,
+          "BalancerAttributes": null,
+          "Metadata": null
+        }
+      ],
+      "Attributes": null
+    }
+  ],
+  "ServiceConfig": null,
+  "Attributes": null
+}
+[34m2025-10-30 02:57:41.706 UTC 0008 INFO[0m [grpc] [34;1mAddTraceEvent[0m -> [core] [Channel #1]Channel Connectivity change to CONNECTING
+[34m2025-10-30 02:57:41.706 UTC 0009 INFO[0m [grpc] [34;1mAddTraceEvent[0m -> [core] [Channel #1 SubChannel #2]Subchannel created
+[34m2025-10-30 02:57:41.706 UTC 000a INFO[0m [grpc] [34;1mAddTraceEvent[0m -> [core] [Channel #1]Channel exiting idle mode
+[34m2025-10-30 02:57:41.706 UTC 000b INFO[0m [grpc] [34;1mAddTraceEvent[0m -> [core] [Channel #1 SubChannel #2]Subchannel Connectivity change to CONNECTING
+[34m2025-10-30 02:57:41.706 UTC 000c INFO[0m [grpc] [34;1mAddTraceEvent[0m -> [core] [Channel #1 SubChannel #2]Subchannel picks a new address "localhost:7153" to connect
+[31m2025-10-30 02:57:41.708 UTC 000d ERRO[0m [comm.tls] [31;1mClientHandshake[0m -> Client TLS handshake failed after 1.998442ms with error: tls: failed to verify certificate: x509: certificate signed by unknown authority remoteaddress=[::1]:7153
+[34m2025-10-30 02:57:41.708 UTC 000e INFO[0m [grpc] [34;1mInfof[0m -> [core] Creating new client transport to "{Addr: \"localhost:7153\", ServerName: \"localhost:7153\", BalancerAttributes: {\"<%!p(pickfirstleaf.managedByPickfirstKeyType={})>\": \"<%!p(bool=true)>\" }}": connection error: desc = "transport: authentication handshake failed: tls: failed to verify certificate: x509: certificate signed by unknown authority"
+[33m2025-10-30 02:57:41.708 UTC 000f WARN[0m [grpc] [33;1mAddTraceEvent[0m -> [core] [Channel #1 SubChannel #2]grpc: addrConn.createTransport failed to connect to {Addr: "localhost:7153", ServerName: "localhost:7153", BalancerAttributes: {"<%!p(pickfirstleaf.managedByPickfirstKeyType={})>": "<%!p(bool=true)>" }}. Err: connection error: desc = "transport: authentication handshake failed: tls: failed to verify certificate: x509: certificate signed by unknown authority"
+[34m2025-10-30 02:57:41.708 UTC 0010 INFO[0m [grpc] [34;1mAddTraceEvent[0m -> [core] [Channel #1 SubChannel #2]Subchannel Connectivity change to TRANSIENT_FAILURE, last error: connection error: desc = "transport: authentication handshake failed: tls: failed to verify certificate: x509: certificate signed by unknown authority"
+[34m2025-10-30 02:57:41.708 UTC 0011 INFO[0m [grpc] [34;1mAddTraceEvent[0m -> [core] [Channel #1]Channel Connectivity change to TRANSIENT_FAILURE
+[34m2025-10-30 02:57:42.709 UTC 0012 INFO[0m [grpc] [34;1mAddTraceEvent[0m -> [core] [Channel #1 SubChannel #2]Subchannel Connectivity change to IDLE, last error: connection error: desc = "transport: authentication handshake failed: tls: failed to verify certificate: x509: certificate signed by unknown authority"
+[34m2025-10-30 02:57:42.709 UTC 0013 INFO[0m [grpc] [34;1mAddTraceEvent[0m -> [core] [Channel #1 SubChannel #2]Subchannel Connectivity change to CONNECTING
+[34m2025-10-30 02:57:42.709 UTC 0014 INFO[0m [grpc] [34;1mAddTraceEvent[0m -> [core] [Channel #1 SubChannel #2]Subchannel picks a new address "localhost:7153" to connect
+[31m2025-10-30 02:57:42.710 UTC 0015 ERRO[0m [comm.tls] [31;1mClientHandshake[0m -> Client TLS handshake failed after 1.450625ms with error: tls: failed to verify certificate: x509: certificate signed by unknown authority remoteaddress=[::1]:7153
+[34m2025-10-30 02:57:42.710 UTC 0016 INFO[0m [grpc] [34;1mInfof[0m -> [core] Creating new client transport to "{Addr: \"localhost:7153\", ServerName: \"localhost:7153\", BalancerAttributes: {\"<%!p(pickfirstleaf.managedByPickfirstKeyType={})>\": \"<%!p(bool=true)>\" }}": connection error: desc = "transport: authentication handshake failed: tls: failed to verify certificate: x509: certificate signed by unknown authority"
+[33m2025-10-30 02:57:42.711 UTC 0017 WARN[0m [grpc] [33;1mAddTraceEvent[0m -> [core] [Channel #1 SubChannel #2]grpc: addrConn.createTransport failed to connect to {Addr: "localhost:7153", ServerName: "localhost:7153", BalancerAttributes: {"<%!p(pickfirstleaf.managedByPickfirstKeyType={})>": "<%!p(bool=true)>" }}. Err: connection error: desc = "transport: authentication handshake failed: tls: failed to verify certificate: x509: certificate signed by unknown authority"
+[34m2025-10-30 02:57:42.711 UTC 0018 INFO[0m [grpc] [34;1mAddTraceEvent[0m -> [core] [Channel #1 SubChannel #2]Subchannel Connectivity change to TRANSIENT_FAILURE, last error: connection error: desc = "transport: authentication handshake failed: tls: failed to verify certificate: x509: certificate signed by unknown authority"
+[34m2025-10-30 02:57:44.271 UTC 0019 INFO[0m [grpc] [34;1mAddTraceEvent[0m -> [core] [Channel #1 SubChannel #2]Subchannel Connectivity change to IDLE, last error: connection error: desc = "transport: authentication handshake failed: tls: failed to verify certificate: x509: certificate signed by unknown authority"
+[34m2025-10-30 02:57:44.271 UTC 001a INFO[0m [grpc] [34;1mAddTraceEvent[0m -> [core] [Channel #1 SubChannel #2]Subchannel Connectivity change to CONNECTING
+[34m2025-10-30 02:57:44.271 UTC 001b INFO[0m [grpc] [34;1mAddTraceEvent[0m -> [core] [Channel #1 SubChannel #2]Subchannel picks a new address "localhost:7153" to connect
+[31m2025-10-30 02:57:44.273 UTC 001c ERRO[0m [comm.tls] [31;1mClientHandshake[0m -> Client TLS handshake failed after 1.488181ms with error: tls: failed to verify certificate: x509: certificate signed by unknown authority remoteaddress=[::1]:7153
+[34m2025-10-30 02:57:44.273 UTC 001d INFO[0m [grpc] [34;1mInfof[0m -> [core] Creating new client transport to "{Addr: \"localhost:7153\", ServerName: \"localhost:7153\", BalancerAttributes: {\"<%!p(pickfirstleaf.managedByPickfirstKeyType={})>\": \"<%!p(bool=true)>\" }}": connection error: desc = "transport: authentication handshake failed: tls: failed to verify certificate: x509: certificate signed by unknown authority"
+[33m2025-10-30 02:57:44.273 UTC 001e WARN[0m [grpc] [33;1mAddTraceEvent[0m -> [core] [Channel #1 SubChannel #2]grpc: addrConn.createTransport failed to connect to {Addr: "localhost:7153", ServerName: "localhost:7153", BalancerAttributes: {"<%!p(pickfirstleaf.managedByPickfirstKeyType={})>": "<%!p(bool=true)>" }}. Err: connection error: desc = "transport: authentication handshake failed: tls: failed to verify certificate: x509: certificate signed by unknown authority"
+[34m2025-10-30 02:57:44.273 UTC 001f INFO[0m [grpc] [34;1mAddTraceEvent[0m -> [core] [Channel #1 SubChannel #2]Subchannel Connectivity change to TRANSIENT_FAILURE, last error: connection error: desc = "transport: authentication handshake failed: tls: failed to verify certificate: x509: certificate signed by unknown authority"
+[34m2025-10-30 02:57:44.706 UTC 0020 INFO[0m [grpc] [34;1mAddTraceEvent[0m -> [core] [Channel #1]Channel Connectivity change to SHUTDOWN
+[34m2025-10-30 02:57:44.706 UTC 0021 INFO[0m [grpc] [34;1mAddTraceEvent[0m -> [core] [Channel #1]Closing the name resolver
+[34m2025-10-30 02:57:44.706 UTC 0022 INFO[0m [grpc] [34;1mAddTraceEvent[0m -> [core] [Channel #1]ccBalancerWrapper: closing
+[34m2025-10-30 02:57:44.706 UTC 0023 INFO[0m [grpc] [34;1mAddTraceEvent[0m -> [core] [Channel #1 SubChannel #2]Subchannel Connectivity change to SHUTDOWN
+[34m2025-10-30 02:57:44.706 UTC 0024 INFO[0m [grpc] [34;1mAddTraceEvent[0m -> [core] [Channel #1 SubChannel #2]Subchannel deleted
+[34m2025-10-30 02:57:44.706 UTC 0025 INFO[0m [grpc] [34;1mAddTraceEvent[0m -> [core] [Channel #1]Channel deleted
+Error: error getting endorser client for channel: endorser client failed to connect to localhost:7153: failed to create new connection: context deadline exceeded
+[0;31mAfter 5 attempts, peer0.org1 has failed to join channel 'fabric3-channel-standard' [0m
+  STDERR: + '[' 0 -eq 1 ']'
++ configtxgen -profile ChannelUsingRaft -outputBlock ./channel-artifacts/fabric3-channel-standard.block -channelID fabric3-channel-standard
+[34m2025-10-30 02:57:17.412 UTC 0001 INFO[0m [common.tools.configtxgen] [34;1mmain[0m -> Loading configuration
+[34m2025-10-30 02:57:17.415 UTC 0002 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> orderer type: etcdraft
+[34m2025-10-30 02:57:17.415 UTC 0003 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> Orderer.EtcdRaft.Options unset, setting to tick_interval:"500ms"  election_tick:10  heartbeat_tick:1  max_inflight_blocks:5  snapshot_interval_size:16777216
+[34m2025-10-30 02:57:17.415 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/fabric-3/raft-standard/network/configtx/configtx.yaml
+[34m2025-10-30 02:57:17.418 UTC 0005 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Generating genesis block
+[34m2025-10-30 02:57:17.418 UTC 0006 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Creating application channel genesis block
+[34m2025-10-30 02:57:17.419 UTC 0007 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Writing genesis block
++ res=0
++ . scripts/orderer.sh fabric3-channel-standard
++ '[' 0 -eq 1 ']'
++ res=0
++ peer channel join -b ./channel-artifacts/fabric3-channel-standard.block
++ res=1
++ peer channel join -b ./channel-artifacts/fabric3-channel-standard.block
++ res=1
++ peer channel join -b ./channel-artifacts/fabric3-channel-standard.block
++ res=1
++ peer channel join -b ./channel-artifacts/fabric3-channel-standard.block
++ res=1
+Langkah 3: Deploy chaincode — skipped
+  Perintah: ./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl node -c fabric3-channel-standard
+  Pesan: Langkah ini dilewati karena perintah sebelumnya gagal.
+Error: Command failed: ./network.sh createChannel -c fabric3-channel-standard
++ '[' 0 -eq 1 ']'
++ configtxgen -profile ChannelUsingRaft -outputBlock ./channel-artifacts/fabric3-channel-standard.block -channelID fabric3-channel-standard
+[34m2025-10-30 02:57:17.412 UTC 0001 INFO[0m [common.tools.configtxgen] [34;1mmain[0m -> Loading configuration
+[34m2025-10-30 02:57:17.415 UTC 0002 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> orderer type: etcdraft
+[34m2025-10-30 02:57:17.415 UTC 0003 INFO[0m [common.tools.configtxgen.localconfig] [34;1mcompleteInitialization[0m -> Orderer.EtcdRaft.Options unset, setting to tick_interval:"500ms"  election_tick:10  heartbeat_tick:1  max_inflight_blocks:5  snapshot_interval_size:16777216
+[34m2025-10-30 02:57:17.415 UTC 0004 INFO[0m [common.tools.configtxgen.localconfig] [34;1mLoad[0m -> Loaded configuration: /root/evaluasi-raft-hlf/fabric-3/raft-standard/network/configtx/configtx.yaml
+[34m2025-10-30 02:57:17.418 UTC 0005 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Generating genesis block
+[34m2025-10-30 02:57:17.418 UTC 0006 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Creating application channel genesis block
+[34m2025-10-30 02:57:17.419 UTC 0007 INFO[0m [common.tools.configtxgen] [34;1mdoOutputBlock[0m -> Writing genesis block
++ res=0
++ . scripts/orderer.sh fabric3-channel-standard
++ '[' 0 -eq 1 ']'
++ res=0
++ peer channel join -b ./channel-artifacts/fabric3-channel-standard.block
++ res=1
++ peer channel join -b ./channel-artifacts/fabric3-channel-standard.block
++ res=1
++ peer channel join -b ./channel-artifacts/fabric3-channel-standard.block
++ res=1
++ peer channel join -b ./channel-artifacts/fabric3-channel-standard.block
++ res=1
+
+

@@ -15,6 +15,51 @@ function createEmptySummary() {
     };
 }
 
+function normalizeTimestamp(value) {
+    if (!value) {
+        return null;
+    }
+
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
+        return null;
+    }
+
+    return date.toISOString();
+}
+
+function selectEarliestTimestamp(current, candidate) {
+    const normalizedCandidate = normalizeTimestamp(candidate);
+    if (!normalizedCandidate) {
+        return current ?? null;
+    }
+
+    const normalizedCurrent = normalizeTimestamp(current);
+    if (!normalizedCurrent) {
+        return normalizedCandidate;
+    }
+
+    return normalizedCandidate < normalizedCurrent
+        ? normalizedCandidate
+        : normalizedCurrent;
+}
+
+function selectLatestTimestamp(current, candidate) {
+    const normalizedCandidate = normalizeTimestamp(candidate);
+    if (!normalizedCandidate) {
+        return current ?? null;
+    }
+
+    const normalizedCurrent = normalizeTimestamp(current);
+    if (!normalizedCurrent) {
+        return normalizedCandidate;
+    }
+
+    return normalizedCandidate > normalizedCurrent
+        ? normalizedCandidate
+        : normalizedCurrent;
+}
+
 function normalizeBlockNumber(blockNumber) {
     if (blockNumber === null || blockNumber === undefined) {
         return null;
@@ -151,6 +196,10 @@ function ensureNetworkSummary(summary, result) {
         successCount: 0,
         failureCount: 0,
         totalLatencyMs: 0,
+        totalProcessingTimeMs: 0,
+        processingCount: 0,
+        totalPayloadBytes: 0,
+        totalResultBytes: 0,
         lastUpdatedAt: null,
         lastStatus: null,
         lastMessage: null,
@@ -160,6 +209,8 @@ function ensureNetworkSummary(summary, result) {
         lastBlockNumber: null,
         lastBlockLabel: null,
         lastBlockUpdatedAt: null,
+        firstStartedAt: null,
+        lastCompletedAt: null,
     };
 
     networks[result.targetId] = networkSummary;
@@ -190,14 +241,32 @@ function applyResultToSummary(networkSummary, result) {
 
     networkSummary.totalCount = (networkSummary.totalCount || 0) + 1;
 
+    const hasLatency = typeof result.latencyMs === 'number' && Number.isFinite(result.latencyMs);
+
     if (result.status === 'success') {
         networkSummary.successCount = (networkSummary.successCount || 0) + 1;
-        if (typeof result.latencyMs === 'number' && Number.isFinite(result.latencyMs)) {
+        if (hasLatency) {
             networkSummary.totalLatencyMs = (networkSummary.totalLatencyMs || 0) + result.latencyMs;
         }
     } else {
         networkSummary.failureCount = (networkSummary.failureCount || 0) + 1;
     }
+
+    if (hasLatency) {
+        networkSummary.totalProcessingTimeMs = (networkSummary.totalProcessingTimeMs || 0) + result.latencyMs;
+        networkSummary.processingCount = (networkSummary.processingCount || 0) + 1;
+    }
+
+    if (typeof result.payloadSizeBytes === 'number' && Number.isFinite(result.payloadSizeBytes)) {
+        networkSummary.totalPayloadBytes = (networkSummary.totalPayloadBytes || 0) + result.payloadSizeBytes;
+    }
+
+    if (typeof result.resultSizeBytes === 'number' && Number.isFinite(result.resultSizeBytes)) {
+        networkSummary.totalResultBytes = (networkSummary.totalResultBytes || 0) + result.resultSizeBytes;
+    }
+
+    networkSummary.firstStartedAt = selectEarliestTimestamp(networkSummary.firstStartedAt, result.startedAt);
+    networkSummary.lastCompletedAt = selectLatestTimestamp(networkSummary.lastCompletedAt, result.completedAt);
 
     if (result.completedAt) {
         networkSummary.lastUpdatedAt = result.completedAt;
@@ -239,6 +308,12 @@ function applyResultToSummary(networkSummary, result) {
                 successCount: 0,
                 failureCount: 0,
                 totalLatencyMs: 0,
+                totalProcessingTimeMs: 0,
+                processingCount: 0,
+                totalPayloadBytes: 0,
+                totalResultBytes: 0,
+                firstStartedAt: null,
+                lastCompletedAt: null,
                 lastUpdatedAt: null,
                 lastStatus: null,
                 lastMessage: null,
@@ -255,6 +330,19 @@ function applyResultToSummary(networkSummary, result) {
             blockSummary.failureCount = (blockSummary.failureCount || 0) + 1;
         }
 
+        if (hasLatency) {
+            blockSummary.totalProcessingTimeMs = (blockSummary.totalProcessingTimeMs || 0) + result.latencyMs;
+            blockSummary.processingCount = (blockSummary.processingCount || 0) + 1;
+        }
+
+        if (typeof result.payloadSizeBytes === 'number' && Number.isFinite(result.payloadSizeBytes)) {
+            blockSummary.totalPayloadBytes = (blockSummary.totalPayloadBytes || 0) + result.payloadSizeBytes;
+        }
+
+        if (typeof result.resultSizeBytes === 'number' && Number.isFinite(result.resultSizeBytes)) {
+            blockSummary.totalResultBytes = (blockSummary.totalResultBytes || 0) + result.resultSizeBytes;
+        }
+
         if (networkSummary.lastUpdatedAt) {
             blockSummary.lastUpdatedAt = networkSummary.lastUpdatedAt;
         }
@@ -267,6 +355,9 @@ function applyResultToSummary(networkSummary, result) {
         if (result.transactionId) {
             blockSummary.lastTransactionId = result.transactionId;
         }
+
+        blockSummary.firstStartedAt = selectEarliestTimestamp(blockSummary.firstStartedAt, result.startedAt);
+        blockSummary.lastCompletedAt = selectLatestTimestamp(blockSummary.lastCompletedAt, result.completedAt);
 
         networkSummary.blocks[blockKey] = blockSummary;
         networkSummary.blockCount = Object.keys(networkSummary.blocks).length;

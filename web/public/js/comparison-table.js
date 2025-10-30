@@ -206,6 +206,84 @@
         return dateTimeFormatter.format(date);
     }
 
+    function formatDuration(value) {
+        if (typeof value !== 'number' || !Number.isFinite(value) || value < 0) {
+            return '—';
+        }
+
+        if (value < 1000) {
+            return `${decimalFormatter.format(value)} ms`;
+        }
+
+        const seconds = value / 1000;
+        if (seconds < 60) {
+            return `${decimalFormatter.format(seconds)} dtk`;
+        }
+
+        const minutes = seconds / 60;
+        if (minutes < 60) {
+            return `${decimalFormatter.format(minutes)} mnt`;
+        }
+
+        const hours = minutes / 60;
+        if (hours < 24) {
+            return `${decimalFormatter.format(hours)} jam`;
+        }
+
+        const days = hours / 24;
+        return `${decimalFormatter.format(days)} hari`;
+    }
+
+    function formatThroughput(value) {
+        if (typeof value !== 'number' || !Number.isFinite(value) || value < 0) {
+            return '—';
+        }
+        return `${decimalFormatter.format(value)} tx/detik`;
+    }
+
+    function formatByteSize(value) {
+        if (typeof value !== 'number' || !Number.isFinite(value)) {
+            return '—';
+        }
+
+        if (value === 0) {
+            return '0 B';
+        }
+
+        if (value < 0) {
+            return '—';
+        }
+
+        const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+        let unitIndex = 0;
+        let normalizedValue = value;
+
+        while (normalizedValue >= 1024 && unitIndex < units.length - 1) {
+            normalizedValue /= 1024;
+            unitIndex += 1;
+        }
+
+        return `${decimalFormatter.format(normalizedValue)} ${units[unitIndex]}`;
+    }
+
+    function formatObservationWindow(network) {
+        if (!network || typeof network !== 'object') {
+            return 'Belum ada data';
+        }
+
+        const durationLabel = formatDuration(network.observationDurationMs);
+        if (durationLabel === '—') {
+            return 'Belum ada data';
+        }
+
+        const lastCompletedLabel = formatTimestamp(network.lastCompletedAt);
+        const sanitizedLastLabel = lastCompletedLabel === 'Belum ada pembaruan.'
+            ? '—'
+            : lastCompletedLabel;
+
+        return `${durationLabel} — Terakhir: ${sanitizedLastLabel}`;
+    }
+
     function clearTable() {
         if (tableBody) {
             tableBody.innerHTML = '';
@@ -244,8 +322,94 @@
                 : null;
             const blockHighlights = renderBlockHighlights(network.blocks);
 
+            const volumeMetrics = [
+                {
+                    label: 'Blok tercatat',
+                    value: formatCount(blockCount),
+                    valueClass: 'text-textdark',
+                    numeric: true,
+                },
+                {
+                    label: 'Total catatan',
+                    value: formatCount(network.totalCount),
+                    valueClass: 'text-textdark',
+                    numeric: true,
+                },
+                {
+                    label: 'Berhasil',
+                    value: formatCount(network.successCount),
+                    valueClass: 'text-emerald-300',
+                    numeric: true,
+                },
+                {
+                    label: 'Gagal',
+                    value: formatCount(network.failureCount),
+                    valueClass: 'text-rose-300',
+                    numeric: true,
+                },
+                {
+                    label: 'Rasio sukses',
+                    value: formatSuccessRate(network.successRate),
+                    valueClass: 'text-primary',
+                    numeric: false,
+                },
+            ];
+
+            const performanceMetrics = [
+                {
+                    label: 'Latensi rata-rata',
+                    value: formatLatency(network.averageLatencyMs),
+                    valueClass: 'text-amber-200',
+                    numeric: true,
+                },
+                {
+                    label: 'Waktu commit rata-rata',
+                    value: formatLatency(network.averageCommitTimeMs),
+                    valueClass: 'text-secondary',
+                    numeric: true,
+                },
+                {
+                    label: 'Throughput',
+                    value: formatThroughput(network.throughput),
+                    valueClass: 'text-primary',
+                    numeric: false,
+                },
+                {
+                    label: 'Payload rata-rata',
+                    value: formatByteSize(network.averagePayloadSizeBytes),
+                    valueClass: 'text-textdark',
+                    numeric: false,
+                },
+                {
+                    label: 'Hasil rata-rata',
+                    value: formatByteSize(network.averageResultSizeBytes),
+                    valueClass: 'text-textdark',
+                    numeric: false,
+                },
+                {
+                    label: 'Jendela pengamatan',
+                    value: formatObservationWindow(network),
+                    valueClass: 'text-textdark/70',
+                    numeric: false,
+                },
+            ];
+
+            const renderMetricList = (metrics) => metrics.map((metric) => {
+                const valueClass = metric.valueClass || 'text-textdark';
+                const numericClass = metric.numeric ? 'tabular-nums' : '';
+                return `
+                    <div class="flex items-center justify-between gap-3">
+                        <span class="text-[11px] font-semibold uppercase tracking-[0.28em] text-textdark/60">${metric.label}</span>
+                        <span class="text-sm font-semibold ${valueClass} ${numericClass}">${metric.value}</span>
+                    </div>
+                `;
+            }).join('');
+
+            const volumeHtml = renderMetricList(volumeMetrics);
+            const performanceHtml = renderMetricList(performanceMetrics);
+
             row.innerHTML = `
-                <td class="px-4 py-4 align-middle">
+                <td class="px-4 py-4 align-top">
                     <div class="flex flex-col gap-1">
                         <span class="text-sm font-semibold text-textdark">${network.label || 'Jaringan'}</span>
                         <div class="flex flex-wrap items-center gap-2 text-xs text-textdark/60">
@@ -255,13 +419,17 @@
                         </div>
                     </div>
                 </td>
-                <td class="px-4 py-4 text-right text-sm font-semibold text-textdark tabular-nums">${formatCount(blockCount)}</td>
-                <td class="px-4 py-4 text-right text-sm font-semibold text-textdark tabular-nums">${formatCount(network.totalCount)}</td>
-                <td class="px-4 py-4 text-right text-sm font-semibold text-emerald-300 tabular-nums">${formatCount(network.successCount)}</td>
-                <td class="px-4 py-4 text-right text-sm font-semibold text-rose-300 tabular-nums">${formatCount(network.failureCount)}</td>
-                <td class="px-4 py-4 text-right text-sm font-medium text-amber-200 tabular-nums">${formatLatency(network.averageLatencyMs)}</td>
-                <td class="px-4 py-4 text-right text-sm font-medium text-primary tabular-nums">${formatSuccessRate(network.successRate)}</td>
-                <td class="px-4 py-4 text-left text-xs text-textdark/60">
+                <td class="px-4 py-4 align-top">
+                    <div class="flex flex-col gap-2 rounded-2xl border border-white/5 bg-soft/40 p-4 text-xs text-textdark/70">
+                        ${volumeHtml}
+                    </div>
+                </td>
+                <td class="px-4 py-4 align-top">
+                    <div class="flex flex-col gap-2 rounded-2xl border border-white/5 bg-soft/40 p-4 text-xs text-textdark/70">
+                        ${performanceHtml}
+                    </div>
+                </td>
+                <td class="px-4 py-4 align-top text-xs text-textdark/60">
                     <div class="flex flex-col gap-1">
                         <span>Blok terakhir: <span class="font-semibold text-textdark">${blockLabel}</span></span>
                         <span>Ringkasan: ${summaryUpdatedLabel}</span>

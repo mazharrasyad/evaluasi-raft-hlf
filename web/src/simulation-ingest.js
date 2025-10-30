@@ -18,6 +18,7 @@ const networkTargets = [
     {
         id: 'channel-standard',
         label: 'RAFT Standard',
+        scope: 'fabric-2',
         networkDir: path.resolve(__dirname, '../../fabric-2/raft-standard/network'),
         channelName: 'fabric2-channel-standard',
         peerEndpoint: 'localhost:7051',
@@ -27,6 +28,7 @@ const networkTargets = [
     {
         id: 'channel-variant',
         label: 'RAFT Variant',
+        scope: 'fabric-2',
         networkDir: path.resolve(__dirname, '../../fabric-2/raft-variant/network'),
         channelName: 'fabric2-channel-variant',
         peerEndpoint: 'localhost:7052',
@@ -36,6 +38,7 @@ const networkTargets = [
     {
         id: 'channel-fabric3-standard',
         label: 'Fabric 3 RAFT Standard',
+        scope: 'fabric-3',
         networkDir: path.resolve(__dirname, '../../fabric-3/raft-standard/network'),
         channelName: 'fabric3-channel-standard',
         peerEndpoint: 'localhost:7153',
@@ -45,6 +48,7 @@ const networkTargets = [
     {
         id: 'channel-fabric3-variant',
         label: 'Fabric 3 RAFT Variant',
+        scope: 'fabric-3',
         networkDir: path.resolve(__dirname, '../../fabric-3/raft-variant/network'),
         channelName: 'fabric3-channel-variant',
         peerEndpoint: 'localhost:7353',
@@ -235,6 +239,7 @@ async function submitToSingleNetwork(target, record) {
     const baseResult = {
         targetId: id,
         label,
+        scope: target.scope || null,
         networkDir,
         channel: channelName,
         peer: targetPeerEndpoint,

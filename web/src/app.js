@@ -325,6 +325,320 @@ const NETWORK_START_TARGETS = [
     },
 ];
 
+const NETWORK_SIMULATION_ENDPOINTS = {
+    'fabric2-raft-standard': {
+        candidateIds: ['channel-standard', 'standard'],
+        scope: 'fabric-2',
+        channel: 'fabric2-channel-standard',
+        defaultLabel: 'Fabric 2 RAFT Standard',
+        labels: ['RAFT Standard Network', 'RAFT Standard', 'Fabric 2 RAFT Standard'],
+    },
+    'fabric2-raft-variant': {
+        candidateIds: ['channel-variant', 'variant'],
+        scope: 'fabric-2',
+        channel: 'fabric2-channel-variant',
+        defaultLabel: 'Fabric 2 RAFT Variant',
+        labels: ['RAFT Variant Network', 'RAFT Variant', 'Fabric 2 RAFT Variant'],
+    },
+    'fabric3-raft-standard': {
+        candidateIds: ['channel-fabric3-standard', 'fabric3-standard'],
+        scope: 'fabric-3',
+        channel: 'fabric3-channel-standard',
+        defaultLabel: 'Fabric 3 RAFT Standard',
+        labels: ['Fabric 3 RAFT Standard Network', 'Fabric 3 RAFT Standard'],
+    },
+    'fabric3-raft-variant': {
+        candidateIds: ['channel-fabric3-variant', 'fabric3-variant'],
+        scope: 'fabric-3',
+        channel: 'fabric3-channel-variant',
+        defaultLabel: 'Fabric 3 RAFT Variant',
+        labels: ['Fabric 3 RAFT Variant Network', 'Fabric 3 RAFT Variant'],
+    },
+};
+
+function toBlockSummary(block) {
+    if (!block || typeof block !== 'object') {
+        return null;
+    }
+
+    const blockSuccessCount = Number.isFinite(block.successCount) ? block.successCount : 0;
+    const blockFailureCount = Number.isFinite(block.failureCount) ? block.failureCount : 0;
+    const blockTotalCount = Number.isFinite(block.totalCount)
+        ? block.totalCount
+        : blockSuccessCount + blockFailureCount;
+    const blockTotalLatencyMs = Number.isFinite(block.totalLatencyMs) ? block.totalLatencyMs : 0;
+    const blockAverageLatencyMs = blockSuccessCount > 0
+        ? blockTotalLatencyMs / blockSuccessCount
+        : null;
+
+    return {
+        blockNumber: block.blockNumber ?? null,
+        blockLabel: block.blockLabel
+            || (block.blockNumber !== undefined && block.blockNumber !== null
+                ? `#${block.blockNumber}`
+                : null),
+        totalCount: blockTotalCount,
+        successCount: blockSuccessCount,
+        failureCount: blockFailureCount,
+        totalLatencyMs: blockTotalLatencyMs,
+        averageLatencyMs: blockAverageLatencyMs,
+        lastUpdatedAt: block.lastUpdatedAt || null,
+        lastStatus: block.lastStatus || null,
+        lastMessage: block.lastMessage || null,
+        lastTransactionId: block.lastTransactionId || null,
+    };
+}
+
+function compareBlockSummaries(a, b) {
+    const aNumeric = typeof a.blockNumber === 'number' && Number.isFinite(a.blockNumber)
+        ? a.blockNumber
+        : null;
+    const bNumeric = typeof b.blockNumber === 'number' && Number.isFinite(b.blockNumber)
+        ? b.blockNumber
+        : null;
+
+    if (aNumeric !== null || bNumeric !== null) {
+        if (aNumeric === null) {
+            return 1;
+        }
+        if (bNumeric === null) {
+            return -1;
+        }
+        return aNumeric - bNumeric;
+    }
+
+    const aLabel = a.blockLabel || '';
+    const bLabel = b.blockLabel || '';
+    return aLabel.localeCompare(bLabel);
+}
+
+function selectLatestBlock(blockSummaries) {
+    return blockSummaries.reduce((latest, current) => {
+        if (!current) {
+            return latest;
+        }
+        if (!latest) {
+            return current;
+        }
+
+        const latestTime = latest.lastUpdatedAt ? Date.parse(latest.lastUpdatedAt) : Number.NaN;
+        const currentTime = current.lastUpdatedAt ? Date.parse(current.lastUpdatedAt) : Number.NaN;
+
+        const latestTimeValid = Number.isFinite(latestTime);
+        const currentTimeValid = Number.isFinite(currentTime);
+
+        if (latestTimeValid || currentTimeValid) {
+            if (!latestTimeValid) {
+                return current;
+            }
+            if (!currentTimeValid) {
+                return latest;
+            }
+            return currentTime >= latestTime ? current : latest;
+        }
+
+        const latestNumeric = typeof latest.blockNumber === 'number' && Number.isFinite(latest.blockNumber)
+            ? latest.blockNumber
+            : Number.NEGATIVE_INFINITY;
+        const currentNumeric = typeof current.blockNumber === 'number' && Number.isFinite(current.blockNumber)
+            ? current.blockNumber
+            : Number.NEGATIVE_INFINITY;
+
+        if (currentNumeric !== latestNumeric) {
+            return currentNumeric > latestNumeric ? current : latest;
+        }
+
+        const latestLabel = latest.blockLabel || '';
+        const currentLabel = current.blockLabel || '';
+        return currentLabel.localeCompare(latestLabel) >= 0 ? current : latest;
+    }, null);
+}
+
+function transformNetworkSummaryItem(item) {
+    if (!item || typeof item !== 'object') {
+        return null;
+    }
+
+    const successCount = Number.isFinite(item.successCount) ? item.successCount : 0;
+    const failureCount = Number.isFinite(item.failureCount) ? item.failureCount : 0;
+    const totalCount = Number.isFinite(item.totalCount)
+        ? item.totalCount
+        : successCount + failureCount;
+    const totalLatencyMs = Number.isFinite(item.totalLatencyMs) ? item.totalLatencyMs : 0;
+    const averageLatencyMs = successCount > 0
+        ? totalLatencyMs / successCount
+        : null;
+    const successRate = totalCount > 0
+        ? successCount / totalCount
+        : null;
+
+    const blocksRecord = item.blocks && typeof item.blocks === 'object'
+        ? item.blocks
+        : {};
+    const blockSummaries = Object.values(blocksRecord)
+        .filter(block => block && typeof block === 'object')
+        .map(toBlockSummary)
+        .filter(Boolean)
+        .sort(compareBlockSummaries);
+
+    const blockCount = Number.isFinite(item.blockCount)
+        ? item.blockCount
+        : blockSummaries.length;
+
+    const fallbackLatestBlock = selectLatestBlock(blockSummaries);
+    const lastBlockNumber = item.lastBlockNumber ?? fallbackLatestBlock?.blockNumber ?? null;
+    const lastBlockLabel = item.lastBlockLabel ?? fallbackLatestBlock?.blockLabel ?? null;
+    const lastBlockUpdatedAt = item.lastBlockUpdatedAt ?? fallbackLatestBlock?.lastUpdatedAt ?? null;
+
+    return {
+        id: item.id || null,
+        label: item.label || item.id || 'Jaringan',
+        scope: item.scope || null,
+        channel: item.channel || null,
+        totalCount,
+        successCount,
+        failureCount,
+        averageLatencyMs,
+        successRate,
+        totalLatencyMs,
+        blockCount,
+        blocks: blockSummaries,
+        lastBlockNumber,
+        lastBlockLabel,
+        lastBlockUpdatedAt,
+        lastUpdatedAt: item.lastUpdatedAt || null,
+        lastStatus: item.lastStatus || null,
+        lastMessage: item.lastMessage || null,
+        lastTransactionId: item.lastTransactionId || null,
+    };
+}
+
+function hasNetworkActivity(network) {
+    if (!network || typeof network !== 'object') {
+        return false;
+    }
+
+    const totalCount = Number.isFinite(network.totalCount) ? network.totalCount : 0;
+    const successCount = Number.isFinite(network.successCount) ? network.successCount : 0;
+    const failureCount = Number.isFinite(network.failureCount) ? network.failureCount : 0;
+    const blockCount = Number.isFinite(network.blockCount) ? network.blockCount : 0;
+    const blocksRecord = network.blocks && typeof network.blocks === 'object'
+        ? network.blocks
+        : {};
+    const derivedBlockCount = blockCount
+        || Object.values(blocksRecord).filter(block => block && typeof block === 'object').length;
+
+    return totalCount > 0 || successCount > 0 || failureCount > 0 || derivedBlockCount > 0;
+}
+
+function findNetworkSummaryEntry(networksRecord, config) {
+    if (!networksRecord || typeof networksRecord !== 'object') {
+        return null;
+    }
+
+    if (Array.isArray(config.candidateIds)) {
+        for (const candidateId of config.candidateIds) {
+            if (candidateId && typeof networksRecord[candidateId] === 'object') {
+                return networksRecord[candidateId];
+            }
+        }
+    }
+
+    const entries = Object.values(networksRecord)
+        .filter(entry => entry && typeof entry === 'object');
+
+    return entries.find(entry => {
+        if (!entry || typeof entry !== 'object') {
+            return false;
+        }
+
+        if (Array.isArray(config.candidateIds) && config.candidateIds.includes(entry.id)) {
+            return true;
+        }
+
+        if (config.channel && entry.channel === config.channel) {
+            if (!config.scope || entry.scope === config.scope) {
+                return true;
+            }
+        }
+
+        if (Array.isArray(config.labels) && config.labels.length) {
+            if (config.labels.includes(entry.label)) {
+                if (!config.scope || entry.scope === config.scope) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }) || null;
+}
+
+function createDefaultNetworkRecord(slug, config) {
+    const defaultId = Array.isArray(config.candidateIds) && config.candidateIds.length
+        ? config.candidateIds[0]
+        : slug;
+
+    const defaultLabel = config.defaultLabel
+        || (Array.isArray(config.labels) && config.labels.length ? config.labels[0] : defaultId);
+
+    return {
+        id: defaultId,
+        label: defaultLabel,
+        scope: config.scope || null,
+        channel: config.channel || null,
+        totalCount: 0,
+        successCount: 0,
+        failureCount: 0,
+        totalLatencyMs: 0,
+        blocks: {},
+        blockCount: 0,
+        lastUpdatedAt: null,
+        lastStatus: null,
+        lastMessage: null,
+        lastTransactionId: null,
+        lastBlockNumber: null,
+        lastBlockLabel: null,
+        lastBlockUpdatedAt: null,
+    };
+}
+
+function applyConfigDefaultsToRecord(record, slug, config) {
+    const baseRecord = record ? { ...record } : createDefaultNetworkRecord(slug, config);
+
+    if (!baseRecord.id && Array.isArray(config.candidateIds) && config.candidateIds.length) {
+        baseRecord.id = config.candidateIds[0];
+    }
+
+    if (!baseRecord.label && config.defaultLabel) {
+        baseRecord.label = config.defaultLabel;
+    }
+
+    if (!baseRecord.scope && config.scope) {
+        baseRecord.scope = config.scope;
+    }
+
+    if (!baseRecord.channel && config.channel) {
+        baseRecord.channel = config.channel;
+    }
+
+    return baseRecord;
+}
+
+function buildConfiguredNetworkSummary(slug, config, networksRecord) {
+    const matchedNetwork = findNetworkSummaryEntry(networksRecord, config);
+    const hasSimulationData = hasNetworkActivity(matchedNetwork);
+    const preparedRecord = applyConfigDefaultsToRecord(matchedNetwork, slug, config);
+    const networkSummary = transformNetworkSummaryItem(preparedRecord);
+
+    if (networkSummary) {
+        networkSummary.slug = slug;
+        networkSummary.hasSimulationData = hasSimulationData;
+    }
+
+    return { networkSummary, matchedNetwork, hasSimulationData };
+}
+
 function getContainerCliVersionCommand() {
     const rawValue = process.env.CONTAINER_CLI?.trim();
     const parts = rawValue ? rawValue.split(/\s+/).filter(Boolean) : [];
@@ -867,155 +1181,39 @@ app.get('/api/simulations/summary', async (req, res) => {
             ? rawSummary.networks
             : {};
 
-        const networks = Object.values(networksRecord)
-            .filter(item => item && typeof item === 'object')
-            .map(item => {
-                const successCount = Number.isFinite(item.successCount) ? item.successCount : 0;
-                const failureCount = Number.isFinite(item.failureCount) ? item.failureCount : 0;
-                const totalCount = Number.isFinite(item.totalCount)
-                    ? item.totalCount
-                    : successCount + failureCount;
-                const totalLatencyMs = Number.isFinite(item.totalLatencyMs) ? item.totalLatencyMs : 0;
-                const averageLatencyMs = successCount > 0
-                    ? totalLatencyMs / successCount
-                    : null;
-                const successRate = totalCount > 0
-                    ? successCount / totalCount
-                    : null;
+        const usedEntries = new Set();
+        const networks = [];
 
-                const blocksRecord = item.blocks && typeof item.blocks === 'object'
-                    ? item.blocks
-                    : {};
-                const blockSummaries = Object.values(blocksRecord)
-                    .filter(block => block && typeof block === 'object')
-                    .map(block => {
-                        const blockSuccessCount = Number.isFinite(block.successCount) ? block.successCount : 0;
-                        const blockFailureCount = Number.isFinite(block.failureCount) ? block.failureCount : 0;
-                        const blockTotalCount = Number.isFinite(block.totalCount)
-                            ? block.totalCount
-                            : blockSuccessCount + blockFailureCount;
-                        const blockTotalLatencyMs = Number.isFinite(block.totalLatencyMs) ? block.totalLatencyMs : 0;
-                        const blockAverageLatencyMs = blockSuccessCount > 0
-                            ? blockTotalLatencyMs / blockSuccessCount
-                            : null;
+        Object.entries(NETWORK_SIMULATION_ENDPOINTS).forEach(([slug, config]) => {
+            const { networkSummary, matchedNetwork } = buildConfiguredNetworkSummary(slug, config, networksRecord);
 
-                        return {
-                            blockNumber: block.blockNumber ?? null,
-                            blockLabel: block.blockLabel || (block.blockNumber !== undefined && block.blockNumber !== null
-                                ? `#${block.blockNumber}`
-                                : null),
-                            totalCount: blockTotalCount,
-                            successCount: blockSuccessCount,
-                            failureCount: blockFailureCount,
-                            totalLatencyMs: blockTotalLatencyMs,
-                            averageLatencyMs: blockAverageLatencyMs,
-                            lastUpdatedAt: block.lastUpdatedAt || null,
-                            lastStatus: block.lastStatus || null,
-                            lastMessage: block.lastMessage || null,
-                            lastTransactionId: block.lastTransactionId || null,
-                        };
-                    })
-                    .sort((a, b) => {
-                        const aNumeric = typeof a.blockNumber === 'number' && Number.isFinite(a.blockNumber)
-                            ? a.blockNumber
-                            : null;
-                        const bNumeric = typeof b.blockNumber === 'number' && Number.isFinite(b.blockNumber)
-                            ? b.blockNumber
-                            : null;
+            if (matchedNetwork && typeof matchedNetwork === 'object') {
+                usedEntries.add(matchedNetwork);
+            }
 
-                        if (aNumeric !== null || bNumeric !== null) {
-                            if (aNumeric === null) {
-                                return 1;
-                            }
-                            if (bNumeric === null) {
-                                return -1;
-                            }
-                            return aNumeric - bNumeric;
-                        }
+            if (networkSummary) {
+                networks.push(networkSummary);
+            }
+        });
 
-                        const aLabel = a.blockLabel || '';
-                        const bLabel = b.blockLabel || '';
-                        return aLabel.localeCompare(bLabel);
-                    });
-
-                const blockCount = Number.isFinite(item.blockCount)
-                    ? item.blockCount
-                    : blockSummaries.length;
-
-                const fallbackLatestBlock = blockSummaries.reduce((latest, current) => {
-                    if (!current) {
-                        return latest;
-                    }
-                    if (!latest) {
-                        return current;
-                    }
-
-                    const latestTime = latest.lastUpdatedAt ? Date.parse(latest.lastUpdatedAt) : Number.NaN;
-                    const currentTime = current.lastUpdatedAt ? Date.parse(current.lastUpdatedAt) : Number.NaN;
-
-                    const latestTimeValid = Number.isFinite(latestTime);
-                    const currentTimeValid = Number.isFinite(currentTime);
-
-                    if (latestTimeValid || currentTimeValid) {
-                        if (!latestTimeValid) {
-                            return current;
-                        }
-                        if (!currentTimeValid) {
-                            return latest;
-                        }
-                        return currentTime >= latestTime ? current : latest;
-                    }
-
-                    const latestNumeric = typeof latest.blockNumber === 'number' && Number.isFinite(latest.blockNumber)
-                        ? latest.blockNumber
-                        : Number.NEGATIVE_INFINITY;
-                    const currentNumeric = typeof current.blockNumber === 'number' && Number.isFinite(current.blockNumber)
-                        ? current.blockNumber
-                        : Number.NEGATIVE_INFINITY;
-
-                    if (currentNumeric !== latestNumeric) {
-                        return currentNumeric > latestNumeric ? current : latest;
-                    }
-
-                    const latestLabel = latest.blockLabel || '';
-                    const currentLabel = current.blockLabel || '';
-                    return currentLabel.localeCompare(latestLabel) >= 0 ? current : latest;
-                }, null);
-
-                const lastBlockNumber = item.lastBlockNumber ?? fallbackLatestBlock?.blockNumber ?? null;
-                const lastBlockLabel = item.lastBlockLabel ?? fallbackLatestBlock?.blockLabel ?? null;
-                const lastBlockUpdatedAt = item.lastBlockUpdatedAt ?? fallbackLatestBlock?.lastUpdatedAt ?? null;
-
-                return {
-                    id: item.id || null,
-                    label: item.label || item.id || 'Jaringan',
-                    scope: item.scope || null,
-                    channel: item.channel || null,
-                    totalCount,
-                    successCount,
-                    failureCount,
-                    averageLatencyMs,
-                    successRate,
-                    totalLatencyMs,
-                    blockCount,
-                    blocks: blockSummaries,
-                    lastBlockNumber,
-                    lastBlockLabel,
-                    lastBlockUpdatedAt,
-                    lastUpdatedAt: item.lastUpdatedAt || null,
-                    lastStatus: item.lastStatus || null,
-                    lastMessage: item.lastMessage || null,
-                    lastTransactionId: item.lastTransactionId || null,
-                };
-            })
-            .sort((a, b) => {
-                const scopeA = a.scope || '';
-                const scopeB = b.scope || '';
-                if (scopeA.localeCompare(scopeB) !== 0) {
-                    return scopeA.localeCompare(scopeB);
+        Object.values(networksRecord)
+            .filter(entry => entry && typeof entry === 'object' && !usedEntries.has(entry))
+            .forEach(entry => {
+                const summary = transformNetworkSummaryItem(entry);
+                if (summary) {
+                    summary.hasSimulationData = hasNetworkActivity(entry);
+                    networks.push(summary);
                 }
-                return (a.label || '').localeCompare(b.label || '');
             });
+
+        networks.sort((a, b) => {
+            const scopeA = a.scope || '';
+            const scopeB = b.scope || '';
+            if (scopeA.localeCompare(scopeB) !== 0) {
+                return scopeA.localeCompare(scopeB);
+            }
+            return (a.label || '').localeCompare(b.label || '');
+        });
 
         const overallTotals = networks.reduce((acc, item) => {
             acc.totalCount += item.totalCount || 0;
@@ -1070,6 +1268,40 @@ app.get('/api/simulations/summary', async (req, res) => {
             },
         });
     }
+});
+
+Object.entries(NETWORK_SIMULATION_ENDPOINTS).forEach(([slug, config]) => {
+    app.get(`/api/${slug}`, async (req, res) => {
+        try {
+            const rawSummary = await loadSimulationSummary();
+            const networksRecord = rawSummary?.networks && typeof rawSummary.networks === 'object'
+                ? rawSummary.networks
+                : {};
+
+            const { networkSummary, hasSimulationData } = buildConfiguredNetworkSummary(
+                slug,
+                config,
+                networksRecord,
+            );
+
+            res.json({
+                fetchedAt: new Date().toISOString(),
+                updatedAt: rawSummary?.updatedAt || null,
+                hasSimulationData,
+                network: networkSummary,
+            });
+        } catch (error) {
+            console.error(`Failed to load simulation summary for ${slug}:`, error);
+            const message = error instanceof Error ? error.message : String(error);
+
+            res.status(500).json({
+                fetchedAt: new Date().toISOString(),
+                error: message,
+                hasSimulationData: false,
+                network: null,
+            });
+        }
+    });
 });
 
 app.post('/api/start-network', async (req, res) => {

@@ -99,7 +99,7 @@ With the v2.4.1 Java Chaincode libraries, there are no code changes to make or b
 A sample docker run command could be as follows. The two key variables that are needed are the `CHAINCODE_SERVER_ADDRESS` and `CORE_CHAICODE_ID_NAME`
 
 ```bash
-    docker run --rm -d --name peer0org1_assettx_ccaas  \
+    docker run --rm -d --name fabric3standard_peer0org1_assettx_ccaas  \
                   --network fabric3_raft_standard_net \
                   -e CHAINCODE_SERVER_ADDRESS=0.0.0.0:9999 \
                   -e CORE_CHAINCODE_ID_NAME=<use package id here> \
@@ -125,7 +125,7 @@ Not building docker image; this the command we would have run
 docker build -f ../asset-transfer-basic/chaincode-java/Dockerfile -t basicj_ccaas_image:latest --build-arg CC_SERVER_PORT=9999 ../asset-transfer-basic/chaincode-java
 #....
 Not starting docker containers; these are the commands we would have run
-    docker run --rm -d --name peer0org1_basicj_ccaas                    --network fabric3_raft_standard_net                   -e CHAINCODE_SERVER_ADDRESS=0.0.0.0:9999                   -e CHAINCODE_ID=basicj_1.0:59dcd73a14e2db8eab7f7683343ce27ac242b93b4e8075605a460d63a0438405 -e CORE_CHAINCODE_ID_NAME=basicj_1.0:59dcd73a14e2db8eab7f7683343ce27ac242b93b4e8075605a460d63a0438405                     basicj_ccaas_image:latest
+    docker run --rm -d --name fabric3standard_peer0org1_basicj_ccaas                    --network fabric3_raft_standard_net                   -e CHAINCODE_SERVER_ADDRESS=0.0.0.0:9999                   -e CHAINCODE_ID=basicj_1.0:59dcd73a14e2db8eab7f7683343ce27ac242b93b4e8075605a460d63a0438405 -e CORE_CHAINCODE_ID_NAME=basicj_1.0:59dcd73a14e2db8eab7f7683343ce27ac242b93b4e8075605a460d63a0438405                     basicj_ccaas_image:latest
 ```
 
 Depending on your directory, and what you need to debug you might need to adjust these commands.
@@ -147,19 +147,20 @@ You need to start the docker container.
 NodeJs for example, could be started like this
 
 ```bash
- docker run --rm -it -p 9229:9229 --name peer0org2_basic_ccaas --network fabric3_raft_standard_net -e DEBUG=true -e CHAINCODE_SERVER_ADDRESS=0.0.0.0:9999 -e CHAINCODE_ID=basic_1.0:7c7dff5cdc43c77ccea028c422b3348c3c1fb5a26ace0077cf3cc627bd355ef0 -e CORE_CHAINCODE_ID_NAME=basic_1.0:7c7dff5cdc43c77ccea028c422b3348c3c1fb5a26ace0077cf3cc627bd355ef0 basic_ccaas_image:latest
+ docker run --rm -it -p 9229:9229 --name fabric3standard_peer0org2_basic_ccaas --network fabric3_raft_standard_net -e DEBUG=true -e CHAINCODE_SERVER_ADDRESS=0.0.0.0:9999 -e CHAINCODE_ID=basic_1.0:7c7dff5cdc43c77ccea028c422b3348c3c1fb5a26ace0077cf3cc627bd355ef0 -e CORE_CHAINCODE_ID_NAME=basic_1.0:7c7dff5cdc43c77ccea028c422b3348c3c1fb5a26ace0077cf3cc627bd355ef0 basic_ccaas_image:latest
 ```
 
 Java for example, could be started like this
 
 ```bash
- docker run --rm -it --name peer0org1_basicj_ccaas -p 8000:8000 --network fabric3_raft_standard_net -e DEBUG=true -e CHAINCODE_SERVER_ADDRESS=0.0.0.0:9999 -e CHAINCODE_ID=basicj_1.0:b014a03d8eb1898535e25b4dfeeb3f8244c9f07d91a06aec03e2d19174c45e4f -e CORE_CHAINCODE_ID_NAME=basicj_1.0:b014a03d8e
+ docker run --rm -it --name fabric3standard_peer0org1_basicj_ccaas -p 8000:8000 --network fabric3_raft_standard_net -e DEBUG=true -e CHAINCODE_SERVER_ADDRESS=0.0.0.0:9999 -e CHAINCODE_ID=basicj_1.0:b014a03d8eb1898535e25b4dfeeb3f8244c9f07d91a06aec03e2d19174c45e4f -e CORE_CHAINCODE_ID_NAME=basicj_1.0:b014a03d8e
 b1898535e25b4dfeeb3f8244c9f07d91a06aec03e2d19174c45e4f  basicj_ccaas_image:latest
 ```
 
 For all languages please note:
 
 - the name of the container needs to match what the peer has in the `connection.json`
+- to avoid collisions with other RAFT environments the helper scripts prefix container names with `fabric3standard_`
 - the peer is connecting to the chaincode container via the docker network. Therefore port 9999 does not need to be forwarded to the host
 - If you are going to single step in a debugger, then you are likely to hit the Fabric transaction timeout value. By default this is 30 seconds, meaning the chaincode has to complete transactions in 30 seconds or less. In the `test-network/docker/docker-composer-test-net.yml` add `CORE_CHAINCODE_EXECUTETIMEOUT=300s` to the environment options of each peer.
 - In the command above, the `-d` option has been removed from the command the test-network would have used, and has been replaced with `-it`. This means that docker container will not run in detached mode, and will run in the foreground.
@@ -187,7 +188,7 @@ We can define the address to be a template in the `connection.json`
 
 ```json
 {
-  "address": "{{.peername}}_assettransfer_ccaas:9999",
+  "address": "fabric3standard_{{.peername}}_assettransfer_ccaas:9999",
   "dial_timeout": "10s",
   "tls_required": false
 }
@@ -199,7 +200,7 @@ In the peer's environment configuration we then set for org1's peer1
 CHAINCODE_AS_A_SERVICE_BUILDER_CONFIG="{\"peername\":\"org1peer1\"}"
 ```
 
-The external builder will then resolve this address to be `org1peer1_assettransfer_ccaas:9999` for the peer to use.
+The external builder will then resolve this address to be `fabric3standard_org1peer1_assettransfer_ccaas:9999` for the peer to use.
 
 Each peer can have their own separate configuration, and therefore different addresses. The JSON string that is set can have any structure, so long as the templates (in golang template syntax) match.
 

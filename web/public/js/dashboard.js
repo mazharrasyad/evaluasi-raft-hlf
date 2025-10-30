@@ -471,27 +471,51 @@ let isModalOpen = false;
 let lastFocusedElement = null;
 let isIngestingSimulation = false;
 
-const BLOCKCHAIN_TARGETS = [
+const ALL_BLOCKCHAIN_TARGETS = [
     {
         id: 'channel-standard',
         label: 'RAFT Standard',
         channel: 'fabric2-channel-standard',
+        scope: 'fabric-2',
     },
     {
         id: 'channel-variant',
         label: 'RAFT Variant',
         channel: 'fabric2-channel-variant',
+        scope: 'fabric-2',
     },
     {
         id: 'channel-fabric3-standard',
         label: 'Fabric 3 RAFT Standard',
         channel: 'fabric3-channel-standard',
+        scope: 'fabric-3',
+    },
+    {
+        id: 'channel-fabric3-variant',
+        label: 'Fabric 3 RAFT Variant',
+        channel: 'fabric3-channel-variant',
+        scope: 'fabric-3',
     },
 ];
 
+const BLOCKCHAIN_TARGETS = (() => {
+    if (fabricContext === 'all') {
+        return ALL_BLOCKCHAIN_TARGETS.slice();
+    }
+
+    const filtered = ALL_BLOCKCHAIN_TARGETS.filter((target) => {
+        if (!target.scope) {
+            return true;
+        }
+        return target.scope === fabricContext;
+    });
+
+    return filtered.length ? filtered : ALL_BLOCKCHAIN_TARGETS.slice();
+})();
+
 const evaluationStats = new Map();
 const evaluationElements = new Map();
-const BLOCKCHAIN_TARGETS_BY_ID = new Map(BLOCKCHAIN_TARGETS.map(target => [target.id, target]));
+const BLOCKCHAIN_TARGETS_BY_ID = new Map(ALL_BLOCKCHAIN_TARGETS.map(target => [target.id, target]));
 const BLOCKCHAIN_SUBMISSION_PHASES = BLOCKCHAIN_TARGETS.map(target => ({
     id: target.id,
     label: target.label,
@@ -3638,6 +3662,9 @@ function ensureEvaluationSectionInitialized() {
         const card = document.createElement('article');
         card.className = 'flex flex-col gap-4 rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6 shadow-lg shadow-black/10 animate-on-scroll';
         card.dataset.targetId = target.id;
+        if (target.scope) {
+            card.dataset.fabricScope = target.scope;
+        }
         card.dataset.animateDelay = String(90 + (index * 30));
 
         const header = document.createElement('header');
@@ -3647,7 +3674,8 @@ function ensureEvaluationSectionInitialized() {
         info.className = 'space-y-1';
 
         const labelEl = document.createElement('p');
-        labelEl.className = 'text-[11px] font-semibold uppercase tracking-[0.3em] text-secondary/80';
+        const labelTone = target.scope === 'fabric-3' ? 'text-accent/80' : 'text-secondary/80';
+        labelEl.className = `text-[11px] font-semibold uppercase tracking-[0.3em] ${labelTone}`;
         labelEl.textContent = 'Jaringan blockchain';
 
         const titleEl = document.createElement('h3');
@@ -3815,6 +3843,8 @@ function ensureEvaluationSectionInitialized() {
 
         renderEvaluationStats(target.id);
     });
+
+    applyFabricScopeVisibility();
 }
 
 function resetEvaluationStats() {

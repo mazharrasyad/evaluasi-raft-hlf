@@ -356,6 +356,71 @@ const NETWORK_SIMULATION_ENDPOINTS = {
     },
 };
 
+function parseTimestampToMs(value) {
+    if (!value) {
+        return null;
+    }
+
+    const time = Date.parse(value);
+    return Number.isFinite(time) ? time : null;
+}
+
+function calculateDurationMs(startValue, endValue) {
+    const start = parseTimestampToMs(startValue);
+    const end = parseTimestampToMs(endValue);
+
+    if (start === null || end === null) {
+        return null;
+    }
+
+    const duration = end - start;
+    return Number.isFinite(duration) && duration >= 0 ? duration : null;
+}
+
+function computeThroughput(successCount, durationMs) {
+    if (!Number.isFinite(successCount) || successCount <= 0) {
+        return null;
+    }
+
+    if (!Number.isFinite(durationMs) || durationMs < 0) {
+        return null;
+    }
+
+    if (durationMs === 0) {
+        return successCount;
+    }
+
+    return successCount / (durationMs / 1000);
+}
+
+function selectEarliestTimestampString(current, candidate) {
+    const candidateTime = parseTimestampToMs(candidate);
+    if (candidateTime === null) {
+        return current ?? null;
+    }
+
+    const currentTime = parseTimestampToMs(current);
+    if (currentTime === null || candidateTime < currentTime) {
+        return new Date(candidateTime).toISOString();
+    }
+
+    return current;
+}
+
+function selectLatestTimestampString(current, candidate) {
+    const candidateTime = parseTimestampToMs(candidate);
+    if (candidateTime === null) {
+        return current ?? null;
+    }
+
+    const currentTime = parseTimestampToMs(current);
+    if (currentTime === null || candidateTime > currentTime) {
+        return new Date(candidateTime).toISOString();
+    }
+
+    return current;
+}
+
 function toBlockSummary(block) {
     if (!block || typeof block !== 'object') {
         return null;
@@ -367,9 +432,30 @@ function toBlockSummary(block) {
         ? block.totalCount
         : blockSuccessCount + blockFailureCount;
     const blockTotalLatencyMs = Number.isFinite(block.totalLatencyMs) ? block.totalLatencyMs : 0;
+    const blockTotalProcessingTimeMs = Number.isFinite(block.totalProcessingTimeMs)
+        ? block.totalProcessingTimeMs
+        : blockTotalLatencyMs;
+    const blockProcessingCount = Number.isFinite(block.processingCount)
+        ? block.processingCount
+        : (blockSuccessCount > 0 ? blockSuccessCount : (blockTotalCount > 0 ? blockTotalCount : 0));
     const blockAverageLatencyMs = blockSuccessCount > 0
         ? blockTotalLatencyMs / blockSuccessCount
         : null;
+    const blockAverageCommitTimeMs = blockProcessingCount > 0
+        ? blockTotalProcessingTimeMs / blockProcessingCount
+        : (blockAverageLatencyMs ?? null);
+    const blockTotalPayloadBytes = Number.isFinite(block.totalPayloadBytes) ? block.totalPayloadBytes : 0;
+    const blockTotalResultBytes = Number.isFinite(block.totalResultBytes) ? block.totalResultBytes : 0;
+    const blockAveragePayloadSizeBytes = blockTotalCount > 0 && blockTotalPayloadBytes > 0
+        ? blockTotalPayloadBytes / blockTotalCount
+        : (blockTotalPayloadBytes > 0 ? blockTotalPayloadBytes : 0);
+    const blockAverageResultSizeBytes = blockSuccessCount > 0 && blockTotalResultBytes > 0
+        ? blockTotalResultBytes / blockSuccessCount
+        : (blockTotalResultBytes > 0 ? blockTotalResultBytes : 0);
+    const blockFirstStartedAt = block.firstStartedAt || null;
+    const blockLastCompletedAt = block.lastCompletedAt || block.lastUpdatedAt || null;
+    const blockObservationDurationMs = calculateDurationMs(blockFirstStartedAt, blockLastCompletedAt);
+    const blockThroughput = computeThroughput(blockSuccessCount, blockObservationDurationMs);
 
     return {
         blockNumber: block.blockNumber ?? null,
@@ -382,6 +468,17 @@ function toBlockSummary(block) {
         failureCount: blockFailureCount,
         totalLatencyMs: blockTotalLatencyMs,
         averageLatencyMs: blockAverageLatencyMs,
+        totalProcessingTimeMs: blockTotalProcessingTimeMs,
+        averageCommitTimeMs: blockAverageCommitTimeMs,
+        processingCount: blockProcessingCount,
+        totalPayloadBytes: blockTotalPayloadBytes,
+        totalResultBytes: blockTotalResultBytes,
+        averagePayloadSizeBytes: blockAveragePayloadSizeBytes,
+        averageResultSizeBytes: blockAverageResultSizeBytes,
+        throughput: blockThroughput,
+        observationDurationMs: blockObservationDurationMs,
+        firstStartedAt: blockFirstStartedAt,
+        lastCompletedAt: blockLastCompletedAt,
         lastUpdatedAt: block.lastUpdatedAt || null,
         lastStatus: block.lastStatus || null,
         lastMessage: block.lastMessage || null,
@@ -465,12 +562,29 @@ function transformNetworkSummaryItem(item) {
         ? item.totalCount
         : successCount + failureCount;
     const totalLatencyMs = Number.isFinite(item.totalLatencyMs) ? item.totalLatencyMs : 0;
+    const totalProcessingTimeMs = Number.isFinite(item.totalProcessingTimeMs)
+        ? item.totalProcessingTimeMs
+        : totalLatencyMs;
+    const processingCount = Number.isFinite(item.processingCount)
+        ? item.processingCount
+        : (successCount > 0 ? successCount : totalCount);
     const averageLatencyMs = successCount > 0
         ? totalLatencyMs / successCount
         : null;
+    const averageCommitTimeMs = processingCount > 0
+        ? totalProcessingTimeMs / processingCount
+        : (averageLatencyMs ?? null);
     const successRate = totalCount > 0
         ? successCount / totalCount
         : null;
+    const totalPayloadBytes = Number.isFinite(item.totalPayloadBytes) ? item.totalPayloadBytes : 0;
+    const totalResultBytes = Number.isFinite(item.totalResultBytes) ? item.totalResultBytes : 0;
+    const averagePayloadSizeBytes = totalCount > 0 && totalPayloadBytes > 0
+        ? totalPayloadBytes / totalCount
+        : (totalPayloadBytes > 0 ? totalPayloadBytes : 0);
+    const averageResultSizeBytes = successCount > 0 && totalResultBytes > 0
+        ? totalResultBytes / successCount
+        : (totalResultBytes > 0 ? totalResultBytes : 0);
 
     const blocksRecord = item.blocks && typeof item.blocks === 'object'
         ? item.blocks
@@ -489,6 +603,10 @@ function transformNetworkSummaryItem(item) {
     const lastBlockNumber = item.lastBlockNumber ?? fallbackLatestBlock?.blockNumber ?? null;
     const lastBlockLabel = item.lastBlockLabel ?? fallbackLatestBlock?.blockLabel ?? null;
     const lastBlockUpdatedAt = item.lastBlockUpdatedAt ?? fallbackLatestBlock?.lastUpdatedAt ?? null;
+    const firstStartedAt = item.firstStartedAt || null;
+    const lastCompletedAt = item.lastCompletedAt || item.lastUpdatedAt || null;
+    const observationDurationMs = calculateDurationMs(firstStartedAt, lastCompletedAt);
+    const throughput = computeThroughput(successCount, observationDurationMs);
 
     return {
         id: item.id || null,
@@ -499,8 +617,17 @@ function transformNetworkSummaryItem(item) {
         successCount,
         failureCount,
         averageLatencyMs,
+        averageCommitTimeMs,
         successRate,
         totalLatencyMs,
+        totalProcessingTimeMs,
+        processingCount,
+        totalPayloadBytes,
+        totalResultBytes,
+        averagePayloadSizeBytes,
+        averageResultSizeBytes,
+        throughput,
+        observationDurationMs,
         blockCount,
         blocks: blockSummaries,
         lastBlockNumber,
@@ -510,6 +637,8 @@ function transformNetworkSummaryItem(item) {
         lastStatus: item.lastStatus || null,
         lastMessage: item.lastMessage || null,
         lastTransactionId: item.lastTransactionId || null,
+        firstStartedAt,
+        lastCompletedAt,
     };
 }
 
@@ -1220,22 +1349,48 @@ app.get('/api/simulations/summary', async (req, res) => {
             acc.successCount += item.successCount || 0;
             acc.failureCount += item.failureCount || 0;
             acc.totalLatencyMs += item.totalLatencyMs || 0;
+            acc.totalProcessingTimeMs += item.totalProcessingTimeMs || 0;
+            acc.processingCount += item.processingCount || 0;
+            acc.totalPayloadBytes += item.totalPayloadBytes || 0;
+            acc.totalResultBytes += item.totalResultBytes || 0;
             acc.blockCount += item.blockCount || 0;
+            acc.firstStartedAt = selectEarliestTimestampString(acc.firstStartedAt, item.firstStartedAt);
+            acc.lastCompletedAt = selectLatestTimestampString(acc.lastCompletedAt, item.lastCompletedAt);
             return acc;
         }, {
             totalCount: 0,
             successCount: 0,
             failureCount: 0,
             totalLatencyMs: 0,
+            totalProcessingTimeMs: 0,
+            processingCount: 0,
+            totalPayloadBytes: 0,
+            totalResultBytes: 0,
             blockCount: 0,
+            firstStartedAt: null,
+            lastCompletedAt: null,
         });
 
         const averageLatencyMs = overallTotals.successCount > 0
             ? overallTotals.totalLatencyMs / overallTotals.successCount
             : null;
+        const averageCommitTimeMs = overallTotals.processingCount > 0
+            ? overallTotals.totalProcessingTimeMs / overallTotals.processingCount
+            : (averageLatencyMs ?? null);
         const successRate = overallTotals.totalCount > 0
             ? overallTotals.successCount / overallTotals.totalCount
             : null;
+        const overallObservationDurationMs = calculateDurationMs(
+            overallTotals.firstStartedAt,
+            overallTotals.lastCompletedAt,
+        );
+        const throughput = computeThroughput(overallTotals.successCount, overallObservationDurationMs);
+        const averagePayloadSizeBytes = overallTotals.totalCount > 0 && overallTotals.totalPayloadBytes > 0
+            ? overallTotals.totalPayloadBytes / overallTotals.totalCount
+            : (overallTotals.totalPayloadBytes > 0 ? overallTotals.totalPayloadBytes : 0);
+        const averageResultSizeBytes = overallTotals.successCount > 0 && overallTotals.totalResultBytes > 0
+            ? overallTotals.totalResultBytes / overallTotals.successCount
+            : (overallTotals.totalResultBytes > 0 ? overallTotals.totalResultBytes : 0);
 
         res.json({
             fetchedAt: new Date().toISOString(),
@@ -1246,8 +1401,20 @@ app.get('/api/simulations/summary', async (req, res) => {
                 successCount: overallTotals.successCount,
                 failureCount: overallTotals.failureCount,
                 averageLatencyMs,
+                averageCommitTimeMs,
                 successRate,
                 blockCount: overallTotals.blockCount,
+                totalLatencyMs: overallTotals.totalLatencyMs,
+                totalProcessingTimeMs: overallTotals.totalProcessingTimeMs,
+                processingCount: overallTotals.processingCount,
+                totalPayloadBytes: overallTotals.totalPayloadBytes,
+                totalResultBytes: overallTotals.totalResultBytes,
+                throughput,
+                averagePayloadSizeBytes,
+                averageResultSizeBytes,
+                observationDurationMs: overallObservationDurationMs,
+                firstStartedAt: overallTotals.firstStartedAt,
+                lastCompletedAt: overallTotals.lastCompletedAt,
             },
         });
     } catch (error) {

@@ -106,16 +106,16 @@
                                 </article>
                             </div>
 
-                            <div class="space-y-4 rounded-3xl border border-white/10 bg-surface/80 p-8 shadow-2xl shadow-black/30">
-                                <header class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-                                    <div>
-                                        <h2 class="text-2xl font-semibold text-textdark">Tabel perbandingan jaringan</h2>
-                                        <p class="text-sm text-textdark/70">Ringkasan ini merangkum catatan simulasi yang dikomit ke setiap blok jaringan. Hanya transaksi sukses yang dihitung dalam rata-rata latensi, sementara total blok dihitung dari jumlah blok unik yang pernah menerima transaksi.</p>
-                                    </div>
-                                    <div class="text-xs text-textdark/60" id="summaryFetchedAt">Diambil: <span data-summary-fetched-at>Belum ada data</span></div>
-                                </header>
+                                <div class="space-y-4 rounded-3xl border border-white/10 bg-surface/80 p-8 shadow-2xl shadow-black/30">
+                                    <header class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+                                        <div>
+                                            <h2 class="text-2xl font-semibold text-textdark">Tabel perbandingan jaringan</h2>
+                                            <p class="text-sm text-textdark/70">Ringkasan ini merangkum catatan simulasi yang dikomit ke setiap blok jaringan. Selain jumlah transaksi, tabel menampilkan performa rata-rata seperti latensi, waktu commit, throughput, dan ukuran data untuk membantu membandingkan efisiensi masing-masing jaringan.</p>
+                                        </div>
+                                        <div class="text-xs text-textdark/60" id="summaryFetchedAt">Diambil: <span data-summary-fetched-at>Belum ada data</span></div>
+                                    </header>
 
-                                <div id="comparisonState" class="rounded-2xl border border-dashed border-white/10 bg-surfaceMuted/70 p-6 text-sm text-textdark/70" data-state="idle">
+                                    <div id="comparisonState" class="rounded-2xl border border-dashed border-white/10 bg-surfaceMuted/70 p-6 text-sm text-textdark/70" data-state="idle">
                                     <div class="flex items-center gap-3" data-state-loading>
                                         <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-secondary/20 text-secondary">
                                             <span class="h-4 w-4 animate-spin rounded-full border-2 border-secondary border-t-transparent"></span>
@@ -142,15 +142,11 @@
                                         <thead class="bg-surfaceMuted/80">
                                         <tr>
                                             <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.25em] text-textdark/60">Jaringan</th>
-                                            <th scope="col" class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-[0.25em] text-textdark/60">Blok tercatat</th>
-                                            <th scope="col" class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-[0.25em] text-textdark/60">Total catatan</th>
-                                            <th scope="col" class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-[0.25em] text-textdark/60">Berhasil</th>
-                                            <th scope="col" class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-[0.25em] text-textdark/60">Gagal</th>
-                                            <th scope="col" class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-[0.25em] text-textdark/60">Rata-rata latensi</th>
-                                            <th scope="col" class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-[0.25em] text-textdark/60">Rasio sukses</th>
+                                            <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.25em] text-textdark/60">Volume transaksi</th>
+                                            <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.25em] text-textdark/60">Performa rata-rata</th>
                                             <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.25em] text-textdark/60">Blok &amp; pembaruan</th>
                                         </tr>
-                                    </thead>
+                                        </thead>
                                     <tbody id="comparisonTableBody" class="divide-y divide-white/5 bg-surface/60"></tbody>
                                 </table>
                                 </div>

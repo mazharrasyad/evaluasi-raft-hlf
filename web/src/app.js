@@ -177,6 +177,11 @@ const NETWORK_SHUTDOWN_TARGETS = [
         label: 'Fabric 3 RAFT Standard Network',
         directory: path.resolve(__dirname, '../../fabric-3/raft-standard/network'),
     },
+    {
+        id: 'fabric3-variant',
+        label: 'Fabric 3 RAFT Variant Network',
+        directory: path.resolve(__dirname, '../../fabric-3/raft-variant/network'),
+    },
 ];
 
 const NETWORK_START_TARGETS = [
@@ -280,6 +285,40 @@ const NETWORK_START_TARGETS = [
                 ],
                 displayCommand:
                     './network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl node -c fabric3-channel-standard',
+            },
+        ],
+    },
+    {
+        id: 'fabric3-variant',
+        label: 'Fabric 3 RAFT Variant Network',
+        directory: path.resolve(__dirname, '../../fabric-3/raft-variant/network'),
+        channel: 'fabric3-channel-variant',
+        commands: [
+            {
+                label: 'Start core services',
+                args: ['up'],
+                displayCommand: './network.sh up',
+            },
+            {
+                label: 'Create channel',
+                args: ['createChannel', '-c', 'fabric3-channel-variant'],
+                displayCommand: './network.sh createChannel -c fabric3-channel-variant',
+            },
+            {
+                label: 'Deploy chaincode',
+                args: [
+                    'deployCC',
+                    '-ccn',
+                    'pelaporan',
+                    '-ccp',
+                    '../chaincode/pelaporan',
+                    '-ccl',
+                    'node',
+                    '-c',
+                    'fabric3-channel-variant',
+                ],
+                displayCommand:
+                    './network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl node -c fabric3-channel-variant',
             },
         ],
     },

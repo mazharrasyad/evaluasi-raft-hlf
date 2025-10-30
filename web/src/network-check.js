@@ -16,6 +16,7 @@ const chaincodeName = 'pelaporan';
 const standardNetworkDir = path.resolve(__dirname, '../../fabric-2/raft-standard/network');
 const variantNetworkDir = path.resolve(__dirname, '../../fabric-2/raft-variant/network');
 const fabric3StandardNetworkDir = path.resolve(__dirname, '../../fabric-3/raft-standard/network');
+const fabric3VariantNetworkDir = path.resolve(__dirname, '../../fabric-3/raft-variant/network');
 
 const networkConfigurations = [
     {
@@ -52,6 +53,18 @@ const networkConfigurations = [
         instructions: {
             up: `cd ${fabric3StandardNetworkDir} && ./network.sh up && ./network.sh createChannel -c fabric3-channel-standard`,
             deploy: `cd ${fabric3StandardNetworkDir} && ./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl node -c fabric3-channel-standard`
+        }
+    },
+    {
+        label: 'Fabric 3 RAFT Variant',
+        networkDir: fabric3VariantNetworkDir,
+        channelName: 'fabric3-channel-variant',
+        peerEndpoint: 'localhost:7353',
+        peerHostAlias: 'peer0.org1.fabric3.variant',
+        domain: 'fabric3.variant',
+        instructions: {
+            up: `cd ${fabric3VariantNetworkDir} && ./network.sh up && ./network.sh createChannel -c fabric3-channel-variant`,
+            deploy: `cd ${fabric3VariantNetworkDir} && ./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl node -c fabric3-channel-variant`
         }
     }
 ];

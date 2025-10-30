@@ -8,6 +8,7 @@ const __dirname = path.dirname(__filename);
 const STANDARD_NETWORK_ROOT = path.resolve(__dirname, '..', '..', 'fabric-2', 'raft-standard', 'network');
 const VARIANT_NETWORK_ROOT = path.resolve(__dirname, '..', '..', 'fabric-2', 'raft-variant', 'network');
 const FABRIC3_STANDARD_NETWORK_ROOT = path.resolve(__dirname, '..', '..', 'fabric-3', 'raft-standard', 'network');
+const FABRIC3_VARIANT_NETWORK_ROOT = path.resolve(__dirname, '..', '..', 'fabric-3', 'raft-variant', 'network');
 
 const NETWORK_SOURCES = [
     {
@@ -27,6 +28,12 @@ const NETWORK_SOURCES = [
         label: 'Fabric 3 RAFT Standard',
         root: FABRIC3_STANDARD_NETWORK_ROOT,
         ordererServiceName: 'orderer.fabric3.standard',
+    },
+    {
+        id: 'fabric3-raft-variant',
+        label: 'Fabric 3 RAFT Variant',
+        root: FABRIC3_VARIANT_NETWORK_ROOT,
+        ordererServiceName: 'orderer.fabric3.variant',
     },
 ];
 

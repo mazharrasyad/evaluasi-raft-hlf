@@ -76,12 +76,12 @@
                                     <header class="flex flex-col gap-2">
                                         <p class="text-xs uppercase tracking-[0.3em] text-emerald-300">Fabric 3 controls</p>
                                         <h2 class="text-xl font-semibold text-textdark">Kelola jaringan Fabric 3</h2>
-                                        <p class="text-sm text-textdark/70">Gunakan tombol berikut untuk menyalakan atau mematikan jaringan Fabric 3 RAFT Standard tanpa keluar dari dashboard.</p>
+                                        <p class="text-sm text-textdark/70">Gunakan tombol berikut untuk menyalakan atau mematikan jaringan Fabric 3 RAFT Standard maupun RAFT Variant tanpa keluar dari dashboard.</p>
                                     </header>
                                     <div class="grid gap-4 md:grid-cols-2">
                                         <article class="flex flex-col gap-3 rounded-2xl border border-white/10 bg-surface/60 p-5 shadow-lg shadow-black/10">
                                             <header class="flex items-center justify-between">
-                                                <h3 class="text-sm font-semibold text-textdark">Mulai jaringan</h3>
+                                                <h3 class="text-sm font-semibold text-textdark">Mulai jaringan RAFT Standard</h3>
                                                 <span class="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-300">Start</span>
                                             </header>
                                             <p class="text-xs text-textdark/70">Menjalankan rangkaian skrip <code>network.sh</code> untuk menyiapkan jaringan Fabric 3 RAFT Standard.</p>
@@ -107,7 +107,7 @@
                                         </article>
                                         <article class="flex flex-col gap-3 rounded-2xl border border-white/10 bg-surface/60 p-5 shadow-lg shadow-black/10">
                                             <header class="flex items-center justify-between">
-                                                <h3 class="text-sm font-semibold text-textdark">Matikan jaringan</h3>
+                                                <h3 class="text-sm font-semibold text-textdark">Matikan jaringan RAFT Standard</h3>
                                                 <span class="text-xs font-semibold uppercase tracking-[0.3em] text-rose-300">Shutdown</span>
                                             </header>
                                             <p class="text-xs text-textdark/70">Menjalankan perintah <code>./network.sh down</code> pada direktori Fabric 3 RAFT Standard.</p>
@@ -129,6 +129,58 @@
                                             >
                                                 <span data-indicator class="h-2 w-2 rounded-full bg-accent"></span>
                                                 <span data-message>Belum ada perintah shutdown yang dijalankan untuk jaringan Fabric 3 RAFT Standard.</span>
+                                            </p>
+                                        </article>
+                                        <article class="flex flex-col gap-3 rounded-2xl border border-white/10 bg-surface/60 p-5 shadow-lg shadow-black/10">
+                                            <header class="flex items-center justify-between">
+                                                <h3 class="text-sm font-semibold text-textdark">Mulai jaringan RAFT Variant</h3>
+                                                <span class="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-300">Start</span>
+                                            </header>
+                                            <p class="text-xs text-textdark/70">Menjalankan rangkaian skrip <code>network.sh</code> untuk menyiapkan jaringan Fabric 3 RAFT Variant.</p>
+                                            <button
+                                                type="button"
+                                                class="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-300/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-emerald-300/40 transition duration-200 hover:-translate-y-0.5 hover:bg-emerald-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-200"
+                                                data-network-startup-button="fabric3-variant"
+                                                data-network-label="Fabric 3 RAFT Variant Network"
+                                            >
+                                                <span>Start Fabric 3 Variant</span>
+                                            </button>
+                                            <p
+                                                class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 py-2 text-xs font-medium text-textdark/80"
+                                                role="status"
+                                                aria-live="polite"
+                                                data-network-startup-status="fabric3-variant"
+                                                data-network-label="Fabric 3 RAFT Variant Network"
+                                                data-default-message="Belum ada perintah start yang dijalankan untuk jaringan Fabric 3 RAFT Variant."
+                                            >
+                                                <span data-indicator class="h-2 w-2 rounded-full bg-accent"></span>
+                                                <span data-message>Belum ada perintah start yang dijalankan untuk jaringan Fabric 3 RAFT Variant.</span>
+                                            </p>
+                                        </article>
+                                        <article class="flex flex-col gap-3 rounded-2xl border border-white/10 bg-surface/60 p-5 shadow-lg shadow-black/10">
+                                            <header class="flex items-center justify-between">
+                                                <h3 class="text-sm font-semibold text-textdark">Matikan jaringan RAFT Variant</h3>
+                                                <span class="text-xs font-semibold uppercase tracking-[0.3em] text-rose-300">Shutdown</span>
+                                            </header>
+                                            <p class="text-xs text-textdark/70">Menjalankan perintah <code>./network.sh down</code> pada direktori Fabric 3 RAFT Variant.</p>
+                                            <button
+                                                type="button"
+                                                class="inline-flex items-center justify-center gap-2 rounded-lg bg-rose-400/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-rose-400/40 transition duration-200 hover:-translate-y-0.5 hover:bg-rose-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-300"
+                                                data-network-shutdown-button="fabric3-variant"
+                                                data-network-label="Fabric 3 RAFT Variant Network"
+                                            >
+                                                <span>Shutdown Fabric 3 Variant</span>
+                                            </button>
+                                            <p
+                                                class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 py-2 text-xs font-medium text-textdark/80"
+                                                role="status"
+                                                aria-live="polite"
+                                                data-network-shutdown-status="fabric3-variant"
+                                                data-network-label="Fabric 3 RAFT Variant Network"
+                                                data-default-message="Belum ada perintah shutdown yang dijalankan untuk jaringan Fabric 3 RAFT Variant."
+                                            >
+                                                <span data-indicator class="h-2 w-2 rounded-full bg-accent"></span>
+                                                <span data-message>Belum ada perintah shutdown yang dijalankan untuk jaringan Fabric 3 RAFT Variant.</span>
                                             </p>
                                         </article>
                                     </div>

@@ -70,7 +70,7 @@ const fabricContext = currentPath.startsWith('/fabric-3/')
 
 const FABRIC_CONTEXT_RESULT_LABELS = {
     'fabric-2': ['RAFT Standard', 'RAFT Variant'],
-    'fabric-3': ['Fabric 3 RAFT Standard'],
+    'fabric-3': ['Fabric 3 RAFT Standard', 'Fabric 3 RAFT Variant'],
 };
 
 const FABRIC_CONTEXT_LABELS = {
@@ -958,6 +958,10 @@ async function confirmNetworkShutdown(networkType, networkLabel) {
         title = `Shut down ${label}?`;
         text = 'This command runs ./network.sh down for the Fabric 3 RAFT Standard network.';
         confirmButtonText = 'Yes, shut down Fabric 3 RAFT Standard';
+    } else if (normalizedType === 'fabric3-variant') {
+        title = `Shut down ${label}?`;
+        text = 'This command runs ./network.sh down for the Fabric 3 RAFT Variant network.';
+        confirmButtonText = 'Yes, shut down Fabric 3 RAFT Variant';
     }
 
     if (isSwalAvailable()) {
@@ -996,6 +1000,8 @@ async function confirmNetworkStartup(networkType, networkLabel) {
         text = 'This will run ./network.sh up -ca -bft, ./network.sh createChannel -c fabric2-channel-variant -ca -bft, and deploy the pelaporan chaincode on fabric2-channel-variant.';
     } else if (normalizedType === 'fabric3-standard') {
         text = 'This will run ./network.sh up, ./network.sh createChannel -c fabric3-channel-standard, and deploy the pelaporan chaincode on fabric3-channel-standard.';
+    } else if (normalizedType === 'fabric3-variant') {
+        text = 'This will run ./network.sh up, ./network.sh createChannel -c fabric3-channel-variant, and deploy the pelaporan chaincode on fabric3-channel-variant.';
     }
 
     if (!normalizedType) {

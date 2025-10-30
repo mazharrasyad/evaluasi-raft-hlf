@@ -22,7 +22,7 @@ Organizations:
     # ID to load the MSP definition as
     ID: OrdererMSP
     # MSPDir is the filesystem path which contains the MSP configuration
-    MSPDir: ../organizations/ordererOrganizations/fabric3.standard/msp
+    MSPDir: ../organizations/ordererOrganizations/fabric3.variant/msp
     # Policies defines the set of policies at this level of the config tree
     # For organization policies, their canonical path is usually
     #   /Channel/<Application|Orderer>/<OrgName>/<PolicyName>
@@ -37,17 +37,17 @@ Organizations:
         Type: Signature
         Rule: "OR('OrdererMSP.admin')"
     OrdererEndpoints:
-      - orderer.fabric3.standard:8055
-      - orderer2.fabric3.standard:8052
-      - orderer3.fabric3.standard:8056
-      - orderer4.fabric3.standard:8058
+      - orderer.fabric3.variant:8055
+      - orderer2.fabric3.variant:8052
+      - orderer3.fabric3.variant:8056
+      - orderer4.fabric3.variant:8058
   - &Org1
     # DefaultOrg defines the organization which is used in the sampleconfig
     # of the fabric.git development environment
     Name: Org1MSP
     # ID to load the MSP definition as
     ID: Org1MSP
-    MSPDir: ../organizations/peerOrganizations/org1.fabric3.standard/msp
+    MSPDir: ../organizations/peerOrganizations/org1.fabric3.variant/msp
     # Policies defines the set of policies at this level of the config tree
     # For organization policies, their canonical path is usually
     #   /Channel/<Application|Orderer>/<OrgName>/<PolicyName>
@@ -70,7 +70,7 @@ Organizations:
     Name: Org2MSP
     # ID to load the MSP definition as
     ID: Org2MSP
-    MSPDir: ../organizations/peerOrganizations/org2.fabric3.standard/msp
+    MSPDir: ../organizations/peerOrganizations/org2.fabric3.variant/msp
     # Policies defines the set of policies at this level of the config tree
     # For organization policies, their canonical path is usually
     #   /Channel/<Application|Orderer>/<OrgName>/<PolicyName>
@@ -277,33 +277,33 @@ Profiles:
         LeaderHeartbeatCount: 10
       ConsenterMapping:
         - ID: 1
-          Host: orderer.fabric3.standard
+          Host: orderer.fabric3.variant
           Port: 8055
           MSPID: OrdererMSP
-          Identity: ../organizations/ordererOrganizations/fabric3.standard/orderers/orderer.fabric3.standard/msp/signcerts/orderer.fabric3.standard-cert.pem
-          ClientTLSCert: ../organizations/ordererOrganizations/fabric3.standard/orderers/orderer.fabric3.standard/tls/server.crt
-          ServerTLSCert: ../organizations/ordererOrganizations/fabric3.standard/orderers/orderer.fabric3.standard/tls/server.crt
+          Identity: ../organizations/ordererOrganizations/fabric3.variant/orderers/orderer.fabric3.variant/msp/signcerts/orderer.fabric3.variant-cert.pem
+          ClientTLSCert: ../organizations/ordererOrganizations/fabric3.variant/orderers/orderer.fabric3.variant/tls/server.crt
+          ServerTLSCert: ../organizations/ordererOrganizations/fabric3.variant/orderers/orderer.fabric3.variant/tls/server.crt
         - ID: 2
-          Host: orderer2.fabric3.standard
+          Host: orderer2.fabric3.variant
           Port: 8052
           MSPID: OrdererMSP
-          Identity: ../organizations/ordererOrganizations/fabric3.standard/orderers/orderer2.fabric3.standard/msp/signcerts/orderer2.fabric3.standard-cert.pem
-          ClientTLSCert: ../organizations/ordererOrganizations/fabric3.standard/orderers/orderer2.fabric3.standard/tls/server.crt
-          ServerTLSCert: ../organizations/ordererOrganizations/fabric3.standard/orderers/orderer2.fabric3.standard/tls/server.crt
+          Identity: ../organizations/ordererOrganizations/fabric3.variant/orderers/orderer2.fabric3.variant/msp/signcerts/orderer2.fabric3.variant-cert.pem
+          ClientTLSCert: ../organizations/ordererOrganizations/fabric3.variant/orderers/orderer2.fabric3.variant/tls/server.crt
+          ServerTLSCert: ../organizations/ordererOrganizations/fabric3.variant/orderers/orderer2.fabric3.variant/tls/server.crt
         - ID: 3
-          Host: orderer3.fabric3.standard
+          Host: orderer3.fabric3.variant
           Port: 8056
           MSPID: OrdererMSP
-          Identity: ../organizations/ordererOrganizations/fabric3.standard/orderers/orderer3.fabric3.standard/msp/signcerts/orderer3.fabric3.standard-cert.pem
-          ClientTLSCert: ../organizations/ordererOrganizations/fabric3.standard/orderers/orderer3.fabric3.standard/tls/server.crt
-          ServerTLSCert: ../organizations/ordererOrganizations/fabric3.standard/orderers/orderer3.fabric3.standard/tls/server.crt
+          Identity: ../organizations/ordererOrganizations/fabric3.variant/orderers/orderer3.fabric3.variant/msp/signcerts/orderer3.fabric3.variant-cert.pem
+          ClientTLSCert: ../organizations/ordererOrganizations/fabric3.variant/orderers/orderer3.fabric3.variant/tls/server.crt
+          ServerTLSCert: ../organizations/ordererOrganizations/fabric3.variant/orderers/orderer3.fabric3.variant/tls/server.crt
         - ID: 4
-          Host: orderer4.fabric3.standard
+          Host: orderer4.fabric3.variant
           Port: 8058
           MSPID: OrdererMSP
-          Identity: ../organizations/ordererOrganizations/fabric3.standard/orderers/orderer4.fabric3.standard/msp/signcerts/orderer4.fabric3.standard-cert.pem
-          ClientTLSCert: ../organizations/ordererOrganizations/fabric3.standard/orderers/orderer4.fabric3.standard/tls/server.crt
-          ServerTLSCert: ../organizations/ordererOrganizations/fabric3.standard/orderers/orderer4.fabric3.standard/tls/server.crt
+          Identity: ../organizations/ordererOrganizations/fabric3.variant/orderers/orderer4.fabric3.variant/msp/signcerts/orderer4.fabric3.variant-cert.pem
+          ClientTLSCert: ../organizations/ordererOrganizations/fabric3.variant/orderers/orderer4.fabric3.variant/tls/server.crt
+          ServerTLSCert: ../organizations/ordererOrganizations/fabric3.variant/orderers/orderer4.fabric3.variant/tls/server.crt
     Application:
       <<: *ApplicationDefaults
       Organizations:

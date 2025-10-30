@@ -7,28 +7,28 @@
 
 function createOrg3 {
 	infoln "Enrolling the CA admin"
-	mkdir -p ../organizations/peerOrganizations/org3.fabric3.standard/
+	mkdir -p ../organizations/peerOrganizations/org3.fabric3.variant/
 
-	export FABRIC_CA_CLIENT_HOME=${PWD}/../organizations/peerOrganizations/org3.fabric3.standard/
+	export FABRIC_CA_CLIENT_HOME=${PWD}/../organizations/peerOrganizations/org3.fabric3.variant/
 
   set -x
-  fabric-ca-client enroll -u https://admin:adminpw@localhost:11054 --caname ca-org3 --tls.certfiles "${PWD}/fabric-ca/org3/tls-cert.pem"
+  fabric-ca-client enroll -u https://admin:adminpw@localhost:11154 --caname ca-org3 --tls.certfiles "${PWD}/fabric-ca/org3/tls-cert.pem"
   { set +x; } 2>/dev/null
 
   echo 'NodeOUs:
   Enable: true
   ClientOUIdentifier:
-    Certificate: cacerts/localhost-11054-ca-org3.pem
+    Certificate: cacerts/localhost-11154-ca-org3.pem
     OrganizationalUnitIdentifier: client
   PeerOUIdentifier:
-    Certificate: cacerts/localhost-11054-ca-org3.pem
+    Certificate: cacerts/localhost-11154-ca-org3.pem
     OrganizationalUnitIdentifier: peer
   AdminOUIdentifier:
-    Certificate: cacerts/localhost-11054-ca-org3.pem
+    Certificate: cacerts/localhost-11154-ca-org3.pem
     OrganizationalUnitIdentifier: admin
   OrdererOUIdentifier:
-    Certificate: cacerts/localhost-11054-ca-org3.pem
-    OrganizationalUnitIdentifier: orderer' > "${PWD}/../organizations/peerOrganizations/org3.fabric3.standard/msp/config.yaml"
+    Certificate: cacerts/localhost-11154-ca-org3.pem
+    OrganizationalUnitIdentifier: orderer' > "${PWD}/../organizations/peerOrganizations/org3.fabric3.variant/msp/config.yaml"
 
 	infoln "Registering peer0"
   set -x
@@ -47,41 +47,41 @@ function createOrg3 {
 
   infoln "Generating the peer0 msp"
   set -x
-	fabric-ca-client enroll -u https://peer0:peer0pw@localhost:11054 --caname ca-org3 -M "${PWD}/../organizations/peerOrganizations/org3.fabric3.standard/peers/peer0.org3.fabric3.standard/msp" --tls.certfiles "${PWD}/fabric-ca/org3/tls-cert.pem"
+	fabric-ca-client enroll -u https://peer0:peer0pw@localhost:11154 --caname ca-org3 -M "${PWD}/../organizations/peerOrganizations/org3.fabric3.variant/peers/peer0.org3.fabric3.variant/msp" --tls.certfiles "${PWD}/fabric-ca/org3/tls-cert.pem"
   { set +x; } 2>/dev/null
 
-  cp "${PWD}/../organizations/peerOrganizations/org3.fabric3.standard/msp/config.yaml" "${PWD}/../organizations/peerOrganizations/org3.fabric3.standard/peers/peer0.org3.fabric3.standard/msp/config.yaml"
+  cp "${PWD}/../organizations/peerOrganizations/org3.fabric3.variant/msp/config.yaml" "${PWD}/../organizations/peerOrganizations/org3.fabric3.variant/peers/peer0.org3.fabric3.variant/msp/config.yaml"
 
   infoln "Generating the peer0-tls certificates, use --csr.hosts to specify Subject Alternative Names"
   set -x
-  fabric-ca-client enroll -u https://peer0:peer0pw@localhost:11054 --caname ca-org3 -M "${PWD}/../organizations/peerOrganizations/org3.fabric3.standard/peers/peer0.org3.fabric3.standard/tls" --enrollment.profile tls --csr.hosts peer0.org3.fabric3.standard --csr.hosts localhost --tls.certfiles "${PWD}/fabric-ca/org3/tls-cert.pem"
+  fabric-ca-client enroll -u https://peer0:peer0pw@localhost:11154 --caname ca-org3 -M "${PWD}/../organizations/peerOrganizations/org3.fabric3.variant/peers/peer0.org3.fabric3.variant/tls" --enrollment.profile tls --csr.hosts peer0.org3.fabric3.variant --csr.hosts localhost --tls.certfiles "${PWD}/fabric-ca/org3/tls-cert.pem"
   { set +x; } 2>/dev/null
 
 
-  cp "${PWD}/../organizations/peerOrganizations/org3.fabric3.standard/peers/peer0.org3.fabric3.standard/tls/tlscacerts/"* "${PWD}/../organizations/peerOrganizations/org3.fabric3.standard/peers/peer0.org3.fabric3.standard/tls/ca.crt"
-  cp "${PWD}/../organizations/peerOrganizations/org3.fabric3.standard/peers/peer0.org3.fabric3.standard/tls/signcerts/"* "${PWD}/../organizations/peerOrganizations/org3.fabric3.standard/peers/peer0.org3.fabric3.standard/tls/server.crt"
-  cp "${PWD}/../organizations/peerOrganizations/org3.fabric3.standard/peers/peer0.org3.fabric3.standard/tls/keystore/"* "${PWD}/../organizations/peerOrganizations/org3.fabric3.standard/peers/peer0.org3.fabric3.standard/tls/server.key"
+  cp "${PWD}/../organizations/peerOrganizations/org3.fabric3.variant/peers/peer0.org3.fabric3.variant/tls/tlscacerts/"* "${PWD}/../organizations/peerOrganizations/org3.fabric3.variant/peers/peer0.org3.fabric3.variant/tls/ca.crt"
+  cp "${PWD}/../organizations/peerOrganizations/org3.fabric3.variant/peers/peer0.org3.fabric3.variant/tls/signcerts/"* "${PWD}/../organizations/peerOrganizations/org3.fabric3.variant/peers/peer0.org3.fabric3.variant/tls/server.crt"
+  cp "${PWD}/../organizations/peerOrganizations/org3.fabric3.variant/peers/peer0.org3.fabric3.variant/tls/keystore/"* "${PWD}/../organizations/peerOrganizations/org3.fabric3.variant/peers/peer0.org3.fabric3.variant/tls/server.key"
 
-  mkdir "${PWD}/../organizations/peerOrganizations/org3.fabric3.standard/msp/tlscacerts"
-  cp "${PWD}/../organizations/peerOrganizations/org3.fabric3.standard/peers/peer0.org3.fabric3.standard/tls/tlscacerts/"* "${PWD}/../organizations/peerOrganizations/org3.fabric3.standard/msp/tlscacerts/ca.crt"
+  mkdir "${PWD}/../organizations/peerOrganizations/org3.fabric3.variant/msp/tlscacerts"
+  cp "${PWD}/../organizations/peerOrganizations/org3.fabric3.variant/peers/peer0.org3.fabric3.variant/tls/tlscacerts/"* "${PWD}/../organizations/peerOrganizations/org3.fabric3.variant/msp/tlscacerts/ca.crt"
 
-  mkdir "${PWD}/../organizations/peerOrganizations/org3.fabric3.standard/tlsca"
-  cp "${PWD}/../organizations/peerOrganizations/org3.fabric3.standard/peers/peer0.org3.fabric3.standard/tls/tlscacerts/"* "${PWD}/../organizations/peerOrganizations/org3.fabric3.standard/tlsca/tlsca.org3.fabric3.standard-cert.pem"
+  mkdir "${PWD}/../organizations/peerOrganizations/org3.fabric3.variant/tlsca"
+  cp "${PWD}/../organizations/peerOrganizations/org3.fabric3.variant/peers/peer0.org3.fabric3.variant/tls/tlscacerts/"* "${PWD}/../organizations/peerOrganizations/org3.fabric3.variant/tlsca/tlsca.org3.fabric3.variant-cert.pem"
 
-  mkdir "${PWD}/../organizations/peerOrganizations/org3.fabric3.standard/ca"
-  cp "${PWD}/../organizations/peerOrganizations/org3.fabric3.standard/peers/peer0.org3.fabric3.standard/msp/cacerts/"* "${PWD}/../organizations/peerOrganizations/org3.fabric3.standard/ca/ca.org3.fabric3.standard-cert.pem"
+  mkdir "${PWD}/../organizations/peerOrganizations/org3.fabric3.variant/ca"
+  cp "${PWD}/../organizations/peerOrganizations/org3.fabric3.variant/peers/peer0.org3.fabric3.variant/msp/cacerts/"* "${PWD}/../organizations/peerOrganizations/org3.fabric3.variant/ca/ca.org3.fabric3.variant-cert.pem"
 
   infoln "Generating the user msp"
   set -x
-	fabric-ca-client enroll -u https://user1:user1pw@localhost:11054 --caname ca-org3 -M "${PWD}/../organizations/peerOrganizations/org3.fabric3.standard/users/User1@org3.fabric3.standard/msp" --tls.certfiles "${PWD}/fabric-ca/org3/tls-cert.pem"
+	fabric-ca-client enroll -u https://user1:user1pw@localhost:11154 --caname ca-org3 -M "${PWD}/../organizations/peerOrganizations/org3.fabric3.variant/users/User1@org3.fabric3.variant/msp" --tls.certfiles "${PWD}/fabric-ca/org3/tls-cert.pem"
   { set +x; } 2>/dev/null
 
-  cp "${PWD}/../organizations/peerOrganizations/org3.fabric3.standard/msp/config.yaml" "${PWD}/../organizations/peerOrganizations/org3.fabric3.standard/users/User1@org3.fabric3.standard/msp/config.yaml"
+  cp "${PWD}/../organizations/peerOrganizations/org3.fabric3.variant/msp/config.yaml" "${PWD}/../organizations/peerOrganizations/org3.fabric3.variant/users/User1@org3.fabric3.variant/msp/config.yaml"
 
   infoln "Generating the org admin msp"
   set -x
-	fabric-ca-client enroll -u https://org3admin:org3adminpw@localhost:11054 --caname ca-org3 -M "${PWD}/../organizations/peerOrganizations/org3.fabric3.standard/users/Admin@org3.fabric3.standard/msp" --tls.certfiles "${PWD}/fabric-ca/org3/tls-cert.pem"
+	fabric-ca-client enroll -u https://org3admin:org3adminpw@localhost:11154 --caname ca-org3 -M "${PWD}/../organizations/peerOrganizations/org3.fabric3.variant/users/Admin@org3.fabric3.variant/msp" --tls.certfiles "${PWD}/fabric-ca/org3/tls-cert.pem"
   { set +x; } 2>/dev/null
 
-  cp "${PWD}/../organizations/peerOrganizations/org3.fabric3.standard/msp/config.yaml" "${PWD}/../organizations/peerOrganizations/org3.fabric3.standard/users/Admin@org3.fabric3.standard/msp/config.yaml"
+  cp "${PWD}/../organizations/peerOrganizations/org3.fabric3.variant/msp/config.yaml" "${PWD}/../organizations/peerOrganizations/org3.fabric3.variant/users/Admin@org3.fabric3.variant/msp/config.yaml"
 }

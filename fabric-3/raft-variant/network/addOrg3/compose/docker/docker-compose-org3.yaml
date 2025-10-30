@@ -7,20 +7,20 @@ version: '3.7'
 
 networks:
   test:
-    name: fabric3_raft_standard_net
+    name: fabric3_raft_variant_net
 
 services:
 
-  peer0.org3.fabric3.standard:
-    container_name: peer0.org3.fabric3.standard
+  peer0.org3.fabric3.variant:
+    container_name: peer0.org3.fabric3.variant
     image: hyperledger/fabric-peer:latest
     labels:
       service: hyperledger-fabric
-      raft-network: raft-standard
+      raft-network: raft-variant
     environment:
       #Generic peer variables
       - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
-      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=fabric3_raft_standard_net
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=fabric3_raft_variant_net
     volumes:
       - ./docker/peercfg:/etc/hyperledger/peercfg
       - ${DOCKER_SOCK}:/host/var/run/docker.sock

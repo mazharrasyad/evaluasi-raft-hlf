@@ -8,7 +8,7 @@
 
 source scripts/utils.sh
 
-CHANNEL_NAME=${1:-"fabric3-channel-standard"}
+CHANNEL_NAME=${1:-"fabric3-channel-variant"}
 CC_NAME=${2}
 CC_SRC_PATH=${3}
 CCAAS_DOCKER_RUN=${4:-"true"}
@@ -22,7 +22,7 @@ MAX_RETRY=${11:-"5"}
 VERBOSE=${12:-"false"}
 
 CCAAS_SERVER_PORT=9999
-CHAINCODE_CONTAINER_PREFIX="fabric3standard"
+CHAINCODE_CONTAINER_PREFIX="fabric3variant"
 
 peer_chaincode_container_name() {
   local peer_name=$1
@@ -147,13 +147,13 @@ startDockerContainer() {
     infoln "Starting the Chaincode-as-a-Service docker container..."
     set -x
     ${CONTAINER_CLI} run --rm -d --name "${peer0org1_container}"  \
-                  --network fabric3_raft_standard_net \
+                  --network fabric3_raft_variant_net \
                   -e CHAINCODE_SERVER_ADDRESS=0.0.0.0:${CCAAS_SERVER_PORT} \
                   -e CHAINCODE_ID=$PACKAGE_ID -e CORE_CHAINCODE_ID_NAME=$PACKAGE_ID \
                     ${CC_NAME}_ccaas_image:latest
 
     ${CONTAINER_CLI} run  --rm -d --name "${peer0org2_container}" \
-                  --network fabric3_raft_standard_net \
+                  --network fabric3_raft_variant_net \
                   -e CHAINCODE_SERVER_ADDRESS=0.0.0.0:${CCAAS_SERVER_PORT} \
                   -e CHAINCODE_ID=$PACKAGE_ID -e CORE_CHAINCODE_ID_NAME=$PACKAGE_ID \
                     ${CC_NAME}_ccaas_image:latest
@@ -166,12 +166,12 @@ startDockerContainer() {
   
     infoln "Not starting docker containers; these are the commands we would have run"
     infoln "    ${CONTAINER_CLI} run --rm -d --name ${peer0org1_container}  \
-                  --network fabric3_raft_standard_net \
+                  --network fabric3_raft_variant_net \
                   -e CHAINCODE_SERVER_ADDRESS=0.0.0.0:${CCAAS_SERVER_PORT} \
                   -e CHAINCODE_ID=$PACKAGE_ID -e CORE_CHAINCODE_ID_NAME=$PACKAGE_ID \
                     ${CC_NAME}_ccaas_image:latest"
     infoln "    ${CONTAINER_CLI} run --rm -d --name ${peer0org2_container}  \
-                  --network fabric3_raft_standard_net \
+                  --network fabric3_raft_variant_net \
                   -e CHAINCODE_SERVER_ADDRESS=0.0.0.0:${CCAAS_SERVER_PORT} \
                   -e CHAINCODE_ID=$PACKAGE_ID -e CORE_CHAINCODE_ID_NAME=$PACKAGE_ID \
                     ${CC_NAME}_ccaas_image:latest"

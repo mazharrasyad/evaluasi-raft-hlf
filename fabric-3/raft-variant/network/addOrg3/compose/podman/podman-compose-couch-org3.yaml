@@ -7,15 +7,15 @@ version: '3.7'
 
 networks:
   test:
-    name: fabric3_raft_standard_net
+    name: fabric3_raft_variant_net
 
 services:
   couchdb4:
-    container_name: couchdb4
+    container_name: couchdb4-variant
     image: couchdb:3.4.2
     labels:
       service: hyperledger-fabric
-      raft-network: raft-standard
+      raft-network: raft-variant
     # Populate the COUCHDB_USER and COUCHDB_PASSWORD to set an admin user and password
     # for CouchDB.  This will prevent CouchDB from operating in an "Admin Party" mode.
     environment:
@@ -24,11 +24,11 @@ services:
     # Comment/Uncomment the port mapping if you want to hide/expose the CouchDB service,
     # for example map it to utilize Fauxton User Interface in dev environments.
     ports:
-      - "9984:5984"
+      - "10084:5984"
     networks:
       - test
 
-  peer0.org3.fabric3.standard:
+  peer0.org3.fabric3.variant:
     environment:
       - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
       - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb4:5984

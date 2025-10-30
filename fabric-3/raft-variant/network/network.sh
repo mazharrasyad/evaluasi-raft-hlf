@@ -26,18 +26,18 @@ export VERBOSE=false
 export COMPOSE_PROJECT_NAME
 
 VOLUME_SUFFIXES=(
-  "orderer.fabric3.standard"
-  "orderer2.fabric3.standard"
-  "orderer3.fabric3.standard"
-  "orderer4.fabric3.standard"
-  "peer0.org1.fabric3.standard"
-  "peer0.org2.fabric3.standard"
+  "orderer.fabric3.variant"
+  "orderer2.fabric3.variant"
+  "orderer3.fabric3.variant"
+  "orderer4.fabric3.variant"
+  "peer0.org1.fabric3.variant"
+  "peer0.org2.fabric3.variant"
 )
 
 LEGACY_VOLUME_SUFFIXES=(
-  "orderer.fabric3.standard"
-  "peer0.org1.fabric3.standard"
-  "peer0.org2.fabric3.standard"
+  "orderer.fabric3.variant"
+  "peer0.org1.fabric3.variant"
+  "peer0.org2.fabric3.variant"
 )
 
 # push to the required directory & set a trap to go back if needed
@@ -58,8 +58,8 @@ infoln "Using ${CONTAINER_CLI} and ${CONTAINER_CLI_COMPOSE}"
 # This function is called when you bring a network down
 function clearContainers() {
   infoln "Removing remaining containers"
-  local network_filter="network=fabric3_raft_standard_net"
-  ${CONTAINER_CLI} rm -f $(${CONTAINER_CLI} ps -aq --filter label=raft-network=raft-standard) 2>/dev/null || true
+  local network_filter="network=fabric3_raft_variant_net"
+  ${CONTAINER_CLI} rm -f $(${CONTAINER_CLI} ps -aq --filter label=raft-network=raft-variant) 2>/dev/null || true
   ${CONTAINER_CLI} rm -f $(${CONTAINER_CLI} ps -aq --filter name='dev-peer*' --filter ${network_filter}) 2>/dev/null || true
   ${CONTAINER_CLI} kill "$(${CONTAINER_CLI} ps -q --filter name=ccaas --filter ${network_filter})" 2>/dev/null || true
 }
@@ -223,18 +223,18 @@ function createOrgs() {
 
     . organizations/cfssl/registerEnroll.sh
     #function_name cert-type   CN   org
-    peer_cert peer peer0.org1.fabric3.standard org1
-    peer_cert admin Admin@org1.fabric3.standard org1
+    peer_cert peer peer0.org1.fabric3.variant org1
+    peer_cert admin Admin@org1.fabric3.variant org1
 
     infoln "Creating Org2 Identities"
     #function_name cert-type   CN   org
-    peer_cert peer peer0.org2.fabric3.standard org2
-    peer_cert admin Admin@org2.fabric3.standard org2
+    peer_cert peer peer0.org2.fabric3.variant org2
+    peer_cert admin Admin@org2.fabric3.variant org2
 
     infoln "Creating Orderer Org Identities"
     #function_name cert-type   CN   
-    orderer_cert orderer orderer.fabric3.standard
-    orderer_cert admin Admin@fabric3.standard
+    orderer_cert orderer orderer.fabric3.variant
+    orderer_cert admin Admin@fabric3.variant
 
   fi 
 
@@ -256,13 +256,13 @@ function createOrgs() {
     done
 
     # Make sure CA service is initialized and can accept requests before making register and enroll calls
-    export FABRIC_CA_CLIENT_HOME=${PWD}/organizations/peerOrganizations/org1.fabric3.standard/
+    export FABRIC_CA_CLIENT_HOME=${PWD}/organizations/peerOrganizations/org1.fabric3.variant/
     COUNTER=0
     rc=1
     while [[ $rc -ne 0 && $COUNTER -lt $MAX_RETRY ]]; do
       sleep 1
       set -x
-      fabric-ca-client getcainfo -u https://admin:adminpw@localhost:7254 --caname ca-org1 --tls.certfiles "${PWD}/organizations/fabric-ca/org1/ca-cert.pem"
+      fabric-ca-client getcainfo -u https://admin:adminpw@localhost:7354 --caname ca-org1 --tls.certfiles "${PWD}/organizations/fabric-ca/org1/ca-cert.pem"
       res=$?
     { set +x; } 2>/dev/null
     rc=$res  # Update rc

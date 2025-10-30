@@ -12,7 +12,7 @@ PeerOrgs:
   # Org1
   # ---------------------------------------------------------------------------
   - Name: Org1
-    Domain: org1.fabric3.standard
+    Domain: org1.fabric3.variant
     EnableNodeOUs: true
     # ---------------------------------------------------------------------------
     # "Specs"
@@ -30,8 +30,8 @@ PeerOrgs:
     #                 which obtains its values from the Spec.Hostname and
     #                 Org.Domain, respectively.
     # ---------------------------------------------------------------------------
-    #   - Hostname: foo # implicitly "foo.org1.fabric3.standard"
-    #     CommonName: foo27.org5.fabric3.standard # overrides Hostname-based FQDN set above
+    #   - Hostname: foo # implicitly "foo.org1.fabric3.variant"
+    #     CommonName: foo27.org5.fabric3.variant # overrides Hostname-based FQDN set above
     #   - Hostname: bar
     #   - Hostname: baz
     # ---------------------------------------------------------------------------

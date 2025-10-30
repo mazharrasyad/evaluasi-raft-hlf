@@ -11,6 +11,7 @@ import { randomUUID } from 'crypto';
 import { checkNetworkHealth } from './network-check.js';
 import { submitSimulationRecord } from './simulation-ingest.js';
 import { loadFabricDescriptions } from './fabric-description.js';
+import { appendSimulationResults, loadSimulationSummary } from './simulation-summary-store.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -694,6 +695,7 @@ const viewsRoot = path.resolve(staticRoot, 'view');
 
 const viewFiles = {
     home: path.resolve(viewsRoot, 'home.html'),
+    comparison: path.resolve(viewsRoot, 'perbandingan.html'),
     fabric2: {
         dashboard: path.resolve(viewsRoot, 'fabric-2/dashboard.html'),
         networkHealth: path.resolve(viewsRoot, 'fabric-2/kesehatan-jaringan.html'),
@@ -742,6 +744,10 @@ app.get('/api/network-operations/stream', (req, res) => {
 
 app.get('/', (req, res) => {
     res.sendFile(viewFiles.home);
+});
+
+app.get('/perbandingan-jaringan', (req, res) => {
+    res.sendFile(viewFiles.comparison);
 });
 
 app.get('/dashboard', (req, res) => {
@@ -850,6 +856,106 @@ app.get('/api/fabric-descriptions', async (req, res) => {
             fetchedAt: new Date().toISOString(),
             error: message,
             descriptions: [],
+        });
+    }
+});
+
+app.get('/api/simulations/summary', async (req, res) => {
+    try {
+        const rawSummary = await loadSimulationSummary();
+        const networksRecord = rawSummary?.networks && typeof rawSummary.networks === 'object'
+            ? rawSummary.networks
+            : {};
+
+        const networks = Object.values(networksRecord)
+            .filter(item => item && typeof item === 'object')
+            .map(item => {
+                const successCount = Number.isFinite(item.successCount) ? item.successCount : 0;
+                const failureCount = Number.isFinite(item.failureCount) ? item.failureCount : 0;
+                const totalCount = Number.isFinite(item.totalCount)
+                    ? item.totalCount
+                    : successCount + failureCount;
+                const totalLatencyMs = Number.isFinite(item.totalLatencyMs) ? item.totalLatencyMs : 0;
+                const averageLatencyMs = successCount > 0
+                    ? totalLatencyMs / successCount
+                    : null;
+                const successRate = totalCount > 0
+                    ? successCount / totalCount
+                    : null;
+
+                return {
+                    id: item.id || null,
+                    label: item.label || item.id || 'Jaringan',
+                    scope: item.scope || null,
+                    channel: item.channel || null,
+                    totalCount,
+                    successCount,
+                    failureCount,
+                    averageLatencyMs,
+                    successRate,
+                    totalLatencyMs,
+                    lastUpdatedAt: item.lastUpdatedAt || null,
+                    lastStatus: item.lastStatus || null,
+                    lastMessage: item.lastMessage || null,
+                    lastTransactionId: item.lastTransactionId || null,
+                };
+            })
+            .sort((a, b) => {
+                const scopeA = a.scope || '';
+                const scopeB = b.scope || '';
+                if (scopeA.localeCompare(scopeB) !== 0) {
+                    return scopeA.localeCompare(scopeB);
+                }
+                return (a.label || '').localeCompare(b.label || '');
+            });
+
+        const overallTotals = networks.reduce((acc, item) => {
+            acc.totalCount += item.totalCount || 0;
+            acc.successCount += item.successCount || 0;
+            acc.failureCount += item.failureCount || 0;
+            acc.totalLatencyMs += item.totalLatencyMs || 0;
+            return acc;
+        }, {
+            totalCount: 0,
+            successCount: 0,
+            failureCount: 0,
+            totalLatencyMs: 0,
+        });
+
+        const averageLatencyMs = overallTotals.successCount > 0
+            ? overallTotals.totalLatencyMs / overallTotals.successCount
+            : null;
+        const successRate = overallTotals.totalCount > 0
+            ? overallTotals.successCount / overallTotals.totalCount
+            : null;
+
+        res.json({
+            fetchedAt: new Date().toISOString(),
+            updatedAt: rawSummary?.updatedAt || null,
+            networks,
+            overall: {
+                totalCount: overallTotals.totalCount,
+                successCount: overallTotals.successCount,
+                failureCount: overallTotals.failureCount,
+                averageLatencyMs,
+                successRate,
+            },
+        });
+    } catch (error) {
+        console.error('Failed to load simulation summary:', error);
+        const message = error instanceof Error ? error.message : String(error);
+
+        res.status(500).json({
+            fetchedAt: new Date().toISOString(),
+            error: message,
+            networks: [],
+            overall: {
+                totalCount: 0,
+                successCount: 0,
+                failureCount: 0,
+                averageLatencyMs: null,
+                successRate: null,
+            },
         });
     }
 });
@@ -1112,6 +1218,12 @@ app.post('/api/simulations/records', async (req, res) => {
     try {
         const results = await submitSimulationRecord(record, { targetIds });
         const processedAt = new Date().toISOString();
+
+        try {
+            await appendSimulationResults(results);
+        } catch (summaryError) {
+            console.error('Failed to update simulation summary store:', summaryError);
+        }
 
         res.json({
             receivedAt,

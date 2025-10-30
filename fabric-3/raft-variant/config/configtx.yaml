@@ -63,7 +63,7 @@ Organizations:
         # OrdererEndpoints is a list of all orderers this org runs which clients
         # and peers may to connect to to push transactions and receive blocks respectively.
         OrdererEndpoints:
-            - "127.0.0.1:8055"
+            - "127.0.0.1:8255"
 
         # AnchorPeers defines the location of peers which can be used for
         # cross-org gossip communication.
@@ -267,7 +267,7 @@ Orderer: &OrdererDefaults
     # as TLS validation.  The preferred way to specify orderer addresses is now
     # to include the OrdererEndpoints item in your org definition
     Addresses:
-        # - 127.0.0.1:8055
+        # - 127.0.0.1:8255
 
     # Batch Timeout: The amount of time to wait before creating a batch.
     BatchTimeout: 2s
@@ -327,15 +327,15 @@ Orderer: &OrdererDefaults
         # a subset of the host:port items enumerated in this list should be
         # replicated under the Orderer.Addresses key above.
         Consenters:
-            - Host: raft0.fabric3.standard
+            - Host: raft0.fabric3.variant
               Port: 8055
               ClientTLSCert: path/to/ClientTLSCert0
               ServerTLSCert: path/to/ServerTLSCert0
-            - Host: raft1.fabric3.standard
+            - Host: raft1.fabric3.variant
               Port: 8055
               ClientTLSCert: path/to/ClientTLSCert1
               ServerTLSCert: path/to/ServerTLSCert1
-            - Host: raft2.fabric3.standard
+            - Host: raft2.fabric3.variant
               Port: 8055
               ClientTLSCert: path/to/ClientTLSCert2
               ServerTLSCert: path/to/ServerTLSCert2

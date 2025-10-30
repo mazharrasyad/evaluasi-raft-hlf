@@ -6,7 +6,7 @@
 # More information at https://github.com/gliderlabs/logspout/tree/master/httpstream
 
 if [ -z "$1" ]; then
-   DOCKER_NETWORK=fabric3_raft_standard_net
+   DOCKER_NETWORK=fabric3_raft_variant_net
 else
    DOCKER_NETWORK="$1"
 fi

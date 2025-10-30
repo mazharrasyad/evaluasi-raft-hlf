@@ -11,23 +11,23 @@ You will need to have installed **docker-compose with version 1.29 or above** (n
 
 1. Go to the test-network directory and run bring up the test-network **./network.sh up createChannel**
 2. Bring up the Prometheus/Grafana network in the test-network/prometheus-grafana directory and run **docker-compose up -d**
-3. Log in: type "localhost:3000" on your web browser -> username="admin", password="admin" -> set a new password
+3. Log in: buka "localhost:3100" di peramban Anda -> username="admin", password="admin" -> setel sandi baru
 4. Browse dashboard and analyse results
    - The default dashboard "HLF Performances Review" can be found and displayed by hovering over the dashboard menu and clicking on the browse button.
    ![picture alt]("https://user-images.githubusercontent.com/86831094/149115445-5e5f6d95-ecc3-4b46-aadb-5c01148770b3.png "Title is optional")
    Once opened the dashboard, to display the collected metrics and data, adjust the timeframe on the top right to focus on the latest timespan when the network was up.
 5. Deploy a chaincode (i.e. "./network.sh deployCC -ccn basic -ccp ../asset-transfer-basic/chaincode-go -ccl go"), start using the test-network and use the Grafana dashboard to analyse and assess your network performances.
 Extras: add new queries, modify dashboard & add relevant changes to main repo --> extract json and add it to "Grafana/dashboards/hlf-performances.json".
-Metrics can also be displayed directly from Prometheus by going to "localhost:9090".
+Metrics can also be displayed directly from Prometheus by going to "localhost:9190".
 
 ## Docker Compose
 
 Brings up
 
-- a Prometheus server (port 9090) -> pulls metrics from peers, orderer, system(node exporter) and containers(cadvisor)
-- Grafana server (port 3000) -> collects and display data from Prometheus
-- node exporter (port 9100) -> exposes systems metrics
-- cadvisor (port 8080) -> exposes docker containers metrics
+- a Prometheus server (port host 9190 -> container 9090) -> pulls metrics from peers, orderer, system (node exporter) and containers (cadvisor)
+- Grafana server (port host 3100 -> container 3000) -> collects and displays data from Prometheus
+- node exporter (port host 9200 -> container 9100) -> exposes systems metrics
+- cadvisor (port host 8180 -> container 8080) -> exposes docker containers metrics
 
 ## Prometheus "configuration file"
 
@@ -35,14 +35,14 @@ Brings up
 
 Fabric metrics targets:
 
-- `peer0.org1.fabric3.standard:9544`
-- `peer0.org2.fabric3.standard:9545`
-- `orderer.fabric3.standard:9543`
+- `peer0.org1.fabric3.variant:9544`
+- `peer0.org2.fabric3.variant:9545`
+- `orderer.fabric3.variant:9543`
 
 System and docker metrics targets:
 
-- `cadvisor:8080`
-- `node-exporter:9100`
+- `cadvisor-raft-variant:8080`
+- `node-exporter-raft-variant:9100`
 
 Check the state of the connections with targets on http://localhost:9090/targets.
 

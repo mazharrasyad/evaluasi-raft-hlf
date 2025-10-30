@@ -6,20 +6,20 @@
 version: '3.7'
 
 volumes:
-  peer0.org3.fabric3.standard:
+  peer0.org3.fabric3.variant:
 
 networks:
   test:
-    name: fabric3_raft_standard_net
+    name: fabric3_raft_variant_net
 
 services:
 
-  peer0.org3.fabric3.standard:
-    container_name: peer0.org3.fabric3.standard
+  peer0.org3.fabric3.variant:
+    container_name: peer0.org3.fabric3.variant
     image: hyperledger/fabric-peer:latest
     labels:
       service: hyperledger-fabric
-      raft-network: raft-standard
+      raft-network: raft-variant
     environment:
       - FABRIC_CFG_PATH=/etc/hyperledger/peercfg
       #Generic peer variables
@@ -31,24 +31,24 @@ services:
       - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
       - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
       # Peer specific variables
-      - CORE_PEER_ID=peer0.org3.fabric3.standard
-      - CORE_PEER_ADDRESS=peer0.org3.fabric3.standard:11051
+      - CORE_PEER_ID=peer0.org3.fabric3.variant
+      - CORE_PEER_ADDRESS=peer0.org3.fabric3.variant:11051
       - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp
       - CORE_PEER_LISTENADDRESS=0.0.0.0:11051
-      - CORE_PEER_CHAINCODEADDRESS=peer0.org3.fabric3.standard:11052
+      - CORE_PEER_CHAINCODEADDRESS=peer0.org3.fabric3.variant:11052
       - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:11052
-      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org3.fabric3.standard:11051
-      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org3.fabric3.standard:11051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org3.fabric3.variant:11051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org3.fabric3.variant:11051
       - CORE_PEER_LOCALMSPID=Org3MSP
       - CORE_METRICS_PROVIDER=prometheus
       - CHAINCODE_AS_A_SERVICE_BUILDER_CONFIG={"peername":"peer0org1"}
       - CORE_CHAINCODE_EXECUTETIMEOUT=300s      
     volumes:
-        - ../../organizations/peerOrganizations/org3.fabric3.standard/peers/peer0.org3.fabric3.standard:/etc/hyperledger/fabric        
-        - peer0.org3.fabric3.standard:/var/hyperledger/production
+        - ../../organizations/peerOrganizations/org3.fabric3.variant/peers/peer0.org3.fabric3.variant:/etc/hyperledger/fabric        
+        - peer0.org3.fabric3.variant:/var/hyperledger/production
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
     command: peer node start
     ports:
-      - 11051:11051
+      - 11151:11051
     networks:
       - test

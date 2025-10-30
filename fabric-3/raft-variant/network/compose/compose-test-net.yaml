@@ -6,23 +6,23 @@
 version: '3.7'
 
 volumes:
-  orderer.fabric3.standard:
-  peer0.org1.fabric3.standard:
-  peer0.org2.fabric3.standard:
+  orderer.fabric3.variant:
+  peer0.org1.fabric3.variant:
+  peer0.org2.fabric3.variant:
 
 networks:
   test:
-    name: fabric3_raft_standard_net
+    name: fabric3_raft_variant_net
 
 services:
 
-  orderer.fabric3.standard:
-    container_name: orderer.fabric3.standard
-    hostname: orderer.fabric3.standard
+  orderer.fabric3.variant:
+    container_name: orderer.fabric3.variant
+    hostname: orderer.fabric3.variant
     image: hyperledger/fabric-orderer:latest
     labels:
       service: hyperledger-fabric
-      raft-network: raft-standard
+      raft-network: raft-variant
     environment:
       - FABRIC_LOGGING_SPEC=INFO
       - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
@@ -45,28 +45,28 @@ services:
       - ORDERER_ADMIN_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
       - ORDERER_ADMIN_TLS_CLIENTROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
       - ORDERER_ADMIN_LISTENADDRESS=0.0.0.0:8053
-      - ORDERER_OPERATIONS_LISTENADDRESS=orderer.fabric3.standard:9543
+      - ORDERER_OPERATIONS_LISTENADDRESS=orderer.fabric3.variant:9543
       - ORDERER_METRICS_PROVIDER=prometheus
     working_dir: /root
     command: orderer
     volumes:
-        - ../organizations/ordererOrganizations/fabric3.standard/orderers/orderer.fabric3.standard/msp:/var/hyperledger/orderer/msp
-        - ../organizations/ordererOrganizations/fabric3.standard/orderers/orderer.fabric3.standard/tls/:/var/hyperledger/orderer/tls
-        - orderer.fabric3.standard:/var/hyperledger/production/orderer
+        - ../organizations/ordererOrganizations/fabric3.variant/orderers/orderer.fabric3.variant/msp:/var/hyperledger/orderer/msp
+        - ../organizations/ordererOrganizations/fabric3.variant/orderers/orderer.fabric3.variant/tls/:/var/hyperledger/orderer/tls
+        - orderer.fabric3.variant:/var/hyperledger/production/orderer
     ports:
-      - 8055:8055
-      - 8053:8053
-      - 9543:9543
+      - 8255:8055
+      - 8253:8053
+      - 9743:9543
     networks:
       - test
 
-  peer0.org1.fabric3.standard:
-    container_name: peer0.org1.fabric3.standard
-    hostname: peer0.org1.fabric3.standard
+  peer0.org1.fabric3.variant:
+    container_name: peer0.org1.fabric3.variant
+    hostname: peer0.org1.fabric3.variant
     image: hyperledger/fabric-peer:latest
     labels:
       service: hyperledger-fabric
-      raft-network: raft-standard
+      raft-network: raft-variant
     environment:
       - FABRIC_CFG_PATH=/etc/hyperledger/peercfg
       - FABRIC_LOGGING_SPEC=INFO
@@ -77,37 +77,37 @@ services:
       - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
       - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
       # Peer specific variables
-      - CORE_PEER_ID=peer0.org1.fabric3.standard
-      - CORE_PEER_ADDRESS=peer0.org1.fabric3.standard:7153
+      - CORE_PEER_ID=peer0.org1.fabric3.variant
+      - CORE_PEER_ADDRESS=peer0.org1.fabric3.variant:7153
       - CORE_PEER_LISTENADDRESS=0.0.0.0:7153
-      - CORE_PEER_CHAINCODEADDRESS=peer0.org1.fabric3.standard:7152
+      - CORE_PEER_CHAINCODEADDRESS=peer0.org1.fabric3.variant:7152
       - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7152
-      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org1.fabric3.standard:7153
-      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org1.fabric3.standard:7153
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org1.fabric3.variant:7153
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org1.fabric3.variant:7153
       - CORE_PEER_LOCALMSPID=Org1MSP
       - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp
-      - CORE_OPERATIONS_LISTENADDRESS=peer0.org1.fabric3.standard:9544
+      - CORE_OPERATIONS_LISTENADDRESS=peer0.org1.fabric3.variant:9544
       - CORE_METRICS_PROVIDER=prometheus
       - CHAINCODE_AS_A_SERVICE_BUILDER_CONFIG={"peername":"peer0org1"}
       - CORE_CHAINCODE_EXECUTETIMEOUT=300s
     volumes:
-      - ../organizations/peerOrganizations/org1.fabric3.standard/peers/peer0.org1.fabric3.standard:/etc/hyperledger/fabric
-      - peer0.org1.fabric3.standard:/var/hyperledger/production
+      - ../organizations/peerOrganizations/org1.fabric3.variant/peers/peer0.org1.fabric3.variant:/etc/hyperledger/fabric
+      - peer0.org1.fabric3.variant:/var/hyperledger/production
     working_dir: /root
     command: peer node start
     ports:
-      - 7153:7153
-      - 9544:9544
+      - 7353:7153
+      - 9744:9544
     networks:
       - test
 
-  peer0.org2.fabric3.standard:
-    container_name: peer0.org2.fabric3.standard
-    hostname: peer0.org2.fabric3.standard
+  peer0.org2.fabric3.variant:
+    container_name: peer0.org2.fabric3.variant
+    hostname: peer0.org2.fabric3.variant
     image: hyperledger/fabric-peer:latest
     labels:
       service: hyperledger-fabric
-      raft-network: raft-standard
+      raft-network: raft-variant
     environment:
       - FABRIC_CFG_PATH=/etc/hyperledger/peercfg
       - FABRIC_LOGGING_SPEC=INFO
@@ -118,26 +118,26 @@ services:
       - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
       - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
       # Peer specific variables
-      - CORE_PEER_ID=peer0.org2.fabric3.standard
-      - CORE_PEER_ADDRESS=peer0.org2.fabric3.standard:9153
+      - CORE_PEER_ID=peer0.org2.fabric3.variant
+      - CORE_PEER_ADDRESS=peer0.org2.fabric3.variant:9153
       - CORE_PEER_LISTENADDRESS=0.0.0.0:9153
-      - CORE_PEER_CHAINCODEADDRESS=peer0.org2.fabric3.standard:9152
+      - CORE_PEER_CHAINCODEADDRESS=peer0.org2.fabric3.variant:9152
       - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:9152
-      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org2.fabric3.standard:9153
-      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org2.fabric3.standard:9153
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org2.fabric3.variant:9153
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org2.fabric3.variant:9153
       - CORE_PEER_LOCALMSPID=Org2MSP
       - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp
-      - CORE_OPERATIONS_LISTENADDRESS=peer0.org2.fabric3.standard:9545
+      - CORE_OPERATIONS_LISTENADDRESS=peer0.org2.fabric3.variant:9545
       - CORE_METRICS_PROVIDER=prometheus
       - CHAINCODE_AS_A_SERVICE_BUILDER_CONFIG={"peername":"peer0org2"}
       - CORE_CHAINCODE_EXECUTETIMEOUT=300s
     volumes:
-      - ../organizations/peerOrganizations/org2.fabric3.standard/peers/peer0.org2.fabric3.standard:/etc/hyperledger/fabric
-      - peer0.org2.fabric3.standard:/var/hyperledger/production
+      - ../organizations/peerOrganizations/org2.fabric3.variant/peers/peer0.org2.fabric3.variant:/etc/hyperledger/fabric
+      - peer0.org2.fabric3.variant:/var/hyperledger/production
     working_dir: /root
     command: peer node start
     ports:
-      - 9153:9153
-      - 9545:9545
+      - 9553:9153
+      - 9745:9545
     networks:
       - test

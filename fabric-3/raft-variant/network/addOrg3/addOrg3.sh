@@ -35,7 +35,7 @@ function printHelp () {
   echo "      - 'up' - add org3 to the sample network. You need to bring up the test network and create a channel first."
   echo "      - 'down' - bring down the test network and org3 nodes"
   echo "      - 'generate' - generate required certificates and org definition"
-  echo "    -c <channel name> - test network channel name (defaults to \"fabric3-channel-standard\")"
+  echo "    -c <channel name> - test network channel name (defaults to \"fabric3-channel-variant\")"
   echo "    -ca <use CA> -  Use a CA to generate the crypto material"
   echo "    -t <timeout> - CLI timeout duration in seconds (defaults to 10)"
   echo "    -d <delay> - delay duration in seconds (defaults to 3)"
@@ -47,7 +47,7 @@ function printHelp () {
   echo
   echo "	addOrg3.sh generate"
   echo "	addOrg3.sh up"
-  echo "	addOrg3.sh up -c fabric3-channel-standard -s couchdb"
+  echo "	addOrg3.sh up -c fabric3-channel-variant -s couchdb"
   echo "	addOrg3.sh down"
   echo
   echo "Taking all defaults:"
@@ -117,7 +117,7 @@ function generateOrg3Definition() {
   infoln "Generating Org3 organization definition"
   export FABRIC_CFG_PATH=$PWD
   set -x
-  configtxgen -printOrg Org3MSP > ../organizations/peerOrganizations/org3.fabric3.standard/org3.json
+  configtxgen -printOrg Org3MSP > ../organizations/peerOrganizations/org3.fabric3.variant/org3.json
   res=$?
   { set +x; } 2>/dev/null
   if [ $res -ne 0 ]; then
@@ -129,7 +129,7 @@ function Org3Up () {
   # start org3 nodes
 
   if [ "$CONTAINER_CLI" == "podman" ]; then
-    cp ../podman/core.yaml ../../organizations/peerOrganizations/org3.fabric3.standard/peers/peer0.org3.fabric3.standard/
+    cp ../podman/core.yaml ../../organizations/peerOrganizations/org3.fabric3.variant/peers/peer0.org3.fabric3.variant/
   fi
 
   if [ "${DATABASE}" == "couchdb" ]; then
@@ -150,7 +150,7 @@ function addOrg3 () {
   fi
 
   # generate artifacts if they don't exist
-  if [ ! -d "../organizations/peerOrganizations/org3.fabric3.standard" ]; then
+  if [ ! -d "../organizations/peerOrganizations/org3.fabric3.variant" ]; then
     generateOrg3
     generateOrg3Definition
   fi
@@ -187,8 +187,8 @@ CRYPTO="cryptogen"
 CLI_TIMEOUT=10
 #default for delay
 CLI_DELAY=3
-# channel name defaults to "fabric3-channel-standard"
-CHANNEL_NAME="fabric3-channel-standard"
+# channel name defaults to "fabric3-channel-variant"
+CHANNEL_NAME="fabric3-channel-variant"
 # use this as the docker compose couch file
 COMPOSE_FILE_COUCH_BASE=compose/compose-couch-org3.yaml
 COMPOSE_FILE_COUCH_ORG3=compose/${CONTAINER_CLI}/docker-compose-couch-org3.yaml

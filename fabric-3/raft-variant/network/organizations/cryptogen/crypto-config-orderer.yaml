@@ -11,7 +11,7 @@ OrdererOrgs:
   # Orderer
   # ---------------------------------------------------------------------------
   - Name: Orderer
-    Domain: fabric3.standard
+    Domain: fabric3.variant
     EnableNodeOUs: true
 
 

@@ -63,11 +63,7 @@
                                 <div class="inline-flex w-fit items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-primary/90">
                                     Hyperledger Fabric
                                 </div>
-                                <div class="space-y-4">
-                                    <h1 class="text-4xl font-semibold text-textdark md:text-5xl">Pengendalian Jaringan RAFT</h1>
-                                    <p class="text-sm text-textdark/70 md:text-base">Empat tindakan inti untuk menyalakan, mematikan, memeriksa, dan me-restart seluruh jaringan RAFT yang terkonfigurasi. Semua tindakan dicatat secara otomatis dan memberikan umpan balik secara real-time.</p>
-                                </div>
-                                <p class="text-xs text-textdark/60">Gunakan tombol berikut untuk mengelola jaringan simulasi Hyperledger Fabric dari satu tempat. Status setiap tindakan akan diperbarui secara langsung beserta detail jaringan yang terpengaruh.</p>
+                                <h1 class="text-4xl font-semibold text-textdark md:text-5xl">Pengendalian Jaringan RAFT</h1>
                             </div>
                         </section>
 
@@ -78,7 +74,6 @@
                                         <div class="flex flex-col gap-6 lg:flex-row">
                                             <div class="flex-1 space-y-3">
                                                 <h2 class="text-2xl font-semibold text-textdark">Nyalakan semua jaringan</h2>
-                                                <p>Menjalankan <span class="font-semibold text-textdark">network.sh</span> untuk mem-bootstrapping seluruh jaringan RAFT lengkap dengan deployment chaincode.</p>
                                             </div>
                                             <div class="w-full max-w-sm space-y-4">
                                                 <button id="startAllButton" type="button" class="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-emerald-400/40 bg-emerald-400/20 px-5 py-3 text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200 shadow-inner shadow-emerald-500/10 transition hover:-translate-y-0.5 hover:bg-emerald-400/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300">
@@ -96,7 +91,6 @@
                                         <div class="flex flex-col gap-6 lg:flex-row">
                                             <div class="flex-1 space-y-3">
                                                 <h2 class="text-2xl font-semibold text-textdark">Matikan semua jaringan</h2>
-                                                <p>Menjalankan <span class="font-semibold text-textdark">network.sh down</span> untuk menghentikan seluruh layanan dan membersihkan resource jaringan.</p>
                                             </div>
                                             <div class="w-full max-w-sm space-y-4">
                                                 <button id="shutdownAllButton" type="button" class="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-rose-400/40 bg-rose-400/20 px-5 py-3 text-xs font-semibold uppercase tracking-[0.3em] text-rose-200 shadow-inner shadow-rose-500/10 transition hover:-translate-y-0.5 hover:bg-rose-400/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-300">
@@ -116,7 +110,6 @@
                                         <div class="flex flex-col gap-6 lg:flex-row">
                                             <div class="flex-1 space-y-3">
                                                 <h2 class="text-2xl font-semibold text-textdark">Periksa semua jaringan</h2>
-                                                <p>Memverifikasi ketersediaan channel dan chaincode dari masing-masing jaringan RAFT melalui endpoint pemeriksaan. Detail setiap jaringan akan diringkas setelah pemeriksaan selesai.</p>
                                                 <div id="checkResults" class="space-y-4 text-sm text-textdark/70"></div>
                                             </div>
                                             <div class="w-full max-w-sm space-y-4">
@@ -135,7 +128,6 @@
                                         <div class="flex flex-col gap-6 lg:flex-row">
                                             <div class="flex-1 space-y-3">
                                                 <h2 class="text-2xl font-semibold text-textdark">Restart semua jaringan</h2>
-                                                <p>Mematikan seluruh jaringan terlebih dahulu lalu menyalakannya kembali untuk memastikan kondisi bersih.</p>
                                             </div>
                                             <div class="w-full max-w-sm space-y-4">
                                                 <button id="restartAllButton" type="button" class="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-amber-400/40 bg-amber-400/20 px-5 py-3 text-xs font-semibold uppercase tracking-[0.3em] text-amber-200 shadow-inner shadow-amber-500/10 transition hover:-translate-y-0.5 hover:bg-amber-400/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-200">

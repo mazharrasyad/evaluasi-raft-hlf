@@ -37,10 +37,10 @@ Organizations:
         Type: Signature
         Rule: "OR('OrdererMSP.admin')"
     OrdererEndpoints:
-      - orderer.fabric3.standard:7055
-      - orderer2.fabric3.standard:7052
-      - orderer3.fabric3.standard:7056
-      - orderer4.fabric3.standard:7058
+      - orderer.fabric3.standard:8055
+      - orderer2.fabric3.standard:8052
+      - orderer3.fabric3.standard:8056
+      - orderer4.fabric3.standard:8058
   - &Org1
     # DefaultOrg defines the organization which is used in the sampleconfig
     # of the fabric.git development environment
@@ -278,28 +278,28 @@ Profiles:
       ConsenterMapping:
         - ID: 1
           Host: orderer.fabric3.standard
-          Port: 7055
+          Port: 8055
           MSPID: OrdererMSP
           Identity: ../organizations/ordererOrganizations/fabric3.standard/orderers/orderer.fabric3.standard/msp/signcerts/orderer.fabric3.standard-cert.pem
           ClientTLSCert: ../organizations/ordererOrganizations/fabric3.standard/orderers/orderer.fabric3.standard/tls/server.crt
           ServerTLSCert: ../organizations/ordererOrganizations/fabric3.standard/orderers/orderer.fabric3.standard/tls/server.crt
         - ID: 2
           Host: orderer2.fabric3.standard
-          Port: 7052
+          Port: 8052
           MSPID: OrdererMSP
           Identity: ../organizations/ordererOrganizations/fabric3.standard/orderers/orderer2.fabric3.standard/msp/signcerts/orderer2.fabric3.standard-cert.pem
           ClientTLSCert: ../organizations/ordererOrganizations/fabric3.standard/orderers/orderer2.fabric3.standard/tls/server.crt
           ServerTLSCert: ../organizations/ordererOrganizations/fabric3.standard/orderers/orderer2.fabric3.standard/tls/server.crt
         - ID: 3
           Host: orderer3.fabric3.standard
-          Port: 7056
+          Port: 8056
           MSPID: OrdererMSP
           Identity: ../organizations/ordererOrganizations/fabric3.standard/orderers/orderer3.fabric3.standard/msp/signcerts/orderer3.fabric3.standard-cert.pem
           ClientTLSCert: ../organizations/ordererOrganizations/fabric3.standard/orderers/orderer3.fabric3.standard/tls/server.crt
           ServerTLSCert: ../organizations/ordererOrganizations/fabric3.standard/orderers/orderer3.fabric3.standard/tls/server.crt
         - ID: 4
           Host: orderer4.fabric3.standard
-          Port: 7058
+          Port: 8058
           MSPID: OrdererMSP
           Identity: ../organizations/ordererOrganizations/fabric3.standard/orderers/orderer4.fabric3.standard/msp/signcerts/orderer4.fabric3.standard-cert.pem
           ClientTLSCert: ../organizations/ordererOrganizations/fabric3.standard/orderers/orderer4.fabric3.standard/tls/server.crt

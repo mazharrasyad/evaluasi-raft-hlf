@@ -24,7 +24,7 @@ services:
     environment:
       - FABRIC_LOGGING_SPEC=INFO
       - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
-      - ORDERER_GENERAL_LISTENPORT=7055
+      - ORDERER_GENERAL_LISTENPORT=8055
       - ORDERER_GENERAL_LOCALMSPID=OrdererMSP
       - ORDERER_GENERAL_LOCALMSPDIR=/var/hyperledger/orderer/msp
       # enabled TLS
@@ -52,7 +52,7 @@ services:
       - ../organizations/ordererOrganizations/fabric3.standard/orderers/orderer.fabric3.standard/tls/:/var/hyperledger/orderer/tls
       - orderer.fabric3.standard:/var/hyperledger/production/orderer
     ports:
-      - 7055:7055
+      - 8055:8055
       - 8053:8053
       - 9543:9543
     networks:
@@ -68,7 +68,7 @@ services:
     environment:
       - FABRIC_LOGGING_SPEC=INFO
       - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
-      - ORDERER_GENERAL_LISTENPORT=7052
+      - ORDERER_GENERAL_LISTENPORT=8052
       - ORDERER_GENERAL_LOCALMSPID=OrdererMSP
       - ORDERER_GENERAL_LOCALMSPDIR=/var/hyperledger/orderer/msp
       # enabled TLS
@@ -86,7 +86,7 @@ services:
       - ORDERER_ADMIN_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/server.key
       - ORDERER_ADMIN_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
       - ORDERER_ADMIN_TLS_CLIENTROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
-      - ORDERER_ADMIN_LISTENADDRESS=0.0.0.0:7055
+      - ORDERER_ADMIN_LISTENADDRESS=0.0.0.0:9055
       - ORDERER_OPERATIONS_LISTENADDRESS=orderer2.fabric3.standard:9546
       - ORDERER_METRICS_PROVIDER=prometheus
     working_dir: /root
@@ -96,8 +96,8 @@ services:
       - ../organizations/ordererOrganizations/fabric3.standard/orderers/orderer2.fabric3.standard/tls/:/var/hyperledger/orderer/tls
       - orderer2.fabric3.standard:/var/hyperledger/production/orderer
     ports:
-      - 7052:7052
-      - 7055:7055
+      - 8052:8052
+      - 9055:9055
       - 9546:9546
     networks:
       - test
@@ -112,7 +112,7 @@ services:
     environment:
       - FABRIC_LOGGING_SPEC=INFO
       - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
-      - ORDERER_GENERAL_LISTENPORT=7056
+      - ORDERER_GENERAL_LISTENPORT=8056
       - ORDERER_GENERAL_LOCALMSPID=OrdererMSP
       - ORDERER_GENERAL_LOCALMSPDIR=/var/hyperledger/orderer/msp
       # enabled TLS
@@ -130,7 +130,7 @@ services:
       - ORDERER_ADMIN_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/server.key
       - ORDERER_ADMIN_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
       - ORDERER_ADMIN_TLS_CLIENTROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
-      - ORDERER_ADMIN_LISTENADDRESS=0.0.0.0:7057
+      - ORDERER_ADMIN_LISTENADDRESS=0.0.0.0:9057
       - ORDERER_OPERATIONS_LISTENADDRESS=orderer3.fabric3.standard:9547
       - ORDERER_METRICS_PROVIDER=prometheus
     working_dir: /root
@@ -140,8 +140,8 @@ services:
       - ../organizations/ordererOrganizations/fabric3.standard/orderers/orderer3.fabric3.standard/tls/:/var/hyperledger/orderer/tls
       - orderer3.fabric3.standard:/var/hyperledger/production/orderer
     ports:
-      - 7056:7056
-      - 7057:7057
+      - 8056:8056
+      - 9057:9057
       - 9547:9547
     networks:
       - test
@@ -156,7 +156,7 @@ services:
     environment:
       - FABRIC_LOGGING_SPEC=INFO
       - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
-      - ORDERER_GENERAL_LISTENPORT=7058
+      - ORDERER_GENERAL_LISTENPORT=8058
       - ORDERER_GENERAL_LOCALMSPID=OrdererMSP
       - ORDERER_GENERAL_LOCALMSPDIR=/var/hyperledger/orderer/msp
       # enabled TLS
@@ -174,7 +174,7 @@ services:
       - ORDERER_ADMIN_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/server.key
       - ORDERER_ADMIN_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
       - ORDERER_ADMIN_TLS_CLIENTROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
-      - ORDERER_ADMIN_LISTENADDRESS=0.0.0.0:7059
+      - ORDERER_ADMIN_LISTENADDRESS=0.0.0.0:9059
       - ORDERER_OPERATIONS_LISTENADDRESS=orderer4.fabric3.standard:9548
       - ORDERER_METRICS_PROVIDER=prometheus
     working_dir: /root
@@ -184,8 +184,8 @@ services:
       - ../organizations/ordererOrganizations/fabric3.standard/orderers/orderer4.fabric3.standard/tls/:/var/hyperledger/orderer/tls
       - orderer4.fabric3.standard:/var/hyperledger/production/orderer
     ports:
-      - 7058:7058
-      - 7059:7059
+      - 8058:8058
+      - 9059:9059
       - 9548:9548
     networks:
       - test
@@ -211,12 +211,12 @@ services:
       - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
       # Peer specific variables
       - CORE_PEER_ID=peer0.org1.fabric3.standard
-      - CORE_PEER_ADDRESS=peer0.org1.fabric3.standard:7053
-      - CORE_PEER_LISTENADDRESS=0.0.0.0:7053
-      - CORE_PEER_CHAINCODEADDRESS=peer0.org1.fabric3.standard:7052
-      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
-      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org1.fabric3.standard:7053
-      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org1.fabric3.standard:7053
+      - CORE_PEER_ADDRESS=peer0.org1.fabric3.standard:7153
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:7153
+      - CORE_PEER_CHAINCODEADDRESS=peer0.org1.fabric3.standard:7152
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7152
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org1.fabric3.standard:7153
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org1.fabric3.standard:7153
       - CORE_PEER_LOCALMSPID=Org1MSP
       - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp
       - CORE_OPERATIONS_LISTENADDRESS=peer0.org1.fabric3.standard:9544
@@ -229,7 +229,7 @@ services:
     working_dir: /root
     command: peer node start
     ports:
-      - 7053:7053
+      - 7153:7153
       - 9544:9544
     networks:
       - test
@@ -252,12 +252,12 @@ services:
       - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
       # Peer specific variables
       - CORE_PEER_ID=peer0.org2.fabric3.standard
-      - CORE_PEER_ADDRESS=peer0.org2.fabric3.standard:9053
-      - CORE_PEER_LISTENADDRESS=0.0.0.0:9053
-      - CORE_PEER_CHAINCODEADDRESS=peer0.org2.fabric3.standard:9052
-      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:9052
-      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org2.fabric3.standard:9053
-      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org2.fabric3.standard:9053
+      - CORE_PEER_ADDRESS=peer0.org2.fabric3.standard:9153
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:9153
+      - CORE_PEER_CHAINCODEADDRESS=peer0.org2.fabric3.standard:9152
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:9152
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org2.fabric3.standard:9153
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org2.fabric3.standard:9153
       - CORE_PEER_LOCALMSPID=Org2MSP
       - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp
       - CORE_OPERATIONS_LISTENADDRESS=peer0.org2.fabric3.standard:9545
@@ -270,7 +270,7 @@ services:
     working_dir: /root
     command: peer node start
     ports:
-      - 9053:9053
+      - 9153:9153
       - 9545:9545
     networks:
       - test

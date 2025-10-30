@@ -43,7 +43,7 @@ services:
       - ORDERER_ADMIN_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
       - ORDERER_ADMIN_TLS_CLIENTROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
       - ORDERER_ADMIN_LISTENADDRESS=0.0.0.0:8053
-      - ORDERER_OPERATIONS_LISTENADDRESS=orderer.fabric3.standard:9443
+      - ORDERER_OPERATIONS_LISTENADDRESS=orderer.fabric3.standard:9543
       - ORDERER_METRICS_PROVIDER=prometheus
     working_dir: /root
     command: orderer
@@ -54,7 +54,7 @@ services:
     ports:
       - 7055:7055
       - 8053:8053
-      - 9443:9443
+      - 9543:9543
     networks:
       - test
 
@@ -87,7 +87,7 @@ services:
       - ORDERER_ADMIN_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
       - ORDERER_ADMIN_TLS_CLIENTROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
       - ORDERER_ADMIN_LISTENADDRESS=0.0.0.0:7055
-      - ORDERER_OPERATIONS_LISTENADDRESS=orderer2.fabric3.standard:9446
+      - ORDERER_OPERATIONS_LISTENADDRESS=orderer2.fabric3.standard:9546
       - ORDERER_METRICS_PROVIDER=prometheus
     working_dir: /root
     command: orderer
@@ -98,7 +98,7 @@ services:
     ports:
       - 7052:7052
       - 7055:7055
-      - 9446:9446
+      - 9546:9546
     networks:
       - test
 
@@ -131,7 +131,7 @@ services:
       - ORDERER_ADMIN_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
       - ORDERER_ADMIN_TLS_CLIENTROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
       - ORDERER_ADMIN_LISTENADDRESS=0.0.0.0:7057
-      - ORDERER_OPERATIONS_LISTENADDRESS=orderer3.fabric3.standard:9447
+      - ORDERER_OPERATIONS_LISTENADDRESS=orderer3.fabric3.standard:9547
       - ORDERER_METRICS_PROVIDER=prometheus
     working_dir: /root
     command: orderer
@@ -142,7 +142,7 @@ services:
     ports:
       - 7056:7056
       - 7057:7057
-      - 9447:9447
+      - 9547:9547
     networks:
       - test
 
@@ -175,7 +175,7 @@ services:
       - ORDERER_ADMIN_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
       - ORDERER_ADMIN_TLS_CLIENTROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
       - ORDERER_ADMIN_LISTENADDRESS=0.0.0.0:7059
-      - ORDERER_OPERATIONS_LISTENADDRESS=orderer4.fabric3.standard:9448
+      - ORDERER_OPERATIONS_LISTENADDRESS=orderer4.fabric3.standard:9548
       - ORDERER_METRICS_PROVIDER=prometheus
     working_dir: /root
     command: orderer
@@ -186,7 +186,7 @@ services:
     ports:
       - 7058:7058
       - 7059:7059
-      - 9448:9448
+      - 9548:9548
     networks:
       - test
 
@@ -219,7 +219,7 @@ services:
       - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org1.fabric3.standard:7053
       - CORE_PEER_LOCALMSPID=Org1MSP
       - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp
-      - CORE_OPERATIONS_LISTENADDRESS=peer0.org1.fabric3.standard:9444
+      - CORE_OPERATIONS_LISTENADDRESS=peer0.org1.fabric3.standard:9544
       - CORE_METRICS_PROVIDER=prometheus
       - CHAINCODE_AS_A_SERVICE_BUILDER_CONFIG={"peername":"peer0org1"}
       - CORE_CHAINCODE_EXECUTETIMEOUT=300s
@@ -230,7 +230,7 @@ services:
     command: peer node start
     ports:
       - 7053:7053
-      - 9444:9444
+      - 9544:9544
     networks:
       - test
 
@@ -260,7 +260,7 @@ services:
       - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org2.fabric3.standard:9053
       - CORE_PEER_LOCALMSPID=Org2MSP
       - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp
-      - CORE_OPERATIONS_LISTENADDRESS=peer0.org2.fabric3.standard:9445
+      - CORE_OPERATIONS_LISTENADDRESS=peer0.org2.fabric3.standard:9545
       - CORE_METRICS_PROVIDER=prometheus
       - CHAINCODE_AS_A_SERVICE_BUILDER_CONFIG={"peername":"peer0org2"}
       - CORE_CHAINCODE_EXECUTETIMEOUT=300s
@@ -271,6 +271,6 @@ services:
     command: peer node start
     ports:
       - 9053:9053
-      - 9445:9445
+      - 9545:9545
     networks:
       - test

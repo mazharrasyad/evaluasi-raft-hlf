@@ -35,9 +35,9 @@ Brings up
 
 Fabric metrics targets:
 
-- `peer0.org1.fabric3.standard:9444`
-- `peer0.org2.fabric3.standard:9445`
-- `orderer.fabric3.standard:9443`
+- `peer0.org1.fabric3.standard:9544`
+- `peer0.org2.fabric3.standard:9545`
+- `orderer.fabric3.standard:9543`
 
 System and docker metrics targets:
 

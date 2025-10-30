@@ -9,13 +9,13 @@ scrape_configs:
       - targets: ["localhost:9090"]
   - job_name: "orderer"
     static_configs:
-      - targets: ["orderer.fabric3.standard:9443"]
+      - targets: ["orderer.fabric3.standard:9543"]
   - job_name: "peer0_org1"
     static_configs:
-      - targets: ["peer0.org1.fabric3.standard:9444"]
+      - targets: ["peer0.org1.fabric3.standard:9544"]
   - job_name: "peer0_org2"
     static_configs:
-      - targets: ["peer0.org2.fabric3.standard:9445"]
+      - targets: ["peer0.org2.fabric3.standard:9545"]
   - job_name: cadvisor
     scrape_interval: 5s
     static_configs:

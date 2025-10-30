@@ -693,6 +693,7 @@ const staticRoot = path.resolve(__dirname, '../public');
 const viewsRoot = path.resolve(staticRoot, 'view');
 
 const viewFiles = {
+    home: path.resolve(viewsRoot, 'home.html'),
     fabric2: {
         dashboard: path.resolve(viewsRoot, 'fabric-2/dashboard.html'),
         networkHealth: path.resolve(viewsRoot, 'fabric-2/kesehatan-jaringan.html'),
@@ -740,11 +741,11 @@ app.get('/api/network-operations/stream', (req, res) => {
 });
 
 app.get('/', (req, res) => {
-    res.redirect(302, '/fabric-2/dashboard');
+    res.sendFile(viewFiles.home);
 });
 
 app.get('/dashboard', (req, res) => {
-    res.redirect(302, '/fabric-2/dashboard');
+    res.redirect(302, '/');
 });
 
 app.get('/fabric-2/dashboard', (req, res) => {
@@ -1136,7 +1137,7 @@ app.post('/api/simulations/records', async (req, res) => {
 });
 
 app.get('*', (req, res) => {
-    res.sendFile(viewFiles.fabric2.dashboard);
+    res.sendFile(viewFiles.home);
 });
 
 const PORT = process.env.PORT || 5176;

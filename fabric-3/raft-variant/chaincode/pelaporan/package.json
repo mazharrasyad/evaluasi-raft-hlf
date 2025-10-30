@@ -1,0 +1,18 @@
+{
+  "name": "pelaporan",
+  "version": "1.0.0",
+  "description": "Chaincode untuk mencatat data digital di Hyperledger Fabric",
+  "main": "index.js",
+  "scripts": {
+    "start": "fabric-chaincode-node start"
+  },
+  "engineStrict": true,
+  "engines": {
+    "node": ">=12.0.0",
+    "npm": ">=6.0.0"
+  },
+  "dependencies": {
+    "fabric-contract-api": "^2.5.4",
+    "fabric-shim": "^2.5.4"
+  }
+}

@@ -53,8 +53,8 @@ services:
       - orderer.fabric2.variant.com:/var/hyperledger/production/orderer
     ports:
       - 7150:7050
-      - 7153:7053
-      - 9543:9443
+      - 7253:7053
+      - 9643:9443
     networks:
       - test
 
@@ -230,7 +230,7 @@ services:
     command: peer node start
     ports:
       - 7052:7051
-      - 9544:9444
+      - 9644:9444
     networks:
       - test
 
@@ -271,6 +271,6 @@ services:
     command: peer node start
     ports:
       - 9151:9051
-      - 9545:9445
+      - 9645:9445
     networks:
       - test

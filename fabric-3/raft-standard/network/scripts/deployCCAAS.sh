@@ -22,6 +22,12 @@ MAX_RETRY=${11:-"5"}
 VERBOSE=${12:-"false"}
 
 CCAAS_SERVER_PORT=9999
+CHAINCODE_CONTAINER_PREFIX="fabric3standard"
+
+peer_chaincode_container_name() {
+  local peer_name=$1
+  echo "${CHAINCODE_CONTAINER_PREFIX}_${peer_name}_${CC_NAME}_ccaas"
+}
 
 : ${CONTAINER_CLI:="docker"}
 if command -v ${CONTAINER_CLI}-compose > /dev/null 2>&1; then
@@ -80,7 +86,7 @@ fi
 
 packageChaincode() {
 
-  address="{{.peername}}_${CC_NAME}_ccaas:${CCAAS_SERVER_PORT}"
+  address="${CHAINCODE_CONTAINER_PREFIX}_{{.peername}}_${CC_NAME}_ccaas:${CCAAS_SERVER_PORT}"
   prefix=$(basename "$0")
   tempdir=$(mktemp -d -t "$prefix.XXXXXXXX") || error_exit "Error creating temporary directory"
   label=${CC_NAME}_${CC_VERSION}
@@ -132,17 +138,21 @@ buildDockerImages() {
 }
 
 startDockerContainer() {
+  local peer0org1_container
+  peer0org1_container=$(peer_chaincode_container_name "peer0org1")
+  local peer0org2_container
+  peer0org2_container=$(peer_chaincode_container_name "peer0org2")
   # start the docker container
   if [ "$CCAAS_DOCKER_RUN" = "true" ]; then
     infoln "Starting the Chaincode-as-a-Service docker container..."
     set -x
-    ${CONTAINER_CLI} run --rm -d --name peer0org1_${CC_NAME}_ccaas  \
+    ${CONTAINER_CLI} run --rm -d --name "${peer0org1_container}"  \
                   --network fabric3_raft_standard_net \
                   -e CHAINCODE_SERVER_ADDRESS=0.0.0.0:${CCAAS_SERVER_PORT} \
                   -e CHAINCODE_ID=$PACKAGE_ID -e CORE_CHAINCODE_ID_NAME=$PACKAGE_ID \
                     ${CC_NAME}_ccaas_image:latest
 
-    ${CONTAINER_CLI} run  --rm -d --name peer0org2_${CC_NAME}_ccaas \
+    ${CONTAINER_CLI} run  --rm -d --name "${peer0org2_container}" \
                   --network fabric3_raft_standard_net \
                   -e CHAINCODE_SERVER_ADDRESS=0.0.0.0:${CCAAS_SERVER_PORT} \
                   -e CHAINCODE_ID=$PACKAGE_ID -e CORE_CHAINCODE_ID_NAME=$PACKAGE_ID \
@@ -155,12 +165,12 @@ startDockerContainer() {
   else
   
     infoln "Not starting docker containers; these are the commands we would have run"
-    infoln "    ${CONTAINER_CLI} run --rm -d --name peer0org1_${CC_NAME}_ccaas  \
+    infoln "    ${CONTAINER_CLI} run --rm -d --name ${peer0org1_container}  \
                   --network fabric3_raft_standard_net \
                   -e CHAINCODE_SERVER_ADDRESS=0.0.0.0:${CCAAS_SERVER_PORT} \
                   -e CHAINCODE_ID=$PACKAGE_ID -e CORE_CHAINCODE_ID_NAME=$PACKAGE_ID \
                     ${CC_NAME}_ccaas_image:latest"
-    infoln "    ${CONTAINER_CLI} run --rm -d --name peer0org2_${CC_NAME}_ccaas  \
+    infoln "    ${CONTAINER_CLI} run --rm -d --name ${peer0org2_container}  \
                   --network fabric3_raft_standard_net \
                   -e CHAINCODE_SERVER_ADDRESS=0.0.0.0:${CCAAS_SERVER_PORT} \
                   -e CHAINCODE_ID=$PACKAGE_ID -e CORE_CHAINCODE_ID_NAME=$PACKAGE_ID \

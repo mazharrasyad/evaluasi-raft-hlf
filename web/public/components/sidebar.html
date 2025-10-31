@@ -1,45 +1,55 @@
 <style>
+    .sidebar__floating-toggle {
+        position: fixed;
+        top: 1.5rem;
+        left: 1.5rem;
+        z-index: 45;
+        display: none;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .sidebar__floating-toggle-icon {
+        transition: transform 0.2s ease;
+    }
+
     @media (min-width: 1024px) {
         [data-sidebar][data-desktop-state="collapsed"] {
-            width: 6rem;
+            width: 0;
+            min-width: 0;
+            transform: translateX(-100%);
+            overflow: visible;
+            border-width: 0;
         }
 
         [data-sidebar][data-desktop-state="collapsed"] .sidebar__inner {
-            padding-left: 1rem;
-            padding-right: 1rem;
-        }
-
-        [data-sidebar][data-desktop-state="collapsed"] .sidebar__brand {
-            justify-content: center;
-        }
-
-        [data-sidebar][data-desktop-state="collapsed"] .sidebar__brand-text,
-        [data-sidebar][data-desktop-state="collapsed"] .sidebar__group-header,
-        [data-sidebar][data-desktop-state="collapsed"] .sidebar__group-badge,
-        [data-sidebar][data-desktop-state="collapsed"] .component-link__label {
-            display: none;
-        }
-
-        [data-sidebar][data-desktop-state="collapsed"] .component-link {
-            justify-content: center;
-            padding-left: 0.75rem;
-            padding-right: 0.75rem;
-            text-align: center;
-        }
-
-        [data-sidebar][data-desktop-state="collapsed"] .component-link__index {
-            margin-right: 0;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
         }
 
         [data-sidebar][data-desktop-state="collapsed"] .sidebar__desktop-toggle {
-            border-color: rgba(148, 163, 184, 0.25);
+            display: none;
         }
 
-        [data-sidebar][data-desktop-state="collapsed"] .sidebar__desktop-toggle-icon--expanded {
+        [data-sidebar][data-desktop-state="collapsed"] ~ .sidebar__floating-toggle {
+            display: inline-flex;
+        }
+
+        [data-sidebar][data-desktop-state="collapsed"] ~ .sidebar__floating-toggle:hover .sidebar__floating-toggle-icon,
+        [data-sidebar][data-desktop-state="collapsed"] ~ .sidebar__floating-toggle:focus-visible .sidebar__floating-toggle-icon {
+            transform: translateX(2px);
+        }
+
+        [data-sidebar][data-desktop-state="expanded"] ~ .sidebar__floating-toggle {
             display: none;
         }
 
         [data-sidebar][data-desktop-state="expanded"] .sidebar__desktop-toggle-icon--collapsed {
+            display: none;
+        }
+
+        [data-sidebar][data-desktop-state="collapsed"] .sidebar__desktop-toggle-icon--expanded {
             display: none;
         }
     }
@@ -145,3 +155,7 @@
         </nav>
     </div>
 </aside>
+<button type="button" data-sidebar-desktop-toggle aria-pressed="false" class="sidebar__floating-toggle h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-surface/80 text-lg text-textdark shadow-lg shadow-black/30 backdrop-blur transition hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary">
+    <span aria-hidden="true" class="sidebar__floating-toggle-icon">›</span>
+    <span class="sr-only" data-sidebar-desktop-toggle-label>Perluas sidebar</span>
+</button>

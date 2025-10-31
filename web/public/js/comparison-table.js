@@ -19,8 +19,16 @@
 
     const summaryFetchedAtEl = document.querySelector('[data-summary-fetched-at]');
     const summaryTimestampEl = document.querySelector('[data-summary-timestamp]');
+    const chartUpdatedAtEl = document.querySelector('[data-chart-updated-at]');
 
     const refreshButton = document.getElementById('refreshSummaryButton');
+
+    const chartWrapper = document.getElementById('comparisonChartWrapper');
+    const chartCanvas = document.getElementById('comparisonChart');
+    const chartEmptyState = chartWrapper?.querySelector('[data-chart-empty]') || null;
+    const chartUnavailableState = chartWrapper?.querySelector('[data-chart-unavailable]') || null;
+    const chartEmptyMessageEl = chartEmptyState?.querySelector('span:nth-of-type(2)') || null;
+    const chartUnavailableMessageEl = chartUnavailableState?.querySelector('span:nth-of-type(2)') || null;
 
     const numberFormatter = new Intl.NumberFormat('id-ID');
     const decimalFormatter = new Intl.NumberFormat('id-ID', {
@@ -198,6 +206,306 @@
         return `${durationLabel} — Terakhir: ${sanitizedLastLabel}`;
     }
 
+    const chartMetrics = [
+        {
+            key: 'successRate',
+            label: 'Rasio sukses',
+            direction: 'higher',
+            formatter: formatSuccessRate,
+        },
+        {
+            key: 'averageLatencyMs',
+            label: 'Latensi rata-rata',
+            direction: 'lower',
+            formatter: formatLatency,
+        },
+        {
+            key: 'averageCommitTimeMs',
+            label: 'Commit rata-rata',
+            direction: 'lower',
+            formatter: formatLatency,
+        },
+        {
+            key: 'throughput',
+            label: 'Throughput (tx/detik)',
+            direction: 'higher',
+            formatter: formatThroughput,
+        },
+    ];
+
+    const chartPalette = [
+        { background: 'rgba(56, 189, 248, 0.25)', border: 'rgba(56, 189, 248, 0.85)' },
+        { background: 'rgba(99, 102, 241, 0.25)', border: 'rgba(99, 102, 241, 0.85)' },
+        { background: 'rgba(249, 115, 22, 0.25)', border: 'rgba(249, 115, 22, 0.85)' },
+        { background: 'rgba(14, 165, 233, 0.25)', border: 'rgba(14, 165, 233, 0.85)' },
+        { background: 'rgba(236, 72, 153, 0.25)', border: 'rgba(236, 72, 153, 0.85)' },
+    ];
+
+    let comparisonChartInstance = null;
+
+    function isChartJsAvailable() {
+        return typeof window !== 'undefined'
+            && typeof window.Chart !== 'undefined'
+            && typeof window.Chart === 'function';
+    }
+
+    function showChartCanvas(shouldShow) {
+        if (chartCanvas) {
+            chartCanvas.classList.toggle('hidden', !shouldShow);
+        }
+    }
+
+    function showChartEmpty(shouldShow, message) {
+        if (chartEmptyState) {
+            chartEmptyState.classList.toggle('hidden', !shouldShow);
+        }
+        if (chartEmptyMessageEl && typeof message === 'string') {
+            chartEmptyMessageEl.textContent = message;
+        }
+    }
+
+    function showChartUnavailable(shouldShow, message) {
+        if (chartUnavailableState) {
+            chartUnavailableState.classList.toggle('hidden', !shouldShow);
+        }
+        if (chartUnavailableMessageEl && typeof message === 'string') {
+            chartUnavailableMessageEl.textContent = message;
+        }
+    }
+
+    function destroyComparisonChart() {
+        if (comparisonChartInstance) {
+            comparisonChartInstance.destroy();
+            comparisonChartInstance = null;
+        }
+    }
+
+    function coerceNumeric(value) {
+        if (typeof value === 'number' && Number.isFinite(value)) {
+            return value;
+        }
+
+        if (typeof value === 'string' && value.trim() !== '') {
+            const parsed = Number(value);
+            if (Number.isFinite(parsed)) {
+                return parsed;
+            }
+        }
+
+        return null;
+    }
+
+    function normalizeMetricValues(metric, values) {
+        const validValues = values.filter(value => typeof value === 'number' && Number.isFinite(value));
+
+        if (validValues.length === 0) {
+            return values.map(() => 0);
+        }
+
+        if (metric.direction === 'higher') {
+            const max = Math.max(...validValues);
+            if (max === 0) {
+                return values.map(value => (typeof value === 'number' && Number.isFinite(value) ? 1 : 0));
+            }
+            return values.map(value => {
+                if (typeof value !== 'number' || !Number.isFinite(value)) {
+                    return 0;
+                }
+                return Math.max(0, Math.min(1, value / max));
+            });
+        }
+
+        const min = Math.min(...validValues);
+        const max = Math.max(...validValues);
+        if (max === min) {
+            return values.map(value => (typeof value === 'number' && Number.isFinite(value) ? 1 : 0));
+        }
+
+        return values.map(value => {
+            if (typeof value !== 'number' || !Number.isFinite(value)) {
+                return 0;
+            }
+
+            const ratio = (value - min) / (max - min);
+            const normalized = 1 - ratio;
+            return Math.max(0, Math.min(1, normalized));
+        });
+    }
+
+    function formatChartMetricValue(metric, value) {
+        if (typeof metric?.formatter === 'function' && typeof value === 'number' && Number.isFinite(value)) {
+            return metric.formatter(value);
+        }
+
+        if (metric?.key === 'successRate') {
+            return formatSuccessRate(value);
+        }
+
+        if (metric?.key === 'throughput') {
+            return formatThroughput(value);
+        }
+
+        return typeof value === 'number' && Number.isFinite(value)
+            ? decimalFormatter.format(value)
+            : '—';
+    }
+
+    function prepareChartData(networks) {
+        if (!Array.isArray(networks) || networks.length === 0) {
+            return null;
+        }
+
+        const metricValuesPerNetwork = networks.map(network => chartMetrics.map(metric => coerceNumeric(network?.[metric.key])));
+        const normalizedValuesPerMetric = chartMetrics.map((metric, metricIndex) => {
+            const metricValues = metricValuesPerNetwork.map(values => values[metricIndex]).map(value => {
+                if (metric.key === 'successRate' && typeof value === 'number' && value > 0 && value <= 1) {
+                    return value;
+                }
+                return typeof value === 'number' && Number.isFinite(value)
+                    ? value
+                    : null;
+            });
+            return normalizeMetricValues(metric, metricValues);
+        });
+
+        const datasets = networks.map((network, networkIndex) => {
+            const palette = chartPalette[networkIndex % chartPalette.length];
+            const normalizedValues = normalizedValuesPerMetric.map(values => values[networkIndex]);
+            const originalValues = metricValuesPerNetwork[networkIndex];
+
+            return {
+                label: network.label || `Jaringan ${networkIndex + 1}`,
+                data: normalizedValues,
+                originalValues,
+                fill: true,
+                borderWidth: 2,
+                borderColor: palette.border,
+                backgroundColor: palette.background,
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                pointBorderWidth: 1.5,
+                tension: 0.3,
+            };
+        });
+
+        return {
+            labels: chartMetrics.map(metric => metric.label),
+            datasets,
+        };
+    }
+
+    function updateComparisonChart(networks) {
+        if (!chartWrapper || !chartCanvas) {
+            return;
+        }
+
+        if (!Array.isArray(networks) || networks.length === 0) {
+            destroyComparisonChart();
+            showChartCanvas(false);
+            showChartUnavailable(false);
+            showChartEmpty(true, 'Belum ada data simulasi yang dapat divisualisasikan.');
+            return;
+        }
+
+        if (!isChartJsAvailable()) {
+            destroyComparisonChart();
+            showChartCanvas(false);
+            showChartEmpty(false);
+            showChartUnavailable(true, 'Chart.js tidak tersedia sehingga grafik perbandingan tidak dapat ditampilkan.');
+            return;
+        }
+
+        const context = chartCanvas.getContext('2d');
+        if (!context) {
+            return;
+        }
+
+        const preparedData = prepareChartData(networks);
+
+        if (!preparedData || !preparedData.datasets.some(dataset => Array.isArray(dataset.data) && dataset.data.some(value => value > 0))) {
+            destroyComparisonChart();
+            showChartCanvas(false);
+            showChartUnavailable(false);
+            showChartEmpty(true, 'Data simulasi belum memiliki metrik yang dapat divisualisasikan.');
+            return;
+        }
+
+        showChartUnavailable(false);
+        showChartEmpty(false);
+        showChartCanvas(true);
+
+        if (comparisonChartInstance) {
+            comparisonChartInstance.data.labels = preparedData.labels;
+            comparisonChartInstance.data.datasets = preparedData.datasets;
+            comparisonChartInstance.update();
+            return;
+        }
+
+        if (typeof window.Chart.defaults === 'object') {
+            if (window.Chart.defaults.font) {
+                window.Chart.defaults.font.family = 'Inter, sans-serif';
+                window.Chart.defaults.font.size = 13;
+            }
+            window.Chart.defaults.color = '#E2E8F0';
+        }
+
+        comparisonChartInstance = new window.Chart(context, {
+            type: 'radar',
+            data: preparedData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        suggestedMin: 0,
+                        suggestedMax: 1,
+                        ticks: {
+                            stepSize: 0.25,
+                            showLabelBackdrop: false,
+                            color: 'rgba(226, 232, 240, 0.7)',
+                        },
+                        angleLines: {
+                            color: 'rgba(148, 163, 184, 0.25)',
+                        },
+                        grid: {
+                            color: 'rgba(148, 163, 184, 0.2)',
+                        },
+                        pointLabels: {
+                            color: '#E2E8F0',
+                            font: {
+                                size: 12,
+                            },
+                        },
+                    },
+                },
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 20,
+                        },
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label(context) {
+                                const dataset = context?.dataset || {};
+                                const metric = chartMetrics[context.dataIndex];
+                                const originalValues = Array.isArray(dataset.originalValues)
+                                    ? dataset.originalValues
+                                    : [];
+                                const originalValue = originalValues[context.dataIndex];
+                                const formattedValue = formatChartMetricValue(metric, originalValue);
+                                return `${dataset.label}: ${formattedValue}`;
+                            },
+                        },
+                    },
+                },
+            },
+        });
+    }
+
     function clearTable() {
         if (tableBody) {
             tableBody.innerHTML = '';
@@ -214,6 +522,7 @@
         if (!Array.isArray(networks) || networks.length === 0) {
             table.classList.add('hidden');
             setState('empty');
+            updateComparisonChart([]);
             return;
         }
 
@@ -264,6 +573,7 @@
 
         table.classList.remove('hidden');
         setState('ready');
+        updateComparisonChart(networks);
     }
 
     function updateSummaryTimestamp(updatedAt) {
@@ -271,6 +581,22 @@
             return;
         }
         summaryTimestampEl.textContent = formatTimestamp(updatedAt);
+    }
+
+    function updateChartUpdatedAt(updatedAt) {
+        if (!chartUpdatedAtEl) {
+            return;
+        }
+
+        if (!updatedAt) {
+            chartUpdatedAtEl.textContent = 'Belum ada data';
+            return;
+        }
+
+        const formatted = formatTimestamp(updatedAt);
+        chartUpdatedAtEl.textContent = formatted === 'Belum ada pembaruan.'
+            ? 'Belum ada data'
+            : formatted;
     }
 
     function updateFetchedAt(timestamp) {
@@ -324,6 +650,7 @@
 
             updateFetchedAt(data?.fetchedAt);
             updateSummaryTimestamp(data?.updatedAt);
+            updateChartUpdatedAt(data?.updatedAt);
             renderTable(Array.isArray(data?.networks) ? data.networks : []);
         } catch (error) {
             console.error('Gagal memuat ringkasan simulasi:', error);
@@ -332,6 +659,8 @@
             if (table) {
                 table.classList.add('hidden');
             }
+            updateComparisonChart([]);
+            updateChartUpdatedAt(null);
             setState('error', { errorMessage: message });
         } finally {
             setRefreshButtonState(false);

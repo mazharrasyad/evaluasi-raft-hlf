@@ -84,6 +84,28 @@
                         <section class="space-y-6">
                             <header class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
                                 <div>
+                                    <h2 class="text-2xl font-semibold text-textdark">Grafik perbedaan performa jaringan</h2>
+                                    <p class="text-sm text-textdark/70">Visualisasi ini membantu membandingkan metrik kunci antar jaringan secara lebih cepat dengan merata-ratakan setiap indikator ke skala yang sama.</p>
+                                </div>
+                                <div class="text-xs text-textdark/60" id="chartUpdatedAtLabel">Diperbarui: <span data-chart-updated-at>Menunggu data</span></div>
+                            </header>
+
+                            <div id="comparisonChartWrapper" class="relative min-h-[320px] overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-surfaceMuted/60 via-surface/70 to-[#020817] p-6 shadow-lg shadow-black/40">
+                                <div data-chart-empty class="flex items-center gap-3 text-sm text-textdark/70">
+                                    <span class="text-amber-200">ℹ️</span>
+                                    <span>Belum ada data simulasi yang dapat divisualisasikan. Jalankan simulasi untuk melihat grafik perbandingan.</span>
+                                </div>
+                                <div data-chart-unavailable class="hidden items-center gap-3 text-sm text-textdark/70">
+                                    <span class="text-rose-200">⚠️</span>
+                                    <span>Chart.js tidak tersedia sehingga grafik perbandingan tidak dapat ditampilkan.</span>
+                                </div>
+                                <canvas id="comparisonChart" class="hidden h-full w-full" aria-label="Grafik perbandingan performa jaringan"></canvas>
+                            </div>
+                        </section>
+
+                        <section class="space-y-6">
+                            <header class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+                                <div>
                                     <h2 class="text-2xl font-semibold text-textdark">Tabel perbandingan jaringan</h2>
                                     <p class="text-sm text-textdark/70">Ringkasan ini merangkum catatan simulasi yang dikomit ke setiap blok jaringan tanpa elemen kartu, sehingga memudahkan pembacaan angka per jaringan.</p>
                                 </div>
@@ -146,6 +168,7 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js" defer></script>
     <script src="/js/layout.js" defer></script>
     <script src="/js/navigation.js" defer></script>
     <script src="/js/comparison-table.js" defer></script>

@@ -64,11 +64,15 @@
 
     const toggleButtons = Array.from(document.querySelectorAll('[data-sidebar-toggle]'));
     const closeButtons = Array.from(document.querySelectorAll('[data-sidebar-close]'));
+    const desktopToggleButtons = Array.from(document.querySelectorAll('[data-sidebar-desktop-toggle]'));
     const overlay = document.querySelector('[data-sidebar-overlay]');
     const body = document.body;
     const mediaQuery = window.matchMedia('(min-width: 1024px)');
     const OPEN_CLASS = 'translate-x-0';
     const CLOSED_CLASS = '-translate-x-full';
+    const DESKTOP_COLLAPSED_STATE = 'collapsed';
+    const DESKTOP_EXPANDED_STATE = 'expanded';
+    const DESKTOP_STATE_STORAGE_KEY = 'sidebar.desktopState';
 
     function lockBodyScroll(shouldLock) {
         if (!body) {
@@ -83,6 +87,78 @@
         toggleButtons.forEach((button) => {
             button.setAttribute('aria-expanded', value);
         });
+    }
+
+    function readStoredDesktopState() {
+        if (!('localStorage' in window)) {
+            return DESKTOP_EXPANDED_STATE;
+        }
+
+        try {
+            const storedValue = window.localStorage.getItem(DESKTOP_STATE_STORAGE_KEY);
+            return storedValue === DESKTOP_COLLAPSED_STATE
+                ? DESKTOP_COLLAPSED_STATE
+                : DESKTOP_EXPANDED_STATE;
+        } catch (error) {
+            return DESKTOP_EXPANDED_STATE;
+        }
+    }
+
+    function persistDesktopState(state) {
+        if (!('localStorage' in window)) {
+            return;
+        }
+
+        try {
+            window.localStorage.setItem(DESKTOP_STATE_STORAGE_KEY, state);
+        } catch (error) {
+            // Ignore storage access errors (e.g., disabled storage, quota exceeded).
+        }
+    }
+
+    function updateDesktopToggleLabels(isCollapsed) {
+        const labelText = isCollapsed ? 'Perluas sidebar' : 'Sembunyikan sidebar';
+
+        desktopToggleButtons.forEach((button) => {
+            button.setAttribute('aria-pressed', isCollapsed ? 'true' : 'false');
+
+            const labelElement = button.querySelector('[data-sidebar-desktop-toggle-label]');
+            if (labelElement) {
+                labelElement.textContent = labelText;
+            }
+        });
+    }
+
+    function setSidebarDesktopState(state, options = {}) {
+        const normalizedState = state === DESKTOP_COLLAPSED_STATE
+            ? DESKTOP_COLLAPSED_STATE
+            : DESKTOP_EXPANDED_STATE;
+
+        const isDesktop = mediaQuery.matches;
+        const finalState = isDesktop ? normalizedState : DESKTOP_EXPANDED_STATE;
+
+        if (sidebar.dataset.desktopState !== finalState) {
+            sidebar.dataset.desktopState = finalState;
+        }
+
+        updateDesktopToggleLabels(finalState === DESKTOP_COLLAPSED_STATE);
+
+        if (options.save !== false && isDesktop) {
+            persistDesktopState(finalState);
+        }
+    }
+
+    function toggleDesktopState(event) {
+        event?.preventDefault();
+
+        if (!mediaQuery.matches) {
+            return;
+        }
+
+        const isCollapsed = sidebar.dataset.desktopState === DESKTOP_COLLAPSED_STATE;
+        const nextState = isCollapsed ? DESKTOP_EXPANDED_STATE : DESKTOP_COLLAPSED_STATE;
+
+        setSidebarDesktopState(nextState);
     }
 
     function openSidebar(options = {}) {
@@ -158,6 +234,10 @@
         });
     });
 
+    desktopToggleButtons.forEach((button) => {
+        button.addEventListener('click', toggleDesktopState);
+    });
+
     if (overlay) {
         overlay.addEventListener('click', (event) => {
             event.preventDefault();
@@ -178,13 +258,17 @@
     function handleMediaChange() {
         if (mediaQuery.matches) {
             openSidebar({ skipFocus: true });
+            setSidebarDesktopState(readStoredDesktopState(), { save: false });
         } else if (sidebar.dataset.state !== 'open') {
+            setSidebarDesktopState(DESKTOP_EXPANDED_STATE, { save: false });
             closeSidebar({ skipFocus: true });
         } else {
+            setSidebarDesktopState(DESKTOP_EXPANDED_STATE, { save: false });
             openSidebar({ skipFocus: true });
         }
     }
 
+    setSidebarDesktopState(readStoredDesktopState(), { save: false });
     handleMediaChange();
     mediaQuery.addEventListener('change', handleMediaChange);
 

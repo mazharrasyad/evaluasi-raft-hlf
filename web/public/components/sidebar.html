@@ -1,15 +1,66 @@
-<aside id="sidebarNavigation" data-sidebar data-state="closed" class="fixed inset-y-0 left-0 z-40 flex w-72 max-w-full -translate-x-full flex-col overflow-y-auto border-b border-white/10 bg-surface/95 shadow-2xl shadow-black/40 backdrop-blur-lg transition-transform duration-300 ease-in-out lg:static lg:h-auto lg:w-80 lg:translate-x-0 lg:transform-none lg:border-b-0 lg:border-r lg:bg-surface/80 lg:shadow-none lg:backdrop-blur lg:transition-none">
-    <div class="mx-auto flex h-full max-w-3xl flex-col gap-6 px-6 py-8">
-        <div class="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-surfaceMuted/70 p-4 shadow-lg shadow-black/10">
+<style>
+    @media (min-width: 1024px) {
+        [data-sidebar][data-desktop-state="collapsed"] {
+            width: 6rem;
+        }
+
+        [data-sidebar][data-desktop-state="collapsed"] .sidebar__inner {
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+
+        [data-sidebar][data-desktop-state="collapsed"] .sidebar__brand {
+            justify-content: center;
+        }
+
+        [data-sidebar][data-desktop-state="collapsed"] .sidebar__brand-text,
+        [data-sidebar][data-desktop-state="collapsed"] .sidebar__group-header,
+        [data-sidebar][data-desktop-state="collapsed"] .sidebar__group-badge,
+        [data-sidebar][data-desktop-state="collapsed"] .component-link__label {
+            display: none;
+        }
+
+        [data-sidebar][data-desktop-state="collapsed"] .component-link {
+            justify-content: center;
+            padding-left: 0.75rem;
+            padding-right: 0.75rem;
+            text-align: center;
+        }
+
+        [data-sidebar][data-desktop-state="collapsed"] .component-link__index {
+            margin-right: 0;
+        }
+
+        [data-sidebar][data-desktop-state="collapsed"] .sidebar__desktop-toggle {
+            border-color: rgba(148, 163, 184, 0.25);
+        }
+
+        [data-sidebar][data-desktop-state="collapsed"] .sidebar__desktop-toggle-icon--expanded {
+            display: none;
+        }
+
+        [data-sidebar][data-desktop-state="expanded"] .sidebar__desktop-toggle-icon--collapsed {
+            display: none;
+        }
+    }
+</style>
+<aside id="sidebarNavigation" data-sidebar data-state="closed" data-desktop-state="expanded" class="fixed inset-y-0 left-0 z-40 flex w-72 max-w-full -translate-x-full flex-col overflow-y-auto border-b border-white/10 bg-surface/95 shadow-2xl shadow-black/40 backdrop-blur-lg transition-transform duration-300 ease-in-out lg:static lg:h-auto lg:w-80 lg:translate-x-0 lg:transform-none lg:border-b-0 lg:border-r lg:bg-surface/80 lg:shadow-none lg:backdrop-blur lg:transition-none">
+    <div class="sidebar__inner mx-auto flex h-full max-w-3xl flex-col gap-6 px-6 py-8">
+        <div class="sidebar__brand flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-surfaceMuted/70 p-4 shadow-lg shadow-black/10">
             <div class="flex items-center gap-3">
                 <span class="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-white/5 p-2">
                     <img src="/images/logo-ai-center.svg" alt="Logo Evaluasi RAFT HLF" class="h-8 w-8" loading="lazy">
                 </span>
-                <div class="flex flex-col">
+                <div class="sidebar__brand-text flex flex-col">
                     <span class="text-base font-semibold text-secondary">Evaluasi RAFT HLF</span>
                     <span class="text-xs text-textdark/60">Eksperimen Hyperledger Fabric</span>
                 </div>
             </div>
+            <button type="button" data-sidebar-desktop-toggle aria-pressed="false" class="sidebar__desktop-toggle hidden h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-surface/70 text-lg text-textdark transition hover:bg-secondary/20 hover:text-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary lg:inline-flex">
+                <span aria-hidden="true" class="sidebar__desktop-toggle-icon sidebar__desktop-toggle-icon--expanded">‹</span>
+                <span aria-hidden="true" class="sidebar__desktop-toggle-icon sidebar__desktop-toggle-icon--collapsed">›</span>
+                <span class="sr-only" data-sidebar-desktop-toggle-label>Sembunyikan sidebar</span>
+            </button>
             <button type="button" data-sidebar-close aria-label="Tutup navigasi" class="hidden inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-surface/70 text-lg text-textdark transition hover:bg-secondary/20 hover:text-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary lg:hidden">
                 <span aria-hidden="true">✕</span>
             </button>
@@ -17,75 +68,75 @@
         <nav aria-label="Navigasi komponen" class="flex-1">
             <div class="space-y-6">
                 <div role="group" aria-labelledby="navGroupOverview" class="space-y-3">
-                    <div class="flex items-center justify-between gap-2">
+                    <div class="sidebar__group-header flex items-center justify-between gap-2">
                         <p id="navGroupOverview" class="text-xs font-semibold uppercase tracking-[0.28em] text-primary/80">Ikhtisar</p>
-                        <span class="rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.3em] text-primary/80">RAFT</span>
+                        <span class="sidebar__group-badge rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.3em] text-primary/80">RAFT</span>
                     </div>
                     <ul class="space-y-2">
                         <li>
                             <a href="/" data-nav-target="/" class="component-link group flex w-full items-center gap-3 rounded-xl border border-white/10 bg-surface/60 px-4 py-3 text-left text-sm font-medium text-textdark/80 transition hover:-translate-y-0.5 hover:bg-primary/20 hover:text-textdark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">
                                 <span class="component-link__index inline-flex h-8 w-8 flex-none items-center justify-center rounded-lg bg-primary/20 text-primary">0.1</span>
-                                <span class="flex-1">Ringkasan Jaringan RAFT</span>
+                                <span class="component-link__label flex-1">Ringkasan Jaringan RAFT</span>
                             </a>
                         </li>
                         <li>
                             <a href="/perbandingan-jaringan" data-nav-target="/perbandingan-jaringan" class="component-link group flex w-full items-center gap-3 rounded-xl border border-white/10 bg-surface/60 px-4 py-3 text-left text-sm font-medium text-textdark/80 transition hover:-translate-y-0.5 hover:bg-primary/20 hover:text-textdark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">
                                 <span class="component-link__index inline-flex h-8 w-8 flex-none items-center justify-center rounded-lg bg-primary/20 text-primary">0.2</span>
-                                <span class="flex-1">Tabel Perbandingan Rata-rata</span>
+                                <span class="component-link__label flex-1">Tabel Perbandingan Rata-rata</span>
                             </a>
                         </li>
                     </ul>
                 </div>
                 <div class="h-px bg-white/10"></div>
                 <div role="group" aria-labelledby="navGroupFabric2" class="space-y-3">
-                    <div class="flex items-center justify-between gap-2">
+                    <div class="sidebar__group-header flex items-center justify-between gap-2">
                         <p id="navGroupFabric2" class="text-xs font-semibold uppercase tracking-[0.28em] text-secondary/80">Fabric 2</p>
-                        <span class="rounded-full border border-secondary/30 bg-secondary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.3em] text-secondary/80">Stable</span>
+                        <span class="sidebar__group-badge rounded-full border border-secondary/30 bg-secondary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.3em] text-secondary/80">Stable</span>
                     </div>
                     <ul class="space-y-2">
                         <li>
                             <a href="/fabric-2/dashboard" data-nav-target="/fabric-2/dashboard" class="component-link group flex w-full items-center gap-3 rounded-xl border border-white/10 bg-surface/60 px-4 py-3 text-left text-sm font-medium text-textdark/80 transition hover:-translate-y-0.5 hover:bg-secondary/20 hover:text-textdark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary">
                                 <span class="component-link__index inline-flex h-8 w-8 flex-none items-center justify-center rounded-lg bg-secondary/20 text-secondary">2.1</span>
-                                <span class="flex-1">Dashboard Fabric 2</span>
+                                <span class="component-link__label flex-1">Dashboard Fabric 2</span>
                             </a>
                         </li>
                         <li>
                             <a href="/fabric-2/kesehatan-jaringan" data-nav-target="/fabric-2/kesehatan-jaringan" class="component-link group flex w-full items-center gap-3 rounded-xl border border-white/10 bg-surface/60 px-4 py-3 text-left text-sm font-medium text-textdark/80 transition hover:-translate-y-0.5 hover:bg-secondary/20 hover:text-textdark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary">
                                 <span class="component-link__index inline-flex h-8 w-8 flex-none items-center justify-center rounded-lg bg-secondary/20 text-secondary">2.2</span>
-                                <span class="flex-1">Status Network Blockchain</span>
+                                <span class="component-link__label flex-1">Status Network Blockchain</span>
                             </a>
                         </li>
                         <li>
                             <a href="/fabric-2/simulasi-data" data-nav-target="/fabric-2/simulasi-data" class="component-link group flex w-full items-center gap-3 rounded-xl border border-white/10 bg-surface/60 px-4 py-3 text-left text-sm font-medium text-textdark/80 transition hover:-translate-y-0.5 hover:bg-secondary/20 hover:text-textdark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary">
                                 <span class="component-link__index inline-flex h-8 w-8 flex-none items-center justify-center rounded-lg bg-secondary/20 text-secondary">2.3</span>
-                                <span class="flex-1">Simulasi Data Pelaporan</span>
+                                <span class="component-link__label flex-1">Simulasi Data Pelaporan</span>
                             </a>
                         </li>
                     </ul>
                 </div>
                 <div class="h-px bg-white/10"></div>
                 <div role="group" aria-labelledby="navGroupFabric3" class="space-y-3">
-                    <div class="flex items-center justify-between gap-2">
+                    <div class="sidebar__group-header flex items-center justify-between gap-2">
                         <p id="navGroupFabric3" class="text-xs font-semibold uppercase tracking-[0.28em] text-accent/80">Fabric 3</p>
-                        <span class="rounded-full border border-accent/30 bg-accent/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.3em] text-accent/80">Preview</span>
+                        <span class="sidebar__group-badge rounded-full border border-accent/30 bg-accent/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.3em] text-accent/80">Preview</span>
                     </div>
                     <ul class="space-y-2">
                         <li>
                             <a href="/fabric-3/dashboard" data-nav-target="/fabric-3/dashboard" class="component-link group flex w-full items-center gap-3 rounded-xl border border-white/10 bg-surface/60 px-4 py-3 text-left text-sm font-medium text-textdark/80 transition hover:-translate-y-0.5 hover:bg-accent/20 hover:text-textdark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">
                                 <span class="component-link__index inline-flex h-8 w-8 flex-none items-center justify-center rounded-lg bg-accent/20 text-accent">3.1</span>
-                                <span class="flex-1">Dashboard Fabric 3</span>
+                                <span class="component-link__label flex-1">Dashboard Fabric 3</span>
                             </a>
                         </li>
                         <li>
                             <a href="/fabric-3/kesehatan-jaringan" data-nav-target="/fabric-3/kesehatan-jaringan" class="component-link group flex w-full items-center gap-3 rounded-xl border border-white/10 bg-surface/60 px-4 py-3 text-left text-sm font-medium text-textdark/80 transition hover:-translate-y-0.5 hover:bg-accent/20 hover:text-textdark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">
                                 <span class="component-link__index inline-flex h-8 w-8 flex-none items-center justify-center rounded-lg bg-accent/20 text-accent">3.2</span>
-                                <span class="flex-1">Status Network Blockchain</span>
+                                <span class="component-link__label flex-1">Status Network Blockchain</span>
                             </a>
                         </li>
                         <li>
                             <a href="/fabric-3/simulasi-data" data-nav-target="/fabric-3/simulasi-data" class="component-link group flex w-full items-center gap-3 rounded-xl border border-white/10 bg-surface/60 px-4 py-3 text-left text-sm font-medium text-textdark/80 transition hover:-translate-y-0.5 hover:bg-accent/20 hover:text-textdark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">
                                 <span class="component-link__index inline-flex h-8 w-8 flex-none items-center justify-center rounded-lg bg-accent/20 text-accent">3.3</span>
-                                <span class="flex-1">Simulasi Data Pelaporan</span>
+                                <span class="component-link__label flex-1">Simulasi Data Pelaporan</span>
                             </a>
                         </li>
                     </ul>

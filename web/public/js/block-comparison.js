@@ -11,6 +11,16 @@ componentLoaderReady.then(() => {
     const blockCountCanvas = document.getElementById('blockCountChart');
     const blockTimelineContainer = document.querySelector('[data-block-timeline-chart]');
     const blockTimelineCanvas = document.getElementById('blockTimelineChart');
+    const highlightGrid = document.getElementById('blockHighlightGrid');
+    const highlightElements = {
+        latestLatency: document.getElementById('blockLatestLatencyValue'),
+        averageLatency: document.getElementById('blockAverageLatencyValue'),
+        throughput: document.getElementById('blockThroughputValue'),
+        successCount: document.getElementById('blockSuccessCountValue'),
+        failureCount: document.getElementById('blockFailureCountValue'),
+        commitCode: document.getElementById('blockCommitCodeValue'),
+        commitBlock: document.getElementById('blockCommitBlockValue'),
+    };
 
     const PLACEHOLDER_VARIANTS = {
         info: 'border-white/10 bg-surface/60 text-textdark/70',
@@ -47,6 +57,10 @@ componentLoaderReady.then(() => {
     let blockTimelineChartInstance = null;
 
     const numberFormatter = new Intl.NumberFormat('id-ID');
+    const decimalFormatter = new Intl.NumberFormat('id-ID', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    });
     const percentFormatter = new Intl.NumberFormat('id-ID', {
         style: 'percent',
         minimumFractionDigits: 0,
@@ -210,6 +224,263 @@ componentLoaderReady.then(() => {
 
         return wrapper;
     }
+
+    const highlightDefaults = {
+        latestLatency: '—',
+        averageLatency: '—',
+        throughput: '0,00 tx/detik',
+        successCount: '0',
+        failureCount: '0',
+        commitCode: '—',
+        commitBlock: '—',
+    };
+
+    function setHighlightValues(values = {}) {
+        Object.entries(highlightDefaults).forEach(([key, fallback]) => {
+            const element = highlightElements[key];
+            if (!element) {
+                return;
+            }
+
+            const value = values[key];
+            if (typeof value === 'string' && value.trim() !== '') {
+                element.textContent = value;
+                return;
+            }
+
+            element.textContent = fallback;
+        });
+    }
+
+    function resetHighlights() {
+        if (highlightGrid) {
+            highlightGrid.dataset.state = 'loading';
+        }
+        setHighlightValues({});
+    }
+
+    function getBlockTimestamp(block) {
+        if (!block || typeof block !== 'object') {
+            return Number.NaN;
+        }
+
+        const candidates = [block.lastUpdatedAt, block.lastCompletedAt];
+        for (const candidate of candidates) {
+            if (!candidate) {
+                continue;
+            }
+
+            const parsed = Date.parse(candidate);
+            if (Number.isFinite(parsed)) {
+                return parsed;
+            }
+        }
+
+        return Number.NaN;
+    }
+
+    function isNewerBlock(candidate, reference) {
+        if (!candidate || typeof candidate !== 'object') {
+            return false;
+        }
+
+        if (!reference || typeof reference !== 'object') {
+            return true;
+        }
+
+        const candidateTime = getBlockTimestamp(candidate);
+        const referenceTime = getBlockTimestamp(reference);
+        const candidateTimeValid = Number.isFinite(candidateTime);
+        const referenceTimeValid = Number.isFinite(referenceTime);
+
+        if (candidateTimeValid || referenceTimeValid) {
+            if (!referenceTimeValid) {
+                return candidateTimeValid;
+            }
+
+            if (!candidateTimeValid) {
+                return false;
+            }
+
+            if (candidateTime !== referenceTime) {
+                return candidateTime > referenceTime;
+            }
+        }
+
+        const candidateNumber = resolveBlockNumber(candidate);
+        const referenceNumber = resolveBlockNumber(reference);
+
+        if (candidateNumber !== null || referenceNumber !== null) {
+            if (referenceNumber === null) {
+                return candidateNumber !== null;
+            }
+
+            if (candidateNumber === null) {
+                return false;
+            }
+
+            if (candidateNumber !== referenceNumber) {
+                return candidateNumber > referenceNumber;
+            }
+        }
+
+        const candidateLabel = resolveBlockLabel(candidate) || '';
+        const referenceLabel = resolveBlockLabel(reference) || '';
+        return candidateLabel.localeCompare(referenceLabel) >= 0;
+    }
+
+    function buildFallbackBlockFromNetwork(network) {
+        if (!network || typeof network !== 'object') {
+            return null;
+        }
+
+        const hasLabel = typeof network.lastBlockLabel === 'string' && network.lastBlockLabel.trim() !== '';
+        const hasNumber = Number.isFinite(network.lastBlockNumber);
+        const hasTimestamp = typeof network.lastBlockUpdatedAt === 'string'
+            || typeof network.lastUpdatedAt === 'string'
+            || typeof network.lastCompletedAt === 'string';
+        const hasTransactionId = typeof network.lastTransactionId === 'string' && network.lastTransactionId.trim() !== '';
+        const hasLatency = Number.isFinite(network.averageCommitTimeMs) || Number.isFinite(network.averageLatencyMs);
+
+        if (!hasLabel && !hasNumber && !hasTimestamp && !hasTransactionId && !hasLatency) {
+            return null;
+        }
+
+        return {
+            blockLabel: hasLabel ? network.lastBlockLabel : null,
+            blockNumber: hasNumber ? network.lastBlockNumber : null,
+            lastUpdatedAt: network.lastBlockUpdatedAt || network.lastUpdatedAt || null,
+            lastCompletedAt: network.lastCompletedAt || null,
+            lastTransactionId: hasTransactionId ? network.lastTransactionId : null,
+            averageCommitTimeMs: Number.isFinite(network.averageCommitTimeMs)
+                ? network.averageCommitTimeMs
+                : null,
+            averageLatencyMs: Number.isFinite(network.averageLatencyMs)
+                ? network.averageLatencyMs
+                : null,
+        };
+    }
+
+    function selectLatestBlockInfo(networks) {
+        if (!Array.isArray(networks) || networks.length === 0) {
+            return null;
+        }
+
+        let latestInfo = null;
+
+        networks.forEach((network) => {
+            if (!network || typeof network !== 'object') {
+                return;
+            }
+
+            const blocks = Array.isArray(network.blocks) ? network.blocks : [];
+            const candidates = [...blocks];
+
+            if (candidates.length === 0) {
+                const fallbackBlock = buildFallbackBlockFromNetwork(network);
+                if (fallbackBlock) {
+                    candidates.push(fallbackBlock);
+                }
+            }
+
+            candidates.forEach((block) => {
+                if (!block || typeof block !== 'object') {
+                    return;
+                }
+
+                if (!latestInfo || isNewerBlock(block, latestInfo.block)) {
+                    latestInfo = { block, network };
+                }
+            });
+        });
+
+        return latestInfo;
+    }
+
+    function formatLatencyValue(value) {
+        if (typeof value === 'number' && Number.isFinite(value)) {
+            return `${decimalFormatter.format(value)} ms`;
+        }
+        return '—';
+    }
+
+    function formatThroughputValue(value) {
+        if (typeof value === 'number' && Number.isFinite(value) && value >= 0) {
+            return `${decimalFormatter.format(value)} tx/detik`;
+        }
+        return highlightDefaults.throughput;
+    }
+
+    function formatTextValue(value) {
+        if (typeof value === 'string') {
+            const trimmed = value.trim();
+            return trimmed !== '' ? trimmed : '—';
+        }
+
+        if (typeof value === 'number' && Number.isFinite(value)) {
+            return String(value);
+        }
+
+        return '—';
+    }
+
+    function updateHighlightValues(overall, networks) {
+        const values = { ...highlightDefaults };
+
+        const successCount = Number.isFinite(overall?.successCount) ? overall.successCount : 0;
+        const failureCount = Number.isFinite(overall?.failureCount) ? overall.failureCount : 0;
+        const averageLatencyMs = Number.isFinite(overall?.averageLatencyMs)
+            ? overall.averageLatencyMs
+            : null;
+        const throughput = Number.isFinite(overall?.throughput) ? overall.throughput : null;
+
+        let averageLatencyValue = averageLatencyMs;
+        if (!Number.isFinite(averageLatencyValue) && Number.isFinite(overall?.averageCommitTimeMs)) {
+            averageLatencyValue = overall.averageCommitTimeMs;
+        }
+
+        values.averageLatency = formatLatencyValue(averageLatencyValue);
+        values.throughput = formatThroughputValue(throughput);
+        values.successCount = formatNumber(successCount);
+        values.failureCount = formatNumber(failureCount);
+
+        const latestInfo = selectLatestBlockInfo(networks);
+
+        if (latestInfo) {
+            const { block, network } = latestInfo;
+            let latestLatency = Number.isFinite(block?.averageCommitTimeMs)
+                ? block.averageCommitTimeMs
+                : (Number.isFinite(block?.averageLatencyMs) ? block.averageLatencyMs : null);
+
+            if (!Number.isFinite(latestLatency)) {
+                if (Number.isFinite(overall?.averageCommitTimeMs)) {
+                    latestLatency = overall.averageCommitTimeMs;
+                } else if (Number.isFinite(overall?.averageLatencyMs)) {
+                    latestLatency = overall.averageLatencyMs;
+                } else {
+                    latestLatency = null;
+                }
+            }
+
+            values.latestLatency = formatLatencyValue(latestLatency);
+            values.commitCode = formatTextValue(block?.lastTransactionId || network?.lastTransactionId || null);
+            values.commitBlock = formatTextValue(resolveBlockLabel(block) || network?.lastBlockLabel || null);
+        } else {
+            const fallbackLatency = Number.isFinite(overall?.averageCommitTimeMs)
+                ? overall.averageCommitTimeMs
+                : (Number.isFinite(overall?.averageLatencyMs) ? overall.averageLatencyMs : null);
+            values.latestLatency = formatLatencyValue(fallbackLatency);
+            values.commitCode = highlightDefaults.commitCode;
+            values.commitBlock = highlightDefaults.commitBlock;
+        }
+
+        if (highlightGrid) {
+            highlightGrid.dataset.state = 'ready';
+        }
+
+        setHighlightValues(values);
+    }
+
 
     function destroyBlockCountChart() {
         if (blockCountChartInstance) {
@@ -779,6 +1050,7 @@ componentLoaderReady.then(() => {
         showSummaryPlaceholder('Menyiapkan ringkasan blok jaringan...', 'info');
         setChartLoading(blockCountContainer, 'Menyiapkan visualisasi total blok per jaringan...');
         setChartLoading(blockTimelineContainer, 'Menyiapkan visualisasi distribusi blok terbaru...');
+        resetHighlights();
 
         if (refreshButton) {
             refreshButton.disabled = true;
@@ -802,6 +1074,7 @@ componentLoaderReady.then(() => {
             renderSummaryCards(networks);
             renderBlockCountChart(networks);
             renderBlockTimelineChart(networks);
+            updateHighlightValues(payload?.overall || null, networks);
             setUpdatedAtLabel(payload?.updatedAt || payload?.fetchedAt || null);
 
             const fetchedLabel = formatDateTime(payload?.fetchedAt);
@@ -815,6 +1088,10 @@ componentLoaderReady.then(() => {
             showSummaryPlaceholder('Tidak dapat memuat data blok jaringan.', 'error');
             setChartMessage(blockCountContainer, 'Tidak dapat memuat grafik blok jaringan.', 'error');
             setChartMessage(blockTimelineContainer, 'Tidak dapat memuat grafik distribusi blok.', 'error');
+            if (highlightGrid) {
+                highlightGrid.dataset.state = 'error';
+            }
+            setHighlightValues({});
         } finally {
             if (refreshButton) {
                 refreshButton.disabled = false;

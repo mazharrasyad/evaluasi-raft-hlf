@@ -67,180 +67,44 @@
                                 <div class="space-y-4">
                                     <h1 class="text-4xl font-semibold text-textdark md:text-5xl">Perbandingan Blok Jaringan RAFT</h1>
                                     <p class="max-w-3xl text-base text-textdark/70">
-                                        Visualisasi ini menyoroti jumlah blok yang berhasil diterima oleh setiap jaringan Hyperledger Fabric
-                                        selama simulasi. Gunakan grafik berikut untuk melihat distribusi blok antar jaringan dan mendeteksi
-                                        pergeseran aktivitas antar paket jaringan.
+                                        Halaman ini berfokus menampilkan perbedaan jumlah blok yang diterima setiap jaringan Hyperledger Fabric berbasis RAFT selama simulasi berlangsung.
+                                        Visualisasi tunggal di bawah membantu mengamati variasi aktivitas blok meskipun data yang diproses identik.
                                     </p>
-                                    <p id="blockComparisonUpdatedAt" class="text-xs uppercase tracking-[0.28em] text-textdark/50"></p>
                                 </div>
                             </div>
                         </section>
 
                         <section class="space-y-6">
-                            <header class="space-y-1">
-                                <p class="text-xs font-semibold uppercase tracking-[0.28em] text-accent/80">Sorotan</p>
-                                <h2 class="text-2xl font-semibold text-textdark">Status Komit Terbaru</h2>
-                                <p class="max-w-3xl text-sm text-textdark/70">
-                                    Pantau performa komit blok secara keseluruhan maupun per jaringan RAFT, meliputi latensi,
-                                    throughput, serta status transaksi terkini dari setiap jaringan yang diamati.
-                                </p>
-                            </header>
-                            <div id="blockHighlightGrid" data-state="loading" class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                                <article class="rounded-3xl border border-white/10 bg-surfaceMuted/60 p-6 text-sm text-textdark/70 shadow-inner shadow-black/20">
-                                    <div class="flex items-center gap-3 text-textdark/80">
-                                        <span class="h-3 w-3 animate-ping rounded-full bg-primary/70"></span>
-                                        Menyiapkan sorotan performa blok...
-                                    </div>
-                                </article>
-                            </div>
-                        </section>
-
-                        <section class="space-y-6">
-                            <header class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                            <header class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                                 <div class="space-y-1">
-                                    <p class="text-xs font-semibold uppercase tracking-[0.28em] text-primary/80">Statistik</p>
-                                    <h2 class="text-2xl font-semibold text-textdark">Ikhtisar Blok per Jaringan</h2>
-                                    <p class="max-w-2xl text-sm text-textdark/70">Ringkasan cepat setiap paket jaringan meliputi total blok yang tercatat,
-                                        jumlah transaksi berhasil, serta blok terakhir yang diamati.</p>
+                                    <p class="text-xs font-semibold uppercase tracking-[0.28em] text-highlight/80">Distribusi Blok</p>
+                                    <h2 class="text-2xl font-semibold text-textdark">Grafik Blok per Jaringan</h2>
+                                    <p class="max-w-3xl text-sm text-textdark/70">
+                                        Setiap garis menggambarkan rangkaian blok yang diterima oleh jaringan selama simulasi.
+                                        Perbandingan visual ini memudahkan identifikasi pola commit blok antar paket RAFT.
+                                    </p>
                                 </div>
-                                <button id="refreshBlockComparisonButton" type="button" class="inline-flex items-center gap-2 rounded-2xl border border-primary/40 bg-primary/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.28em] text-primary/90 transition hover:-translate-y-0.5 hover:bg-primary/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">
-                                    Segarkan data
-                                </button>
+                                <div class="flex flex-col items-start gap-3 md:items-end">
+                                    <button id="refreshBlockComparisonButton" type="button" class="inline-flex items-center gap-2 rounded-2xl border border-primary/40 bg-primary/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.28em] text-primary/90 transition hover:-translate-y-0.5 hover:bg-primary/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">
+                                        Segarkan data
+                                    </button>
+                                    <p id="blockComparisonUpdatedAt" class="text-[10px] uppercase tracking-[0.28em] text-textdark/50"></p>
+                                </div>
                             </header>
-                            <p id="blockComparisonStatus" class="text-xs uppercase tracking-[0.28em] text-textdark/50"></p>
-                            <div id="blockSummaryGrid" data-state="loading" class="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-                                <article class="rounded-3xl border border-white/10 bg-surfaceMuted/70 p-6 text-sm text-textdark/70 shadow-inner shadow-black/20">
-                                    <div class="flex items-center gap-3 text-textdark/80">
-                                        <span class="h-3 w-3 animate-ping rounded-full bg-primary/70"></span>
-                                        Menyiapkan ringkasan blok jaringan...
+                            <article data-block-timeline-chart data-state="loading" class="flex flex-col gap-4 rounded-3xl border border-white/10 bg-surfaceMuted/70 p-6 text-sm text-textdark/70 shadow-inner shadow-black/20">
+                                <div class="flex items-start justify-between gap-3">
+                                    <div>
+                                        <h3 class="text-lg font-semibold text-textdark">Distribusi Blok Simulasi</h3>
+                                        <p class="text-xs text-textdark/60">Setiap titik merepresentasikan blok yang diterima jaringan ketika simulasi berjalan.</p>
                                     </div>
-                                </article>
-                            </div>
-                        </section>
-
-                        <section class="space-y-6">
-                            <header class="space-y-1">
-                                <p class="text-xs font-semibold uppercase tracking-[0.28em] text-secondary/80">Grafik</p>
-                                <h2 class="text-2xl font-semibold text-textdark">Perbandingan Visual Blok</h2>
-                                <p class="max-w-3xl text-sm text-textdark/70">
-                                    Grafik berikut menampilkan total blok yang diterima setiap jaringan serta distribusi blok terbaru.
-                                    Gunakan perbandingan ini untuk mengidentifikasi jaringan yang paling aktif dan mengevaluasi konsistensi
-                                    proses komit blok antar paket.
-                                </p>
-                            </header>
-                            <div class="grid gap-5 lg:grid-cols-2">
-                                <article data-block-count-chart data-state="loading" class="flex flex-col gap-4 rounded-3xl border border-white/10 bg-surfaceMuted/70 p-6 text-sm text-textdark/70 shadow-inner shadow-black/20">
-                                    <div class="flex items-start justify-between gap-3">
-                                        <div>
-                                            <h3 class="text-lg font-semibold text-textdark">Volume Blok per Jaringan</h3>
-                                            <p class="text-xs text-textdark/60">Perbandingan jumlah blok unik yang tercatat pada setiap jaringan.</p>
-                                        </div>
+                                </div>
+                                <div class="relative h-[420px] rounded-2xl border border-white/5 bg-surface/60 p-4">
+                                    <div data-chart-placeholder class="absolute inset-0 flex items-center justify-center rounded-2xl bg-surface/70 text-center text-sm text-textdark/70">
+                                        Menyiapkan grafik distribusi blok simulasi...
                                     </div>
-                                    <div class="relative h-80 rounded-2xl border border-white/5 bg-surface/60 p-4">
-                                        <div data-chart-placeholder class="absolute inset-0 flex items-center justify-center rounded-2xl bg-surface/70 text-center text-sm text-textdark/70">
-                                            Menyiapkan visualisasi total blok per jaringan...
-                                        </div>
-                                        <canvas id="blockCountChart" class="absolute inset-0 hidden" aria-label="Grafik jumlah blok per jaringan" role="img"></canvas>
-                                    </div>
-                                </article>
-                                <article data-block-timeline-chart data-state="loading" class="flex flex-col gap-4 rounded-3xl border border-white/10 bg-surfaceMuted/70 p-6 text-sm text-textdark/70 shadow-inner shadow-black/20">
-                                    <div class="flex items-start justify-between gap-3">
-                                        <div>
-                                            <h3 class="text-lg font-semibold text-textdark">Distribusi Aktivitas Blok</h3>
-                                            <p class="text-xs text-textdark/60">Tren jumlah transaksi per blok terbaru dari tiap jaringan.</p>
-                                        </div>
-                                    </div>
-                                    <div class="relative h-80 rounded-2xl border border-white/5 bg-surface/60 p-4">
-                                        <div data-chart-placeholder class="absolute inset-0 flex items-center justify-center rounded-2xl bg-surface/70 text-center text-sm text-textdark/70">
-                                            Menyiapkan visualisasi distribusi blok terbaru...
-                                        </div>
-                                        <canvas id="blockTimelineChart" class="absolute inset-0 hidden" aria-label="Grafik distribusi blok terbaru" role="img"></canvas>
-                                    </div>
-                                </article>
-                            </div>
-                        </section>
-
-                        <section class="space-y-6">
-                            <header class="space-y-1">
-                                <p class="text-xs font-semibold uppercase tracking-[0.28em] text-highlight/80">Grafik Komit</p>
-                                <h2 class="text-2xl font-semibold text-textdark">Perbandingan Metrik Komit</h2>
-                                <p class="max-w-3xl text-sm text-textdark/70">
-                                    Pantau performa setiap jaringan RAFT dari sisi latensi, throughput, serta jumlah commit yang berhasil maupun gagal.
-                                    Grafik berikut membantu mengidentifikasi perbedaan karakteristik antar jaringan secara visual.
-                                </p>
-                            </header>
-                            <div class="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-                                <article data-latest-latency-chart data-state="loading" class="flex flex-col gap-4 rounded-3xl border border-white/10 bg-surfaceMuted/70 p-6 text-sm text-textdark/70 shadow-inner shadow-black/20">
-                                    <div class="flex items-start justify-between gap-3">
-                                        <div>
-                                            <h3 class="text-lg font-semibold text-textdark">Latensi Terbaru</h3>
-                                            <p class="text-xs text-textdark/60">Perbandingan latensi komit terbaru yang tercatat pada setiap jaringan.</p>
-                                        </div>
-                                    </div>
-                                    <div class="relative h-72 rounded-2xl border border-white/5 bg-surface/60 p-4">
-                                        <div data-chart-placeholder class="absolute inset-0 flex items-center justify-center rounded-2xl bg-surface/70 text-center text-sm text-textdark/70">
-                                            Menyiapkan visualisasi latensi terbaru per jaringan...
-                                        </div>
-                                        <canvas id="latestLatencyChart" class="absolute inset-0 hidden" aria-label="Grafik latensi terbaru per jaringan" role="img"></canvas>
-                                    </div>
-                                </article>
-                                <article data-average-latency-chart data-state="loading" class="flex flex-col gap-4 rounded-3xl border border-white/10 bg-surfaceMuted/70 p-6 text-sm text-textdark/70 shadow-inner shadow-black/20">
-                                    <div class="flex items-start justify-between gap-3">
-                                        <div>
-                                            <h3 class="text-lg font-semibold text-textdark">Rata-rata Latensi</h3>
-                                            <p class="text-xs text-textdark/60">Rata-rata waktu komit setiap jaringan selama periode observasi.</p>
-                                        </div>
-                                    </div>
-                                    <div class="relative h-72 rounded-2xl border border-white/5 bg-surface/60 p-4">
-                                        <div data-chart-placeholder class="absolute inset-0 flex items-center justify-center rounded-2xl bg-surface/70 text-center text-sm text-textdark/70">
-                                            Menyiapkan visualisasi rata-rata latensi per jaringan...
-                                        </div>
-                                        <canvas id="averageLatencyChart" class="absolute inset-0 hidden" aria-label="Grafik rata-rata latensi per jaringan" role="img"></canvas>
-                                    </div>
-                                </article>
-                                <article data-throughput-chart data-state="loading" class="flex flex-col gap-4 rounded-3xl border border-white/10 bg-surfaceMuted/70 p-6 text-sm text-textdark/70 shadow-inner shadow-black/20">
-                                    <div class="flex items-start justify-between gap-3">
-                                        <div>
-                                            <h3 class="text-lg font-semibold text-textdark">Throughput</h3>
-                                            <p class="text-xs text-textdark/60">Jumlah transaksi sukses per detik yang dicapai masing-masing jaringan.</p>
-                                        </div>
-                                    </div>
-                                    <div class="relative h-72 rounded-2xl border border-white/5 bg-surface/60 p-4">
-                                        <div data-chart-placeholder class="absolute inset-0 flex items-center justify-center rounded-2xl bg-surface/70 text-center text-sm text-textdark/70">
-                                            Menyiapkan visualisasi throughput per jaringan...
-                                        </div>
-                                        <canvas id="throughputChart" class="absolute inset-0 hidden" aria-label="Grafik throughput per jaringan" role="img"></canvas>
-                                    </div>
-                                </article>
-                                <article data-success-commit-chart data-state="loading" class="flex flex-col gap-4 rounded-3xl border border-white/10 bg-surfaceMuted/70 p-6 text-sm text-textdark/70 shadow-inner shadow-black/20">
-                                    <div class="flex items-start justify-between gap-3">
-                                        <div>
-                                            <h3 class="text-lg font-semibold text-textdark">Commit Berhasil</h3>
-                                            <p class="text-xs text-textdark/60">Total transaksi yang berhasil dikomit oleh setiap jaringan.</p>
-                                        </div>
-                                    </div>
-                                    <div class="relative h-72 rounded-2xl border border-white/5 bg-surface/60 p-4">
-                                        <div data-chart-placeholder class="absolute inset-0 flex items-center justify-center rounded-2xl bg-surface/70 text-center text-sm text-textdark/70">
-                                            Menyiapkan visualisasi commit berhasil per jaringan...
-                                        </div>
-                                        <canvas id="successCommitChart" class="absolute inset-0 hidden" aria-label="Grafik commit berhasil per jaringan" role="img"></canvas>
-                                    </div>
-                                </article>
-                                <article data-failed-commit-chart data-state="loading" class="flex flex-col gap-4 rounded-3xl border border-white/10 bg-surfaceMuted/70 p-6 text-sm text-textdark/70 shadow-inner shadow-black/20">
-                                    <div class="flex items-start justify-between gap-3">
-                                        <div>
-                                            <h3 class="text-lg font-semibold text-textdark">Commit Gagal</h3>
-                                            <p class="text-xs text-textdark/60">Jumlah transaksi yang tidak berhasil dikomit pada setiap jaringan.</p>
-                                        </div>
-                                    </div>
-                                    <div class="relative h-72 rounded-2xl border border-white/5 bg-surface/60 p-4">
-                                        <div data-chart-placeholder class="absolute inset-0 flex items-center justify-center rounded-2xl bg-surface/70 text-center text-sm text-textdark/70">
-                                            Menyiapkan visualisasi commit gagal per jaringan...
-                                        </div>
-                                        <canvas id="failedCommitChart" class="absolute inset-0 hidden" aria-label="Grafik commit gagal per jaringan" role="img"></canvas>
-                                    </div>
-                                </article>
-                            </div>
+                                    <canvas id="blockTimelineChart" class="absolute inset-0 hidden" aria-label="Grafik distribusi blok simulasi per jaringan" role="img"></canvas>
+                                </div>
+                            </article>
                         </section>
                     </div>
                 </main>

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluasi RAFT HLF &mdash; Perbandingan Jaringan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#38BDF8',
+                        secondary: '#6366F1',
+                        accent: '#F59E0B',
+                        highlight: '#F97316',
+                        soft: '#050B16',
+                        surface: '#0F172A',
+                        surfaceMuted: '#16213F',
+                        border: '#1E293B',
+                        muted: '#94A3B8',
+                        textdark: '#E2E8F0'
+                    }
+                }
+            }
+        };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="/images/logo-ai-center.svg">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+
+        .component-link[data-active="true"] {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(99, 102, 241, 0.2));
+            color: #E2E8F0;
+            border-color: rgba(56, 189, 248, 0.45);
+            box-shadow: 0 10px 35px rgba(8, 47, 73, 0.45);
+        }
+
+        .component-link[data-active="true"] .component-link__index {
+            background-color: rgba(56, 189, 248, 0.35);
+            color: #E2E8F0;
+        }
+    </style>
+</head>
+<body class="bg-soft text-textdark">
+    <div data-component="header"></div>
+    <div class="relative min-h-screen overflow-hidden">
+        <div class="absolute inset-0 -z-10 h-full w-full">
+            <div class="absolute -left-1/3 top-0 h-[720px] w-[720px] rounded-full bg-gradient-to-br from-primary/35 via-secondary/20 to-transparent opacity-70 blur-3xl"></div>
+            <div class="absolute -right-1/4 bottom-0 h-[620px] w-[620px] rounded-full bg-gradient-to-tr from-accent/35 via-secondary/25 to-primary/20 opacity-70 blur-3xl"></div>
+        </div>
+
+        <div class="flex min-h-screen flex-col lg:flex-row">
+            <div data-component="sidebar"></div>
+
+            <div class="flex-1">
+                <main class="mx-auto w-full max-w-6xl px-6 py-12">
+                    <div class="space-y-10">
+                        <section class="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-surface via-soft to-[#020817] p-10 shadow-2xl shadow-black/30">
+                            <div class="flex flex-col gap-8">
+                                <div class="inline-flex w-fit items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-primary/90">
+                                    Perbandingan RAFT
+                                </div>
+                                <div class="space-y-4">
+                                    <h1 class="text-4xl font-semibold text-textdark md:text-5xl">Perbandingan Jaringan Fabric 2 &amp; Fabric 3</h1>
+                                    <p class="max-w-3xl text-base text-textdark/70">
+                                        Tinjauan mendalam terhadap konfigurasi Hyperledger Fabric berbasis konsensus RAFT pada dua generasi jaringan. Halaman ini
+                                        memvisualisasikan perbedaan utama antara paket <span class="font-semibold text-textdark">RAFT Standard</span> dan <span class="font-semibold text-textdark">RAFT Variant</span>
+                                        untuk Fabric 2 dan Fabric 3, mencakup versi, jalur chaincode, serta detail orderer dan peer.
+                                    </p>
+                                    <p id="comparisonUpdatedAt" class="text-xs uppercase tracking-[0.28em] text-textdark/50"></p>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="space-y-6">
+                            <header class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                                <div class="space-y-1">
+                                    <p class="text-xs font-semibold uppercase tracking-[0.28em] text-primary/80">Gambaran Umum</p>
+                                    <h2 class="text-2xl font-semibold text-textdark">Ringkasan Setiap Paket Jaringan</h2>
+                                </div>
+                                <p class="max-w-xl text-sm text-textdark/70">
+                                    Sorotan cepat terhadap karakteristik utama setiap bundel jaringan, termasuk kanal, versi fabric, dan jumlah peer yang aktif.
+                                </p>
+                            </header>
+                            <div id="networkSummaryGrid" data-state="loading" class="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+                                <article class="rounded-3xl border border-white/10 bg-surfaceMuted/70 p-6 text-sm text-textdark/70 shadow-inner shadow-black/20">
+                                    <div class="flex items-center gap-3 text-textdark/80">
+                                        <span class="h-3 w-3 animate-ping rounded-full bg-primary/70"></span>
+                                        Memuat ringkasan konfigurasi jaringan...
+                                    </div>
+                                </article>
+                            </div>
+                        </section>
+
+                        <section class="space-y-6">
+                            <header class="space-y-1">
+                                <p class="text-xs font-semibold uppercase tracking-[0.28em] text-secondary/80">Konfigurasi</p>
+                                <h2 class="text-2xl font-semibold text-textdark">Perbandingan Nilai Kunci</h2>
+                                <p class="max-w-3xl text-sm text-textdark/70">
+                                    Tabel berikut menyoroti kesamaan dan perbedaan parameter penting antara paket RAFT Standard dan RAFT Variant pada setiap generasi Fabric.
+                                    Kolom catatan menunjukkan apakah konfigurasi identik atau memiliki variasi.</p>
+                            </header>
+                            <div id="comparisonSummary" data-state="loading" class="space-y-5">
+                                <article class="rounded-3xl border border-white/10 bg-surfaceMuted/70 p-6 text-sm text-textdark/70 shadow-inner shadow-black/20">
+                                    <div class="flex items-center gap-3 text-textdark/80">
+                                        <span class="h-3 w-3 animate-ping rounded-full bg-secondary/70"></span>
+                                        Menghimpun data perbandingan konfigurasi...
+                                    </div>
+                                </article>
+                            </div>
+                        </section>
+
+                        <section class="space-y-6">
+                            <header class="space-y-1">
+                                <p class="text-xs font-semibold uppercase tracking-[0.28em] text-accent/80">Orderer</p>
+                                <h2 class="text-2xl font-semibold text-textdark">Detail Orkestrasi Konsensus</h2>
+                                <p class="max-w-3xl text-sm text-textdark/70">
+                                    Lihat bagaimana masing-masing paket mengonfigurasi orderer RAFT, termasuk alamat gRPC, operasi administratif, dan status TLS.</p>
+                            </header>
+                            <div id="ordererComparison" data-state="loading" class="grid gap-5 md:grid-cols-2">
+                                <article class="rounded-3xl border border-white/10 bg-surfaceMuted/70 p-6 text-sm text-textdark/70 shadow-inner shadow-black/20">
+                                    <div class="flex items-center gap-3 text-textdark/80">
+                                        <span class="h-3 w-3 animate-ping rounded-full bg-accent/70"></span>
+                                        Menyusun detail orderer untuk setiap paket...
+                                    </div>
+                                </article>
+                            </div>
+                        </section>
+
+                        <section class="space-y-6">
+                            <header class="space-y-1">
+                                <p class="text-xs font-semibold uppercase tracking-[0.28em] text-highlight/80">Peer</p>
+                                <h2 class="text-2xl font-semibold text-textdark">Distribusi Peer &amp; Endpoint</h2>
+                                <p class="max-w-3xl text-sm text-textdark/70">
+                                    Rincian tiap peer yang aktif pada paket jaringan, termasuk alamat chaincode dan endpoint operasi.</p>
+                            </header>
+                            <div id="peerComparison" data-state="loading" class="grid gap-5 md:grid-cols-2">
+                                <article class="rounded-3xl border border-white/10 bg-surfaceMuted/70 p-6 text-sm text-textdark/70 shadow-inner shadow-black/20">
+                                    <div class="flex items-center gap-3 text-textdark/80">
+                                        <span class="h-3 w-3 animate-ping rounded-full bg-highlight/70"></span>
+                                        Mengumpulkan daftar peer jaringan...
+                                    </div>
+                                </article>
+                            </div>
+                        </section>
+                    </div>
+                </main>
+
+                <div data-component="footer"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/layout.js" defer></script>
+    <script src="/js/navigation.js" defer></script>
+    <script src="/js/comparison.js" defer></script>
+</body>
+</html>

@@ -1138,6 +1138,7 @@ const viewsRoot = path.resolve(staticRoot, 'view');
 
 const viewFiles = {
     home: path.resolve(viewsRoot, 'home.html'),
+    comparison: path.resolve(viewsRoot, 'perbandingan-jaringan.html'),
     fabric2: {
         dashboard: path.resolve(viewsRoot, 'fabric-2/dashboard.html'),
         networkHealth: path.resolve(viewsRoot, 'fabric-2/kesehatan-jaringan.html'),
@@ -1186,6 +1187,10 @@ app.get('/api/network-operations/stream', (req, res) => {
 
 app.get('/', (req, res) => {
     res.sendFile(viewFiles.home);
+});
+
+app.get('/perbandingan-jaringan', (req, res) => {
+    res.sendFile(viewFiles.comparison);
 });
 
 app.get('/dashboard', (req, res) => {

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulasi Serentak Fabric &mdash; Evaluasi RAFT HLF</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#38BDF8',
+                        secondary: '#6366F1',
+                        accent: '#F59E0B',
+                        highlight: '#F97316',
+                        soft: '#050B16',
+                        surface: '#0F172A',
+                        surfaceMuted: '#16213F',
+                        border: '#1E293B',
+                        muted: '#94A3B8',
+                        textdark: '#E2E8F0'
+                    }
+                }
+            }
+        };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="/images/logo-ai-center.svg">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+
+        .component-link[data-active="true"] {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(99, 102, 241, 0.2));
+            color: #E2E8F0;
+            border-color: rgba(56, 189, 248, 0.45);
+            box-shadow: 0 10px 35px rgba(8, 47, 73, 0.45);
+        }
+
+        .component-link[data-active="true"] .component-link__index {
+            background-color: rgba(56, 189, 248, 0.35);
+            color: #E2E8F0;
+        }
+    </style>
+</head>
+<body class="bg-soft text-textdark">
+    <div data-component="header"></div>
+    <div class="relative min-h-screen overflow-hidden">
+        <div class="absolute inset-0 -z-10 h-full w-full">
+            <div class="absolute -left-1/3 top-0 h-[720px] w-[720px] rounded-full bg-gradient-to-br from-primary/35 via-secondary/20 to-transparent opacity-70 blur-3xl"></div>
+            <div class="absolute -right-1/4 bottom-0 h-[620px] w-[620px] rounded-full bg-gradient-to-tr from-accent/35 via-secondary/25 to-primary/20 opacity-70 blur-3xl"></div>
+        </div>
+
+        <div class="flex min-h-screen flex-col lg:flex-row">
+            <div data-component="sidebar"></div>
+
+            <div class="flex-1">
+                <main class="mx-auto w-full max-w-6xl px-6 py-12">
+                    <div class="space-y-10">
+                        <section class="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-surface via-soft to-[#020817] p-10 shadow-2xl shadow-black/30">
+                            <div class="flex flex-col gap-8">
+                                <div class="inline-flex w-fit items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-primary/90">
+                                    Simulasi Serentak
+                                </div>
+                                <div class="space-y-4">
+                                    <h1 class="text-4xl font-semibold text-textdark md:text-5xl">Pengiriman Data Serentak ke Seluruh Jaringan Fabric</h1>
+                                    <p class="max-w-3xl text-base text-textdark/70">
+                                        Gunakan halaman ini untuk membuat data pelaporan simulasi dan mengirimkannya ke seluruh jaringan RAFT secara bersamaan.
+                                        Grafik di bawah akan memperlihatkan jumlah blok yang diterima masing-masing jaringan secara real-time sehingga perbedaannya dapat diamati dengan mudah.
+                                    </p>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="space-y-6">
+                            <div class="grid gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+                                <article class="flex h-full flex-col gap-6 rounded-3xl border border-white/10 bg-surface/80 p-8 shadow-2xl shadow-black/25">
+                                    <header class="space-y-2">
+                                        <p class="text-xs font-semibold uppercase tracking-[0.3em] text-primary/80">Formulir simulasi</p>
+                                        <h2 class="text-2xl font-semibold text-textdark">Kirim data simulasi ke seluruh jaringan</h2>
+                                        <p class="text-sm text-textdark/70">
+                                            Setiap eksekusi akan membuat beberapa catatan pelaporan berbasis data acak dan mengirimkannya ke semua channel Fabric 2 dan Fabric 3 yang terhubung.
+                                        </p>
+                                    </header>
+
+                                    <form id="broadcastSimulationForm" class="space-y-5" autocomplete="off">
+                                        <div class="grid gap-5 md:grid-cols-2">
+                                            <label class="flex flex-col gap-2 text-sm text-textdark/70">
+                                                <span class="text-xs font-semibold uppercase tracking-[0.28em] text-textdark/60">Jumlah catatan</span>
+                                                <input id="simulationBatchCount" name="batchCount" type="number" min="1" max="20" value="5" class="w-full rounded-xl border border-white/10 bg-surface/70 px-4 py-3 text-textdark shadow-inner shadow-black/20 focus:border-primary/60 focus:outline-none focus:ring-2 focus:ring-primary/40" required>
+                                                <span class="text-xs text-textdark/50">Jumlah catatan simulasi yang akan dikirim secara berurutan. Rentang diperbolehkan 1 &ndash; 20.</span>
+                                            </label>
+                                            <div class="flex flex-col gap-3 rounded-2xl border border-white/10 bg-surfaceMuted/70 p-4 text-xs text-textdark/70 shadow-inner shadow-black/20">
+                                                <p class="font-semibold uppercase tracking-[0.28em] text-secondary/80">Ruangk lingkup jaringan</p>
+                                                <ul class="space-y-1.5 list-disc pl-4">
+                                                    <li>RAFT Standard &amp; RAFT Variant (Fabric 2)</li>
+                                                    <li>RAFT Standard &amp; RAFT Variant (Fabric 3)</li>
+                                                    <li>Pencatatan commit dan status blok terbaru</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+
+                                        <div class="flex flex-wrap items-center gap-3">
+                                            <button type="submit" id="broadcastSubmitButton" class="inline-flex items-center gap-2 rounded-xl border border-primary/60 bg-gradient-to-r from-primary/90 to-secondary/90 px-5 py-3 text-xs font-semibold uppercase tracking-[0.25em] text-[#041226] shadow-lg shadow-primary/20 transition duration-200 hover:-translate-y-0.5 hover:shadow-primary/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary">
+                                                <span class="text-base">▶</span>
+                                                <span>Mulai kirim simulasi</span>
+                                            </button>
+                                            <p class="text-xs text-textdark/50">Pengiriman akan berlangsung satu per satu agar mudah diamati dari grafik blok.</p>
+                                        </div>
+                                    </form>
+
+                                    <div id="broadcastStatus" class="flex items-center gap-3 rounded-2xl border border-white/10 bg-surfaceMuted/70 px-5 py-4 text-sm text-textdark/70 shadow-inner shadow-black/20 transition" role="status" aria-live="polite" data-variant="idle">
+                                        <span data-status-indicator class="h-2.5 w-2.5 rounded-full bg-primary/60 shadow-[0_0_0_4px_rgba(56,189,248,0.25)] transition"></span>
+                                        <span data-status-message>Belum ada simulasi yang dijalankan.</span>
+                                    </div>
+                                </article>
+
+                                <article class="flex h-full flex-col gap-4 rounded-3xl border border-white/10 bg-surface/80 p-8 shadow-2xl shadow-black/25">
+                                    <header class="space-y-1">
+                                        <p class="text-xs font-semibold uppercase tracking-[0.3em] text-primary/80">Ringkasan hasil terbaru</p>
+                                        <h2 class="text-xl font-semibold text-textdark">Status pengiriman per jaringan</h2>
+                                    </header>
+                                    <div id="broadcastResults" class="grid gap-3 text-sm text-textdark/70"></div>
+                                </article>
+                            </div>
+                        </section>
+
+                        <section class="space-y-6">
+                            <header class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                                <div class="space-y-2">
+                                    <p class="text-xs font-semibold uppercase tracking-[0.3em] text-highlight/80">Observasi blok</p>
+                                    <h2 class="text-2xl font-semibold text-textdark">Grafik blok real-time untuk seluruh jaringan</h2>
+                                    <p class="max-w-3xl text-sm text-textdark/70">
+                                        Grafik garis ini menampilkan akumulasi blok yang tercatat pada masing-masing jaringan Fabric setiap beberapa detik.
+                                        Gunakan indikator ini untuk memantau seberapa cepat blok baru diterima selama proses simulasi berlangsung.
+                                    </p>
+                                </div>
+                                <p id="realtimeUpdatedAt" class="text-[10px] uppercase tracking-[0.28em] text-textdark/50"></p>
+                            </header>
+
+                            <div class="grid gap-6 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
+                                <article class="flex flex-col gap-4 rounded-3xl border border-white/10 bg-surfaceMuted/70 p-6 shadow-inner shadow-black/25">
+                                    <div class="relative h-[420px] rounded-2xl border border-white/5 bg-surface/60 p-4">
+                                        <div id="chartPlaceholder" class="absolute inset-0 flex items-center justify-center rounded-2xl bg-surface/70 text-center text-sm text-textdark/70">
+                                            Menunggu data blok terbaru...
+                                        </div>
+                                        <canvas id="blockRealtimeChart" class="absolute inset-0 hidden" aria-label="Grafik jumlah blok realtime" role="img"></canvas>
+                                    </div>
+                                </article>
+
+                                <article class="flex flex-col gap-4 rounded-3xl border border-white/10 bg-surfaceMuted/70 p-6 shadow-inner shadow-black/25">
+                                    <header class="space-y-1">
+                                        <h3 class="text-lg font-semibold text-textdark">Snapshot blok terkini</h3>
+                                        <p class="text-xs text-textdark/60">Perbandingan jumlah blok dan status komit terakhir dari setiap jaringan.</p>
+                                    </header>
+                                    <div id="networkSnapshot" class="grid gap-3"></div>
+                                </article>
+                            </div>
+                        </section>
+                    </div>
+                </main>
+
+                <div data-component="footer"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/layout.js" defer></script>
+    <script src="/js/navigation.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js" defer></script>
+    <script src="/js/simulasi-serentak.js" defer></script>
+</body>
+</html>

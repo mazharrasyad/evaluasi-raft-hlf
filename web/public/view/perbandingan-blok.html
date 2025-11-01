@@ -81,38 +81,16 @@
                                 <p class="text-xs font-semibold uppercase tracking-[0.28em] text-accent/80">Sorotan</p>
                                 <h2 class="text-2xl font-semibold text-textdark">Status Komit Terbaru</h2>
                                 <p class="max-w-3xl text-sm text-textdark/70">
-                                    Pantau performa komit blok secara keseluruhan, meliputi latensi, throughput, serta status
-                                    transaksi terkini dari seluruh jaringan yang diamati.
+                                    Pantau performa komit blok secara keseluruhan maupun per jaringan RAFT, meliputi latensi,
+                                    throughput, serta status transaksi terkini dari setiap jaringan yang diamati.
                                 </p>
                             </header>
-                            <div id="blockHighlightGrid" class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                                <article class="rounded-3xl border border-white/10 bg-surfaceMuted/60 p-6 shadow-inner shadow-black/20">
-                                    <p class="text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-textdark/60">Latensi terbaru</p>
-                                    <p id="blockLatestLatencyValue" class="mt-2 text-2xl font-semibold text-textdark">—</p>
-                                </article>
-                                <article class="rounded-3xl border border-white/10 bg-surfaceMuted/60 p-6 shadow-inner shadow-black/20">
-                                    <p class="text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-textdark/60">Rata-rata latensi</p>
-                                    <p id="blockAverageLatencyValue" class="mt-2 text-2xl font-semibold text-textdark">—</p>
-                                </article>
-                                <article class="rounded-3xl border border-white/10 bg-surfaceMuted/60 p-6 shadow-inner shadow-black/20">
-                                    <p class="text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-textdark/60">Throughput</p>
-                                    <p id="blockThroughputValue" class="mt-2 text-2xl font-semibold text-textdark">0,00 tx/detik</p>
-                                </article>
-                                <article class="rounded-3xl border border-white/10 bg-surfaceMuted/60 p-6 shadow-inner shadow-black/20">
-                                    <p class="text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-textdark/60">Commit berhasil</p>
-                                    <p id="blockSuccessCountValue" class="mt-2 text-2xl font-semibold text-textdark">0</p>
-                                </article>
-                                <article class="rounded-3xl border border-white/10 bg-surfaceMuted/60 p-6 shadow-inner shadow-black/20">
-                                    <p class="text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-textdark/60">Commit gagal</p>
-                                    <p id="blockFailureCountValue" class="mt-2 text-2xl font-semibold text-textdark">0</p>
-                                </article>
-                                <article class="rounded-3xl border border-white/10 bg-surfaceMuted/60 p-6 shadow-inner shadow-black/20 sm:col-span-2 xl:col-span-2">
-                                    <p class="text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-textdark/60">Kode commit terakhir</p>
-                                    <p id="blockCommitCodeValue" class="mt-2 truncate text-2xl font-semibold text-textdark">—</p>
-                                </article>
-                                <article class="rounded-3xl border border-white/10 bg-surfaceMuted/60 p-6 shadow-inner shadow-black/20 sm:col-span-2 xl:col-span-2">
-                                    <p class="text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-textdark/60">Blok commit terakhir</p>
-                                    <p id="blockCommitBlockValue" class="mt-2 text-2xl font-semibold text-textdark">—</p>
+                            <div id="blockHighlightGrid" data-state="loading" class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                                <article class="rounded-3xl border border-white/10 bg-surfaceMuted/60 p-6 text-sm text-textdark/70 shadow-inner shadow-black/20">
+                                    <div class="flex items-center gap-3 text-textdark/80">
+                                        <span class="h-3 w-3 animate-ping rounded-full bg-primary/70"></span>
+                                        Menyiapkan sorotan performa blok...
+                                    </div>
                                 </article>
                             </div>
                         </section>

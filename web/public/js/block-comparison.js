@@ -12,15 +12,6 @@ componentLoaderReady.then(() => {
     const blockTimelineContainer = document.querySelector('[data-block-timeline-chart]');
     const blockTimelineCanvas = document.getElementById('blockTimelineChart');
     const highlightGrid = document.getElementById('blockHighlightGrid');
-    const highlightElements = {
-        latestLatency: document.getElementById('blockLatestLatencyValue'),
-        averageLatency: document.getElementById('blockAverageLatencyValue'),
-        throughput: document.getElementById('blockThroughputValue'),
-        successCount: document.getElementById('blockSuccessCountValue'),
-        failureCount: document.getElementById('blockFailureCountValue'),
-        commitCode: document.getElementById('blockCommitCodeValue'),
-        commitBlock: document.getElementById('blockCommitBlockValue'),
-    };
 
     const PLACEHOLDER_VARIANTS = {
         info: 'border-white/10 bg-surface/60 text-textdark/70',
@@ -225,38 +216,17 @@ componentLoaderReady.then(() => {
         return wrapper;
     }
 
-    const highlightDefaults = {
-        latestLatency: '—',
-        averageLatency: '—',
-        throughput: '0,00 tx/detik',
-        successCount: '0',
-        failureCount: '0',
-        commitCode: '—',
-        commitBlock: '—',
-    };
+    function showHighlightPlaceholder(message, tone = 'info') {
+        if (!highlightGrid) {
+            return;
+        }
 
-    function setHighlightValues(values = {}) {
-        Object.entries(highlightDefaults).forEach(([key, fallback]) => {
-            const element = highlightElements[key];
-            if (!element) {
-                return;
-            }
-
-            const value = values[key];
-            if (typeof value === 'string' && value.trim() !== '') {
-                element.textContent = value;
-                return;
-            }
-
-            element.textContent = fallback;
-        });
+        highlightGrid.dataset.state = tone === 'error' ? 'error' : 'placeholder';
+        highlightGrid.replaceChildren(createPlaceholderArticle(message, tone));
     }
 
     function resetHighlights() {
-        if (highlightGrid) {
-            highlightGrid.dataset.state = 'loading';
-        }
-        setHighlightValues({});
+        showHighlightPlaceholder('Menyiapkan sorotan performa blok...', 'info');
     }
 
     function getBlockTimestamp(block) {
@@ -408,7 +378,7 @@ componentLoaderReady.then(() => {
         if (typeof value === 'number' && Number.isFinite(value) && value >= 0) {
             return `${decimalFormatter.format(value)} tx/detik`;
         }
-        return highlightDefaults.throughput;
+        return '0,00 tx/detik';
     }
 
     function formatTextValue(value) {
@@ -424,30 +394,186 @@ componentLoaderReady.then(() => {
         return '—';
     }
 
-    function updateHighlightValues(overall, networks) {
-        const values = { ...highlightDefaults };
+    function createHighlightMetric(label, value, options = {}) {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'space-y-1';
 
-        const successCount = Number.isFinite(overall?.successCount) ? overall.successCount : 0;
-        const failureCount = Number.isFinite(overall?.failureCount) ? overall.failureCount : 0;
-        const averageLatencyMs = Number.isFinite(overall?.averageLatencyMs)
-            ? overall.averageLatencyMs
-            : null;
-        const throughput = Number.isFinite(overall?.throughput) ? overall.throughput : null;
-
-        let averageLatencyValue = averageLatencyMs;
-        if (!Number.isFinite(averageLatencyValue) && Number.isFinite(overall?.averageCommitTimeMs)) {
-            averageLatencyValue = overall.averageCommitTimeMs;
+        if (options.fullWidth) {
+            wrapper.classList.add('sm:col-span-2');
         }
 
-        values.averageLatency = formatLatencyValue(averageLatencyValue);
-        values.throughput = formatThroughputValue(throughput);
-        values.successCount = formatNumber(successCount);
-        values.failureCount = formatNumber(failureCount);
+        const labelEl = document.createElement('p');
+        labelEl.className = 'text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-textdark/60';
+        labelEl.textContent = label;
+
+        const valueEl = document.createElement('p');
+        const baseValueClasses = options.size === 'base'
+            ? ['text-base', 'font-semibold', 'text-textdark']
+            : ['text-lg', 'font-semibold', 'text-textdark'];
+        valueEl.className = '';
+        baseValueClasses.forEach((className) => valueEl.classList.add(className));
+
+        if (options.valueClass) {
+            options.valueClass.split(' ').forEach((className) => {
+                if (className && className.trim() !== '') {
+                    valueEl.classList.add(className.trim());
+                }
+            });
+        }
+
+        valueEl.textContent = value;
+
+        wrapper.append(labelEl, valueEl);
+
+        if (options.hint) {
+            const hintEl = document.createElement('p');
+            hintEl.className = 'text-[0.65rem] text-textdark/60';
+            hintEl.textContent = options.hint;
+            wrapper.append(hintEl);
+        }
+
+        return wrapper;
+    }
+
+    function createHighlightCard({ title, subtitle, badge, metrics, tone = 'default' } = {}) {
+        const article = document.createElement('article');
+        article.className = 'flex flex-col gap-6 rounded-3xl border border-white/10 bg-surfaceMuted/60 p-6 shadow-inner shadow-black/20 transition';
+
+        if (tone === 'inactive') {
+            article.classList.add('opacity-60');
+        }
+
+        const header = document.createElement('div');
+        header.className = 'flex items-start justify-between gap-3';
+
+        const titleWrapper = document.createElement('div');
+        titleWrapper.className = 'space-y-1';
+
+        const heading = document.createElement('h3');
+        heading.className = 'text-lg font-semibold text-textdark';
+        heading.textContent = title || 'Sorotan Komit';
+        titleWrapper.append(heading);
+
+        if (subtitle) {
+            const subtitleEl = document.createElement('p');
+            subtitleEl.className = 'text-xs text-textdark/60';
+            subtitleEl.textContent = subtitle;
+            titleWrapper.append(subtitleEl);
+        }
+
+        header.append(titleWrapper);
+
+        if (badge instanceof HTMLElement) {
+            header.append(badge);
+        }
+
+        article.append(header);
+
+        const metricsWrapper = document.createElement('div');
+        metricsWrapper.className = 'grid grid-cols-1 gap-4 sm:grid-cols-2';
+
+        if (Array.isArray(metrics)) {
+            metrics.forEach((metric) => {
+                if (!metric || typeof metric !== 'object') {
+                    return;
+                }
+
+                const metricEl = createHighlightMetric(metric.label, metric.value, metric.options || metric);
+                metricsWrapper.append(metricEl);
+            });
+        }
+
+        article.append(metricsWrapper);
+
+        return article;
+    }
+
+    function selectLatestBlockForNetwork(network) {
+        if (!network || typeof network !== 'object') {
+            return null;
+        }
+
+        const blocks = Array.isArray(network.blocks) ? network.blocks : [];
+        if (blocks.length === 0) {
+            return buildFallbackBlockFromNetwork(network);
+        }
+
+        return blocks.reduce((latest, block) => {
+            if (!latest) {
+                return block;
+            }
+            return isNewerBlock(block, latest) ? block : latest;
+        }, null);
+    }
+
+    function formatHighlightValues(values = {}) {
+        const successCount = Number.isFinite(values.successCount) ? values.successCount : 0;
+        const failureCount = Number.isFinite(values.failureCount) ? values.failureCount : 0;
+
+        return {
+            latestLatency: formatLatencyValue(values.latestLatency),
+            averageLatency: formatLatencyValue(values.averageLatency),
+            throughput: formatThroughputValue(values.throughput),
+            successCount: formatNumber(successCount),
+            failureCount: formatNumber(failureCount),
+            commitCode: formatTextValue(values.commitCode),
+            commitBlock: formatTextValue(values.commitBlock),
+        };
+    }
+
+    function buildHighlightMetrics(values) {
+        if (!values || typeof values !== 'object') {
+            return [];
+        }
+
+        return [
+            { label: 'Latensi terbaru', value: values.latestLatency },
+            { label: 'Rata-rata latensi', value: values.averageLatency },
+            { label: 'Throughput', value: values.throughput },
+            { label: 'Commit berhasil', value: values.successCount },
+            { label: 'Commit gagal', value: values.failureCount },
+            {
+                label: 'Kode commit terakhir',
+                value: values.commitCode,
+                fullWidth: true,
+                size: 'base',
+                valueClass: 'truncate font-mono text-primary/80',
+            },
+            {
+                label: 'Blok commit terakhir',
+                value: values.commitBlock,
+                fullWidth: true,
+                size: 'base',
+            },
+        ];
+    }
+
+    function computeOverallHighlight(overall, networks) {
+        const values = {
+            latestLatency: null,
+            averageLatency: null,
+            throughput: null,
+            successCount: 0,
+            failureCount: 0,
+            commitCode: null,
+            commitBlock: null,
+        };
+
+        if (overall && typeof overall === 'object') {
+            values.successCount = Number.isFinite(overall.successCount) ? overall.successCount : 0;
+            values.failureCount = Number.isFinite(overall.failureCount) ? overall.failureCount : 0;
+            values.averageLatency = Number.isFinite(overall.averageLatencyMs)
+                ? overall.averageLatencyMs
+                : (Number.isFinite(overall.averageCommitTimeMs) ? overall.averageCommitTimeMs : null);
+            values.throughput = Number.isFinite(overall.throughput) ? overall.throughput : null;
+        }
 
         const latestInfo = selectLatestBlockInfo(networks);
+        let subtitle = null;
 
         if (latestInfo) {
             const { block, network } = latestInfo;
+
             let latestLatency = Number.isFinite(block?.averageCommitTimeMs)
                 ? block.averageCommitTimeMs
                 : (Number.isFinite(block?.averageLatencyMs) ? block.averageLatencyMs : null);
@@ -462,23 +588,145 @@ componentLoaderReady.then(() => {
                 }
             }
 
-            values.latestLatency = formatLatencyValue(latestLatency);
-            values.commitCode = formatTextValue(block?.lastTransactionId || network?.lastTransactionId || null);
-            values.commitBlock = formatTextValue(resolveBlockLabel(block) || network?.lastBlockLabel || null);
+            values.latestLatency = latestLatency;
+            values.commitCode = block?.lastTransactionId || network?.lastTransactionId || null;
+            values.commitBlock = resolveBlockLabel(block) || network?.lastBlockLabel || null;
+
+            const timestamp = block?.lastUpdatedAt || block?.lastCompletedAt || network?.lastBlockUpdatedAt || null;
+            const formattedTimestamp = formatDateTime(timestamp);
+            if (formattedTimestamp) {
+                subtitle = `Pembaruan terakhir ${formattedTimestamp}`;
+            }
         } else {
-            const fallbackLatency = Number.isFinite(overall?.averageCommitTimeMs)
+            values.latestLatency = Number.isFinite(overall?.averageCommitTimeMs)
                 ? overall.averageCommitTimeMs
                 : (Number.isFinite(overall?.averageLatencyMs) ? overall.averageLatencyMs : null);
-            values.latestLatency = formatLatencyValue(fallbackLatency);
-            values.commitCode = highlightDefaults.commitCode;
-            values.commitBlock = highlightDefaults.commitBlock;
+
+            const fallbackTimestamp = overall?.lastCompletedAt || overall?.lastUpdatedAt || null;
+            const formattedTimestamp = formatDateTime(fallbackTimestamp);
+            if (formattedTimestamp) {
+                subtitle = `Pembaruan terakhir ${formattedTimestamp}`;
+            }
         }
 
-        if (highlightGrid) {
-            highlightGrid.dataset.state = 'ready';
+        const formatted = formatHighlightValues(values);
+        const metrics = buildHighlightMetrics(formatted);
+
+        return {
+            title: 'Gabungan Jaringan',
+            subtitle,
+            metrics,
+            tone: 'default',
+        };
+    }
+
+    function computeNetworkHighlight(network, overall) {
+        if (!network || typeof network !== 'object') {
+            return null;
         }
 
-        setHighlightValues(values);
+        const latestBlock = selectLatestBlockForNetwork(network);
+        const values = {
+            latestLatency: null,
+            averageLatency: Number.isFinite(network.averageLatencyMs)
+                ? network.averageLatencyMs
+                : (Number.isFinite(network.averageCommitTimeMs) ? network.averageCommitTimeMs : null),
+            throughput: Number.isFinite(network.throughput) ? network.throughput : null,
+            successCount: Number.isFinite(network.successCount) ? network.successCount : 0,
+            failureCount: Number.isFinite(network.failureCount) ? network.failureCount : 0,
+            commitCode: latestBlock?.lastTransactionId || network.lastTransactionId || null,
+            commitBlock: resolveBlockLabel(latestBlock) || network.lastBlockLabel || null,
+        };
+
+        let latestLatency = Number.isFinite(latestBlock?.averageCommitTimeMs)
+            ? latestBlock.averageCommitTimeMs
+            : (Number.isFinite(latestBlock?.averageLatencyMs) ? latestBlock.averageLatencyMs : null);
+
+        if (!Number.isFinite(latestLatency)) {
+            if (Number.isFinite(network.averageCommitTimeMs)) {
+                latestLatency = network.averageCommitTimeMs;
+            } else if (Number.isFinite(network.averageLatencyMs)) {
+                latestLatency = network.averageLatencyMs;
+            } else if (overall && typeof overall === 'object') {
+                if (Number.isFinite(overall.averageCommitTimeMs)) {
+                    latestLatency = overall.averageCommitTimeMs;
+                } else if (Number.isFinite(overall.averageLatencyMs)) {
+                    latestLatency = overall.averageLatencyMs;
+                } else {
+                    latestLatency = null;
+                }
+            }
+        }
+
+        values.latestLatency = latestLatency;
+
+        const formatted = formatHighlightValues(values);
+        const metrics = buildHighlightMetrics(formatted);
+
+        const subtitleParts = [];
+        if (values.commitBlock && typeof values.commitBlock === 'string' && values.commitBlock.trim() !== '') {
+            subtitleParts.push(`Blok ${values.commitBlock}`);
+        }
+
+        const timestamp = latestBlock?.lastUpdatedAt
+            || latestBlock?.lastCompletedAt
+            || network.lastBlockUpdatedAt
+            || network.lastUpdatedAt
+            || network.lastCompletedAt
+            || null;
+        const formattedTimestamp = formatDateTime(timestamp);
+        if (formattedTimestamp) {
+            subtitleParts.push(`Diperbarui ${formattedTimestamp}`);
+        }
+
+        const badge = getScopeBadge(network.scope);
+        if (badge) {
+            badge.classList.add('shrink-0');
+        }
+
+        return {
+            title: network.label || network.id || 'Jaringan RAFT',
+            subtitle: subtitleParts.join(' • ') || null,
+            badge,
+            metrics,
+            tone: network.hasSimulationData === false ? 'inactive' : 'default',
+        };
+    }
+
+    function renderHighlightCards(overall, networks) {
+        if (!highlightGrid) {
+            return;
+        }
+
+        const cards = [];
+        const overallCard = computeOverallHighlight(overall, networks);
+        if (overallCard) {
+            cards.push(overallCard);
+        }
+
+        if (Array.isArray(networks)) {
+            networks.forEach((network) => {
+                const card = computeNetworkHighlight(network, overall);
+                if (card) {
+                    cards.push(card);
+                }
+            });
+        }
+
+        if (cards.length === 0) {
+            showHighlightPlaceholder('Belum ada sorotan performa blok yang dapat ditampilkan.', 'empty');
+            return;
+        }
+
+        highlightGrid.dataset.state = 'ready';
+        highlightGrid.replaceChildren();
+
+        cards.forEach((cardConfig) => {
+            const card = createHighlightCard(cardConfig);
+            if (card) {
+                highlightGrid.append(card);
+            }
+        });
     }
 
 
@@ -1074,7 +1322,7 @@ componentLoaderReady.then(() => {
             renderSummaryCards(networks);
             renderBlockCountChart(networks);
             renderBlockTimelineChart(networks);
-            updateHighlightValues(payload?.overall || null, networks);
+            renderHighlightCards(payload?.overall || null, networks);
             setUpdatedAtLabel(payload?.updatedAt || payload?.fetchedAt || null);
 
             const fetchedLabel = formatDateTime(payload?.fetchedAt);
@@ -1088,10 +1336,7 @@ componentLoaderReady.then(() => {
             showSummaryPlaceholder('Tidak dapat memuat data blok jaringan.', 'error');
             setChartMessage(blockCountContainer, 'Tidak dapat memuat grafik blok jaringan.', 'error');
             setChartMessage(blockTimelineContainer, 'Tidak dapat memuat grafik distribusi blok.', 'error');
-            if (highlightGrid) {
-                highlightGrid.dataset.state = 'error';
-            }
-            setHighlightValues({});
+            showHighlightPlaceholder('Tidak dapat memuat sorotan performa blok.', 'error');
         } finally {
             if (refreshButton) {
                 refreshButton.disabled = false;

@@ -5,10 +5,32 @@ const componentLoaderReady = window.componentLoaderReady instanceof Promise
 componentLoaderReady.then(() => {
     const refreshButton = document.getElementById('refreshBlockComparisonButton');
     const updatedAtEl = document.getElementById('blockComparisonUpdatedAt');
-    const blockTimelineContainer = document.querySelector('[data-block-timeline-chart]');
-    const blockTimelineCanvas = document.getElementById('blockTimelineChart');
 
-    if (!blockTimelineContainer || !blockTimelineCanvas) {
+    const metricElements = new Map();
+    document.querySelectorAll('[data-block-metric-card]').forEach((card) => {
+        if (!card || !(card instanceof HTMLElement)) {
+            return;
+        }
+
+        const metricId = card.dataset.blockMetricCard;
+        if (!metricId) {
+            return;
+        }
+
+        const canvas = card.querySelector('[data-block-metric-canvas]');
+        if (!(canvas instanceof HTMLCanvasElement)) {
+            return;
+        }
+
+        const placeholder = card.querySelector('[data-chart-placeholder]');
+        metricElements.set(metricId, {
+            container: card,
+            canvas,
+            placeholder: placeholder instanceof HTMLElement ? placeholder : null,
+        });
+    });
+
+    if (metricElements.size === 0) {
         return;
     }
 
@@ -26,13 +48,238 @@ componentLoaderReady.then(() => {
     ];
 
     const numberFormatter = new Intl.NumberFormat('id-ID');
+    const decimalFormatter = new Intl.NumberFormat('id-ID', {
+        maximumFractionDigits: 2,
+        minimumFractionDigits: 0,
+    });
     const dateTimeFormatter = new Intl.DateTimeFormat('id-ID', {
         dateStyle: 'medium',
         timeStyle: 'short',
     });
 
     let isLoading = false;
-    let blockTimelineChartInstance = null;
+    const chartInstances = new Map();
+
+    const BLOCK_METRICS = [
+        {
+            id: 'averageLatency',
+            loadingMessage: 'Menyiapkan grafik latensi blok...',
+            emptyMessage: 'Belum ada data latensi blok yang dapat divisualisasikan.',
+            valueResolver(block) {
+                if (!block) {
+                    return null;
+                }
+
+                const candidates = [
+                    block.averageCommitTimeMs,
+                    block.averageLatencyMs,
+                ];
+
+                for (let index = 0; index < candidates.length; index += 1) {
+                    const value = candidates[index];
+                    if (typeof value === 'number' && Number.isFinite(value)) {
+                        return value;
+                    }
+                }
+
+                return null;
+            },
+            tickFormatter(value) {
+                if (typeof value !== 'number' || !Number.isFinite(value)) {
+                    return '';
+                }
+                return `${numberFormatter.format(Math.round(value))} ms`;
+            },
+            valueFormatter(value) {
+                if (typeof value !== 'number' || !Number.isFinite(value)) {
+                    return 'Tidak ada data';
+                }
+                return `${decimalFormatter.format(value)} ms`;
+            },
+            tooltipExtras({ block }) {
+                if (!block || typeof block !== 'object') {
+                    return [];
+                }
+
+                const extras = [];
+                if (Number.isFinite(block.successCount)) {
+                    extras.push(`Berhasil: ${numberFormatter.format(block.successCount)}`);
+                }
+                if (Number.isFinite(block.failureCount) && block.failureCount > 0) {
+                    extras.push(`Gagal: ${numberFormatter.format(block.failureCount)}`);
+                }
+                return extras;
+            },
+        },
+        {
+            id: 'throughput',
+            loadingMessage: 'Menyiapkan grafik throughput blok...',
+            emptyMessage: 'Belum ada data throughput blok yang dapat divisualisasikan.',
+            valueResolver(block) {
+                if (!block || typeof block.throughput !== 'number') {
+                    return null;
+                }
+                return Number.isFinite(block.throughput) ? block.throughput : null;
+            },
+            tickFormatter(value) {
+                if (typeof value !== 'number' || !Number.isFinite(value)) {
+                    return '';
+                }
+                return `${decimalFormatter.format(value)} tps`;
+            },
+            valueFormatter(value) {
+                if (typeof value !== 'number' || !Number.isFinite(value)) {
+                    return 'Tidak ada data';
+                }
+                return `${decimalFormatter.format(value)} transaksi/detik`;
+            },
+            tooltipExtras({ block }) {
+                if (!block || typeof block !== 'object') {
+                    return [];
+                }
+
+                const extras = [];
+                if (Number.isFinite(block.successCount)) {
+                    extras.push(`Berhasil: ${numberFormatter.format(block.successCount)}`);
+                }
+                if (Number.isFinite(block.failureCount) && block.failureCount > 0) {
+                    extras.push(`Gagal: ${numberFormatter.format(block.failureCount)}`);
+                }
+                return extras;
+            },
+        },
+        {
+            id: 'successCount',
+            loadingMessage: 'Menyiapkan grafik commit berhasil...',
+            emptyMessage: 'Belum ada commit berhasil yang dapat divisualisasikan.',
+            valueResolver(block) {
+                if (!block || typeof block.successCount !== 'number') {
+                    return null;
+                }
+                return Number.isFinite(block.successCount) ? block.successCount : null;
+            },
+            tickFormatter(value) {
+                if (typeof value !== 'number' || !Number.isFinite(value)) {
+                    return '';
+                }
+                return numberFormatter.format(value);
+            },
+            valueFormatter(value) {
+                if (typeof value !== 'number' || !Number.isFinite(value)) {
+                    return 'Tidak ada data';
+                }
+                return `${numberFormatter.format(value)} transaksi`;
+            },
+            tooltipExtras({ block }) {
+                if (!block || typeof block !== 'object') {
+                    return [];
+                }
+
+                const extras = [];
+                if (Number.isFinite(block.failureCount) && block.failureCount > 0) {
+                    extras.push(`Gagal: ${numberFormatter.format(block.failureCount)}`);
+                }
+                if (Number.isFinite(block.totalCount) && block.totalCount !== block.successCount) {
+                    extras.push(`Total: ${numberFormatter.format(block.totalCount)}`);
+                }
+                return extras;
+            },
+        },
+        {
+            id: 'failureCount',
+            loadingMessage: 'Menyiapkan grafik commit gagal...',
+            emptyMessage: 'Belum ada commit gagal yang dapat divisualisasikan.',
+            valueResolver(block) {
+                if (!block || typeof block.failureCount !== 'number') {
+                    return null;
+                }
+                return Number.isFinite(block.failureCount) ? block.failureCount : null;
+            },
+            tickFormatter(value) {
+                if (typeof value !== 'number' || !Number.isFinite(value)) {
+                    return '';
+                }
+                return numberFormatter.format(value);
+            },
+            valueFormatter(value) {
+                if (typeof value !== 'number' || !Number.isFinite(value)) {
+                    return 'Tidak ada data';
+                }
+                return `${numberFormatter.format(value)} transaksi`;
+            },
+            tooltipExtras({ block }) {
+                if (!block || typeof block !== 'object') {
+                    return [];
+                }
+
+                const extras = [];
+                if (Number.isFinite(block.successCount) && block.successCount > 0) {
+                    extras.push(`Berhasil: ${numberFormatter.format(block.successCount)}`);
+                }
+                if (Number.isFinite(block.totalCount) && block.totalCount !== block.failureCount) {
+                    extras.push(`Total: ${numberFormatter.format(block.totalCount)}`);
+                }
+                return extras;
+            },
+        },
+        {
+            id: 'lastUpdate',
+            loadingMessage: 'Menyiapkan grafik waktu komit terakhir...',
+            emptyMessage: 'Belum ada waktu komit yang dapat divisualisasikan.',
+            valueResolver(block, context) {
+                if (!block || !block.lastUpdatedAt) {
+                    return null;
+                }
+
+                const timestamp = Date.parse(block.lastUpdatedAt);
+                if (!Number.isFinite(timestamp)) {
+                    return null;
+                }
+
+                const reference = context && Number.isFinite(context.earliestBlockTimestamp)
+                    ? context.earliestBlockTimestamp
+                    : timestamp;
+
+                return (timestamp - reference) / 1000;
+            },
+            tickFormatter(value) {
+                if (typeof value !== 'number' || !Number.isFinite(value)) {
+                    return '';
+                }
+                return `${numberFormatter.format(Math.round(value))} dtk`;
+            },
+            valueFormatter(value) {
+                if (typeof value !== 'number' || !Number.isFinite(value)) {
+                    return 'Tidak ada data';
+                }
+                return `${decimalFormatter.format(value)} detik`; 
+            },
+            tooltipExtras({ block, renderContext }) {
+                if (!block || !block.lastUpdatedAt) {
+                    return [];
+                }
+
+                const formatted = formatDateTime(block.lastUpdatedAt);
+                const extras = [];
+                if (formatted) {
+                    extras.push(`Waktu komit: ${formatted}`);
+                }
+
+                if (renderContext && Number.isFinite(renderContext.earliestBlockTimestamp)) {
+                    const baseline = new Date(renderContext.earliestBlockTimestamp);
+                    const baselineFormatted = formatDateTime(baseline.toISOString());
+                    if (baselineFormatted) {
+                        extras.push(`Patokan awal: ${baselineFormatted}`);
+                    }
+                }
+
+                return extras;
+            },
+            tooltipFooter() {
+                return '';
+            },
+        },
+    ];
 
     function isChartJsAvailable() {
         return typeof window !== 'undefined'
@@ -275,42 +522,120 @@ componentLoaderReady.then(() => {
         return trimmed.map((entry) => entry.label);
     }
 
-    function destroyBlockTimelineChart() {
-        if (blockTimelineChartInstance) {
-            blockTimelineChartInstance.destroy();
-            blockTimelineChartInstance = null;
+    function destroyMetricChart(metricId) {
+        if (!chartInstances.has(metricId)) {
+            return;
         }
+
+        const instance = chartInstances.get(metricId);
+        if (instance) {
+            instance.destroy();
+        }
+
+        chartInstances.delete(metricId);
     }
 
-    function renderBlockTimelineChart(networks) {
-        if (!blockTimelineContainer || !blockTimelineCanvas) {
-            return;
-        }
+    function destroyAllMetricCharts() {
+        chartInstances.forEach((instance) => {
+            if (instance) {
+                instance.destroy();
+            }
+        });
+        chartInstances.clear();
+    }
 
-        destroyBlockTimelineChart();
+    function getMetricElements(metricId) {
+        return metricElements.get(metricId) || null;
+    }
 
-        const networksWithBlocks = Array.isArray(networks)
-            ? networks.filter((network) => Array.isArray(network?.blocks) && network.blocks.length > 0)
+    function createBlockRenderContext(blocksPerNetwork) {
+        let earliestTimestamp = null;
+
+        blocksPerNetwork.forEach((blocks) => {
+            (blocks || []).forEach((block) => {
+                if (!block || !block.lastUpdatedAt) {
+                    return;
+                }
+
+                const timestamp = Date.parse(block.lastUpdatedAt);
+                if (!Number.isFinite(timestamp)) {
+                    return;
+                }
+
+                if (earliestTimestamp === null || timestamp < earliestTimestamp) {
+                    earliestTimestamp = timestamp;
+                }
+            });
+        });
+
+        return {
+            earliestBlockTimestamp: earliestTimestamp,
+        };
+    }
+
+    function formatMetricTooltip(metric, context, renderContext) {
+        const datasetLabel = context.dataset.label || '';
+        const value = typeof context.parsed.y === 'number' && Number.isFinite(context.parsed.y)
+            ? context.parsed.y
+            : null;
+        const lookup = context.dataset.metaBlockLookup;
+        const block = lookup instanceof Map ? lookup.get(context.label) : null;
+
+        const formattedValue = metric.valueFormatter
+            ? metric.valueFormatter(value)
+            : (value !== null ? numberFormatter.format(value) : 'Tidak ada data');
+
+        const baseLabel = datasetLabel
+            ? `${datasetLabel}: ${formattedValue}`
+            : formattedValue;
+
+        const extras = typeof metric.tooltipExtras === 'function'
+            ? metric.tooltipExtras({
+                block,
+                rawValue: value,
+                formattedValue,
+                renderContext,
+                context,
+            })
             : [];
 
-        if (networksWithBlocks.length === 0) {
-            setChartMessage(blockTimelineContainer, 'Belum ada blok yang dapat divisualisasikan.', 'empty');
+        if (Array.isArray(extras) && extras.length > 0) {
+            return [baseLabel, ...extras.filter((entry) => typeof entry === 'string' && entry.trim() !== '')];
+        }
+
+        return baseLabel;
+    }
+
+    function buildTooltipFooter(metric, items, renderContext) {
+        if (typeof metric.tooltipFooter === 'function') {
+            return metric.tooltipFooter(items, renderContext) || '';
+        }
+
+        if (!items || items.length === 0) {
+            return '';
+        }
+
+        const item = items[0];
+        const lookup = item.dataset.metaBlockLookup;
+        const block = lookup instanceof Map ? lookup.get(item.label) : null;
+
+        if (block && block.lastUpdatedAt) {
+            const formatted = formatDateTime(block.lastUpdatedAt);
+            if (formatted) {
+                return `Terakhir diperbarui: ${formatted}`;
+            }
+        }
+
+        return '';
+    }
+
+    function renderMetricChart(metric, networksWithBlocks, blocksPerNetwork, axisLabels, renderContext) {
+        const elements = getMetricElements(metric.id);
+        if (!elements) {
             return;
         }
 
-        if (!isChartJsAvailable()) {
-            setChartMessage(blockTimelineContainer, 'Chart.js tidak tersedia untuk menampilkan grafik.', 'error');
-            return;
-        }
-
-        const BLOCK_LIMIT = 24;
-        const blocksPerNetwork = networksWithBlocks.map((network) => getRelevantBlocks(network, BLOCK_LIMIT * 2));
-        const axisLabels = buildBlockAxisLabels(blocksPerNetwork, BLOCK_LIMIT);
-
-        if (axisLabels.length === 0) {
-            setChartMessage(blockTimelineContainer, 'Belum ada blok yang dapat divisualisasikan.', 'empty');
-            return;
-        }
+        destroyMetricChart(metric.id);
 
         const datasets = networksWithBlocks.map((network, index) => {
             const relevantBlocks = blocksPerNetwork[index] || [];
@@ -326,41 +651,56 @@ componentLoaderReady.then(() => {
             const data = axisLabels.map((label) => {
                 const block = blockLookup.get(label);
                 if (!block) {
+                    return null;
+                }
+
+                const value = metric.valueResolver(block, renderContext);
+                if (value === 0) {
                     return 0;
                 }
 
-                const total = Number.isFinite(block?.totalCount) ? block.totalCount : 0;
-                return total;
+                return typeof value === 'number' && Number.isFinite(value)
+                    ? value
+                    : null;
             });
+
+            if (!data.some((entry) => entry !== null)) {
+                return null;
+            }
 
             const color = COLOR_PALETTE[index % COLOR_PALETTE.length];
 
             return {
                 label: network.label || network.id || `Jaringan ${index + 1}`,
                 data,
+                backgroundColor: hexToRgba(color, 0.45),
                 borderColor: color,
-                backgroundColor: hexToRgba(color, 0.25),
-                tension: 0.35,
-                fill: false,
-                pointRadius: 4,
-                pointHoverRadius: 6,
-                pointBorderWidth: 1.5,
-                pointBackgroundColor: color,
-                pointBorderColor: '#0F172A',
+                borderWidth: 1.5,
+                borderRadius: 6,
+                maxBarThickness: 32,
                 metaBlockLookup: blockLookup,
             };
-        });
+        }).filter(Boolean);
 
-        setChartReady(blockTimelineContainer);
-
-        const context = blockTimelineCanvas.getContext('2d');
-        if (!context) {
-            setChartMessage(blockTimelineContainer, 'Kanvas grafik tidak tersedia.', 'error');
+        if (datasets.length === 0) {
+            setChartMessage(elements.container, metric.emptyMessage, 'empty');
             return;
         }
 
-        blockTimelineChartInstance = new window.Chart(context, {
-            type: 'line',
+        setChartReady(elements.container);
+
+        const context = elements.canvas.getContext('2d');
+        if (!context) {
+            setChartMessage(elements.container, 'Kanvas grafik tidak tersedia.', 'error');
+            return;
+        }
+
+        const yTickFormatter = typeof metric.tickFormatter === 'function'
+            ? metric.tickFormatter
+            : (value) => numberFormatter.format(value);
+
+        const chart = new window.Chart(context, {
+            type: 'bar',
             data: {
                 labels: axisLabels,
                 datasets,
@@ -369,7 +709,7 @@ componentLoaderReady.then(() => {
                 responsive: true,
                 maintainAspectRatio: false,
                 interaction: {
-                    mode: 'nearest',
+                    mode: 'index',
                     intersect: false,
                 },
                 scales: {
@@ -380,13 +720,14 @@ componentLoaderReady.then(() => {
                         grid: {
                             color: 'rgba(148, 163, 184, 0.12)',
                         },
+                        stacked: false,
                     },
                     y: {
                         beginAtZero: true,
                         ticks: {
                             color: '#94A3B8',
                             callback(value) {
-                                return numberFormatter.format(value);
+                                return yTickFormatter(value);
                             },
                         },
                         grid: {
@@ -404,53 +745,83 @@ componentLoaderReady.then(() => {
                     tooltip: {
                         callbacks: {
                             label(context) {
-                                const datasetLabel = context.dataset.label || '';
-                                const value = Number.isFinite(context.parsed.y) ? context.parsed.y : 0;
-                                const label = datasetLabel
-                                    ? `${datasetLabel}: ${numberFormatter.format(value)} transaksi`
-                                    : `${numberFormatter.format(value)} transaksi`;
-
-                                const lookup = context.dataset.metaBlockLookup;
-                                const block = lookup instanceof Map ? lookup.get(context.label) : null;
-                                if (block && (Number.isFinite(block.successCount) || Number.isFinite(block.failureCount))) {
-                                    const success = Number.isFinite(block.successCount) ? numberFormatter.format(block.successCount) : null;
-                                    const failure = Number.isFinite(block.failureCount) ? numberFormatter.format(block.failureCount) : null;
-                                    const parts = [];
-                                    if (success) {
-                                        parts.push(`${success} sukses`);
-                                    }
-                                    if (failure && failure !== '0') {
-                                        parts.push(`${failure} gagal`);
-                                    }
-                                    if (parts.length > 0) {
-                                        return `${label} (${parts.join(', ')})`;
-                                    }
-                                }
-
-                                return label;
+                                return formatMetricTooltip(metric, context, renderContext);
                             },
                             footer(items) {
-                                if (!items || items.length === 0) {
-                                    return '';
-                                }
-
-                                const item = items[0];
-                                const lookup = item.dataset.metaBlockLookup;
-                                const block = lookup instanceof Map ? lookup.get(item.label) : null;
-
-                                if (block && block.lastUpdatedAt) {
-                                    const formatted = formatDateTime(block.lastUpdatedAt);
-                                    if (formatted) {
-                                        return `Terakhir diperbarui: ${formatted}`;
-                                    }
-                                }
-
-                                return '';
+                                return buildTooltipFooter(metric, items, renderContext);
                             },
                         },
                     },
                 },
             },
+        });
+
+        chartInstances.set(metric.id, chart);
+    }
+
+    function renderBlockMetricCharts(networks) {
+        destroyAllMetricCharts();
+
+        const networksWithBlocks = Array.isArray(networks)
+            ? networks.filter((network) => Array.isArray(network?.blocks) && network.blocks.length > 0)
+            : [];
+
+        if (networksWithBlocks.length === 0) {
+            BLOCK_METRICS.forEach((metric) => {
+                const elements = getMetricElements(metric.id);
+                if (elements) {
+                    setChartMessage(elements.container, metric.emptyMessage, 'empty');
+                }
+            });
+            return;
+        }
+
+        if (!isChartJsAvailable()) {
+            BLOCK_METRICS.forEach((metric) => {
+                const elements = getMetricElements(metric.id);
+                if (elements) {
+                    setChartMessage(elements.container, 'Chart.js tidak tersedia untuk menampilkan grafik.', 'error');
+                }
+            });
+            return;
+        }
+
+        const BLOCK_LIMIT = 24;
+        const blocksPerNetwork = networksWithBlocks.map((network) => getRelevantBlocks(network, BLOCK_LIMIT * 2));
+        const axisLabels = buildBlockAxisLabels(blocksPerNetwork, BLOCK_LIMIT);
+
+        if (axisLabels.length === 0) {
+            BLOCK_METRICS.forEach((metric) => {
+                const elements = getMetricElements(metric.id);
+                if (elements) {
+                    setChartMessage(elements.container, metric.emptyMessage, 'empty');
+                }
+            });
+            return;
+        }
+
+        const renderContext = createBlockRenderContext(blocksPerNetwork);
+
+        BLOCK_METRICS.forEach((metric) => {
+            renderMetricChart(metric, networksWithBlocks, blocksPerNetwork, axisLabels, renderContext);
+        });
+    }
+
+    function setAllChartsLoading() {
+        BLOCK_METRICS.forEach((metric) => {
+            const elements = getMetricElements(metric.id);
+            if (elements) {
+                setChartLoading(elements.container, metric.loadingMessage);
+            }
+        });
+    }
+
+    function setAllChartsMessage(message, tone = 'info') {
+        BLOCK_METRICS.forEach((metric) => {
+            const elements = getMetricElements(metric.id);
+            if (elements) {
+                setChartMessage(elements.container, typeof message === 'function' ? message(metric) : message, tone);
+            }
         });
     }
 
@@ -460,7 +831,7 @@ componentLoaderReady.then(() => {
         }
 
         isLoading = true;
-        setChartLoading(blockTimelineContainer, 'Menyiapkan grafik distribusi blok simulasi...');
+        setAllChartsLoading();
         setUpdatedAtLabel(null);
 
         if (refreshButton) {
@@ -482,11 +853,11 @@ componentLoaderReady.then(() => {
             const payload = await response.json();
             const networks = Array.isArray(payload?.networks) ? payload.networks : [];
 
-            renderBlockTimelineChart(networks);
+            renderBlockMetricCharts(networks);
             setUpdatedAtLabel(payload?.updatedAt || payload?.fetchedAt || null);
         } catch (error) {
             console.error('Gagal memuat data perbandingan blok jaringan:', error);
-            setChartMessage(blockTimelineContainer, 'Tidak dapat memuat grafik distribusi blok.', 'error');
+            setAllChartsMessage('Tidak dapat memuat grafik perbandingan blok.', 'error');
         } finally {
             if (refreshButton) {
                 refreshButton.disabled = false;

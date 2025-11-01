@@ -11,6 +11,7 @@ componentLoaderReady.then(() => {
     const blockCountCanvas = document.getElementById('blockCountChart');
     const blockTimelineContainer = document.querySelector('[data-block-timeline-chart]');
     const blockTimelineCanvas = document.getElementById('blockTimelineChart');
+    const highlightGrid = document.getElementById('blockHighlightGrid');
 
     const PLACEHOLDER_VARIANTS = {
         info: 'border-white/10 bg-surface/60 text-textdark/70',
@@ -47,6 +48,10 @@ componentLoaderReady.then(() => {
     let blockTimelineChartInstance = null;
 
     const numberFormatter = new Intl.NumberFormat('id-ID');
+    const decimalFormatter = new Intl.NumberFormat('id-ID', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    });
     const percentFormatter = new Intl.NumberFormat('id-ID', {
         style: 'percent',
         minimumFractionDigits: 0,
@@ -210,6 +215,520 @@ componentLoaderReady.then(() => {
 
         return wrapper;
     }
+
+    function showHighlightPlaceholder(message, tone = 'info') {
+        if (!highlightGrid) {
+            return;
+        }
+
+        highlightGrid.dataset.state = tone === 'error' ? 'error' : 'placeholder';
+        highlightGrid.replaceChildren(createPlaceholderArticle(message, tone));
+    }
+
+    function resetHighlights() {
+        showHighlightPlaceholder('Menyiapkan sorotan performa blok...', 'info');
+    }
+
+    function getBlockTimestamp(block) {
+        if (!block || typeof block !== 'object') {
+            return Number.NaN;
+        }
+
+        const candidates = [block.lastUpdatedAt, block.lastCompletedAt];
+        for (const candidate of candidates) {
+            if (!candidate) {
+                continue;
+            }
+
+            const parsed = Date.parse(candidate);
+            if (Number.isFinite(parsed)) {
+                return parsed;
+            }
+        }
+
+        return Number.NaN;
+    }
+
+    function isNewerBlock(candidate, reference) {
+        if (!candidate || typeof candidate !== 'object') {
+            return false;
+        }
+
+        if (!reference || typeof reference !== 'object') {
+            return true;
+        }
+
+        const candidateTime = getBlockTimestamp(candidate);
+        const referenceTime = getBlockTimestamp(reference);
+        const candidateTimeValid = Number.isFinite(candidateTime);
+        const referenceTimeValid = Number.isFinite(referenceTime);
+
+        if (candidateTimeValid || referenceTimeValid) {
+            if (!referenceTimeValid) {
+                return candidateTimeValid;
+            }
+
+            if (!candidateTimeValid) {
+                return false;
+            }
+
+            if (candidateTime !== referenceTime) {
+                return candidateTime > referenceTime;
+            }
+        }
+
+        const candidateNumber = resolveBlockNumber(candidate);
+        const referenceNumber = resolveBlockNumber(reference);
+
+        if (candidateNumber !== null || referenceNumber !== null) {
+            if (referenceNumber === null) {
+                return candidateNumber !== null;
+            }
+
+            if (candidateNumber === null) {
+                return false;
+            }
+
+            if (candidateNumber !== referenceNumber) {
+                return candidateNumber > referenceNumber;
+            }
+        }
+
+        const candidateLabel = resolveBlockLabel(candidate) || '';
+        const referenceLabel = resolveBlockLabel(reference) || '';
+        return candidateLabel.localeCompare(referenceLabel) >= 0;
+    }
+
+    function buildFallbackBlockFromNetwork(network) {
+        if (!network || typeof network !== 'object') {
+            return null;
+        }
+
+        const hasLabel = typeof network.lastBlockLabel === 'string' && network.lastBlockLabel.trim() !== '';
+        const hasNumber = Number.isFinite(network.lastBlockNumber);
+        const hasTimestamp = typeof network.lastBlockUpdatedAt === 'string'
+            || typeof network.lastUpdatedAt === 'string'
+            || typeof network.lastCompletedAt === 'string';
+        const hasTransactionId = typeof network.lastTransactionId === 'string' && network.lastTransactionId.trim() !== '';
+        const hasLatency = Number.isFinite(network.averageCommitTimeMs) || Number.isFinite(network.averageLatencyMs);
+
+        if (!hasLabel && !hasNumber && !hasTimestamp && !hasTransactionId && !hasLatency) {
+            return null;
+        }
+
+        return {
+            blockLabel: hasLabel ? network.lastBlockLabel : null,
+            blockNumber: hasNumber ? network.lastBlockNumber : null,
+            lastUpdatedAt: network.lastBlockUpdatedAt || network.lastUpdatedAt || null,
+            lastCompletedAt: network.lastCompletedAt || null,
+            lastTransactionId: hasTransactionId ? network.lastTransactionId : null,
+            averageCommitTimeMs: Number.isFinite(network.averageCommitTimeMs)
+                ? network.averageCommitTimeMs
+                : null,
+            averageLatencyMs: Number.isFinite(network.averageLatencyMs)
+                ? network.averageLatencyMs
+                : null,
+        };
+    }
+
+    function selectLatestBlockInfo(networks) {
+        if (!Array.isArray(networks) || networks.length === 0) {
+            return null;
+        }
+
+        let latestInfo = null;
+
+        networks.forEach((network) => {
+            if (!network || typeof network !== 'object') {
+                return;
+            }
+
+            const blocks = Array.isArray(network.blocks) ? network.blocks : [];
+            const candidates = [...blocks];
+
+            if (candidates.length === 0) {
+                const fallbackBlock = buildFallbackBlockFromNetwork(network);
+                if (fallbackBlock) {
+                    candidates.push(fallbackBlock);
+                }
+            }
+
+            candidates.forEach((block) => {
+                if (!block || typeof block !== 'object') {
+                    return;
+                }
+
+                if (!latestInfo || isNewerBlock(block, latestInfo.block)) {
+                    latestInfo = { block, network };
+                }
+            });
+        });
+
+        return latestInfo;
+    }
+
+    function formatLatencyValue(value) {
+        if (typeof value === 'number' && Number.isFinite(value)) {
+            return `${decimalFormatter.format(value)} ms`;
+        }
+        return '—';
+    }
+
+    function formatThroughputValue(value) {
+        if (typeof value === 'number' && Number.isFinite(value) && value >= 0) {
+            return `${decimalFormatter.format(value)} tx/detik`;
+        }
+        return '0,00 tx/detik';
+    }
+
+    function formatTextValue(value) {
+        if (typeof value === 'string') {
+            const trimmed = value.trim();
+            return trimmed !== '' ? trimmed : '—';
+        }
+
+        if (typeof value === 'number' && Number.isFinite(value)) {
+            return String(value);
+        }
+
+        return '—';
+    }
+
+    function createHighlightMetric(label, value, options = {}) {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'space-y-1';
+
+        if (options.fullWidth) {
+            wrapper.classList.add('sm:col-span-2');
+        }
+
+        const labelEl = document.createElement('p');
+        labelEl.className = 'text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-textdark/60';
+        labelEl.textContent = label;
+
+        const valueEl = document.createElement('p');
+        const baseValueClasses = options.size === 'base'
+            ? ['text-base', 'font-semibold', 'text-textdark']
+            : ['text-lg', 'font-semibold', 'text-textdark'];
+        valueEl.className = '';
+        baseValueClasses.forEach((className) => valueEl.classList.add(className));
+
+        if (options.valueClass) {
+            options.valueClass.split(' ').forEach((className) => {
+                if (className && className.trim() !== '') {
+                    valueEl.classList.add(className.trim());
+                }
+            });
+        }
+
+        valueEl.textContent = value;
+
+        wrapper.append(labelEl, valueEl);
+
+        if (options.hint) {
+            const hintEl = document.createElement('p');
+            hintEl.className = 'text-[0.65rem] text-textdark/60';
+            hintEl.textContent = options.hint;
+            wrapper.append(hintEl);
+        }
+
+        return wrapper;
+    }
+
+    function createHighlightCard({ title, subtitle, badge, metrics, tone = 'default' } = {}) {
+        const article = document.createElement('article');
+        article.className = 'flex flex-col gap-6 rounded-3xl border border-white/10 bg-surfaceMuted/60 p-6 shadow-inner shadow-black/20 transition';
+
+        if (tone === 'inactive') {
+            article.classList.add('opacity-60');
+        }
+
+        const header = document.createElement('div');
+        header.className = 'flex items-start justify-between gap-3';
+
+        const titleWrapper = document.createElement('div');
+        titleWrapper.className = 'space-y-1';
+
+        const heading = document.createElement('h3');
+        heading.className = 'text-lg font-semibold text-textdark';
+        heading.textContent = title || 'Sorotan Komit';
+        titleWrapper.append(heading);
+
+        if (subtitle) {
+            const subtitleEl = document.createElement('p');
+            subtitleEl.className = 'text-xs text-textdark/60';
+            subtitleEl.textContent = subtitle;
+            titleWrapper.append(subtitleEl);
+        }
+
+        header.append(titleWrapper);
+
+        if (badge instanceof HTMLElement) {
+            header.append(badge);
+        }
+
+        article.append(header);
+
+        const metricsWrapper = document.createElement('div');
+        metricsWrapper.className = 'grid grid-cols-1 gap-4 sm:grid-cols-2';
+
+        if (Array.isArray(metrics)) {
+            metrics.forEach((metric) => {
+                if (!metric || typeof metric !== 'object') {
+                    return;
+                }
+
+                const metricEl = createHighlightMetric(metric.label, metric.value, metric.options || metric);
+                metricsWrapper.append(metricEl);
+            });
+        }
+
+        article.append(metricsWrapper);
+
+        return article;
+    }
+
+    function selectLatestBlockForNetwork(network) {
+        if (!network || typeof network !== 'object') {
+            return null;
+        }
+
+        const blocks = Array.isArray(network.blocks) ? network.blocks : [];
+        if (blocks.length === 0) {
+            return buildFallbackBlockFromNetwork(network);
+        }
+
+        return blocks.reduce((latest, block) => {
+            if (!latest) {
+                return block;
+            }
+            return isNewerBlock(block, latest) ? block : latest;
+        }, null);
+    }
+
+    function formatHighlightValues(values = {}) {
+        const successCount = Number.isFinite(values.successCount) ? values.successCount : 0;
+        const failureCount = Number.isFinite(values.failureCount) ? values.failureCount : 0;
+
+        return {
+            latestLatency: formatLatencyValue(values.latestLatency),
+            averageLatency: formatLatencyValue(values.averageLatency),
+            throughput: formatThroughputValue(values.throughput),
+            successCount: formatNumber(successCount),
+            failureCount: formatNumber(failureCount),
+            commitCode: formatTextValue(values.commitCode),
+            commitBlock: formatTextValue(values.commitBlock),
+        };
+    }
+
+    function buildHighlightMetrics(values) {
+        if (!values || typeof values !== 'object') {
+            return [];
+        }
+
+        return [
+            { label: 'Latensi terbaru', value: values.latestLatency },
+            { label: 'Rata-rata latensi', value: values.averageLatency },
+            { label: 'Throughput', value: values.throughput },
+            { label: 'Commit berhasil', value: values.successCount },
+            { label: 'Commit gagal', value: values.failureCount },
+            {
+                label: 'Kode commit terakhir',
+                value: values.commitCode,
+                fullWidth: true,
+                size: 'base',
+                valueClass: 'truncate font-mono text-primary/80',
+            },
+            {
+                label: 'Blok commit terakhir',
+                value: values.commitBlock,
+                fullWidth: true,
+                size: 'base',
+            },
+        ];
+    }
+
+    function computeOverallHighlight(overall, networks) {
+        const values = {
+            latestLatency: null,
+            averageLatency: null,
+            throughput: null,
+            successCount: 0,
+            failureCount: 0,
+            commitCode: null,
+            commitBlock: null,
+        };
+
+        if (overall && typeof overall === 'object') {
+            values.successCount = Number.isFinite(overall.successCount) ? overall.successCount : 0;
+            values.failureCount = Number.isFinite(overall.failureCount) ? overall.failureCount : 0;
+            values.averageLatency = Number.isFinite(overall.averageLatencyMs)
+                ? overall.averageLatencyMs
+                : (Number.isFinite(overall.averageCommitTimeMs) ? overall.averageCommitTimeMs : null);
+            values.throughput = Number.isFinite(overall.throughput) ? overall.throughput : null;
+        }
+
+        const latestInfo = selectLatestBlockInfo(networks);
+        let subtitle = null;
+
+        if (latestInfo) {
+            const { block, network } = latestInfo;
+
+            let latestLatency = Number.isFinite(block?.averageCommitTimeMs)
+                ? block.averageCommitTimeMs
+                : (Number.isFinite(block?.averageLatencyMs) ? block.averageLatencyMs : null);
+
+            if (!Number.isFinite(latestLatency)) {
+                if (Number.isFinite(overall?.averageCommitTimeMs)) {
+                    latestLatency = overall.averageCommitTimeMs;
+                } else if (Number.isFinite(overall?.averageLatencyMs)) {
+                    latestLatency = overall.averageLatencyMs;
+                } else {
+                    latestLatency = null;
+                }
+            }
+
+            values.latestLatency = latestLatency;
+            values.commitCode = block?.lastTransactionId || network?.lastTransactionId || null;
+            values.commitBlock = resolveBlockLabel(block) || network?.lastBlockLabel || null;
+
+            const timestamp = block?.lastUpdatedAt || block?.lastCompletedAt || network?.lastBlockUpdatedAt || null;
+            const formattedTimestamp = formatDateTime(timestamp);
+            if (formattedTimestamp) {
+                subtitle = `Pembaruan terakhir ${formattedTimestamp}`;
+            }
+        } else {
+            values.latestLatency = Number.isFinite(overall?.averageCommitTimeMs)
+                ? overall.averageCommitTimeMs
+                : (Number.isFinite(overall?.averageLatencyMs) ? overall.averageLatencyMs : null);
+
+            const fallbackTimestamp = overall?.lastCompletedAt || overall?.lastUpdatedAt || null;
+            const formattedTimestamp = formatDateTime(fallbackTimestamp);
+            if (formattedTimestamp) {
+                subtitle = `Pembaruan terakhir ${formattedTimestamp}`;
+            }
+        }
+
+        const formatted = formatHighlightValues(values);
+        const metrics = buildHighlightMetrics(formatted);
+
+        return {
+            title: 'Gabungan Jaringan',
+            subtitle,
+            metrics,
+            tone: 'default',
+        };
+    }
+
+    function computeNetworkHighlight(network, overall) {
+        if (!network || typeof network !== 'object') {
+            return null;
+        }
+
+        const latestBlock = selectLatestBlockForNetwork(network);
+        const values = {
+            latestLatency: null,
+            averageLatency: Number.isFinite(network.averageLatencyMs)
+                ? network.averageLatencyMs
+                : (Number.isFinite(network.averageCommitTimeMs) ? network.averageCommitTimeMs : null),
+            throughput: Number.isFinite(network.throughput) ? network.throughput : null,
+            successCount: Number.isFinite(network.successCount) ? network.successCount : 0,
+            failureCount: Number.isFinite(network.failureCount) ? network.failureCount : 0,
+            commitCode: latestBlock?.lastTransactionId || network.lastTransactionId || null,
+            commitBlock: resolveBlockLabel(latestBlock) || network.lastBlockLabel || null,
+        };
+
+        let latestLatency = Number.isFinite(latestBlock?.averageCommitTimeMs)
+            ? latestBlock.averageCommitTimeMs
+            : (Number.isFinite(latestBlock?.averageLatencyMs) ? latestBlock.averageLatencyMs : null);
+
+        if (!Number.isFinite(latestLatency)) {
+            if (Number.isFinite(network.averageCommitTimeMs)) {
+                latestLatency = network.averageCommitTimeMs;
+            } else if (Number.isFinite(network.averageLatencyMs)) {
+                latestLatency = network.averageLatencyMs;
+            } else if (overall && typeof overall === 'object') {
+                if (Number.isFinite(overall.averageCommitTimeMs)) {
+                    latestLatency = overall.averageCommitTimeMs;
+                } else if (Number.isFinite(overall.averageLatencyMs)) {
+                    latestLatency = overall.averageLatencyMs;
+                } else {
+                    latestLatency = null;
+                }
+            }
+        }
+
+        values.latestLatency = latestLatency;
+
+        const formatted = formatHighlightValues(values);
+        const metrics = buildHighlightMetrics(formatted);
+
+        const subtitleParts = [];
+        if (values.commitBlock && typeof values.commitBlock === 'string' && values.commitBlock.trim() !== '') {
+            subtitleParts.push(`Blok ${values.commitBlock}`);
+        }
+
+        const timestamp = latestBlock?.lastUpdatedAt
+            || latestBlock?.lastCompletedAt
+            || network.lastBlockUpdatedAt
+            || network.lastUpdatedAt
+            || network.lastCompletedAt
+            || null;
+        const formattedTimestamp = formatDateTime(timestamp);
+        if (formattedTimestamp) {
+            subtitleParts.push(`Diperbarui ${formattedTimestamp}`);
+        }
+
+        const badge = getScopeBadge(network.scope);
+        if (badge) {
+            badge.classList.add('shrink-0');
+        }
+
+        return {
+            title: network.label || network.id || 'Jaringan RAFT',
+            subtitle: subtitleParts.join(' • ') || null,
+            badge,
+            metrics,
+            tone: network.hasSimulationData === false ? 'inactive' : 'default',
+        };
+    }
+
+    function renderHighlightCards(overall, networks) {
+        if (!highlightGrid) {
+            return;
+        }
+
+        const cards = [];
+        const overallCard = computeOverallHighlight(overall, networks);
+        if (overallCard) {
+            cards.push(overallCard);
+        }
+
+        if (Array.isArray(networks)) {
+            networks.forEach((network) => {
+                const card = computeNetworkHighlight(network, overall);
+                if (card) {
+                    cards.push(card);
+                }
+            });
+        }
+
+        if (cards.length === 0) {
+            showHighlightPlaceholder('Belum ada sorotan performa blok yang dapat ditampilkan.', 'empty');
+            return;
+        }
+
+        highlightGrid.dataset.state = 'ready';
+        highlightGrid.replaceChildren();
+
+        cards.forEach((cardConfig) => {
+            const card = createHighlightCard(cardConfig);
+            if (card) {
+                highlightGrid.append(card);
+            }
+        });
+    }
+
 
     function destroyBlockCountChart() {
         if (blockCountChartInstance) {
@@ -779,6 +1298,7 @@ componentLoaderReady.then(() => {
         showSummaryPlaceholder('Menyiapkan ringkasan blok jaringan...', 'info');
         setChartLoading(blockCountContainer, 'Menyiapkan visualisasi total blok per jaringan...');
         setChartLoading(blockTimelineContainer, 'Menyiapkan visualisasi distribusi blok terbaru...');
+        resetHighlights();
 
         if (refreshButton) {
             refreshButton.disabled = true;
@@ -802,6 +1322,7 @@ componentLoaderReady.then(() => {
             renderSummaryCards(networks);
             renderBlockCountChart(networks);
             renderBlockTimelineChart(networks);
+            renderHighlightCards(payload?.overall || null, networks);
             setUpdatedAtLabel(payload?.updatedAt || payload?.fetchedAt || null);
 
             const fetchedLabel = formatDateTime(payload?.fetchedAt);
@@ -815,6 +1336,7 @@ componentLoaderReady.then(() => {
             showSummaryPlaceholder('Tidak dapat memuat data blok jaringan.', 'error');
             setChartMessage(blockCountContainer, 'Tidak dapat memuat grafik blok jaringan.', 'error');
             setChartMessage(blockTimelineContainer, 'Tidak dapat memuat grafik distribusi blok.', 'error');
+            showHighlightPlaceholder('Tidak dapat memuat sorotan performa blok.', 'error');
         } finally {
             if (refreshButton) {
                 refreshButton.disabled = false;

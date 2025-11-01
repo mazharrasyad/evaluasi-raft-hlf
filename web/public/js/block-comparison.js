@@ -12,6 +12,16 @@ componentLoaderReady.then(() => {
     const blockTimelineContainer = document.querySelector('[data-block-timeline-chart]');
     const blockTimelineCanvas = document.getElementById('blockTimelineChart');
     const highlightGrid = document.getElementById('blockHighlightGrid');
+    const latestLatencyChartContainer = document.querySelector('[data-latest-latency-chart]');
+    const latestLatencyChartCanvas = document.getElementById('latestLatencyChart');
+    const averageLatencyChartContainer = document.querySelector('[data-average-latency-chart]');
+    const averageLatencyChartCanvas = document.getElementById('averageLatencyChart');
+    const throughputChartContainer = document.querySelector('[data-throughput-chart]');
+    const throughputChartCanvas = document.getElementById('throughputChart');
+    const successCommitChartContainer = document.querySelector('[data-success-commit-chart]');
+    const successCommitChartCanvas = document.getElementById('successCommitChart');
+    const failedCommitChartContainer = document.querySelector('[data-failed-commit-chart]');
+    const failedCommitChartCanvas = document.getElementById('failedCommitChart');
 
     const PLACEHOLDER_VARIANTS = {
         info: 'border-white/10 bg-surface/60 text-textdark/70',
@@ -46,6 +56,7 @@ componentLoaderReady.then(() => {
     let isLoading = false;
     let blockCountChartInstance = null;
     let blockTimelineChartInstance = null;
+    const metricChartInstances = new Map();
 
     const numberFormatter = new Intl.NumberFormat('id-ID');
     const decimalFormatter = new Intl.NumberFormat('id-ID', {
@@ -506,6 +517,181 @@ componentLoaderReady.then(() => {
         }, null);
     }
 
+    function getLatestLatencyMs(network, overall) {
+        if (!network || typeof network !== 'object') {
+            return null;
+        }
+
+        const latestBlock = selectLatestBlockForNetwork(network);
+        let latestLatency = null;
+
+        if (latestBlock && typeof latestBlock === 'object') {
+            if (Number.isFinite(latestBlock.averageCommitTimeMs)) {
+                latestLatency = latestBlock.averageCommitTimeMs;
+            } else if (Number.isFinite(latestBlock.averageLatencyMs)) {
+                latestLatency = latestBlock.averageLatencyMs;
+            }
+        }
+
+        if (!Number.isFinite(latestLatency)) {
+            if (Number.isFinite(network.averageCommitTimeMs)) {
+                latestLatency = network.averageCommitTimeMs;
+            } else if (Number.isFinite(network.averageLatencyMs)) {
+                latestLatency = network.averageLatencyMs;
+            } else if (overall && typeof overall === 'object') {
+                if (Number.isFinite(overall.averageCommitTimeMs)) {
+                    latestLatency = overall.averageCommitTimeMs;
+                } else if (Number.isFinite(overall.averageLatencyMs)) {
+                    latestLatency = overall.averageLatencyMs;
+                }
+            }
+        }
+
+        return Number.isFinite(latestLatency) ? latestLatency : null;
+    }
+
+    function getAverageLatencyMs(network, overall) {
+        if (!network || typeof network !== 'object') {
+            return null;
+        }
+
+        let value = Number.isFinite(network.averageLatencyMs)
+            ? network.averageLatencyMs
+            : null;
+
+        if (!Number.isFinite(value)) {
+            value = Number.isFinite(network.averageCommitTimeMs)
+                ? network.averageCommitTimeMs
+                : null;
+        }
+
+        if (!Number.isFinite(value) && overall && typeof overall === 'object') {
+            if (Number.isFinite(overall.averageLatencyMs)) {
+                value = overall.averageLatencyMs;
+            } else if (Number.isFinite(overall.averageCommitTimeMs)) {
+                value = overall.averageCommitTimeMs;
+            }
+        }
+
+        return Number.isFinite(value) ? value : null;
+    }
+
+    function getThroughputValue(network, overall) {
+        if (!network || typeof network !== 'object') {
+            return null;
+        }
+
+        if (Number.isFinite(network.throughput)) {
+            return network.throughput;
+        }
+
+        const successCount = Number.isFinite(network.successCount) ? network.successCount : null;
+        const durationMs = Number.isFinite(network.observationDurationMs) ? network.observationDurationMs : null;
+
+        if (successCount === 0) {
+            return 0;
+        }
+
+        if (successCount !== null && durationMs !== null) {
+            if (durationMs === 0) {
+                return successCount;
+            }
+
+            if (durationMs > 0) {
+                return successCount / (durationMs / 1000);
+            }
+
+            return null;
+        }
+
+        if (overall && typeof overall === 'object' && Number.isFinite(overall.throughput)) {
+            return overall.throughput;
+        }
+
+        return null;
+    }
+
+    function getCommitSuccessCount(network) {
+        if (!network || typeof network !== 'object') {
+            return 0;
+        }
+
+        const value = Number.isFinite(network.successCount) ? network.successCount : 0;
+        return value;
+    }
+
+    function getCommitFailureCount(network) {
+        if (!network || typeof network !== 'object') {
+            return 0;
+        }
+
+        const value = Number.isFinite(network.failureCount) ? network.failureCount : 0;
+        return value;
+    }
+
+    const metricChartDefinitions = [
+        {
+            key: 'latest-latency',
+            container: latestLatencyChartContainer,
+            canvas: latestLatencyChartCanvas,
+            datasetLabel: 'Latensi terbaru',
+            loadingMessage: 'Menyiapkan visualisasi latensi terbaru per jaringan...',
+            emptyMessage: 'Belum ada data latensi terbaru yang siap divisualisasikan.',
+            errorMessage: 'Tidak dapat memuat grafik latensi terbaru.',
+            valueExtractor: (network, overall) => getLatestLatencyMs(network, overall),
+            tickFormatter: (value) => decimalFormatter.format(value),
+            tooltipFormatter: (value) => `${decimalFormatter.format(value)} ms`,
+        },
+        {
+            key: 'average-latency',
+            container: averageLatencyChartContainer,
+            canvas: averageLatencyChartCanvas,
+            datasetLabel: 'Rata-rata latensi',
+            loadingMessage: 'Menyiapkan visualisasi rata-rata latensi per jaringan...',
+            emptyMessage: 'Belum ada data rata-rata latensi yang siap divisualisasikan.',
+            errorMessage: 'Tidak dapat memuat grafik rata-rata latensi.',
+            valueExtractor: (network, overall) => getAverageLatencyMs(network, overall),
+            tickFormatter: (value) => decimalFormatter.format(value),
+            tooltipFormatter: (value) => `${decimalFormatter.format(value)} ms`,
+        },
+        {
+            key: 'throughput',
+            container: throughputChartContainer,
+            canvas: throughputChartCanvas,
+            datasetLabel: 'Throughput',
+            loadingMessage: 'Menyiapkan visualisasi throughput per jaringan...',
+            emptyMessage: 'Belum ada data throughput yang siap divisualisasikan.',
+            errorMessage: 'Tidak dapat memuat grafik throughput.',
+            valueExtractor: (network, overall) => getThroughputValue(network, overall),
+            tickFormatter: (value) => decimalFormatter.format(value),
+            tooltipFormatter: (value) => `${decimalFormatter.format(value)} tx/detik`,
+        },
+        {
+            key: 'commit-success',
+            container: successCommitChartContainer,
+            canvas: successCommitChartCanvas,
+            datasetLabel: 'Commit berhasil',
+            loadingMessage: 'Menyiapkan visualisasi commit berhasil per jaringan...',
+            emptyMessage: 'Belum ada data commit berhasil yang siap divisualisasikan.',
+            errorMessage: 'Tidak dapat memuat grafik commit berhasil.',
+            valueExtractor: (network) => getCommitSuccessCount(network),
+            tickFormatter: (value) => numberFormatter.format(value),
+            tooltipFormatter: (value) => `${numberFormatter.format(value)} commit sukses`,
+        },
+        {
+            key: 'commit-failure',
+            container: failedCommitChartContainer,
+            canvas: failedCommitChartCanvas,
+            datasetLabel: 'Commit gagal',
+            loadingMessage: 'Menyiapkan visualisasi commit gagal per jaringan...',
+            emptyMessage: 'Belum ada data commit gagal yang siap divisualisasikan.',
+            errorMessage: 'Tidak dapat memuat grafik commit gagal.',
+            valueExtractor: (network) => getCommitFailureCount(network),
+            tickFormatter: (value) => numberFormatter.format(value),
+            tooltipFormatter: (value) => `${numberFormatter.format(value)} commit gagal`,
+        },
+    ];
+
     function formatHighlightValues(values = {}) {
         const successCount = Number.isFinite(values.successCount) ? values.successCount : 0;
         const failureCount = Number.isFinite(values.failureCount) ? values.failureCount : 0;
@@ -742,6 +928,214 @@ componentLoaderReady.then(() => {
             blockTimelineChartInstance.destroy();
             blockTimelineChartInstance = null;
         }
+    }
+
+    function destroyMetricChart(key) {
+        if (!key) {
+            return;
+        }
+
+        const existing = metricChartInstances.get(key);
+        if (existing) {
+            existing.destroy();
+            metricChartInstances.delete(key);
+        }
+    }
+
+    function destroyMetricCharts() {
+        metricChartInstances.forEach((chart) => {
+            if (chart) {
+                chart.destroy();
+            }
+        });
+        metricChartInstances.clear();
+    }
+
+    function setMetricChartsLoading() {
+        metricChartDefinitions.forEach((definition) => {
+            if (!definition || !definition.container) {
+                return;
+            }
+
+            setChartLoading(
+                definition.container,
+                definition.loadingMessage || 'Menyiapkan visualisasi metrik per jaringan...',
+            );
+        });
+    }
+
+    function setMetricChartsError() {
+        metricChartDefinitions.forEach((definition) => {
+            if (!definition || !definition.container) {
+                return;
+            }
+
+            setChartMessage(
+                definition.container,
+                definition.errorMessage || 'Tidak dapat memuat grafik metrik per jaringan.',
+                'error',
+            );
+        });
+    }
+
+    function renderMetricChart(definition, networks, overall) {
+        if (!definition || typeof definition !== 'object') {
+            return;
+        }
+
+        const {
+            key,
+            container,
+            canvas,
+            datasetLabel,
+            valueExtractor,
+            emptyMessage,
+        } = definition;
+
+        const chartKey = key || datasetLabel || `metric-${metricChartInstances.size + 1}`;
+
+        if (!container || !canvas) {
+            destroyMetricChart(chartKey);
+            return;
+        }
+
+        destroyMetricChart(chartKey);
+
+        if (!Array.isArray(networks) || networks.length === 0) {
+            setChartMessage(
+                container,
+                emptyMessage || 'Belum ada data metrik yang siap divisualisasikan.',
+                'empty',
+            );
+            return;
+        }
+
+        if (!isChartJsAvailable()) {
+            setChartMessage(
+                container,
+                definition.errorMessage || 'Chart.js tidak tersedia untuk menampilkan grafik.',
+                'error',
+            );
+            return;
+        }
+
+        const labels = networks.map((network, index) => network?.label || network?.id || `Jaringan ${index + 1}`);
+        const extractor = typeof valueExtractor === 'function'
+            ? valueExtractor
+            : (() => null);
+
+        const rawData = networks.map((network) => extractor(network, overall));
+        const hasData = rawData.some((value) => Number.isFinite(value));
+
+        if (!hasData) {
+            setChartMessage(
+                container,
+                emptyMessage || 'Belum ada data metrik yang siap divisualisasikan.',
+                'empty',
+            );
+            return;
+        }
+
+        const data = rawData.map((value) => (Number.isFinite(value) ? value : null));
+        const context = canvas.getContext('2d');
+
+        if (!context) {
+            setChartMessage(container, definition.errorMessage || 'Kanvas grafik tidak tersedia.', 'error');
+            return;
+        }
+
+        setChartReady(container);
+
+        const backgroundColors = labels.map((_, index) => hexToRgba(COLOR_PALETTE[index % COLOR_PALETTE.length], 0.45));
+        const borderColors = labels.map((_, index) => COLOR_PALETTE[index % COLOR_PALETTE.length]);
+
+        const tickFormatter = typeof definition.tickFormatter === 'function'
+            ? definition.tickFormatter
+            : (value) => numberFormatter.format(value);
+
+        const tooltipFormatter = typeof definition.tooltipFormatter === 'function'
+            ? definition.tooltipFormatter
+            : (value) => numberFormatter.format(value);
+
+        const chart = new window.Chart(context, {
+            type: 'bar',
+            data: {
+                labels,
+                datasets: [
+                    {
+                        label: datasetLabel || 'Metrik',
+                        data,
+                        backgroundColor: backgroundColors,
+                        borderColor: borderColors,
+                        borderWidth: 1.5,
+                        borderRadius: 8,
+                    },
+                ],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        ticks: {
+                            color: '#94A3B8',
+                        },
+                        grid: {
+                            color: 'rgba(148, 163, 184, 0.15)',
+                        },
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            color: '#94A3B8',
+                            callback(value) {
+                                const numericValue = typeof value === 'number' ? value : Number(value);
+                                if (!Number.isFinite(numericValue)) {
+                                    return '';
+                                }
+                                return tickFormatter(numericValue, definition);
+                            },
+                        },
+                        grid: {
+                            color: 'rgba(148, 163, 184, 0.15)',
+                        },
+                    },
+                },
+                plugins: {
+                    legend: {
+                        display: false,
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label(context) {
+                                const datasetLabelText = context.dataset.label || '';
+                                const value = Number.isFinite(context.parsed.y) ? context.parsed.y : null;
+
+                                if (value === null) {
+                                    return datasetLabelText || '';
+                                }
+
+                                const network = networks[context.dataIndex] || null;
+                                const labelText = labels[context.dataIndex] || '';
+                                const formattedValue = tooltipFormatter(value, network, labelText, definition);
+
+                                return datasetLabelText
+                                    ? `${datasetLabelText}: ${formattedValue}`
+                                    : formattedValue;
+                            },
+                        },
+                    },
+                },
+            },
+        });
+
+        metricChartInstances.set(chartKey, chart);
+    }
+
+    function renderMetricCharts(networks, overall) {
+        metricChartDefinitions.forEach((definition) => {
+            renderMetricChart(definition, networks, overall);
+        });
     }
 
     function updateChartPlaceholderTone(placeholder, tone = 'info') {
@@ -1295,9 +1689,11 @@ componentLoaderReady.then(() => {
         setStatus('Memuat data perbandingan blok jaringan...', 'info');
         destroyBlockCountChart();
         destroyBlockTimelineChart();
+        destroyMetricCharts();
         showSummaryPlaceholder('Menyiapkan ringkasan blok jaringan...', 'info');
         setChartLoading(blockCountContainer, 'Menyiapkan visualisasi total blok per jaringan...');
         setChartLoading(blockTimelineContainer, 'Menyiapkan visualisasi distribusi blok terbaru...');
+        setMetricChartsLoading();
         resetHighlights();
 
         if (refreshButton) {
@@ -1322,6 +1718,7 @@ componentLoaderReady.then(() => {
             renderSummaryCards(networks);
             renderBlockCountChart(networks);
             renderBlockTimelineChart(networks);
+            renderMetricCharts(networks, payload?.overall || null);
             renderHighlightCards(payload?.overall || null, networks);
             setUpdatedAtLabel(payload?.updatedAt || payload?.fetchedAt || null);
 
@@ -1336,6 +1733,7 @@ componentLoaderReady.then(() => {
             showSummaryPlaceholder('Tidak dapat memuat data blok jaringan.', 'error');
             setChartMessage(blockCountContainer, 'Tidak dapat memuat grafik blok jaringan.', 'error');
             setChartMessage(blockTimelineContainer, 'Tidak dapat memuat grafik distribusi blok.', 'error');
+            setMetricChartsError();
             showHighlightPlaceholder('Tidak dapat memuat sorotan performa blok.', 'error');
         } finally {
             if (refreshButton) {

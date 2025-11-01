@@ -159,6 +159,89 @@
                                 </article>
                             </div>
                         </section>
+
+                        <section class="space-y-6">
+                            <header class="space-y-1">
+                                <p class="text-xs font-semibold uppercase tracking-[0.28em] text-highlight/80">Grafik Komit</p>
+                                <h2 class="text-2xl font-semibold text-textdark">Perbandingan Metrik Komit</h2>
+                                <p class="max-w-3xl text-sm text-textdark/70">
+                                    Pantau performa setiap jaringan RAFT dari sisi latensi, throughput, serta jumlah commit yang berhasil maupun gagal.
+                                    Grafik berikut membantu mengidentifikasi perbedaan karakteristik antar jaringan secara visual.
+                                </p>
+                            </header>
+                            <div class="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+                                <article data-latest-latency-chart data-state="loading" class="flex flex-col gap-4 rounded-3xl border border-white/10 bg-surfaceMuted/70 p-6 text-sm text-textdark/70 shadow-inner shadow-black/20">
+                                    <div class="flex items-start justify-between gap-3">
+                                        <div>
+                                            <h3 class="text-lg font-semibold text-textdark">Latensi Terbaru</h3>
+                                            <p class="text-xs text-textdark/60">Perbandingan latensi komit terbaru yang tercatat pada setiap jaringan.</p>
+                                        </div>
+                                    </div>
+                                    <div class="relative h-72 rounded-2xl border border-white/5 bg-surface/60 p-4">
+                                        <div data-chart-placeholder class="absolute inset-0 flex items-center justify-center rounded-2xl bg-surface/70 text-center text-sm text-textdark/70">
+                                            Menyiapkan visualisasi latensi terbaru per jaringan...
+                                        </div>
+                                        <canvas id="latestLatencyChart" class="absolute inset-0 hidden" aria-label="Grafik latensi terbaru per jaringan" role="img"></canvas>
+                                    </div>
+                                </article>
+                                <article data-average-latency-chart data-state="loading" class="flex flex-col gap-4 rounded-3xl border border-white/10 bg-surfaceMuted/70 p-6 text-sm text-textdark/70 shadow-inner shadow-black/20">
+                                    <div class="flex items-start justify-between gap-3">
+                                        <div>
+                                            <h3 class="text-lg font-semibold text-textdark">Rata-rata Latensi</h3>
+                                            <p class="text-xs text-textdark/60">Rata-rata waktu komit setiap jaringan selama periode observasi.</p>
+                                        </div>
+                                    </div>
+                                    <div class="relative h-72 rounded-2xl border border-white/5 bg-surface/60 p-4">
+                                        <div data-chart-placeholder class="absolute inset-0 flex items-center justify-center rounded-2xl bg-surface/70 text-center text-sm text-textdark/70">
+                                            Menyiapkan visualisasi rata-rata latensi per jaringan...
+                                        </div>
+                                        <canvas id="averageLatencyChart" class="absolute inset-0 hidden" aria-label="Grafik rata-rata latensi per jaringan" role="img"></canvas>
+                                    </div>
+                                </article>
+                                <article data-throughput-chart data-state="loading" class="flex flex-col gap-4 rounded-3xl border border-white/10 bg-surfaceMuted/70 p-6 text-sm text-textdark/70 shadow-inner shadow-black/20">
+                                    <div class="flex items-start justify-between gap-3">
+                                        <div>
+                                            <h3 class="text-lg font-semibold text-textdark">Throughput</h3>
+                                            <p class="text-xs text-textdark/60">Jumlah transaksi sukses per detik yang dicapai masing-masing jaringan.</p>
+                                        </div>
+                                    </div>
+                                    <div class="relative h-72 rounded-2xl border border-white/5 bg-surface/60 p-4">
+                                        <div data-chart-placeholder class="absolute inset-0 flex items-center justify-center rounded-2xl bg-surface/70 text-center text-sm text-textdark/70">
+                                            Menyiapkan visualisasi throughput per jaringan...
+                                        </div>
+                                        <canvas id="throughputChart" class="absolute inset-0 hidden" aria-label="Grafik throughput per jaringan" role="img"></canvas>
+                                    </div>
+                                </article>
+                                <article data-success-commit-chart data-state="loading" class="flex flex-col gap-4 rounded-3xl border border-white/10 bg-surfaceMuted/70 p-6 text-sm text-textdark/70 shadow-inner shadow-black/20">
+                                    <div class="flex items-start justify-between gap-3">
+                                        <div>
+                                            <h3 class="text-lg font-semibold text-textdark">Commit Berhasil</h3>
+                                            <p class="text-xs text-textdark/60">Total transaksi yang berhasil dikomit oleh setiap jaringan.</p>
+                                        </div>
+                                    </div>
+                                    <div class="relative h-72 rounded-2xl border border-white/5 bg-surface/60 p-4">
+                                        <div data-chart-placeholder class="absolute inset-0 flex items-center justify-center rounded-2xl bg-surface/70 text-center text-sm text-textdark/70">
+                                            Menyiapkan visualisasi commit berhasil per jaringan...
+                                        </div>
+                                        <canvas id="successCommitChart" class="absolute inset-0 hidden" aria-label="Grafik commit berhasil per jaringan" role="img"></canvas>
+                                    </div>
+                                </article>
+                                <article data-failed-commit-chart data-state="loading" class="flex flex-col gap-4 rounded-3xl border border-white/10 bg-surfaceMuted/70 p-6 text-sm text-textdark/70 shadow-inner shadow-black/20">
+                                    <div class="flex items-start justify-between gap-3">
+                                        <div>
+                                            <h3 class="text-lg font-semibold text-textdark">Commit Gagal</h3>
+                                            <p class="text-xs text-textdark/60">Jumlah transaksi yang tidak berhasil dikomit pada setiap jaringan.</p>
+                                        </div>
+                                    </div>
+                                    <div class="relative h-72 rounded-2xl border border-white/5 bg-surface/60 p-4">
+                                        <div data-chart-placeholder class="absolute inset-0 flex items-center justify-center rounded-2xl bg-surface/70 text-center text-sm text-textdark/70">
+                                            Menyiapkan visualisasi commit gagal per jaringan...
+                                        </div>
+                                        <canvas id="failedCommitChart" class="absolute inset-0 hidden" aria-label="Grafik commit gagal per jaringan" role="img"></canvas>
+                                    </div>
+                                </article>
+                            </div>
+                        </section>
                     </div>
                 </main>
 

@@ -46,26 +46,27 @@
 </head>
 <body class="bg-soft text-textdark">
     <div data-component="header"></div>
-    <div class="relative min-h-screen overflow-hidden">
-        <div class="absolute inset-0 -z-10 h-full w-full">
-            <div class="absolute -left-1/3 top-0 h-[720px] w-[720px] rounded-full bg-gradient-to-br from-primary/30 via-secondary/25 to-transparent opacity-70 blur-3xl"></div>
-            <div class="absolute -right-1/4 bottom-0 h-[620px] w-[620px] rounded-full bg-gradient-to-tr from-accent/35 via-secondary/25 to-primary/25 opacity-70 blur-3xl"></div>
+
+    <div class="relative flex min-h-screen flex-col">
+        <div class="pointer-events-none absolute inset-0 -z-10">
+            <div class="absolute -left-1/3 top-0 h-[680px] w-[680px] rounded-full bg-gradient-to-br from-primary/30 via-secondary/20 to-transparent opacity-70 blur-3xl"></div>
+            <div class="absolute -right-1/4 bottom-0 h-[640px] w-[640px] rounded-full bg-gradient-to-tr from-accent/35 via-secondary/25 to-primary/25 opacity-70 blur-3xl"></div>
         </div>
 
-        <div class="flex min-h-screen flex-col lg:flex-row">
+        <div class="relative flex flex-1 flex-col lg:flex-row">
             <div data-component="sidebar"></div>
 
             <div class="flex-1">
                 <main class="mx-auto w-full max-w-6xl px-6 py-12">
-                    <div class="space-y-10">
+                    <div class="space-y-12">
                         <section class="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-surface via-soft to-[#020817] p-10 shadow-2xl shadow-black/30">
                             <div class="flex flex-col gap-6 text-left">
                                 <span class="inline-flex w-fit items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-primary/90">
                                     📊 Ikhtisar evaluasi
                                 </span>
-                                <div class="flex flex-col gap-3">
+                                <div class="space-y-3">
                                     <h1 class="text-4xl font-semibold text-textdark md:text-5xl">Perbandingan rata-rata jaringan RAFT</h1>
-                                    <p class="text-sm text-textdark/70 md:text-base">Halaman ini merangkum performa rata-rata setiap jaringan Hyperledger Fabric yang digunakan selama simulasi. Data diperbarui otomatis setiap kali catatan simulasi dikirim melalui antarmuka dashboard.</p>
+                                    <p class="text-sm text-textdark/70 md:text-base">Halaman ini menampilkan ringkasan performa seluruh jaringan Hyperledger Fabric yang diuji menggunakan konsensus RAFT. Data dihitung otomatis setiap kali simulasi selesai dijalankan.</p>
                                 </div>
                                 <div class="flex flex-wrap items-center gap-3 text-xs text-textdark/60">
                                     <span class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/60 px-3 py-1 font-semibold uppercase tracking-[0.25em] text-primary/80">
@@ -85,9 +86,9 @@
 
                         <section class="space-y-6">
                             <header class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-                                <div>
+                                <div class="space-y-1">
                                     <h2 class="text-2xl font-semibold text-textdark">Grafik perbedaan performa jaringan</h2>
-                                    <p class="text-sm text-textdark/70">Visualisasi ini membantu membandingkan metrik kunci antar jaringan secara lebih cepat dengan merata-ratakan setiap indikator ke skala yang sama.</p>
+                                    <p class="text-sm text-textdark/70">Visualisasi radar memperlihatkan perbedaan rata-rata setiap metrik utama sehingga perubahan performa antar jaringan lebih mudah dibandingkan.</p>
                                 </div>
                                 <div class="text-xs text-textdark/60" id="chartUpdatedAtLabel">Diperbarui: <span data-chart-updated-at>Menunggu data</span></div>
                             </header>
@@ -107,9 +108,9 @@
 
                         <section class="space-y-6">
                             <header class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-                                <div>
+                                <div class="space-y-1">
                                     <h2 class="text-2xl font-semibold text-textdark">Tabel perbandingan jaringan</h2>
-                                    <p class="text-sm text-textdark/70">Ringkasan ini merangkum catatan simulasi yang dikomit ke setiap blok jaringan tanpa elemen kartu, sehingga memudahkan pembacaan angka per jaringan.</p>
+                                    <p class="text-sm text-textdark/70">Ringkasan ini memuat metrik agregat setiap jaringan sehingga Anda dapat mengevaluasi performa blok secara detail.</p>
                                 </div>
                                 <div class="text-xs text-textdark/60" id="summaryFetchedAt">Diambil: <span data-summary-fetched-at>Belum ada data</span></div>
                             </header>

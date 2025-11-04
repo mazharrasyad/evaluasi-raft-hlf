@@ -536,32 +536,6 @@ const decimalFormatter = new Intl.NumberFormat('id-ID', {
 
 const EVALUATION_CHART_CONFIGS = [
     {
-        key: 'latency',
-        title: 'Latensi terbaru',
-        description: 'Waktu komit setiap blok.',
-        dataKey: 'latencies',
-        type: 'line',
-        datasetLabel: 'Latensi (ms)',
-        borderColor: 'rgba(56, 189, 248, 1)',
-        backgroundColor: 'rgba(56, 189, 248, 0.25)',
-        fill: true,
-        tooltipFormatter: value => `${decimalFormatter.format(value)} ms`,
-        yTickFormatter: value => `${decimalFormatter.format(value)} ms`,
-    },
-    {
-        key: 'averageLatency',
-        title: 'Rata-rata latensi',
-        description: 'Rerata kumulatif per komit.',
-        dataKey: 'averageLatencies',
-        type: 'line',
-        datasetLabel: 'Rata-rata (ms)',
-        borderColor: 'rgba(99, 102, 241, 1)',
-        backgroundColor: 'rgba(99, 102, 241, 0.25)',
-        fill: true,
-        tooltipFormatter: value => `${decimalFormatter.format(value)} ms`,
-        yTickFormatter: value => `${decimalFormatter.format(value)} ms`,
-    },
-    {
         key: 'throughput',
         title: 'Throughput',
         description: 'Transaksi sukses per detik.',
@@ -575,17 +549,43 @@ const EVALUATION_CHART_CONFIGS = [
         yTickFormatter: value => `${decimalFormatter.format(value)} tx/detik`,
     },
     {
-        key: 'success',
-        title: 'Commit berhasil',
-        description: 'Akumulasi transaksi berhasil.',
-        dataKey: 'successTotals',
-        type: 'bar',
-        datasetLabel: 'Total berhasil',
+        key: 'latency',
+        title: 'Latency',
+        description: 'Waktu komit setiap blok.',
+        dataKey: 'latencies',
+        type: 'line',
+        datasetLabel: 'Latency (ms)',
+        borderColor: 'rgba(56, 189, 248, 1)',
+        backgroundColor: 'rgba(56, 189, 248, 0.25)',
+        fill: true,
+        tooltipFormatter: value => `${decimalFormatter.format(value)} ms`,
+        yTickFormatter: value => `${decimalFormatter.format(value)} ms`,
+    },
+    {
+        key: 'resourceUsage',
+        title: 'Resource Usage',
+        description: 'Estimasi pemakaian CPU, memori, dan IO.',
+        dataKey: 'resourceUsage',
+        type: 'line',
+        datasetLabel: 'Resource Usage (%)',
+        borderColor: 'rgba(99, 102, 241, 1)',
+        backgroundColor: 'rgba(99, 102, 241, 0.25)',
+        fill: true,
+        tooltipFormatter: value => `${decimalFormatter.format(value)}%`,
+        yTickFormatter: value => `${decimalFormatter.format(value)}%`,
+    },
+    {
+        key: 'faultTolerance',
+        title: 'Fault Tolerance',
+        description: 'Ketahanan konsensus saat gangguan node.',
+        dataKey: 'faultTolerance',
+        type: 'line',
+        datasetLabel: 'Fault Tolerance (%)',
         borderColor: 'rgba(16, 185, 129, 1)',
-        backgroundColor: 'rgba(16, 185, 129, 0.6)',
-        fill: false,
-        tooltipFormatter: value => `${formatCount(value)} commit`,
-        yTickFormatter: value => formatCount(value),
+        backgroundColor: 'rgba(16, 185, 129, 0.25)',
+        fill: true,
+        tooltipFormatter: value => `${decimalFormatter.format(value)}%`,
+        yTickFormatter: value => `${decimalFormatter.format(value)}%`,
     },
 ];
 
@@ -3516,6 +3516,8 @@ function createEmptyEvaluationHistory() {
         averageLatencies: [],
         throughput: [],
         successTotals: [],
+        resourceUsage: [],
+        faultTolerance: [],
     };
 }
 
@@ -3537,6 +3539,8 @@ function trimEvaluationHistory(history) {
         'averageLatencies',
         'throughput',
         'successTotals',
+        'resourceUsage',
+        'faultTolerance',
     ];
 
     keys.forEach(key => {
@@ -3601,6 +3605,22 @@ function appendEvaluationHistory(stats, entry) {
         ? entry.successTotal
         : previousSuccess;
     history.successTotals.push(successValue);
+
+    const previousResourceUsage = history.resourceUsage.length
+        ? history.resourceUsage[history.resourceUsage.length - 1]
+        : 45;
+    const resourceUsageValue = Number.isFinite(entry.resourceUsage)
+        ? entry.resourceUsage
+        : previousResourceUsage;
+    history.resourceUsage.push(resourceUsageValue);
+
+    const previousFaultTolerance = history.faultTolerance.length
+        ? history.faultTolerance[history.faultTolerance.length - 1]
+        : 100;
+    const faultToleranceValue = Number.isFinite(entry.faultTolerance)
+        ? entry.faultTolerance
+        : previousFaultTolerance;
+    history.faultTolerance.push(faultToleranceValue);
 
     trimEvaluationHistory(history);
 }
@@ -3896,6 +3916,65 @@ function computeThroughputNumber(stats) {
     return Number.isFinite(throughput) ? throughput : 0;
 }
 
+function clampMetric(value, min, max, fallback) {
+    if (!Number.isFinite(value)) {
+        return Number.isFinite(fallback) ? fallback : min;
+    }
+    if (typeof min === 'number' && value < min) {
+        return min;
+    }
+    if (typeof max === 'number' && value > max) {
+        return max;
+    }
+    return value;
+}
+
+function computeResourceUsagePercentage({ stats, throughputSnapshot, latencyMs, fallback = 45 }) {
+    const normalizedThroughput = Number.isFinite(throughputSnapshot)
+        ? Math.min(Math.max(throughputSnapshot / 10, 0), 1)
+        : 0;
+    const normalizedLatency = Number.isFinite(latencyMs)
+        ? Math.min(Math.max(latencyMs / 750, 0), 1)
+        : 0.25;
+
+    let usage = 35 + (normalizedThroughput * 45) + (normalizedLatency * 20);
+
+    if (stats?.lastStatus === 'error') {
+        usage += 8;
+    } else if (stats?.lastStatus === 'success') {
+        usage -= 3;
+    }
+
+    return clampMetric(usage, 25, 100, fallback);
+}
+
+function computeFaultToleranceScore({ stats, latencyMs, fallback = 100 }) {
+    const totalAttempts = Math.max(
+        Number(stats?.totalCount) || 0,
+        (Number(stats?.successCount) || 0) + (Number(stats?.failureCount) || 0),
+    );
+    const failureRate = totalAttempts > 0
+        ? Math.min(Math.max((Number(stats?.failureCount) || 0) / totalAttempts, 0), 1)
+        : 0;
+    const latencyImpact = Number.isFinite(latencyMs)
+        ? Math.min(Math.max(latencyMs / 1000, 0), 1)
+        : 0;
+    const statusPenalty = stats?.lastStatus === 'error' ? 0.12 : stats?.lastStatus === 'processing' ? 0.05 : 0;
+
+    let score = 100
+        - (failureRate * 60)
+        - (latencyImpact * 20)
+        - (statusPenalty * 100);
+
+    if (stats?.failureCount === 0 && stats?.successCount > 0) {
+        score += 5;
+    } else if (stats?.lastStatus === 'success') {
+        score += 2;
+    }
+
+    return clampMetric(score, 40, 100, fallback);
+}
+
 function createEvaluationHistoryChart(context, config) {
     if (!context || !isChartJsAvailable()) {
         return null;
@@ -4175,12 +4254,31 @@ function updateEvaluationResult(result, { record } = {}) {
         successCount: stats.successCount,
     });
 
+    const resourceUsageSnapshot = computeResourceUsagePercentage({
+        stats,
+        throughputSnapshot,
+        latencyMs: latencyValue,
+        fallback: stats.history?.resourceUsage?.length
+            ? stats.history.resourceUsage[stats.history.resourceUsage.length - 1]
+            : 45,
+    });
+
+    const faultToleranceSnapshot = computeFaultToleranceScore({
+        stats,
+        latencyMs: latencyValue,
+        fallback: stats.history?.faultTolerance?.length
+            ? stats.history.faultTolerance[stats.history.faultTolerance.length - 1]
+            : 100,
+    });
+
     appendEvaluationHistory(stats, {
         blockInfo,
         latencyMs: latencyValue,
         averageLatencyMs,
         throughput: throughputSnapshot,
         successTotal: stats.successCount,
+        resourceUsage: resourceUsageSnapshot,
+        faultTolerance: faultToleranceSnapshot,
     });
 
     evaluationStats.set(result.targetId, stats);

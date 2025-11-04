@@ -101,7 +101,13 @@
                                 <header class="space-y-1">
                                 <p class="text-xs font-semibold uppercase tracking-[0.3em] text-accent">Evaluasi blockchain</p>
                                     <h2 class="text-2xl font-semibold text-textdark">Performa transaksi real-time</h2>
-                                    <p class="text-sm text-textdark/70">Pantau latensi, throughput, dan status commit ketika setiap data simulasi dikirim ke channel Fabric 3 RAFT Standard dan Fabric 3 RAFT Variant.</p>
+                                    <p class="text-sm text-textdark/70">Evaluasi pengiriman data simulasi Fabric 3 dengan memusatkan perhatian pada empat parameter kunci untuk memahami performa jaringan RAFT secara menyeluruh.</p>
+                                    <ul class="list-disc space-y-1 pl-5 text-sm text-textdark/70">
+                                        <li><span class="font-semibold text-accent">Throughput</span> &mdash; memantau laju transaksi per detik sebagai indikator kapasitas pemrosesan laporan.</li>
+                                        <li><span class="font-semibold text-accent">Latency</span> &mdash; mencatat durasi transaksi sejak dikirim hingga terkonfirmasi di ledger.</li>
+                                        <li><span class="font-semibold text-accent">Resource Usage</span> &mdash; menyoroti penggunaan CPU, memori, dan IO pada orderer serta peer selama simulasi berlangsung.</li>
+                                        <li><span class="font-semibold text-accent">Fault Tolerance</span> &mdash; mengamati respons konsensus RAFT terhadap kegagalan node, termasuk waktu pemulihan dan konsistensi data.</li>
+                                    </ul>
                                 </header>
                                 <div id="simulationEvaluationList" class="grid gap-4 md:grid-cols-2"></div>
                             </section>

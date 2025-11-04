@@ -14,12 +14,11 @@ componentLoaderReady.then(() => {
         ? statusEl.querySelector('[data-status-message]')
         : null;
     const resultsContainer = document.getElementById('broadcastResults');
-    const chartCanvas = document.getElementById('blockRealtimeChart');
-    const chartPlaceholder = document.getElementById('chartPlaceholder');
     const updatedAtEl = document.getElementById('realtimeUpdatedAt');
     const snapshotContainer = document.getElementById('networkSnapshot');
+    const metricCards = Array.from(document.querySelectorAll('[data-metric-card]'));
 
-    if (!form || !countInput || !statusEl || !resultsContainer || !chartCanvas || !snapshotContainer) {
+    if (!form || !countInput || !statusEl || !resultsContainer || metricCards.length === 0 || !snapshotContainer) {
         return;
     }
 
@@ -96,10 +95,179 @@ componentLoaderReady.then(() => {
     const SUMMARY_POLL_INTERVAL = 5000;
 
     let isSubmitting = false;
-    let chartInstance = null;
-    const datasetMap = new Map();
+    const metricElements = new Map();
+    const metricStates = new Map();
     let pollTimeoutId = null;
     let isFetchingSummary = false;
+
+    function clampMetric(value, min, max, fallback = null) {
+        if (!Number.isFinite(value)) {
+            return fallback ?? null;
+        }
+
+        if (typeof min === 'number' && value < min) {
+            return min;
+        }
+
+        if (typeof max === 'number' && value > max) {
+            return max;
+        }
+
+        return value;
+    }
+
+    function computeResourceUsagePercentage({ stats, throughputSnapshot, latencyMs, fallback = null }) {
+        const normalizedThroughput = Number.isFinite(throughputSnapshot)
+            ? Math.min(Math.max(throughputSnapshot / 10, 0), 1)
+            : 0;
+        const normalizedLatency = Number.isFinite(latencyMs)
+            ? Math.min(Math.max(latencyMs / 750, 0), 1)
+            : 0.25;
+
+        let usage = 35 + (normalizedThroughput * 45) + (normalizedLatency * 20);
+
+        if (stats?.lastStatus === 'error') {
+            usage += 8;
+        } else if (stats?.lastStatus === 'success') {
+            usage -= 3;
+        }
+
+        return clampMetric(usage, 25, 100, fallback);
+    }
+
+    function computeFaultToleranceScore({ stats, latencyMs, fallback = null }) {
+        const totalAttempts = Math.max(
+            Number(stats?.totalCount) || 0,
+            (Number(stats?.successCount) || 0) + (Number(stats?.failureCount) || 0),
+        );
+        const failureRate = totalAttempts > 0
+            ? Math.min(Math.max((Number(stats?.failureCount) || 0) / totalAttempts, 0), 1)
+            : 0;
+        const latencyImpact = Number.isFinite(latencyMs)
+            ? Math.min(Math.max(latencyMs / 1000, 0), 1)
+            : 0;
+        const statusPenalty = stats?.lastStatus === 'error'
+            ? 0.12
+            : stats?.lastStatus === 'processing'
+                ? 0.05
+                : 0;
+
+        let score = 100
+            - (failureRate * 60)
+            - (latencyImpact * 20)
+            - (statusPenalty * 100);
+
+        if (stats?.failureCount === 0 && stats?.successCount > 0) {
+            score += 5;
+        } else if (stats?.lastStatus === 'success') {
+            score += 2;
+        }
+
+        return clampMetric(score, 40, 100, fallback);
+    }
+
+    function hasNetworkActivity(network) {
+        if (!network || typeof network !== 'object') {
+            return false;
+        }
+
+        const totalCount = Number.isFinite(network.totalCount) ? network.totalCount : 0;
+        const successCount = Number.isFinite(network.successCount) ? network.successCount : 0;
+        const failureCount = Number.isFinite(network.failureCount) ? network.failureCount : 0;
+        const blockCount = Number.isFinite(network.blockCount) ? network.blockCount : 0;
+
+        return totalCount > 0 || successCount > 0 || failureCount > 0 || blockCount > 0;
+    }
+
+    const METRIC_DEFINITIONS = {
+        throughput: {
+            key: 'throughput',
+            formatTick: value => (Number.isFinite(value) ? decimalFormatter.format(value) : '—'),
+            formatValue: value => (Number.isFinite(value) ? `${decimalFormatter.format(value)} tx/detik` : '—'),
+            getValue: (network) => {
+                if (!hasNetworkActivity(network)) {
+                    return null;
+                }
+                const value = Number(network?.throughput);
+                return Number.isFinite(value) ? value : null;
+            },
+        },
+        latency: {
+            key: 'latency',
+            formatTick: value => (Number.isFinite(value) ? `${decimalFormatter.format(value)} ms` : '—'),
+            formatValue: value => (Number.isFinite(value) ? `${decimalFormatter.format(value)} ms` : '—'),
+            getValue: (network) => {
+                if (!hasNetworkActivity(network)) {
+                    return null;
+                }
+                const candidates = [network?.averageLatencyMs, network?.averageCommitTimeMs];
+                for (let index = 0; index < candidates.length; index += 1) {
+                    const value = Number(candidates[index]);
+                    if (Number.isFinite(value)) {
+                        return value;
+                    }
+                }
+                return null;
+            },
+        },
+        'resource-usage': {
+            key: 'resource-usage',
+            formatTick: value => (Number.isFinite(value) ? `${decimalFormatter.format(value)}%` : '—'),
+            formatValue: value => (Number.isFinite(value) ? `${decimalFormatter.format(value)}%` : '—'),
+            getValue: (network) => {
+                if (!hasNetworkActivity(network)) {
+                    return null;
+                }
+                const throughputValue = Number(network?.throughput);
+                const latencyMs = Number.isFinite(network?.averageCommitTimeMs)
+                    ? Number(network.averageCommitTimeMs)
+                    : Number(network?.averageLatencyMs);
+                return computeResourceUsagePercentage({
+                    stats: network,
+                    throughputSnapshot: Number.isFinite(throughputValue) ? throughputValue : null,
+                    latencyMs: Number.isFinite(latencyMs) ? latencyMs : null,
+                    fallback: null,
+                });
+            },
+        },
+        'fault-tolerance': {
+            key: 'fault-tolerance',
+            formatTick: value => (Number.isFinite(value) ? `${decimalFormatter.format(value)}%` : '—'),
+            formatValue: value => (Number.isFinite(value) ? `${decimalFormatter.format(value)}%` : '—'),
+            getValue: (network) => {
+                if (!hasNetworkActivity(network)) {
+                    return null;
+                }
+                const latencyMs = Number.isFinite(network?.averageCommitTimeMs)
+                    ? Number(network.averageCommitTimeMs)
+                    : Number(network?.averageLatencyMs);
+                return computeFaultToleranceScore({
+                    stats: network,
+                    latencyMs: Number.isFinite(latencyMs) ? latencyMs : null,
+                    fallback: null,
+                });
+            },
+        },
+    };
+
+    metricCards.forEach((card) => {
+        const metricKey = card.getAttribute('data-metric-card');
+        if (!metricKey || !METRIC_DEFINITIONS[metricKey]) {
+            return;
+        }
+        const placeholder = card.querySelector('[data-metric-placeholder]');
+        const canvas = card.querySelector('[data-metric-canvas]');
+        if (!canvas) {
+            return;
+        }
+        metricElements.set(metricKey, { card, placeholder, canvas });
+    });
+
+    const metricKeys = Array.from(metricElements.keys());
+
+    if (metricKeys.length === 0) {
+        return;
+    }
 
     function updateStatus(message, variant = 'info') {
         if (!statusEl || !statusMessage || !statusIndicator) {
@@ -328,17 +496,39 @@ componentLoaderReady.then(() => {
         });
     }
 
-    function ensureChartInstance() {
-        if (chartInstance) {
-            return chartInstance;
+    function ensureMetricState(metricKey) {
+        if (!metricStates.has(metricKey)) {
+            metricStates.set(metricKey, {
+                chart: null,
+                datasets: new Map(),
+                hasData: false,
+                elements: metricElements.get(metricKey) || null,
+            });
         }
+        return metricStates.get(metricKey);
+    }
 
-        if (!chartCanvas || typeof window.Chart !== 'function') {
+    function ensureMetricChart(metricKey) {
+        const metricDefinition = METRIC_DEFINITIONS[metricKey];
+        if (!metricDefinition) {
             return null;
         }
 
-        const context = chartCanvas.getContext('2d');
-        chartInstance = new window.Chart(context, {
+        const state = ensureMetricState(metricKey);
+        if (!state.elements || !state.elements.canvas) {
+            return null;
+        }
+
+        if (state.chart) {
+            return state.chart;
+        }
+
+        if (typeof window.Chart !== 'function') {
+            return null;
+        }
+
+        const context = state.elements.canvas.getContext('2d');
+        state.chart = new window.Chart(context, {
             type: 'line',
             data: {
                 labels: [],
@@ -352,13 +542,17 @@ componentLoaderReady.then(() => {
                     y: {
                         beginAtZero: true,
                         ticks: {
-                            callback: (value) => numberFormatter.format(value),
+                            callback: (value) => metricDefinition.formatTick(value),
+                            color: '#E2E8F0',
                         },
                         grid: {
-                            color: 'rgba(148, 163, 184, 0.15)',
+                            color: 'rgba(148, 163, 184, 0.12)',
                         },
                     },
                     x: {
+                        ticks: {
+                            color: '#E2E8F0',
+                        },
                         grid: {
                             display: false,
                         },
@@ -375,10 +569,10 @@ componentLoaderReady.then(() => {
                             label(context) {
                                 const datasetLabel = context.dataset?.label || 'Jaringan';
                                 const value = context.parsed?.y;
-                                const formatted = typeof value === 'number'
-                                    ? numberFormatter.format(value)
+                                const formatted = Number.isFinite(value)
+                                    ? metricDefinition.formatValue(value)
                                     : '—';
-                                return `${datasetLabel}: ${formatted} blok`;
+                                return `${datasetLabel}: ${formatted}`;
                             },
                         },
                     },
@@ -386,25 +580,26 @@ componentLoaderReady.then(() => {
             },
         });
 
-        if (chartPlaceholder) {
-            chartPlaceholder.classList.add('hidden');
-        }
-        chartCanvas.classList.remove('hidden');
-
-        return chartInstance;
+        return state.chart;
     }
 
-    function ensureDataset(network) {
+    function ensureMetricDataset(metricKey, network) {
         if (!network) {
             return null;
         }
 
-        const key = network.id || network.targetId || network.label || `network-${datasetMap.size + 1}`;
-        if (datasetMap.has(key)) {
-            return datasetMap.get(key);
+        const state = ensureMetricState(metricKey);
+        const chart = ensureMetricChart(metricKey);
+        if (!state || !chart) {
+            return null;
         }
 
-        const color = COLOR_PALETTE[datasetMap.size % COLOR_PALETTE.length];
+        const key = network.id || network.targetId || network.label || `network-${state.datasets.size + 1}`;
+        if (state.datasets.has(key)) {
+            return state.datasets.get(key);
+        }
+
+        const color = COLOR_PALETTE[state.datasets.size % COLOR_PALETTE.length];
         const dataset = {
             label: network.label || key,
             datasetId: key,
@@ -415,13 +610,13 @@ componentLoaderReady.then(() => {
             data: [],
         };
 
-        const chart = ensureChartInstance();
-        if (!chart) {
-            return null;
+        const existingLabelCount = chart.data.labels.length;
+        if (existingLabelCount > 1) {
+            dataset.data = new Array(existingLabelCount - 1).fill(null);
         }
 
         chart.data.datasets.push(dataset);
-        datasetMap.set(key, dataset);
+        state.datasets.set(key, dataset);
         return dataset;
     }
 
@@ -438,31 +633,18 @@ componentLoaderReady.then(() => {
         return null;
     }
 
-    function extractBlockMetric(network) {
-        if (!network || typeof network !== 'object') {
-            return null;
+    function updateMetricChart(metricKey, networks, label) {
+        const metricDefinition = METRIC_DEFINITIONS[metricKey];
+        if (!metricDefinition) {
+            return;
         }
-        const candidates = [
-            network.blockCount,
-            network.lastBlockNumber,
-            network.commitStatus?.blockNumber,
-        ];
-        for (let index = 0; index < candidates.length; index += 1) {
-            const normalized = normalizeBlockValue(candidates[index]);
-            if (normalized !== null) {
-                return normalized;
-            }
-        }
-        return null;
-    }
 
-    function updateRealtimeChart(networks) {
-        const chart = ensureChartInstance();
+        const chart = ensureMetricChart(metricKey);
         if (!chart) {
             return;
         }
 
-        const label = timeFormatter.format(new Date());
+        const state = ensureMetricState(metricKey);
         const labels = chart.data.labels;
         labels.push(label);
         if (labels.length > MAX_POINTS) {
@@ -471,21 +653,33 @@ componentLoaderReady.then(() => {
 
         const seenDatasets = new Set();
         networks.forEach((network) => {
-            const dataset = ensureDataset(network);
+            const dataset = ensureMetricDataset(metricKey, network);
             if (!dataset) {
                 return;
             }
 
-            const value = extractBlockMetric(network);
-            const nextValue = value !== null ? value : (dataset.data.length > 0 ? dataset.data[dataset.data.length - 1] : null);
+            const value = metricDefinition.getValue(network);
+            const lastValue = dataset.data.length > 0
+                ? dataset.data[dataset.data.length - 1]
+                : null;
+            const nextValue = Number.isFinite(value)
+                ? value
+                : (Number.isFinite(lastValue) ? lastValue : null);
+
             dataset.data.push(nextValue);
             if (dataset.data.length > labels.length) {
                 dataset.data.shift();
             }
+            while (dataset.data.length < labels.length) {
+                const fillValue = dataset.data.length > 0
+                    ? dataset.data[dataset.data.length - 1]
+                    : null;
+                dataset.data.push(fillValue);
+            }
             seenDatasets.add(dataset.datasetId);
         });
 
-        datasetMap.forEach((dataset) => {
+        state.datasets.forEach((dataset) => {
             if (!seenDatasets.has(dataset.datasetId)) {
                 const fallback = dataset.data.length > 0
                     ? dataset.data[dataset.data.length - 1]
@@ -494,16 +688,44 @@ componentLoaderReady.then(() => {
                 if (dataset.data.length > labels.length) {
                     dataset.data.shift();
                 }
-            }
-            while (dataset.data.length < labels.length) {
-                const fillValue = dataset.data.length > 0
-                    ? dataset.data[dataset.data.length - 1]
-                    : null;
-                dataset.data.push(fillValue);
+                while (dataset.data.length < labels.length) {
+                    const fillValue = dataset.data.length > 0
+                        ? dataset.data[dataset.data.length - 1]
+                        : null;
+                    dataset.data.push(fillValue);
+                }
             }
         });
 
+        if (!state.hasData) {
+            const hasFiniteData = Array.from(state.datasets.values()).some(currentDataset => (
+                Array.isArray(currentDataset.data)
+                && currentDataset.data.some(dataPoint => Number.isFinite(dataPoint))
+            ));
+
+            if (hasFiniteData) {
+                state.hasData = true;
+                if (state.elements?.placeholder) {
+                    state.elements.placeholder.classList.add('hidden');
+                }
+                if (state.elements?.canvas) {
+                    state.elements.canvas.classList.remove('hidden');
+                }
+            }
+        }
+
         chart.update('none');
+    }
+
+    function updateMetricCharts(networks) {
+        if (!Array.isArray(networks) || networks.length === 0) {
+            return;
+        }
+
+        const label = timeFormatter.format(new Date());
+        metricKeys.forEach((metricKey) => {
+            updateMetricChart(metricKey, networks, label);
+        });
     }
 
     function renderSnapshot(networks) {
@@ -658,7 +880,7 @@ componentLoaderReady.then(() => {
             const networks = Array.isArray(payload?.networks) ? payload.networks : [];
 
             renderSnapshot(networks);
-            updateRealtimeChart(networks);
+            updateMetricCharts(networks);
             setUpdatedAt(payload?.updatedAt || payload?.fetchedAt || null);
         } catch (error) {
             console.error('Gagal memperbarui ringkasan simulasi:', error);

@@ -130,34 +130,81 @@
                         <section class="space-y-6">
                             <header class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                                 <div class="space-y-2">
-                                    <p class="text-xs font-semibold uppercase tracking-[0.3em] text-highlight/80">Observasi blok</p>
-                                    <h2 class="text-2xl font-semibold text-textdark">Grafik blok real-time untuk seluruh jaringan</h2>
+                                    <p class="text-xs font-semibold uppercase tracking-[0.3em] text-highlight/80">Analitik kinerja</p>
+                                    <h2 class="text-2xl font-semibold text-textdark">Grafik performa real-time setiap jaringan</h2>
                                     <p class="max-w-3xl text-sm text-textdark/70">
-                                        Grafik garis ini menampilkan akumulasi blok yang tercatat pada masing-masing jaringan Fabric setiap beberapa detik.
-                                        Gunakan indikator ini untuk memantau seberapa cepat blok baru diterima selama proses simulasi berlangsung.
+                                        Pantau throughput, latensi, penggunaan sumber daya, dan ketahanan gangguan setiap jaringan Fabric setelah simulasi dikirim.
+                                        Nilai-nilai ini diperbarui secara berkala untuk membantu membandingkan respons jaringan secara langsung.
                                     </p>
                                 </div>
                                 <p id="realtimeUpdatedAt" class="text-[10px] uppercase tracking-[0.28em] text-textdark/50"></p>
                             </header>
 
-                            <div class="grid gap-6 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
-                                <article class="flex flex-col gap-4 rounded-3xl border border-white/10 bg-surfaceMuted/70 p-6 shadow-inner shadow-black/25">
-                                    <div class="relative h-[420px] rounded-2xl border border-white/5 bg-surface/60 p-4">
-                                        <div id="chartPlaceholder" class="absolute inset-0 flex items-center justify-center rounded-2xl bg-surface/70 text-center text-sm text-textdark/70">
-                                            Menunggu data blok terbaru...
+                            <div class="grid gap-6 lg:grid-cols-2">
+                                <article class="flex flex-col gap-4 rounded-3xl border border-white/10 bg-surfaceMuted/70 p-6 shadow-inner shadow-black/25" data-metric-card="throughput">
+                                    <header class="space-y-1">
+                                        <h3 class="text-lg font-semibold text-textdark">Throughput</h3>
+                                        <p class="text-xs text-textdark/60">Jumlah transaksi sukses per detik pada masing-masing jaringan.</p>
+                                    </header>
+                                    <div class="relative h-[320px] rounded-2xl border border-white/5 bg-surface/60 p-4">
+                                        <div data-metric-placeholder class="absolute inset-0 flex items-center justify-center rounded-2xl bg-surface/70 text-center text-sm text-textdark/70">
+                                            Menunggu data throughput...
                                         </div>
-                                        <canvas id="blockRealtimeChart" class="absolute inset-0 hidden" aria-label="Grafik jumlah blok realtime" role="img"></canvas>
+                                        <canvas data-metric-canvas class="absolute inset-0 hidden" aria-label="Grafik throughput jaringan" role="img"></canvas>
                                     </div>
                                 </article>
 
-                                <article class="flex flex-col gap-4 rounded-3xl border border-white/10 bg-surfaceMuted/70 p-6 shadow-inner shadow-black/25">
+                                <article class="flex flex-col gap-4 rounded-3xl border border-white/10 bg-surfaceMuted/70 p-6 shadow-inner shadow-black/25" data-metric-card="latency">
                                     <header class="space-y-1">
-                                        <h3 class="text-lg font-semibold text-textdark">Snapshot blok terkini</h3>
-                                        <p class="text-xs text-textdark/60">Perbandingan jumlah blok dan status komit terakhir dari setiap jaringan.</p>
+                                        <h3 class="text-lg font-semibold text-textdark">Latency</h3>
+                                        <p class="text-xs text-textdark/60">Rata-rata waktu respon jaringan untuk menyelesaikan transaksi.</p>
                                     </header>
-                                    <div id="networkSnapshot" class="grid gap-3"></div>
+                                    <div class="relative h-[320px] rounded-2xl border border-white/5 bg-surface/60 p-4">
+                                        <div data-metric-placeholder class="absolute inset-0 flex items-center justify-center rounded-2xl bg-surface/70 text-center text-sm text-textdark/70">
+                                            Menunggu data latensi...
+                                        </div>
+                                        <canvas data-metric-canvas class="absolute inset-0 hidden" aria-label="Grafik latensi jaringan" role="img"></canvas>
+                                    </div>
+                                </article>
+
+                                <article class="flex flex-col gap-4 rounded-3xl border border-white/10 bg-surfaceMuted/70 p-6 shadow-inner shadow-black/25" data-metric-card="resource-usage">
+                                    <header class="space-y-1">
+                                        <h3 class="text-lg font-semibold text-textdark">Resource Usage</h3>
+                                        <p class="text-xs text-textdark/60">Perkiraan penggunaan sumber daya berdasarkan beban transaksi.</p>
+                                    </header>
+                                    <div class="relative h-[320px] rounded-2xl border border-white/5 bg-surface/60 p-4">
+                                        <div data-metric-placeholder class="absolute inset-0 flex items-center justify-center rounded-2xl bg-surface/70 text-center text-sm text-textdark/70">
+                                            Menunggu data penggunaan sumber daya...
+                                        </div>
+                                        <canvas data-metric-canvas class="absolute inset-0 hidden" aria-label="Grafik penggunaan sumber daya jaringan" role="img"></canvas>
+                                    </div>
+                                </article>
+
+                                <article class="flex flex-col gap-4 rounded-3xl border border-white/10 bg-surfaceMuted/70 p-6 shadow-inner shadow-black/25" data-metric-card="fault-tolerance">
+                                    <header class="space-y-1">
+                                        <h3 class="text-lg font-semibold text-textdark">Fault Tolerance</h3>
+                                        <p class="text-xs text-textdark/60">Skor ketahanan terhadap kegagalan transaksi pada jaringan.</p>
+                                    </header>
+                                    <div class="relative h-[320px] rounded-2xl border border-white/5 bg-surface/60 p-4">
+                                        <div data-metric-placeholder class="absolute inset-0 flex items-center justify-center rounded-2xl bg-surface/70 text-center text-sm text-textdark/70">
+                                            Menunggu data toleransi gangguan...
+                                        </div>
+                                        <canvas data-metric-canvas class="absolute inset-0 hidden" aria-label="Grafik toleransi gangguan jaringan" role="img"></canvas>
+                                    </div>
                                 </article>
                             </div>
+                        </section>
+
+                        <section class="space-y-6">
+                            <header class="space-y-2">
+                                <p class="text-xs font-semibold uppercase tracking-[0.3em] text-primary/80">Ringkasan blok</p>
+                                <h2 class="text-2xl font-semibold text-textdark">Snapshot blok dan status komit terkini</h2>
+                                <p class="max-w-3xl text-sm text-textdark/70">Perbandingan jumlah blok terbaru, status komit, dan waktu pembaruan terakhir untuk setiap jaringan.</p>
+                            </header>
+
+                            <article class="rounded-3xl border border-white/10 bg-surfaceMuted/70 p-6 shadow-inner shadow-black/25">
+                                <div id="networkSnapshot" class="grid gap-3"></div>
+                            </article>
                         </section>
                     </div>
                 </main>

@@ -111,6 +111,26 @@
                             </div>
                         </section>
 
+                          <section class="space-y-6">
+                              <header class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                                  <div class="space-y-1">
+                                      <p class="text-xs font-semibold uppercase tracking-[0.28em] text-highlight/80">Konfigurasi</p>
+                                      <h2 class="text-2xl font-semibold text-textdark">Perbandingan Konfigurasi RAFT</h2>
+                                  </div>
+                                  <p class="max-w-xl text-sm text-textdark/70">
+                                      Ringkasan parameter konsensus RAFT untuk setiap paket jaringan guna menilai perbedaan batching, alamat orderer, dan daftar consenter yang aktif.
+                                  </p>
+                              </header>
+                              <div id="raftConfigComparison" data-state="loading" class="space-y-5">
+                                  <article class="rounded-3xl border border-white/10 bg-surfaceMuted/70 p-6 text-sm text-textdark/70 shadow-inner shadow-black/20">
+                                      <div class="flex items-center gap-3 text-textdark/80">
+                                          <span class="h-3 w-3 animate-ping rounded-full bg-secondary/70"></span>
+                                          Menyiapkan ringkasan konfigurasi RAFT...
+                                      </div>
+                                  </article>
+                              </div>
+                          </section>
+
                         <section class="space-y-6">
                             <header class="space-y-1">
                                 <p class="text-xs font-semibold uppercase tracking-[0.28em] text-secondary/80">Ikhtisar Global</p>

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="id" class="scroll-smooth">
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Evaluasi RAFT HLF &mdash; Perbandingan Blok Jaringan</title>
+    <title>RAFT HLF Evaluation &mdash; Block Comparison</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -62,15 +62,17 @@
                         <section class="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-surface via-soft to-[#020817] p-10 shadow-2xl shadow-black/30">
                             <div class="flex flex-col gap-8">
                                 <div class="inline-flex w-fit items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-primary/90">
-                                    Observabilitas Blok
+                                    Block Observability
                                 </div>
                                 <div class="space-y-4">
-                                    <h1 class="text-4xl font-semibold text-textdark md:text-5xl">Perbandingan Blok Jaringan RAFT</h1>
+                                    <h1 class="text-4xl font-semibold text-textdark md:text-5xl">RAFT Network Block Comparison</h1>
                                     <p class="max-w-3xl text-base text-textdark/70">
-                                        Hadirkan empat parameter utama evaluasi RAFT langsung pada tingkat blok: <span class="font-semibold text-textdark">Throughput</span>,
-                                        <span class="font-semibold text-textdark">Latency</span>, <span class="font-semibold text-textdark">Resource Usage</span>, dan
-                                        <span class="font-semibold text-textdark">Fault Tolerance</span>. Visualisasi berikut memudahkan pengamatan dinamika komit blok
-                                        saat simulasi berjalan di tiap jaringan Fabric.
+                                        Surface the four primary RAFT evaluation parameters directly at the block layer:
+                                        <span class="font-semibold text-textdark">Throughput</span>,
+                                        <span class="font-semibold text-textdark">Latency</span>,
+                                        <span class="font-semibold text-textdark">Resource Usage</span>, and
+                                        <span class="font-semibold text-textdark">Fault Tolerance</span>. The visualisations below make it easier to observe block commit dynamics
+                                        as simulations progress across each Fabric network.
                                     </p>
                                 </div>
                             </div>
@@ -79,16 +81,37 @@
                         <section class="space-y-6">
                             <header class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                                 <div class="space-y-1">
-                                    <p class="text-xs font-semibold uppercase tracking-[0.28em] text-highlight/80">Distribusi Blok</p>
-                                    <h2 class="text-2xl font-semibold text-textdark">Perbandingan Empat Parameter Inti</h2>
+                                    <p class="text-xs font-semibold uppercase tracking-[0.28em] text-secondary/80">Network Availability</p>
+                                    <h2 class="text-2xl font-semibold text-textdark">Operational Status by Deployment</h2>
                                     <p class="max-w-3xl text-sm text-textdark/70">
-                                        Setiap grafik memetakan performa blok berdasarkan pilar Throughput, Latency, Resource Usage, dan Fault Tolerance untuk semua jaringan RAFT.
-                                        Gunakan insight ini untuk mendeteksi pola komit, beban sumber daya, serta ketahanan terhadap kegagalan pada level blok.
+                                        Each network is checked through its Fabric gateway. Down deployments are flagged immediately so that block-level analytics stay trustworthy.
+                                    </p>
+                                </div>
+                                <p id="blockNetworkStatusCheckedAt" class="text-[10px] uppercase tracking-[0.28em] text-textdark/50"></p>
+                            </header>
+                            <div id="blockNetworkStatusGrid" data-state="loading" class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                                <article class="rounded-3xl border border-white/10 bg-surfaceMuted/70 p-6 text-sm text-textdark/70 shadow-inner shadow-black/20">
+                                    <div class="flex items-center gap-3 text-textdark/80">
+                                        <span class="h-3 w-3 animate-ping rounded-full bg-secondary/70"></span>
+                                        Checking network availability...
+                                    </div>
+                                </article>
+                            </div>
+                        </section>
+
+                        <section class="space-y-6">
+                            <header class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                                <div class="space-y-1">
+                                    <p class="text-xs font-semibold uppercase tracking-[0.28em] text-highlight/80">Block Distribution</p>
+                                    <h2 class="text-2xl font-semibold text-textdark">Comparison of the Four Core Parameters</h2>
+                                    <p class="max-w-3xl text-sm text-textdark/70">
+                                        Each chart captures block performance for Throughput, Latency, Resource Usage, and Fault Tolerance across every RAFT deployment.
+                                        Use these insights to spot commit patterns, resource pressure, and resilience at the block layer.
                                     </p>
                                 </div>
                                 <div class="flex flex-col items-start gap-3 md:items-end">
                                     <button id="refreshBlockComparisonButton" type="button" class="inline-flex items-center gap-2 rounded-2xl border border-primary/40 bg-primary/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.28em] text-primary/90 transition hover:-translate-y-0.5 hover:bg-primary/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">
-                                        Segarkan data
+                                        Refresh Data
                                     </button>
                                     <p id="blockComparisonUpdatedAt" class="text-[10px] uppercase tracking-[0.28em] text-textdark/50"></p>
                                 </div>
@@ -97,53 +120,53 @@
                             <div class="grid gap-6 lg:grid-cols-2" data-block-metric-grid>
                                 <article data-block-metric-card="throughput" data-state="loading" class="flex flex-col gap-4 rounded-3xl border border-white/10 bg-surfaceMuted/70 p-6 text-sm text-textdark/70 shadow-inner shadow-black/20">
                                     <div class="flex flex-col gap-2">
-                                        <h3 class="text-lg font-semibold text-textdark">Throughput Blok</h3>
-                                        <p class="text-xs text-textdark/60">Kecepatan transaksi berhasil per blok (transaksi/detik) untuk setiap jaringan RAFT.</p>
+                                        <h3 class="text-lg font-semibold text-textdark">Block Throughput</h3>
+                                        <p class="text-xs text-textdark/60">Successful transactions per block (transactions per second) for each RAFT deployment.</p>
                                     </div>
                                     <div class="relative h-[360px] rounded-2xl border border-white/5 bg-surface/60 p-4">
                                         <div data-chart-placeholder class="absolute inset-0 flex items-center justify-center rounded-2xl bg-surface/70 text-center text-sm text-textdark/70">
-                                            Menyiapkan grafik throughput blok...
+                                            Preparing block throughput chart...
                                         </div>
-                                        <canvas data-block-metric-canvas class="absolute inset-0 hidden" aria-label="Grafik throughput transaksi per blok" role="img"></canvas>
+                                        <canvas data-block-metric-canvas class="absolute inset-0 hidden" aria-label="Block throughput chart" role="img"></canvas>
                                     </div>
                                 </article>
 
                                 <article data-block-metric-card="latency" data-state="loading" class="flex flex-col gap-4 rounded-3xl border border-white/10 bg-surfaceMuted/70 p-6 text-sm text-textdark/70 shadow-inner shadow-black/20">
                                     <div class="flex flex-col gap-2">
-                                        <h3 class="text-lg font-semibold text-textdark">Latency Komit Blok</h3>
-                                        <p class="text-xs text-textdark/60">Perbandingan rata-rata waktu commit (ms) untuk setiap blok yang berhasil dicatat.</p>
+                                        <h3 class="text-lg font-semibold text-textdark">Block Commit Latency</h3>
+                                        <p class="text-xs text-textdark/60">Average commit time (ms) for every successfully recorded block.</p>
                                     </div>
                                     <div class="relative h-[360px] rounded-2xl border border-white/5 bg-surface/60 p-4">
                                         <div data-chart-placeholder class="absolute inset-0 flex items-center justify-center rounded-2xl bg-surface/70 text-center text-sm text-textdark/70">
-                                            Menyiapkan grafik latensi blok...
+                                            Preparing block latency chart...
                                         </div>
-                                        <canvas data-block-metric-canvas class="absolute inset-0 hidden" aria-label="Grafik rata-rata latensi commit per blok" role="img"></canvas>
+                                        <canvas data-block-metric-canvas class="absolute inset-0 hidden" aria-label="Average block commit latency chart" role="img"></canvas>
                                     </div>
                                 </article>
 
                                 <article data-block-metric-card="resourceUsage" data-state="loading" class="flex flex-col gap-4 rounded-3xl border border-white/10 bg-surfaceMuted/70 p-6 text-sm text-textdark/70 shadow-inner shadow-black/20">
                                     <div class="flex flex-col gap-2">
-                                        <h3 class="text-lg font-semibold text-textdark">Resource Usage Blok</h3>
-                                        <p class="text-xs text-textdark/60">Estimasi pemanfaatan sumber daya (CPU, memori, IO) berdasarkan aktivitas blok di tiap jaringan.</p>
+                                        <h3 class="text-lg font-semibold text-textdark">Block Resource Usage</h3>
+                                        <p class="text-xs text-textdark/60">Estimated resource utilisation (CPU, memory, IO) derived from block activity per network.</p>
                                     </div>
                                     <div class="relative h-[360px] rounded-2xl border border-white/5 bg-surface/60 p-4">
                                         <div data-chart-placeholder class="absolute inset-0 flex items-center justify-center rounded-2xl bg-surface/70 text-center text-sm text-textdark/70">
-                                            Menyiapkan grafik resource usage blok...
+                                            Preparing block resource utilisation chart...
                                         </div>
-                                        <canvas data-block-metric-canvas class="absolute inset-0 hidden" aria-label="Grafik estimasi resource usage per blok" role="img"></canvas>
+                                        <canvas data-block-metric-canvas class="absolute inset-0 hidden" aria-label="Estimated block resource utilisation chart" role="img"></canvas>
                                     </div>
                                 </article>
 
                                 <article data-block-metric-card="faultTolerance" data-state="loading" class="flex flex-col gap-4 rounded-3xl border border-white/10 bg-surfaceMuted/70 p-6 text-sm text-textdark/70 shadow-inner shadow-black/20">
                                     <div class="flex flex-col gap-2">
-                                        <h3 class="text-lg font-semibold text-textdark">Fault Tolerance Blok</h3>
-                                        <p class="text-xs text-textdark/60">Skor ketahanan blok terhadap kegagalan transaksi dan latensi tinggi di seluruh jaringan.</p>
+                                        <h3 class="text-lg font-semibold text-textdark">Block Fault Tolerance</h3>
+                                        <p class="text-xs text-textdark/60">Resilience scores against failed transactions and high latency across all networks.</p>
                                     </div>
                                     <div class="relative h-[360px] rounded-2xl border border-white/5 bg-surface/60 p-4">
                                         <div data-chart-placeholder class="absolute inset-0 flex items-center justify-center rounded-2xl bg-surface/70 text-center text-sm text-textdark/70">
-                                            Menyiapkan grafik fault tolerance blok...
+                                            Preparing block fault-tolerance chart...
                                         </div>
-                                        <canvas data-block-metric-canvas class="absolute inset-0 hidden" aria-label="Grafik skor fault tolerance per blok" role="img"></canvas>
+                                        <canvas data-block-metric-canvas class="absolute inset-0 hidden" aria-label="Block fault-tolerance score chart" role="img"></canvas>
                                     </div>
                                 </article>
                             </div>

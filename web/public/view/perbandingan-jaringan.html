@@ -67,9 +67,10 @@
                                 <div class="space-y-4">
                                     <h1 class="text-4xl font-semibold text-textdark md:text-5xl">Perbandingan Jaringan Fabric 2 &amp; Fabric 3</h1>
                                     <p class="max-w-3xl text-base text-textdark/70">
-                                        Tinjauan mendalam terhadap konfigurasi Hyperledger Fabric berbasis konsensus RAFT pada dua generasi jaringan. Halaman ini
-                                        memvisualisasikan perbedaan utama antara paket <span class="font-semibold text-textdark">RAFT Standard</span> dan <span class="font-semibold text-textdark">RAFT Variant</span>
-                                        untuk Fabric 2 dan Fabric 3, mencakup versi, jalur chaincode, serta detail orderer dan peer.
+                                        Fokus pada empat parameter utama untuk mengevaluasi performa RAFT: <span class="font-semibold text-textdark">Throughput</span>,
+                                        <span class="font-semibold text-textdark">Latency</span>, <span class="font-semibold text-textdark">Resource Usage</span>, dan
+                                        <span class="font-semibold text-textdark">Fault Tolerance</span>. Ikhtisar ini membantu memahami kemampuan pemrosesan transaksi,
+                                        respons sistem, efisiensi pemanfaatan sumber daya, serta ketahanan jaringan saat terjadi kegagalan node.
                                     </p>
                                     <p id="comparisonUpdatedAt" class="text-xs uppercase tracking-[0.28em] text-textdark/50"></p>
                                 </div>
@@ -79,36 +80,48 @@
                         <section class="space-y-6">
                             <header class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                                 <div class="space-y-1">
-                                    <p class="text-xs font-semibold uppercase tracking-[0.28em] text-primary/80">Gambaran Umum</p>
-                                    <h2 class="text-2xl font-semibold text-textdark">Ringkasan Setiap Paket Jaringan</h2>
+                                    <p class="text-xs font-semibold uppercase tracking-[0.28em] text-primary/80">Parameter Fokus</p>
+                                    <h2 class="text-2xl font-semibold text-textdark">Empat Pilar Evaluasi RAFT</h2>
                                 </div>
                                 <p class="max-w-xl text-sm text-textdark/70">
-                                    Sorotan cepat terhadap karakteristik utama setiap bundel jaringan, termasuk kanal, versi fabric, dan jumlah peer yang aktif.
+                                    Pedoman interpretasi untuk setiap parameter evaluasi kinerja jaringan Hyperledger Fabric berbasis konsensus RAFT.
                                 </p>
                             </header>
-                            <div id="networkSummaryGrid" data-state="loading" class="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-                                <article class="rounded-3xl border border-white/10 bg-surfaceMuted/70 p-6 text-sm text-textdark/70 shadow-inner shadow-black/20">
-                                    <div class="flex items-center gap-3 text-textdark/80">
-                                        <span class="h-3 w-3 animate-ping rounded-full bg-primary/70"></span>
-                                        Memuat ringkasan konfigurasi jaringan...
-                                    </div>
+                            <div class="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+                                <article class="flex flex-col gap-3 rounded-3xl border border-white/10 bg-surfaceMuted/70 p-6 text-sm text-textdark/70 shadow-inner shadow-black/20">
+                                    <div class="inline-flex w-fit items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.32em] text-primary/80">Throughput</div>
+                                    <p class="text-base font-semibold text-textdark">Laju transaksi per detik</p>
+                                    <p>Menilai kapasitas jaringan memproses laporan dalam satuan waktu. Nilai meningkat seiring efisiensi komit transaksi pada ledger.</p>
+                                </article>
+                                <article class="flex flex-col gap-3 rounded-3xl border border-white/10 bg-surfaceMuted/70 p-6 text-sm text-textdark/70 shadow-inner shadow-black/20">
+                                    <div class="inline-flex w-fit items-center gap-2 rounded-full border border-secondary/40 bg-secondary/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.32em] text-secondary/80">Latency</div>
+                                    <p class="text-base font-semibold text-textdark">Durasi konfirmasi per transaksi</p>
+                                    <p>Mengukur kecepatan respons mulai dari pengiriman hingga transaksi tercatat di ledger. Latensi rendah menandakan alur konsensus yang lincah.</p>
+                                </article>
+                                <article class="flex flex-col gap-3 rounded-3xl border border-white/10 bg-surfaceMuted/70 p-6 text-sm text-textdark/70 shadow-inner shadow-black/20">
+                                    <div class="inline-flex w-fit items-center gap-2 rounded-full border border-accent/40 bg-accent/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.32em] text-accent/80">Resource Usage</div>
+                                    <p class="text-base font-semibold text-textdark">Pemanfaatan CPU, memori, dan IO</p>
+                                    <p>Menggambarkan beban kerja komponen orderer dan peer selama simulasi. Membantu mendeteksi bottleneck dan efisiensi sistem.</p>
+                                </article>
+                                <article class="flex flex-col gap-3 rounded-3xl border border-white/10 bg-surfaceMuted/70 p-6 text-sm text-textdark/70 shadow-inner shadow-black/20">
+                                    <div class="inline-flex w-fit items-center gap-2 rounded-full border border-highlight/40 bg-highlight/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.32em] text-highlight/80">Fault Tolerance</div>
+                                    <p class="text-base font-semibold text-textdark">Ketahanan terhadap kegagalan</p>
+                                    <p>Memantau kemampuan RAFT menjaga kelangsungan transaksi saat node bermasalah, termasuk kualitas pemulihan dan konsistensi data.</p>
                                 </article>
                             </div>
                         </section>
 
                         <section class="space-y-6">
                             <header class="space-y-1">
-                                <p class="text-xs font-semibold uppercase tracking-[0.28em] text-secondary/80">Konfigurasi</p>
-                                <h2 class="text-2xl font-semibold text-textdark">Perbandingan Nilai Kunci</h2>
-                                <p class="max-w-3xl text-sm text-textdark/70">
-                                    Tabel berikut menyoroti kesamaan dan perbedaan parameter penting antara paket RAFT Standard dan RAFT Variant pada setiap generasi Fabric.
-                                    Kolom catatan menunjukkan apakah konfigurasi identik atau memiliki variasi.</p>
+                                <p class="text-xs font-semibold uppercase tracking-[0.28em] text-secondary/80">Ikhtisar Global</p>
+                                <h2 class="text-2xl font-semibold text-textdark">Kinerja Gabungan Jaringan</h2>
+                                <p class="max-w-3xl text-sm text-textdark/70">Ringkasan metrik keseluruhan lintas simulasi untuk menilai tren performa RAFT secara agregat.</p>
                             </header>
-                            <div id="comparisonSummary" data-state="loading" class="space-y-5">
+                            <div id="overallMetricHighlights" data-state="loading" class="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
                                 <article class="rounded-3xl border border-white/10 bg-surfaceMuted/70 p-6 text-sm text-textdark/70 shadow-inner shadow-black/20">
                                     <div class="flex items-center gap-3 text-textdark/80">
                                         <span class="h-3 w-3 animate-ping rounded-full bg-secondary/70"></span>
-                                        Menghimpun data perbandingan konfigurasi...
+                                        Mengalkulasi metrik agregat dari hasil simulasi...
                                     </div>
                                 </article>
                             </div>
@@ -116,16 +129,15 @@
 
                         <section class="space-y-6">
                             <header class="space-y-1">
-                                <p class="text-xs font-semibold uppercase tracking-[0.28em] text-accent/80">Orderer</p>
-                                <h2 class="text-2xl font-semibold text-textdark">Detail Orkestrasi Konsensus</h2>
-                                <p class="max-w-3xl text-sm text-textdark/70">
-                                    Lihat bagaimana masing-masing paket mengonfigurasi orderer RAFT, termasuk alamat gRPC, operasi administratif, dan status TLS.</p>
+                                <p class="text-xs font-semibold uppercase tracking-[0.28em] text-accent/80">Per Paket</p>
+                                <h2 class="text-2xl font-semibold text-textdark">Perbandingan Metrik RAFT Standard vs Variant</h2>
+                                <p class="max-w-3xl text-sm text-textdark/70">Analisis setiap paket jaringan pada Fabric 2 dan Fabric 3 berdasarkan empat parameter utama.</p>
                             </header>
-                            <div id="ordererComparison" data-state="loading" class="grid gap-5 md:grid-cols-2">
+                            <div id="networkMetricGrid" data-state="loading" class="space-y-5">
                                 <article class="rounded-3xl border border-white/10 bg-surfaceMuted/70 p-6 text-sm text-textdark/70 shadow-inner shadow-black/20">
                                     <div class="flex items-center gap-3 text-textdark/80">
                                         <span class="h-3 w-3 animate-ping rounded-full bg-accent/70"></span>
-                                        Menyusun detail orderer untuk setiap paket...
+                                        Mengompilasi metrik per paket jaringan...
                                     </div>
                                 </article>
                             </div>
@@ -133,16 +145,15 @@
 
                         <section class="space-y-6">
                             <header class="space-y-1">
-                                <p class="text-xs font-semibold uppercase tracking-[0.28em] text-highlight/80">Peer</p>
-                                <h2 class="text-2xl font-semibold text-textdark">Distribusi Peer &amp; Endpoint</h2>
-                                <p class="max-w-3xl text-sm text-textdark/70">
-                                    Rincian tiap peer yang aktif pada paket jaringan, termasuk alamat chaincode dan endpoint operasi.</p>
+                                <p class="text-xs font-semibold uppercase tracking-[0.28em] text-highlight/80">Insight</p>
+                                <h2 class="text-2xl font-semibold text-textdark">Catatan Analitis &amp; Rekomendasi</h2>
+                                <p class="max-w-3xl text-sm text-textdark/70">Sorotan utama dari hasil simulasi untuk mendukung pengambilan keputusan dan eksperimen lanjutan.</p>
                             </header>
-                            <div id="peerComparison" data-state="loading" class="grid gap-5 md:grid-cols-2">
+                            <div id="metricInsights" data-state="loading" class="space-y-4">
                                 <article class="rounded-3xl border border-white/10 bg-surfaceMuted/70 p-6 text-sm text-textdark/70 shadow-inner shadow-black/20">
                                     <div class="flex items-center gap-3 text-textdark/80">
                                         <span class="h-3 w-3 animate-ping rounded-full bg-highlight/70"></span>
-                                        Mengumpulkan daftar peer jaringan...
+                                        Menyusun insight dan rekomendasi berbasis data simulasi...
                                     </div>
                                 </article>
                             </div>

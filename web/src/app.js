@@ -1143,6 +1143,7 @@ const viewFiles = {
     simulationBroadcast: path.resolve(viewsRoot, 'simulasi-serentak.html'),
     research: {
         overview: path.resolve(viewsRoot, 'penelitian/gambaran-umum.html'),
+        environmentSetup: path.resolve(viewsRoot, 'penelitian/pembangunan-lingkungan-uji.html'),
         experimentDesign: path.resolve(viewsRoot, 'penelitian/rancangan-eksperimen.html'),
     },
     fabric2: {
@@ -1209,6 +1210,10 @@ app.get('/simulasi-serentak', (req, res) => {
 
 app.get('/penelitian/gambaran-umum', (req, res) => {
     res.sendFile(viewFiles.research.overview);
+});
+
+app.get('/penelitian/pembangunan-lingkungan-uji', (req, res) => {
+    res.sendFile(viewFiles.research.environmentSetup);
 });
 
 app.get('/penelitian/rancangan-eksperimen', (req, res) => {

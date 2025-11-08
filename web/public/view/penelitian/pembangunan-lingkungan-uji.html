@@ -155,30 +155,140 @@
                                       Bagian ini merangkum karakteristik konfigurasi RAFT yang membedakan antar lingkungan. Profil <code>ChannelUsingRaft</code> pada setiap berkas <code>configtx.yaml</code> menjadi sumber utama pembentukan blok genesis, sementara parameter batch mengilustrasikan kompromi antara latensi dan throughput. Dokumentasi proses tersebut menyoroti peran <code>configtxgen</code> dan <code>osnadmin</code> sebagai bagian dari mekanisme introspektif, bukan sebagai panduan praktis.
                                 </p>
                             </div>
-                            <div class="grid gap-5 md:grid-cols-2">
-                                <article class="rounded-2xl border border-white/10 bg-surfaceMuted/80 p-6 shadow-inner shadow-black/20">
-                                    <h3 class="text-base font-semibold text-textdark">Parameter RAFT — Konfigurasi Standar</h3>
-                                      <div class="mt-3 space-y-3 text-sm text-textdark/70 md:text-base">
-                                          <p>
-                                              Konfigurasi standar menetapkan parameter batch yang konservatif. Pada Fabric v2, berkas <code>fabric-2/raft-standard/network/configtx/configtx.yaml</code> menampilkan kombinasi <code>BatchTimeout</code> dua detik dan <code>MaxMessageCount</code> sepuluh untuk menstabilkan baseline pengukuran. Dokumentasi ini memperlihatkan alasan pemilihan parameter dengan menekankan konsistensi terhadap tujuan mengamati latensi dasar.
-                                          </p>
-                                          <p>
-                                              Versi v3 mempertahankan nilai serupa, seperti yang tercatat pada <code>fabric-3/raft-standard/network/configtx/configtx.yaml</code>, namun menyesuaikan identitas orderer menjadi <code>orderer.fabric3.standard</code>. Narasi tersebut menggambarkan kesinambungan desain sekaligus memaparkan implikasi pembaruan versi terhadap struktur jaringan.
+                              <div class="space-y-6">
+                                  <div class="rounded-2xl border border-white/10 bg-surfaceMuted/80 p-6 shadow-inner shadow-black/20">
+                                      <div class="space-y-2">
+                                          <h3 class="text-base font-semibold text-textdark">Fabric v2 — Perbandingan Konfigurasi</h3>
+                                          <p class="text-sm text-textdark/70 md:text-base">
+                                              Lingkungan standar menjadi acuan baseline dengan satu orderer RAFT pada domain <code>standard.com</code>, sementara varian mengeksplorasi domain <code>variant.com</code> yang siap diskalakan hingga empat orderer melalui <code>compose/compose-bft-test-net.yaml</code>. Perbedaan parameter batch menegaskan trade-off antara kestabilan latensi dan eksperimen throughput.
                                           </p>
                                       </div>
-                                </article>
-                                <article class="rounded-2xl border border-white/10 bg-surfaceMuted/80 p-6 shadow-inner shadow-black/20">
-                                    <h3 class="text-base font-semibold text-textdark">Parameter RAFT — Konfigurasi Varian</h3>
-                                      <div class="mt-3 space-y-3 text-sm text-textdark/70 md:text-base">
-                                          <p>
-                                              Pada konfigurasi varian, fokus berpindah ke pengaturan batch yang agresif. Berkas <code>fabric-2/raft-variant/network/configtx/configtx.yaml</code> menunjukkan bagaimana <code>BatchTimeout</code> dipangkas menjadi satu detik dan <code>MaxMessageCount</code> dinaikkan menjadi lima puluh untuk mempelajari peningkatan throughput. Penjelasan ini memaknai perubahan parameter sebagai strategi eksplorasi, bukan sebagai langkah teknis yang harus diikuti.
-                                          </p>
-                                          <p>
-                                              Lingkungan Fabric v3 menggandakan pendekatan tersebut di dalam domain <code>fabric3.variant</code> sambil membuka ruang analisis terhadap fitur lifecycle terbaru. Dokumentasi tambahan mengenai profil SmartBFT di folder <code>network/bft-config</code> memperluas cakupan interpretasi terhadap ketahanan sistem tanpa mengubah fokus halaman ke instruksi operasional.
+                                      <div class="mt-4 overflow-x-auto rounded-xl border border-white/5 bg-surface/40">
+                                          <table class="min-w-full divide-y divide-white/10 text-left text-sm text-textdark/80 md:text-base">
+                                              <thead class="bg-surfaceMuted/70 text-textdark">
+                                                  <tr>
+                                                      <th class="px-4 py-3 font-semibold">Parameter</th>
+                                                      <th class="px-4 py-3 font-semibold">Standar</th>
+                                                      <th class="px-4 py-3 font-semibold">Varian</th>
+                                                  </tr>
+                                              </thead>
+                                              <tbody class="divide-y divide-white/5">
+                                                  <tr>
+                                                      <td class="px-4 py-3 align-top text-textdark/60">Lokasi configtx</td>
+                                                      <td class="px-4 py-3 align-top"><code>fabric-2/raft-standard/network/configtx/configtx.yaml</code></td>
+                                                      <td class="px-4 py-3 align-top"><code>fabric-2/raft-variant/network/configtx/configtx.yaml</code></td>
+                                                  </tr>
+                                                  <tr>
+                                                      <td class="px-4 py-3 align-top text-textdark/60">Orderer endpoint</td>
+                                                      <td class="px-4 py-3 align-top"><code>orderer.fabric2.standard.com:7050</code></td>
+                                                      <td class="px-4 py-3 align-top"><code>orderer.fabric2.variant.com:7050</code></td>
+                                                  </tr>
+                                                  <tr>
+                                                      <td class="px-4 py-3 align-top text-textdark/60">BatchTimeout</td>
+                                                      <td class="px-4 py-3 align-top">2 detik</td>
+                                                      <td class="px-4 py-3 align-top">1 detik</td>
+                                                  </tr>
+                                                  <tr>
+                                                      <td class="px-4 py-3 align-top text-textdark/60">MaxMessageCount</td>
+                                                      <td class="px-4 py-3 align-top">10</td>
+                                                      <td class="px-4 py-3 align-top">50</td>
+                                                  </tr>
+                                                  <tr>
+                                                      <td class="px-4 py-3 align-top text-textdark/60">AbsoluteMaxBytes</td>
+                                                      <td class="px-4 py-3 align-top">99&nbsp;MB</td>
+                                                      <td class="px-4 py-3 align-top">20&nbsp;MB</td>
+                                                  </tr>
+                                                  <tr>
+                                                      <td class="px-4 py-3 align-top text-textdark/60">PreferredMaxBytes</td>
+                                                      <td class="px-4 py-3 align-top">512&nbsp;KB</td>
+                                                      <td class="px-4 py-3 align-top">4&nbsp;MB</td>
+                                                  </tr>
+                                                  <tr>
+                                                      <td class="px-4 py-3 align-top text-textdark/60">Nama kanal bawaan</td>
+                                                      <td class="px-4 py-3 align-top"><code>fabric2-channel-standard</code></td>
+                                                      <td class="px-4 py-3 align-top"><code>fabric2-channel-variant</code></td>
+                                                  </tr>
+                                                  <tr>
+                                                      <td class="px-4 py-3 align-top text-textdark/60">Jumlah orderer di compose</td>
+                                                      <td class="px-4 py-3 align-top">1 orderer di <code>compose/compose-test-net.yaml</code></td>
+                                                      <td class="px-4 py-3 align-top">Hingga 4 orderer di <code>compose/compose-bft-test-net.yaml</code></td>
+                                                  </tr>
+                                                  <tr>
+                                                      <td class="px-4 py-3 align-top text-textdark/60">Fokus pengamatan</td>
+                                                      <td class="px-4 py-3 align-top">Baseline latensi dan kestabilan blok</td>
+                                                      <td class="px-4 py-3 align-top">Eksperimen throughput dan toleransi gangguan</td>
+                                                  </tr>
+                                              </tbody>
+                                          </table>
+                                      </div>
+                                  </div>
+                                  <div class="rounded-2xl border border-white/10 bg-surfaceMuted/80 p-6 shadow-inner shadow-black/20">
+                                      <div class="space-y-2">
+                                          <h3 class="text-base font-semibold text-textdark">Fabric v3 — Perbandingan Konfigurasi</h3>
+                                          <p class="text-sm text-textdark/70 md:text-base">
+                                              Pembaruan ke Fabric v3 mempertahankan struktur identitas sambil menyesuaikan port orderer dan dukungan <code>osnadmin</code>. Varian <code>fabric3.variant</code> memperluas skenario observasi dengan parameter batch agresif dan opsi SmartBFT pada folder <code>network/bft-config</code>.
                                           </p>
                                       </div>
-                                </article>
-                            </div>
+                                      <div class="mt-4 overflow-x-auto rounded-xl border border-white/5 bg-surface/40">
+                                          <table class="min-w-full divide-y divide-white/10 text-left text-sm text-textdark/80 md:text-base">
+                                              <thead class="bg-surfaceMuted/70 text-textdark">
+                                                  <tr>
+                                                      <th class="px-4 py-3 font-semibold">Parameter</th>
+                                                      <th class="px-4 py-3 font-semibold">Standar</th>
+                                                      <th class="px-4 py-3 font-semibold">Varian</th>
+                                                  </tr>
+                                              </thead>
+                                              <tbody class="divide-y divide-white/5">
+                                                  <tr>
+                                                      <td class="px-4 py-3 align-top text-textdark/60">Lokasi configtx</td>
+                                                      <td class="px-4 py-3 align-top"><code>fabric-3/raft-standard/network/configtx/configtx.yaml</code></td>
+                                                      <td class="px-4 py-3 align-top"><code>fabric-3/raft-variant/network/configtx/configtx.yaml</code></td>
+                                                  </tr>
+                                                  <tr>
+                                                      <td class="px-4 py-3 align-top text-textdark/60">Orderer endpoint</td>
+                                                      <td class="px-4 py-3 align-top"><code>orderer.fabric3.standard:8055</code></td>
+                                                      <td class="px-4 py-3 align-top"><code>orderer.fabric3.variant:8055</code></td>
+                                                  </tr>
+                                                  <tr>
+                                                      <td class="px-4 py-3 align-top text-textdark/60">BatchTimeout</td>
+                                                      <td class="px-4 py-3 align-top">2 detik</td>
+                                                      <td class="px-4 py-3 align-top">1 detik</td>
+                                                  </tr>
+                                                  <tr>
+                                                      <td class="px-4 py-3 align-top text-textdark/60">MaxMessageCount</td>
+                                                      <td class="px-4 py-3 align-top">10</td>
+                                                      <td class="px-4 py-3 align-top">50</td>
+                                                  </tr>
+                                                  <tr>
+                                                      <td class="px-4 py-3 align-top text-textdark/60">AbsoluteMaxBytes</td>
+                                                      <td class="px-4 py-3 align-top">99&nbsp;MB</td>
+                                                      <td class="px-4 py-3 align-top">20&nbsp;MB</td>
+                                                  </tr>
+                                                  <tr>
+                                                      <td class="px-4 py-3 align-top text-textdark/60">PreferredMaxBytes</td>
+                                                      <td class="px-4 py-3 align-top">512&nbsp;KB</td>
+                                                      <td class="px-4 py-3 align-top">4&nbsp;MB</td>
+                                                  </tr>
+                                                  <tr>
+                                                      <td class="px-4 py-3 align-top text-textdark/60">Nama kanal bawaan</td>
+                                                      <td class="px-4 py-3 align-top"><code>fabric3-channel-standard</code></td>
+                                                      <td class="px-4 py-3 align-top"><code>fabric3-channel-variant</code></td>
+                                                  </tr>
+                                                  <tr>
+                                                      <td class="px-4 py-3 align-top text-textdark/60">Jumlah orderer di compose</td>
+                                                      <td class="px-4 py-3 align-top">1 orderer di <code>compose/compose-test-net.yaml</code></td>
+                                                      <td class="px-4 py-3 align-top">Hingga 4 orderer di <code>compose/compose-bft-test-net.yaml</code></td>
+                                                  </tr>
+                                                  <tr>
+                                                      <td class="px-4 py-3 align-top text-textdark/60">Fokus pengamatan</td>
+                                                      <td class="px-4 py-3 align-top">Kontinuitas desain dan porting fitur v3</td>
+                                                      <td class="px-4 py-3 align-top">Eksplorasi throughput tinggi &amp; opsi SmartBFT</td>
+                                                  </tr>
+                                              </tbody>
+                                          </table>
+                                      </div>
+                                  </div>
+                              </div>
                             <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6 text-sm text-textdark/70 shadow-inner shadow-black/20 md:text-base">
                                 <h3 class="text-base font-semibold text-textdark">Integrasi Monitoring &amp; Simulasi</h3>
                                   <p class="mt-3">

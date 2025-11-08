@@ -203,9 +203,9 @@
         </div>
     </div>
 
-    <div id="actionModal" class="action-modal fixed inset-0 z-50 hidden grid place-items-center px-4 py-8 sm:px-8">
+    <div id="actionModal" class="action-modal fixed inset-0 z-50 hidden grid place-items-center overflow-y-auto px-4 py-8 sm:px-8">
         <div data-modal-backdrop class="absolute inset-0 bg-soft/80 backdrop-blur-sm"></div>
-        <div class="relative w-full max-w-xl overflow-hidden rounded-3xl border border-white/10 bg-surface px-6 py-8 shadow-2xl shadow-black/40 sm:px-8" role="dialog" aria-modal="true" aria-labelledby="actionModalTitle" tabindex="-1">
+        <div class="relative flex w-full max-w-xl max-h-[calc(100vh-4rem)] flex-col overflow-hidden rounded-3xl border border-white/10 bg-surface px-6 py-8 shadow-2xl shadow-black/40 sm:max-h-[calc(100vh-6rem)] sm:px-8" role="dialog" aria-modal="true" aria-labelledby="actionModalTitle" tabindex="-1">
             <div class="flex items-start justify-between gap-4">
                 <div class="space-y-3">
                     <span id="actionModalBadge" class="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.28em] text-textdark/70">
@@ -223,7 +223,7 @@
                 </button>
             </div>
 
-            <div id="actionModalBody" class="mt-6 space-y-6"></div>
+            <div id="actionModalBody" class="mt-6 flex-1 space-y-6 overflow-y-auto pr-1 min-h-0"></div>
 
             <div class="mt-8 flex justify-end">
                 <button type="button" class="inline-flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.28em] text-textdark transition hover:bg-white/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/50" data-modal-close>

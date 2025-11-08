@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluasi RAFT HLF — Pembangunan Lingkungan Uji</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#38BDF8',
+                        secondary: '#6366F1',
+                        accent: '#F59E0B',
+                        highlight: '#F97316',
+                        soft: '#050B16',
+                        surface: '#0F172A',
+                        surfaceMuted: '#16213F',
+                        border: '#1E293B',
+                        muted: '#94A3B8',
+                        textdark: '#E2E8F0'
+                    }
+                }
+            }
+        };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="/images/logo-ai-center.svg">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+
+        .component-link[data-active="true"] {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.28), rgba(56, 189, 248, 0.22));
+            color: #E2E8F0;
+            border-color: rgba(249, 115, 22, 0.45);
+            box-shadow: 0 12px 40px rgba(15, 23, 42, 0.45);
+        }
+
+        .component-link[data-active="true"] .component-link__index {
+            background-color: rgba(249, 115, 22, 0.35);
+            color: #E2E8F0;
+        }
+    </style>
+</head>
+<body class="bg-soft text-textdark">
+    <div data-component="header"></div>
+    <div class="relative min-h-screen overflow-hidden">
+        <div class="absolute inset-0 -z-10 h-full w-full">
+            <div class="absolute -left-1/3 top-0 h-[720px] w-[720px] rounded-full bg-gradient-to-br from-highlight/30 via-secondary/20 to-transparent opacity-70 blur-3xl"></div>
+            <div class="absolute -right-1/4 bottom-0 h-[620px] w-[620px] rounded-full bg-gradient-to-tr from-accent/35 via-secondary/25 to-primary/20 opacity-70 blur-3xl"></div>
+        </div>
+
+        <div class="flex min-h-screen flex-col lg:flex-row">
+            <div data-component="sidebar"></div>
+
+            <div class="flex-1">
+                <main class="mx-auto w-full max-w-5xl px-6 py-12">
+                    <div class="space-y-10">
+                        <section class="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-surface via-soft to-[#020817] p-10 shadow-2xl shadow-black/30">
+                            <div class="flex flex-col gap-6">
+                                <div class="inline-flex w-fit items-center gap-2 rounded-full border border-highlight/40 bg-highlight/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-highlight/90">
+                                    Bab 4.3
+                                </div>
+                                <div class="space-y-5">
+                                    <h1 class="text-3xl font-semibold text-textdark md:text-4xl">Pembangunan Lingkungan Uji</h1>
+                                    <p class="text-sm text-textdark/70 md:text-base">
+                                        Repositori penelitian menyediakan empat lingkungan Hyperledger Fabric terisolasi untuk mengevaluasi konsensus RAFT: dua berbasis Fabric v2 dan dua berbasis Fabric v3, masing-masing memiliki konfigurasi standar dan varian. Setiap lingkungan memaketkan skrip otomasi, artefak konfigurasi, serta chaincode pelaporan pada struktur direktori <code>fabric-2/raft-standard</code>, <code>fabric-2/raft-variant</code>, <code>fabric-3/raft-standard</code>, dan <code>fabric-3/raft-variant</code>. Integrasi dengan aplikasi web memastikan status jaringan, penurunan performa, dan hasil simulasi dapat dipantau langsung dari antarmuka yang sama.
+                                    </p>
+                                    <ul class="list-disc space-y-2 pl-6 text-sm text-textdark/70 md:text-base">
+                                        <li>Skrip <code>network.sh</code> di setiap lingkungan mengorkestrasi pembuatan material kriptografi, kanal, dan deployment chaincode pelaporan maladministrasi.</li>
+                                        <li>Konfigurasi RAFT dibangkitkan melalui profil <code>ChannelUsingRaft</code> yang disiapkan dalam folder <code>network/configtx</code>, sementara varian BFT tersimpan dalam <code>network/bft-config</code> untuk pengujian ketahanan tambahan.</li>
+                                        <li>Folder <code>web/src</code> menautkan ke jaringan melalui gRPC Gateway untuk membaca ledger, menjalankan simulasi transaksi massal, serta merekam log kesehatan di <code>web/logs</code>.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="space-y-8 rounded-3xl border border-white/10 bg-surfaceMuted/70 p-8 shadow-2xl shadow-black/30">
+                            <div class="flex flex-col gap-3">
+                                <div class="inline-flex w-fit items-center gap-2 rounded-full border border-secondary/40 bg-secondary/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.32em] text-secondary/80">
+                                    Bab 4.3.1
+                                </div>
+                                <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Arsitektur dan Spesifikasi Sistem</h2>
+                                <p class="text-sm text-textdark/70 md:text-base">
+                                    Setiap lingkungan testbed mengikuti pola arsitektur yang konsisten: dua organisasi peer (Org1 dan Org2) dengan satu peer produksi, sebuah organisasi orderer dengan TLS aktif, serta dukungan alat bantu untuk CA, CouchDB, dan monitoring. Struktur identitas diturunkan dari berkas <code>organizations/cryptogen</code> sehingga tiap org memiliki satu admin dan satu pengguna standar; contoh konfigurasi Org1 pada jaringan Fabric v2 standar tersedia di <code>fabric-2/raft-standard/network/organizations/cryptogen/crypto-config-org1.yaml</code> yang membatasi jumlah peer menjadi satu per organisasi.
+                                </p>
+                            </div>
+                            <div class="grid gap-5 md:grid-cols-2">
+                                <article class="rounded-2xl border border-white/10 bg-surface/60 p-6 shadow-inner shadow-black/20">
+                                    <h3 class="text-base font-semibold text-textdark">Fabric v2 — RAFT Standar</h3>
+                                    <ul class="mt-3 list-disc space-y-2 pl-5 text-sm text-textdark/70 md:text-base">
+                                        <li>Docker compose utama (<code>compose/compose-test-net.yaml</code>) menyalakan satu orderer <code>orderer.fabric2.standard.com</code> pada port 7050/7053 dan dua peer (<code>peer0.org1.fabric2.standard.com</code> &amp; <code>peer0.org2.fabric2.standard.com</code>) dengan port 7051/9051 serta endpoint operasi 9444/9445.</li>
+                                        <li>Skrip <code>network.sh</code> mendeteksi otomatis <code>docker</code> atau <code>podman</code>, membersihkan kontainer bertanda <code>raft-standard</code>, dan memanggil <code>configtxgen</code> untuk membangkitkan blok genesis melalui profil RAFT.</li>
+                                        <li>Chaincode <code>pelaporan</code> (folder <code>chaincode/pelaporan</code>) menyediakan kontrak Catatan Digital yang di-deploy ke kanal <code>fabric2-channel-standard</code>.</li>
+                                    </ul>
+                                </article>
+                                <article class="rounded-2xl border border-white/10 bg-surface/60 p-6 shadow-inner shadow-black/20">
+                                    <h3 class="text-base font-semibold text-textdark">Fabric v2 — RAFT Varian</h3>
+                                    <ul class="mt-3 list-disc space-y-2 pl-5 text-sm text-textdark/70 md:text-base">
+                                        <li>Topologi dasar identik, namun komposisi orderer dapat diskalakan menjadi empat node menggunakan <code>compose/compose-bft-test-net.yaml</code> saat opsi <code>-bft</code> pada <code>network.sh</code> diaktifkan.</li>
+                                        <li>Folder <code>network/bft-config</code> menyiapkan profil SmartBFT untuk fault injection, sementara profil RAFT tetap tersedia melalui <code>network/configtx</code> untuk komparasi langsung.</li>
+                                        <li>Kanal varian default bernama <code>fabric2-channel-variant</code> dan dioperasikan lewat perintah yang sama pada modul Node.js <code>web/src/network-check.js</code>, hanya berbeda pada domain (<code>variant.com</code>) dan port peer (7052/9151).</li>
+                                    </ul>
+                                </article>
+                                <article class="rounded-2xl border border-white/10 bg-surface/60 p-6 shadow-inner shadow-black/20">
+                                    <h3 class="text-base font-semibold text-textdark">Fabric v3 — RAFT Standar</h3>
+                                    <ul class="mt-3 list-disc space-y-2 pl-5 text-sm text-textdark/70 md:text-base">
+                                        <li>Orderer utama <code>orderer.fabric3.standard</code> berjalan pada port 8055/8053 sesuai definisi <code>fabric-3/raft-standard/network/configtx/configtx.yaml</code>, sedangkan peer Org1 dan Org2 masing-masing ter-ekspos di 7153 dan 9153.</li>
+                                        <li>CLI <code>network.sh</code> memanfaatkan PATH binari Fabric v3 yang dibundel dalam folder <code>bin</code> untuk kompatibilitas <code>configtxgen</code>, <code>peer</code>, dan <code>osnadmin</code> rilis terbaru.</li>
+                                        <li>Seluruh artefak kriptografi tersimpan di <code>network/organizations</code> dengan layout sama seperti versi v2 untuk mempermudah skrip Node.js berbagi logika akses file.</li>
+                                    </ul>
+                                </article>
+                                <article class="rounded-2xl border border-white/10 bg-surface/60 p-6 shadow-inner shadow-black/20">
+                                    <h3 class="text-base font-semibold text-textdark">Fabric v3 — RAFT Varian</h3>
+                                    <ul class="mt-3 list-disc space-y-2 pl-5 text-sm text-textdark/70 md:text-base">
+                                        <li>Domain jaringan menggunakan namespace <code>fabric3.variant</code> dengan penyesuaian port peer (7353 &amp; 9553) serta orderer (8255) sehingga eksperimen dapat berjalan paralel tanpa konflik.</li>
+                                        <li>Konfigurasi RAFT varian mempertahankan pola paket RAFT v2 (BatchTimeout 1s, MaxMessageCount tinggi) namun memanfaatkan kapabilitas aplikasi Fabric v3 untuk pengujian fitur lifecycle terbaru.</li>
+                                        <li>Instruksi bring-up dipublikasikan ulang di <code>web/src/network-check.js</code> agar operator dapat menyalin perintah <code>network.sh up</code> dan <code>deployCC</code> langsung dari dashboard.</li>
+                                    </ul>
+                                </article>
+                            </div>
+                            <div class="rounded-2xl border border-white/10 bg-surface/60 p-6 text-sm text-textdark/70 shadow-inner shadow-black/20 md:text-base">
+                                <h3 class="text-base font-semibold text-textdark">Pipeline Orkestrasi</h3>
+                                <p class="mt-3">
+                                    Pipeline otomatis dimulai dari pemeriksaan prasyarat (deteksi versi Fabric, ketersediaan CA/cryptogen), dilanjutkan pembangkitan identitas dan kanal melalui <code>scripts/createChannel.sh</code>, kemudian dilengkapi deployment chaincode lewat <code>scripts/deployCC.sh</code>. Modul Node.js <code>web/src/network-check.js</code> menghitung kesehatan jaringan dengan membuka koneksi TLS ke peer, membaca ledger melalui kontrak <code>pelaporan</code>, dan mencatat hasilnya di <code>web/logs/network-check.log</code>.
+                                </p>
+                            </div>
+                        </section>
+
+                        <section class="space-y-8 rounded-3xl border border-white/10 bg-surface/60 p-8 shadow-2xl shadow-black/30">
+                            <div class="flex flex-col gap-3">
+                                <div class="inline-flex w-fit items-center gap-2 rounded-full border border-accent/40 bg-accent/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.32em] text-accent/80">
+                                    Bab 4.3.2
+                                </div>
+                                <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Konfigurasi Hyperledger Fabric dan RAFT</h2>
+                                <p class="text-sm text-textdark/70 md:text-base">
+                                    Konfigurasi RAFT dihasilkan dari profil <code>ChannelUsingRaft</code> yang didefinisikan pada berkas <code>configtx.yaml</code> masing-masing lingkungan. Selama proses <code>network.sh createChannel</code>, skrip <code>scripts/createChannel.sh</code> memanggil <code>configtxgen -profile ChannelUsingRaft</code> untuk menyusun blok genesis, kemudian menggunakan <code>osnadmin channel join</code> agar seluruh orderer bergabung ke kanal. Variasi parameter RAFT membedakan karakteristik throughput dan latensi antar konfigurasi.
+                                </p>
+                            </div>
+                            <div class="grid gap-5 md:grid-cols-2">
+                                <article class="rounded-2xl border border-white/10 bg-surfaceMuted/80 p-6 shadow-inner shadow-black/20">
+                                    <h3 class="text-base font-semibold text-textdark">Parameter RAFT — Konfigurasi Standar</h3>
+                                    <ul class="mt-3 list-disc space-y-2 pl-5 text-sm text-textdark/70 md:text-base">
+                                        <li>Fabric v2: <code>BatchTimeout</code> 2 detik, <code>MaxMessageCount</code> 10, <code>PreferredMaxBytes</code> 512 KB, dan <code>AbsoluteMaxBytes</code> 99 MB yang diterapkan pada <code>fabric-2/raft-standard/network/configtx/configtx.yaml</code>.</li>
+                                        <li>Fabric v3: nilai identik dipertahankan namun orderer terdaftar sebagai <code>orderer.fabric3.standard</code> dengan port 8055, sebagaimana tercatat pada <code>fabric-3/raft-standard/network/configtx/configtx.yaml</code>.</li>
+                                        <li>Consenters RAFT hanya memuat satu orderer untuk menjaga baseline latency, menjadikan variasi performa lebih mudah diamati saat dibandingkan dengan konfigurasi varian.</li>
+                                    </ul>
+                                </article>
+                                <article class="rounded-2xl border border-white/10 bg-surfaceMuted/80 p-6 shadow-inner shadow-black/20">
+                                    <h3 class="text-base font-semibold text-textdark">Parameter RAFT — Konfigurasi Varian</h3>
+                                    <ul class="mt-3 list-disc space-y-2 pl-5 text-sm text-textdark/70 md:text-base">
+                                        <li>Fabric v2: <code>BatchTimeout</code> dipangkas menjadi 1 detik dengan <code>MaxMessageCount</code> 50 dan <code>PreferredMaxBytes</code> 4 MB (<code>fabric-2/raft-variant/network/configtx/configtx.yaml</code>) untuk mendorong throughput tinggi.</li>
+                                        <li>Fabric v3: menerapkan skema yang sama pada domain <code>fabric3.variant</code> sehingga analisis difokuskan pada dampak peningkatan versi Fabric terhadap konfigurasi batch agresif.</li>
+                                        <li>Flag <code>-bft</code> pada <code>network.sh</code> mengganti profil menjadi SmartBFT (<code>network/bft-config/configtx.yaml</code>) sehingga eksperimen dapat menilai dampak failover empat orderer terhadap jalur RAFT varian.</li>
+                                    </ul>
+                                </article>
+                            </div>
+                            <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6 text-sm text-textdark/70 shadow-inner shadow-black/20 md:text-base">
+                                <h3 class="text-base font-semibold text-textdark">Integrasi Monitoring &amp; Simulasi</h3>
+                                <p class="mt-3">
+                                    Modul <code>web/src/network-check.js</code> menggunakan kredensial TLS dari folder <code>network/organizations</code> untuk membuka koneksi gRPC, menjalankan transaksi <code>GetAllCatatan</code>, dan membaca informasi blok melalui kontrak <code>qscc</code>. Hasil pemeriksaan dan simulasi transaksi massal (melalui <code>web/src/simulation-ingest.js</code>) disimpan di <code>web/logs</code>, menyediakan jejak eksperimen yang seragam untuk seluruh kombinasi RAFT standar dan varian.
+                                </p>
+                            </div>
+                        </section>
+                    </div>
+                </main>
+
+                <div data-component="footer"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/layout.js" defer></script>
+    <script src="/js/navigation.js" defer></script>
+</body>
+</html>

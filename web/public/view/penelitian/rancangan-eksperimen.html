@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluasi RAFT HLF — Rancangan Eksperimen</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#38BDF8',
+                        secondary: '#6366F1',
+                        accent: '#F59E0B',
+                        highlight: '#F97316',
+                        soft: '#050B16',
+                        surface: '#0F172A',
+                        surfaceMuted: '#16213F',
+                        border: '#1E293B',
+                        muted: '#94A3B8',
+                        textdark: '#E2E8F0'
+                    }
+                }
+            }
+        };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="/images/logo-ai-center.svg">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+
+        .component-link[data-active="true"] {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.28), rgba(56, 189, 248, 0.22));
+            color: #E2E8F0;
+            border-color: rgba(249, 115, 22, 0.45);
+            box-shadow: 0 12px 40px rgba(15, 23, 42, 0.45);
+        }
+
+        .component-link[data-active="true"] .component-link__index {
+            background-color: rgba(249, 115, 22, 0.35);
+            color: #E2E8F0;
+        }
+    </style>
+</head>
+<body class="bg-soft text-textdark">
+    <div data-component="header"></div>
+    <div class="relative min-h-screen overflow-hidden">
+        <div class="absolute inset-0 -z-10 h-full w-full">
+            <div class="absolute -left-1/3 top-0 h-[720px] w-[720px] rounded-full bg-gradient-to-br from-highlight/30 via-secondary/20 to-transparent opacity-70 blur-3xl"></div>
+            <div class="absolute -right-1/4 bottom-0 h-[620px] w-[620px] rounded-full bg-gradient-to-tr from-accent/35 via-secondary/25 to-primary/20 opacity-70 blur-3xl"></div>
+        </div>
+
+        <div class="flex min-h-screen flex-col lg:flex-row">
+            <div data-component="sidebar"></div>
+
+            <div class="flex-1">
+                <main class="mx-auto w-full max-w-5xl px-6 py-12">
+                    <div class="space-y-10">
+                        <section class="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-surface via-soft to-[#020817] p-10 shadow-2xl shadow-black/30">
+                            <div class="flex flex-col gap-6">
+                                <div class="inline-flex w-fit items-center gap-2 rounded-full border border-highlight/40 bg-highlight/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-highlight/90">
+                                    Bab 4.2
+                                </div>
+                                <div class="space-y-5">
+                                    <h1 class="text-3xl font-semibold text-textdark md:text-4xl">Perumusan Rancangan Eksperimen</h1>
+                                    <p class="text-sm text-textdark/70 md:text-base">
+                                        Rancangan eksperimen disusun untuk memastikan evaluasi kinerja konsensus RAFT berlangsung secara sistematis, terkontrol, dan dapat direplikasi.
+                                        Desain ini mengatur cara membandingkan RAFT standar dengan RAFT varian di dua versi platform Hyperledger Fabric sekaligus menetapkan parameter serta variabel uji yang terukur.
+                                        Sejalan dengan metodologi pada Bab III, penelitian ini menerapkan pendekatan eksperimen kuantitatif dengan desain komparatif.
+                                    </p>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="space-y-8 rounded-3xl border border-white/10 bg-surfaceMuted/70 p-8 shadow-2xl shadow-black/30">
+                            <div class="flex flex-col gap-3">
+                                <div class="inline-flex w-fit items-center gap-2 rounded-full border border-secondary/40 bg-secondary/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.32em] text-secondary/80">
+                                    Bab 4.2.1
+                                </div>
+                                <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Desain Eksperimen</h2>
+                                <p class="text-sm text-textdark/70 md:text-base">
+                                    Eksperimen dirancang secara komparatif dengan mengendalikan variabel di luar fokus penelitian sehingga perbedaan hasil kinerja dapat dikaitkan langsung dengan implementasi RAFT yang diuji.
+                                    Empat kondisi pengujian disiapkan untuk mengamati variasi performa di lintas versi platform dan konfigurasi konsensus.
+                                </p>
+                                <ol class="list-decimal space-y-2 pl-6 text-sm text-textdark/70 md:text-base">
+                                    <li>RAFT standar pada Fabric v2</li>
+                                    <li>RAFT varian pada Fabric v2</li>
+                                    <li>RAFT standar pada Fabric v3</li>
+                                    <li>RAFT varian pada Fabric v3</li>
+                                </ol>
+                                <p class="text-sm text-textdark/70 md:text-base">
+                                    Skema tersebut memungkinkan evaluasi menyeluruh terhadap konsistensi perbedaan kinerja antarversi platform.
+                                    Untuk menggambarkan variasi pelaporan maladministrasi, tiga kategori beban transaksi digunakan: beban ringan untuk kondisi harian, beban sedang untuk periode aktivitas menengah, dan beban tinggi sebagai stress test saat pelaporan massal.
+                                    Setiap skenario diulang beberapa kali guna menghitung nilai rata-rata, standar deviasi, dan memastikan dasar statistik yang valid.
+                                </p>
+                            </div>
+                            <div class="grid gap-5 md:grid-cols-2">
+                                <article class="rounded-2xl border border-white/10 bg-surface/60 p-6 text-sm text-textdark/70 shadow-inner shadow-black/20">
+                                    <h3 class="text-base font-semibold text-textdark">Replikasi &amp; Reliabilitas</h3>
+                                    <p class="mt-2">
+                                        Pengulangan setiap skenario memungkinkan analisis variansi serta pengujian hipotesis atas perbedaan rerata kinerja antar konfigurasi RAFT.
+                                    </p>
+                                </article>
+                                <article class="rounded-2xl border border-white/10 bg-surface/60 p-6 text-sm text-textdark/70 shadow-inner shadow-black/20">
+                                    <h3 class="text-base font-semibold text-textdark">Simulasi Kegagalan</h3>
+                                    <p class="mt-2">
+                                        Eksperimen fault tolerance menghentikan orderer leader untuk mengamati durasi pemilihan pemimpin baru, waktu pemulihan jaringan, dan konsistensi data pascakrisis.
+                                    </p>
+                                </article>
+                            </div>
+                        </section>
+
+                        <section class="space-y-8 rounded-3xl border border-white/10 bg-surface/60 p-8 shadow-2xl shadow-black/30">
+                            <div class="flex flex-col gap-3">
+                                <div class="inline-flex w-fit items-center gap-2 rounded-full border border-accent/40 bg-accent/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.32em] text-accent/80">
+                                    Bab 4.2.2
+                                </div>
+                                <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Parameter dan Variabel Uji</h2>
+                                <p class="text-sm text-textdark/70 md:text-base">
+                                    Evaluasi menitikberatkan empat aspek kinerja: throughput, latency, resource usage, dan fault tolerance.
+                                    Variabel yang dimanipulasi dan diukur ditetapkan untuk menangkap pengaruh langsung dari konfigurasi RAFT serta versi platform Fabric terhadap performa sistem.
+                                </p>
+                                <div class="space-y-4">
+                                    <div>
+                                        <h3 class="text-base font-semibold text-textdark">Variabel yang Dimanipulasi</h3>
+                                        <ol class="list-decimal space-y-2 pl-6 text-sm text-textdark/70 md:text-base">
+                                            <li>Jenis konfigurasi RAFT: standar (default) versus varian dengan penyesuaian parameter.</li>
+                                            <li>Versi Hyperledger Fabric: v2 sebagai rilis stabil dan v3 sebagai rilis pengembangan.</li>
+                                            <li>Tingkat beban transaksi: ringan, sedang, dan tinggi sesuai kelas aktivitas pelaporan.</li>
+                                        </ol>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-base font-semibold text-textdark">Variabel yang Diukur</h3>
+                                        <ol class="list-decimal space-y-2 pl-6 text-sm text-textdark/70 md:text-base">
+                                            <li>Throughput untuk menilai kemampuan jaringan memproses transaksi per satuan waktu.</li>
+                                            <li>Latency untuk mengukur waktu respons dari pengajuan sampai konfirmasi ledger.</li>
+                                            <li>Resource usage yang memantau konsumsi CPU dan memori pada node orderer maupun peer.</li>
+                                            <li>Fault tolerance untuk mengamati ketahanan sistem terhadap kegagalan node, waktu pemulihan, dan konsistensi data.</li>
+                                        </ol>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-textdark/70 md:text-base">
+                                    Validitas eksperimen dijaga dengan menyamakan jumlah serta konfigurasi node, parameter blok, chaincode, dan spesifikasi perangkat keras pada seluruh skenario.
+                                    Kombinasi variabel menghasilkan 12 kondisi pengujian yang mencakup:
+                                </p>
+                                <ol class="list-decimal space-y-2 pl-6 text-sm text-textdark/70 md:text-base">
+                                    <li>RAFT standar pada Fabric v2 dengan beban ringan, sedang, dan tinggi.</li>
+                                    <li>RAFT varian pada Fabric v2 dengan beban ringan, sedang, dan tinggi.</li>
+                                    <li>RAFT standar pada Fabric v3 dengan beban ringan, sedang, dan tinggi.</li>
+                                    <li>RAFT varian pada Fabric v3 dengan beban ringan, sedang, dan tinggi.</li>
+                                </ol>
+                                <p class="text-sm text-textdark/70 md:text-base">
+                                    Struktur pengujian ini menghadirkan perbandingan komprehensif antara RAFT standar dan varian di kedua versi Fabric serta pada beragam tingkat beban transaksi, sehingga temuan kinerja dapat ditarik secara andal.
+                                </p>
+                            </div>
+                        </section>
+                    </div>
+                </main>
+
+                <div data-component="footer"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/layout.js" defer></script>
+    <script src="/js/navigation.js" defer></script>
+</body>
+</html>

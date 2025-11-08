@@ -91,12 +91,9 @@
                             </div>
                                 <div id="diagram-pengujian-container" class="rounded-2xl border border-white/10 bg-surface/60 p-6 shadow-inner shadow-black/20">
                                     <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                                      <div>
-                                          <h3 class="text-base font-semibold text-textdark">Diagram Proses Pengujian Empat Lingkungan</h3>
-                                          <p class="mt-1 text-sm text-textdark/70 md:text-base">
-                                              Diagram berikut memetakan empat lingkungan Hyperledger Fabric (v2/v3; standar/varian) ke alur pengujian terpadu, sehingga perbedaan konfigurasi tetap dapat dibandingkan terhadap tahapan orkestrasi yang identik.
-                                          </p>
-                                      </div>
+                                        <div>
+                                            <h3 class="text-base font-semibold text-textdark">Diagram Proses Pengujian Empat Lingkungan</h3>
+                                        </div>
                                         <div class="flex flex-col items-start gap-3 md:items-end md:text-right">
                                             <div class="flex flex-wrap items-center gap-3 text-[11px] text-textdark/60">
                                                 <span class="flex items-center gap-2">
@@ -127,9 +124,6 @@
                                                       <span class="rounded-full bg-primary/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-primary/80">Fabric v2</span>
                                                       <span class="text-sm font-semibold text-textdark/80">RAFT Standar</span>
                                                   </div>
-                                                  <p class="mt-3 text-sm text-textdark/70">
-                                                      Baseline dengan satu orderer <code>orderer.fabric2.standard.com</code> dan kanal <code>fabric2-channel-standard</code> untuk menilai kestabilan RAFT.
-                                                  </p>
                                                   <div class="mt-4 flex flex-wrap items-center gap-2 text-xs font-medium text-textdark/60 md:text-sm">
                                                       <span class="rounded-full border border-primary/30 bg-primary/10 px-3 py-1">cryptogen</span>
                                                       <span class="text-textdark/40">&rarr;</span>
@@ -146,9 +140,6 @@
                                                       <span class="rounded-full bg-primary/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-primary/80">Fabric v2</span>
                                                       <span class="text-sm font-semibold text-textdark/80">RAFT Varian</span>
                                                   </div>
-                                                  <p class="mt-3 text-sm text-textdark/70">
-                                                      Konfigurasi domain <code>variant.com</code> dengan opsi multi-orderer pada <code>compose-bft-test-net.yaml</code> dan profil SmartBFT.
-                                                  </p>
                                                   <div class="mt-4 flex flex-wrap items-center gap-2 text-xs font-medium text-textdark/60 md:text-sm">
                                                       <span class="rounded-full border border-primary/30 bg-primary/10 px-3 py-1">cryptogen</span>
                                                       <span class="text-textdark/40">&rarr;</span>
@@ -173,27 +164,22 @@
                                                   <li class="relative pl-12">
                                                       <div class="absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-full border border-secondary/50 bg-secondary/15 text-sm font-semibold text-secondary/80">01</div>
                                                       <h4 class="text-sm font-semibold text-textdark">Persiapan Identitas</h4>
-                                                      <p class="mt-1 text-xs text-textdark/60 md:text-sm">Menghasilkan sertifikat TLS &amp; MSP melalui <code>cryptogen</code> untuk Org1, Org2, dan orderer di tiap varian.</p>
                                                   </li>
                                                   <li class="relative pl-12">
                                                       <div class="absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-full border border-secondary/50 bg-secondary/15 text-sm font-semibold text-secondary/80">02</div>
                                                       <h4 class="text-sm font-semibold text-textdark">Konfigurasi Kanal</h4>
-                                                      <p class="mt-1 text-xs text-textdark/60 md:text-sm">Menyusun profil <code>configtx.yaml</code> dan genesis block; mencatat perbedaan batch RAFT antara standar dan varian.</p>
                                                   </li>
                                                   <li class="relative pl-12">
                                                       <div class="absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-full border border-secondary/50 bg-secondary/15 text-sm font-semibold text-secondary/80">03</div>
                                                       <h4 class="text-sm font-semibold text-textdark">Orkestrasi Infrastruktur</h4>
-                                                      <p class="mt-1 text-xs text-textdark/60 md:text-sm">Menjalankan <code>network.sh</code> beserta skrip docker-compose sesuai rilis Fabric (v2/v3) dan varian RAFT.</p>
                                                   </li>
                                                   <li class="relative pl-12">
                                                       <div class="absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-full border border-secondary/50 bg-secondary/15 text-sm font-semibold text-secondary/80">04</div>
                                                       <h4 class="text-sm font-semibold text-textdark">Simulasi &amp; Observasi</h4>
-                                                      <p class="mt-1 text-xs text-textdark/60 md:text-sm">Mengaktivasi chaincode <code>pelaporan</code>, mengeksekusi workload, lalu menangkap log melalui <code>simulation-*</code> dan <code>network-check</code>.</p>
                                                   </li>
                                                   <li class="relative pl-12">
                                                       <div class="absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-full border border-secondary/50 bg-secondary/15 text-sm font-semibold text-secondary/80">05</div>
                                                       <h4 class="text-sm font-semibold text-textdark">Analisis Perbandingan</h4>
-                                                      <p class="mt-1 text-xs text-textdark/60 md:text-sm">Mempetakan hasil ke ringkasan untuk membedakan dampak versi Fabric dan parameter RAFT.</p>
                                                   </li>
                                               </ol>
                                           </div>
@@ -203,9 +189,6 @@
                                                       <span class="rounded-full bg-primary/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-primary/80">Fabric v3</span>
                                                       <span class="text-sm font-semibold text-textdark/80">RAFT Standar</span>
                                                   </div>
-                                                  <p class="mt-3 text-sm text-textdark/70">
-                                                      Port modern <code>8055</code> dengan integrasi <code>osnadmin</code> dan kanal <code>fabric3-channel-standard</code> untuk kesinambungan desain.
-                                                  </p>
                                                   <div class="mt-4 flex flex-wrap items-center gap-2 text-xs font-medium text-textdark/60 md:text-sm">
                                                       <span class="rounded-full border border-primary/30 bg-primary/10 px-3 py-1">cryptogen</span>
                                                       <span class="text-textdark/40">&rarr;</span>
@@ -224,9 +207,6 @@
                                                       <span class="rounded-full bg-primary/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-primary/80">Fabric v3</span>
                                                       <span class="text-sm font-semibold text-textdark/80">RAFT Varian</span>
                                                   </div>
-                                                  <p class="mt-3 text-sm text-textdark/70">
-                                                      Namespace <code>fabric3.variant</code> dengan parameter batch agresif serta opsi SmartBFT pada <code>network/bft-config</code>.
-                                                  </p>
                                                   <div class="mt-4 flex flex-wrap items-center gap-2 text-xs font-medium text-textdark/60 md:text-sm">
                                                       <span class="rounded-full border border-primary/30 bg-primary/10 px-3 py-1">cryptogen</span>
                                                       <span class="text-textdark/40">&rarr;</span>

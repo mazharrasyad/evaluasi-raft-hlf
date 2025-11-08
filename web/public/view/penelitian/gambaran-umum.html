@@ -119,6 +119,33 @@
                                 </article>
                             </div>
                         </section>
+
+                        <section class="space-y-6 rounded-3xl border border-white/10 bg-surface/80 p-8 shadow-2xl shadow-black/30">
+                            <div class="flex flex-col gap-3">
+                                <div class="inline-flex w-fit items-center gap-2 rounded-full border border-accent/40 bg-accent/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.32em] text-accent/80">
+                                    Bab 4.1.2
+                                </div>
+                                <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Tujuan dan Arah Pengujian</h2>
+                                <p class="text-sm text-textdark/70 md:text-base">
+                                    Tujuan penelitian ini secara spesifik adalah mengevaluasi kinerja algoritma konsensus RAFT pada HLF dengan membandingkan implementasi RAFT standar dan RAFT varian, yang masing-masing dijalankan pada Fabric v2 (versi stabil) dan Fabric v3 (versi dalam pengembangan), dalam menangani beban transaksi pelaporan maladministrasi. Pengujian diarahkan untuk menjawab apakah terdapat perbedaan kinerja antara implementasi RAFT standar dan varian dalam skenario yang menyerupai kasus nyata.
+                                </p>
+                                <p class="text-sm text-textdark/70 md:text-base">
+                                    Kinerja yang dimaksud dievaluasi melalui empat parameter utama berikut:
+                                </p>
+                                <ol class="space-y-3 rounded-2xl border border-white/5 bg-surfaceMuted/70 p-4 text-sm text-textdark/80 marker:text-accent/80 md:text-base">
+                                    <li class="pl-3"><span class="font-semibold text-textdark">Throughput (laju transaksi per detik)</span> — menilai kemampuan jaringan memproses banyaknya transaksi laporan dalam satuan waktu.</li>
+                                    <li class="pl-3"><span class="font-semibold text-textdark">Latency (waktu latensi per transaksi)</span> — mengukur kecepatan respons sistem, yakni durasi dari pengiriman transaksi sampai konfirmasi di ledger.</li>
+                                    <li class="pl-3"><span class="font-semibold text-textdark">Resource Usage (pemanfaatan sumber daya)</span> — mencakup penggunaan CPU, memori, dan IO pada orderer maupun peer yang menunjukkan efisiensi serta potensi bottleneck.</li>
+                                    <li class="pl-3"><span class="font-semibold text-textdark">Fault Tolerance (ketahanan terhadap kegagalan)</span> — mengamati kemampuan konsensus RAFT menjaga kelangsungan transaksi saat node gagal, termasuk waktu pemulihan dan konsistensi data.</li>
+                                </ol>
+                                <p class="text-sm text-textdark/70 md:text-base">
+                                    Arah pengujian ditetapkan dengan menjaga seluruh faktor di luar konfigurasi RAFT tetap konstan sehingga setiap perbedaan hasil dapat diatribusikan pada variasi implementasi RAFT. Pengujian dilakukan melalui simulasi transaksi dalam lingkungan HLF terkontrol dengan tiga tingkat beban (ringan, sedang, tinggi). Setiap skenario dijalankan pada RAFT standar dan diulang pada RAFT varian di Fabric v2 serta Fabric v3 untuk memperoleh data komparatif yang komprehensif.
+                                </p>
+                                <p class="text-sm text-textdark/70 md:text-base">
+                                    Bab ini selanjutnya memaparkan rancangan eksperimen, pembangunan lingkungan uji, proses pelaksanaan simulasi, serta hasil dan analisis data. Pembahasan mendalam mengenai throughput, latency, resource usage, dan fault tolerance pada RAFT standar maupun varian di kedua versi Fabric diikuti evaluasi terhadap hipotesis penelitian, guna menilai implikasi temuan bagi sistem pelaporan maladministrasi.
+                                </p>
+                            </div>
+                        </section>
                     </div>
                 </main>
 

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluasi RAFT HLF — Gambaran Umum Penelitian</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#38BDF8',
+                        secondary: '#6366F1',
+                        accent: '#F59E0B',
+                        highlight: '#F97316',
+                        soft: '#050B16',
+                        surface: '#0F172A',
+                        surfaceMuted: '#16213F',
+                        border: '#1E293B',
+                        muted: '#94A3B8',
+                        textdark: '#E2E8F0'
+                    }
+                }
+            }
+        };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="/images/logo-ai-center.svg">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+
+        .component-link[data-active="true"] {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.28), rgba(56, 189, 248, 0.22));
+            color: #E2E8F0;
+            border-color: rgba(249, 115, 22, 0.45);
+            box-shadow: 0 12px 40px rgba(15, 23, 42, 0.45);
+        }
+
+        .component-link[data-active="true"] .component-link__index {
+            background-color: rgba(249, 115, 22, 0.35);
+            color: #E2E8F0;
+        }
+    </style>
+</head>
+<body class="bg-soft text-textdark">
+    <div data-component="header"></div>
+    <div class="relative min-h-screen overflow-hidden">
+        <div class="absolute inset-0 -z-10 h-full w-full">
+            <div class="absolute -left-1/3 top-0 h-[720px] w-[720px] rounded-full bg-gradient-to-br from-highlight/30 via-secondary/20 to-transparent opacity-70 blur-3xl"></div>
+            <div class="absolute -right-1/4 bottom-0 h-[620px] w-[620px] rounded-full bg-gradient-to-tr from-accent/35 via-secondary/25 to-primary/20 opacity-70 blur-3xl"></div>
+        </div>
+
+        <div class="flex min-h-screen flex-col lg:flex-row">
+            <div data-component="sidebar"></div>
+
+            <div class="flex-1">
+                <main class="mx-auto w-full max-w-5xl px-6 py-12">
+                    <div class="space-y-10">
+                        <section class="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-surface via-soft to-[#020817] p-10 shadow-2xl shadow-black/30">
+                            <div class="flex flex-col gap-6">
+                                <div class="inline-flex w-fit items-center gap-2 rounded-full border border-highlight/40 bg-highlight/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-highlight/90">
+                                    Bab 4.1
+                                </div>
+                                <div class="space-y-5">
+                                    <h1 class="text-3xl font-semibold text-textdark md:text-4xl">Gambaran Umum Penelitian</h1>
+                                    <p class="text-sm text-textdark/70 md:text-base">
+                                        Bab ini menyajikan hasil penelitian yang telah dilakukan beserta analisis mendalam untuk menjawab rumusan masalah terkait konsensus RAFT pada Hyperledger Fabric (HLF).
+                                        Fokusnya adalah mengevaluasi performa HLF ketika menangani simulasi beban transaksi pelaporan maladministrasi yang meniru 10.846 aduan masyarakat Indonesia sepanjang 2024.
+                                        HLF dipilih karena sifatnya yang permissioned, modular, dan mendukung mekanisme konsensus RAFT yang sederhana, efisien, serta konsisten melalui leader election dan replikasi log.
+                                    </p>
+                                    <p class="text-sm text-textdark/70 md:text-base">
+                                        Evaluasi diarahkan untuk membandingkan dua versi HLF: Fabric v2 sebagai rilis stabil yang telah matang di produksi, dan Fabric v3 sebagai rilis terbaru dengan berbagai peningkatan.
+                                        Keduanya diuji menggunakan implementasi RAFT dalam skenario pelaporan maladministrasi untuk menilai perbedaan kinerja.
+                                        Penelitian ini menjawab rumusan masalah mengenai bagaimana performa RAFT pada Fabric v2 dan v3 saat menghadapi beban transaksi laporan publik.
+                                    </p>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="space-y-6 rounded-3xl border border-white/10 bg-surfaceMuted/70 p-8 shadow-2xl shadow-black/30">
+                            <div class="flex flex-col gap-3">
+                                <div class="inline-flex w-fit items-center gap-2 rounded-full border border-secondary/40 bg-secondary/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.32em] text-secondary/80">
+                                    Bab 4.1.1
+                                </div>
+                                <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Konteks Evaluasi Algoritma RAFT</h2>
+                                <p class="text-sm text-textdark/70 md:text-base">
+                                    Pelaporan maladministrasi melibatkan data publik yang menuntut transparansi dan akuntabilitas tinggi.
+                                    Volume laporan yang melampaui sepuluh ribu kasus per tahun menghadirkan tantangan dalam pengelolaan sistem pengaduan.
+                                    Blockchain menawarkan pencatatan transaksi yang transparan, aman, dan terdistribusi, sementara HLF cocok untuk instansi pemerintah karena lingkungan privat dengan kontrol akses ketat yang tetap menjaga transparansi.
+                                </p>
+                                <p class="text-sm text-textdark/70 md:text-base">
+                                    Dalam HLF, algoritma konsensus RAFT memastikan setiap transaksi laporan dicatat secara konsisten meski terjadi kegagalan sebagian node.
+                                    Orderer leader mengurutkan transaksi dan node lain mereplikasi log tersebut.
+                                    Pendekatan ini lebih sederhana dibanding PBFT atau Paxos dan terbukti efektif menjaga integritas data dalam jaringan privat.
+                                    Namun, sebagaimana diidentifikasi pada Bab I, perlu evaluasi lebih lanjut terhadap performa RAFT ketika menghadapi beban transaksi besar seperti simulasi laporan maladministrasi nasional.
+                                </p>
+                                <p class="text-sm text-textdark/70 md:text-base">
+                                    Evaluasi difokuskan pada kinerja RAFT dalam menentukan <span class="font-semibold text-textdark">throughput</span> dan <span class="font-semibold text-textdark">latency</span> jaringan.
+                                    Perbandingan dilakukan antara RAFT standar dan variant di Fabric v2 serta Fabric v3 untuk melihat implikasi peningkatan platform terhadap kualitas layanan pelaporan maladministrasi.
+                                    Hasilnya diharapkan memberikan gambaran empiris mengenai kesiapan teknologi blockchain dalam mendukung sistem pengaduan publik yang andal.
+                                </p>
+                            </div>
+
+                            <div class="grid gap-5 md:grid-cols-2">
+                                <article class="rounded-2xl border border-white/10 bg-surface/60 p-6 text-sm text-textdark/70 shadow-inner shadow-black/20">
+                                    <h3 class="text-base font-semibold text-textdark">Lingkup Penelitian</h3>
+                                    <p class="mt-2">
+                                        Simulasi beban transaksi dirancang untuk mencerminkan kondisi pelaporan maladministrasi nasional, sehingga hasil evaluasi relevan bagi penerapan nyata di instansi pemerintah.
+                                    </p>
+                                </article>
+                                <article class="rounded-2xl border border-white/10 bg-surface/60 p-6 text-sm text-textdark/70 shadow-inner shadow-black/20">
+                                    <h3 class="text-base font-semibold text-textdark">Fokus Metrik Kinerja</h3>
+                                    <p class="mt-2">
+                                        Throughput dan latency dipilih sebagai metrik utama untuk menilai efektivitas RAFT dalam memproses dan mengonfirmasi transaksi laporan di Fabric v2 dan v3.
+                                    </p>
+                                </article>
+                            </div>
+                        </section>
+                    </div>
+                </main>
+
+                <div data-component="footer"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/layout.js" defer></script>
+    <script src="/js/navigation.js" defer></script>
+</body>
+</html>

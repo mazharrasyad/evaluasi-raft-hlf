@@ -3,10 +3,9 @@ const componentLoaderReady = window.componentLoaderReady instanceof Promise
     : Promise.resolve();
 
 componentLoaderReady.then(() => {
-    const summaryGrid = document.getElementById('networkSummaryGrid');
-    const comparisonSummary = document.getElementById('comparisonSummary');
-    const ordererComparison = document.getElementById('ordererComparison');
-    const peerComparison = document.getElementById('peerComparison');
+    const overallMetricsContainer = document.getElementById('overallMetricHighlights');
+    const networkMetricsContainer = document.getElementById('networkMetricGrid');
+    const metricInsightsContainer = document.getElementById('metricInsights');
     const updatedAtEl = document.getElementById('comparisonUpdatedAt');
 
     const PLACEHOLDER_VARIANTS = {
@@ -16,13 +15,13 @@ componentLoaderReady.then(() => {
     };
 
     const NETWORK_META = {
-        'raft-standard': {
+        'fabric2-raft-standard': {
             title: 'Fabric 2 — RAFT Standard',
             scopeLabel: 'Fabric 2',
             variantLabel: 'RAFT Standard',
             badgeClass: 'border-secondary/40 bg-secondary/15 text-secondary/90',
         },
-        'raft-variant': {
+        'fabric2-raft-variant': {
             title: 'Fabric 2 — RAFT Variant',
             scopeLabel: 'Fabric 2',
             variantLabel: 'RAFT Variant',
@@ -42,72 +41,42 @@ componentLoaderReady.then(() => {
         },
     };
 
-    const SCOPE_CONFIG = [
+    const NETWORK_ORDER = [
+        'fabric2-raft-standard',
+        'fabric2-raft-variant',
+        'fabric3-raft-standard',
+        'fabric3-raft-variant',
+    ];
+
+    const METRIC_DEFINITIONS = [
         {
-            scopeLabel: 'Fabric 2',
-            standardId: 'raft-standard',
-            variantId: 'raft-variant',
+            key: 'throughput',
+            label: 'Throughput',
+            badgeClass: 'border-primary/40 bg-primary/15 text-primary/90',
+        },
+        {
+            key: 'latency',
+            label: 'Latency',
             badgeClass: 'border-secondary/40 bg-secondary/15 text-secondary/90',
         },
         {
-            scopeLabel: 'Fabric 3',
-            standardId: 'fabric3-raft-standard',
-            variantId: 'fabric3-raft-variant',
+            key: 'resourceUsage',
+            label: 'Resource Usage',
             badgeClass: 'border-accent/40 bg-accent/15 text-accent/90',
+        },
+        {
+            key: 'faultTolerance',
+            label: 'Fault Tolerance',
+            badgeClass: 'border-highlight/40 bg-highlight/15 text-highlight/90',
         },
     ];
 
-    const SUMMARY_ROWS = [
-        {
-            label: 'Versi Fabric',
-            getValue: (item) => item?.fabricVersion?.value ?? null,
-            getDisplay: (item) => item?.fabricVersion?.label ?? '—',
-        },
-        {
-            label: 'Versi Fabric CA',
-            getValue: (item) => item?.fabricCAVersion?.value ?? null,
-            getDisplay: (item) => item?.fabricCAVersion?.label ?? '—',
-        },
-        {
-            label: 'Channel',
-            getValue: (item) => item?.channelName ?? null,
-            getDisplay: (item) => item?.channelName ?? '—',
-        },
-        {
-            label: 'Basis Data',
-            getValue: (item) => item?.database ?? null,
-            getDisplay: (item) => item?.database ?? '—',
-        },
-        {
-            label: 'Chaincode',
-            getValue: (item) => {
-                const name = item?.chaincode?.name ?? '';
-                const version = item?.chaincode?.version ?? '';
-                return name || version ? `${name}::${version}` : null;
-            },
-            getDisplay: (item) => {
-                const name = item?.chaincode?.name;
-                const version = item?.chaincode?.version;
-                if (!name && !version) {
-                    return '—';
-                }
-                if (name && version) {
-                    return `${name} (${version})`;
-                }
-                return name || version || '—';
-            },
-        },
-        {
-            label: 'Bahasa Chaincode',
-            getValue: (item) => item?.chaincode?.language ?? null,
-            getDisplay: (item) => item?.chaincode?.language ?? '—',
-        },
-        {
-            label: 'Lokasi Chaincode',
-            getValue: (item) => item?.chaincode?.path ?? null,
-            getDisplay: (item) => item?.chaincode?.path ?? '—',
-        },
-    ];
+    const INSIGHT_TONE_CLASSES = {
+        positive: 'border-emerald-400/30 bg-emerald-400/10 text-emerald-50',
+        caution: 'border-amber-400/30 bg-amber-400/10 text-amber-100',
+        warning: 'border-rose-400/40 bg-rose-500/10 text-rose-100',
+        neutral: 'border-white/10 bg-surfaceMuted/60 text-textdark/80',
+    };
 
     function showPlaceholder(container, message, tone = 'info') {
         if (!container) {
@@ -153,13 +122,6 @@ componentLoaderReady.then(() => {
         container.replaceChildren();
     }
 
-    function stringOrDash(value) {
-        if (value === null || value === undefined || value === '') {
-            return '—';
-        }
-        return String(value);
-    }
-
     function formatTimestampLabel(isoString) {
         if (!isoString || typeof isoString !== 'string') {
             return null;
@@ -175,177 +137,495 @@ componentLoaderReady.then(() => {
                 dateStyle: 'medium',
                 timeStyle: 'short',
             }).format(date);
-            return `Terakhir diperbarui: ${formatted}`;
+            return `Data simulasi diperbarui: ${formatted}`;
         } catch (error) {
-            console.error('Gagal memformat tanggal pembaruan perbandingan:', error);
+            console.error('Gagal memformat cap waktu perbandingan:', error);
             return null;
         }
     }
 
-    function buildEndpointLines(address, port, mapping) {
-        const lines = [];
-
-        if (address) {
-            lines.push(address);
-        } else if (port) {
-            lines.push(`Port kontainer: ${port}`);
+    function formatNumber(value, options = {}) {
+        if (!Number.isFinite(value)) {
+            return null;
         }
 
-        if (mapping?.host) {
-            lines.push(`Host: ${mapping.host}`);
-        }
-
-        if (mapping?.raw && mapping.raw !== mapping.host) {
-            lines.push(`Raw: ${mapping.raw}`);
-        }
-
-        return lines;
+        const formatter = new Intl.NumberFormat('id-ID', options);
+        return formatter.format(value);
     }
 
-    function appendDetailBlock(container, label, values) {
-        const block = document.createElement('div');
-        block.className = 'rounded-2xl border border-white/10 bg-surfaceMuted/60 p-4';
+    function formatInteger(value) {
+        if (!Number.isFinite(value)) {
+            return '0';
+        }
+        return formatNumber(value, { maximumFractionDigits: 0 });
+    }
 
-        const title = document.createElement('p');
-        title.className = 'text-[0.68rem] font-semibold uppercase tracking-[0.3em] text-textdark/50';
-        title.textContent = label;
+    function formatThroughput(value) {
+        if (!Number.isFinite(value) || value <= 0) {
+            return 'Belum ada data';
+        }
 
-        block.append(title);
+        const decimals = value >= 100 ? 0 : value >= 10 ? 1 : 2;
+        const formatted = formatNumber(value, {
+            minimumFractionDigits: decimals,
+            maximumFractionDigits: decimals,
+        });
+        return `${formatted} tx/detik`;
+    }
 
-        const valueLines = Array.isArray(values)
-            ? values.filter(line => line !== null && line !== undefined && line !== '')
-            : [values];
+    function formatLatency(value) {
+        if (!Number.isFinite(value) || value <= 0) {
+            return 'Belum ada data';
+        }
 
-        if (!valueLines.length) {
-            const fallback = document.createElement('p');
-            fallback.className = 'text-sm text-textdark/60';
-            fallback.textContent = '—';
-            block.append(fallback);
-        } else {
-            valueLines.forEach((line) => {
-                const paragraph = document.createElement('p');
-                paragraph.className = 'text-sm text-textdark';
-                paragraph.textContent = String(line);
-                block.append(paragraph);
+        if (value >= 1000) {
+            const seconds = value / 1000;
+            const decimals = seconds >= 10 ? 1 : 2;
+            const formattedSeconds = formatNumber(seconds, {
+                minimumFractionDigits: decimals,
+                maximumFractionDigits: decimals,
             });
+            return `${formattedSeconds} dtk`;
         }
 
-        container.append(block);
+        const decimals = value < 10 ? 2 : value < 100 ? 1 : 0;
+        const formatted = formatNumber(value, {
+            maximumFractionDigits: decimals,
+        });
+        return `${formatted} ms`;
     }
 
-    function renderNetworkOverview(container, networkMap) {
+    function formatPercentage(value, { fraction = false, decimals = 1, fallback = null } = {}) {
+        if (!Number.isFinite(value)) {
+            return fallback;
+        }
+
+        const raw = fraction ? value * 100 : value;
+        const formatted = formatNumber(raw, {
+            minimumFractionDigits: decimals,
+            maximumFractionDigits: decimals,
+        });
+
+        return `${formatted}%`;
+    }
+
+    function formatDuration(ms) {
+        if (!Number.isFinite(ms) || ms <= 0) {
+            return null;
+        }
+
+        const seconds = Math.round(ms / 1000);
+
+        if (seconds < 60) {
+            return `${seconds}s`;
+        }
+
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = seconds % 60;
+
+        if (minutes < 60) {
+            return remainingSeconds
+                ? `${minutes}m ${remainingSeconds}s`
+                : `${minutes}m`;
+        }
+
+        const hours = Math.floor(minutes / 60);
+        const remainingMinutes = minutes % 60;
+
+        return remainingMinutes
+            ? `${hours}j ${remainingMinutes}m`
+            : `${hours}j`;
+    }
+
+    function clampMetric(value, min, max, fallback = null) {
+        if (!Number.isFinite(value)) {
+            return Number.isFinite(fallback) ? fallback : null;
+        }
+
+        let clamped = value;
+
+        if (typeof min === 'number' && clamped < min) {
+            clamped = min;
+        }
+
+        if (typeof max === 'number' && clamped > max) {
+            clamped = max;
+        }
+
+        return clamped;
+    }
+
+    function computeResourceUsagePercentage({ stats, throughputSnapshot, latencyMs, fallback = null }) {
+        const normalizedThroughput = Number.isFinite(throughputSnapshot)
+            ? Math.min(Math.max(throughputSnapshot / 10, 0), 1)
+            : 0;
+        const normalizedLatency = Number.isFinite(latencyMs)
+            ? Math.min(Math.max(latencyMs / 750, 0), 1)
+            : 0.25;
+
+        let usage = 35 + (normalizedThroughput * 45) + (normalizedLatency * 20);
+
+        if (stats?.lastStatus === 'error') {
+            usage += 8;
+        } else if (stats?.lastStatus === 'success') {
+            usage -= 3;
+        }
+
+        return clampMetric(usage, 25, 100, fallback);
+    }
+
+    function computeFaultToleranceScore({ stats, latencyMs, fallback = null }) {
+        const totalAttempts = Math.max(
+            Number(stats?.totalCount) || 0,
+            (Number(stats?.successCount) || 0) + (Number(stats?.failureCount) || 0),
+        );
+        const failureRate = totalAttempts > 0
+            ? Math.min(Math.max((Number(stats?.failureCount) || 0) / totalAttempts, 0), 1)
+            : 0;
+        const latencyImpact = Number.isFinite(latencyMs)
+            ? Math.min(Math.max(latencyMs / 1000, 0), 1)
+            : 0;
+        const statusPenalty = stats?.lastStatus === 'error'
+            ? 0.12
+            : stats?.lastStatus === 'processing'
+                ? 0.05
+                : 0;
+
+        let score = 100
+            - (failureRate * 60)
+            - (latencyImpact * 20)
+            - (statusPenalty * 100);
+
+        if (stats?.failureCount === 0 && stats?.successCount > 0) {
+            score += 5;
+        } else if (stats?.lastStatus === 'success') {
+            score += 2;
+        }
+
+        return clampMetric(score, 40, 100, fallback);
+    }
+
+    function describeThroughput(value, context = {}) {
+        const totalCount = Number.isFinite(context.totalCount) ? context.totalCount : 0;
+
+        if (!Number.isFinite(value) || value <= 0) {
+            if (totalCount === 0) {
+                return 'Belum ada transaksi berhasil yang dapat dihitung.';
+            }
+            return 'Throughput masih rendah, perbanyak sampel simulasi untuk gambaran yang lebih representatif.';
+        }
+
+        if (totalCount < 10) {
+            return 'Dataset transaksi masih terbatas; jalankan simulasi lebih panjang untuk memvalidasi performa.';
+        }
+
+        if (value >= 20) {
+            return 'Laju transaksi tinggi; RAFT memproses laporan secara agresif.';
+        }
+        if (value >= 10) {
+            return 'Throughput stabil pada kisaran menengah ke atas.';
+        }
+        if (value >= 5) {
+            return 'Cukup untuk pengujian; tingkatkan beban untuk menguji batas jaringan.';
+        }
+        return 'Throughput rendah, lakukan simulasi tambahan dan pantau konfigurasi chaincode.';
+    }
+
+    function describeLatency(value) {
+        if (!Number.isFinite(value) || value <= 0) {
+            return 'Latensi akan muncul setelah transaksi berhasil tercatat.';
+        }
+
+        if (value <= 250) {
+            return 'Respons cepat dengan konfirmasi sub-250 ms.';
+        }
+        if (value <= 600) {
+            return 'Latensi masih dalam ambang wajar untuk beban menengah.';
+        }
+        if (value <= 1000) {
+            return 'Latensi mulai meningkat; evaluasi beban orderer dan peer.';
+        }
+        return 'Latensi tinggi; periksa jaringan, konfigurasi RAFT, dan kapasitas container.';
+    }
+
+    function describeResourceUsage(value) {
+        if (!Number.isFinite(value)) {
+            return 'Proyeksi beban sumber daya belum tersedia.';
+        }
+
+        if (value >= 90) {
+            return 'Penggunaan sumber daya sangat tinggi; lakukan optimasi atau tambah kapasitas.';
+        }
+        if (value >= 80) {
+            return 'Mendekati batas kapasitas; monitor CPU, memori, dan IO selama simulasi.';
+        }
+        if (value >= 60) {
+            return 'Beban moderat; ideal untuk menguji skenario failover.';
+        }
+        if (value >= 40) {
+            return 'Beban ringan hingga sedang; masih ada ruang peningkatan workload.';
+        }
+        return 'Beban sangat ringan; tingkatkan volume transaksi untuk hasil yang lebih representatif.';
+    }
+
+    function describeFaultTolerance(value, context = {}) {
+        if (!Number.isFinite(value)) {
+            return 'Ketahanan baru dapat dinilai setelah menjalankan skenario kegagalan.';
+        }
+
+        let message;
+        if (value >= 90) {
+            message = 'RAFT menunjukkan ketahanan sangat baik terhadap kegagalan.';
+        } else if (value >= 75) {
+            message = 'Ketahanan berada di kisaran aman; lanjutkan uji pemulihan berkala.';
+        } else {
+            message = 'Ketahanan perlu perhatian; siapkan skenario failover tambahan.';
+        }
+
+        if (Number.isFinite(context.failureCount) && context.failureCount > 0) {
+            message += ` • ${formatInteger(context.failureCount)} kegagalan tercatat.`;
+        } else if (Number.isFinite(context.successRate)) {
+            const rateLabel = formatPercentage(context.successRate, { fraction: true, decimals: 1 });
+            if (rateLabel) {
+                message += ` • Tingkat keberhasilan ${rateLabel}.`;
+            }
+        }
+
+        return message;
+    }
+
+    function createEmptyMetrics() {
+        return {
+            throughput: {
+                value: null,
+                display: 'Belum ada data',
+                insight: 'Jalankan simulasi untuk melihat laju transaksi jaringan.',
+            },
+            latency: {
+                value: null,
+                display: 'Belum ada data',
+                insight: 'Latensi akan tersedia setelah transaksi berhasil dikonfirmasi.',
+            },
+            resourceUsage: {
+                value: null,
+                display: 'Belum ada data',
+                insight: 'Proyeksi penggunaan sumber daya muncul setelah simulasi aktif.',
+            },
+            faultTolerance: {
+                value: null,
+                display: 'Belum ada data',
+                insight: 'Jalankan skenario failover untuk mengukur ketahanan RAFT.',
+            },
+        };
+    }
+
+    function buildMetricSnapshot(stats) {
+        if (!stats || typeof stats !== 'object') {
+            return {
+                metrics: createEmptyMetrics(),
+                hasData: false,
+                totalCount: 0,
+                successCount: 0,
+                failureCount: 0,
+                successRate: null,
+                observationDurationMs: null,
+                summaryBadges: [],
+            };
+        }
+
+        const totalCount = Number.isFinite(stats.totalCount) ? stats.totalCount : 0;
+        const successCount = Number.isFinite(stats.successCount) ? stats.successCount : 0;
+        const failureCount = Number.isFinite(stats.failureCount) ? stats.failureCount : 0;
+        const successRate = Number.isFinite(stats.successRate)
+            ? stats.successRate
+            : (totalCount > 0 ? successCount / totalCount : null);
+        const observationDurationMs = Number.isFinite(stats.observationDurationMs)
+            ? stats.observationDurationMs
+            : null;
+        const throughput = Number.isFinite(stats.throughput) ? stats.throughput : null;
+        const latencyMs = Number.isFinite(stats.averageLatencyMs) ? stats.averageLatencyMs : null;
+
+        const resourceUsage = computeResourceUsagePercentage({
+            stats,
+            throughputSnapshot: throughput,
+            latencyMs,
+            fallback: null,
+        });
+
+        const faultTolerance = computeFaultToleranceScore({
+            stats,
+            latencyMs,
+            fallback: null,
+        });
+
+        const metrics = {
+            throughput: {
+                value: Number.isFinite(throughput) && throughput > 0 ? throughput : null,
+                display: formatThroughput(throughput),
+                insight: describeThroughput(throughput, { totalCount, observationDurationMs }),
+            },
+            latency: {
+                value: Number.isFinite(latencyMs) && latencyMs > 0 ? latencyMs : null,
+                display: formatLatency(latencyMs),
+                insight: describeLatency(latencyMs),
+            },
+            resourceUsage: {
+                value: Number.isFinite(resourceUsage) ? resourceUsage : null,
+                display: formatPercentage(resourceUsage, { decimals: 0, fallback: 'Belum ada data' }),
+                insight: describeResourceUsage(resourceUsage),
+            },
+            faultTolerance: {
+                value: Number.isFinite(faultTolerance) ? faultTolerance : null,
+                display: formatPercentage(faultTolerance, { decimals: 0, fallback: 'Belum ada data' }),
+                insight: describeFaultTolerance(faultTolerance, { failureCount, successRate }),
+            },
+        };
+
+        const summaryBadges = [];
+
+        if (totalCount > 0) {
+            summaryBadges.push(`${formatInteger(totalCount)} transaksi`);
+        }
+
+        const successPercentLabel = formatPercentage(successRate, { fraction: true, decimals: 1 });
+        if (successPercentLabel) {
+            summaryBadges.push(`${successPercentLabel} berhasil`);
+        }
+
+        if (failureCount > 0) {
+            summaryBadges.push(`${formatInteger(failureCount)} gagal`);
+        }
+
+        const durationLabel = formatDuration(observationDurationMs);
+        if (durationLabel) {
+            summaryBadges.push(`Durasi ${durationLabel}`);
+        }
+
+        const hasData = successCount > 0 || failureCount > 0
+            || Number.isFinite(throughput) || Number.isFinite(latencyMs);
+
+        return {
+            metrics,
+            hasData,
+            totalCount,
+            successCount,
+            failureCount,
+            successRate,
+            observationDurationMs,
+            summaryBadges,
+        };
+    }
+
+    function normalizeScopeLabel(scope) {
+        if (!scope || typeof scope !== 'string') {
+            return 'Jaringan';
+        }
+
+        const normalized = scope.toLowerCase();
+
+        if (normalized.includes('fabric') && normalized.includes('2')) {
+            return 'Fabric 2';
+        }
+        if (normalized.includes('fabric') && normalized.includes('3')) {
+            return 'Fabric 3';
+        }
+
+        return scope.replace(/(^|\s)\w/g, (match) => match.toUpperCase());
+    }
+
+    function resolveNetworkMeta(key, stats, snapshot) {
+        const baseMeta = NETWORK_META[key] || {};
+
+        const scopeLabel = baseMeta.scopeLabel || normalizeScopeLabel(stats?.scope);
+        const variantLabel = baseMeta.variantLabel || stats?.label || stats?.channel || 'Paket RAFT';
+        const title = baseMeta.title || stats?.label || variantLabel || 'Jaringan RAFT';
+
+        let statusLabel;
+        let statusClass;
+
+        if (!snapshot?.hasData) {
+            statusLabel = 'Data belum tersedia';
+            statusClass = 'border-white/15 bg-white/5 text-textdark/50';
+        } else if ((snapshot.failureCount || 0) > 0 || stats?.lastStatus === 'error') {
+            statusLabel = snapshot.failureCount
+                ? `${formatInteger(snapshot.failureCount)} kegagalan`
+                : 'Perlu pemeriksaan';
+            statusClass = 'border-amber-400/40 bg-amber-400/10 text-amber-100';
+        } else {
+            statusLabel = 'Simulasi stabil';
+            statusClass = 'border-emerald-400/30 bg-emerald-400/10 text-emerald-100';
+        }
+
+        return {
+            key,
+            title,
+            scopeLabel,
+            variantLabel,
+            badgeClass: baseMeta.badgeClass || 'border-white/10 bg-white/5 text-textdark/60',
+            statusLabel,
+            statusClass,
+        };
+    }
+
+    function renderOverallMetrics(container, snapshot) {
         if (!container) {
             return;
         }
 
-        const orderedIds = ['raft-standard', 'raft-variant', 'fabric3-raft-standard', 'fabric3-raft-variant'];
-        const visibleIds = orderedIds.filter(id => networkMap.has(id));
+        const hasAnyData = Object.values(snapshot.metrics).some(metric => metric.value !== null);
 
-        if (!visibleIds.length) {
-            showPlaceholder(container, 'Data jaringan tidak ditemukan.', 'empty');
+        if (!hasAnyData) {
+            showPlaceholder(container, 'Belum ada hasil simulasi agregat yang dapat ditampilkan.', 'empty');
             return;
         }
 
         clearContainer(container);
 
-        visibleIds.forEach((id) => {
-            const description = networkMap.get(id);
-            const meta = NETWORK_META[id] || {};
-
+        METRIC_DEFINITIONS.forEach((definition) => {
+            const metricInfo = snapshot.metrics[definition.key];
             const card = document.createElement('article');
-            card.className = 'flex h-full flex-col gap-5 rounded-3xl border border-white/10 bg-surface/85 p-6 text-sm text-textdark/80 shadow-2xl shadow-black/30 backdrop-blur-sm';
+            card.className = 'flex h-full flex-col gap-4 rounded-3xl border border-white/10 bg-surface/85 p-6 text-sm text-textdark/80 shadow-2xl shadow-black/30 backdrop-blur-sm';
 
-            const header = document.createElement('div');
-            header.className = 'space-y-3';
+            const badge = document.createElement('span');
+            badge.className = `inline-flex w-fit items-center gap-2 rounded-full border px-3 py-1 text-[0.68rem] font-semibold uppercase tracking-[0.3em] ${definition.badgeClass}`;
+            badge.textContent = definition.label;
 
-            const scopeBadge = document.createElement('span');
-            scopeBadge.className = `inline-flex w-fit items-center gap-2 rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] ${meta.badgeClass || 'border-white/10 bg-white/5 text-textdark/60'}`;
-            scopeBadge.textContent = meta.scopeLabel || description?.label || 'Jaringan RAFT';
+            const value = document.createElement('p');
+            value.className = 'text-2xl font-semibold text-textdark';
+            value.textContent = metricInfo.display;
+            if (metricInfo.value === null) {
+                value.classList.add('text-textdark/50');
+            }
 
-            const title = document.createElement('h3');
-            title.className = 'text-lg font-semibold text-textdark';
-            title.textContent = meta.title || description?.label || 'Paket RAFT';
+            const insight = document.createElement('p');
+            insight.className = 'text-xs text-textdark/60';
+            insight.textContent = metricInfo.insight;
 
-            const variantLabel = document.createElement('p');
-            variantLabel.className = 'text-xs text-textdark/60';
-            variantLabel.textContent = description?.label
-                ? `Profil ${description.label}`
-                : (meta.variantLabel || 'Konfigurasi jaringan');
-
-            header.append(scopeBadge, title, variantLabel);
-            card.append(header);
-
-            const infoList = document.createElement('ul');
-            infoList.className = 'space-y-3';
-
-            const peerCount = Array.isArray(description?.peers) ? description.peers.length : 0;
-            const ordererName = description?.orderer?.serviceName || description?.orderer?.containerName;
-
-            const overviewItems = [
-                {
-                    label: 'Versi Fabric',
-                    value: description?.fabricVersion?.label || '—',
-                },
-                {
-                    label: 'Versi Fabric CA',
-                    value: description?.fabricCAVersion?.label || '—',
-                },
-                {
-                    label: 'Channel',
-                    value: description?.channelName || '—',
-                },
-                {
-                    label: 'Basis Data',
-                    value: description?.database || '—',
-                },
-                {
-                    label: 'Orderer',
-                    value: ordererName || 'Tidak diketahui',
-                },
-                {
-                    label: 'Peer Aktif',
-                    value: peerCount ? `${peerCount} node` : 'Tidak ada data peer',
-                },
-            ];
-
-            overviewItems.forEach((item) => {
-                const listItem = document.createElement('li');
-                listItem.className = 'rounded-2xl border border-white/10 bg-surfaceMuted/60 px-4 py-3';
-
-                const label = document.createElement('p');
-                label.className = 'text-[0.7rem] font-semibold uppercase tracking-[0.28em] text-textdark/50';
-                label.textContent = item.label;
-
-                const value = document.createElement('p');
-                value.className = 'text-sm font-medium text-textdark';
-                value.textContent = stringOrDash(item.value);
-
-                listItem.append(label, value);
-                infoList.append(listItem);
-            });
-
-            card.append(infoList);
+            card.append(badge, value, insight);
             container.append(card);
         });
+
+        if (snapshot.summaryBadges.length) {
+            const summary = document.createElement('div');
+            summary.className = 'md:col-span-2 xl:col-span-4 rounded-3xl border border-white/10 bg-surfaceMuted/50 px-4 py-3 text-[0.7rem] uppercase tracking-[0.3em] text-textdark/60';
+            summary.textContent = `Ringkasan: ${snapshot.summaryBadges.join(' • ')}`;
+            container.append(summary);
+        }
     }
 
-    function renderComparisonTables(container, networkMap) {
+    function renderNetworkMetrics(container, networkSnapshots) {
         if (!container) {
             return;
         }
 
-        const anyData = SCOPE_CONFIG.some(config => networkMap.has(config.standardId) || networkMap.has(config.variantId));
-        if (!anyData) {
-            showPlaceholder(container, 'Tidak ada data konfigurasi yang dapat dibandingkan.', 'empty');
+        if (!Array.isArray(networkSnapshots) || networkSnapshots.length === 0) {
+            showPlaceholder(container, 'Tidak ada profil jaringan yang dapat ditampilkan.', 'empty');
             return;
         }
 
         clearContainer(container);
 
-        SCOPE_CONFIG.forEach((config) => {
-            const standard = networkMap.get(config.standardId);
-            const variant = networkMap.get(config.variantId);
-
+        networkSnapshots.forEach(({ meta, snapshot }) => {
             const card = document.createElement('article');
             card.className = 'space-y-5 rounded-3xl border border-white/10 bg-surface/85 p-6 text-sm text-textdark/80 shadow-2xl shadow-black/30 backdrop-blur-sm';
 
@@ -356,306 +636,301 @@ componentLoaderReady.then(() => {
             heading.className = 'space-y-2';
 
             const scopeBadge = document.createElement('span');
-            scopeBadge.className = `inline-flex w-fit items-center gap-2 rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] ${config.badgeClass}`;
-            scopeBadge.textContent = config.scopeLabel;
+            scopeBadge.className = `inline-flex w-fit items-center gap-2 rounded-full border px-3 py-1 text-[0.68rem] font-semibold uppercase tracking-[0.3em] ${meta.badgeClass}`;
+            scopeBadge.textContent = meta.scopeLabel;
 
             const title = document.createElement('h3');
             title.className = 'text-lg font-semibold text-textdark';
-            title.textContent = `Perbandingan ${config.scopeLabel}`;
+            title.textContent = meta.title;
 
             const subtitle = document.createElement('p');
             subtitle.className = 'text-xs text-textdark/60';
-            subtitle.textContent = 'Mengukur parameter inti antara paket RAFT Standard dan RAFT Variant.';
+            subtitle.textContent = meta.variantLabel;
 
             heading.append(scopeBadge, title, subtitle);
-            header.append(heading);
+
+            const statusBadge = document.createElement('span');
+            statusBadge.className = `inline-flex w-fit items-center gap-2 rounded-full border px-3 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.3em] ${meta.statusClass}`;
+            statusBadge.textContent = meta.statusLabel;
+
+            header.append(heading, statusBadge);
             card.append(header);
 
-            const table = document.createElement('table');
-            table.className = 'w-full border-separate border-spacing-y-2 text-sm text-textdark/80';
+            const metricsGrid = document.createElement('div');
+            metricsGrid.className = 'grid gap-4 sm:grid-cols-2';
 
-            const thead = document.createElement('thead');
-            const headerRow = document.createElement('tr');
+            METRIC_DEFINITIONS.forEach((definition) => {
+                const metricInfo = snapshot.metrics[definition.key] ?? {
+                    value: null,
+                    display: 'Belum ada data',
+                    insight: 'Menunggu data simulasi.',
+                };
 
-            const headers = ['Parameter', 'RAFT Standard', 'RAFT Variant', 'Catatan'];
-            headers.forEach((label) => {
-                const th = document.createElement('th');
-                th.scope = 'col';
-                th.className = 'rounded-2xl bg-surfaceMuted/70 px-4 py-3 text-left text-[0.7rem] font-semibold uppercase tracking-[0.28em] text-textdark/60';
-                th.textContent = label;
-                headerRow.append(th);
-            });
-            thead.append(headerRow);
-            table.append(thead);
+                const block = document.createElement('div');
+                block.className = 'flex flex-col gap-2 rounded-2xl border border-white/10 bg-surfaceMuted/60 p-4';
 
-            const tbody = document.createElement('tbody');
+                const badge = document.createElement('span');
+                badge.className = `inline-flex w-fit items-center gap-2 rounded-full border px-3 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.3em] ${definition.badgeClass}`;
+                badge.textContent = definition.label;
 
-            SUMMARY_ROWS.forEach((row) => {
-                const standardValueRaw = row.getValue(standard);
-                const variantValueRaw = row.getValue(variant);
-                const standardDisplay = row.getDisplay(standard);
-                const variantDisplay = row.getDisplay(variant);
-
-                const normalizedStandard = typeof standardValueRaw === 'string'
-                    ? standardValueRaw.trim().toLowerCase()
-                    : (standardValueRaw ?? '').toString().trim().toLowerCase();
-                const normalizedVariant = typeof variantValueRaw === 'string'
-                    ? variantValueRaw.trim().toLowerCase()
-                    : (variantValueRaw ?? '').toString().trim().toLowerCase();
-
-                const hasStandard = standardValueRaw !== null && standardValueRaw !== undefined && standardValueRaw !== '';
-                const hasVariant = variantValueRaw !== null && variantValueRaw !== undefined && variantValueRaw !== '';
-
-                let noteLabel = 'Serupa';
-                let noteClass = 'border-emerald-400/30 bg-emerald-400/10 text-emerald-200';
-
-                if (!hasStandard && !hasVariant) {
-                    noteLabel = 'Data kosong';
-                    noteClass = 'border-white/10 bg-white/5 text-textdark/60';
-                } else if (normalizedStandard !== normalizedVariant) {
-                    noteLabel = 'Berbeda';
-                    noteClass = 'border-amber-400/30 bg-amber-400/10 text-amber-200';
+                const value = document.createElement('p');
+                value.className = 'text-xl font-semibold text-textdark';
+                value.textContent = metricInfo.display;
+                if (metricInfo.value === null) {
+                    value.classList.add('text-textdark/50');
                 }
 
-                const rowEl = document.createElement('tr');
+                const insight = document.createElement('p');
+                insight.className = 'text-xs text-textdark/60';
+                insight.textContent = metricInfo.insight;
 
-                const parameterCell = document.createElement('td');
-                parameterCell.className = 'rounded-2xl bg-surfaceMuted/60 px-4 py-3 text-sm font-medium text-textdark';
-                parameterCell.textContent = row.label;
-
-                const standardCell = document.createElement('td');
-                standardCell.className = 'rounded-2xl bg-surfaceMuted/40 px-4 py-3 text-sm text-textdark/80';
-                standardCell.textContent = stringOrDash(standardDisplay);
-
-                const variantCell = document.createElement('td');
-                variantCell.className = 'rounded-2xl bg-surfaceMuted/40 px-4 py-3 text-sm text-textdark/80';
-                variantCell.textContent = stringOrDash(variantDisplay);
-
-                const noteCell = document.createElement('td');
-                noteCell.className = 'rounded-2xl bg-surfaceMuted/40 px-4 py-3';
-
-                const noteBadge = document.createElement('span');
-                noteBadge.className = `inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[0.68rem] font-semibold uppercase tracking-[0.3em] ${noteClass}`;
-                noteBadge.textContent = noteLabel;
-
-                noteCell.append(noteBadge);
-                rowEl.append(parameterCell, standardCell, variantCell, noteCell);
-                tbody.append(rowEl);
+                block.append(badge, value, insight);
+                metricsGrid.append(block);
             });
 
-            table.append(tbody);
-            card.append(table);
-            container.append(card);
-        });
-    }
+            card.append(metricsGrid);
 
-    function renderOrdererDetails(container, networkMap) {
-        if (!container) {
-            return;
-        }
-
-        const orderedIds = ['raft-standard', 'raft-variant', 'fabric3-raft-standard', 'fabric3-raft-variant'];
-        const visibleIds = orderedIds.filter(id => networkMap.has(id));
-
-        if (!visibleIds.length) {
-            showPlaceholder(container, 'Detail orderer tidak tersedia.', 'empty');
-            return;
-        }
-
-        clearContainer(container);
-
-        visibleIds.forEach((id) => {
-            const description = networkMap.get(id);
-            const meta = NETWORK_META[id] || {};
-            const orderer = description?.orderer;
-
-            const card = document.createElement('article');
-            card.className = 'flex h-full flex-col gap-5 rounded-3xl border border-white/10 bg-surface/85 p-6 text-sm text-textdark/80 shadow-2xl shadow-black/30 backdrop-blur-sm';
-
-            const header = document.createElement('div');
-            header.className = 'space-y-2';
-
-            const scopeBadge = document.createElement('span');
-            scopeBadge.className = `inline-flex w-fit items-center gap-2 rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] ${meta.badgeClass || 'border-white/10 bg-white/5 text-textdark/60'}`;
-            scopeBadge.textContent = meta.title || description?.label || 'Paket RAFT';
-
-            const variantLabel = document.createElement('p');
-            variantLabel.className = 'text-xs text-textdark/60';
-            variantLabel.textContent = orderer?.serviceName
-                ? `Orderer ${orderer.serviceName}`
-                : 'Nama orderer tidak tersedia.';
-
-            header.append(scopeBadge, variantLabel);
-            card.append(header);
-
-            const content = document.createElement('div');
-            content.className = 'grid gap-4 md:grid-cols-2';
-
-            if (!orderer) {
-                appendDetailBlock(content, 'Informasi Orderer', ['Detail orderer tidak ditemukan dalam berkas konfigurasi.']);
-            } else {
-                appendDetailBlock(content, 'Service Name', [orderer.serviceName || '—']);
-                appendDetailBlock(content, 'Container Name', [orderer.containerName || '—']);
-                appendDetailBlock(content, 'Hostname', [orderer.hostname || '—']);
-                appendDetailBlock(content, 'MSP', [orderer.mspId || '—']);
-                appendDetailBlock(content, 'TLS', [orderer.tlsEnabled ? 'Aktif' : 'Nonaktif']);
-                appendDetailBlock(content, 'Image', [orderer.image || '—']);
-                appendDetailBlock(content, 'gRPC Endpoint', buildEndpointLines(orderer.listenAddress, orderer.listenPort, orderer.grpcMapping));
-                appendDetailBlock(content, 'Admin Endpoint', buildEndpointLines(orderer.adminAddress, orderer.adminMapping?.container, orderer.adminMapping));
-                appendDetailBlock(content, 'Operations Endpoint', buildEndpointLines(orderer.operationsAddress, orderer.operationsMapping?.container, orderer.operationsMapping));
-                appendDetailBlock(content, 'Metrics Provider', [orderer.metricsProvider || '—']);
-                appendDetailBlock(content, 'Port Terbuka', [Array.isArray(orderer.ports) ? `${orderer.ports.length} port` : 'Tidak ada data port']);
+            if (snapshot.summaryBadges.length) {
+                const footer = document.createElement('div');
+                footer.className = 'flex flex-wrap gap-3 text-[0.62rem] uppercase tracking-[0.28em] text-textdark/50';
+                snapshot.summaryBadges.forEach((badgeText) => {
+                    const badge = document.createElement('span');
+                    badge.className = 'inline-flex items-center gap-2 rounded-full border border-white/10 px-3 py-1';
+                    badge.textContent = badgeText;
+                    footer.append(badge);
+                });
+                card.append(footer);
             }
 
-            card.append(content);
-            container.append(card);
-        });
-    }
-
-    function renderPeerDetails(container, networkMap) {
-        if (!container) {
-            return;
-        }
-
-        const orderedIds = ['raft-standard', 'raft-variant', 'fabric3-raft-standard', 'fabric3-raft-variant'];
-        const visibleIds = orderedIds.filter(id => networkMap.has(id));
-
-        if (!visibleIds.length) {
-            showPlaceholder(container, 'Data peer jaringan tidak ditemukan.', 'empty');
-            return;
-        }
-
-        clearContainer(container);
-
-        visibleIds.forEach((id) => {
-            const description = networkMap.get(id);
-            const meta = NETWORK_META[id] || {};
-            const peers = Array.isArray(description?.peers) ? description.peers : [];
-
-            const card = document.createElement('article');
-            card.className = 'flex h-full flex-col gap-5 rounded-3xl border border-white/10 bg-surface/85 p-6 text-sm text-textdark/80 shadow-2xl shadow-black/30 backdrop-blur-sm';
-
-            const header = document.createElement('div');
-            header.className = 'space-y-2';
-
-            const scopeBadge = document.createElement('span');
-            scopeBadge.className = `inline-flex w-fit items-center gap-2 rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] ${meta.badgeClass || 'border-white/10 bg-white/5 text-textdark/60'}`;
-            scopeBadge.textContent = meta.title || description?.label || 'Paket RAFT';
-
-            const subtitle = document.createElement('p');
-            subtitle.className = 'text-xs text-textdark/60';
-            subtitle.textContent = peers.length
-                ? `${peers.length} peer ditemukan dalam konfigurasi.`
-                : 'Tidak ada peer yang terdeteksi untuk paket ini.';
-
-            header.append(scopeBadge, subtitle);
-            card.append(header);
-
-            if (!peers.length) {
+            if (!snapshot.hasData) {
                 const emptyState = document.createElement('div');
-                emptyState.className = 'rounded-2xl border border-white/10 bg-surfaceMuted/60 p-4 text-sm text-textdark/60';
-                emptyState.textContent = 'Berkas konfigurasi tidak memuat definisi peer untuk paket ini atau gagal dibaca.';
+                emptyState.className = 'rounded-2xl border border-dashed border-white/15 bg-surfaceMuted/40 p-4 text-xs text-textdark/60';
+                emptyState.textContent = 'Belum ada hasil simulasi yang tercatat untuk paket ini. Jalankan skenario pengujian untuk melihat perbandingan metrik.';
                 card.append(emptyState);
-                container.append(card);
-                return;
             }
 
-            const list = document.createElement('ul');
-            list.className = 'space-y-4';
-
-            peers.forEach((peer) => {
-                const listItem = document.createElement('li');
-                listItem.className = 'space-y-3 rounded-2xl border border-white/10 bg-surfaceMuted/60 p-4';
-
-                const titleRow = document.createElement('div');
-                titleRow.className = 'flex flex-wrap items-center justify-between gap-3';
-
-                const name = document.createElement('p');
-                name.className = 'text-sm font-semibold text-textdark';
-                name.textContent = peer?.serviceName || peer?.containerName || 'Peer';
-
-                const mspBadge = document.createElement('span');
-                mspBadge.className = 'inline-flex items-center gap-2 rounded-full border border-white/10 px-3 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.3em] text-textdark/50';
-                mspBadge.textContent = peer?.mspId || 'MSP tidak tersedia';
-
-                titleRow.append(name, mspBadge);
-                listItem.append(titleRow);
-
-                const detailsGrid = document.createElement('div');
-                detailsGrid.className = 'grid gap-3 sm:grid-cols-2';
-
-                appendDetailBlock(detailsGrid, 'Container', [peer?.containerName || '—']);
-                appendDetailBlock(detailsGrid, 'TLS', [peer?.tlsEnabled ? 'Aktif' : 'Nonaktif']);
-                appendDetailBlock(detailsGrid, 'Alamat Peer', buildEndpointLines(peer?.listenAddress, peer?.listenPort, peer?.listenMapping));
-                appendDetailBlock(detailsGrid, 'Alamat Chaincode', buildEndpointLines(peer?.chaincodeAddress, peer?.chaincodePort, peer?.chaincodeMapping));
-                appendDetailBlock(detailsGrid, 'Endpoint Operasi', buildEndpointLines(peer?.operationsAddress, peer?.operationsMapping?.container, peer?.operationsMapping));
-                appendDetailBlock(detailsGrid, 'Gossip', [peer?.gossipBootstrap || peer?.gossipEndpoint || '—']);
-                appendDetailBlock(detailsGrid, 'Image', [peer?.image || '—']);
-
-                listItem.append(detailsGrid);
-                list.append(listItem);
-            });
-
-            card.append(list);
             container.append(card);
         });
     }
 
-    async function fetchComparisonData() {
-        try {
-            const response = await fetch('/api/fabric-descriptions', {
-                headers: {
-                    Accept: 'application/json',
-                },
-            });
+    function buildMetricInsights(networkSnapshots, overallSnapshot) {
+        const insights = [];
+        const activeSnapshots = networkSnapshots.filter(item => item.snapshot?.hasData);
 
-            if (!response.ok) {
-                throw new Error(`Gagal memuat data perbandingan (status ${response.status})`);
+        if (overallSnapshot && (overallSnapshot.hasData || Object.values(overallSnapshot.metrics).some(metric => metric.value !== null))) {
+            if (Number.isFinite(overallSnapshot.successRate) && overallSnapshot.totalCount > 0) {
+                const successRateLabel = formatPercentage(overallSnapshot.successRate, { fraction: true, decimals: 1 });
+                insights.push({
+                    tone: overallSnapshot.successRate >= 0.9 ? 'positive' : 'neutral',
+                    title: 'Tingkat keberhasilan kumulatif',
+                    detail: `Seluruh simulasi mencatat ${successRateLabel} keberhasilan dari ${formatInteger(overallSnapshot.totalCount)} transaksi.`,
+                    action: overallSnapshot.failureCount > 0
+                        ? 'Periksa log transaksi yang gagal untuk menilai dampak terhadap fault tolerance.'
+                        : undefined,
+                });
+            }
+        }
+
+        const throughputLeaders = activeSnapshots.filter(item => Number.isFinite(item.snapshot.metrics.throughput.value) && item.snapshot.metrics.throughput.value > 0);
+        if (throughputLeaders.length) {
+            const leader = throughputLeaders.reduce((prev, current) => (
+                current.snapshot.metrics.throughput.value > prev.snapshot.metrics.throughput.value ? current : prev
+            ));
+            insights.push({
+                tone: 'positive',
+                title: `${leader.meta.title} memimpin throughput`,
+                detail: `Rata-rata ${leader.snapshot.metrics.throughput.display} dengan ${formatInteger(leader.snapshot.successCount)} transaksi berhasil.`,
+                action: 'Pertahankan beban simulasi untuk memvalidasi konsistensi performa.',
+            });
+        }
+
+        const latencyCandidates = activeSnapshots.filter(item => Number.isFinite(item.snapshot.metrics.latency.value) && item.snapshot.metrics.latency.value > 0);
+        if (latencyCandidates.length) {
+            const fastest = latencyCandidates.reduce((prev, current) => (
+                current.snapshot.metrics.latency.value < prev.snapshot.metrics.latency.value ? current : prev
+            ));
+            insights.push({
+                tone: 'positive',
+                title: `${fastest.meta.title} paling responsif`,
+                detail: `Rata-rata latensi ${fastest.snapshot.metrics.latency.display}, menunjukkan jalur komit RAFT yang efisien.`,
+            });
+        }
+
+        const resourceWarnings = activeSnapshots
+            .filter(item => Number.isFinite(item.snapshot.metrics.resourceUsage.value))
+            .sort((a, b) => b.snapshot.metrics.resourceUsage.value - a.snapshot.metrics.resourceUsage.value);
+        if (resourceWarnings.length) {
+            const highest = resourceWarnings[0];
+            if (highest.snapshot.metrics.resourceUsage.value >= 80) {
+                insights.push({
+                    tone: 'warning',
+                    title: `${highest.meta.title} mendekati batas sumber daya`,
+                    detail: `Perkiraan pemanfaatan ${highest.snapshot.metrics.resourceUsage.display}. Monitor CPU, memori, dan IO orderer selama failover.`,
+                    action: 'Pertimbangkan penyesuaian resource limit atau penjadwalan ulang simulasi.',
+                });
+            } else if (highest.snapshot.metrics.resourceUsage.value >= 60) {
+                insights.push({
+                    tone: 'caution',
+                    title: `${highest.meta.title} menunjukkan beban moderat`,
+                    detail: `Resource usage sekitar ${highest.snapshot.metrics.resourceUsage.display}.`,
+                    action: 'Gunakan profil beban berat untuk melihat batas ketahanan RAFT.',
+                });
+            }
+        }
+
+        const toleranceConcerns = activeSnapshots.filter(item => Number.isFinite(item.snapshot.metrics.faultTolerance.value) && item.snapshot.metrics.faultTolerance.value < 75);
+        if (toleranceConcerns.length) {
+            toleranceConcerns.forEach((item) => {
+                insights.push({
+                    tone: 'warning',
+                    title: `${item.meta.title} perlu uji failover`,
+                    detail: `Skor fault tolerance ${item.snapshot.metrics.faultTolerance.display}. ${item.snapshot.metrics.faultTolerance.insight}`,
+                    action: 'Simulasikan penghentian orderer pemimpin untuk memastikan proses pemulihan berjalan baik.',
+                });
+            });
+        } else if (activeSnapshots.length) {
+            const strongest = activeSnapshots.reduce((prev, current) => (
+                (current.snapshot.metrics.faultTolerance.value || 0) > (prev.snapshot.metrics.faultTolerance.value || 0) ? current : prev
+            ));
+            if (Number.isFinite(strongest.snapshot.metrics.faultTolerance.value)) {
+                insights.push({
+                    tone: 'positive',
+                    title: `${strongest.meta.title} paling tangguh`,
+                    detail: `Skor ketahanan ${strongest.snapshot.metrics.faultTolerance.display}.`,
+                });
+            }
+        }
+
+        const missingData = networkSnapshots.filter(item => !item.snapshot.hasData);
+        if (missingData.length) {
+            insights.push({
+                tone: 'neutral',
+                title: 'Lengkapi sampel simulasi',
+                detail: `Belum ada data untuk ${missingData.map(item => item.meta.title).join(', ')}. Jalankan simulasi agar metrik empat pilar tampil lengkap.`,
+            });
+        }
+
+        return insights;
+    }
+
+    function renderMetricInsights(container, insights) {
+        if (!container) {
+            return;
+        }
+
+        if (!Array.isArray(insights) || insights.length === 0) {
+            showPlaceholder(container, 'Insight akan muncul setelah simulasi dijalankan.', 'empty');
+            return;
+        }
+
+        clearContainer(container);
+
+        insights.forEach((insight) => {
+            const toneClass = INSIGHT_TONE_CLASSES[insight.tone] || INSIGHT_TONE_CLASSES.neutral;
+
+            const article = document.createElement('article');
+            article.className = `space-y-2 rounded-3xl border p-6 text-sm shadow-inner shadow-black/25 ${toneClass}`;
+
+            const title = document.createElement('h3');
+            title.className = 'text-sm font-semibold uppercase tracking-[0.3em]';
+            title.textContent = insight.title;
+
+            const detail = document.createElement('p');
+            detail.className = 'text-sm';
+            detail.textContent = insight.detail;
+
+            article.append(title, detail);
+
+            if (insight.action) {
+                const action = document.createElement('p');
+                action.className = 'text-xs uppercase tracking-[0.28em] opacity-80';
+                action.textContent = insight.action;
+                article.append(action);
             }
 
-            const payload = await response.json();
-            return payload;
-        } catch (error) {
-            console.error('Gagal mengambil data perbandingan jaringan:', error);
-            throw error;
+            container.append(article);
+        });
+    }
+
+    async function fetchSimulationSummary() {
+        const response = await fetch('/api/simulations/summary', {
+            headers: {
+                Accept: 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(`Gagal memuat ringkasan simulasi (status ${response.status})`);
         }
+
+        return response.json();
     }
 
     async function initializeComparison() {
         try {
-            const data = await fetchComparisonData();
-            const descriptions = Array.isArray(data?.descriptions) ? data.descriptions : [];
+            const data = await fetchSimulationSummary();
 
-            if (!descriptions.length) {
-                showPlaceholder(summaryGrid, 'Deskripsi jaringan kosong.', 'empty');
-                showPlaceholder(comparisonSummary, 'Deskripsi jaringan kosong.', 'empty');
-                showPlaceholder(ordererComparison, 'Deskripsi jaringan kosong.', 'empty');
-                showPlaceholder(peerComparison, 'Deskripsi jaringan kosong.', 'empty');
-                return;
-            }
+            const overallSnapshot = buildMetricSnapshot(data?.overall || null);
+            renderOverallMetrics(overallMetricsContainer, overallSnapshot);
 
-            const networkMap = new Map();
-            descriptions.forEach((description) => {
-                if (description?.id) {
-                    networkMap.set(description.id, description);
+            const descriptions = Array.isArray(data?.networks) ? data.networks : [];
+            const recordsMap = new Map();
+            const usedEntries = new Set();
+
+            descriptions.forEach((entry) => {
+                if (!entry || typeof entry !== 'object') {
+                    return;
+                }
+
+                const slug = entry.slug;
+                const id = entry.id;
+
+                if (slug) {
+                    recordsMap.set(slug, entry);
+                }
+                if (id) {
+                    recordsMap.set(id, entry);
                 }
             });
 
-            renderNetworkOverview(summaryGrid, networkMap);
-            renderComparisonTables(comparisonSummary, networkMap);
-            renderOrdererDetails(ordererComparison, networkMap);
-            renderPeerDetails(peerComparison, networkMap);
+            const orderedEntries = NETWORK_ORDER.map((key) => {
+                const stats = recordsMap.get(key) || null;
+                if (stats) {
+                    usedEntries.add(stats);
+                }
+                return { key, stats };
+            });
+
+            descriptions.forEach((entry) => {
+                if (!usedEntries.has(entry)) {
+                    const fallbackKey = entry.slug || entry.id || `network-${orderedEntries.length}`;
+                    orderedEntries.push({ key: fallbackKey, stats: entry });
+                    usedEntries.add(entry);
+                }
+            });
+
+            const networkSnapshots = orderedEntries.map(({ key, stats }) => {
+                const snapshot = buildMetricSnapshot(stats);
+                const meta = resolveNetworkMeta(key, stats, snapshot);
+                return { key, stats, snapshot, meta };
+            });
+
+            renderNetworkMetrics(networkMetricsContainer, networkSnapshots);
+
+            const insights = buildMetricInsights(networkSnapshots, overallSnapshot);
+            renderMetricInsights(metricInsightsContainer, insights);
 
             if (updatedAtEl) {
-                const label = formatTimestampLabel(data?.fetchedAt);
-                updatedAtEl.textContent = label || '';
+                const timestampLabel = formatTimestampLabel(data?.updatedAt || data?.fetchedAt);
+                updatedAtEl.textContent = timestampLabel || '';
             }
         } catch (error) {
-            const message = error instanceof Error ? error.message : 'Gagal memuat data perbandingan jaringan.';
-            showPlaceholder(summaryGrid, message, 'error');
-            showPlaceholder(comparisonSummary, message, 'error');
-            showPlaceholder(ordererComparison, message, 'error');
-            showPlaceholder(peerComparison, message, 'error');
+            console.error('Gagal memuat ringkasan perbandingan jaringan:', error);
+            const message = error instanceof Error ? error.message : 'Gagal memuat ringkasan perbandingan jaringan.';
+
+            showPlaceholder(overallMetricsContainer, message, 'error');
+            showPlaceholder(networkMetricsContainer, message, 'error');
+            showPlaceholder(metricInsightsContainer, message, 'error');
 
             if (updatedAtEl) {
                 updatedAtEl.textContent = '';

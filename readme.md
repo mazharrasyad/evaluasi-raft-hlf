@@ -1,88 +1,101 @@
 # Evaluasi Hyperledger Fabric RAFT
 
-Repositori ini berisi dua set sumber daya untuk mengevaluasi konsensus RAFT pada Hyperledger Fabric:
+Repositori ini menyiapkan empat paket lengkap untuk mengevaluasi konsensus RAFT pada Hyperledger Fabric:
 
-- **fabric-2/raft-standard** – konfigurasi dan artefak standar sesuai dokumentasi resmi Hyperledger Fabric.
-- **fabric-2/raft-variant** – variasi konfigurasi yang memungkinkan eksperimen terhadap parameter jaringan dan komponen tertentu.
-- **fabric-3/raft-standard** – pembaruan baseline untuk Fabric v3 yang mempertahankan pola direktori v2 sekaligus membawa default terbaru dari skrip `test-network` resmi.
+- `fabric-2/raft-standard` – baseline Fabric v2 mengikuti pola `test-network` resmi.
+- `fabric-2/raft-variant` – varian Fabric v2 dengan parameter operasi yang dimodifikasi untuk eksplorasi lanjutan.
+- `fabric-3/raft-standard` – baseline Fabric v3 dengan artefak terbaru dan struktur serupa versi 2.
+- `fabric-3/raft-variant` – varian Fabric v3 yang memisahkan penamaan jaringan, port, dan konfigurasi kanal agar dapat berjalan paralel dengan paket standar.
 
-Selain dua paket utama tersebut, terdapat direktori pendukung untuk skrip utilitas dan antarmuka web.
+Direktori `web/` melengkapi paket di atas dengan antarmuka sederhana untuk memeriksa jaringan yang sedang berjalan.
 
 ## Struktur Direktori
 
 ```
 .
-├── bin/
 ├── fabric-2/
 │   ├── raft-standard/
+│   │   ├── bin/
 │   │   ├── chaincode/
 │   │   ├── config/
+│   │   ├── env.sh
 │   │   └── network/
 │   └── raft-variant/
+│       ├── bin/
 │       ├── chaincode/
 │       ├── config/
+│       ├── env.sh
 │       └── network/
 ├── fabric-3/
-│   └── raft-standard/
+│   ├── raft-standard/
+│   │   ├── bin/
+│   │   ├── chaincode/
+│   │   ├── config/
+│   │   ├── env.sh
+│   │   └── network/
+│   └── raft-variant/
+│       ├── bin/
 │       ├── chaincode/
 │       ├── config/
+│       ├── env.sh
 │       └── network/
-└── web/
+├── web/
+└── readme.md
 ```
 
-### Direktori Pendukung
-- **bin/** – berisi binary CLI Hyperledger Fabric yang dibutuhkan oleh kedua skenario RAFT.
-- **web/** – modul antarmuka web untuk memantau atau mengelola jaringan percobaan.
+Setiap paket Fabric berisi utilitas `env.sh` yang menambahkan `bin/` ke `PATH`, menetapkan `FABRIC_CFG_PATH` ke folder `config/`, dan mengatur `COMPOSE_PROJECT_NAME` agar stack Docker tidak saling bertabrakan.
 
-## RAFT Standard
-Direktori `fabric-2/raft-standard/` menyediakan baseline jaringan Fabric dengan konsensus RAFT standar. Komponennya terdiri dari:
+## Ringkasan Paket
 
-- **chaincode/** – contoh chaincode yang digunakan dalam jaringan standar.
-- **config/** – contoh profil konfigurasi `configtx` dan parameter kanal bawaan.
-- **network/** – skrip dan template docker-compose untuk memulai jaringan standar, termasuk:
-  - `network.sh`, `monitordocker.sh`, dan folder `scripts/` untuk orkestrasi jaringan.
-  - folder `organizations/` dan `configtx/` untuk artefak MSP serta konfigurasi genesis.
-  - dukungan monitoring (folder `prometheus-grafana/`) dan dokumentasi tambahan.
-  - berkas `network.config` dengan parameter default seperti nama kanal (`fabric2-channel-standard`).
+### Fabric 2 RAFT Standard
+- **Binari & konfigurasi**: memakai rilis Fabric v2.5.8 dan CA v1.5.10; seluruh artefak tersimpan di `bin/` dan `config/`.
+- **Chaincode**: contoh Node.js `pelaporan` dalam `chaincode/pelaporan/`.
+- **Network scripts**: `network/` menyertakan `network.sh`, `scripts/`, `organizations/`, `configtx/`, serta tooling pemantauan di `prometheus-grafana/`.
+- **Parameter default**: `network/network.config` menyiapkan `CHANNEL_NAME=fabric2-channel-standard`, database `leveldb`, dan chaincode `pelaporan` sequence 1 dengan dukungan Chaincode-as-a-Service (`CCAAS_DOCKER_RUN=true`).
 
-Gunakan struktur ini ketika ingin mereplikasi perilaku RAFT sesuai praktik resmi Hyperledger Fabric.
+Paket ini mereplikasi alur standar dokumentasi Hyperledger Fabric untuk pengujian dasar RAFT pada v2.
 
-## Fabric 3 RAFT Standard
-Direktori `fabric-3/raft-standard/` menyajikan baseline terbaru berbasis Fabric v3 dengan struktur yang familiar:
+### Fabric 2 RAFT Variant
+- **Tujuan**: menyediakan baseline yang sama dengan paket standar namun dengan konfigurasi agresif untuk eksperimen (lebih banyak retry, delay lebih panjang, dan variasi komponen).
+- **Perbedaan utama**: `network.config` mengganti `CRYPTO` menjadi Certificate Authorities, default database `couchdb`, channel `fabric2-channel-variant`, chaincode `pelaporanVariant` dengan sequence otomatis, serta koleksi privat `collections_config.json`.
+- **Sarana eksperimen**: struktur `network/` identik sehingga mudah melakukan A/B testing, sementara nilai default memudahkan simulasi high-availability, endorsement policy kustom (`OR('Org1MSP.member','Org2MSP.member')`), dan penonaktifan CCAAS (`CCAAS_DOCKER_RUN=false`).
 
-- **bin/** – kumpulan binary CLI terbaru hasil distribusi Fabric v3. Pastikan direktori ini masuk ke dalam variabel `PATH` atau jalankan skrip `env.sh` di akar direktori untuk mengekspor `PATH`, `FABRIC_CFG_PATH`, dan `COMPOSE_PROJECT_NAME` secara otomatis.
-- **chaincode/** – contoh chaincode Node.js `pelaporan` yang dapat dijadikan baseline aplikasi saat menguji Fabric 3.
-- **config/** – templat konfigurasi `core.yaml`, `orderer.yaml`, dan artefak lain yang digunakan oleh jaringan v3.
-- **network/** – adaptasi skrip `test-network` resmi Fabric 3. Di dalamnya tersedia:
-  - `network.sh` dan `scripts/` untuk orkestrasi penuh jaringan RAFT dua organisasi dengan tiga orderer.
-  - `network.config` yang menyimpan parameter default seperti nama kanal (`channel-standard`), jalur chaincode (ubah dari default `../asset-transfer-basic/chaincode-go` ke `../chaincode/pelaporan` bila ingin memakai chaincode bawaan repo), serta opsi deployment seperti `deployCC` dan `deployCCAAS`.
-  - Dokumentasi `README.md` yang menjelaskan alur `up`, `createChannel`, hingga `deployCC`, serta dukungan `podman`.
+### Fabric 3 RAFT Standard
+- **Binari & konfigurasi**: memaketkan rilis Fabric v3.0 dan CA v2.0, lengkap dengan `env.sh` untuk menyiapkan lingkungan.
+- **Chaincode**: contoh Node.js `pelaporan` yang sama sehingga perbandingan lintas versi tetap konsisten.
+- **Network scripts**: adaptasi skrip resmi `test-network` v3 dengan dukungan BFT opsional (`./network.sh -bft`), monitoring (`prometheus-grafana/`), dan dokumentasi lanjutan di `network/README.md`.
+- **Parameter default**: channel `fabric3-channel-standard`, chaincode `pelaporanV3` sequence 1, dan opsi CCAAS aktif secara default.
 
-Paket ini dapat digunakan sebagai starting point ketika ingin membandingkan perilaku RAFT di Fabric 3 terhadap baseline Fabric 2 tanpa mengubah kebiasaan kerja tim.
+Paket ini menjadi dasar untuk memahami perubahan Fabric 3 tanpa meninggalkan pola kerja versi sebelumnya.
 
-## RAFT Variant
-Direktori `fabric-2/raft-variant/` memiliki struktur yang sama dengan paket standar agar mudah dibandingkan, namun isinya dioptimalkan untuk eksperimen atau penyesuaian lebih lanjut:
-
-- **chaincode/** – ruang untuk chaincode alternatif atau versi modifikasi yang digunakan dalam skenario uji.
-- **config/** – konfigurasi yang dapat diubah untuk mengevaluasi parameter RAFT (misalnya jumlah orderer, timeout, atau kanal khusus).
-- **network/** – salinan skrip jaringan dengan penyesuaian yang memudahkan perbandingan terhadap baseline, termasuk folder `configtx/`, `organizations/`, dan utilitas orkestrasi lainnya.
-  - berkas `network.config` dengan parameter default seperti nama kanal (`fabric2-channel-variant`).
-
-Variasi ini memudahkan Anda melakukan A/B testing terhadap perubahan pada layer konsensus maupun komponen jaringan lainnya tanpa mengubah baseline standar.
+### Fabric 3 RAFT Variant
+- **Fokus**: memungkinkan dua jaringan v3 berjalan bersamaan dengan memisahkan nama proyek Docker (`COMPOSE_PROJECT_NAME=raftvariant`) dan pemetaan port host.
+- **Parameter default**: `network.config` menggunakan channel `fabric3-channel-variant` dengan konfigurasi chaincode identik terhadap varian standar, sehingga perbedaan utama berada pada orkestrasi dan topologi.
+- **Port & penamaan**: dokumentasi `fabric-3/raft-variant/README.md` merinci penyesuaian port (mis. orderer 8255→8055, peer Org1 7353→7153) serta suffix jaringan `.fabric3.variant` agar tidak bertabrakan dengan paket `raft-standard`.
+- **Eksperimen lanjutan**: tetap mendukung opsi BFT dan CCAAS sehingga Anda dapat membandingkan perilaku RAFT terhadap baseline dengan cepat.
 
 ## Cara Menggunakan
-1. Pastikan binary pada direktori `bin/` sudah dapat dieksekusi di lingkungan Anda.
-2. Pilih skenario `fabric-2/raft-standard`, `fabric-2/raft-variant`, atau baseline terbaru `fabric-3/raft-standard`.
-3. Ubah konfigurasi yang diperlukan di dalam folder `config/` dan `network/` pada skenario tersebut.
-4. Jalankan skrip `network.sh` di masing-masing direktori `network/` untuk menyalakan atau mematikan jaringan uji.
-5. Setelah jaringan siap, jalankan pemeriksaan integrasi dengan perintah:
+1. Pilih paket yang ingin diuji (`fabric-2` atau `fabric-3`, `raft-standard` atau `raft-variant`) lalu muat lingkungan:
    ```bash
-   npm run check-network
+   cd fabric-3/raft-variant
+   source env.sh
    ```
-6. Untuk menguji antarmuka web, masuk ke direktori `web/` dan jalankan server pengembangan:
+2. Masuk ke `network/` dan gunakan `network.sh` untuk mengelola jaringan:
    ```bash
-   cd web
-   npm run src/app.js
+   cd network
+   ./network.sh up
+   ./network.sh createChannel
+   ./network.sh deployCC -ccn pelaporan -ccl node -ccp ../chaincode/pelaporan
+   ```
+   Sesuaikan parameter `-ccn` dengan nama chaincode default paket yang dipakai (misalnya `pelaporanVariant` untuk `fabric-2/raft-variant`).
+3. Ubah nilai di `network/network.config` sesuai kebutuhan (nama channel, jalur chaincode, opsi CCAAS, dsb.) kemudian jalankan ulang `network.sh` untuk menerapkan perubahan.
+4. Setelah pengujian selesai, hentikan jaringan dengan `./network.sh down`.
+5. Gunakan utilitas web untuk pemeriksaan tambahan:
+   ```bash
+   cd /workspace/web
+   npm install
+   npm run check-network
+   npm run app.js   # alias: npm run start
    ```
 
-Struktur yang sejajar antara standar dan variasi memungkinkan Anda melacak dampak perubahan secara terpisah, sehingga evaluasi terhadap performa atau ketahanan RAFT dapat dilakukan dengan lebih sistematis.
+Struktur yang sejajar antara setiap paket memudahkan Anda menilai dampak perubahan konfigurasi RAFT antar versi Fabric secara sistematis.

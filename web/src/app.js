@@ -1141,6 +1141,9 @@ const viewFiles = {
     comparison: path.resolve(viewsRoot, 'perbandingan-jaringan.html'),
     blockComparison: path.resolve(viewsRoot, 'perbandingan-blok.html'),
     simulationBroadcast: path.resolve(viewsRoot, 'simulasi-serentak.html'),
+    research: {
+        overview: path.resolve(viewsRoot, 'penelitian/gambaran-umum.html'),
+    },
     fabric2: {
         dashboard: path.resolve(viewsRoot, 'fabric-2/dashboard.html'),
         networkHealth: path.resolve(viewsRoot, 'fabric-2/kesehatan-jaringan.html'),
@@ -1201,6 +1204,10 @@ app.get('/perbandingan-blok', (req, res) => {
 
 app.get('/simulasi-serentak', (req, res) => {
     res.sendFile(viewFiles.simulationBroadcast);
+});
+
+app.get('/penelitian/gambaran-umum', (req, res) => {
+    res.sendFile(viewFiles.research.overview);
 });
 
 app.get('/dashboard', (req, res) => {

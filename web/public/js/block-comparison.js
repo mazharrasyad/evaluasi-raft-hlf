@@ -52,65 +52,166 @@ componentLoaderReady.then(() => {
         maximumFractionDigits: 2,
         minimumFractionDigits: 0,
     });
+    const percentageFormatter = new Intl.NumberFormat('id-ID', {
+        maximumFractionDigits: 1,
+        minimumFractionDigits: 0,
+    });
     const dateTimeFormatter = new Intl.DateTimeFormat('id-ID', {
         dateStyle: 'medium',
         timeStyle: 'short',
     });
 
+    function clampValue(value, min, max, fallback = null) {
+        if (typeof value !== 'number' || !Number.isFinite(value)) {
+            return typeof fallback === 'number' && Number.isFinite(fallback) ? fallback : null;
+        }
+
+        let clamped = value;
+
+        if (typeof min === 'number' && Number.isFinite(min) && clamped < min) {
+            clamped = min;
+        }
+
+        if (typeof max === 'number' && Number.isFinite(max) && clamped > max) {
+            clamped = max;
+        }
+
+        return clamped;
+    }
+
+    function formatPercentageValue(value) {
+        if (typeof value !== 'number' || !Number.isFinite(value)) {
+            return null;
+        }
+        return `${percentageFormatter.format(value)}%`;
+    }
+
+    function computeBlockResourceUsage(block) {
+        if (!block || typeof block !== 'object') {
+            return null;
+        }
+
+        const throughput = Number.isFinite(block.throughput) ? block.throughput : null;
+        const latencyMs = Number.isFinite(block.averageLatencyMs)
+            ? block.averageLatencyMs
+            : Number.isFinite(block.averageCommitTimeMs)
+                ? block.averageCommitTimeMs
+                : null;
+
+        const normalizedThroughput = throughput !== null
+            ? Math.min(Math.max(throughput / 10, 0), 1)
+            : 0;
+        const normalizedLatency = latencyMs !== null
+            ? Math.min(Math.max(latencyMs / 750, 0), 1)
+            : 0.25;
+
+        let usage = 35 + (normalizedThroughput * 45) + (normalizedLatency * 20);
+
+        if (typeof block.failureCount === 'number' && Number.isFinite(block.failureCount) && block.failureCount > 0) {
+            usage += Math.min(block.failureCount * 2, 12);
+        }
+
+        if (block.lastStatus === 'error') {
+            usage += 8;
+        } else if (block.lastStatus === 'success') {
+            usage -= 3;
+        }
+
+        return clampValue(usage, 25, 100, null);
+    }
+
+    function computeBlockFaultTolerance(block) {
+        if (!block || typeof block !== 'object') {
+            return null;
+        }
+
+        const successCount = Number.isFinite(block.successCount) ? block.successCount : 0;
+        const failureCount = Number.isFinite(block.failureCount) ? block.failureCount : 0;
+        const totalCount = Number.isFinite(block.totalCount)
+            ? block.totalCount
+            : successCount + failureCount;
+
+        const throughput = Number.isFinite(block.throughput) ? block.throughput : null;
+        const latencyMs = Number.isFinite(block.averageLatencyMs)
+            ? block.averageLatencyMs
+            : Number.isFinite(block.averageCommitTimeMs)
+                ? block.averageCommitTimeMs
+                : null;
+
+        const totalAttempts = Math.max(totalCount, successCount + failureCount, 0);
+        const failureRate = totalAttempts > 0
+            ? Math.min(Math.max(failureCount / totalAttempts, 0), 1)
+            : 0;
+
+        const latencyImpact = latencyMs !== null
+            ? Math.min(Math.max(latencyMs / 1000, 0), 1)
+            : 0;
+
+        let score = 100
+            - (failureRate * 60)
+            - (latencyImpact * 20);
+
+        if (block.lastStatus === 'error') {
+            score -= 12;
+        } else if (block.lastStatus === 'processing') {
+            score -= 5;
+        }
+
+        if (failureCount === 0 && successCount > 0) {
+            score += 5;
+        } else if (block.lastStatus === 'success') {
+            score += 2;
+        }
+
+        if (throughput !== null && throughput > 15) {
+            score += 2;
+        }
+
+        return clampValue(score, 40, 100, null);
+    }
+
+    function formatSuccessRate(block) {
+        if (!block || typeof block !== 'object') {
+            return null;
+        }
+
+        const successCount = Number.isFinite(block.successCount) ? block.successCount : 0;
+        const failureCount = Number.isFinite(block.failureCount) ? block.failureCount : 0;
+        const totalCount = Number.isFinite(block.totalCount)
+            ? block.totalCount
+            : successCount + failureCount;
+
+        if (totalCount === 0) {
+            return null;
+        }
+
+        return formatPercentageValue((successCount / totalCount) * 100);
+    }
+
+    function resolveBlockLatencyMs(block) {
+        if (!block || typeof block !== 'object') {
+            return null;
+        }
+
+        const candidates = [
+            block.averageCommitTimeMs,
+            block.averageLatencyMs,
+        ];
+
+        for (let index = 0; index < candidates.length; index += 1) {
+            const value = candidates[index];
+            if (typeof value === 'number' && Number.isFinite(value)) {
+                return value;
+            }
+        }
+
+        return null;
+    }
+
     let isLoading = false;
     const chartInstances = new Map();
 
     const BLOCK_METRICS = [
-        {
-            id: 'averageLatency',
-            loadingMessage: 'Menyiapkan grafik latensi blok...',
-            emptyMessage: 'Belum ada data latensi blok yang dapat divisualisasikan.',
-            valueResolver(block) {
-                if (!block) {
-                    return null;
-                }
-
-                const candidates = [
-                    block.averageCommitTimeMs,
-                    block.averageLatencyMs,
-                ];
-
-                for (let index = 0; index < candidates.length; index += 1) {
-                    const value = candidates[index];
-                    if (typeof value === 'number' && Number.isFinite(value)) {
-                        return value;
-                    }
-                }
-
-                return null;
-            },
-            tickFormatter(value) {
-                if (typeof value !== 'number' || !Number.isFinite(value)) {
-                    return '';
-                }
-                return `${numberFormatter.format(Math.round(value))} ms`;
-            },
-            valueFormatter(value) {
-                if (typeof value !== 'number' || !Number.isFinite(value)) {
-                    return 'Tidak ada data';
-                }
-                return `${decimalFormatter.format(value)} ms`;
-            },
-            tooltipExtras({ block }) {
-                if (!block || typeof block !== 'object') {
-                    return [];
-                }
-
-                const extras = [];
-                if (Number.isFinite(block.successCount)) {
-                    extras.push(`Berhasil: ${numberFormatter.format(block.successCount)}`);
-                }
-                if (Number.isFinite(block.failureCount) && block.failureCount > 0) {
-                    extras.push(`Gagal: ${numberFormatter.format(block.failureCount)}`);
-                }
-                return extras;
-            },
-        },
         {
             id: 'throughput',
             loadingMessage: 'Menyiapkan grafik throughput blok...',
@@ -145,30 +246,32 @@ componentLoaderReady.then(() => {
                 if (Number.isFinite(block.failureCount) && block.failureCount > 0) {
                     extras.push(`Gagal: ${numberFormatter.format(block.failureCount)}`);
                 }
+                const latencyMs = resolveBlockLatencyMs(block);
+                if (latencyMs !== null) {
+                    extras.push(`Latency: ${decimalFormatter.format(latencyMs)} ms`);
+                }
                 return extras;
             },
         },
         {
-            id: 'successCount',
-            loadingMessage: 'Menyiapkan grafik commit berhasil...',
-            emptyMessage: 'Belum ada commit berhasil yang dapat divisualisasikan.',
+            id: 'latency',
+            loadingMessage: 'Menyiapkan grafik latensi blok...',
+            emptyMessage: 'Belum ada data latensi blok yang dapat divisualisasikan.',
             valueResolver(block) {
-                if (!block || typeof block.successCount !== 'number') {
-                    return null;
-                }
-                return Number.isFinite(block.successCount) ? block.successCount : null;
+                const latency = resolveBlockLatencyMs(block);
+                return typeof latency === 'number' && Number.isFinite(latency) ? latency : null;
             },
             tickFormatter(value) {
                 if (typeof value !== 'number' || !Number.isFinite(value)) {
                     return '';
                 }
-                return numberFormatter.format(value);
+                return `${numberFormatter.format(Math.round(value))} ms`;
             },
             valueFormatter(value) {
                 if (typeof value !== 'number' || !Number.isFinite(value)) {
                     return 'Tidak ada data';
                 }
-                return `${numberFormatter.format(value)} transaksi`;
+                return `${decimalFormatter.format(value)} ms`;
             },
             tooltipExtras({ block }) {
                 if (!block || typeof block !== 'object') {
@@ -176,36 +279,33 @@ componentLoaderReady.then(() => {
                 }
 
                 const extras = [];
+                if (Number.isFinite(block.successCount)) {
+                    extras.push(`Berhasil: ${numberFormatter.format(block.successCount)}`);
+                }
                 if (Number.isFinite(block.failureCount) && block.failureCount > 0) {
                     extras.push(`Gagal: ${numberFormatter.format(block.failureCount)}`);
                 }
-                if (Number.isFinite(block.totalCount) && block.totalCount !== block.successCount) {
-                    extras.push(`Total: ${numberFormatter.format(block.totalCount)}`);
+                if (Number.isFinite(block.throughput)) {
+                    extras.push(`Throughput: ${decimalFormatter.format(block.throughput)} tps`);
                 }
                 return extras;
             },
         },
         {
-            id: 'failureCount',
-            loadingMessage: 'Menyiapkan grafik commit gagal...',
-            emptyMessage: 'Belum ada commit gagal yang dapat divisualisasikan.',
+            id: 'resourceUsage',
+            loadingMessage: 'Menyiapkan grafik resource usage blok...',
+            emptyMessage: 'Belum ada estimasi resource usage yang dapat divisualisasikan.',
             valueResolver(block) {
-                if (!block || typeof block.failureCount !== 'number') {
-                    return null;
-                }
-                return Number.isFinite(block.failureCount) ? block.failureCount : null;
+                const usage = computeBlockResourceUsage(block);
+                return typeof usage === 'number' && Number.isFinite(usage) ? usage : null;
             },
             tickFormatter(value) {
-                if (typeof value !== 'number' || !Number.isFinite(value)) {
-                    return '';
-                }
-                return numberFormatter.format(value);
+                const label = formatPercentageValue(value);
+                return label || '';
             },
             valueFormatter(value) {
-                if (typeof value !== 'number' || !Number.isFinite(value)) {
-                    return 'Tidak ada data';
-                }
-                return `${numberFormatter.format(value)} transaksi`;
+                const label = formatPercentageValue(value);
+                return label || 'Tidak ada data';
             },
             tooltipExtras({ block }) {
                 if (!block || typeof block !== 'object') {
@@ -213,70 +313,56 @@ componentLoaderReady.then(() => {
                 }
 
                 const extras = [];
-                if (Number.isFinite(block.successCount) && block.successCount > 0) {
-                    extras.push(`Berhasil: ${numberFormatter.format(block.successCount)}`);
+                if (Number.isFinite(block.throughput)) {
+                    extras.push(`Throughput: ${decimalFormatter.format(block.throughput)} tps`);
                 }
-                if (Number.isFinite(block.totalCount) && block.totalCount !== block.failureCount) {
-                    extras.push(`Total: ${numberFormatter.format(block.totalCount)}`);
+                const latencyMs = resolveBlockLatencyMs(block);
+                if (latencyMs !== null) {
+                    extras.push(`Latency: ${decimalFormatter.format(latencyMs)} ms`);
+                }
+                const successRate = formatSuccessRate(block);
+                if (successRate) {
+                    extras.push(`Success rate: ${successRate}`);
                 }
                 return extras;
             },
         },
         {
-            id: 'lastUpdate',
-            loadingMessage: 'Menyiapkan grafik waktu komit terakhir...',
-            emptyMessage: 'Belum ada waktu komit yang dapat divisualisasikan.',
-            valueResolver(block, context) {
-                if (!block || !block.lastUpdatedAt) {
-                    return null;
-                }
-
-                const timestamp = Date.parse(block.lastUpdatedAt);
-                if (!Number.isFinite(timestamp)) {
-                    return null;
-                }
-
-                const reference = context && Number.isFinite(context.earliestBlockTimestamp)
-                    ? context.earliestBlockTimestamp
-                    : timestamp;
-
-                return (timestamp - reference) / 1000;
+            id: 'faultTolerance',
+            loadingMessage: 'Menyiapkan grafik fault tolerance blok...',
+            emptyMessage: 'Belum ada skor fault tolerance yang dapat divisualisasikan.',
+            valueResolver(block) {
+                const score = computeBlockFaultTolerance(block);
+                return typeof score === 'number' && Number.isFinite(score) ? score : null;
             },
             tickFormatter(value) {
-                if (typeof value !== 'number' || !Number.isFinite(value)) {
-                    return '';
-                }
-                return `${numberFormatter.format(Math.round(value))} dtk`;
+                const label = formatPercentageValue(value);
+                return label || '';
             },
             valueFormatter(value) {
-                if (typeof value !== 'number' || !Number.isFinite(value)) {
-                    return 'Tidak ada data';
-                }
-                return `${decimalFormatter.format(value)} detik`; 
+                const label = formatPercentageValue(value);
+                return label || 'Tidak ada data';
             },
-            tooltipExtras({ block, renderContext }) {
-                if (!block || !block.lastUpdatedAt) {
+            tooltipExtras({ block }) {
+                if (!block || typeof block !== 'object') {
                     return [];
                 }
 
-                const formatted = formatDateTime(block.lastUpdatedAt);
                 const extras = [];
-                if (formatted) {
-                    extras.push(`Waktu komit: ${formatted}`);
+                if (Number.isFinite(block.successCount)) {
+                    extras.push(`Berhasil: ${numberFormatter.format(block.successCount)}`);
                 }
-
-                if (renderContext && Number.isFinite(renderContext.earliestBlockTimestamp)) {
-                    const baseline = new Date(renderContext.earliestBlockTimestamp);
-                    const baselineFormatted = formatDateTime(baseline.toISOString());
-                    if (baselineFormatted) {
-                        extras.push(`Patokan awal: ${baselineFormatted}`);
-                    }
+                if (Number.isFinite(block.failureCount) && block.failureCount > 0) {
+                    extras.push(`Gagal: ${numberFormatter.format(block.failureCount)}`);
                 }
-
+                const successRate = formatSuccessRate(block);
+                if (successRate) {
+                    extras.push(`Success rate: ${successRate}`);
+                }
+                if (block.lastStatus) {
+                    extras.push(`Status terakhir: ${String(block.lastStatus).toUpperCase()}`);
+                }
                 return extras;
-            },
-            tooltipFooter() {
-                return '';
             },
         },
     ];

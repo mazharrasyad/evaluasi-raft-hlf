@@ -1145,6 +1145,7 @@ const viewFiles = {
         overview: path.resolve(viewsRoot, 'penelitian/gambaran-umum.html'),
         environmentSetup: path.resolve(viewsRoot, 'penelitian/pembangunan-lingkungan-uji.html'),
         experimentDesign: path.resolve(viewsRoot, 'penelitian/rancangan-eksperimen.html'),
+        simulationExecution: path.resolve(viewsRoot, 'penelitian/pelaksanaan-simulasi.html'),
     },
     fabric2: {
         dashboard: path.resolve(viewsRoot, 'fabric-2/dashboard.html'),
@@ -1218,6 +1219,9 @@ app.get('/penelitian/pembangunan-lingkungan-uji', (req, res) => {
 
 app.get('/penelitian/rancangan-eksperimen', (req, res) => {
     res.sendFile(viewFiles.research.experimentDesign);
+});
+app.get('/penelitian/pelaksanaan-simulasi', (req, res) => {
+    res.sendFile(viewFiles.research.simulationExecution);
 });
 
 app.get('/dashboard', (req, res) => {

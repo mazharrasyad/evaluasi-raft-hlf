@@ -1,6 +1,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { parse as parseYaml } from 'yaml';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -42,6 +43,117 @@ const NETWORK_CONFIG_RELATIVE_PATH = 'network.config';
 const UTILS_SCRIPT_RELATIVE_PATH = 'scripts/utils.sh';
 
 const ARRAY_KEYS = new Set(['environment', 'ports', 'volumes', 'networks']);
+
+function parseConfigtxYaml(content) {
+    if (!content || typeof content !== 'string') {
+        return null;
+    }
+
+    try {
+        return parseYaml(content);
+    } catch {
+        return null;
+    }
+}
+
+function extractRaftConsenters(consenters) {
+    if (!Array.isArray(consenters)) {
+        return [];
+    }
+
+    return consenters.map(consenter => ({
+        host: consenter?.Host ?? null,
+        port: consenter?.Port ?? null,
+        clientTlsCert: consenter?.ClientTLSCert ?? null,
+        serverTlsCert: consenter?.ServerTLSCert ?? null,
+    }));
+}
+
+function extractRaftOptions(options) {
+    if (!options || typeof options !== 'object') {
+        return null;
+    }
+
+    return {
+        tickInterval: options.TickInterval ?? null,
+        electionTick: options.ElectionTick ?? null,
+        heartbeatTick: options.HeartbeatTick ?? null,
+        maxInflightBlocks: options.MaxInflightBlocks ?? null,
+        snapshotIntervalSize: options.SnapshotIntervalSize ?? null,
+    };
+}
+
+function selectChannelProfile(profiles) {
+    if (!profiles || typeof profiles !== 'object') {
+        return null;
+    }
+
+    if (profiles.ChannelUsingRaft && typeof profiles.ChannelUsingRaft === 'object') {
+        return profiles.ChannelUsingRaft;
+    }
+
+    const matchedProfile = Object.values(profiles).find(profile => (
+        profile?.Orderer?.OrdererType === 'etcdraft'
+    ));
+
+    return matchedProfile ?? null;
+}
+
+function extractRaftConfiguration(configtxDoc) {
+    if (!configtxDoc || typeof configtxDoc !== 'object') {
+        return null;
+    }
+
+    const ordererDefaults = configtxDoc.Orderer && typeof configtxDoc.Orderer === 'object'
+        ? configtxDoc.Orderer
+        : null;
+
+    const channelProfile = selectChannelProfile(configtxDoc.Profiles);
+    const profileOrderer = channelProfile?.Orderer && typeof channelProfile.Orderer === 'object'
+        ? channelProfile.Orderer
+        : null;
+
+    const resolvedOrderer = profileOrderer || ordererDefaults;
+
+    if (!resolvedOrderer) {
+        return null;
+    }
+
+    const batchSize = resolvedOrderer.BatchSize && typeof resolvedOrderer.BatchSize === 'object'
+        ? resolvedOrderer.BatchSize
+        : (ordererDefaults?.BatchSize && typeof ordererDefaults.BatchSize === 'object'
+            ? ordererDefaults.BatchSize
+            : null);
+
+    const etcdRaftSection = resolvedOrderer.EtcdRaft && typeof resolvedOrderer.EtcdRaft === 'object'
+        ? resolvedOrderer.EtcdRaft
+        : (ordererDefaults?.EtcdRaft && typeof ordererDefaults.EtcdRaft === 'object'
+            ? ordererDefaults.EtcdRaft
+            : null);
+
+    const ordererAddresses = Array.isArray(resolvedOrderer.Addresses)
+        ? resolvedOrderer.Addresses
+        : Array.isArray(ordererDefaults?.Addresses)
+            ? ordererDefaults.Addresses
+            : [];
+
+    return {
+        ordererType: resolvedOrderer.OrdererType ?? null,
+        addresses: ordererAddresses.filter(address => typeof address === 'string'),
+        batchTimeout: resolvedOrderer.BatchTimeout ?? ordererDefaults?.BatchTimeout ?? null,
+        batchSize: {
+            maxMessageCount: batchSize?.MaxMessageCount ?? null,
+            absoluteMaxBytes: batchSize?.AbsoluteMaxBytes ?? null,
+            preferredMaxBytes: batchSize?.PreferredMaxBytes ?? null,
+        },
+        etcdRaft: etcdRaftSection
+            ? {
+                consenters: extractRaftConsenters(etcdRaftSection.Consenters),
+                options: extractRaftOptions(etcdRaftSection.Options),
+            }
+            : null,
+    };
+}
 
 function splitKeyValue(text) {
     const separatorIndex = text.indexOf(':');
@@ -427,6 +539,11 @@ export async function loadFabricDescriptions() {
             const networkConfigContent = await fs.readFile(networkConfigPath, 'utf8');
             const configValues = parseKeyValueContent(networkConfigContent);
 
+            const configtxPath = path.resolve(source.root, 'configtx', 'configtx.yaml');
+            const configtxContent = await fs.readFile(configtxPath, 'utf8');
+            const configtxDoc = parseConfigtxYaml(configtxContent);
+            const raftConfiguration = extractRaftConfiguration(configtxDoc);
+
             const utilsScriptPath = path.resolve(source.root, UTILS_SCRIPT_RELATIVE_PATH);
             const versionDefaults = await extractVersionDefaults(utilsScriptPath);
 
@@ -450,6 +567,7 @@ export async function loadFabricDescriptions() {
                 },
                 orderer: ordererSummary,
                 peers: peerSummaries,
+                raft: raftConfiguration,
                 config: {
                     raw: configValues,
                 },

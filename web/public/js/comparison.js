@@ -6,6 +6,7 @@ componentLoaderReady.then(() => {
     const overallMetricsContainer = document.getElementById('overallMetricHighlights');
     const networkMetricsContainer = document.getElementById('networkMetricGrid');
     const metricInsightsContainer = document.getElementById('metricInsights');
+    const raftConfigContainer = document.getElementById('raftConfigComparison');
     const updatedAtEl = document.getElementById('comparisonUpdatedAt');
 
     const PLACEHOLDER_VARIANTS = {
@@ -44,6 +45,40 @@ componentLoaderReady.then(() => {
     const NETWORK_ORDER = [
         'fabric2-raft-standard',
         'fabric2-raft-variant',
+        'fabric3-raft-standard',
+        'fabric3-raft-variant',
+    ];
+
+    const RAFT_CONFIG_META = {
+        'raft-standard': {
+            title: 'Fabric 2 — RAFT Standard',
+            scopeLabel: 'Fabric 2',
+            variantLabel: 'RAFT Standard',
+            badgeClass: NETWORK_META['fabric2-raft-standard']?.badgeClass ?? 'border-secondary/40 bg-secondary/15 text-secondary/90',
+        },
+        'raft-variant': {
+            title: 'Fabric 2 — RAFT Variant',
+            scopeLabel: 'Fabric 2',
+            variantLabel: 'RAFT Variant',
+            badgeClass: NETWORK_META['fabric2-raft-variant']?.badgeClass ?? 'border-highlight/40 bg-highlight/15 text-highlight/90',
+        },
+        'fabric3-raft-standard': {
+            title: 'Fabric 3 — RAFT Standard',
+            scopeLabel: 'Fabric 3',
+            variantLabel: 'RAFT Standard',
+            badgeClass: NETWORK_META['fabric3-raft-standard']?.badgeClass ?? 'border-accent/40 bg-accent/15 text-accent/90',
+        },
+        'fabric3-raft-variant': {
+            title: 'Fabric 3 — RAFT Variant',
+            scopeLabel: 'Fabric 3',
+            variantLabel: 'RAFT Variant',
+            badgeClass: NETWORK_META['fabric3-raft-variant']?.badgeClass ?? 'border-primary/40 bg-primary/15 text-primary/90',
+        },
+    };
+
+    const RAFT_CONFIG_ORDER = [
+        'raft-standard',
+        'raft-variant',
         'fabric3-raft-standard',
         'fabric3-raft-variant',
     ];
@@ -235,6 +270,72 @@ componentLoaderReady.then(() => {
         return remainingMinutes
             ? `${hours}j ${remainingMinutes}m`
             : `${hours}j`;
+    }
+
+    function formatRaftValue(value, fallback = 'Tidak ditentukan') {
+        if (value === null || value === undefined) {
+            return fallback;
+        }
+
+        if (typeof value === 'number') {
+            return formatInteger(value);
+        }
+
+        if (typeof value === 'string') {
+            const trimmed = value.trim();
+            return trimmed ? trimmed : fallback;
+        }
+
+        return String(value);
+    }
+
+    function formatOrdererType(value) {
+        if (!value && value !== 0) {
+            return 'Tidak ditentukan';
+        }
+
+        const label = String(value).trim();
+        if (!label) {
+            return 'Tidak ditentukan';
+        }
+
+        const normalized = label.toLowerCase();
+        if (normalized === 'etcdraft' || normalized === 'etcd-raft' || normalized === 'etcd raft') {
+            return 'etcdraft (RAFT)';
+        }
+
+        return label;
+    }
+
+    function hasMeaningfulOptionValue(options) {
+        if (!options || typeof options !== 'object') {
+            return false;
+        }
+
+        return Object.values(options).some(value => value !== null && value !== undefined && value !== '');
+    }
+
+    function createDetailItem(label, value, fallback = 'Tidak ditentukan') {
+        const item = document.createElement('li');
+        item.className = 'flex flex-col gap-1';
+
+        const labelEl = document.createElement('span');
+        labelEl.className = 'text-[0.68rem] font-semibold uppercase tracking-[0.28em] text-textdark/60';
+        labelEl.textContent = label;
+
+        const valueEl = document.createElement('span');
+        valueEl.className = 'text-sm text-textdark';
+        valueEl.textContent = formatRaftValue(value, fallback);
+
+        item.append(labelEl, valueEl);
+        return item;
+    }
+
+    function createChip(label) {
+        const chip = document.createElement('span');
+        chip.className = 'inline-flex items-center gap-2 rounded-full border border-white/10 bg-surfaceMuted/60 px-3 py-1 text-xs text-textdark/70';
+        chip.textContent = label;
+        return chip;
     }
 
     function clampMetric(value, min, max, fallback = null) {
@@ -713,6 +814,206 @@ componentLoaderReady.then(() => {
         });
     }
 
+    function buildRaftConfigCard(meta, description) {
+        const card = document.createElement('article');
+        card.className = 'space-y-5 rounded-3xl border border-white/10 bg-surface/85 p-6 text-sm text-textdark/80 shadow-2xl shadow-black/30 backdrop-blur-sm';
+
+        const header = document.createElement('div');
+        header.className = 'flex flex-col gap-3 md:flex-row md:items-center md:justify-between';
+
+        const heading = document.createElement('div');
+        heading.className = 'space-y-2';
+
+        const scopeBadge = document.createElement('span');
+        scopeBadge.className = `inline-flex w-fit items-center gap-2 rounded-full border px-3 py-1 text-[0.68rem] font-semibold uppercase tracking-[0.3em] ${meta.badgeClass || 'border-white/10 bg-white/5 text-textdark/60'}`;
+        scopeBadge.textContent = meta.scopeLabel ?? 'Jaringan';
+
+        const title = document.createElement('h3');
+        title.className = 'text-lg font-semibold text-textdark';
+        title.textContent = meta.title ?? 'Konfigurasi RAFT';
+
+        const subtitle = document.createElement('p');
+        subtitle.className = 'text-xs text-textdark/60';
+        subtitle.textContent = meta.variantLabel ?? '';
+
+        heading.append(scopeBadge, title, subtitle);
+
+        let statusLabel;
+        let statusClass;
+
+        if (description?.error) {
+            statusLabel = 'Gagal dibaca';
+            statusClass = 'border-rose-400/40 bg-rose-500/10 text-rose-100';
+        } else if (!description?.raft) {
+            statusLabel = 'Data belum tersedia';
+            statusClass = 'border-white/15 bg-white/5 text-textdark/50';
+        } else {
+            statusLabel = 'Konfigurasi tersedia';
+            statusClass = 'border-emerald-400/30 bg-emerald-400/10 text-emerald-50';
+        }
+
+        const statusBadge = document.createElement('span');
+        statusBadge.className = `inline-flex w-fit items-center gap-2 rounded-full border px-3 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.3em] ${statusClass}`;
+        statusBadge.textContent = statusLabel;
+
+        header.append(heading, statusBadge);
+        card.append(header);
+
+        if (description?.error) {
+            const errorBox = document.createElement('div');
+            errorBox.className = 'rounded-2xl border border-rose-400/40 bg-rose-500/10 p-4 text-xs text-rose-100';
+            errorBox.textContent = description.error;
+            card.append(errorBox);
+            return card;
+        }
+
+        if (!description || !description.raft) {
+            const emptyState = document.createElement('div');
+            emptyState.className = 'rounded-2xl border border-dashed border-white/15 bg-surfaceMuted/40 p-4 text-xs text-textdark/60';
+            emptyState.textContent = 'Detail konfigurasi belum ditemukan untuk paket ini.';
+            card.append(emptyState);
+            return card;
+        }
+
+        const raft = description.raft;
+        const consenterList = Array.isArray(raft?.etcdRaft?.consenters)
+            ? raft.etcdRaft.consenters
+            : [];
+        const consenterCount = consenterList.length;
+
+        const grid = document.createElement('div');
+        grid.className = 'grid gap-4 md:grid-cols-2';
+
+        const batchingSection = document.createElement('section');
+        batchingSection.className = 'space-y-3 rounded-2xl border border-white/10 bg-surfaceMuted/60 p-4';
+
+        const batchingTitle = document.createElement('h4');
+        batchingTitle.className = 'text-sm font-semibold uppercase tracking-[0.28em] text-primary/80';
+        batchingTitle.textContent = 'Parameter Batching';
+
+        const batchingList = document.createElement('ul');
+        batchingList.className = 'space-y-3';
+        batchingList.append(
+            createDetailItem('Batch Timeout', raft.batchTimeout),
+            createDetailItem('Max Message Count', raft.batchSize?.maxMessageCount),
+            createDetailItem('Preferred Max Bytes', raft.batchSize?.preferredMaxBytes),
+            createDetailItem('Absolute Max Bytes', raft.batchSize?.absoluteMaxBytes),
+        );
+
+        batchingSection.append(batchingTitle, batchingList);
+        grid.append(batchingSection);
+
+        const topologySection = document.createElement('section');
+        topologySection.className = 'space-y-3 rounded-2xl border border-white/10 bg-surfaceMuted/60 p-4';
+
+        const topologyTitle = document.createElement('h4');
+        topologyTitle.className = 'text-sm font-semibold uppercase tracking-[0.28em] text-primary/80';
+        topologyTitle.textContent = 'Topologi Konsensus';
+
+        const topologyList = document.createElement('ul');
+        topologyList.className = 'space-y-3';
+        topologyList.append(
+            createDetailItem('Tipe Orderer', formatOrdererType(raft.ordererType)),
+            createDetailItem('Jumlah Consenter', consenterCount > 0 ? `${formatInteger(consenterCount)} node` : null, 'Tidak ada consenter'),
+        );
+
+        topologySection.append(topologyTitle, topologyList);
+
+        if (Array.isArray(raft.addresses) && raft.addresses.length) {
+            const addressesLabel = document.createElement('p');
+            addressesLabel.className = 'text-[0.68rem] font-semibold uppercase tracking-[0.28em] text-textdark/60';
+            addressesLabel.textContent = 'Alamat Orderer';
+
+            const addressChips = document.createElement('div');
+            addressChips.className = 'flex flex-wrap gap-2';
+            raft.addresses.forEach(address => {
+                addressChips.append(createChip(formatRaftValue(address)));
+            });
+
+            topologySection.append(addressesLabel, addressChips);
+        }
+
+        if (consenterCount > 0) {
+            const consentersLabel = document.createElement('p');
+            consentersLabel.className = 'text-[0.68rem] font-semibold uppercase tracking-[0.28em] text-textdark/60';
+            consentersLabel.textContent = 'Daftar Consenter';
+
+            const consentersChips = document.createElement('div');
+            consentersChips.className = 'flex flex-wrap gap-2';
+            consenterList.forEach(consenter => {
+                const hostLabel = formatRaftValue(consenter?.host, 'Host tidak diketahui');
+                const portLabel = consenter?.port !== null && consenter?.port !== undefined
+                    ? `:${consenter.port}`
+                    : '';
+                consentersChips.append(createChip(`${hostLabel}${portLabel}`));
+            });
+
+            topologySection.append(consentersLabel, consentersChips);
+        }
+
+        grid.append(topologySection);
+
+        const raftOptions = raft?.etcdRaft?.options;
+        if (hasMeaningfulOptionValue(raftOptions)) {
+            const optionsSection = document.createElement('section');
+            optionsSection.className = 'space-y-3 rounded-2xl border border-white/10 bg-surfaceMuted/60 p-4 md:col-span-2';
+
+            const optionsTitle = document.createElement('h4');
+            optionsTitle.className = 'text-sm font-semibold uppercase tracking-[0.28em] text-primary/80';
+            optionsTitle.textContent = 'Parameter Waktu Raft';
+
+            const optionsList = document.createElement('ul');
+            optionsList.className = 'grid gap-3 sm:grid-cols-2';
+            optionsList.append(
+                createDetailItem('Tick Interval', raftOptions?.tickInterval),
+                createDetailItem('Election Tick', raftOptions?.electionTick),
+                createDetailItem('Heartbeat Tick', raftOptions?.heartbeatTick),
+                createDetailItem('Max Inflight Blocks', raftOptions?.maxInflightBlocks),
+                createDetailItem('Snapshot Interval Size', raftOptions?.snapshotIntervalSize),
+            );
+
+            optionsSection.append(optionsTitle, optionsList);
+            grid.append(optionsSection);
+        }
+
+        card.append(grid);
+        return card;
+    }
+
+    function renderRaftConfigComparison(container, descriptions) {
+        if (!container) {
+            return;
+        }
+
+        if (!Array.isArray(descriptions) || descriptions.length === 0) {
+            showPlaceholder(container, 'Detail konfigurasi RAFT belum tersedia.', 'empty');
+            return;
+        }
+
+        const descriptionMap = new Map();
+        descriptions.forEach(description => {
+            if (description?.id) {
+                descriptionMap.set(description.id, description);
+            }
+        });
+
+        clearContainer(container);
+
+        RAFT_CONFIG_ORDER.forEach((id) => {
+            const description = descriptionMap.get(id) || null;
+            const metaBase = RAFT_CONFIG_META[id] || {};
+            const meta = {
+                title: metaBase.title ?? description?.label ?? 'Konfigurasi RAFT',
+                scopeLabel: metaBase.scopeLabel ?? 'Jaringan',
+                variantLabel: metaBase.variantLabel ?? (description?.label ?? ''),
+                badgeClass: metaBase.badgeClass ?? 'border-white/10 bg-white/5 text-textdark/60',
+            };
+
+            const card = buildRaftConfigCard(meta, description);
+            container.append(card);
+        });
+    }
+
     function buildMetricInsights(networkSnapshots, overallSnapshot) {
         const insights = [];
         const activeSnapshots = networkSnapshots.filter(item => item.snapshot?.hasData);
@@ -866,9 +1167,31 @@ componentLoaderReady.then(() => {
         return response.json();
     }
 
+    async function fetchFabricDescriptions() {
+        const response = await fetch('/api/fabric-descriptions', {
+            headers: {
+                Accept: 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(`Gagal memuat detail konfigurasi Fabric (status ${response.status})`);
+        }
+
+        const payload = await response.json();
+        return Array.isArray(payload?.descriptions) ? payload.descriptions : [];
+    }
+
     async function initializeComparison() {
         try {
+            const fabricDescriptionsPromise = raftConfigContainer
+                ? fetchFabricDescriptions()
+                    .then(descriptions => ({ descriptions, error: null }))
+                    .catch(error => ({ descriptions: [], error }))
+                : Promise.resolve({ descriptions: [], error: null });
+
             const data = await fetchSimulationSummary();
+            const { descriptions: fabricDescriptions, error: fabricDescriptionsError } = await fabricDescriptionsPromise;
 
             const overallSnapshot = buildMetricSnapshot(data?.overall || null);
             renderOverallMetrics(overallMetricsContainer, overallSnapshot);
@@ -920,6 +1243,17 @@ componentLoaderReady.then(() => {
             const insights = buildMetricInsights(networkSnapshots, overallSnapshot);
             renderMetricInsights(metricInsightsContainer, insights);
 
+            if (raftConfigContainer) {
+                if (fabricDescriptionsError) {
+                    const message = fabricDescriptionsError instanceof Error
+                        ? fabricDescriptionsError.message
+                        : String(fabricDescriptionsError);
+                    showPlaceholder(raftConfigContainer, `Gagal memuat konfigurasi RAFT (${message})`, 'error');
+                } else {
+                    renderRaftConfigComparison(raftConfigContainer, fabricDescriptions);
+                }
+            }
+
             if (updatedAtEl) {
                 const timestampLabel = formatTimestampLabel(data?.updatedAt || data?.fetchedAt);
                 updatedAtEl.textContent = timestampLabel || '';
@@ -931,6 +1265,7 @@ componentLoaderReady.then(() => {
             showPlaceholder(overallMetricsContainer, message, 'error');
             showPlaceholder(networkMetricsContainer, message, 'error');
             showPlaceholder(metricInsightsContainer, message, 'error');
+            showPlaceholder(raftConfigContainer, message, 'error');
 
             if (updatedAtEl) {
                 updatedAtEl.textContent = '';

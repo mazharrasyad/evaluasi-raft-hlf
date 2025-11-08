@@ -5,17 +5,27 @@ const DEFAULT_MESSAGES = {
     restart: 'Belum ada perintah restart yang dijalankan.',
 };
 
-const STATUS_BASE_CLASS = 'rounded-2xl border px-5 py-4 text-sm leading-relaxed shadow-inner shadow-black/10';
-const STATUS_LABEL_CLASS = 'text-[0.65rem] font-semibold uppercase tracking-[0.35em] opacity-80';
-const STATUS_MESSAGE_CLASS = 'mt-2 text-sm leading-relaxed';
-const STATUS_LIST_CLASS = 'mt-3 list-disc space-y-2 pl-5 text-xs leading-relaxed opacity-90';
-
-const ALERT_VARIANTS = {
-    idle: 'border-white/10 bg-surfaceMuted/60 text-textdark/70',
-    loading: 'border-secondary/50 bg-secondary/20 text-secondary',
-    success: 'border-emerald-400/50 bg-emerald-400/20 text-emerald-200',
-    error: 'border-rose-400/60 bg-rose-400/20 text-rose-200',
-    warning: 'border-amber-400/50 bg-amber-400/20 text-amber-200',
+const ACTION_METADATA = {
+    start: {
+        badge: 'Start jaringan',
+        title: 'Nyalakan semua jaringan',
+        description: 'Menjalankan perintah start untuk seluruh jaringan Fabric 2 & Fabric 3.',
+    },
+    shutdown: {
+        badge: 'Shutdown jaringan',
+        title: 'Matikan semua jaringan',
+        description: 'Menghentikan seluruh layanan dan kontainer RAFT yang sedang berjalan.',
+    },
+    check: {
+        badge: 'Pemeriksaan jaringan',
+        title: 'Periksa kesehatan jaringan',
+        description: 'Mengambil status kesehatan terbaru dari semua jaringan RAFT.',
+    },
+    restart: {
+        badge: 'Restart jaringan',
+        title: 'Restart semua jaringan',
+        description: 'Menjalankan shutdown lalu start ulang seluruh jaringan secara otomatis.',
+    },
 };
 
 const STATUS_TRANSLATIONS = {
@@ -28,12 +38,20 @@ const STATUS_TRANSLATIONS = {
     healthy: 'sehat',
 };
 
-const statusElements = {
-    start: document.getElementById('startStatus'),
-    shutdown: document.getElementById('shutdownStatus'),
-    check: document.getElementById('checkStatus'),
-    restart: document.getElementById('restartStatus'),
+const previewElements = {
+    start: document.querySelector('[data-status-preview="start"]'),
+    shutdown: document.querySelector('[data-status-preview="shutdown"]'),
+    check: document.querySelector('[data-status-preview="check"]'),
+    restart: document.querySelector('[data-status-preview="restart"]'),
 };
+
+Object.entries(previewElements).forEach(([key, element]) => {
+    if (!element) {
+        return;
+    }
+    element.dataset.variant = 'idle';
+    element.textContent = DEFAULT_MESSAGES[key] || DEFAULT_MESSAGES.start;
+});
 
 const buttons = {
     start: document.getElementById('startAllButton'),
@@ -42,44 +60,75 @@ const buttons = {
     restart: document.getElementById('restartAllButton'),
 };
 
-const checkResultsContainer = document.getElementById('checkResults');
+const modalRoot = document.getElementById('actionModal');
+const modalBadge = document.getElementById('actionModalBadge');
+const modalTitle = document.getElementById('actionModalTitle');
+const modalDescription = document.getElementById('actionModalDescription');
+const modalBody = document.getElementById('actionModalBody');
+const modalCloseButtons = Array.from(document.querySelectorAll('[data-modal-close]'));
+const modalBackdrop = modalRoot ? modalRoot.querySelector('[data-modal-backdrop]') : null;
+const modalContent = modalRoot ? modalRoot.querySelector('[role="dialog"]') : null;
 
-Object.entries(statusElements).forEach(([key, element]) => {
-    if (!element) {
+let modalSummarySection = null;
+let modalExtraSections = [];
+let previousBodyOverflow = '';
+
+function isModalOpen() {
+    return Boolean(modalRoot) && !modalRoot.classList.contains('hidden');
+}
+
+function resetModalContent() {
+    modalSummarySection = null;
+    modalExtraSections = [];
+    if (modalBody) {
+        modalBody.innerHTML = '';
+    }
+}
+
+function renderModalSections() {
+    if (!modalBody) {
         return;
     }
-    element.className = `${STATUS_BASE_CLASS} ${ALERT_VARIANTS.idle}`;
-    element.innerHTML = `
-        <div class="${STATUS_LABEL_CLASS}">Status</div>
-        <p class="${STATUS_MESSAGE_CLASS}">${DEFAULT_MESSAGES[key] || DEFAULT_MESSAGES.start}</p>
-    `;
-});
 
-function setStatus(type, variant, message, details = []) {
-    const element = statusElements[type];
-    if (!element) {
+    const nodes = [];
+    if (modalSummarySection) {
+        nodes.push(modalSummarySection);
+    }
+    if (modalExtraSections.length) {
+        nodes.push(...modalExtraSections);
+    }
+
+    if (nodes.length === 0) {
+        modalBody.innerHTML = '';
         return;
     }
 
-    const variantClass = ALERT_VARIANTS[variant] || ALERT_VARIANTS.idle;
-    element.className = `${STATUS_BASE_CLASS} ${variantClass}`;
+    modalBody.replaceChildren(...nodes);
+}
 
-    const fragment = document.createDocumentFragment();
+function createModalSection({ sectionTitle, message, variant = 'idle', details = [], content = null }) {
+    const section = document.createElement('section');
+    section.className = 'space-y-4';
 
-    const label = document.createElement('div');
-    label.className = STATUS_LABEL_CLASS;
-    label.textContent = 'Status';
-    fragment.appendChild(label);
+    if (sectionTitle) {
+        const heading = document.createElement('h3');
+        heading.className = 'text-sm font-semibold text-textdark';
+        heading.textContent = sectionTitle;
+        section.appendChild(heading);
+    }
 
-    const messageEl = document.createElement('p');
-    messageEl.className = STATUS_MESSAGE_CLASS;
-    messageEl.textContent = message;
-    fragment.appendChild(messageEl);
+    if (message) {
+        const alert = document.createElement('div');
+        alert.className = 'modal-alert';
+        alert.dataset.variant = variant;
+        alert.textContent = message;
+        section.appendChild(alert);
+    }
 
     if (Array.isArray(details) && details.length) {
         const list = document.createElement('ul');
-        list.className = STATUS_LIST_CLASS;
-        details.forEach(line => {
+        list.className = 'list-disc space-y-2 pl-5 text-xs leading-relaxed text-textdark/80';
+        details.forEach((line) => {
             if (!line) {
                 return;
             }
@@ -87,12 +136,115 @@ function setStatus(type, variant, message, details = []) {
             item.textContent = line;
             list.appendChild(item);
         });
+
         if (list.childElementCount > 0) {
-            fragment.appendChild(list);
+            section.appendChild(list);
         }
     }
 
-    element.replaceChildren(fragment);
+    if (content instanceof Node) {
+        section.appendChild(content);
+    }
+
+    return section;
+}
+
+function setModalSummary(state) {
+    if (!modalBody) {
+        return;
+    }
+
+    modalSummarySection = createModalSection(state);
+    renderModalSections();
+}
+
+function appendModalSection(state) {
+    if (!modalBody) {
+        return;
+    }
+
+    const section = createModalSection(state);
+    modalExtraSections.push(section);
+    renderModalSections();
+}
+
+function configureModalHeader(action) {
+    const config = ACTION_METADATA[action] || {};
+    if (modalBadge) {
+        modalBadge.textContent = config.badge || 'Aksi jaringan';
+    }
+    if (modalTitle) {
+        modalTitle.textContent = config.title || 'Status aksi jaringan';
+    }
+    if (modalDescription) {
+        modalDescription.textContent = config.description
+            || 'Ikuti perkembangan aksi jaringan melalui ringkasan berikut.';
+    }
+}
+
+function openActionModal(action) {
+    if (!modalRoot) {
+        return;
+    }
+
+    configureModalHeader(action);
+    resetModalContent();
+
+    modalRoot.classList.remove('hidden');
+    modalRoot.setAttribute('aria-hidden', 'false');
+
+    if (document.body) {
+        previousBodyOverflow = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+    }
+
+    if (modalContent && typeof modalContent.focus === 'function') {
+        modalContent.focus({ preventScroll: true });
+    }
+}
+
+function closeActionModal() {
+    if (!modalRoot || !isModalOpen()) {
+        return;
+    }
+
+    modalRoot.classList.add('hidden');
+    modalRoot.setAttribute('aria-hidden', 'true');
+
+    if (document.body) {
+        document.body.style.overflow = previousBodyOverflow || '';
+        previousBodyOverflow = '';
+    }
+}
+
+modalCloseButtons.forEach((button) => {
+    button.addEventListener('click', (event) => {
+        event.preventDefault();
+        closeActionModal();
+    });
+});
+
+if (modalBackdrop) {
+    modalBackdrop.addEventListener('click', () => {
+        closeActionModal();
+    });
+}
+
+document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && isModalOpen()) {
+        closeActionModal();
+    }
+});
+
+function setPreview(type, variant, message) {
+    const element = previewElements[type];
+    if (!element) {
+        return;
+    }
+
+    element.dataset.variant = variant || 'idle';
+    const fallback = DEFAULT_MESSAGES[type] || DEFAULT_MESSAGES.start;
+    element.textContent = message || fallback;
 }
 
 function setButtonLoading(button, loadingLabel) {
@@ -127,7 +279,7 @@ function buildResultLines(results) {
         return [];
     }
 
-    return results.map(result => {
+    return results.map((result) => {
         const label = result?.label || result?.targetId || 'Jaringan';
         const statusLabel = translateStatus(result?.status);
         if (result?.message) {
@@ -165,62 +317,6 @@ async function requestJson(url, options = {}) {
     }
 
     return data;
-}
-
-async function startAllNetworks() {
-    const restore = setButtonLoading(buttons.start, 'Menyalakan...');
-    setStatus('start', 'loading', 'Menyalakan seluruh jaringan RAFT...');
-
-    try {
-        const data = await requestJson('/api/start-network', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({}),
-        });
-
-        const lines = buildResultLines(data?.results);
-        if (data?.overallStatus === 'success') {
-            setStatus('start', 'success', 'Seluruh jaringan berhasil dinyalakan.', lines);
-        } else if (data?.overallStatus === 'partial') {
-            setStatus('start', 'warning', 'Beberapa jaringan berhasil dinyalakan.', lines);
-        } else {
-            const message = data?.error || 'Perintah start gagal dijalankan.';
-            setStatus('start', 'error', message, lines);
-        }
-    } catch (error) {
-        const lines = buildResultLines(error?.data?.results);
-        setStatus('start', 'error', error?.message || 'Gagal menjalankan perintah start.', lines);
-    } finally {
-        restore();
-    }
-}
-
-async function shutdownAllNetworks() {
-    const restore = setButtonLoading(buttons.shutdown, 'Mematikan...');
-    setStatus('shutdown', 'loading', 'Mematikan seluruh jaringan RAFT...');
-
-    try {
-        const data = await requestJson('/api/shutdown-network', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({}),
-        });
-
-        const lines = buildResultLines(data?.results);
-        if (data?.overallStatus === 'success') {
-            setStatus('shutdown', 'success', 'Seluruh jaringan berhasil dimatikan.', lines);
-        } else if (data?.overallStatus === 'partial') {
-            setStatus('shutdown', 'warning', 'Sebagian jaringan berhasil dimatikan.', lines);
-        } else {
-            const message = data?.error || 'Perintah shutdown gagal dijalankan.';
-            setStatus('shutdown', 'error', message, lines);
-        }
-    } catch (error) {
-        const lines = buildResultLines(error?.data?.results);
-        setStatus('shutdown', 'error', error?.message || 'Gagal menjalankan perintah shutdown.', lines);
-    } finally {
-        restore();
-    }
 }
 
 function formatDateTime(value) {
@@ -262,22 +358,18 @@ function mapStatusToBadge(status) {
     }
 }
 
-function renderCheckResults(data) {
-    if (!checkResultsContainer) {
-        return;
-    }
-
-    checkResultsContainer.innerHTML = '';
-
+function createCheckResultsContent(data) {
     if (!data) {
-        return;
+        return null;
     }
+
+    const fragment = document.createDocumentFragment();
 
     if (data.checkedAt) {
         const timestamp = document.createElement('p');
         timestamp.className = 'text-xs text-textdark/60';
         timestamp.textContent = `Terakhir diperiksa: ${formatDateTime(data.checkedAt) ?? 'tidak diketahui'}`;
-        checkResultsContainer.appendChild(timestamp);
+        fragment.appendChild(timestamp);
     }
 
     const results = Array.isArray(data.results) ? data.results : [];
@@ -285,15 +377,15 @@ function renderCheckResults(data) {
         const empty = document.createElement('p');
         empty.className = 'text-xs text-textdark/60';
         empty.textContent = 'Pemeriksaan selesai tanpa data jaringan.';
-        checkResultsContainer.appendChild(empty);
-        return;
+        fragment.appendChild(empty);
+        return fragment;
     }
 
     const list = document.createElement('div');
     list.className = 'grid gap-4';
-    checkResultsContainer.appendChild(list);
+    fragment.appendChild(list);
 
-    results.forEach(result => {
+    results.forEach((result) => {
         const card = document.createElement('article');
         card.className = 'rounded-2xl border border-white/10 bg-surfaceMuted/80 p-6 text-sm text-textdark/80 shadow-inner shadow-black/10';
         list.appendChild(card);
@@ -343,7 +435,7 @@ function renderCheckResults(data) {
         if (metaLines.length) {
             const meta = document.createElement('ul');
             meta.className = 'list-disc space-y-1 pl-5 text-xs text-textdark/60';
-            metaLines.forEach(line => {
+            metaLines.forEach((line) => {
                 const row = document.createElement('li');
                 row.textContent = line;
                 meta.appendChild(row);
@@ -354,7 +446,7 @@ function renderCheckResults(data) {
         if (Array.isArray(result?.instructions) && result.instructions.length) {
             const instructions = document.createElement('ul');
             instructions.className = 'list-disc space-y-1 pl-5 text-xs text-textdark/60';
-            result.instructions.forEach(instruction => {
+            result.instructions.forEach((instruction) => {
                 if (!instruction) {
                     return;
                 }
@@ -367,31 +459,191 @@ function renderCheckResults(data) {
             }
         }
     });
+
+    return fragment;
+}
+
+function variantFromOverallStatus(status) {
+    if (status === 'success') {
+        return 'success';
+    }
+    if (status === 'partial') {
+        return 'warning';
+    }
+    return 'error';
+}
+
+function variantFromCheckStatus(status) {
+    if (status === 'healthy') {
+        return 'success';
+    }
+    if (status === 'partial') {
+        return 'warning';
+    }
+    return 'error';
+}
+
+async function startAllNetworks() {
+    const restore = setButtonLoading(buttons.start, 'Menyalakan...');
+    setPreview('start', 'loading', 'Perintah start sedang dijalankan...');
+    openActionModal('start');
+    setModalSummary({
+        variant: 'loading',
+        message: 'Menyalakan seluruh jaringan RAFT...',
+    });
+
+    try {
+        const data = await requestJson('/api/start-network', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({}),
+        });
+
+        const lines = buildResultLines(data?.results);
+        if (data?.overallStatus === 'success') {
+            setPreview('start', 'success', 'Semua jaringan aktif.');
+            setModalSummary({
+                variant: 'success',
+                message: 'Seluruh jaringan berhasil dinyalakan.',
+                details: lines,
+            });
+        } else if (data?.overallStatus === 'partial') {
+            setPreview('start', 'warning', 'Sebagian jaringan aktif.');
+            setModalSummary({
+                variant: 'warning',
+                message: 'Beberapa jaringan berhasil dinyalakan.',
+                details: lines,
+            });
+        } else {
+            const message = data?.error || 'Perintah start gagal dijalankan.';
+            setPreview('start', 'error', message);
+            setModalSummary({
+                variant: 'error',
+                message,
+                details: lines,
+            });
+        }
+    } catch (error) {
+        const lines = buildResultLines(error?.data?.results);
+        const message = error?.message || 'Gagal menjalankan perintah start.';
+        setPreview('start', 'error', message);
+        setModalSummary({
+            variant: 'error',
+            message,
+            details: lines,
+        });
+    } finally {
+        restore();
+    }
+}
+
+async function shutdownAllNetworks() {
+    const restore = setButtonLoading(buttons.shutdown, 'Mematikan...');
+    setPreview('shutdown', 'loading', 'Perintah shutdown sedang dijalankan...');
+    openActionModal('shutdown');
+    setModalSummary({
+        variant: 'loading',
+        message: 'Mematikan seluruh jaringan RAFT...',
+    });
+
+    try {
+        const data = await requestJson('/api/shutdown-network', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({}),
+        });
+
+        const lines = buildResultLines(data?.results);
+        if (data?.overallStatus === 'success') {
+            setPreview('shutdown', 'success', 'Semua jaringan berhasil dimatikan.');
+            setModalSummary({
+                variant: 'success',
+                message: 'Seluruh jaringan berhasil dimatikan.',
+                details: lines,
+            });
+        } else if (data?.overallStatus === 'partial') {
+            setPreview('shutdown', 'warning', 'Sebagian jaringan berhasil dimatikan.');
+            setModalSummary({
+                variant: 'warning',
+                message: 'Sebagian jaringan berhasil dimatikan.',
+                details: lines,
+            });
+        } else {
+            const message = data?.error || 'Perintah shutdown gagal dijalankan.';
+            setPreview('shutdown', 'error', message);
+            setModalSummary({
+                variant: 'error',
+                message,
+                details: lines,
+            });
+        }
+    } catch (error) {
+        const lines = buildResultLines(error?.data?.results);
+        const message = error?.message || 'Gagal menjalankan perintah shutdown.';
+        setPreview('shutdown', 'error', message);
+        setModalSummary({
+            variant: 'error',
+            message,
+            details: lines,
+        });
+    } finally {
+        restore();
+    }
 }
 
 async function checkAllNetworks() {
     const restore = setButtonLoading(buttons.check, 'Memeriksa...');
-    setStatus('check', 'loading', 'Sedang memeriksa seluruh jaringan...');
-    renderCheckResults(null);
+    setPreview('check', 'loading', 'Sedang memeriksa jaringan...');
+    openActionModal('check');
+    setModalSummary({
+        variant: 'loading',
+        message: 'Sedang memeriksa seluruh jaringan RAFT...',
+    });
 
     try {
         const data = await requestJson('/api/check-network', { method: 'GET' });
 
         const lines = buildResultLines(data?.results);
-        if (data?.overallStatus === 'healthy') {
-            setStatus('check', 'success', 'Seluruh jaringan merespons dengan baik.', lines);
-        } else if (data?.overallStatus === 'partial') {
-            setStatus('check', 'warning', 'Sebagian jaringan merespons dengan baik.', lines);
-        } else if (data?.overallStatus) {
-            setStatus('check', 'error', 'Jaringan tidak merespons dengan baik.', lines);
+        const overallStatus = data?.overallStatus || 'success';
+
+        if (overallStatus === 'healthy' || overallStatus === 'success') {
+            setPreview('check', 'success', 'Semua jaringan merespons baik.');
+            setModalSummary({
+                variant: 'success',
+                message: 'Seluruh jaringan merespons dengan baik.',
+                details: lines,
+            });
+        } else if (overallStatus === 'partial') {
+            setPreview('check', 'warning', 'Sebagian jaringan merespons baik.');
+            setModalSummary({
+                variant: 'warning',
+                message: 'Sebagian jaringan merespons dengan baik.',
+                details: lines,
+            });
         } else {
-            setStatus('check', 'success', 'Pemeriksaan jaringan selesai.', lines);
+            const message = data?.error || 'Jaringan tidak merespons dengan baik.';
+            setPreview('check', 'error', message);
+            setModalSummary({
+                variant: variantFromCheckStatus(overallStatus),
+                message,
+                details: lines,
+            });
         }
 
-        renderCheckResults(data);
+        const detailContent = createCheckResultsContent(data);
+        if (detailContent) {
+            appendModalSection({
+                sectionTitle: 'Detail pemeriksaan jaringan',
+                content: detailContent,
+            });
+        }
     } catch (error) {
-        setStatus('check', 'error', error?.message || 'Gagal memeriksa jaringan.');
-        renderCheckResults(null);
+        const message = error?.message || 'Gagal memeriksa jaringan.';
+        setPreview('check', 'error', message);
+        setModalSummary({
+            variant: 'error',
+            message,
+        });
     } finally {
         restore();
     }
@@ -399,10 +651,15 @@ async function checkAllNetworks() {
 
 async function restartAllNetworks() {
     const restore = setButtonLoading(buttons.restart, 'Memulai ulang...');
-    setStatus('restart', 'loading', 'Melakukan restart seluruh jaringan RAFT...');
+    setPreview('restart', 'loading', 'Perintah restart sedang dijalankan...');
+    openActionModal('restart');
+    setModalSummary({
+        variant: 'loading',
+        message: 'Melakukan restart seluruh jaringan RAFT...',
+    });
 
     try {
-        setStatus('shutdown', 'loading', 'Mematikan jaringan sebagai bagian dari restart...');
+        setPreview('shutdown', 'loading', 'Mematikan jaringan sebelum restart...');
         const shutdownData = await requestJson('/api/shutdown-network', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -410,18 +667,37 @@ async function restartAllNetworks() {
         });
 
         const shutdownLines = buildResultLines(shutdownData?.results);
-        if (shutdownData?.overallStatus === 'success') {
-            setStatus('shutdown', 'success', 'Semua jaringan berhasil dimatikan.', shutdownLines);
-        } else if (shutdownData?.overallStatus === 'partial') {
-            setStatus('shutdown', 'warning', 'Sebagian jaringan berhasil dimatikan.', shutdownLines);
-            throw new Error('Restart dibatalkan karena tidak semua jaringan berhasil dimatikan.');
-        } else {
-            const message = shutdownData?.error || 'Gagal mematikan jaringan.';
-            setStatus('shutdown', 'error', message, shutdownLines);
-            throw new Error(message);
+        const shutdownVariant = variantFromOverallStatus(shutdownData?.overallStatus);
+        const shutdownMessage = shutdownData?.overallStatus === 'success'
+            ? 'Seluruh jaringan berhasil dimatikan.'
+            : shutdownData?.overallStatus === 'partial'
+                ? 'Sebagian jaringan berhasil dimatikan.'
+                : shutdownData?.error || 'Gagal mematikan jaringan.';
+
+        setPreview('shutdown', shutdownVariant, shutdownMessage);
+        appendModalSection({
+            sectionTitle: 'Langkah 1 · Matikan jaringan',
+            variant: shutdownVariant,
+            message: shutdownMessage,
+            details: shutdownLines,
+        });
+
+        if (shutdownData?.overallStatus !== 'success') {
+            const finalVariant = shutdownVariant === 'warning' ? 'warning' : 'error';
+            const finalMessage = shutdownVariant === 'warning'
+                ? 'Restart dihentikan karena hanya sebagian jaringan berhasil dimatikan.'
+                : 'Restart gagal pada tahap mematikan jaringan.';
+
+            setPreview('restart', finalVariant, finalMessage);
+            setModalSummary({
+                variant: finalVariant,
+                message: finalMessage,
+                details: shutdownLines,
+            });
+            return;
         }
 
-        setStatus('start', 'loading', 'Menyalakan jaringan kembali...');
+        setPreview('start', 'loading', 'Menyalakan jaringan kembali...');
         const startupData = await requestJson('/api/start-network', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -429,19 +705,56 @@ async function restartAllNetworks() {
         });
 
         const startupLines = buildResultLines(startupData?.results);
+        const startupVariant = variantFromOverallStatus(startupData?.overallStatus);
+        const startupMessage = startupData?.overallStatus === 'success'
+            ? 'Seluruh jaringan berhasil dinyalakan kembali.'
+            : startupData?.overallStatus === 'partial'
+                ? 'Sebagian jaringan berhasil dinyalakan kembali.'
+                : startupData?.error || 'Gagal menyalakan jaringan kembali.';
+
+        setPreview('start', startupVariant, startupMessage);
+        appendModalSection({
+            sectionTitle: 'Langkah 2 · Nyalakan jaringan',
+            variant: startupVariant,
+            message: startupMessage,
+            details: startupLines,
+        });
+
+        const summaryDetails = [
+            `Shutdown: ${translateStatus(shutdownData?.overallStatus || 'error')}`,
+            `Start: ${translateStatus(startupData?.overallStatus || 'error')}`,
+        ];
+
         if (startupData?.overallStatus === 'success') {
-            setStatus('start', 'success', 'Semua jaringan berhasil dinyalakan kembali.', startupLines);
-            setStatus('restart', 'success', 'Restart jaringan selesai dengan sukses.');
+            setPreview('restart', 'success', 'Restart jaringan selesai.');
+            setModalSummary({
+                variant: 'success',
+                message: 'Restart jaringan selesai dengan sukses.',
+                details: summaryDetails,
+            });
         } else if (startupData?.overallStatus === 'partial') {
-            setStatus('start', 'warning', 'Sebagian jaringan berhasil dinyalakan.', startupLines);
-            setStatus('restart', 'warning', 'Restart selesai namun sebagian jaringan bermasalah.', startupLines);
+            setPreview('restart', 'warning', 'Restart selesai namun sebagian jaringan bermasalah.');
+            setModalSummary({
+                variant: 'warning',
+                message: 'Restart selesai namun sebagian jaringan bermasalah.',
+                details: summaryDetails,
+            });
         } else {
-            const message = startupData?.error || 'Gagal menyalakan jaringan setelah shutdown.';
-            setStatus('start', 'error', message, startupLines);
-            setStatus('restart', 'error', 'Restart gagal saat menyalakan ulang jaringan.', startupLines);
+            const message = startupData?.error || 'Restart gagal saat menyalakan ulang jaringan.';
+            setPreview('restart', 'error', message);
+            setModalSummary({
+                variant: 'error',
+                message,
+                details: summaryDetails,
+            });
         }
     } catch (error) {
-        setStatus('restart', 'error', error?.message || 'Restart jaringan gagal.');
+        const message = error?.message || 'Restart jaringan gagal.';
+        setPreview('restart', 'error', message);
+        setModalSummary({
+            variant: 'error',
+            message,
+        });
     } finally {
         restore();
     }

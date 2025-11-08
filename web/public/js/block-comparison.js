@@ -5,6 +5,8 @@ const componentLoaderReady = window.componentLoaderReady instanceof Promise
 componentLoaderReady.then(() => {
     const refreshButton = document.getElementById('refreshBlockComparisonButton');
     const updatedAtEl = document.getElementById('blockComparisonUpdatedAt');
+    const networkStatusGrid = document.getElementById('blockNetworkStatusGrid');
+    const networkStatusCheckedAtEl = document.getElementById('blockNetworkStatusCheckedAt');
 
     const metricElements = new Map();
     document.querySelectorAll('[data-block-metric-card]').forEach((card) => {
@@ -47,19 +49,81 @@ componentLoaderReady.then(() => {
         '#FACC15',
     ];
 
-    const numberFormatter = new Intl.NumberFormat('id-ID');
-    const decimalFormatter = new Intl.NumberFormat('id-ID', {
+    const numberFormatter = new Intl.NumberFormat('en-US');
+    const decimalFormatter = new Intl.NumberFormat('en-US', {
         maximumFractionDigits: 2,
         minimumFractionDigits: 0,
     });
-    const percentageFormatter = new Intl.NumberFormat('id-ID', {
+    const percentageFormatter = new Intl.NumberFormat('en-US', {
         maximumFractionDigits: 1,
         minimumFractionDigits: 0,
     });
-    const dateTimeFormatter = new Intl.DateTimeFormat('id-ID', {
+    const dateTimeFormatter = new Intl.DateTimeFormat('en-US', {
         dateStyle: 'medium',
         timeStyle: 'short',
     });
+
+    const NETWORK_STATUS_VARIANTS = {
+        healthy: {
+            label: 'Operational',
+            badgeClass: 'border-emerald-400/40 bg-emerald-500/15 text-emerald-50',
+            indicatorClass: 'bg-emerald-400',
+            description: 'Fabric endpoints responded successfully.',
+        },
+        partial: {
+            label: 'Degraded',
+            badgeClass: 'border-amber-400/40 bg-amber-500/10 text-amber-100',
+            indicatorClass: 'bg-amber-400',
+            description: 'Some health checks reported issues.',
+        },
+        unhealthy: {
+            label: 'Down (mati)',
+            badgeClass: 'border-rose-400/40 bg-rose-500/10 text-rose-100',
+            indicatorClass: 'bg-rose-400',
+            description: 'The network is unreachable.',
+        },
+        unavailable: {
+            label: 'Down (mati)',
+            badgeClass: 'border-rose-400/40 bg-rose-500/10 text-rose-100',
+            indicatorClass: 'bg-rose-400',
+            description: 'Health checks could not be completed.',
+        },
+        unknown: {
+            label: 'Unknown',
+            badgeClass: 'border-white/10 bg-surface/70 text-textdark/70',
+            indicatorClass: 'bg-muted/60',
+            description: 'Health status cannot be determined.',
+        },
+    };
+
+    function normalizeResultStatus(status) {
+        if (status === 'healthy') {
+            return 'healthy';
+        }
+        if (status === 'unhealthy') {
+            return 'unhealthy';
+        }
+        if (status === 'partial') {
+            return 'partial';
+        }
+        if (status === 'unavailable') {
+            return 'unavailable';
+        }
+        return 'unknown';
+    }
+
+    function normalizeOverallStatus(status) {
+        if (status === 'healthy') {
+            return 'healthy';
+        }
+        if (status === 'partial') {
+            return 'partial';
+        }
+        if (status === 'unavailable') {
+            return 'unavailable';
+        }
+        return 'unknown';
+    }
 
     function clampValue(value, min, max, fallback = null) {
         if (typeof value !== 'number' || !Number.isFinite(value)) {
@@ -214,8 +278,8 @@ componentLoaderReady.then(() => {
     const BLOCK_METRICS = [
         {
             id: 'throughput',
-            loadingMessage: 'Menyiapkan grafik throughput blok...',
-            emptyMessage: 'Belum ada data throughput blok yang dapat divisualisasikan.',
+            loadingMessage: 'Preparing block throughput chart...',
+            emptyMessage: 'No block throughput data is available yet.',
             valueResolver(block) {
                 if (!block || typeof block.throughput !== 'number') {
                     return null;
@@ -230,9 +294,9 @@ componentLoaderReady.then(() => {
             },
             valueFormatter(value) {
                 if (typeof value !== 'number' || !Number.isFinite(value)) {
-                    return 'Tidak ada data';
+                    return 'No data';
                 }
-                return `${decimalFormatter.format(value)} transaksi/detik`;
+                return `${decimalFormatter.format(value)} transactions/sec`;
             },
             tooltipExtras({ block }) {
                 if (!block || typeof block !== 'object') {
@@ -241,10 +305,10 @@ componentLoaderReady.then(() => {
 
                 const extras = [];
                 if (Number.isFinite(block.successCount)) {
-                    extras.push(`Berhasil: ${numberFormatter.format(block.successCount)}`);
+                    extras.push(`Successful: ${numberFormatter.format(block.successCount)}`);
                 }
                 if (Number.isFinite(block.failureCount) && block.failureCount > 0) {
-                    extras.push(`Gagal: ${numberFormatter.format(block.failureCount)}`);
+                    extras.push(`Failed: ${numberFormatter.format(block.failureCount)}`);
                 }
                 const latencyMs = resolveBlockLatencyMs(block);
                 if (latencyMs !== null) {
@@ -255,8 +319,8 @@ componentLoaderReady.then(() => {
         },
         {
             id: 'latency',
-            loadingMessage: 'Menyiapkan grafik latensi blok...',
-            emptyMessage: 'Belum ada data latensi blok yang dapat divisualisasikan.',
+            loadingMessage: 'Preparing block latency chart...',
+            emptyMessage: 'No block latency data is available yet.',
             valueResolver(block) {
                 const latency = resolveBlockLatencyMs(block);
                 return typeof latency === 'number' && Number.isFinite(latency) ? latency : null;
@@ -269,7 +333,7 @@ componentLoaderReady.then(() => {
             },
             valueFormatter(value) {
                 if (typeof value !== 'number' || !Number.isFinite(value)) {
-                    return 'Tidak ada data';
+                    return 'No data';
                 }
                 return `${decimalFormatter.format(value)} ms`;
             },
@@ -280,10 +344,10 @@ componentLoaderReady.then(() => {
 
                 const extras = [];
                 if (Number.isFinite(block.successCount)) {
-                    extras.push(`Berhasil: ${numberFormatter.format(block.successCount)}`);
+                    extras.push(`Successful: ${numberFormatter.format(block.successCount)}`);
                 }
                 if (Number.isFinite(block.failureCount) && block.failureCount > 0) {
-                    extras.push(`Gagal: ${numberFormatter.format(block.failureCount)}`);
+                    extras.push(`Failed: ${numberFormatter.format(block.failureCount)}`);
                 }
                 if (Number.isFinite(block.throughput)) {
                     extras.push(`Throughput: ${decimalFormatter.format(block.throughput)} tps`);
@@ -293,8 +357,8 @@ componentLoaderReady.then(() => {
         },
         {
             id: 'resourceUsage',
-            loadingMessage: 'Menyiapkan grafik resource usage blok...',
-            emptyMessage: 'Belum ada estimasi resource usage yang dapat divisualisasikan.',
+            loadingMessage: 'Preparing block resource utilisation chart...',
+            emptyMessage: 'No block resource utilisation estimates are available yet.',
             valueResolver(block) {
                 const usage = computeBlockResourceUsage(block);
                 return typeof usage === 'number' && Number.isFinite(usage) ? usage : null;
@@ -305,7 +369,7 @@ componentLoaderReady.then(() => {
             },
             valueFormatter(value) {
                 const label = formatPercentageValue(value);
-                return label || 'Tidak ada data';
+                return label || 'No data';
             },
             tooltipExtras({ block }) {
                 if (!block || typeof block !== 'object') {
@@ -329,8 +393,8 @@ componentLoaderReady.then(() => {
         },
         {
             id: 'faultTolerance',
-            loadingMessage: 'Menyiapkan grafik fault tolerance blok...',
-            emptyMessage: 'Belum ada skor fault tolerance yang dapat divisualisasikan.',
+            loadingMessage: 'Preparing block fault-tolerance chart...',
+            emptyMessage: 'No block fault-tolerance scores are available yet.',
             valueResolver(block) {
                 const score = computeBlockFaultTolerance(block);
                 return typeof score === 'number' && Number.isFinite(score) ? score : null;
@@ -341,7 +405,7 @@ componentLoaderReady.then(() => {
             },
             valueFormatter(value) {
                 const label = formatPercentageValue(value);
-                return label || 'Tidak ada data';
+                return label || 'No data';
             },
             tooltipExtras({ block }) {
                 if (!block || typeof block !== 'object') {
@@ -350,17 +414,17 @@ componentLoaderReady.then(() => {
 
                 const extras = [];
                 if (Number.isFinite(block.successCount)) {
-                    extras.push(`Berhasil: ${numberFormatter.format(block.successCount)}`);
+                    extras.push(`Successful: ${numberFormatter.format(block.successCount)}`);
                 }
                 if (Number.isFinite(block.failureCount) && block.failureCount > 0) {
-                    extras.push(`Gagal: ${numberFormatter.format(block.failureCount)}`);
+                    extras.push(`Failed: ${numberFormatter.format(block.failureCount)}`);
                 }
                 const successRate = formatSuccessRate(block);
                 if (successRate) {
                     extras.push(`Success rate: ${successRate}`);
                 }
                 if (block.lastStatus) {
-                    extras.push(`Status terakhir: ${String(block.lastStatus).toUpperCase()}`);
+                    extras.push(`Last status: ${String(block.lastStatus).toUpperCase()}`);
                 }
                 return extras;
             },
@@ -481,7 +545,7 @@ componentLoaderReady.then(() => {
         try {
             return dateTimeFormatter.format(date);
         } catch (error) {
-            console.error('Gagal memformat tanggal untuk perbandingan blok:', error);
+            console.error('Failed to format timestamp for block comparison:', error);
             return null;
         }
     }
@@ -492,7 +556,275 @@ componentLoaderReady.then(() => {
         }
 
         const formatted = formatDateTime(value);
-        updatedAtEl.textContent = formatted ? `Terakhir diperbarui: ${formatted}` : '';
+        updatedAtEl.textContent = formatted ? `Last updated: ${formatted}` : '';
+    }
+
+    function setNetworkStatusCheckedAt(value) {
+        if (!networkStatusCheckedAtEl) {
+            return;
+        }
+
+        const formatted = formatDateTime(value);
+        networkStatusCheckedAtEl.textContent = formatted ? `Last checked: ${formatted}` : '';
+    }
+
+    function setNetworkStatusLoading() {
+        if (!networkStatusGrid) {
+            return;
+        }
+
+        networkStatusGrid.dataset.state = 'loading';
+        networkStatusGrid.replaceChildren();
+
+        const article = document.createElement('article');
+        article.className = 'rounded-3xl border border-white/10 bg-surfaceMuted/70 p-6 text-sm text-textdark/70 shadow-inner shadow-black/20';
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'flex items-center gap-3 text-textdark/80';
+
+        const indicator = document.createElement('span');
+        indicator.className = 'h-3 w-3 animate-ping rounded-full bg-secondary/70';
+
+        const text = document.createElement('span');
+        text.textContent = 'Checking network availability...';
+
+        wrapper.append(indicator, text);
+        article.append(wrapper);
+        networkStatusGrid.append(article);
+    }
+
+    function setNetworkStatusMessage(message, tone = 'info') {
+        if (!networkStatusGrid) {
+            return;
+        }
+
+        networkStatusGrid.dataset.state = tone;
+        networkStatusGrid.replaceChildren();
+
+        const toneClasses = tone === 'error'
+            ? 'border-rose-400/40 bg-rose-500/10 text-rose-100'
+            : tone === 'empty'
+                ? 'border-amber-400/40 bg-amber-500/10 text-amber-100'
+                : 'border-white/10 bg-surfaceMuted/70 text-textdark/70';
+
+        const indicatorClass = tone === 'error'
+            ? 'bg-rose-400'
+            : tone === 'empty'
+                ? 'bg-amber-400'
+                : 'bg-primary/70 animate-pulse';
+
+        const article = document.createElement('article');
+        article.className = `rounded-3xl border p-6 text-sm shadow-inner shadow-black/20 ${toneClasses}`;
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'flex items-center gap-3';
+
+        const indicator = document.createElement('span');
+        indicator.className = `h-3 w-3 rounded-full ${indicatorClass}`;
+
+        const text = document.createElement('span');
+        text.textContent = message;
+
+        wrapper.append(indicator, text);
+        article.append(wrapper);
+        networkStatusGrid.append(article);
+    }
+
+    function createStatusBadge(variantKey) {
+        const variant = NETWORK_STATUS_VARIANTS[variantKey] || NETWORK_STATUS_VARIANTS.unknown;
+        const badge = document.createElement('span');
+        badge.className = `inline-flex items-center gap-2 rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.32em] ${variant.badgeClass}`;
+
+        const indicator = document.createElement('span');
+        indicator.className = `h-2.5 w-2.5 rounded-full ${variant.indicatorClass}`;
+
+        badge.append(indicator, document.createTextNode(variant.label));
+        return badge;
+    }
+
+    function createNetworkStatusCard(options) {
+        const {
+            title,
+            subtitle = null,
+            variantKey = 'unknown',
+            message = null,
+            metadata = [],
+        } = options || {};
+
+        const variant = NETWORK_STATUS_VARIANTS[variantKey] || NETWORK_STATUS_VARIANTS.unknown;
+
+        const article = document.createElement('article');
+        article.className = 'flex flex-col gap-3 rounded-3xl border border-white/10 bg-surfaceMuted/70 p-6 text-sm text-textdark/70 shadow-inner shadow-black/20';
+
+        const header = document.createElement('div');
+        header.className = 'flex items-start justify-between gap-4';
+
+        const titleWrapper = document.createElement('div');
+        titleWrapper.className = 'space-y-1';
+
+        const titleEl = document.createElement('p');
+        titleEl.className = 'text-base font-semibold text-textdark';
+        titleEl.textContent = title || 'Network';
+        titleWrapper.append(titleEl);
+
+        if (subtitle) {
+            const subtitleEl = document.createElement('p');
+            subtitleEl.className = 'text-xs text-textdark/60';
+            subtitleEl.textContent = subtitle;
+            titleWrapper.append(subtitleEl);
+        }
+
+        header.append(titleWrapper, createStatusBadge(variantKey));
+        article.append(header);
+
+        const resolvedMessage = typeof message === 'string' && message.trim() !== ''
+            ? message.trim()
+            : variant.description;
+
+        if (resolvedMessage) {
+            const messageEl = document.createElement('p');
+            messageEl.className = 'text-xs text-textdark/70';
+            messageEl.textContent = resolvedMessage;
+            article.append(messageEl);
+        }
+
+        if (Array.isArray(metadata) && metadata.length > 0) {
+            const list = document.createElement('dl');
+            list.className = 'mt-2 space-y-1 text-xs text-textdark/60';
+
+            metadata.forEach((entry) => {
+                if (!entry || typeof entry.label !== 'string' || typeof entry.value !== 'string' || entry.value.trim() === '') {
+                    return;
+                }
+
+                const row = document.createElement('div');
+                row.className = 'flex justify-between gap-2';
+
+                const term = document.createElement('dt');
+                term.className = 'font-semibold text-textdark/70';
+                term.textContent = entry.label;
+
+                const description = document.createElement('dd');
+                description.className = 'text-textdark/60';
+                description.textContent = entry.value;
+
+                row.append(term, description);
+                list.append(row);
+            });
+
+            if (list.children.length > 0) {
+                article.append(list);
+            }
+        }
+
+        return article;
+    }
+
+    function renderNetworkStatuses(payload) {
+        if (!networkStatusGrid) {
+            return;
+        }
+
+        const hasPayload = payload && typeof payload === 'object';
+
+        const results = Array.isArray(payload?.results)
+            ? payload.results.filter((item) => item && typeof item === 'object')
+            : [];
+
+        if (!hasPayload || results.length === 0) {
+            setNetworkStatusMessage('No network health results are available yet.', 'empty');
+            return;
+        }
+
+        networkStatusGrid.dataset.state = 'ready';
+        networkStatusGrid.replaceChildren();
+
+        const overallVariant = normalizeOverallStatus(payload?.overallStatus);
+        const overallCard = createNetworkStatusCard({
+            title: 'Overall Status',
+            variantKey: overallVariant,
+            message: NETWORK_STATUS_VARIANTS[overallVariant]?.description,
+            metadata: [
+                {
+                    label: 'Checks executed',
+                    value: numberFormatter.format(results.length),
+                },
+            ],
+        });
+
+        networkStatusGrid.append(overallCard);
+
+        if (results.length === 0) {
+            return;
+        }
+
+        results.forEach((result) => {
+            const variant = normalizeResultStatus(result.status);
+
+            const blockHeightValue = typeof result.blockHeight === 'number' && Number.isFinite(result.blockHeight)
+                ? numberFormatter.format(result.blockHeight)
+                : (typeof result.blockHeight === 'string' && result.blockHeight.trim() !== ''
+                    ? result.blockHeight.trim()
+                    : null);
+
+            const metadata = [];
+
+            if (result.channel && typeof result.channel === 'string') {
+                metadata.push({
+                    label: 'Channel',
+                    value: result.channel,
+                });
+            }
+
+            if (result.chaincode && typeof result.chaincode === 'string') {
+                metadata.push({
+                    label: 'Chaincode',
+                    value: result.chaincode,
+                });
+            }
+
+            if (blockHeightValue) {
+                metadata.push({
+                    label: 'Block height',
+                    value: blockHeightValue,
+                });
+            }
+
+            if (result.peer && typeof result.peer === 'string') {
+                metadata.push({
+                    label: 'Peer',
+                    value: result.peer,
+                });
+            }
+
+            const networkLabel = typeof result.label === 'string' && result.label.trim() !== ''
+                ? result.label.trim()
+                : (typeof result.networkDir === 'string' && result.networkDir.trim() !== ''
+                    ? result.networkDir.trim()
+                    : 'Network');
+
+            const subtitleParts = [];
+            if (result.networkDir && typeof result.networkDir === 'string') {
+                subtitleParts.push(result.networkDir);
+            }
+            if (result.instructions && typeof result.instructions === 'string') {
+                subtitleParts.push(result.instructions);
+            }
+
+            const message = variant === 'healthy'
+                ? 'Fabric gateway responded successfully.'
+                : (typeof result.message === 'string' && result.message.trim() !== ''
+                    ? result.message.trim()
+                    : NETWORK_STATUS_VARIANTS[variant]?.description);
+
+            networkStatusGrid.append(createNetworkStatusCard({
+                title: networkLabel,
+                subtitle: subtitleParts.length > 0 ? subtitleParts.join(' • ') : null,
+                variantKey: variant,
+                message,
+                metadata,
+            }));
+        });
     }
 
     function resolveBlockLabel(block) {
@@ -669,7 +1001,7 @@ componentLoaderReady.then(() => {
 
         const formattedValue = metric.valueFormatter
             ? metric.valueFormatter(value)
-            : (value !== null ? numberFormatter.format(value) : 'Tidak ada data');
+            : (value !== null ? numberFormatter.format(value) : 'No data');
 
         const baseLabel = datasetLabel
             ? `${datasetLabel}: ${formattedValue}`
@@ -708,7 +1040,7 @@ componentLoaderReady.then(() => {
         if (block && block.lastUpdatedAt) {
             const formatted = formatDateTime(block.lastUpdatedAt);
             if (formatted) {
-                return `Terakhir diperbarui: ${formatted}`;
+                return `Last updated: ${formatted}`;
             }
         }
 
@@ -757,7 +1089,7 @@ componentLoaderReady.then(() => {
             const color = COLOR_PALETTE[index % COLOR_PALETTE.length];
 
             return {
-                label: network.label || network.id || `Jaringan ${index + 1}`,
+                label: network.label || network.id || `Network ${index + 1}`,
                 data,
                 backgroundColor: hexToRgba(color, 0.45),
                 borderColor: color,
@@ -777,7 +1109,7 @@ componentLoaderReady.then(() => {
 
         const context = elements.canvas.getContext('2d');
         if (!context) {
-            setChartMessage(elements.container, 'Kanvas grafik tidak tersedia.', 'error');
+            setChartMessage(elements.container, 'Chart canvas is not available.', 'error');
             return;
         }
 
@@ -866,7 +1198,7 @@ componentLoaderReady.then(() => {
             BLOCK_METRICS.forEach((metric) => {
                 const elements = getMetricElements(metric.id);
                 if (elements) {
-                    setChartMessage(elements.container, 'Chart.js tidak tersedia untuk menampilkan grafik.', 'error');
+                    setChartMessage(elements.container, 'Chart.js is not available to render charts.', 'error');
                 }
             });
             return;
@@ -911,7 +1243,39 @@ componentLoaderReady.then(() => {
         });
     }
 
-    async function loadBlockComparisonData() {
+    async function fetchBlockSummary() {
+        const response = await fetch('/api/simulations/summary', {
+            cache: 'no-store',
+            headers: {
+                Accept: 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to fetch block metrics (status ${response.status})`);
+        }
+
+        return response.json();
+    }
+
+    async function fetchNetworkAvailability() {
+        const response = await fetch('/api/check-network', {
+            cache: 'no-store',
+            headers: {
+                Accept: 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to check network availability (status ${response.status})`);
+        }
+
+        return response.json();
+    }
+
+    async function loadBlockComparisonData(options = {}) {
+        const { refreshNetworkStatus = true } = options || {};
+
         if (isLoading) {
             return;
         }
@@ -919,6 +1283,10 @@ componentLoaderReady.then(() => {
         isLoading = true;
         setAllChartsLoading();
         setUpdatedAtLabel(null);
+        if (refreshNetworkStatus && networkStatusGrid) {
+            setNetworkStatusCheckedAt(null);
+            setNetworkStatusLoading();
+        }
 
         if (refreshButton) {
             refreshButton.disabled = true;
@@ -926,24 +1294,44 @@ componentLoaderReady.then(() => {
         }
 
         try {
-            const response = await fetch('/api/simulations/summary', {
-                headers: {
-                    Accept: 'application/json',
-                },
-            });
+            const summaryPromise = fetchBlockSummary();
+            const networkPromise = refreshNetworkStatus && networkStatusGrid
+                ? fetchNetworkAvailability()
+                : Promise.resolve(null);
 
-            if (!response.ok) {
-                throw new Error(`Gagal mengambil data blok (status ${response.status})`);
+            const [summaryResult, networkResult] = await Promise.allSettled([summaryPromise, networkPromise]);
+
+            if (summaryResult.status === 'fulfilled') {
+                const payload = summaryResult.value;
+                const networks = Array.isArray(payload?.networks) ? payload.networks : [];
+
+                renderBlockMetricCharts(networks);
+                setUpdatedAtLabel(payload?.updatedAt || payload?.fetchedAt || null);
+            } else {
+                console.error('Failed to load block comparison metrics:', summaryResult.reason);
+                setAllChartsMessage('Unable to load block comparison charts.', 'error');
+                setUpdatedAtLabel(null);
             }
 
-            const payload = await response.json();
-            const networks = Array.isArray(payload?.networks) ? payload.networks : [];
-
-            renderBlockMetricCharts(networks);
-            setUpdatedAtLabel(payload?.updatedAt || payload?.fetchedAt || null);
+            if (refreshNetworkStatus && networkStatusGrid) {
+                if (networkResult.status === 'fulfilled' && networkResult.value) {
+                    renderNetworkStatuses(networkResult.value);
+                    setNetworkStatusCheckedAt(networkResult.value.checkedAt || null);
+                } else if (networkResult.status === 'rejected') {
+                    console.error('Failed to retrieve network availability for block comparison:', networkResult.reason);
+                    setNetworkStatusMessage('Unable to verify network availability.', 'error');
+                    setNetworkStatusCheckedAt(null);
+                } else if (networkResult.status === 'fulfilled' && networkResult.value === null) {
+                    // No network refresh requested; keep existing UI.
+                }
+            }
         } catch (error) {
-            console.error('Gagal memuat data perbandingan blok jaringan:', error);
-            setAllChartsMessage('Tidak dapat memuat grafik perbandingan blok.', 'error');
+            console.error('Unexpected error while loading block comparison data:', error);
+            setAllChartsMessage('Unable to load block comparison charts.', 'error');
+            if (refreshNetworkStatus && networkStatusGrid) {
+                setNetworkStatusMessage('Unable to verify network availability.', 'error');
+                setNetworkStatusCheckedAt(null);
+            }
         } finally {
             if (refreshButton) {
                 refreshButton.disabled = false;
@@ -956,9 +1344,9 @@ componentLoaderReady.then(() => {
     if (refreshButton) {
         refreshButton.addEventListener('click', (event) => {
             event.preventDefault();
-            loadBlockComparisonData();
+            loadBlockComparisonData({ refreshNetworkStatus: true });
         });
     }
 
-    loadBlockComparisonData();
+    loadBlockComparisonData({ refreshNetworkStatus: true });
 });

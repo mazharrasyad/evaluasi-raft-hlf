@@ -147,6 +147,132 @@
                             </div>
                         </section>
 
+                          <section class="space-y-6 rounded-3xl border border-primary/40 bg-surface/70 p-8 shadow-2xl shadow-black/30">
+                              <div class="flex flex-col gap-3">
+                                  <div class="inline-flex w-fit items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.32em] text-primary/80">
+                                      Visualisasi
+                                  </div>
+                                  <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Diagram Leader Election pada RAFT</h2>
+                                  <p class="text-sm text-textdark/70 md:text-base">
+                                      Leader election memastikan hanya satu orderer aktif yang memimpin replikasi log pada satu waktu.
+                                      Ketika leader gagal atau timeout habis, proses ini memilih pemimpin baru melalui pemungutan suara mayoritas.
+                                      Diagram berikut merangkum alur perpindahan status node RAFT dalam jaringan Hyperledger Fabric.
+                                  </p>
+                              </div>
+
+                              <div class="grid gap-6 lg:grid-cols-[1.6fr_1fr]">
+                                  <div class="rounded-3xl border border-white/10 bg-surfaceMuted/80 p-6">
+                                      <svg viewBox="0 0 720 320" class="h-full w-full max-w-3xl" role="img" aria-labelledby="raft-election-diagram-title raft-election-diagram-desc">
+                                          <title id="raft-election-diagram-title">Diagram proses leader election pada RAFT</title>
+                                          <desc id="raft-election-diagram-desc">Follower berubah menjadi kandidat, meminta suara, dan menjadi leader lalu mengirim heartbeat untuk mempertahankan kepemimpinan.</desc>
+                                          <defs>
+                                              <linearGradient id="stateFollower" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                  <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.2"></stop>
+                                                  <stop offset="100%" stop-color="#1E293B" stop-opacity="0.5"></stop>
+                                              </linearGradient>
+                                              <linearGradient id="stateCandidate" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                  <stop offset="0%" stop-color="#F97316" stop-opacity="0.25"></stop>
+                                                  <stop offset="100%" stop-color="#1E293B" stop-opacity="0.6"></stop>
+                                              </linearGradient>
+                                              <linearGradient id="stateLeader" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                  <stop offset="0%" stop-color="#6366F1" stop-opacity="0.3"></stop>
+                                                  <stop offset="100%" stop-color="#1E293B" stop-opacity="0.65"></stop>
+                                              </linearGradient>
+                                              <marker id="arrowPrimary" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+                                                  <path d="M0,0 L12,6 L0,12 z" fill="#38BDF8"></path>
+                                              </marker>
+                                              <marker id="arrowHighlight" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+                                                  <path d="M0,0 L12,6 L0,12 z" fill="#F97316"></path>
+                                              </marker>
+                                              <marker id="arrowLeader" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+                                                  <path d="M0,0 L12,6 L0,12 z" fill="#6366F1"></path>
+                                              </marker>
+                                          </defs>
+
+                                          <g>
+                                              <rect x="40" y="40" width="150" height="80" rx="18" fill="url(#stateFollower)" stroke="rgba(148,163,184,0.5)" stroke-width="2"></rect>
+                                              <text x="115" y="75" text-anchor="middle" fill="#E2E8F0" font-size="16" font-weight="600">Follower</text>
+                                              <text x="115" y="96" text-anchor="middle" fill="#94A3B8" font-size="12">menunggu heartbeat</text>
+                                          </g>
+
+                                          <g>
+                                              <rect x="40" y="140" width="150" height="80" rx="18" fill="url(#stateFollower)" stroke="rgba(148,163,184,0.4)" stroke-width="2"></rect>
+                                              <text x="115" y="175" text-anchor="middle" fill="#E2E8F0" font-size="16" font-weight="600">Follower</text>
+                                              <text x="115" y="196" text-anchor="middle" fill="#94A3B8" font-size="12">timeout bertahap</text>
+                                          </g>
+
+                                          <g>
+                                              <rect x="40" y="240" width="150" height="80" rx="18" fill="url(#stateFollower)" stroke="rgba(148,163,184,0.35)" stroke-width="2"></rect>
+                                              <text x="115" y="275" text-anchor="middle" fill="#E2E8F0" font-size="16" font-weight="600">Follower</text>
+                                              <text x="115" y="296" text-anchor="middle" fill="#94A3B8" font-size="12">siap memilih</text>
+                                          </g>
+
+                                          <g>
+                                              <rect x="280" y="70" width="180" height="100" rx="22" fill="url(#stateCandidate)" stroke="rgba(249,115,22,0.45)" stroke-width="2"></rect>
+                                              <text x="370" y="110" text-anchor="middle" fill="#F59E0B" font-size="18" font-weight="700">Candidate</text>
+                                              <text x="370" y="133" text-anchor="middle" fill="#F8FAFC" font-size="13">mengirim RequestVote</text>
+                                              <text x="370" y="152" text-anchor="middle" fill="#F8FAFC" font-size="13">& menghitung suara</text>
+                                          </g>
+
+                                          <g>
+                                              <rect x="280" y="210" width="180" height="90" rx="20" fill="rgba(15,23,42,0.55)" stroke="rgba(249,115,22,0.35)" stroke-width="1.5"></rect>
+                                              <text x="370" y="245" text-anchor="middle" fill="#F97316" font-size="16" font-weight="600">Timeout Reset</text>
+                                              <text x="370" y="266" text-anchor="middle" fill="#E2E8F0" font-size="12">majority tercapai → jadi leader</text>
+                                          </g>
+
+                                          <g>
+                                              <rect x="540" y="120" width="150" height="110" rx="22" fill="url(#stateLeader)" stroke="rgba(99,102,241,0.5)" stroke-width="2"></rect>
+                                              <text x="615" y="160" text-anchor="middle" fill="#C7D2FE" font-size="18" font-weight="700">Leader</text>
+                                              <text x="615" y="183" text-anchor="middle" fill="#E0E7FF" font-size="13">mengirim heartbeat</text>
+                                              <text x="615" y="204" text-anchor="middle" fill="#E0E7FF" font-size="13">replikasi log tertib</text>
+                                          </g>
+
+                                          <path d="M190,80 C240,80 240,110 280,120" fill="none" stroke="#38BDF8" stroke-width="3" marker-end="url(#arrowPrimary)"></path>
+                                          <path d="M190,180 C250,180 250,150 280,140" fill="none" stroke="#38BDF8" stroke-width="3" marker-end="url(#arrowPrimary)"></path>
+                                          <path d="M190,280 C250,280 250,250 280,240" fill="none" stroke="#38BDF8" stroke-width="3" marker-end="url(#arrowPrimary)"></path>
+
+                                          <path d="M370,170 L370,210" stroke="#F97316" stroke-width="3" marker-end="url(#arrowHighlight)"></path>
+                                          <path d="M460,250 C500,250 520,220 540,200" fill="none" stroke="#F97316" stroke-width="3" marker-end="url(#arrowHighlight)"></path>
+                                          <path d="M540,170 C500,170 500,120 460,120" fill="none" stroke="#6366F1" stroke-width="3" marker-end="url(#arrowLeader)"></path>
+                                          <path d="M540,200 C500,200 500,260 460,260" fill="none" stroke="#6366F1" stroke-width="3" marker-end="url(#arrowLeader)"></path>
+                                          <text x="455" y="108" fill="#94A3B8" font-size="12">heartbeat</text>
+                                          <text x="455" y="278" fill="#94A3B8" font-size="12">replicate log</text>
+                                      </svg>
+                                  </div>
+
+                                  <div class="flex flex-col gap-4 rounded-3xl border border-white/10 bg-surface/70 p-6 text-sm text-textdark/75 md:text-base">
+                                      <div class="flex gap-3">
+                                          <span class="flex h-8 w-8 items-center justify-center rounded-full bg-primary/20 font-semibold text-primary/80">1</span>
+                                          <div>
+                                              <p class="font-semibold text-textdark">Follower menunggu heartbeat</p>
+                                              <p class="text-textdark/70">Jika leader aktif mengirim heartbeat tepat waktu, status follower stabil dan tidak memicu pemilihan.</p>
+                                          </div>
+                                      </div>
+                                      <div class="flex gap-3">
+                                          <span class="flex h-8 w-8 items-center justify-center rounded-full bg-highlight/20 font-semibold text-highlight/80">2</span>
+                                          <div>
+                                              <p class="font-semibold text-textdark">Timeout memicu kandidat</p>
+                                              <p class="text-textdark/70">Follower dengan timeout terlama habis lebih dulu, meningkatkan term, dan menjadi candidate untuk meminta suara.</p>
+                                          </div>
+                                      </div>
+                                      <div class="flex gap-3">
+                                          <span class="flex h-8 w-8 items-center justify-center rounded-full bg-secondary/20 font-semibold text-secondary/80">3</span>
+                                          <div>
+                                              <p class="font-semibold text-textdark">Voting mayoritas</p>
+                                              <p class="text-textdark/70">Candidate mengirim pesan `RequestVote` ke semua orderer; follower memberikan suara tunggal pada term tersebut.</p>
+                                          </div>
+                                      </div>
+                                      <div class="flex gap-3">
+                                          <span class="flex h-8 w-8 items-center justify-center rounded-full bg-primary/25 font-semibold text-primary/80">4</span>
+                                          <div>
+                                              <p class="font-semibold text-textdark">Leader baru aktif</p>
+                                              <p class="text-textdark/70">Setelah memperoleh mayoritas, candidate menjadi leader, mengirim heartbeat, dan melanjutkan replikasi log. Jika gagal, siklus dimulai kembali.</p>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </div>
+                          </section>
+
                           <section class="rounded-3xl border border-highlight/40 bg-highlight/10 p-8 shadow-2xl shadow-black/30">
                               <div class="flex flex-col gap-4">
                                   <div class="inline-flex w-fit items-center gap-2 rounded-full border border-highlight/60 bg-highlight/20 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.32em] text-highlight/95">

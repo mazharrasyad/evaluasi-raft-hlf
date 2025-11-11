@@ -67,9 +67,9 @@
                                 <div class="space-y-5">
                                     <h1 class="text-3xl font-semibold text-textdark md:text-4xl">Perumusan Rancangan Eksperimen</h1>
                                     <p class="text-sm text-textdark/70 md:text-base">
-                                        Rancangan eksperimen disusun untuk memastikan evaluasi kinerja konsensus RAFT berlangsung secara sistematis, terkontrol, dan dapat direplikasi.
-                                        Desain ini mengatur cara membandingkan RAFT standar dengan RAFT varian di dua versi platform Hyperledger Fabric sekaligus menetapkan parameter serta variabel uji yang terukur.
-                                        Sejalan dengan metodologi pada Bab III, penelitian ini menerapkan pendekatan eksperimen kuantitatif dengan desain komparatif.
+                                        Perumusan rancangan eksperimen dilakukan untuk memastikan bahwa evaluasi kinerja algoritma konsensus RAFT dapat dilaksanakan secara sistematis dan terkontrol.
+                                        Rancangan ini mencakup desain eksperimen yang mengatur bagaimana perbandingan antara RAFT standar dan RAFT varian dilakukan, serta penetapan parameter dan variabel uji yang akan diukur.
+                                        Sebagaimana telah dijelaskan pada Bab III, penelitian ini menggunakan metode eksperimen kuantitatif dengan desain komparatif.
                                     </p>
                                 </div>
                             </div>
@@ -82,8 +82,9 @@
                                 </div>
                                 <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Desain Eksperimen</h2>
                                 <p class="text-sm text-textdark/70 md:text-base">
-                                    Eksperimen dirancang secara komparatif dengan mengendalikan variabel di luar fokus penelitian sehingga perbedaan hasil kinerja dapat dikaitkan langsung dengan implementasi RAFT yang diuji.
-                                    Empat kondisi pengujian disiapkan untuk mengamati variasi performa di lintas versi platform dan konfigurasi konsensus.
+                                    Desain eksperimen disusun berdasarkan prinsip komparatif dengan mengontrol variabel-variabel yang tidak menjadi fokus penelitian.
+                                    Tujuannya adalah agar setiap perbedaan kinerja yang terukur dapat diatribusikan secara langsung pada perbedaan antara implementasi RAFT standar dan RAFT varian.
+                                    Eksperimen dirancang untuk membandingkan empat kondisi pengujian yaitu:
                                 </p>
                                 <ol class="list-decimal space-y-2 pl-6 text-sm text-textdark/70 md:text-base">
                                     <li>RAFT standar pada Fabric v2</li>
@@ -92,9 +93,19 @@
                                     <li>RAFT varian pada Fabric v3</li>
                                 </ol>
                                 <p class="text-sm text-textdark/70 md:text-base">
-                                    Skema tersebut memungkinkan evaluasi menyeluruh terhadap konsistensi perbedaan kinerja antarversi platform.
-                                    Untuk menggambarkan variasi pelaporan maladministrasi, tiga kategori beban transaksi digunakan: beban ringan untuk kondisi harian, beban sedang untuk periode aktivitas menengah, dan beban tinggi sebagai stress test saat pelaporan massal.
-                                    Setiap skenario diulang beberapa kali guna menghitung nilai rata-rata, standar deviasi, dan memastikan dasar statistik yang valid.
+                                    Struktur ini memungkinkan evaluasi terhadap perbedaan antara RAFT standar dan varian, serta mengamati apakah perbedaan tersebut konsisten atau bervariasi antara versi platform yang berbeda.
+                                </p>
+                                <p class="text-sm text-textdark/70 md:text-base">
+                                    Dalam mensimulasikan kondisi pelaporan maladministrasi yang beragam, eksperimen menggunakan tiga kategori beban transaksi:
+                                    (1) beban ringan yang merepresentasikan kondisi pelaporan harian normal dengan volume rendah,
+                                    (2) beban sedang yang merepresentasikan kondisi pelaporan pada periode aktivitas menengah, dan
+                                    (3) beban tinggi yang merepresentasikan kondisi puncak atau stress test saat terjadi pelaporan massal.
+                                    Setiap skenario beban diulang beberapa kali untuk memastikan reliabilitas dan konsistensi data.
+                                    Pengulangan ini penting untuk menghitung nilai rata-rata, standar deviasi, dan melakukan uji statistik yang valid.
+                                </p>
+                                <p class="text-sm text-textdark/70 md:text-base">
+                                    Selain pengujian beban normal, eksperimen juga mencakup simulasi kegagalan untuk mengevaluasi fault tolerance RAFT dengan menghentikan orderer node yang berperan sebagai leader,
+                                    kemudian mengamati proses leader election baru, waktu pemulihan, dan konsistensi data setelah kegagalan.
                                 </p>
                             </div>
                             <div class="grid gap-5 md:grid-cols-2">
@@ -120,17 +131,45 @@
                                 </div>
                                   <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Parameter dan Variabel Uji</h2>
                                   <p class="text-sm text-textdark/70 md:text-base">
-                                      Parameter dan variabel uji ditetapkan berdasarkan empat aspek kinerja yang menjadi fokus evaluasi yaitu throughput, latency, resource usage, dan fault tolerance.
-                                      Variabel yang dimanipulasi dalam penelitian ini meliputi:
+                                      Parameter dan variabel uji dalam penelitian ini ditetapkan berdasarkan empat parameter yang menjadi fokus evaluasi, yaitu throughput, latency, resource usage, dan fault tolerance.
+                                      Keempat parameter ini digunakan untuk mengukur performa algoritma konsensus RAFT dalam berbagai kondisi transaksi serta konfigurasi sistem HLF.
+                                      Pemilihan parameter tersebut didasarkan pada karakteristik mendasar sistem blockchain yang menuntut efisiensi, kecepatan, dan ketahanan terhadap gangguan.
+                                      Throughput dan latency merepresentasikan kinerja jaringan dalam memproses transaksi, sementara resource usage menilai efisiensi pemanfaatan sumber daya komputasi.
+                                      Fault tolerance menggambarkan kemampuan sistem untuk tetap beroperasi ketika sebagian node mengalami kegagalan.
                                   </p>
-                                  <ol class="list-decimal space-y-2 pl-6 text-sm text-textdark/70 md:text-base">
-                                      <li>Konfigurasi konsensus RAFT yang dibedakan menjadi RAFT standar dengan pengaturan default dan RAFT varian dengan modifikasi parameter tertentu.</li>
-                                      <li>Versi platform Fabric yaitu v2 sebagai versi stabil dan v3 sebagai versi dalam pengembangan.</li>
-                                      <li>Tingkat beban transaksi yang terdiri dari beban ringan untuk kondisi normal, beban sedang untuk kondisi aktivitas menengah, dan beban tinggi untuk kondisi puncak.</li>
+                                  <p class="text-sm text-textdark/70 md:text-base">
+                                      Keempat parameter ini dinilai secara komprehensif untuk mendapatkan gambaran menyeluruh mengenai stabilitas dan efektivitas RAFT dalam menangani beban transaksi pelaporan maladministrasi.
+                                      Variabel yang dimanipulasi dalam eksperimen ini mencakup tiga faktor utama berikut:
+                                  </p>
+                                  <ol class="list-decimal space-y-3 pl-6 text-sm text-textdark/70 md:text-base">
+                                      <li>
+                                          <strong class="text-textdark">Konfigurasi algoritma RAFT</strong><br/>
+                                          Konfigurasi ini dibedakan menjadi dua jenis, yaitu RAFT standar dengan pengaturan default sesuai bawaan HLF, dan RAFT varian, yaitu versi yang telah dimodifikasi pada parameter internal tertentu untuk mengoptimalkan efisiensi proses replikasi log dan stabilitas leader election.
+                                          Perbedaan ini diharapkan menunjukkan bagaimana penyesuaian konfigurasi dapat memengaruhi performa sistem.
+                                      </li>
+                                      <li>
+                                          <strong class="text-textdark">Versi platform Hyperledger Fabric</strong><br/>
+                                          Penelitian ini menggunakan dua versi platform, yakni Fabric v2 sebagai versi stabil yang telah teruji di lingkungan produksi, dan Fabric v3 sebagai versi terbaru yang masih dalam pengembangan dan membawa sejumlah peningkatan, termasuk optimisasi pada mekanisme konsensus dan efisiensi komunikasi antar node.
+                                      </li>
+                                      <li>
+                                          <strong class="text-textdark">Tingkat beban transaksi</strong><br/>
+                                          Pengujian dilakukan pada tiga tingkat beban transaksi yang berbeda untuk meniru variasi aktivitas sistem pelaporan maladministrasi di dunia nyata, yaitu:
+                                          <ol class="mt-2 list-[lower-alpha] space-y-1 pl-6">
+                                              <li>Beban ringan untuk kondisi normal dengan jumlah transaksi rendah.</li>
+                                              <li>Beban sedang untuk kondisi aktivitas menengah.</li>
+                                              <li>Beban tinggi untuk kondisi puncak ketika terjadi lonjakan transaksi secara signifikan.</li>
+                                          </ol>
+                                      </li>
                                   </ol>
                                   <p class="text-sm text-textdark/70 md:text-base">
-                                      Untuk menjaga validitas eksperimen, beberapa aspek dijaga tetap sama selama pengujian, yaitu jumlah dan konfigurasi node dalam jaringan, parameter blok dan chaincode, serta spesifikasi perangkat hardware.
-                                      Kombinasi dari variabel yang dimanipulasi menghasilkan 12 kondisi pengujian, diantaranya terdiri dari:
+                                      Untuk menjaga validitas hasil eksperimen, seluruh faktor di luar variabel manipulatif dijaga tetap konstan selama proses pengujian.
+                                      Aspek-aspek yang dikontrol meliputi jumlah dan konfigurasi node dalam jaringan, parameter blok dan chaincode, serta spesifikasi perangkat keras yang digunakan.
+                                      Pendekatan ini memastikan bahwa setiap perbedaan hasil pengukuran dapat diatribusikan langsung pada variasi konfigurasi RAFT dan versi Fabric, bukan pada faktor eksternal lain.
+                                  </p>
+                                  <p class="text-sm text-textdark/70 md:text-base">
+                                      Kombinasi dari tiga variabel tersebut menghasilkan 12 kondisi pengujian terpisah yang mencakup seluruh kemungkinan skenario.
+                                      Setiap kombinasi terdiri atas konfigurasi RAFT (standar atau varian), versi platform (Fabric v2 atau v3), dan tingkat beban transaksi (ringan, sedang, atau tinggi).
+                                      Secara rinci, kombinasi tersebut meliputi:
                                   </p>
                                   <ol class="list-decimal space-y-2 pl-6 text-sm text-textdark/70 md:text-base">
                                       <li>RAFT standar pada Fabric v2 dengan beban ringan, sedang, dan tinggi.</li>
@@ -139,15 +178,17 @@
                                       <li>RAFT varian pada Fabric v3 dengan beban ringan, sedang, dan tinggi.</li>
                                   </ol>
                                   <p class="text-sm text-textdark/70 md:text-base">
-                                      Struktur pengujian ini memungkinkan perbandingan komprehensif antara RAFT standar dan varian pada kedua versi platform Fabric di berbagai tingkat beban transaksi.
+                                      Struktur kombinasi pengujian tersebut ditunjukkan pada Gambar 4.2, yang memperlihatkan hubungan antara versi platform, jenis konfigurasi RAFT, dan tingkat beban transaksi.
+                                      Diagram ini menjadi acuan utama dalam penyusunan skenario eksperimen, di mana setiap kotak mewakili satu kelompok uji yang dieksekusi secara independen untuk memperoleh hasil metrik kinerja.
                                   </p>
                                   <div class="mt-10 space-y-6 rounded-2xl border border-white/10 bg-surfaceMuted/60 p-6 shadow-inner shadow-black/20">
                                       <div class="space-y-3">
-                                          <span class="text-xs font-semibold uppercase tracking-[0.32em] text-secondary/70">Diagram 4.2</span>
-                                          <h3 class="text-xl font-semibold text-textdark md:text-2xl">Diagram Rancangan Eksperimen</h3>
+                                          <span class="text-xs font-semibold uppercase tracking-[0.32em] text-secondary/70">Gambar 4.2</span>
+                                          <h3 class="text-xl font-semibold text-textdark md:text-2xl">Struktur Kombinasi Pengujian RAFT pada HLF v2 dan v3</h3>
                                           <p class="text-sm text-textdark/70 md:text-base">
-                                              Diagram berikut memetakan kombinasi skenario yang dihasilkan dari manipulasi konfigurasi RAFT, versi Fabric, dan tingkat beban transaksi.
-                                              Setiap jalur pengujian direplikasi untuk mendapatkan metrik throughput, latency, resource usage, serta respons sistem terhadap fault tolerance.
+                                              Diagram ini memperlihatkan empat kelompok pengujian yang terdiri dari RAFT standar dan RAFT varian pada dua versi Fabric (v2 dan v3).
+                                              Masing-masing kelompok diuji dengan tiga tingkat beban transaksi: ringan, sedang, dan tinggi.
+                                              Kombinasi ini menghasilkan total dua belas kondisi uji yang digunakan untuk menganalisis performa konsensus RAFT secara komparatif.
                                           </p>
                                       </div>
                                       <div class="grid gap-6 lg:grid-cols-2">
@@ -208,18 +249,12 @@
                                       </div>
                                       <div class="space-y-3 text-sm text-textdark/70 md:text-base">
                                           <p>
-                                              Setiap kartu merepresentasikan satu konfigurasi jaringan yang diuji.
-                                              Jalur eksperimen dieksekusi dengan menerapkan beban transaksi bertingkat, menjalankan pengukuran metrik kinerja, serta mencatat respons saat fault tolerance diaktifkan.
+                                              Setiap blok dalam diagram merepresentasikan satu skenario pengujian yang menjadi dasar perbandingan throughput, latency, resource usage, dan fault tolerance antar versi Fabric dan konfigurasi RAFT.
                                           </p>
-                                          <ol class="list-decimal space-y-2 pl-6 text-sm text-textdark/70 md:text-base">
-                                              <li>Menyiapkan jaringan RAFT sesuai konfigurasi (standar atau varian) pada versi Fabric yang relevan.</li>
-                                              <li>Menginjeksikan beban transaksi ringan, sedang, dan tinggi secara berurutan ke dalam jaringan.</li>
-                                              <li>Mencatat throughput, latency, serta resource usage pada setiap tahap beban.</li>
-                                              <li>Mensimulasikan gangguan node orderer untuk mengamati perilaku fault tolerance dan waktu pemulihan.</li>
-                                              <li>Mengulangi skenario untuk memperoleh rerata kinerja dan validasi hasil.</li>
-                                          </ol>
                                           <p>
-                                              Pendekatan bertahap ini memastikan bahwa perbedaan performa yang terukur benar-benar disebabkan oleh kombinasi konfigurasi RAFT, versi Fabric, dan tingkat beban transaksi yang diuji.
+                                              Secara keseluruhan, struktur kombinasi ini memungkinkan dilakukannya evaluasi kinerja yang komprehensif terhadap algoritma RAFT, baik dalam konfigurasi standar maupun varian, serta pada dua versi platform HLF.
+                                              Pendekatan ini memberikan dasar kuat untuk menganalisis perbedaan performa, efisiensi, dan ketahanan sistem di bawah beban transaksi yang bervariasi.
+                                              Hasil dari tahap ini menjadi masukan utama dalam analisis mendalam pada subbab berikutnya, yaitu pengujian dan interpretasi hasil eksperimen.
                                           </p>
                                       </div>
                                   </div>

@@ -85,9 +85,46 @@
                                     Bab 4.3.1
                                 </div>
                                 <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Arsitektur dan Spesifikasi Sistem</h2>
-                                <p class="text-sm text-textdark/70 md:text-base">
-                                      Pembangunan testbed dirancang dengan pola arsitektur yang seragam agar hasil pengamatan dapat dibandingkan secara langsung. Dua organisasi peer (Org1 dan Org2) dipasangkan dengan satu peer produksi masing-masing, sementara organisasi orderer menjalankan layanan TLS penuh untuk menyederhanakan analisis keamanan. Identitas seluruh komponen diturunkan dari berkas <code>organizations/cryptogen</code> sehingga struktur admin dan pengguna konsisten di seluruh varian, memperjelas batas eksperimen yang dilakukan.
-                                </p>
+                                  <p class="text-sm text-textdark/70 md:text-base">
+                                        Arsitektur folder blockchain disusun berpasangan di bawah direktori <code>fabric-2</code> dan <code>fabric-3</code> untuk masing-masing konfigurasi <code>raft-standard</code> dan <code>raft-variant</code>. Setiap pasangan memuat struktur seragam: <code>bin/</code> menyimpan utilitas Hyperledger Fabric, <code>chaincode/</code> mengarsipkan kontrak pintar pelaporan, <code>config/</code> menampung berkas pengaturan inti, <code>env.sh</code> mendefinisikan variabel lingkungan, dan <code>network/</code> merekam orkestrasi organisasi serta kanal. Penataan kembar ini memastikan seluruh iterasi eksperimen berada pada kondisi dasar yang sebanding sebelum parameter RAFT divisualisasikan di bagian lanjutan.
+                                  </p>
+                                  <div class="rounded-2xl border border-white/10 bg-surface/60 p-6 shadow-inner shadow-black/20">
+                                      <h3 class="text-base font-semibold text-textdark">Diagram Arsitektur Folder</h3>
+                                      <p class="mt-3 text-xs text-textdark/60 md:text-sm">
+                                          Diagram berikut memetakan kesetimbangan struktur di antara keempat lingkungan uji sehingga hubungan antar direktori utama dapat dibaca sekilas sebelum menelusuri artefak detailnya.
+                                      </p>
+                                      <div class="mt-4 overflow-x-auto rounded-xl border border-white/5 bg-surfaceMuted/80 p-4 text-[11px] font-mono text-textdark/70 md:text-sm">
+<pre class="whitespace-pre">
+fabric-2/
+|-- raft-standard/
+|   |-- bin/               # Binaries CLI Fabric (configtxgen, peer, dll.)
+|   |-- chaincode/         # Kontrak pintar pelaporan
+|   |-- config/            # Konfigurasi core/orderer
+|   |-- env.sh             # Variabel lingkungan testbed
+|   `-- network/           # Skrip orkestrasi & artefak jaringan
+`-- raft-variant/
+    |-- bin/
+    |-- chaincode/
+    |-- config/
+    |-- env.sh
+    `-- network/
+
+fabric-3/
+|-- raft-standard/
+|   |-- bin/
+|   |-- chaincode/
+|   |-- config/
+|   |-- env.sh
+|   `-- network/
+`-- raft-variant/
+    |-- bin/
+    |-- chaincode/
+    |-- config/
+    |-- env.sh
+    `-- network/
+</pre>
+                                      </div>
+                                  </div>
                             </div>
                             <div class="grid gap-5 md:grid-cols-2">
                                 <article class="rounded-2xl border border-white/10 bg-surface/60 p-6 shadow-inner shadow-black/20">

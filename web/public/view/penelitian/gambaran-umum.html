@@ -147,142 +147,283 @@
                             </div>
                         </section>
 
-                          <section class="space-y-6 rounded-3xl border border-primary/40 bg-surface/70 p-8 shadow-2xl shadow-black/30">
-                              <div class="flex flex-col gap-3">
-                                  <div class="inline-flex w-fit items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.32em] text-primary/80">
-                                      Visualisasi
-                                  </div>
-                                  <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Diagram Evaluasi Konsensus RAFT</h2>
-                                  <p class="text-sm text-textdark/70 md:text-base">
-                                      Diagram berikut memetakan bagaimana simulasi pelaporan maladministrasi mengalir ke dua lingkungan Hyperledger Fabric.
-                                      Masing-masing menggunakan RAFT standar dan RAFT varian untuk mengukur <span class="font-semibold text-textdark">throughput</span>, <span class="font-semibold text-textdark">latency</span>, pemakaian sumber daya, dan ketahanan terhadap kegagalan.
-                                      Hasil komparatifnya menjadi dasar penilaian kesiapan blockchain dalam mendukung layanan pengaduan publik berskala nasional.
-                                  </p>
-                              </div>
+                            <section class="space-y-6 rounded-3xl border border-primary/40 bg-surface/70 p-8 shadow-2xl shadow-black/30">
+                                <div class="flex flex-col gap-3">
+                                    <div class="inline-flex w-fit items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.32em] text-primary/80">
+                                        Visualisasi
+                                    </div>
+                                    <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Visualisasi Konsensus RAFT</h2>
+                                    <p class="text-sm text-textdark/70 md:text-base">
+                                        Bagian ini menampilkan dua diagram: gambaran umum mekanisme pemilihan pemimpin RAFT dan konteks evaluasi eksperimental yang dijalankan pada dua rilis Hyperledger Fabric.
+                                        Kombinasi keduanya membantu menghubungkan teori RAFT dengan pengukuran performa pada skenario pengaduan publik nasional.
+                                    </p>
+                                </div>
 
-                              <div class="grid gap-6 lg:grid-cols-[1.8fr_1fr]">
-                                  <div class="rounded-3xl border border-white/10 bg-surfaceMuted/80 p-6">
-                                      <svg viewBox="0 0 860 420" class="h-full w-full max-w-4xl" role="img" aria-labelledby="raft-eval-diagram-title raft-eval-diagram-desc">
-                                          <title id="raft-eval-diagram-title">Diagram alur evaluasi RAFT untuk pelaporan maladministrasi</title>
-                                          <desc id="raft-eval-diagram-desc">Data pengaduan publik diuji pada Fabric v2 dengan RAFT standar dan Fabric v3 dengan RAFT varian untuk mengukur throughput, latency, resource usage, dan fault tolerance.</desc>
-                                          <defs>
-                                              <linearGradient id="sourceGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                                  <stop offset="0%" stop-color="#F59E0B" stop-opacity="0.3"></stop>
-                                                  <stop offset="100%" stop-color="#1E293B" stop-opacity="0.65"></stop>
-                                              </linearGradient>
-                                              <linearGradient id="raftStandardGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                                  <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.28"></stop>
-                                                  <stop offset="100%" stop-color="#1E293B" stop-opacity="0.6"></stop>
-                                              </linearGradient>
-                                              <linearGradient id="raftVariantGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                                  <stop offset="0%" stop-color="#6366F1" stop-opacity="0.3"></stop>
-                                                  <stop offset="100%" stop-color="#1E293B" stop-opacity="0.62"></stop>
-                                              </linearGradient>
-                                              <linearGradient id="metricGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                                  <stop offset="0%" stop-color="#F97316" stop-opacity="0.22"></stop>
-                                                  <stop offset="100%" stop-color="#1E293B" stop-opacity="0.55"></stop>
-                                              </linearGradient>
-                                              <linearGradient id="insightGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                                  <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.25"></stop>
-                                                  <stop offset="100%" stop-color="#6366F1" stop-opacity="0.55"></stop>
-                                              </linearGradient>
-                                              <marker id="arrowFlow" markerWidth="10" markerHeight="10" refX="7.5" refY="5" orient="auto" markerUnits="strokeWidth">
-                                                  <path d="M0,0 L10,5 L0,10 z" fill="#38BDF8"></path>
-                                              </marker>
-                                              <marker id="arrowHighlightFlow" markerWidth="10" markerHeight="10" refX="7.5" refY="5" orient="auto" markerUnits="strokeWidth">
-                                                  <path d="M0,0 L10,5 L0,10 z" fill="#F97316"></path>
-                                              </marker>
-                                          </defs>
+                <div class="space-y-6">
+                    <div class="rounded-3xl border border-white/10 bg-surface/70 p-6 shadow-2xl shadow-black/30">
+                        <div class="space-y-4">
+                            <h3 class="text-xl font-semibold text-textdark md:text-2xl">Diagram 1 — Gambaran Umum RAFT</h3>
+                            <p class="text-sm text-textdark/70 md:text-base">
+                                Diagram berikut merangkum siklus inti RAFT: follower memantau heartbeat, beralih ke kandidat saat timeout, dan menjadi leader ketika meraih mayoritas suara.
+                                Setelah terpilih, leader menjaga konsistensi cluster melalui heartbeat berkala dan replikasi log tertib ke seluruh follower.
+                            </p>
+                            <div class="overflow-x-auto">
+                                <svg viewBox="0 0 880 360" class="h-full w-full min-w-[680px]" role="img" aria-labelledby="raft-overview-diagram-title raft-overview-diagram-desc">
+                                    <title id="raft-overview-diagram-title">Diagram gambaran umum tahapan RAFT</title>
+                                    <desc id="raft-overview-diagram-desc">Follower menunggu heartbeat, menjadi kandidat saat timeout, dan memimpin sebagai leader setelah mayoritas suara tercapai.</desc>
+                                    <defs>
+                                        <linearGradient id="overviewFollowerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" stop-color="#1E3A8A" stop-opacity="0.55"></stop>
+                                            <stop offset="100%" stop-color="#0F172A" stop-opacity="0.95"></stop>
+                                        </linearGradient>
+                                        <linearGradient id="overviewCandidateGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" stop-color="#CA8A04" stop-opacity="0.7"></stop>
+                                            <stop offset="100%" stop-color="#7C2D12" stop-opacity="0.9"></stop>
+                                        </linearGradient>
+                                        <linearGradient id="overviewLeaderGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" stop-color="#1D4ED8" stop-opacity="0.55"></stop>
+                                            <stop offset="100%" stop-color="#0B2447" stop-opacity="0.9"></stop>
+                                        </linearGradient>
+                                        <linearGradient id="overviewTimeoutGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" stop-color="#F97316" stop-opacity="0.55"></stop>
+                                            <stop offset="100%" stop-color="#7C2D12" stop-opacity="0.9"></stop>
+                                        </linearGradient>
+                                        <marker id="overviewArrowBlue" markerWidth="10" markerHeight="10" refX="7.5" refY="5" orient="auto" markerUnits="strokeWidth">
+                                            <path d="M0,0 L10,5 L0,10 z" fill="#38BDF8"></path>
+                                        </marker>
+                                        <marker id="overviewArrowOrange" markerWidth="10" markerHeight="10" refX="7.5" refY="5" orient="auto" markerUnits="strokeWidth">
+                                            <path d="M0,0 L10,5 L0,10 z" fill="#F97316"></path>
+                                        </marker>
+                                        <marker id="overviewArrowPurple" markerWidth="10" markerHeight="10" refX="7.5" refY="5" orient="auto" markerUnits="strokeWidth">
+                                            <path d="M0,0 L10,5 L0,10 z" fill="#6366F1"></path>
+                                        </marker>
+                                    </defs>
 
-                                          <g>
-                                              <rect x="40" y="60" width="230" height="110" rx="22" fill="url(#sourceGradient)" stroke="rgba(245,158,11,0.45)" stroke-width="2"></rect>
-                                              <text x="155" y="105" text-anchor="middle" fill="#FDE68A" font-size="18" font-weight="700">Sistem Pengaduan Publik</text>
-                                              <text x="155" y="132" text-anchor="middle" fill="#F8FAFC" font-size="13">10.846 laporan maladministrasi / tahun</text>
-                                          </g>
+                                    <g>
+                                        <rect x="40" y="35" width="190" height="80" rx="22" fill="url(#overviewFollowerGradient)" stroke="rgba(96,165,250,0.45)" stroke-width="2"></rect>
+                                        <text x="135" y="68" text-anchor="middle" fill="#E2E8F0" font-size="18" font-weight="700">Follower</text>
+                                        <text x="135" y="94" text-anchor="middle" fill="#BAE6FD" font-size="13">menunggu heartbeat</text>
+                                    </g>
 
-                                          <g>
-                                              <rect x="310" y="40" width="210" height="120" rx="24" fill="url(#raftStandardGradient)" stroke="rgba(56,189,248,0.5)" stroke-width="2"></rect>
-                                              <text x="415" y="85" text-anchor="middle" fill="#E0F2FE" font-size="18" font-weight="700">Fabric v2</text>
-                                              <text x="415" y="113" text-anchor="middle" fill="#BAE6FD" font-size="14">Orderer RAFT Standar</text>
-                                              <text x="415" y="135" text-anchor="middle" fill="#94A3B8" font-size="12">Baseline produksi</text>
-                                          </g>
+                                    <g>
+                                        <rect x="40" y="145" width="190" height="80" rx="22" fill="url(#overviewFollowerGradient)" stroke="rgba(96,165,250,0.35)" stroke-width="1.8"></rect>
+                                        <text x="135" y="178" text-anchor="middle" fill="#E2E8F0" font-size="18" font-weight="700">Follower</text>
+                                        <text x="135" y="204" text-anchor="middle" fill="#BAE6FD" font-size="13">timeout bertahap</text>
+                                    </g>
 
-                                          <g>
-                                              <rect x="310" y="200" width="210" height="120" rx="24" fill="url(#raftVariantGradient)" stroke="rgba(99,102,241,0.5)" stroke-width="2"></rect>
-                                              <text x="415" y="245" text-anchor="middle" fill="#E0E7FF" font-size="18" font-weight="700">Fabric v3</text>
-                                              <text x="415" y="273" text-anchor="middle" fill="#C7D2FE" font-size="14">Orderer RAFT Varian</text>
-                                              <text x="415" y="295" text-anchor="middle" fill="#A5B4FC" font-size="12">Optimasi generasi terbaru</text>
-                                          </g>
+                                    <g>
+                                        <rect x="40" y="255" width="190" height="80" rx="22" fill="url(#overviewFollowerGradient)" stroke="rgba(96,165,250,0.35)" stroke-width="1.8"></rect>
+                                        <text x="135" y="288" text-anchor="middle" fill="#E2E8F0" font-size="18" font-weight="700">Follower</text>
+                                        <text x="135" y="314" text-anchor="middle" fill="#BAE6FD" font-size="13">siap memilih</text>
+                                    </g>
 
-                                          <g>
-                                              <rect x="580" y="40" width="220" height="100" rx="20" fill="url(#metricGradient)" stroke="rgba(249,115,22,0.42)" stroke-width="1.8"></rect>
-                                              <text x="690" y="78" text-anchor="middle" fill="#FFDAB5" font-size="16" font-weight="700">Throughput</text>
-                                              <text x="690" y="102" text-anchor="middle" fill="#F8FAFC" font-size="13">Rata-rata transaksi / detik</text>
-                                          </g>
+                                    <g>
+                                        <rect x="320" y="70" width="220" height="120" rx="26" fill="url(#overviewCandidateGradient)" stroke="rgba(251,191,36,0.5)" stroke-width="2"></rect>
+                                        <text x="430" y="120" text-anchor="middle" fill="#FEF3C7" font-size="20" font-weight="700">Candidate</text>
+                                        <text x="430" y="148" text-anchor="middle" fill="#FACC15" font-size="14">mengirim RequestVote</text>
+                                        <text x="430" y="168" text-anchor="middle" fill="#F8FAFC" font-size="13">&amp; menghitung suara</text>
+                                    </g>
 
-                                          <g>
-                                              <rect x="580" y="160" width="220" height="100" rx="20" fill="url(#metricGradient)" stroke="rgba(249,115,22,0.36)" stroke-width="1.8"></rect>
-                                              <text x="690" y="198" text-anchor="middle" fill="#FFDAB5" font-size="16" font-weight="700">Latency</text>
-                                              <text x="690" y="222" text-anchor="middle" fill="#F8FAFC" font-size="13">Durasi end-to-end per transaksi</text>
-                                          </g>
+                                    <g>
+                                        <rect x="600" y="70" width="210" height="120" rx="26" fill="url(#overviewLeaderGradient)" stroke="rgba(99,102,241,0.45)" stroke-width="2"></rect>
+                                        <text x="705" y="118" text-anchor="middle" fill="#E0E7FF" font-size="20" font-weight="700">Leader</text>
+                                        <text x="705" y="146" text-anchor="middle" fill="#C7D2FE" font-size="14">mengirim heartbeat</text>
+                                        <text x="705" y="166" text-anchor="middle" fill="#C7D2FE" font-size="14">replikasi log tertib</text>
+                                    </g>
 
-                                          <g>
-                                              <rect x="580" y="280" width="220" height="110" rx="22" fill="url(#metricGradient)" stroke="rgba(249,115,22,0.32)" stroke-width="1.8"></rect>
-                                              <text x="690" y="318" text-anchor="middle" fill="#FFDAB5" font-size="15" font-weight="700">Resource & Fault Tolerance</text>
-                                              <text x="690" y="342" text-anchor="middle" fill="#F8FAFC" font-size="13">CPU • Memori • IO</text>
-                                              <text x="690" y="364" text-anchor="middle" fill="#F8FAFC" font-size="13">Failover & konsistensi log</text>
-                                          </g>
+                                    <g>
+                                        <rect x="360" y="230" width="200" height="90" rx="24" fill="url(#overviewTimeoutGradient)" stroke="rgba(249,115,22,0.55)" stroke-width="1.8"></rect>
+                                        <text x="460" y="268" text-anchor="middle" fill="#FFE4C4" font-size="18" font-weight="700">Timeout Reset</text>
+                                        <text x="460" y="292" text-anchor="middle" fill="#FED7AA" font-size="13">sinkronisasi periode kepemimpinan</text>
+                                    </g>
 
-                                          <g>
-                                              <rect x="320" y="350" width="200" height="70" rx="22" fill="url(#insightGradient)" stroke="rgba(56,189,248,0.45)" stroke-width="1.8"></rect>
-                                              <text x="420" y="390" text-anchor="middle" fill="#E0F2FE" font-size="15" font-weight="700">Insight Kesiapan Blockchain</text>
-                                              <text x="420" y="410" text-anchor="middle" fill="#BAE6FD" font-size="12">Rekomendasi layanan pengaduan publik</text>
-                                          </g>
+                                    <path d="M230,75 C280,85 305,100 330,118" stroke="#38BDF8" stroke-width="2.4" fill="none" marker-end="url(#overviewArrowBlue)"></path>
+                                    <path d="M230,185 L320,185" stroke="#38BDF8" stroke-width="2.4" fill="none" marker-end="url(#overviewArrowBlue)"></path>
+                                    <path d="M230,295 C280,280 305,245 330,218" stroke="#38BDF8" stroke-width="2.4" fill="none" marker-end="url(#overviewArrowBlue)"></path>
 
-                                          <path d="M270,110 L310,110" stroke="#38BDF8" stroke-width="2.4" marker-end="url(#arrowFlow)"></path>
-                                          <path d="M270,140 C300,150 300,210 310,235" stroke="#38BDF8" stroke-width="2.4" fill="none" marker-end="url(#arrowFlow)"></path>
-                                          <path d="M520,90 L580,90" stroke="#38BDF8" stroke-width="2.2" marker-end="url(#arrowFlow)"></path>
-                                          <path d="M520,110 C560,130 560,180 580,210" stroke="#38BDF8" stroke-width="2.2" fill="none" marker-end="url(#arrowFlow)"></path>
-                                          <path d="M520,250 C560,230 560,160 580,140" stroke="#6366F1" stroke-width="2.2" fill="none" marker-end="url(#arrowFlow)"></path>
-                                          <path d="M520,270 L580,310" stroke="#6366F1" stroke-width="2.2" marker-end="url(#arrowFlow)"></path>
-                                          <path d="M690,140 C670,220 520,360 440,360" stroke="#F97316" stroke-width="2.2" fill="none" marker-end="url(#arrowHighlightFlow)"></path>
-                                          <path d="M690,260 C650,300 540,360 520,360" stroke="#F97316" stroke-width="2.2" fill="none" marker-end="url(#arrowHighlightFlow)"></path>
-                                          <path d="M690,360 C620,380 520,395 520,395" stroke="#F97316" stroke-width="2.2" fill="none" marker-end="url(#arrowHighlightFlow)"></path>
-                                      </svg>
-                                  </div>
+                                    <path d="M430,190 L430,230" stroke="#F97316" stroke-width="2.2" fill="none" marker-end="url(#overviewArrowOrange)"></path>
+                                    <text x="452" y="208" fill="#FDBA74" font-size="12">majority tercapai</text>
 
-                                  <div class="flex flex-col gap-4 rounded-3xl border border-white/10 bg-surface/70 p-6 text-sm text-textdark/75 md:text-base">
-                                      <div class="flex gap-3">
-                                          <span class="flex h-8 w-8 items-center justify-center rounded-full bg-highlight/20 font-semibold text-highlight/80">1</span>
-                                          <div>
-                                              <p class="font-semibold text-textdark">Konteks Aduan Nasional</p>
-                                              <p class="text-textdark/70">Data pengaduan maladministrasi mewakili kebutuhan layanan publik yang menuntut transparansi dan akuntabilitas.</p>
-                                          </div>
-                                      </div>
-                                      <div class="flex gap-3">
-                                          <span class="flex h-8 w-8 items-center justify-center rounded-full bg-primary/20 font-semibold text-primary/80">2</span>
-                                          <div>
-                                              <p class="font-semibold text-textdark">Pengujian Fabric v2 — RAFT Standar</p>
-                                              <p class="text-textdark/70">Menjadi baseline produksi untuk mengukur kemampuan RAFT saat ini dalam menjaga throughput dan latency.</p>
-                                          </div>
-                                      </div>
-                                      <div class="flex gap-3">
-                                          <span class="flex h-8 w-8 items-center justify-center rounded-full bg-secondary/20 font-semibold text-secondary/80">3</span>
-                                          <div>
-                                              <p class="font-semibold text-textdark">Pengujian Fabric v3 — RAFT Varian</p>
-                                              <p class="text-textdark/70">Mengamati dampak optimasi terbaru terhadap performa dan kebutuhan sumber daya.</p>
-                                          </div>
-                                      </div>
-                                      <div class="flex gap-3">
-                                          <span class="flex h-8 w-8 items-center justify-center rounded-full bg-highlight/25 font-semibold text-highlight/85">4</span>
-                                          <div>
-                                              <p class="font-semibold text-textdark">Analisis Metrik Kritis</p>
-                                              <p class="text-textdark/70">Perbandingan throughput, latency, resource usage, dan fault tolerance menghasilkan insight kesiapan blockchain bagi sistem pengaduan publik.</p>
-                                          </div>
-                                      </div>
-                                  </div>
-                              </div>
+                                    <path d="M560,260 C630,230 680,190 680,170" stroke="#F97316" stroke-width="2.2" fill="none" marker-end="url(#overviewArrowOrange)"></path>
+                                    <text x="640" y="214" fill="#FDBA74" font-size="12">jadi leader</text>
+
+                                    <path d="M810,110 C820,60 520,40 230,60" stroke="#6366F1" stroke-width="2.2" fill="none" marker-end="url(#overviewArrowPurple)"></path>
+                                    <text x="640" y="52" text-anchor="middle" fill="#C7D2FE" font-size="13">mengirim heartbeat</text>
+
+                                    <path d="M810,200 C820,260 520,320 230,320" stroke="#6366F1" stroke-width="2.2" fill="none" marker-end="url(#overviewArrowPurple)"></path>
+                                    <text x="640" y="300" text-anchor="middle" fill="#C7D2FE" font-size="13">replikasi log tertib</text>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="rounded-3xl border border-white/10 bg-surface/70 p-6 shadow-2xl shadow-black/30 space-y-6">
+                        <div class="space-y-4">
+                            <h3 class="text-xl font-semibold text-textdark md:text-2xl">Diagram 2 — Konteks Evaluasi RAFT</h3>
+                            <p class="text-sm text-textdark/70 md:text-base">
+                                Diagram ini memetakan bagaimana simulasi pelaporan maladministrasi mengalir ke dua lingkungan Hyperledger Fabric.
+                                Evaluasi membandingkan RAFT standar dan RAFT varian untuk mengukur <span class="font-semibold text-textdark">throughput</span>, <span class="font-semibold text-textdark">latency</span>, pemakaian sumber daya, dan ketahanan terhadap kegagalan.
+                                Hasil komparatifnya menjadi dasar penilaian kesiapan blockchain dalam mendukung layanan pengaduan publik berskala nasional.
+                            </p>
+                        </div>
+
+                        <div class="grid gap-6 lg:grid-cols-[1.8fr_1fr]">
+                            <div class="rounded-3xl border border-white/10 bg-surfaceMuted/80 p-6">
+                                <svg viewBox="0 0 860 420" class="h-full w-full max-w-4xl" role="img" aria-labelledby="raft-eval-diagram-title raft-eval-diagram-desc">
+                                    <title id="raft-eval-diagram-title">Diagram alur evaluasi RAFT untuk pelaporan maladministrasi</title>
+                                    <desc id="raft-eval-diagram-desc">Data pengaduan publik diuji pada Fabric v2 dengan RAFT standar dan Fabric v3 dengan RAFT varian untuk mengukur throughput, latency, resource usage, dan fault tolerance.</desc>
+                                    <defs>
+                                        <linearGradient id="sourceGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" stop-color="#F59E0B" stop-opacity="0.3"></stop>
+                                            <stop offset="100%" stop-color="#1E293B" stop-opacity="0.65"></stop>
+                                        </linearGradient>
+                                        <linearGradient id="raftStandardGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.28"></stop>
+                                            <stop offset="100%" stop-color="#1E293B" stop-opacity="0.6"></stop>
+                                        </linearGradient>
+                                        <linearGradient id="raftVariantGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" stop-color="#6366F1" stop-opacity="0.3"></stop>
+                                            <stop offset="100%" stop-color="#1E293B" stop-opacity="0.62"></stop>
+                                        </linearGradient>
+                                        <linearGradient id="metricGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" stop-color="#F97316" stop-opacity="0.22"></stop>
+                                            <stop offset="100%" stop-color="#1E293B" stop-opacity="0.55"></stop>
+                                        </linearGradient>
+                                        <linearGradient id="insightGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.25"></stop>
+                                            <stop offset="100%" stop-color="#6366F1" stop-opacity="0.55"></stop>
+                                        </linearGradient>
+                                        <marker id="arrowFlow" markerWidth="10" markerHeight="10" refX="7.5" refY="5" orient="auto" markerUnits="strokeWidth">
+                                            <path d="M0,0 L10,5 L0,10 z" fill="#38BDF8"></path>
+                                        </marker>
+                                        <marker id="arrowHighlightFlow" markerWidth="10" markerHeight="10" refX="7.5" refY="5" orient="auto" markerUnits="strokeWidth">
+                                            <path d="M0,0 L10,5 L0,10 z" fill="#F97316"></path>
+                                        </marker>
+                                    </defs>
+
+                                    <g>
+                                        <rect x="40" y="60" width="230" height="110" rx="22" fill="url(#sourceGradient)" stroke="rgba(245,158,11,0.45)" stroke-width="2"></rect>
+                                        <text x="155" y="105" text-anchor="middle" fill="#FDE68A" font-size="18" font-weight="700">Sistem Pengaduan Publik</text>
+                                        <text x="155" y="132" text-anchor="middle" fill="#F8FAFC" font-size="13">10.846 laporan maladministrasi / tahun</text>
+                                    </g>
+
+                                    <g>
+                                        <rect x="310" y="40" width="210" height="120" rx="24" fill="url(#raftStandardGradient)" stroke="rgba(56,189,248,0.5)" stroke-width="2"></rect>
+                                        <text x="415" y="85" text-anchor="middle" fill="#E0F2FE" font-size="18" font-weight="700">Fabric v2</text>
+                                        <text x="415" y="113" text-anchor="middle" fill="#BAE6FD" font-size="14">Orderer RAFT Standar</text>
+                                        <text x="415" y="135" text-anchor="middle" fill="#94A3B8" font-size="12">Baseline produksi</text>
+                                    </g>
+
+                                    <g>
+                                        <rect x="310" y="200" width="210" height="120" rx="24" fill="url(#raftVariantGradient)" stroke="rgba(99,102,241,0.5)" stroke-width="2"></rect>
+                                        <text x="415" y="245" text-anchor="middle" fill="#E0E7FF" font-size="18" font-weight="700">Fabric v3</text>
+                                        <text x="415" y="273" text-anchor="middle" fill="#C7D2FE" font-size="14">Orderer RAFT Varian</text>
+                                        <text x="415" y="295" text-anchor="middle" fill="#A5B4FC" font-size="12">Optimasi generasi terbaru</text>
+                                    </g>
+
+                                    <g>
+                                        <rect x="580" y="40" width="220" height="100" rx="20" fill="url(#metricGradient)" stroke="rgba(249,115,22,0.42)" stroke-width="1.8"></rect>
+                                        <text x="690" y="78" text-anchor="middle" fill="#FFDAB5" font-size="16" font-weight="700">Throughput</text>
+                                        <text x="690" y="102" text-anchor="middle" fill="#F8FAFC" font-size="13">Rata-rata transaksi / detik</text>
+                                    </g>
+
+                                    <g>
+                                        <rect x="580" y="160" width="220" height="100" rx="20" fill="url(#metricGradient)" stroke="rgba(249,115,22,0.36)" stroke-width="1.8"></rect>
+                                        <text x="690" y="198" text-anchor="middle" fill="#FFDAB5" font-size="16" font-weight="700">Latency</text>
+                                        <text x="690" y="222" text-anchor="middle" fill="#F8FAFC" font-size="13">Durasi end-to-end per transaksi</text>
+                                    </g>
+
+                                    <g>
+                                        <rect x="580" y="280" width="220" height="110" rx="22" fill="url(#metricGradient)" stroke="rgba(249,115,22,0.32)" stroke-width="1.8"></rect>
+                                        <text x="690" y="318" text-anchor="middle" fill="#FFDAB5" font-size="15" font-weight="700">Resource & Fault Tolerance</text>
+                                        <text x="690" y="342" text-anchor="middle" fill="#F8FAFC" font-size="13">CPU • Memori • IO</text>
+                                        <text x="690" y="364" text-anchor="middle" fill="#F8FAFC" font-size="13">Failover & konsistensi log</text>
+                                    </g>
+
+                                    <g>
+                                        <rect x="320" y="350" width="200" height="70" rx="22" fill="url(#insightGradient)" stroke="rgba(56,189,248,0.45)" stroke-width="1.8"></rect>
+                                        <text x="420" y="390" text-anchor="middle" fill="#E0F2FE" font-size="15" font-weight="700">Insight Kesiapan Blockchain</text>
+                                        <text x="420" y="410" text-anchor="middle" fill="#BAE6FD" font-size="12">Rekomendasi layanan pengaduan publik</text>
+                                    </g>
+
+                                    <path d="M270,110 L310,110" stroke="#38BDF8" stroke-width="2.4" marker-end="url(#arrowFlow)"></path>
+                                    <path d="M270,140 C300,150 300,210 310,235" stroke="#38BDF8" stroke-width="2.4" fill="none" marker-end="url(#arrowFlow)"></path>
+                                    <path d="M520,90 L580,90" stroke="#38BDF8" stroke-width="2.2" marker-end="url(#arrowFlow)"></path>
+                                    <path d="M520,110 C560,130 560,180 580,210" stroke="#38BDF8" stroke-width="2.2" fill="none" marker-end="url(#arrowFlow)"></path>
+                                    <path d="M520,250 C560,230 560,160 580,140" stroke="#6366F1" stroke-width="2.2" fill="none" marker-end="url(#arrowFlow)"></path>
+                                    <path d="M520,270 L580,310" stroke="#6366F1" stroke-width="2.2" marker-end="url(#arrowFlow)"></path>
+                                    <path d="M690,140 C670,220 520,360 440,360" stroke="#F97316" stroke-width="2.2" fill="none" marker-end="url(#arrowHighlightFlow)"></path>
+                                    <path d="M690,260 C650,300 540,360 520,360" stroke="#F97316" stroke-width="2.2" fill="none" marker-end="url(#arrowHighlightFlow)"></path>
+                                    <path d="M690,360 C620,380 520,395 520,395" stroke="#F97316" stroke-width="2.2" fill="none" marker-end="url(#arrowHighlightFlow)"></path>
+                                </svg>
+                            </div>
+
+                            <div class="flex flex-col gap-4 rounded-3xl border border-white/10 bg-surface/70 p-6 text-sm text-textdark/75 md:text-base">
+                                <div class="flex gap-3">
+                                    <span class="flex h-8 w-8 items-center justify-center rounded-full bg-highlight/20 font-semibold text-highlight/80">1</span>
+                                    <div>
+                                        <p class="font-semibold text-textdark">Konteks Aduan Nasional</p>
+                                        <p class="text-textdark/70">Data pengaduan maladministrasi mewakili kebutuhan layanan publik yang menuntut transparansi dan akuntabilitas.</p>
+                                    </div>
+                                </div>
+                                <div class="flex gap-3">
+                                    <span class="flex h-8 w-8 items-center justify-center rounded-full bg-primary/20 font-semibold text-primary/80">2</span>
+                                    <div>
+                                        <p class="font-semibold text-textdark">Pengujian Fabric v2 — RAFT Standar</p>
+                                        <p class="text-textdark/70">Menjadi baseline produksi untuk mengukur kemampuan RAFT saat ini dalam menjaga throughput dan latency.</p>
+                                    </div>
+                                </div>
+                                <div class="flex gap-3">
+                                    <span class="flex h-8 w-8 items-center justify-center rounded-full bg-secondary/20 font-semibold text-secondary/80">3</span>
+                                    <div>
+                                        <p class="font-semibold text-textdark">Pengujian Fabric v3 — RAFT Varian</p>
+                                        <p class="text-textdark/70">Mengamati dampak optimasi terbaru terhadap performa dan kebutuhan sumber daya.</p>
+                                    </div>
+                                </div>
+                                <div class="flex gap-3">
+                                    <span class="flex h-8 w-8 items-center justify-center rounded-full bg-highlight/25 font-semibold text-highlight/85">4</span>
+                                    <div>
+                                        <p class="font-semibold text-textdark">Analisis Metrik Kritis</p>
+                                        <p class="text-textdark/70">Perbandingan throughput, latency, resource usage, dan fault tolerance menghasilkan insight kesiapan blockchain bagi sistem pengaduan publik.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                             </section>
+
+                          <section class="rounded-3xl border border-highlight/40 bg-highlight/10 p-8 shadow-2xl shadow-black/30">
+                              <div class="flex flex-col gap-4">
+                                  <div class="inline-flex w-fit items-center gap-2 rounded-full border border-highlight/60 bg-highlight/20 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.32em] text-highlight/95">
+                                      Ringkasan Inti
+                                  </div>
+                                  <div class="space-y-3">
+                                      <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Highlight Bab 4.1 untuk Presentasi</h2>
+                                      <p class="text-sm text-textdark/75 md:text-base">
+                                          Sub bab ini menegaskan alasan, fokus, dan cara evaluasi konsensus RAFT pada Hyperledger Fabric untuk mendukung sistem pelaporan maladministrasi berskala nasional.
+                                      </p>
+                                      <ul class="space-y-2 text-sm text-textdark/80 md:text-base">
+                                          <li class="flex gap-3 rounded-2xl border border-white/10 bg-surface/60 p-3 shadow-inner shadow-black/10">
+                                              <span class="mt-0.5 h-2 w-2 flex-shrink-0 rounded-full bg-highlight/80"></span>
+                                              <span>Pemilihan HLF berbasis RAFT menawarkan transparansi, kontrol akses ketat, dan konsistensi ledger untuk data pengaduan publik.</span>
+                                          </li>
+                                          <li class="flex gap-3 rounded-2xl border border-white/10 bg-surface/60 p-3 shadow-inner shadow-black/10">
+                                              <span class="mt-0.5 h-2 w-2 flex-shrink-0 rounded-full bg-highlight/80"></span>
+                                              <span>Penelitian membandingkan RAFT standar vs varian pada Fabric v2 (stabil) dan Fabric v3 (terbaru) dalam skenario beban transaksi 10.846 aduan.</span>
+                                          </li>
+                                          <li class="flex gap-3 rounded-2xl border border-white/10 bg-surface/60 p-3 shadow-inner shadow-black/10">
+                                              <span class="mt-0.5 h-2 w-2 flex-shrink-0 rounded-full bg-highlight/80"></span>
+                                              <span>Parameter kinerja utama yang dievaluasi: throughput, latency, pemakaian sumber daya, dan ketahanan terhadap kegagalan.</span>
+                                          </li>
+                                          <li class="flex gap-3 rounded-2xl border border-white/10 bg-surface/60 p-3 shadow-inner shadow-black/10">
+                                              <span class="mt-0.5 h-2 w-2 flex-shrink-0 rounded-full bg-highlight/80"></span>
+                                              <span>Eksperimen menjaga konfigurasi selain RAFT tetap konstan sehingga perbedaan hasil mencerminkan dampak varian RAFT.</span>
+                                          </li>
+                                      </ul>
+                                  </div>
+                              </div>
+                          </section>
                     </div>
                 </main>
 

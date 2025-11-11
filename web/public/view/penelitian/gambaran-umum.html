@@ -269,7 +269,7 @@
 
                         <div class="grid gap-6 lg:grid-cols-[1.8fr_1fr]">
                             <div class="rounded-3xl border border-white/10 bg-surfaceMuted/80 p-6">
-                                <svg viewBox="0 0 860 420" class="h-full w-full max-w-4xl" role="img" aria-labelledby="raft-eval-diagram-title raft-eval-diagram-desc">
+                                <svg viewBox="0 0 860 520" class="h-full w-full max-w-4xl" role="img" aria-labelledby="raft-eval-diagram-title raft-eval-diagram-desc">
                                     <title id="raft-eval-diagram-title">Diagram alur evaluasi RAFT untuk pelaporan maladministrasi</title>
                                     <desc id="raft-eval-diagram-desc">Data pengaduan publik diuji pada Fabric v2 dengan RAFT standar dan Fabric v3 dengan RAFT varian untuk mengukur throughput, latency, resource usage, dan fault tolerance.</desc>
                                     <defs>
@@ -303,8 +303,14 @@
 
                                     <g>
                                         <rect x="40" y="60" width="230" height="110" rx="22" fill="url(#sourceGradient)" stroke="rgba(245,158,11,0.45)" stroke-width="2"></rect>
-                                        <text x="155" y="105" text-anchor="middle" fill="#FDE68A" font-size="18" font-weight="700">Sistem Pengaduan Publik</text>
-                                        <text x="155" y="132" text-anchor="middle" fill="#F8FAFC" font-size="13">10.846 laporan maladministrasi / tahun</text>
+                                        <text x="155" y="102" text-anchor="middle" fill="#FDE68A" font-size="18" font-weight="700">
+                                            <tspan x="155">Sistem Pengaduan</tspan>
+                                            <tspan x="155" dy="20">Publik</tspan>
+                                        </text>
+                                        <text x="155" y="132" text-anchor="middle" fill="#F8FAFC" font-size="13">
+                                            <tspan x="155">10.846 laporan maladministrasi</tspan>
+                                            <tspan x="155" dy="16">per tahun</tspan>
+                                        </text>
                                     </g>
 
                                     <g>
@@ -324,26 +330,41 @@
                                     <g>
                                         <rect x="580" y="40" width="220" height="100" rx="20" fill="url(#metricGradient)" stroke="rgba(249,115,22,0.42)" stroke-width="1.8"></rect>
                                         <text x="690" y="78" text-anchor="middle" fill="#FFDAB5" font-size="16" font-weight="700">Throughput</text>
-                                        <text x="690" y="102" text-anchor="middle" fill="#F8FAFC" font-size="13">Rata-rata transaksi / detik</text>
+                                        <text x="690" y="106" text-anchor="middle" fill="#F8FAFC" font-size="13">
+                                            <tspan x="690">Rata-rata transaksi</tspan>
+                                            <tspan x="690" dy="16">per detik</tspan>
+                                        </text>
                                     </g>
 
                                     <g>
                                         <rect x="580" y="160" width="220" height="100" rx="20" fill="url(#metricGradient)" stroke="rgba(249,115,22,0.36)" stroke-width="1.8"></rect>
                                         <text x="690" y="198" text-anchor="middle" fill="#FFDAB5" font-size="16" font-weight="700">Latency</text>
-                                        <text x="690" y="222" text-anchor="middle" fill="#F8FAFC" font-size="13">Durasi end-to-end per transaksi</text>
+                                        <text x="690" y="226" text-anchor="middle" fill="#F8FAFC" font-size="13">
+                                            <tspan x="690">Durasi end-to-end</tspan>
+                                            <tspan x="690" dy="16">per transaksi</tspan>
+                                        </text>
                                     </g>
 
                                     <g>
                                         <rect x="580" y="280" width="220" height="110" rx="22" fill="url(#metricGradient)" stroke="rgba(249,115,22,0.32)" stroke-width="1.8"></rect>
-                                        <text x="690" y="318" text-anchor="middle" fill="#FFDAB5" font-size="15" font-weight="700">Resource & Fault Tolerance</text>
-                                        <text x="690" y="342" text-anchor="middle" fill="#F8FAFC" font-size="13">CPU • Memori • IO</text>
-                                        <text x="690" y="364" text-anchor="middle" fill="#F8FAFC" font-size="13">Failover & konsistensi log</text>
+                                        <text x="690" y="316" text-anchor="middle" fill="#FFDAB5" font-size="15" font-weight="700">
+                                            <tspan x="690">Resource & Fault</tspan>
+                                            <tspan x="690" dy="18">Tolerance</tspan>
+                                        </text>
+                                        <text x="690" y="346" text-anchor="middle" fill="#F8FAFC" font-size="13">CPU • Memori • IO</text>
+                                        <text x="690" y="368" text-anchor="middle" fill="#F8FAFC" font-size="13">Failover & konsistensi log</text>
                                     </g>
 
                                     <g>
-                                        <rect x="320" y="350" width="200" height="70" rx="22" fill="url(#insightGradient)" stroke="rgba(56,189,248,0.45)" stroke-width="1.8"></rect>
-                                        <text x="420" y="390" text-anchor="middle" fill="#E0F2FE" font-size="15" font-weight="700">Insight Kesiapan Blockchain</text>
-                                        <text x="420" y="410" text-anchor="middle" fill="#BAE6FD" font-size="12">Rekomendasi layanan pengaduan publik</text>
+                                        <rect x="580" y="410" width="220" height="90" rx="22" fill="url(#insightGradient)" stroke="rgba(56,189,248,0.45)" stroke-width="1.8"></rect>
+                                        <text x="690" y="448" text-anchor="middle" fill="#E0F2FE" font-size="15" font-weight="700">
+                                            <tspan x="690">Insight Kesiapan</tspan>
+                                            <tspan x="690" dy="18">Blockchain</tspan>
+                                        </text>
+                                        <text x="690" y="474" text-anchor="middle" fill="#BAE6FD" font-size="12">
+                                            <tspan x="690">Rekomendasi layanan</tspan>
+                                            <tspan x="690" dy="16">pengaduan publik</tspan>
+                                        </text>
                                     </g>
 
                                     <path d="M270,110 L310,110" stroke="#38BDF8" stroke-width="2.4" marker-end="url(#arrowFlow)"></path>
@@ -352,9 +373,9 @@
                                     <path d="M520,110 C560,130 560,180 580,210" stroke="#38BDF8" stroke-width="2.2" fill="none" marker-end="url(#arrowFlow)"></path>
                                     <path d="M520,250 C560,230 560,160 580,140" stroke="#6366F1" stroke-width="2.2" fill="none" marker-end="url(#arrowFlow)"></path>
                                     <path d="M520,270 L580,310" stroke="#6366F1" stroke-width="2.2" marker-end="url(#arrowFlow)"></path>
-                                    <path d="M690,140 C670,220 520,360 440,360" stroke="#F97316" stroke-width="2.2" fill="none" marker-end="url(#arrowHighlightFlow)"></path>
-                                    <path d="M690,260 C650,300 540,360 520,360" stroke="#F97316" stroke-width="2.2" fill="none" marker-end="url(#arrowHighlightFlow)"></path>
-                                    <path d="M690,360 C620,380 520,395 520,395" stroke="#F97316" stroke-width="2.2" fill="none" marker-end="url(#arrowHighlightFlow)"></path>
+                                    <path d="M690,150 L850,150 L850,430 L800,430" stroke="#F97316" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrowHighlightFlow)"></path>
+                                    <path d="M690,265 L835,265 L835,450 L800,450" stroke="#F97316" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrowHighlightFlow)"></path>
+                                    <path d="M690,395 L820,395 L820,470 L800,470" stroke="#F97316" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrowHighlightFlow)"></path>
                                 </svg>
                             </div>
 

@@ -67,13 +67,7 @@
                                 <div class="space-y-5">
                                     <h1 class="text-3xl font-semibold text-textdark md:text-4xl">Pembangunan Lingkungan Uji</h1>
                                       <p class="text-sm text-textdark/70 md:text-base">
-                                          Repositori penelitian ini menyajikan empat lingkungan uji Hyperledger Fabric yang berdiri sendiri untuk mendokumentasikan dinamika konsensus RAFT. Dua lingkungan dibangun di atas rilis Fabric v2 dan dua lainnya memanfaatkan Fabric v3; masing-masing dibedakan lagi menjadi konfigurasi standar serta konfigurasi varian yang mengekspos karakteristik performa berbeda. Struktur direktori <code>fabric-2/raft-standard</code>, <code>fabric-2/raft-variant</code>, <code>fabric-3/raft-standard</code>, dan <code>fabric-3/raft-variant</code> menjadi representasi langsung dari eksperimen yang dilakukan.
-                                      </p>
-                                      <p class="text-sm text-textdark/70 md:text-base">
-                                          Setiap lingkungan mengemas artefak kriptografi, berkas konfigurasi jaringan, dan kontrak pintar pelaporan ke dalam hirarki yang konsisten. Dokumentasi konfigurasi pada folder <code>network</code> menggambarkan bagaimana kanal dibentuk, bagaimana orderer RAFT didaftarkan sebagai consenters, serta bagaimana profil SmartBFT disiapkan sebagai variasi untuk pengujian ketahanan. Narasi ini bertujuan menyusun kembali seluruh komponen menjadi gambaran utuh mengenai proses pembangunan testbed, alih-alih menyoroti cara pengoperasian langsungnya.
-                                      </p>
-                                      <p class="text-sm text-textdark/70 md:text-base">
-                                          Integrasi dengan aplikasi web memberi sudut pandang tambahan terhadap hasil observasi. Modul front-end memetakan struktur direktori ke dalam tampilan informatif, sehingga pembaca dapat memahami alur identitas, deployment chaincode, dan pencatatan log percobaan tanpa perlu mengeksekusi skrip otomatis. Dengan demikian, halaman ini menempatkan fokus pada penjelasan konseptual dan keterkaitan antar komponen penelitian.
+                                          Tahap pembangunan lingkungan uji dilakukan untuk menyiapkan sistem yang akan digunakan dalam eksperimen perbandingan kinerja algoritma konsensus RAFT pada HLF. Lingkungan ini dibangun agar mendekati kondisi nyata jaringan blockchain permissioned yang digunakan dalam simulasi beban transaksi pelaporan maladministrasi masyarakat. Proses ini mencakup penyiapan arsitektur jaringan, spesifikasi perangkat keras dan lunak, serta konfigurasi komponen utama seperti peer node, orderer, dan channel. Hasil dari tahap ini menjadi dasar bagi pelaksanaan simulasi dan analisis perbandingan antara RAFT standar dan varian RAFT pada parameter throughput, latency, resource usage, dan fault tolerance.
                                       </p>
                                 </div>
                             </div>
@@ -86,12 +80,15 @@
                                 </div>
                                 <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Arsitektur dan Spesifikasi Sistem</h2>
                                   <p class="text-sm text-textdark/70 md:text-base">
-                                        Arsitektur folder blockchain disusun berpasangan di bawah direktori <code>fabric-2</code> dan <code>fabric-3</code> untuk masing-masing konfigurasi <code>raft-standard</code> dan <code>raft-variant</code>. Setiap pasangan memuat struktur seragam: <code>bin/</code> menyimpan utilitas Hyperledger Fabric, <code>chaincode/</code> mengarsipkan kontrak pintar pelaporan, <code>config/</code> menampung berkas pengaturan inti, <code>env.sh</code> mendefinisikan variabel lingkungan, dan <code>network/</code> merekam orkestrasi organisasi serta kanal. Penataan kembar ini memastikan seluruh iterasi eksperimen berada pada kondisi dasar yang sebanding sebelum parameter RAFT divisualisasikan di bagian lanjutan.
+                                        Arsitektur folder blockchain dalam penelitian ini disusun secara berpasangan di bawah dua direktori utama, yaitu fabric-2 dan fabric-3, yang masing-masing memuat dua konfigurasi: raft-standard dan raft-variant. Penataan ini dimaksudkan untuk menjaga konsistensi struktur dan memudahkan proses replikasi eksperimen lintas versi. Setiap pasangan direktori memiliki susunan folder yang seragam, mencakup bin/ untuk utilitas HLF, chaincode/ untuk smart contract pelaporan, config/ untuk berkas pengaturan inti, env.sh sebagai definisi variabel lingkungan, serta network/ yang memuat orkestrasi organisasi dan kanal. Pendekatan kembar ini memastikan seluruh skenario pengujian dijalankan pada kondisi dasar yang sebanding sebelum parameter RAFT dimodifikasi pada tahap lanjutan.
+                                  </p>
+                                  <p class="text-sm text-textdark/70 md:text-base">
+                                        Struktur tersebut divisualisasikan melalui Diagram Arsitektur Folder yang menunjukkan kesetimbangan antara empat lingkungan uji, sehingga hubungan antar direktori utama dapat terbaca dengan jelas sebelum pembahasan detail pada konfigurasi berikutnya.
                                   </p>
                                   <div class="rounded-2xl border border-white/10 bg-surface/60 p-6 shadow-inner shadow-black/20">
-                                      <h3 class="text-base font-semibold text-textdark">Diagram Arsitektur Folder</h3>
+                                      <h3 class="text-base font-semibold text-textdark">Gambar 4.3 Struktur Direktori Lingkungan Uji Hyperledger Fabric</h3>
                                       <p class="mt-3 text-xs text-textdark/60 md:text-sm">
-                                          Diagram berikut memetakan kesetimbangan struktur di antara keempat lingkungan uji sehingga hubungan antar direktori utama dapat dibaca sekilas sebelum menelusuri artefak detailnya.
+                                          Struktur direktori pada gambar memperlihatkan dua lingkungan utama, yaitu fabric-2 dan fabric-3, yang masing-masing memiliki dua konfigurasi pengujian: raft-standard dan raft-variant. Setiap konfigurasi memiliki pola folder yang identik agar seluruh eksperimen dijalankan dengan kondisi dasar yang konsisten.
                                       </p>
                                         <div class="mt-4 grid gap-4 md:grid-cols-2">
                                             <div class="overflow-x-auto rounded-xl border border-white/5 bg-surfaceMuted/80 p-4 text-[11px] font-mono text-textdark/70 md:text-sm">
@@ -127,62 +124,20 @@
 </pre>
                                             </div>
                                         </div>
+                                      <p class="mt-4 text-xs text-textdark/60 md:text-sm">
+                                          Berikut penjelasan dari masing-masing struktur direktorinya:
+                                      </p>
+                                      <ol class="mt-3 list-decimal list-inside space-y-2 text-xs text-textdark/70 md:text-sm">
+                                          <li><strong>bin/</strong> berisi utilitas inti Hyperledger Fabric seperti peer, orderer, dan configtxgen yang digunakan untuk mengelola jaringan, menghasilkan blok genesis, serta membangun kanal komunikasi;</li>
+                                          <li><strong>chaincode/</strong> menyimpan smart contract pelaporan maladministrasi yang menjadi objek utama dalam simulasi transaksi;</li>
+                                          <li><strong>config/</strong> menampung berkas konfigurasi seperti core.yaml, configtx.yaml, dan orderer.yaml yang mendefinisikan struktur organisasi, kanal, serta kebijakan konsensus jaringan;</li>
+                                          <li><strong>env.sh</strong> mendeklarasikan variabel lingkungan, jalur direktori, dan parameter jaringan untuk menjalankan skrip otomatisasi; serta</li>
+                                          <li><strong>network/</strong> berisi skrip dan artefak orkestrasi node, termasuk pembuatan identitas, kanal, dan pemasangan chaincode, yang menjadi pusat eksekusi seluruh eksperimen.</li>
+                                      </ol>
+                                      <p class="mt-4 text-xs text-textdark/60 md:text-sm">
+                                          Penataan yang simetris antara fabric-2 dan fabric-3 memungkinkan pengujian dilakukan secara paralel pada dua versi Fabric yang berbeda, sekaligus menjaga keteraturan dokumentasi antar konfigurasi. Struktur ini juga memudahkan proses validasi hasil eksperimen karena setiap komponen jaringan dapat dilacak melalui direktori yang konsisten di seluruh varian uji.
+                                      </p>
                                   </div>
-                            </div>
-                            <div class="grid gap-5 md:grid-cols-2">
-                                <article class="rounded-2xl border border-white/10 bg-surface/60 p-6 shadow-inner shadow-black/20">
-                                    <h3 class="text-base font-semibold text-textdark">Fabric v2 — RAFT Standar</h3>
-                                      <div class="mt-3 space-y-3 text-sm text-textdark/70 md:text-base">
-                                          <p>
-                                              Lingkungan standar Fabric v2 menonjolkan konfigurasi minimum yang relevan untuk menilai baseline RAFT. Berkas <code>compose/compose-test-net.yaml</code> menggambarkan bagaimana satu orderer <code>orderer.fabric2.standard.com</code> disandingkan dengan dua peer yang masing-masing memaparkan endpoint layanan dan operasi. Penataan port, dependensi CouchDB, serta integrasi Certificate Authority terdokumentasi sebagai bagian dari gambaran menyeluruh mengenai lapisan infrastruktur.
-                                          </p>
-                                          <p>
-                                              Chaincode <code>pelaporan</code> pada folder <code>chaincode/pelaporan</code> diposisikan sebagai artefak utama untuk mengamati perilaku ledger pada kanal <code>fabric2-channel-standard</code>. Narasi konfigurasi pada varian ini menjelaskan hubungan antar komponen tanpa mengarahkan pembaca pada instruksi eksekusi, sehingga fokus tetap berada pada representasi arsitekturalnya.
-                                          </p>
-                                      </div>
-                                </article>
-                                <article class="rounded-2xl border border-white/10 bg-surface/60 p-6 shadow-inner shadow-black/20">
-                                    <h3 class="text-base font-semibold text-textdark">Fabric v2 — RAFT Varian</h3>
-                                      <div class="mt-3 space-y-3 text-sm text-textdark/70 md:text-base">
-                                          <p>
-                                              Varian Fabric v2 memperlihatkan bagaimana perubahan parameter dapat memperluas cakupan pengujian. Dokumentasi <code>compose/compose-bft-test-net.yaml</code> menunjukkan opsi skalabilitas orderer hingga empat node, sementara direktori <code>network/bft-config</code> menampung profil SmartBFT sebagai skenario pembanding. Alur ini menekankan relasi antar berkas konfigurasi yang menyiapkan consenters tambahan dan domain <code>variant.com</code>.
-                                          </p>
-                                          <p>
-                                              Kanal <code>fabric2-channel-variant</code> hadir sebagai pasangan analitis yang mempertahankan struktur identitas serupa dengan konfigurasi standar. Penjelasan ini menyoroti bagaimana variasi domain dan penomoran port dimanfaatkan untuk eksperimen paralel, tanpa mengekspose prosedur praktis menjalankan jaringan.
-                                          </p>
-                                      </div>
-                                </article>
-                                <article class="rounded-2xl border border-white/10 bg-surface/60 p-6 shadow-inner shadow-black/20">
-                                    <h3 class="text-base font-semibold text-textdark">Fabric v3 — RAFT Standar</h3>
-                                      <div class="mt-3 space-y-3 text-sm text-textdark/70 md:text-base">
-                                          <p>
-                                              Ketika berpindah ke Fabric v3, konfigurasi standar mempertahankan pola penamaan yang akrab sembari memperbarui port layanan sesuai rekomendasi rilis terbaru. Berkas <code>fabric-3/raft-standard/network/configtx/configtx.yaml</code> memuat referensi terhadap orderer <code>orderer.fabric3.standard</code> dan memperlihatkan bagaimana consenters disesuaikan dengan fitur-fitur v3, termasuk dukungan administratif melalui <code>osnadmin</code>.
-                                          </p>
-                                          <p>
-                                              Dokumentasi direktori <code>network/organizations</code> menegaskan kesinambungan skema identitas dengan versi sebelumnya. Penjelasan ini menitikberatkan pada kesinambungan struktur folder, pemetaan TLS, serta konsistensi artefak kriptografi yang menyederhanakan perbandingan lintas versi.
-                                          </p>
-                                      </div>
-                                </article>
-                                <article class="rounded-2xl border border-white/10 bg-surface/60 p-6 shadow-inner shadow-black/20">
-                                    <h3 class="text-base font-semibold text-textdark">Fabric v3 — RAFT Varian</h3>
-                                      <div class="mt-3 space-y-3 text-sm text-textdark/70 md:text-base">
-                                          <p>
-                                              Varian Fabric v3 memperkenalkan namespace <code>fabric3.variant</code> dengan penyesuaian port yang menjaga isolasi eksperimen. Narasi konfigurasi menghubungkan perubahan tersebut dengan kebutuhan observasi terhadap toleransi kesalahan dan throughput tinggi, sekaligus menunjukkan bagaimana profil varian mempertahankan logika penjadwalan batch dari versi sebelumnya.
-                                          </p>
-                                          <p>
-                                              Dokumentasi menyoroti pemanfaatan fitur lifecycle Fabric v3 untuk mengeksplorasi tata kelola chaincode modern. Penekanan pada aspek deskriptif menjaga fokus pada hubungan antar komponen dan alasan pengambilan keputusan, bukan pada daftar langkah operasional.
-                                          </p>
-                                      </div>
-                                </article>
-                            </div>
-                            <div class="rounded-2xl border border-white/10 bg-surface/60 p-6 text-sm text-textdark/70 shadow-inner shadow-black/20 md:text-base">
-                                <h3 class="text-base font-semibold text-textdark">Pipeline Orkestrasi</h3>
-                                  <p class="mt-3">
-                                      Alur orkestrasi yang terdokumentasi merekam perjalanan dari penyiapan prasyarat hingga validasi hasil eksperimen. Berkas <code>network.sh</code> menjabarkan rangkaian tahapan yang mengaitkan pembangkitan identitas melalui <code>cryptogen</code>, penyusunan kanal via <code>scripts/createChannel.sh</code>, dan penempatan chaincode lewat <code>scripts/deployCC.sh</code>. Deskripsi ini bertujuan memperlihatkan hubungan antar skrip serta asumsi yang melekat pada setiap tahap.
-                                </p>
-                                  <p class="mt-3">
-                                      Modul Node.js seperti <code>web/src/network-check.js</code> dan <code>web/src/simulation-ingest.js</code> direpresentasikan sebagai komponen observasi yang memanfaatkan jejak log di <code>web/logs</code>. Penjelasan mengenai modul-modul tersebut menekankan bagaimana data kesehatan jaringan dan simulasi transaksi dikumpulkan untuk memperkaya interpretasi eksperimen.
-                                  </p>
                             </div>
                         </section>
                         <section class="space-y-8 rounded-3xl border border-white/10 bg-surface/60 p-8 shadow-2xl shadow-black/30">
@@ -192,7 +147,7 @@
                                 </div>
                                 <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Konfigurasi Hyperledger Fabric dan RAFT</h2>
                                 <p class="text-sm text-textdark/70 md:text-base">
-                                      Bagian ini merangkum karakteristik konfigurasi RAFT yang membedakan antar lingkungan. Profil <code>ChannelUsingRaft</code> pada setiap berkas <code>configtx.yaml</code> menjadi sumber utama pembentukan blok genesis, sementara parameter batch mengilustrasikan kompromi antara latensi dan throughput. Dokumentasi proses tersebut menyoroti peran <code>configtxgen</code> dan <code>osnadmin</code> sebagai bagian dari mekanisme introspektif, bukan sebagai panduan praktis.
+                                      Bagian ini merangkum konfigurasi inti yang digunakan dalam setiap lingkungan uji untuk membedakan implementasi algoritma RAFT antara versi standar dan varian. Fokus utama berada pada bagaimana konfigurasi channel dan parameter batch dalam berkas configtx.yaml memengaruhi performa jaringan. Profil ChannelUsingRaft pada setiap konfigurasi menjadi sumber pembentukan blok genesis, sementara variasi parameter batch menggambarkan kompromi antara throughput dan latency dalam proses pemesanan transaksi. Seluruh proses ini dijalankan dengan dukungan utilitas configtxgen untuk menghasilkan artefak konfigurasi dan osnadmin sebagai komponen administratif. Pembahasan diarahkan pada deskripsi konseptual, bukan panduan praktis pelaksanaan.
                                 </p>
                             </div>
                               <div class="space-y-6">
@@ -200,7 +155,7 @@
                                       <div class="space-y-2">
                                           <h3 class="text-base font-semibold text-textdark">Fabric v2 — Perbandingan Konfigurasi</h3>
                                           <p class="text-sm text-textdark/70 md:text-base">
-                                              Lingkungan standar menjadi acuan baseline dengan satu orderer RAFT pada domain <code>standard.com</code>, sementara varian mengeksplorasi domain <code>variant.com</code> yang siap diskalakan hingga empat orderer melalui <code>compose/compose-bft-test-net.yaml</code>. Perbedaan parameter batch menegaskan trade-off antara kestabilan latensi dan eksperimen throughput.
+                                              Lingkungan uji Fabric v2 terdiri dari dua skenario: konfigurasi RAFT standar sebagai baseline dan konfigurasi RAFT varian yang memperluas pengujian terhadap skalabilitas dan performa. Pada konfigurasi standar, sistem menggunakan satu orderer dengan domain standard.com, sedangkan varian menggunakan domain variant.com yang memungkinkan hingga empat orderer node melalui berkas compose/compose-bft-test-net.yaml. Perbedaan utama antara kedua konfigurasi terletak pada parameter batch yang berfungsi mengatur jumlah transaksi per blok serta waktu tunggu pembentukan blok. Pengaturan ini mencerminkan trade-off antara kestabilan lantency (pada konfigurasi standar) dan eksplorasi throughput tinggi (pada konfigurasi varian).
                                           </p>
                                       </div>
                                       <div class="mt-4 overflow-x-auto rounded-xl border border-white/5 bg-surface/40">
@@ -266,7 +221,7 @@
                                       <div class="space-y-2">
                                           <h3 class="text-base font-semibold text-textdark">Fabric v3 — Perbandingan Konfigurasi</h3>
                                           <p class="text-sm text-textdark/70 md:text-base">
-                                              Pembaruan ke Fabric v3 mempertahankan struktur identitas sambil menyesuaikan port orderer dan dukungan <code>osnadmin</code>. Varian <code>fabric3.variant</code> memperluas skenario observasi dengan parameter batch agresif dan opsi SmartBFT pada folder <code>network/bft-config</code>.
+                                              Pembaruan ke HLF v3 tetap mempertahankan struktur identitas dari versi sebelumnya, tetapi menyesuaikan port layanan orderer dan dukungan administratif melalui osnadmin. Varian fabric3.variant memperluas ruang pengamatan dengan parameter batch yang lebih agresif serta menambahkan opsi SmartBFT pada folder network/bft-config sebagai skenario pembanding terhadap RAFT. Perbedaan konfigurasi ini tidak hanya menggambarkan peningkatan throughput, tetapi juga menguji sejauh mana arsitektur v3 mampu mempertahankan konsistensi data dalam kondisi beban tinggi.
                                           </p>
                                       </div>
                                       <div class="mt-4 overflow-x-auto rounded-xl border border-white/5 bg-surface/40">
@@ -330,13 +285,20 @@
                                   </div>
                               </div>
                             <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6 text-sm text-textdark/70 shadow-inner shadow-black/20 md:text-base">
-                                <h3 class="text-base font-semibold text-textdark">Integrasi Monitoring &amp; Simulasi</h3>
+                                <h3 class="text-base font-semibold text-textdark">Analisis Konfigurasi dan Rasionalisasi Parameter</h3>
                                   <p class="mt-3">
-                                      Integrasi modul monitoring dan simulasi memvisualisasikan bagaimana data eksperimen dikurasi. Kredensial TLS pada folder <code>network/organizations</code> digambarkan sebagai jembatan untuk membuka koneksi gRPC yang diproses oleh <code>web/src/network-check.js</code>. Hasil yang terekam dalam <code>web/logs</code> menyajikan kronik kesehatan jaringan dan aktivitas transaksi sebagai referensi kualitatif bagi pembaca.
-                                </p>
-                                  <p class="mt-3">
-                                      Modul <code>web/src/simulation-ingest.js</code> dan <code>web/src/simulation-summary-store.js</code> melengkapi dokumentasi dengan menata ulang ringkasan percobaan secara terstruktur. Uraian ini menempatkan integrasi monitoring sebagai komponen naratif yang mendukung pemahaman konsep, selaras dengan tujuan halaman untuk memberikan deskripsi menyeluruh alih-alih menyediakan fitur pengoperasian langsung.
+                                      Perbedaan antara konfigurasi standar dan varian pada kedua versi Fabric terutama ditujukan untuk menilai pengaruh parameter RAFT terhadap efisiensi sistem dalam menangani beban transaksi yang berbeda.
                                   </p>
+                                  <ol class="mt-3 list-decimal list-inside space-y-2">
+                                      <li><strong>BatchTimeout</strong> menentukan waktu tunggu maksimum sebelum blok baru dibentuk. Nilai yang lebih kecil pada varian (1 detik) mempercepat pembuatan blok, menurunkan latency, namun meningkatkan frekuensi proses ordering, sehingga cocok untuk mengamati respon sistem terhadap beban tinggi.</li>
+                                      <li><strong>MaxMessageCount</strong> menentukan jumlah transaksi per blok. Peningkatan nilai ini dari 10 menjadi 50 pada varian dimaksudkan untuk mengukur peningkatan throughput dengan risiko kenaikan waktu pemrosesan blok.</li>
+                                      <li><strong>AbsoluteMaxBytes</strong> dan <strong>PreferredMaxBytes</strong> mengatur ukuran fisik blok. Pada varian, keduanya dikurangi untuk menjaga efisiensi transmisi antar node dan mencegah penumpukan data saat orderer melakukan replikasi.</li>
+                                      <li>Jumlah orderer node yang meningkat hingga empat pada varian memungkinkan pengujian fault tolerance dan mekanisme replikasi RAFT dalam kondisi sinkronisasi multi-node.</li>
+                                      <li>Perbedaan domain dan kanal (standard dan variant) digunakan untuk mengisolasi eksperimen agar tidak saling memengaruhi dalam satu lingkungan virtual.</li>
+                                  </ol>
+                                  <p class="mt-3">
+                                      Secara keseluruhan, konfigurasi varian dirancang untuk mendorong performa sistem hingga batas operasionalnya, sementara konfigurasi standar menetapkan kondisi dasar yang stabil sebagai acuan pembanding. Kombinasi keduanya memberikan gambaran menyeluruh tentang bagaimana perubahan parameter RAFT memengaruhi keseimbangan antara throughput, latency, dan ketahanan jaringan. Dengan demikian, penyesuaian konfigurasi tidak dilakukan secara acak, tetapi merupakan strategi eksperimental yang terukur untuk mengidentifikasi batas efisiensi dan reliabilitas RAFT dalam konteks HLF versi 2 dan 3.
+                                </p>
                             </div>
                           </section>
                     </div>

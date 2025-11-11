@@ -132,66 +132,14 @@
                             </section>
 
                             <section class="rounded-3xl border border-white/10 bg-surfaceMuted/70 p-8 shadow-2xl shadow-black/30">
-                                <div class="flex flex-col gap-6">
+                                <div class="flex flex-col gap-4">
                                     <div class="flex flex-col gap-2 text-left">
-                                        <h2 class="text-xl font-semibold text-textdark md:text-2xl">Aksi Cepat</h2>
-                                        <p class="text-sm text-textdark/70">
-                                            Seluruh hasil perintah akan ditampilkan dalam modal sehingga halaman utama tetap bersih.
-                                        </p>
+                                        <h2 class="text-xl font-semibold text-textdark md:text-2xl">Hasil dan Pembahasan</h2>
                                     </div>
-
-                                    <div class="grid gap-5 md:grid-cols-2">
-                                        <article class="flex flex-col justify-between gap-5 rounded-2xl border border-white/10 bg-surface/60 p-6 text-sm text-textdark/80 shadow-inner shadow-black/20 ring-1 ring-white/5 transition hover:-translate-y-0.5 hover:shadow-black/30">
-                                            <div class="space-y-3">
-                                                <h3 class="text-lg font-semibold text-textdark">Nyalakan semua jaringan</h3>
-                                                <p class="text-xs text-textdark/60">Menjalankan seluruh jaringan RAFT sekaligus.</p>
-                                                <p class="status-preview" data-status-preview="start" data-variant="idle">
-                                                    Belum ada perintah start yang dijalankan.
-                                                </p>
-                                            </div>
-                                            <button id="startAllButton" type="button" class="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-400/40 bg-emerald-400/20 px-5 py-3 text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200 shadow-inner shadow-emerald-500/10 transition hover:-translate-y-0.5 hover:bg-emerald-400/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300">
-                                                Nyalakan jaringan
-                                            </button>
-                                        </article>
-
-                                        <article class="flex flex-col justify-between gap-5 rounded-2xl border border-white/10 bg-surface/60 p-6 text-sm text-textdark/80 shadow-inner shadow-black/20 ring-1 ring-white/5 transition hover:-translate-y-0.5 hover:shadow-black/30">
-                                            <div class="space-y-3">
-                                                <h3 class="text-lg font-semibold text-textdark">Matikan semua jaringan</h3>
-                                                <p class="text-xs text-textdark/60">Menghentikan seluruh layanan dan kontainer RAFT.</p>
-                                                <p class="status-preview" data-status-preview="shutdown" data-variant="idle">
-                                                    Belum ada perintah shutdown yang dijalankan.
-                                                </p>
-                                            </div>
-                                            <button id="shutdownAllButton" type="button" class="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-rose-400/40 bg-rose-400/20 px-5 py-3 text-xs font-semibold uppercase tracking-[0.3em] text-rose-200 shadow-inner shadow-rose-500/10 transition hover:-translate-y-0.5 hover:bg-rose-400/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-300">
-                                                Matikan jaringan
-                                            </button>
-                                        </article>
-
-                                        <article class="flex flex-col justify-between gap-5 rounded-2xl border border-white/10 bg-surface/60 p-6 text-sm text-textdark/80 shadow-inner shadow-black/20 ring-1 ring-white/5 transition hover:-translate-y-0.5 hover:shadow-black/30">
-                                            <div class="space-y-3">
-                                                <h3 class="text-lg font-semibold text-textdark">Periksa semua jaringan</h3>
-                                                <p class="text-xs text-textdark/60">Mengambil status kesehatan jaringan dari seluruh target.</p>
-                                                <p class="status-preview" data-status-preview="check" data-variant="idle">
-                                                    Belum ada pemeriksaan jaringan yang dijalankan.
-                                                </p>
-                                            </div>
-                                            <button id="checkAllButton" type="button" class="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-secondary/40 bg-secondary/20 px-5 py-3 text-xs font-semibold uppercase tracking-[0.3em] text-secondary/90 shadow-inner shadow-secondary/20 transition hover:-translate-y-0.5 hover:bg-secondary/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary">
-                                                Periksa jaringan
-                                            </button>
-                                        </article>
-
-                                        <article class="flex flex-col justify-between gap-5 rounded-2xl border border-white/10 bg-surface/60 p-6 text-sm text-textdark/80 shadow-inner shadow-black/20 ring-1 ring-white/5 transition hover:-translate-y-0.5 hover:shadow-black/30">
-                                            <div class="space-y-3">
-                                                <h3 class="text-lg font-semibold text-textdark">Restart semua jaringan</h3>
-                                                <p class="text-xs text-textdark/60">Melakukan shutdown lalu start ulang secara berurutan.</p>
-                                                <p class="status-preview" data-status-preview="restart" data-variant="idle">
-                                                    Belum ada perintah restart yang dijalankan.
-                                                </p>
-                                            </div>
-                                            <button id="restartAllButton" type="button" class="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-amber-400/40 bg-amber-400/20 px-5 py-3 text-xs font-semibold uppercase tracking-[0.3em] text-amber-200 shadow-inner shadow-amber-500/10 transition hover:-translate-y-0.5 hover:bg-amber-400/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-200">
-                                                Restart jaringan
-                                            </button>
-                                        </article>
+                                    <div class="text-sm text-textdark/80 leading-relaxed">
+                                        <p>
+                                            Bab ini menyajikan hasil dan pembahasan dari penelitian yang telah dilakukan sesuai dengan langkah-langkah yang dijelaskan pada Bab III. Penelitian ini berfokus pada evaluasi kinerja algoritma konsensus Replicated and Fault Tolerant (RAFT) dan varian RAFT pada platform Hyperledger Fabric (HLF) (Hyperledger Fabric Docs, 2023). Pembahasan dalam bab ini dibagi ke dalam tujuh bagian utama, yaitu: gambaran umum penelitian, perumusan rancangan eksperimen, pembangunan lingkungan uji, pelaksanaan simulasi transaksi, pengolahan data, analisis data, dan penarikan kesimpulan. Setiap bagian menjelaskan tahapan penelitian secara berurutan, mulai dari proses perancangan, pelaksanaan, hingga interpretasi hasil untuk menjawab tujuan dan hipotesis penelitian.
+                                        </p>
                                     </div>
                                 </div>
                             </section>

@@ -122,23 +122,100 @@
                                         Hyperledger Fabric
                                     </div>
                                     <div class="space-y-4">
-                                        <h1 class="text-3xl font-semibold text-textdark md:text-4xl">Ringkasan Aksi Jaringan RAFT</h1>
+                                        <h1 class="text-3xl font-semibold text-textdark md:text-4xl">Platform Evaluasi Kinerja Konsensus RAFT</h1>
                                         <p class="max-w-2xl text-sm text-textdark/70 md:text-base">
-                                            Kelola jaringan Fabric 2 dan Fabric 3 secara terpusat. Pilih aksi yang dibutuhkan
-                                            kemudian pantau detailnya melalui tampilan modal yang ringkas.
+                                            Sistem monitoring dan analisis komprehensif untuk mengevaluasi performa algoritma konsensus RAFT
+                                            pada jaringan blockchain Hyperledger Fabric. Pantau metrik real-time, kelola jaringan,
+                                            dan analisis hasil eksperimen dengan visualisasi data yang interaktif.
                                         </p>
                                     </div>
                                 </div>
                             </section>
 
                             <section class="rounded-3xl border border-white/10 bg-surfaceMuted/70 p-8 shadow-2xl shadow-black/30">
+                                <div class="flex flex-col gap-6">
+                                    <div class="flex flex-col gap-2 text-left">
+                                        <h2 class="text-xl font-semibold text-textdark md:text-2xl">Fitur Platform</h2>
+                                        <p class="text-sm text-textdark/60">
+                                            Akses berbagai fitur monitoring dan kontrol jaringan blockchain
+                                        </p>
+                                    </div>
+                                    <div class="grid gap-4 sm:grid-cols-2">
+                                        <div class="rounded-xl border border-white/10 bg-surface/50 p-5 space-y-2">
+                                            <div class="flex items-center gap-3">
+                                                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20 text-primary">
+                                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                                    </svg>
+                                                </div>
+                                                <h3 class="font-semibold text-textdark">Dashboard Monitoring</h3>
+                                            </div>
+                                            <p class="text-xs text-textdark/70 leading-relaxed">
+                                                Visualisasi metrik kinerja jaringan secara real-time dengan grafik interaktif untuk throughput, latency, dan resource utilization
+                                            </p>
+                                        </div>
+
+                                        <div class="rounded-xl border border-white/10 bg-surface/50 p-5 space-y-2">
+                                            <div class="flex items-center gap-3">
+                                                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary/20 text-secondary">
+                                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                                    </svg>
+                                                </div>
+                                                <h3 class="font-semibold text-textdark">Kesehatan Jaringan</h3>
+                                            </div>
+                                            <p class="text-xs text-textdark/70 leading-relaxed">
+                                                Monitor status kesehatan node, peer, dan orderer di setiap jaringan untuk memastikan operasional yang optimal
+                                            </p>
+                                        </div>
+
+                                        <div class="rounded-xl border border-white/10 bg-surface/50 p-5 space-y-2">
+                                            <div class="flex items-center gap-3">
+                                                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/20 text-accent">
+                                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                                    </svg>
+                                                </div>
+                                                <h3 class="font-semibold text-textdark">Simulasi Transaksi</h3>
+                                            </div>
+                                            <p class="text-xs text-textdark/70 leading-relaxed">
+                                                Jalankan simulasi beban transaksi dengan berbagai skenario untuk menguji ketahanan dan performa jaringan
+                                            </p>
+                                        </div>
+
+                                        <div class="rounded-xl border border-white/10 bg-surface/50 p-5 space-y-2">
+                                            <div class="flex items-center gap-3">
+                                                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-highlight/20 text-highlight">
+                                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                    </svg>
+                                                </div>
+                                                <h3 class="font-semibold text-textdark">Kontrol Jaringan</h3>
+                                            </div>
+                                            <p class="text-xs text-textdark/70 leading-relaxed">
+                                                Kelola jaringan Fabric 2 dan Fabric 3 dengan kontrol terpusat untuk operasi start, stop, dan restart node
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <section class="rounded-3xl border border-white/10 bg-gradient-to-br from-surface/80 to-surfaceMuted/60 p-8 shadow-2xl shadow-black/30">
                                 <div class="flex flex-col gap-4">
                                     <div class="flex flex-col gap-2 text-left">
-                                        <h2 class="text-xl font-semibold text-textdark md:text-2xl">Hasil dan Pembahasan</h2>
+                                        <h2 class="text-xl font-semibold text-textdark md:text-2xl">Tentang Penelitian</h2>
                                     </div>
-                                    <div class="text-sm text-textdark/80 leading-relaxed">
+                                    <div class="text-sm text-textdark/70 leading-relaxed space-y-3">
                                         <p>
-                                            Bab ini menyajikan hasil dan pembahasan dari penelitian yang telah dilakukan sesuai dengan langkah-langkah yang dijelaskan pada Bab III. Penelitian ini berfokus pada evaluasi kinerja algoritma konsensus Replicated and Fault Tolerant (RAFT) dan varian RAFT pada platform Hyperledger Fabric (HLF) (Hyperledger Fabric Docs, 2023). Pembahasan dalam bab ini dibagi ke dalam tujuh bagian utama, yaitu: gambaran umum penelitian, perumusan rancangan eksperimen, pembangunan lingkungan uji, pelaksanaan simulasi transaksi, pengolahan data, analisis data, dan penarikan kesimpulan. Setiap bagian menjelaskan tahapan penelitian secara berurutan, mulai dari proses perancangan, pelaksanaan, hingga interpretasi hasil untuk menjawab tujuan dan hipotesis penelitian.
+                                            Platform ini dikembangkan untuk mendukung evaluasi mendalam terhadap kinerja algoritma konsensus
+                                            RAFT (Replicated and Fault Tolerant) pada Hyperledger Fabric. Penelitian mencakup pengujian
+                                            berbagai skenario beban transaksi dan analisis metrik performa yang komprehensif.
+                                        </p>
+                                        <p>
+                                            Dengan fitur monitoring real-time dan kontrol jaringan yang terintegrasi, platform ini memungkinkan
+                                            peneliti untuk melakukan eksperimen terstruktur, mengumpulkan data performa, dan menganalisis
+                                            hasil dengan visualisasi yang intuitif.
                                         </p>
                                     </div>
                                 </div>

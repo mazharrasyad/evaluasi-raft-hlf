@@ -1138,9 +1138,6 @@ const viewsRoot = path.resolve(staticRoot, 'view');
 
 const viewFiles = {
     home: path.resolve(viewsRoot, 'home.html'),
-    comparison: path.resolve(viewsRoot, 'perbandingan-jaringan.html'),
-    blockComparison: path.resolve(viewsRoot, 'perbandingan-blok.html'),
-    simulationBroadcast: path.resolve(viewsRoot, 'simulasi-serentak.html'),
     research: {
         overview: path.resolve(viewsRoot, 'penelitian/gambaran-umum.html'),
         environmentSetup: path.resolve(viewsRoot, 'penelitian/pembangunan-lingkungan-uji.html'),
@@ -1195,18 +1192,6 @@ app.get('/api/network-operations/stream', (req, res) => {
 
 app.get('/', (req, res) => {
     res.sendFile(viewFiles.home);
-});
-
-app.get('/perbandingan-jaringan', (req, res) => {
-    res.sendFile(viewFiles.comparison);
-});
-
-app.get('/perbandingan-blok', (req, res) => {
-    res.sendFile(viewFiles.blockComparison);
-});
-
-app.get('/simulasi-serentak', (req, res) => {
-    res.sendFile(viewFiles.simulationBroadcast);
 });
 
 app.get('/penelitian/gambaran-umum', (req, res) => {

@@ -14,7 +14,7 @@ services:
     image: hyperledger/fabric-ca:latest
     labels:
       service: hyperledger-fabric
-      raft-network: raft-standard
+      raft-network: fabric2-raft-standard
     environment:
       - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
       - FABRIC_CA_SERVER_CA_NAME=ca-org3

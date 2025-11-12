@@ -19,7 +19,7 @@ services:
     image: hyperledger/fabric-peer:latest
     labels:
       service: hyperledger-fabric
-      raft-network: raft-variant
+      raft-network: fabric3-raft-variant
     environment:
       - FABRIC_CFG_PATH=/etc/hyperledger/peercfg
       #Generic peer variables

@@ -59,7 +59,7 @@ infoln "Using ${CONTAINER_CLI} and ${CONTAINER_CLI_COMPOSE}"
 function clearContainers() {
   infoln "Removing remaining containers"
   local network_filter="network=fabric3_raft_variant_net"
-  ${CONTAINER_CLI} rm -f $(${CONTAINER_CLI} ps -aq --filter label=raft-network=raft-variant) 2>/dev/null || true
+  ${CONTAINER_CLI} rm -f $(${CONTAINER_CLI} ps -aq --filter label=raft-network=fabric3-raft-variant) 2>/dev/null || true
   ${CONTAINER_CLI} rm -f $(${CONTAINER_CLI} ps -aq --filter name='dev-peer*' --filter ${network_filter}) 2>/dev/null || true
   ${CONTAINER_CLI} kill "$(${CONTAINER_CLI} ps -q --filter name=ccaas --filter ${network_filter})" 2>/dev/null || true
 }

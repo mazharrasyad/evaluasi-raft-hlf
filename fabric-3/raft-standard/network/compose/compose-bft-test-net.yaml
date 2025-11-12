@@ -20,7 +20,7 @@ services:
     image: hyperledger/fabric-orderer:latest
     labels:
       service: hyperledger-fabric
-      raft-network: raft-standard
+      raft-network: fabric3-raft-standard
     environment:
       - FABRIC_LOGGING_SPEC=INFO
       - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
@@ -64,7 +64,7 @@ services:
     image: hyperledger/fabric-orderer:latest
     labels:
       service: hyperledger-fabric
-      raft-network: raft-standard
+      raft-network: fabric3-raft-standard
     environment:
       - FABRIC_LOGGING_SPEC=INFO
       - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
@@ -108,7 +108,7 @@ services:
     image: hyperledger/fabric-orderer:latest
     labels:
       service: hyperledger-fabric
-      raft-network: raft-standard
+      raft-network: fabric3-raft-standard
     environment:
       - FABRIC_LOGGING_SPEC=INFO
       - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
@@ -152,7 +152,7 @@ services:
     image: hyperledger/fabric-orderer:latest
     labels:
       service: hyperledger-fabric
-      raft-network: raft-standard
+      raft-network: fabric3-raft-standard
     environment:
       - FABRIC_LOGGING_SPEC=INFO
       - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
@@ -199,7 +199,7 @@ services:
     image: hyperledger/fabric-peer:latest
     labels:
       service: hyperledger-fabric
-      raft-network: raft-standard
+      raft-network: fabric3-raft-standard
     environment:
       - FABRIC_CFG_PATH=/etc/hyperledger/peercfg
       - FABRIC_LOGGING_SPEC=INFO
@@ -240,7 +240,7 @@ services:
     image: hyperledger/fabric-peer:latest
     labels:
       service: hyperledger-fabric
-      raft-network: raft-standard
+      raft-network: fabric3-raft-standard
     environment:
       - FABRIC_CFG_PATH=/etc/hyperledger/peercfg
       - FABRIC_LOGGING_SPEC=INFO

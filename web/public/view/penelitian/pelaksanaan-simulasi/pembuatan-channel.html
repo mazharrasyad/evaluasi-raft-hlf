@@ -29,6 +29,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="icon" type="image/svg+xml" href="/images/logo-ai-center.svg">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         body { font-family: 'Inter', sans-serif; }
 
@@ -108,13 +109,13 @@
                                     </div>
 
                                     <div class="flex flex-wrap gap-3 pt-4">
-                                        <button class="px-6 py-2.5 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-green-500/50">
+                                        <button onclick="startNetwork('fabric-2', 'raft-standard')" class="px-6 py-2.5 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-green-500/50">
                                             Start Network
                                         </button>
-                                        <button class="px-6 py-2.5 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-red-500/50">
+                                        <button onclick="stopNetwork('fabric-2', 'raft-standard')" class="px-6 py-2.5 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-red-500/50">
                                             Stop Network
                                         </button>
-                                        <button class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-blue-500/50">
+                                        <button onclick="checkNetwork('fabric-2', 'raft-standard')" class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-blue-500/50">
                                             Check Network
                                         </button>
                                     </div>
@@ -157,13 +158,13 @@
                                     </div>
 
                                     <div class="flex flex-wrap gap-3 pt-4">
-                                        <button class="px-6 py-2.5 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-green-500/50">
+                                        <button onclick="startNetwork('fabric-2', 'raft-variant')" class="px-6 py-2.5 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-green-500/50">
                                             Start Network
                                         </button>
-                                        <button class="px-6 py-2.5 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-red-500/50">
+                                        <button onclick="stopNetwork('fabric-2', 'raft-variant')" class="px-6 py-2.5 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-red-500/50">
                                             Stop Network
                                         </button>
-                                        <button class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-blue-500/50">
+                                        <button onclick="checkNetwork('fabric-2', 'raft-variant')" class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-blue-500/50">
                                             Check Network
                                         </button>
                                     </div>
@@ -206,13 +207,13 @@
                                     </div>
 
                                     <div class="flex flex-wrap gap-3 pt-4">
-                                        <button class="px-6 py-2.5 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-green-500/50">
+                                        <button onclick="startNetwork('fabric-3', 'raft-standard')" class="px-6 py-2.5 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-green-500/50">
                                             Start Network
                                         </button>
-                                        <button class="px-6 py-2.5 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-red-500/50">
+                                        <button onclick="stopNetwork('fabric-3', 'raft-standard')" class="px-6 py-2.5 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-red-500/50">
                                             Stop Network
                                         </button>
-                                        <button class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-blue-500/50">
+                                        <button onclick="checkNetwork('fabric-3', 'raft-standard')" class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-blue-500/50">
                                             Check Network
                                         </button>
                                     </div>
@@ -255,13 +256,13 @@
                                     </div>
 
                                     <div class="flex flex-wrap gap-3 pt-4">
-                                        <button class="px-6 py-2.5 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-green-500/50">
+                                        <button onclick="startNetwork('fabric-3', 'raft-variant')" class="px-6 py-2.5 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-green-500/50">
                                             Start Network
                                         </button>
-                                        <button class="px-6 py-2.5 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-red-500/50">
+                                        <button onclick="stopNetwork('fabric-3', 'raft-variant')" class="px-6 py-2.5 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-red-500/50">
                                             Stop Network
                                         </button>
-                                        <button class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-blue-500/50">
+                                        <button onclick="checkNetwork('fabric-3', 'raft-variant')" class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-blue-500/50">
                                             Check Network
                                         </button>
                                     </div>
@@ -278,5 +279,322 @@
 
     <script src="/js/layout.js" defer></script>
     <script src="/js/navigation.js" defer></script>
+    <script>
+        function getNetworkId(fabricVersion, raftType) {
+            const idMap = {
+                'fabric-2-raft-standard': 'standard',
+                'fabric-2-raft-variant': 'variant',
+                'fabric-3-raft-standard': 'fabric3-standard',
+                'fabric-3-raft-variant': 'fabric3-variant'
+            };
+            return idMap[`${fabricVersion}-${raftType}`] || null;
+        }
+
+        function getNetworkLabel(fabricVersion, raftType) {
+            const labelMap = {
+                'fabric-2-raft-standard': 'Fabric 2 RAFT Standard',
+                'fabric-2-raft-variant': 'Fabric 2 RAFT Variant',
+                'fabric-3-raft-standard': 'Fabric 3 RAFT Standard',
+                'fabric-3-raft-variant': 'Fabric 3 RAFT Variant'
+            };
+            return labelMap[`${fabricVersion}-${raftType}`] || 'Network';
+        }
+
+        async function startNetwork(fabricVersion, raftType) {
+            const networkId = getNetworkId(fabricVersion, raftType);
+            const networkLabel = getNetworkLabel(fabricVersion, raftType);
+
+            if (!networkId) {
+                await Swal.fire({
+                    icon: 'error',
+                    title: 'Network ID Tidak Valid',
+                    text: 'ID network yang diminta tidak ditemukan.',
+                    background: '#0F172A',
+                    color: '#E2E8F0',
+                    confirmButtonColor: '#38BDF8'
+                });
+                return;
+            }
+
+            const result = await Swal.fire({
+                title: 'Konfirmasi Start Network',
+                html: `Apakah Anda yakin ingin memulai <strong>${networkLabel}</strong>?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Mulai',
+                cancelButtonText: 'Batal',
+                background: '#0F172A',
+                color: '#E2E8F0',
+                confirmButtonColor: '#10B981',
+                cancelButtonColor: '#EF4444'
+            });
+
+            if (!result.isConfirmed) {
+                return;
+            }
+
+            Swal.fire({
+                title: 'Memulai Network...',
+                html: `Sedang memulai <strong>${networkLabel}</strong>`,
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                background: '#0F172A',
+                color: '#E2E8F0',
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            try {
+                const response = await fetch('/api/start-network', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        networkType: networkId
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.overallStatus === 'success') {
+                    await Swal.fire({
+                        icon: 'success',
+                        title: 'Network Berhasil Dimulai!',
+                        html: `<strong>${networkLabel}</strong> berhasil dimulai dengan sukses.`,
+                        background: '#0F172A',
+                        color: '#E2E8F0',
+                        confirmButtonColor: '#10B981'
+                    });
+                } else if (data.overallStatus === 'partial') {
+                    await Swal.fire({
+                        icon: 'warning',
+                        title: 'Network Dimulai Sebagian',
+                        html: `<strong>${networkLabel}</strong> dimulai sebagian. Beberapa komponen mungkin gagal.`,
+                        background: '#0F172A',
+                        color: '#E2E8F0',
+                        confirmButtonColor: '#F59E0B'
+                    });
+                } else {
+                    const errorMsg = data.error || 'Terjadi kesalahan tidak diketahui';
+                    await Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal Memulai Network',
+                        html: `Gagal memulai <strong>${networkLabel}</strong>:<br/><br/>${errorMsg}`,
+                        background: '#0F172A',
+                        color: '#E2E8F0',
+                        confirmButtonColor: '#EF4444'
+                    });
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                await Swal.fire({
+                    icon: 'error',
+                    title: 'Terjadi Kesalahan',
+                    text: error.message || 'Terjadi kesalahan saat menghubungi server.',
+                    background: '#0F172A',
+                    color: '#E2E8F0',
+                    confirmButtonColor: '#EF4444'
+                });
+            }
+        }
+
+        async function stopNetwork(fabricVersion, raftType) {
+            const networkId = getNetworkId(fabricVersion, raftType);
+            const networkLabel = getNetworkLabel(fabricVersion, raftType);
+
+            if (!networkId) {
+                await Swal.fire({
+                    icon: 'error',
+                    title: 'Network ID Tidak Valid',
+                    text: 'ID network yang diminta tidak ditemukan.',
+                    background: '#0F172A',
+                    color: '#E2E8F0',
+                    confirmButtonColor: '#38BDF8'
+                });
+                return;
+            }
+
+            const result = await Swal.fire({
+                title: 'Konfirmasi Stop Network',
+                html: `Apakah Anda yakin ingin menghentikan <strong>${networkLabel}</strong>?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Hentikan',
+                cancelButtonText: 'Batal',
+                background: '#0F172A',
+                color: '#E2E8F0',
+                confirmButtonColor: '#EF4444',
+                cancelButtonColor: '#6B7280'
+            });
+
+            if (!result.isConfirmed) {
+                return;
+            }
+
+            Swal.fire({
+                title: 'Menghentikan Network...',
+                html: `Sedang menghentikan <strong>${networkLabel}</strong>`,
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                background: '#0F172A',
+                color: '#E2E8F0',
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            try {
+                const response = await fetch('/api/shutdown-network', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        networkType: networkId
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.overallStatus === 'success') {
+                    await Swal.fire({
+                        icon: 'success',
+                        title: 'Network Berhasil Dihentikan!',
+                        html: `<strong>${networkLabel}</strong> berhasil dihentikan dengan sukses.`,
+                        background: '#0F172A',
+                        color: '#E2E8F0',
+                        confirmButtonColor: '#10B981'
+                    });
+                } else if (data.overallStatus === 'partial') {
+                    await Swal.fire({
+                        icon: 'warning',
+                        title: 'Network Dihentikan Sebagian',
+                        html: `<strong>${networkLabel}</strong> dihentikan sebagian. Beberapa komponen mungkin masih berjalan.`,
+                        background: '#0F172A',
+                        color: '#E2E8F0',
+                        confirmButtonColor: '#F59E0B'
+                    });
+                } else {
+                    const errorMsg = data.error || 'Terjadi kesalahan tidak diketahui';
+                    await Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal Menghentikan Network',
+                        html: `Gagal menghentikan <strong>${networkLabel}</strong>:<br/><br/>${errorMsg}`,
+                        background: '#0F172A',
+                        color: '#E2E8F0',
+                        confirmButtonColor: '#EF4444'
+                    });
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                await Swal.fire({
+                    icon: 'error',
+                    title: 'Terjadi Kesalahan',
+                    text: error.message || 'Terjadi kesalahan saat menghubungi server.',
+                    background: '#0F172A',
+                    color: '#E2E8F0',
+                    confirmButtonColor: '#EF4444'
+                });
+            }
+        }
+
+        async function checkNetwork(fabricVersion, raftType) {
+            const networkLabel = getNetworkLabel(fabricVersion, raftType);
+            const networkId = getNetworkId(fabricVersion, raftType);
+
+            Swal.fire({
+                title: 'Memeriksa Network...',
+                html: `Sedang memeriksa status <strong>${networkLabel}</strong>`,
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                background: '#0F172A',
+                color: '#E2E8F0',
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            try {
+                const response = await fetch('/api/check-network');
+                const result = await response.json();
+
+                if (result.overallStatus === 'success' || result.overallStatus === 'partial') {
+                    const networkData = result.details.find(detail => detail.targetId === networkId);
+
+                    if (networkData && networkData.containers && networkData.containers.length > 0) {
+                        const containers = networkData.containers;
+                        let containerHtml = '<div class="text-left mt-4" style="max-height: 400px; overflow-y: auto;">';
+
+                        containers.forEach((container, index) => {
+                            const name = container.name || container.Names || 'Unknown';
+                            const status = container.status || container.Status || 'Unknown';
+                            const statusColor = status.toLowerCase().includes('up') ? '#10B981' : '#EF4444';
+
+                            containerHtml += `
+                                <div class="mb-3 p-3 rounded" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
+                                    <div style="font-weight: 600; color: #38BDF8; margin-bottom: 4px;">${index + 1}. ${name}</div>
+                                    <div style="font-size: 0.875rem; color: ${statusColor};">Status: ${status}</div>
+                                </div>
+                            `;
+                        });
+
+                        containerHtml += '</div>';
+
+                        await Swal.fire({
+                            icon: 'success',
+                            title: `Status ${networkLabel}`,
+                            html: `
+                                <div class="text-left">
+                                    <p style="margin-bottom: 8px;"><strong>Status:</strong> <span style="color: #10B981;">${networkData.status}</span></p>
+                                    <p style="margin-bottom: 16px;"><strong>Total Container:</strong> ${containers.length}</p>
+                                    <p style="margin-bottom: 8px; font-weight: 600;">Container yang Berjalan:</p>
+                                </div>
+                                ${containerHtml}
+                            `,
+                            background: '#0F172A',
+                            color: '#E2E8F0',
+                            confirmButtonColor: '#38BDF8',
+                            width: '600px'
+                        });
+                    } else {
+                        await Swal.fire({
+                            icon: 'info',
+                            title: `Status ${networkLabel}`,
+                            html: `
+                                <div class="text-left">
+                                    <p><strong>Status:</strong> <span style="color: #EF4444;">Tidak Aktif</span></p>
+                                    <p style="margin-top: 12px;">Tidak ada container yang berjalan.</p>
+                                </div>
+                            `,
+                            background: '#0F172A',
+                            color: '#E2E8F0',
+                            confirmButtonColor: '#38BDF8'
+                        });
+                    }
+                } else {
+                    await Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal Memeriksa Network',
+                        text: result.error || 'Terjadi kesalahan tidak diketahui',
+                        background: '#0F172A',
+                        color: '#E2E8F0',
+                        confirmButtonColor: '#EF4444'
+                    });
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                await Swal.fire({
+                    icon: 'error',
+                    title: 'Terjadi Kesalahan',
+                    text: error.message || 'Terjadi kesalahan saat menghubungi server.',
+                    background: '#0F172A',
+                    color: '#E2E8F0',
+                    confirmButtonColor: '#EF4444'
+                });
+            }
+        }
+    </script>
 </body>
 </html>

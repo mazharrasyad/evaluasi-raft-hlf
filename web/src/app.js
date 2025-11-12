@@ -1750,6 +1750,229 @@ app.post('/api/shutdown-network', async (req, res) => {
     });
 });
 
+app.post('/api/create-channel', async (req, res) => {
+    const requestedAt = new Date().toISOString();
+    const rawNetworkType = typeof req.body?.networkType === 'string'
+        ? req.body.networkType.trim().toLowerCase()
+        : null;
+
+    if (!rawNetworkType) {
+        res.status(400).json({
+            requestedAt,
+            completedAt: new Date().toISOString(),
+            overallStatus: 'error',
+            error: 'Parameter networkType diperlukan.',
+        });
+        return;
+    }
+
+    const target = NETWORK_START_TARGETS.find(t => t.id === rawNetworkType);
+
+    if (!target) {
+        res.status(400).json({
+            requestedAt,
+            completedAt: new Date().toISOString(),
+            overallStatus: 'error',
+            error: 'Tipe jaringan tidak dikenal.',
+        });
+        return;
+    }
+
+    const dockerFailure = await ensureDockerAvailable();
+    if (dockerFailure) {
+        const failureResult = {
+            targetId: target.id,
+            label: target.label,
+            networkDir: target.directory,
+            status: dockerFailure.status,
+            ...dockerFailure,
+        };
+
+        await logNetworkStartupFailure(failureResult);
+
+        res.json({
+            requestedAt,
+            completedAt: new Date().toISOString(),
+            overallStatus: 'error',
+            dependencyStatus: 'docker_unavailable',
+            results: [failureResult],
+            networkType: rawNetworkType,
+        });
+        return;
+    }
+
+    const scriptPath = path.resolve(target.directory, 'network.sh');
+
+    try {
+        await fs.access(target.directory, fsConstants.R_OK | fsConstants.X_OK);
+    } catch (error) {
+        res.status(500).json({
+            requestedAt,
+            completedAt: new Date().toISOString(),
+            overallStatus: 'error',
+            error: 'Direktori jaringan tidak ditemukan atau tidak dapat diakses.',
+        });
+        return;
+    }
+
+    try {
+        await fs.access(scriptPath, fsConstants.X_OK);
+    } catch (error) {
+        res.status(500).json({
+            requestedAt,
+            completedAt: new Date().toISOString(),
+            overallStatus: 'error',
+            error: 'Berkas network.sh tidak ditemukan atau tidak dapat dijalankan.',
+        });
+        return;
+    }
+
+    // Find the createChannel command from the target's commands
+    const createChannelCommand = target.commands.find(cmd => cmd.args[0] === 'createChannel');
+
+    if (!createChannelCommand) {
+        res.status(500).json({
+            requestedAt,
+            completedAt: new Date().toISOString(),
+            overallStatus: 'error',
+            error: 'Perintah createChannel tidak ditemukan untuk jaringan ini.',
+        });
+        return;
+    }
+
+    try {
+        const { stdout, stderr } = await execFileAsync('./network.sh', createChannelCommand.args, {
+            cwd: target.directory,
+            maxBuffer: EXEC_MAX_BUFFER,
+        });
+
+        const completedAt = new Date().toISOString();
+
+        res.json({
+            requestedAt,
+            completedAt,
+            overallStatus: 'success',
+            results: [{
+                targetId: target.id,
+                label: target.label,
+                networkDir: target.directory,
+                command: createChannelCommand.displayCommand,
+                status: 'success',
+                stdout,
+                stderr,
+            }],
+            networkType: rawNetworkType,
+        });
+    } catch (error) {
+        const stdout = error?.stdout ? String(error.stdout) : undefined;
+        const stderr = error?.stderr ? String(error.stderr) : undefined;
+        const completedAt = new Date().toISOString();
+
+        res.json({
+            requestedAt,
+            completedAt,
+            overallStatus: 'error',
+            results: [{
+                targetId: target.id,
+                label: target.label,
+                networkDir: target.directory,
+                command: createChannelCommand.displayCommand,
+                status: 'error',
+                error: error instanceof Error ? error.message : String(error),
+                stdout,
+                stderr,
+            }],
+            networkType: rawNetworkType,
+        });
+    }
+});
+
+app.post('/api/check-channel', async (req, res) => {
+    const checkedAt = new Date().toISOString();
+    const rawNetworkType = typeof req.body?.networkType === 'string'
+        ? req.body.networkType.trim().toLowerCase()
+        : null;
+
+    if (!rawNetworkType) {
+        res.status(400).json({
+            checkedAt,
+            status: 'error',
+            error: 'Parameter networkType diperlukan.',
+        });
+        return;
+    }
+
+    const target = NETWORK_START_TARGETS.find(t => t.id === rawNetworkType);
+
+    if (!target) {
+        res.status(400).json({
+            checkedAt,
+            status: 'error',
+            error: 'Tipe jaringan tidak dikenal.',
+        });
+        return;
+    }
+
+    try {
+        // Check if network.sh exists and is executable
+        const scriptPath = path.resolve(target.directory, 'network.sh');
+
+        try {
+            await fs.access(scriptPath, fsConstants.X_OK);
+        } catch {
+            res.json({
+                checkedAt,
+                status: 'inactive',
+                message: 'Script network.sh tidak ditemukan.',
+            });
+            return;
+        }
+
+        // Try to check if containers are running for this channel
+        const commandInfo = getContainerCliVersionCommand();
+        try {
+            const { stdout } = await execFileAsync(commandInfo.binary, [
+                'ps',
+                '--filter', `name=${target.channel}`,
+                '--format', '{{.Names}}'
+            ], {
+                maxBuffer: EXEC_MAX_BUFFER,
+            });
+
+            const runningContainers = stdout.trim().split('\n').filter(Boolean);
+
+            if (runningContainers.length > 0) {
+                res.json({
+                    checkedAt,
+                    status: 'active',
+                    message: `Channel aktif dengan ${runningContainers.length} container berjalan.`,
+                    containers: runningContainers,
+                });
+            } else {
+                res.json({
+                    checkedAt,
+                    status: 'inactive',
+                    message: 'Tidak ada container yang berjalan untuk channel ini.',
+                });
+            }
+        } catch (error) {
+            res.json({
+                checkedAt,
+                status: 'inactive',
+                message: 'Gagal memeriksa status container.',
+                error: error instanceof Error ? error.message : String(error),
+            });
+        }
+    } catch (error) {
+        console.error('Failed to check channel status:', error);
+        res.json({
+            checkedAt,
+            status: 'error',
+            error: error instanceof Error ? error.message : String(error),
+        });
+    }
+});
+
 app.post('/api/simulations/records', async (req, res) => {
     const receivedAt = new Date().toISOString();
     const record = req.body?.record;

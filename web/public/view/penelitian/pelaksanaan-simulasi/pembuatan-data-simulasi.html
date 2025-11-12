@@ -66,10 +66,481 @@
                                 </div>
                                 <div class="space-y-5">
                                     <h1 class="text-3xl font-semibold text-textdark md:text-4xl">Pembuatan Data Simulasi</h1>
-                                    <p class="text-sm text-textdark/70 md:text-base">
-                                        Isi konten...
+                                    <p class="text-sm text-textdark/70 md:text-base leading-relaxed">
+                                        Pembuatan data simulasi dirancang untuk mengevaluasi performa sistem blockchain Hyperledger Fabric dengan konsensus Raft dalam berbagai kondisi beban. Data simulasi menggunakan konteks pelaporan maladministrasi di Indonesia dengan total 10.837 laporan pada tahun 2024 sebagai acuan untuk menciptakan skenario yang realistis.
                                     </p>
                                 </div>
+                            </div>
+                        </section>
+
+                        <!-- Kriteria Beban Simulasi -->
+                        <section class="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-surface via-soft to-[#020817] p-10 shadow-2xl shadow-black/30">
+                            <h2 class="mb-6 text-2xl font-semibold text-textdark">Kriteria Beban Simulasi</h2>
+                            <p class="mb-8 text-sm text-textdark/70 leading-relaxed">
+                                Kriteria beban simulasi dibagi menjadi tiga kategori untuk mengevaluasi performa sistem dalam kondisi operasional yang berbeda:
+                            </p>
+
+                            <!-- Beban Ringan -->
+                            <div class="mb-8 rounded-2xl border border-green-500/20 bg-green-500/5 p-6">
+                                <div class="mb-4 flex items-center gap-3">
+                                    <div class="rounded-lg bg-green-500/20 px-3 py-1">
+                                        <span class="text-sm font-semibold text-green-400">Kategori 1</span>
+                                    </div>
+                                    <h3 class="text-xl font-semibold text-green-400">Beban Ringan</h3>
+                                </div>
+                                <p class="mb-4 text-sm text-textdark/70 leading-relaxed">
+                                    Kondisi normal dengan jumlah transaksi rendah, menggambarkan aktivitas harian yang stabil dengan distribusi laporan merata.
+                                </p>
+                                <div class="space-y-3">
+                                    <div class="rounded-lg border border-white/10 bg-white/5 p-4">
+                                        <div class="mb-2 text-xs font-semibold uppercase tracking-wider text-muted">Volume Transaksi</div>
+                                        <div class="text-lg font-semibold text-textdark">100-500 transaksi</div>
+                                        <div class="mt-1 text-xs text-textdark/60">≈ 0.9% - 4.6% dari total laporan tahunan</div>
+                                    </div>
+                                    <div class="rounded-lg border border-white/10 bg-white/5 p-4">
+                                        <div class="mb-2 text-xs font-semibold uppercase tracking-wider text-muted">Throughput Target</div>
+                                        <div class="text-lg font-semibold text-textdark">10-20 TPS</div>
+                                        <div class="mt-1 text-xs text-textdark/60">Transactions Per Second</div>
+                                    </div>
+                                    <div class="rounded-lg border border-white/10 bg-white/5 p-4">
+                                        <div class="mb-2 text-xs font-semibold uppercase tracking-wider text-muted">Skenario</div>
+                                        <div class="text-sm text-textdark/80 leading-relaxed">
+                                            Simulasi aktivitas harian normal dengan distribusi merata berdasarkan proporsi data 2024. Mencakup laporan dari berbagai substansi dengan dominasi Agraria (17.2%), Kepegawaian (12.5%), dan Pendidikan (9.6%).
+                                        </div>
+                                    </div>
+                                    <div class="rounded-lg border border-white/10 bg-white/5 p-4">
+                                        <div class="mb-2 text-xs font-semibold uppercase tracking-wider text-muted">Distribusi Data</div>
+                                        <div class="grid grid-cols-2 gap-3 text-xs text-textdark/70">
+                                            <div><span class="font-semibold">Pelapor:</span> 77% Perorangan, 8% Badan Hukum</div>
+                                            <div><span class="font-semibold">Terlapor:</span> 47% Pemda, 12% BPN</div>
+                                            <div><span class="font-semibold">Kantor:</span> Distribusi merata 34 kantor regional + pusat</div>
+                                            <div><span class="font-semibold">Periode:</span> Distribusi merata per hari/minggu</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Beban Sedang -->
+                            <div class="mb-8 rounded-2xl border border-yellow-500/20 bg-yellow-500/5 p-6">
+                                <div class="mb-4 flex items-center gap-3">
+                                    <div class="rounded-lg bg-yellow-500/20 px-3 py-1">
+                                        <span class="text-sm font-semibold text-yellow-400">Kategori 2</span>
+                                    </div>
+                                    <h3 class="text-xl font-semibold text-yellow-400">Beban Sedang</h3>
+                                </div>
+                                <p class="mb-4 text-sm text-textdark/70 leading-relaxed">
+                                    Kondisi aktivitas menengah dengan peningkatan volume transaksi, menggambarkan periode aktivitas tinggi namun masih terkendali.
+                                </p>
+                                <div class="space-y-3">
+                                    <div class="rounded-lg border border-white/10 bg-white/5 p-4">
+                                        <div class="mb-2 text-xs font-semibold uppercase tracking-wider text-muted">Volume Transaksi</div>
+                                        <div class="text-lg font-semibold text-textdark">1.000-3.000 transaksi</div>
+                                        <div class="mt-1 text-xs text-textdark/60">≈ 9.2% - 27.7% dari total laporan tahunan</div>
+                                    </div>
+                                    <div class="rounded-lg border border-white/10 bg-white/5 p-4">
+                                        <div class="mb-2 text-xs font-semibold uppercase tracking-wider text-muted">Throughput Target</div>
+                                        <div class="text-lg font-semibold text-textdark">50-100 TPS</div>
+                                        <div class="mt-1 text-xs text-textdark/60">Transactions Per Second</div>
+                                    </div>
+                                    <div class="rounded-lg border border-white/10 bg-white/5 p-4">
+                                        <div class="mb-2 text-xs font-semibold uppercase tracking-wider text-muted">Skenario</div>
+                                        <div class="text-sm text-textdark/80 leading-relaxed">
+                                            Simulasi periode sibuk seperti akhir bulan atau awal tahun ketika terjadi peningkatan laporan. Fokus pada substansi dengan volume tinggi: Agraria, Kepegawaian, Pendidikan, dan Perhubungan yang secara kumulatif mencakup 52% dari total laporan.
+                                        </div>
+                                    </div>
+                                    <div class="rounded-lg border border-white/10 bg-white/5 p-4">
+                                        <div class="mb-2 text-xs font-semibold uppercase tracking-wider text-muted">Distribusi Data</div>
+                                        <div class="grid grid-cols-2 gap-3 text-xs text-textdark/70">
+                                            <div><span class="font-semibold">Pelapor:</span> 75% Perorangan, 10% Badan Hukum</div>
+                                            <div><span class="font-semibold">Terlapor:</span> 50% Pemda, 15% BPN, 10% BUMN/BUMD</div>
+                                            <div><span class="font-semibold">Kantor:</span> Fokus pada 10 kantor tersibuk (Jakarta, Sulsel, Jambi, Bali, dst)</div>
+                                            <div><span class="font-semibold">Periode:</span> Konsentrasi pada jam kerja (08:00-16:00)</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Beban Tinggi -->
+                            <div class="rounded-2xl border border-red-500/20 bg-red-500/5 p-6">
+                                <div class="mb-4 flex items-center gap-3">
+                                    <div class="rounded-lg bg-red-500/20 px-3 py-1">
+                                        <span class="text-sm font-semibold text-red-400">Kategori 3</span>
+                                    </div>
+                                    <h3 class="text-xl font-semibold text-red-400">Beban Tinggi</h3>
+                                </div>
+                                <p class="mb-4 text-sm text-textdark/70 leading-relaxed">
+                                    Kondisi puncak ketika terjadi lonjakan transaksi secara signifikan, menggambarkan situasi krisis atau kejadian luar biasa yang memicu pelaporan massal.
+                                </p>
+                                <div class="space-y-3">
+                                    <div class="rounded-lg border border-white/10 bg-white/5 p-4">
+                                        <div class="mb-2 text-xs font-semibold uppercase tracking-wider text-muted">Volume Transaksi</div>
+                                        <div class="text-lg font-semibold text-textdark">5.000-10.000 transaksi</div>
+                                        <div class="mt-1 text-xs text-textdark/60">≈ 46.1% - 92.3% dari total laporan tahunan</div>
+                                    </div>
+                                    <div class="rounded-lg border border-white/10 bg-white/5 p-4">
+                                        <div class="mb-2 text-xs font-semibold uppercase tracking-wider text-muted">Throughput Target</div>
+                                        <div class="text-lg font-semibold text-textdark">200-500 TPS</div>
+                                        <div class="mt-1 text-xs text-textdark/60">Transactions Per Second</div>
+                                    </div>
+                                    <div class="rounded-lg border border-white/10 bg-white/5 p-4">
+                                        <div class="mb-2 text-xs font-semibold uppercase tracking-wider text-muted">Skenario</div>
+                                        <div class="text-sm text-textdark/80 leading-relaxed">
+                                            Simulasi kondisi ekstrem seperti viral case atau bencana yang memicu lonjakan pelaporan massal. Mencakup semua kategori substansi dengan penekanan pada substansi yang paling sering dilaporkan dan melibatkan semua 34 kantor penerimaan laporan secara bersamaan.
+                                        </div>
+                                    </div>
+                                    <div class="rounded-lg border border-white/10 bg-white/5 p-4">
+                                        <div class="mb-2 text-xs font-semibold uppercase tracking-wider text-muted">Distribusi Data</div>
+                                        <div class="grid grid-cols-2 gap-3 text-xs text-textdark/70">
+                                            <div><span class="font-semibold">Pelapor:</span> 80% Perorangan, 12% Kelompok Masyarakat</div>
+                                            <div><span class="font-semibold">Terlapor:</span> 55% Pemda, 14% BPN, 8% BUMN/BUMD</div>
+                                            <div><span class="font-semibold">Kantor:</span> Seluruh 34 kantor aktif bersamaan</div>
+                                            <div><span class="font-semibold">Periode:</span> Burst traffic dalam 2-4 jam puncak</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Data Referensi 2024 -->
+                        <section class="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-surface via-soft to-[#020817] p-10 shadow-2xl shadow-black/30">
+                            <h2 class="mb-6 text-2xl font-semibold text-textdark">Data Referensi Laporan 2024</h2>
+                            <p class="mb-8 text-sm text-textdark/70 leading-relaxed">
+                                Data simulasi didasarkan pada statistik pelaporan maladministrasi tahun 2024 dengan total <span class="font-semibold text-primary">10.837 laporan</span>. Berikut adalah distribusi data yang digunakan sebagai acuan:
+                            </p>
+
+                            <!-- Tabel 1.1 Substansi Laporan -->
+                            <div class="mb-10">
+                                <h3 class="mb-4 text-lg font-semibold text-textdark">Tabel 1.1 — Substansi Laporan</h3>
+                                <div class="overflow-hidden rounded-xl border border-white/10">
+                                    <div class="overflow-x-auto">
+                                        <table class="w-full text-sm">
+                                            <thead class="bg-white/5">
+                                                <tr class="border-b border-white/10">
+                                                    <th class="px-4 py-3 text-left font-semibold text-textdark">Substansi</th>
+                                                    <th class="px-4 py-3 text-right font-semibold text-textdark">Jumlah</th>
+                                                    <th class="px-4 py-3 text-right font-semibold text-textdark">Persentase</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="divide-y divide-white/5">
+                                                <tr class="bg-white/[0.02] hover:bg-white/5">
+                                                    <td class="px-4 py-2 text-textdark/80">Agraria (Pertanahan dan Tata Ruang)</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-textdark">1.861</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-primary">17.2%</td>
+                                                </tr>
+                                                <tr class="bg-white/[0.02] hover:bg-white/5">
+                                                    <td class="px-4 py-2 text-textdark/80">Kepegawaian</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-textdark">1.354</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-primary">12.5%</td>
+                                                </tr>
+                                                <tr class="bg-white/[0.02] hover:bg-white/5">
+                                                    <td class="px-4 py-2 text-textdark/80">Pendidikan</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-textdark">1.041</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-primary">9.6%</td>
+                                                </tr>
+                                                <tr class="bg-white/[0.02] hover:bg-white/5">
+                                                    <td class="px-4 py-2 text-textdark/80">Perhubungan dan Infrastruktur</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-textdark">726</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-textdark/70">6.7%</td>
+                                                </tr>
+                                                <tr class="bg-white/[0.02] hover:bg-white/5">
+                                                    <td class="px-4 py-2 text-textdark/80">Hak Sipil dan Politik</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-textdark">680</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-textdark/70">6.3%</td>
+                                                </tr>
+                                                <tr class="bg-white/[0.02] hover:bg-white/5">
+                                                    <td class="px-4 py-2 text-textdark/80">Administrasi Kependudukan</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-textdark">648</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-textdark/70">6.0%</td>
+                                                </tr>
+                                                <tr class="bg-white/[0.02] hover:bg-white/5">
+                                                    <td class="px-4 py-2 text-textdark/80">Kepolisian</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-textdark">623</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-textdark/70">5.7%</td>
+                                                </tr>
+                                                <tr class="bg-white/[0.02] hover:bg-white/5">
+                                                    <td class="px-4 py-2 text-textdark/80">Substansi Lainnya (33 kategori)</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-textdark">3.904</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-textdark/70">36.0%</td>
+                                                </tr>
+                                                <tr class="border-t border-primary/30 bg-primary/10 font-semibold">
+                                                    <td class="px-4 py-3 text-textdark">Total</td>
+                                                    <td class="px-4 py-3 text-right font-mono text-textdark">10.837</td>
+                                                    <td class="px-4 py-3 text-right font-mono text-primary">100%</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Tabel 1.2 Kelompok Pelapor -->
+                            <div class="mb-10">
+                                <h3 class="mb-4 text-lg font-semibold text-textdark">Tabel 1.2 — Kelompok Pelapor</h3>
+                                <div class="overflow-hidden rounded-xl border border-white/10">
+                                    <div class="overflow-x-auto">
+                                        <table class="w-full text-sm">
+                                            <thead class="bg-white/5">
+                                                <tr class="border-b border-white/10">
+                                                    <th class="px-4 py-3 text-left font-semibold text-textdark">Kelompok Pelapor</th>
+                                                    <th class="px-4 py-3 text-right font-semibold text-textdark">Jumlah</th>
+                                                    <th class="px-4 py-3 text-right font-semibold text-textdark">Persentase</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="divide-y divide-white/5">
+                                                <tr class="bg-white/[0.02] hover:bg-white/5">
+                                                    <td class="px-4 py-2 text-textdark/80">Perorangan</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-textdark">8.380</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-primary">77.3%</td>
+                                                </tr>
+                                                <tr class="bg-white/[0.02] hover:bg-white/5">
+                                                    <td class="px-4 py-2 text-textdark/80">Badan Hukum/Organisasi</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-textdark">825</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-textdark/70">7.6%</td>
+                                                </tr>
+                                                <tr class="bg-white/[0.02] hover:bg-white/5">
+                                                    <td class="px-4 py-2 text-textdark/80">Anggota Keluarga</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-textdark">416</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-textdark/70">3.8%</td>
+                                                </tr>
+                                                <tr class="bg-white/[0.02] hover:bg-white/5">
+                                                    <td class="px-4 py-2 text-textdark/80">Kelompok Masyarakat</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-textdark">131</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-textdark/70">1.2%</td>
+                                                </tr>
+                                                <tr class="bg-white/[0.02] hover:bg-white/5">
+                                                    <td class="px-4 py-2 text-textdark/80">Bukan Korban Langsung maupun Kuasa</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-textdark">103</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-textdark/70">1.0%</td>
+                                                </tr>
+                                                <tr class="bg-white/[0.02] hover:bg-white/5">
+                                                    <td class="px-4 py-2 text-textdark/80">Kantor Hukum (Advokat)</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-textdark">44</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-textdark/70">0.4%</td>
+                                                </tr>
+                                                <tr class="bg-white/[0.02] hover:bg-white/5">
+                                                    <td class="px-4 py-2 text-textdark/80">Tidak Diketahui</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-textdark">938</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-textdark/70">8.7%</td>
+                                                </tr>
+                                                <tr class="border-t border-primary/30 bg-primary/10 font-semibold">
+                                                    <td class="px-4 py-3 text-textdark">Total</td>
+                                                    <td class="px-4 py-3 text-right font-mono text-textdark">10.837</td>
+                                                    <td class="px-4 py-3 text-right font-mono text-primary">100%</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Tabel 1.3 Kelompok Terlapor -->
+                            <div class="mb-10">
+                                <h3 class="mb-4 text-lg font-semibold text-textdark">Tabel 1.3 — Kelompok Terlapor</h3>
+                                <div class="overflow-hidden rounded-xl border border-white/10">
+                                    <div class="overflow-x-auto">
+                                        <table class="w-full text-sm">
+                                            <thead class="bg-white/5">
+                                                <tr class="border-b border-white/10">
+                                                    <th class="px-4 py-3 text-left font-semibold text-textdark">Kelompok Terlapor</th>
+                                                    <th class="px-4 py-3 text-right font-semibold text-textdark">Jumlah</th>
+                                                    <th class="px-4 py-3 text-right font-semibold text-textdark">Persentase</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="divide-y divide-white/5">
+                                                <tr class="bg-white/[0.02] hover:bg-white/5">
+                                                    <td class="px-4 py-2 text-textdark/80">Pemerintah Daerah</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-textdark">5.146</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-primary">47.5%</td>
+                                                </tr>
+                                                <tr class="bg-white/[0.02] hover:bg-white/5">
+                                                    <td class="px-4 py-2 text-textdark/80">Badan Pertanahan Nasional</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-textdark">1.338</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-primary">12.3%</td>
+                                                </tr>
+                                                <tr class="bg-white/[0.02] hover:bg-white/5">
+                                                    <td class="px-4 py-2 text-textdark/80">BUMN/BUMD</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-textdark">724</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-textdark/70">6.7%</td>
+                                                </tr>
+                                                <tr class="bg-white/[0.02] hover:bg-white/5">
+                                                    <td class="px-4 py-2 text-textdark/80">Lembaga Pendidikan Negeri</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-textdark">655</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-textdark/70">6.0%</td>
+                                                </tr>
+                                                <tr class="bg-white/[0.02] hover:bg-white/5">
+                                                    <td class="px-4 py-2 text-textdark/80">Kepolisian</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-textdark">634</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-textdark/70">5.8%</td>
+                                                </tr>
+                                                <tr class="bg-white/[0.02] hover:bg-white/5">
+                                                    <td class="px-4 py-2 text-textdark/80">Instansi Pemerintah / Kementerian</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-textdark">633</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-textdark/70">5.8%</td>
+                                                </tr>
+                                                <tr class="bg-white/[0.02] hover:bg-white/5">
+                                                    <td class="px-4 py-2 text-textdark/80">Terlapor Lainnya (14 kategori)</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-textdark">1.707</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-textdark/70">15.9%</td>
+                                                </tr>
+                                                <tr class="border-t border-primary/30 bg-primary/10 font-semibold">
+                                                    <td class="px-4 py-3 text-textdark">Total</td>
+                                                    <td class="px-4 py-3 text-right font-mono text-textdark">10.837</td>
+                                                    <td class="px-4 py-3 text-right font-mono text-primary">100%</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Tabel 1.4 Kantor Penerimaan Laporan -->
+                            <div>
+                                <h3 class="mb-4 text-lg font-semibold text-textdark">Tabel 1.4 — Kantor Penerimaan Laporan</h3>
+                                <div class="overflow-hidden rounded-xl border border-white/10">
+                                    <div class="overflow-x-auto">
+                                        <table class="w-full text-sm">
+                                            <thead class="bg-white/5">
+                                                <tr class="border-b border-white/10">
+                                                    <th class="px-4 py-3 text-left font-semibold text-textdark">Kantor Penerimaan Laporan</th>
+                                                    <th class="px-4 py-3 text-right font-semibold text-textdark">Jumlah</th>
+                                                    <th class="px-4 py-3 text-right font-semibold text-textdark">Persentase</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="divide-y divide-white/5">
+                                                <tr class="bg-white/[0.02] hover:bg-white/5">
+                                                    <td class="px-4 py-2 text-textdark/80">Pusat</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-textdark">1.107</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-primary">10.2%</td>
+                                                </tr>
+                                                <tr class="bg-white/[0.02] hover:bg-white/5">
+                                                    <td class="px-4 py-2 text-textdark/80">Sumatera Barat</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-textdark">539</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-textdark/70">5.0%</td>
+                                                </tr>
+                                                <tr class="bg-white/[0.02] hover:bg-white/5">
+                                                    <td class="px-4 py-2 text-textdark/80">Sumatera Selatan</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-textdark">485</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-textdark/70">4.5%</td>
+                                                </tr>
+                                                <tr class="bg-white/[0.02] hover:bg-white/5">
+                                                    <td class="px-4 py-2 text-textdark/80">Jakarta Raya</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-textdark">400</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-textdark/70">3.7%</td>
+                                                </tr>
+                                                <tr class="bg-white/[0.02] hover:bg-white/5">
+                                                    <td class="px-4 py-2 text-textdark/80">Sulawesi Selatan</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-textdark">400</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-textdark/70">3.7%</td>
+                                                </tr>
+                                                <tr class="bg-white/[0.02] hover:bg-white/5">
+                                                    <td class="px-4 py-2 text-textdark/80">Kalimantan Barat</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-textdark">392</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-textdark/70">3.6%</td>
+                                                </tr>
+                                                <tr class="bg-white/[0.02] hover:bg-white/5">
+                                                    <td class="px-4 py-2 text-textdark/80">Jawa Tengah</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-textdark">389</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-textdark/70">3.6%</td>
+                                                </tr>
+                                                <tr class="bg-white/[0.02] hover:bg-white/5">
+                                                    <td class="px-4 py-2 text-textdark/80">Kantor Regional Lainnya (27 kantor)</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-textdark">7.525</td>
+                                                    <td class="px-4 py-2 text-right font-mono text-textdark/70">65.7%</td>
+                                                </tr>
+                                                <tr class="border-t border-primary/30 bg-primary/10 font-semibold">
+                                                    <td class="px-4 py-3 text-textdark">Total</td>
+                                                    <td class="px-4 py-3 text-right font-mono text-textdark">10.837</td>
+                                                    <td class="px-4 py-3 text-right font-mono text-primary">100%</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Implementasi Teknis -->
+                        <section class="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-surface via-soft to-[#020817] p-10 shadow-2xl shadow-black/30">
+                            <h2 class="mb-6 text-2xl font-semibold text-textdark">Implementasi Teknis</h2>
+
+                            <div class="space-y-6">
+                                <!-- Format Data -->
+                                <div>
+                                    <h3 class="mb-3 text-lg font-semibold text-primary">Format Data Simulasi</h3>
+                                    <p class="mb-4 text-sm text-textdark/70 leading-relaxed">
+                                        Setiap transaksi laporan dalam simulasi akan memiliki struktur data sebagai berikut:
+                                    </p>
+                                    <div class="rounded-xl border border-white/10 bg-black/30 p-5">
+                                        <pre class="overflow-x-auto text-xs text-textdark/90"><code>{
+  "reportId": "RPT-2024-XXXXX",
+  "timestamp": "2024-12-31T14:30:45.123Z",
+  "substance": "Agraria (Pertanahan dan Tata Ruang)",
+  "reporterGroup": "Perorangan",
+  "reportedGroup": "Pemerintah Daerah",
+  "receivingOffice": "Jawa Barat",
+  "description": "Deskripsi singkat laporan maladministrasi",
+  "status": "pending"
+}</code></pre>
+                                    </div>
+                                </div>
+
+                                <!-- Strategi Pembangkitan Data -->
+                                <div>
+                                    <h3 class="mb-3 text-lg font-semibold text-primary">Strategi Pembangkitan Data</h3>
+                                    <div class="space-y-3">
+                                        <div class="rounded-lg border border-white/10 bg-white/5 p-4">
+                                            <div class="mb-2 font-semibold text-textdark">1. Distribusi Proporsional</div>
+                                            <p class="text-sm text-textdark/70">
+                                                Gunakan distribusi weighted random berdasarkan persentase data 2024 untuk setiap atribut (substansi, pelapor, terlapor, kantor).
+                                            </p>
+                                        </div>
+                                        <div class="rounded-lg border border-white/10 bg-white/5 p-4">
+                                            <div class="mb-2 font-semibold text-textdark">2. Timestamp Realistis</div>
+                                            <p class="text-sm text-textdark/70">
+                                                Untuk beban ringan: distribusi merata sepanjang hari. Untuk beban sedang: konsentrasi pada jam kerja. Untuk beban tinggi: burst dalam 2-4 jam puncak.
+                                            </p>
+                                        </div>
+                                        <div class="rounded-lg border border-white/10 bg-white/5 p-4">
+                                            <div class="mb-2 font-semibold text-textdark">3. Korelasi Data</div>
+                                            <p class="text-sm text-textdark/70">
+                                                Pertahankan korelasi logis seperti laporan Agraria cenderung dilaporkan ke BPN, laporan Pendidikan ke Lembaga Pendidikan Negeri, dll.
+                                            </p>
+                                        </div>
+                                        <div class="rounded-lg border border-white/10 bg-white/5 p-4">
+                                            <div class="mb-2 font-semibold text-textdark">4. ID Unik Sequential</div>
+                                            <p class="text-sm text-textdark/70">
+                                                Generate report ID dengan format RPT-2024-XXXXX dimana XXXXX adalah nomor sequential untuk memudahkan tracking dan analisis.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Tools dan Scripts -->
+                                <div>
+                                    <h3 class="mb-3 text-lg font-semibold text-primary">Tools dan Scripts</h3>
+                                    <p class="mb-3 text-sm text-textdark/70">
+                                        Implementasi pembangkitan data menggunakan scripts khusus yang tersedia di direktori simulasi:
+                                    </p>
+                                    <div class="space-y-2 text-sm">
+                                        <div class="flex items-start gap-2">
+                                            <span class="mt-1 text-accent">•</span>
+                                            <span class="text-textdark/80"><code class="rounded bg-black/30 px-2 py-0.5 font-mono text-xs text-primary">generate-light.js</code> — Script untuk membangkitkan data beban ringan</span>
+                                        </div>
+                                        <div class="flex items-start gap-2">
+                                            <span class="mt-1 text-accent">•</span>
+                                            <span class="text-textdark/80"><code class="rounded bg-black/30 px-2 py-0.5 font-mono text-xs text-primary">generate-medium.js</code> — Script untuk membangkitkan data beban sedang</span>
+                                        </div>
+                                        <div class="flex items-start gap-2">
+                                            <span class="mt-1 text-accent">•</span>
+                                            <span class="text-textdark/80"><code class="rounded bg-black/30 px-2 py-0.5 font-mono text-xs text-primary">generate-high.js</code> — Script untuk membangkitkan data beban tinggi</span>
+                                        </div>
+                                        <div class="flex items-start gap-2">
+                                            <span class="mt-1 text-accent">•</span>
+                                            <span class="text-textdark/80"><code class="rounded bg-black/30 px-2 py-0.5 font-mono text-xs text-primary">validate-data.js</code> — Script untuk validasi distribusi data</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                             </div>
                         </section>
                     </div>

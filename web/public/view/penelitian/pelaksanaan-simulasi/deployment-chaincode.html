@@ -68,7 +68,7 @@
                                 <div class="space-y-5">
                                     <h1 class="text-3xl font-semibold text-textdark md:text-4xl">Deployment Chaincode</h1>
                                     <p class="text-sm text-textdark/70 md:text-base">
-                                        Pada tahap ini, dilakukan pembuatan channel untuk setiap jaringan Hyperledger Fabric yang akan digunakan dalam evaluasi performa konsensus RAFT. Berikut adalah perintah untuk membuat channel pada masing-masing konfigurasi jaringan.
+                                        Pada tahap ini, dilakukan deployment chaincode untuk setiap jaringan Hyperledger Fabric yang akan digunakan dalam evaluasi performa konsensus RAFT. Chaincode "pelaporan" akan di-deploy ke setiap channel yang telah dibuat.
                                     </p>
                                 </div>
                             </div>
@@ -85,9 +85,9 @@
                                 </div>
 
                                 <div class="space-y-4">
-                                    <h3 class="text-sm font-medium text-textdark/80">Perintah Pembuatan Channel:</h3>
+                                    <h3 class="text-sm font-medium text-textdark/80">Perintah Deployment Chaincode:</h3>
                                     <div class="rounded-lg bg-black/30 border border-white/5 p-4 overflow-x-auto">
-                                        <code class="text-sm text-primary font-mono">cd fabric-2/raft-standard/network && ./network.sh createChannel -c fabric2-channel-standard</code>
+                                        <code class="text-sm text-primary font-mono">cd /root/evaluasi-raft-hlf/fabric-2/raft-standard/network && ./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl javascript -c fabric2-channel-standard</code>
                                     </div>
 
                                     <div class="flex flex-wrap gap-3 pt-2">
@@ -116,9 +116,9 @@
                                 </div>
 
                                 <div class="space-y-4">
-                                    <h3 class="text-sm font-medium text-textdark/80">Perintah Pembuatan Channel:</h3>
+                                    <h3 class="text-sm font-medium text-textdark/80">Perintah Deployment Chaincode:</h3>
                                     <div class="rounded-lg bg-black/30 border border-white/5 p-4 overflow-x-auto">
-                                        <code class="text-sm text-primary font-mono">cd fabric-2/raft-variant/network && ./network.sh createChannel -c fabric2-channel-variant</code>
+                                        <code class="text-sm text-primary font-mono">cd /root/evaluasi-raft-hlf/fabric-2/raft-variant/network && ./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl javascript -c fabric2-channel-variant</code>
                                     </div>
 
                                     <div class="flex flex-wrap gap-3 pt-2">
@@ -147,9 +147,9 @@
                                 </div>
 
                                 <div class="space-y-4">
-                                    <h3 class="text-sm font-medium text-textdark/80">Perintah Pembuatan Channel:</h3>
+                                    <h3 class="text-sm font-medium text-textdark/80">Perintah Deployment Chaincode:</h3>
                                     <div class="rounded-lg bg-black/30 border border-white/5 p-4 overflow-x-auto">
-                                        <code class="text-sm text-secondary font-mono">cd fabric-3/raft-standard/network && ./network.sh createChannel -c fabric3-channel-standard</code>
+                                        <code class="text-sm text-secondary font-mono">cd /root/evaluasi-raft-hlf/fabric-3/raft-standard/network && ./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl javascript -c fabric3-channel-standard</code>
                                     </div>
 
                                     <div class="flex flex-wrap gap-3 pt-2">
@@ -178,9 +178,9 @@
                                 </div>
 
                                 <div class="space-y-4">
-                                    <h3 class="text-sm font-medium text-textdark/80">Perintah Pembuatan Channel:</h3>
+                                    <h3 class="text-sm font-medium text-textdark/80">Perintah Deployment Chaincode:</h3>
                                     <div class="rounded-lg bg-black/30 border border-white/5 p-4 overflow-x-auto">
-                                        <code class="text-sm text-secondary font-mono">cd fabric-3/raft-variant/network && ./network.sh createChannel -c fabric3-channel-variant</code>
+                                        <code class="text-sm text-secondary font-mono">cd /root/evaluasi-raft-hlf/fabric-3/raft-variant/network && ./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl javascript -c fabric3-channel-variant</code>
                                     </div>
 
                                     <div class="flex flex-wrap gap-3 pt-2">
@@ -435,11 +435,12 @@
         }
 
         async function checkNetwork(fabricVersion, raftType) {
+            const networkId = getNetworkId(fabricVersion, raftType);
             const networkLabel = getNetworkLabel(fabricVersion, raftType);
 
             Swal.fire({
-                title: 'Memeriksa Network',
-                html: `Sedang memeriksa status <strong>${networkLabel}</strong>...`,
+                title: 'Memeriksa Deployment',
+                html: `Sedang memeriksa status deployment <strong>${networkLabel}</strong>...`,
                 icon: 'info',
                 allowOutsideClick: false,
                 allowEscapeKey: false,
@@ -459,44 +460,75 @@
                 if (result.overallStatus === 'healthy' || result.overallStatus === 'partial') {
                     // Find the specific network in the results
                     const networkResults = result.results || [];
-                    let htmlContent = `<div class="text-left"><strong>Status ${networkLabel}:</strong><br><br>`;
 
-                    if (networkResults.length > 0) {
-                        htmlContent += '<div class="space-y-2">';
-                        networkResults.forEach((item, index) => {
-                            const statusColor = item.status === 'healthy' ? '#22c55e' : item.status === 'error' ? '#ef4444' : '#f59e0b';
-                            htmlContent += `<div class="p-2 rounded" style="background: rgba(255,255,255,0.05);">`;
-                            htmlContent += `<div style="color: ${statusColor}; font-weight: 600;">${item.label || 'Network'}</div>`;
-                            htmlContent += `<div style="font-size: 0.875rem; color: #94A3B8;">Status: ${item.status}</div>`;
-                            if (item.message) {
-                                htmlContent += `<div style="font-size: 0.875rem; color: #94A3B8;">${item.message}</div>`;
-                            }
-                            htmlContent += `</div>`;
-                        });
-                        htmlContent += '</div>';
+                    // Filter results to only show the selected fabric version
+                    const filteredResults = networkResults.filter(item => {
+                        if (fabricVersion === 'fabric-2') {
+                            return item.label && item.label.includes('Fabric 2');
+                        } else if (fabricVersion === 'fabric-3') {
+                            return item.label && item.label.includes('Fabric 3');
+                        }
+                        return false;
+                    });
+
+                    // Further filter by raft type
+                    const specificResult = filteredResults.find(item => {
+                        if (raftType === 'raft-standard') {
+                            return item.label && item.label.includes('Standard');
+                        } else if (raftType === 'raft-variant') {
+                            return item.label && item.label.includes('Variant');
+                        }
+                        return false;
+                    });
+
+                    let htmlContent = `<div class="text-left"><strong>${networkLabel}</strong><br><br>`;
+
+                    if (specificResult) {
+                        const isHealthy = specificResult.status === 'healthy';
+                        const statusIcon = isHealthy ? '🟢' : '🔴';
+                        const statusText = isHealthy ? 'Nyala' : 'Tidak Nyala';
+                        const statusColor = isHealthy ? '#22c55e' : '#ef4444';
+
+                        htmlContent += `<div class="p-4 rounded" style="background: rgba(255,255,255,0.05); border: 1px solid ${statusColor}40;">`;
+                        htmlContent += `<div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">`;
+                        htmlContent += `<span style="font-size: 1.5rem;">${statusIcon}</span>`;
+                        htmlContent += `<span style="color: ${statusColor}; font-weight: 600; font-size: 1.1rem;">Status: ${statusText}</span>`;
+                        htmlContent += `</div>`;
+
+                        if (specificResult.message) {
+                            htmlContent += `<div style="font-size: 0.875rem; color: #94A3B8; margin-top: 8px;">${specificResult.message}</div>`;
+                        }
+                        htmlContent += `</div>`;
                     } else {
-                        htmlContent += '<div style="color: #f59e0b;">Tidak ada container yang berjalan.</div>';
+                        htmlContent += `<div class="p-4 rounded" style="background: rgba(255,255,255,0.05); border: 1px solid #ef444440;">`;
+                        htmlContent += `<div style="display: flex; align-items: center; gap: 10px;">`;
+                        htmlContent += `<span style="font-size: 1.5rem;">🔴</span>`;
+                        htmlContent += `<span style="color: #ef4444; font-weight: 600; font-size: 1.1rem;">Status: Tidak Nyala</span>`;
+                        htmlContent += `</div>`;
+                        htmlContent += `<div style="font-size: 0.875rem; color: #94A3B8; margin-top: 8px;">Network tidak ditemukan atau tidak ada container yang berjalan.</div>`;
+                        htmlContent += `</div>`;
                     }
 
                     htmlContent += '</div>';
 
                     Swal.fire({
-                        icon: result.overallStatus === 'healthy' ? 'success' : 'warning',
-                        title: 'Status Network',
+                        icon: specificResult && specificResult.status === 'healthy' ? 'success' : 'warning',
+                        title: 'Status Deployment',
                         html: htmlContent,
                         background: '#1a1a1a',
                         color: '#E2E8F0',
                         confirmButtonColor: '#38BDF8',
-                        width: '600px'
+                        width: '500px'
                     });
                 } else {
                     Swal.fire({
                         icon: 'error',
-                        title: 'Network Tidak Aktif',
-                        html: `<strong>${networkLabel}</strong><br><br>Status: Tidak aktif<br>Tidak ada container yang berjalan.<br><br>${result.error ? '<small>' + result.error + '</small>' : ''}`,
+                        title: 'Deployment Tidak Aktif',
+                        html: `<div class="text-left"><strong>${networkLabel}</strong><br><br><div class="p-4 rounded" style="background: rgba(255,255,255,0.05); border: 1px solid #ef444440;"><div style="display: flex; align-items: center; gap: 10px;"><span style="font-size: 1.5rem;">🔴</span><span style="color: #ef4444; font-weight: 600; font-size: 1.1rem;">Status: Tidak Nyala</span></div><div style="font-size: 0.875rem; color: #94A3B8; margin-top: 8px;">Tidak ada container yang berjalan.</div></div></div>`,
                         background: '#1a1a1a',
                         color: '#E2E8F0',
-                        confirmButtonColor: '#ef4444'
+                        confirmButtonColor: '#ef4444',
+                        width: '500px'
                     });
                 }
             } catch (error) {
@@ -504,7 +536,7 @@
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    html: `Terjadi kesalahan saat memeriksa network:<br><small>${error.message}</small>`,
+                    html: `Terjadi kesalahan saat memeriksa deployment:<br><small>${error.message}</small>`,
                     background: '#1a1a1a',
                     color: '#E2E8F0',
                     confirmButtonColor: '#ef4444'

@@ -88,22 +88,8 @@
 
                                         <div class="space-y-3">
                                             <div>
-                                                <p class="text-sm text-muted mb-2">1. Generate channel genesis block:</p>
-                                                <pre class="bg-soft border border-border rounded-lg p-4 overflow-x-auto text-xs text-textdark/90"><code>configtxgen -profile ChannelUsingRaft -outputBlock ./channel-artifacts/fabric2-channel-standard.block -channelID fabric2-channel-standard</code></pre>
-                                            </div>
-
-                                            <div>
-                                                <p class="text-sm text-muted mb-2">2. Join orderer to channel:</p>
-                                                <pre class="bg-soft border border-border rounded-lg p-4 overflow-x-auto text-xs text-textdark/90"><code>osnadmin channel join --channelID fabric2-channel-standard \
-  --config-block ./channel-artifacts/fabric2-channel-standard.block \
-  -o localhost:7053 --ca-file "$ORDERER_CA" \
-  --client-cert "$ORDERER_ADMIN_TLS_SIGN_CERT" \
-  --client-key "$ORDERER_ADMIN_TLS_PRIVATE_KEY"</code></pre>
-                                            </div>
-
-                                            <div>
-                                                <p class="text-sm text-muted mb-2">3. Join peers to channel:</p>
-                                                <pre class="bg-soft border border-border rounded-lg p-4 overflow-x-auto text-xs text-textdark/90"><code>peer channel join -b ./channel-artifacts/fabric2-channel-standard.block</code></pre>
+                                                <p class="text-sm text-muted mb-2">Command untuk membuat channel:</p>
+                                                <pre class="bg-soft border border-border rounded-lg p-4 overflow-x-auto text-xs text-textdark/90"><code>cd /root/evaluasi-raft-hlf/fabric-2/raft-standard/network && ./network.sh up -ca && ./network.sh createChannel -c fabric2-channel-standard -ca</code></pre>
                                             </div>
                                         </div>
                                     </div>
@@ -176,22 +162,8 @@
 
                                         <div class="space-y-3">
                                             <div>
-                                                <p class="text-sm text-muted mb-2">1. Generate channel genesis block:</p>
-                                                <pre class="bg-soft border border-border rounded-lg p-4 overflow-x-auto text-xs text-textdark/90"><code>configtxgen -profile ChannelUsingRaft -outputBlock ./channel-artifacts/fabric2-channel-variant.block -channelID fabric2-channel-variant</code></pre>
-                                            </div>
-
-                                            <div>
-                                                <p class="text-sm text-muted mb-2">2. Join orderer to channel:</p>
-                                                <pre class="bg-soft border border-border rounded-lg p-4 overflow-x-auto text-xs text-textdark/90"><code>osnadmin channel join --channelID fabric2-channel-variant \
-  --config-block ./channel-artifacts/fabric2-channel-variant.block \
-  -o localhost:7253 --ca-file "$ORDERER_CA" \
-  --client-cert "$ORDERER_ADMIN_TLS_SIGN_CERT" \
-  --client-key "$ORDERER_ADMIN_TLS_PRIVATE_KEY"</code></pre>
-                                            </div>
-
-                                            <div>
-                                                <p class="text-sm text-muted mb-2">3. Join peers to channel:</p>
-                                                <pre class="bg-soft border border-border rounded-lg p-4 overflow-x-auto text-xs text-textdark/90"><code>peer channel join -b ./channel-artifacts/fabric2-channel-variant.block</code></pre>
+                                                <p class="text-sm text-muted mb-2">Command untuk membuat channel:</p>
+                                                <pre class="bg-soft border border-border rounded-lg p-4 overflow-x-auto text-xs text-textdark/90"><code>cd /root/evaluasi-raft-hlf/fabric-2/raft-variant/network && ./network.sh up -ca && ./network.sh createChannel -c fabric2-channel-variant -ca</code></pre>
                                             </div>
                                         </div>
                                     </div>
@@ -264,22 +236,8 @@
 
                                         <div class="space-y-3">
                                             <div>
-                                                <p class="text-sm text-muted mb-2">1. Generate channel genesis block:</p>
-                                                <pre class="bg-soft border border-border rounded-lg p-4 overflow-x-auto text-xs text-textdark/90"><code>configtxgen -profile ChannelUsingRaft -outputBlock ./channel-artifacts/fabric3-channel-standard.block -channelID fabric3-channel-standard</code></pre>
-                                            </div>
-
-                                            <div>
-                                                <p class="text-sm text-muted mb-2">2. Join orderer to channel:</p>
-                                                <pre class="bg-soft border border-border rounded-lg p-4 overflow-x-auto text-xs text-textdark/90"><code>osnadmin channel join --channelID fabric3-channel-standard \
-  --config-block ./channel-artifacts/fabric3-channel-standard.block \
-  -o localhost:8053 --ca-file "$ORDERER_CA" \
-  --client-cert "$ORDERER_ADMIN_TLS_SIGN_CERT" \
-  --client-key "$ORDERER_ADMIN_TLS_PRIVATE_KEY"</code></pre>
-                                            </div>
-
-                                            <div>
-                                                <p class="text-sm text-muted mb-2">3. Join peers to channel:</p>
-                                                <pre class="bg-soft border border-border rounded-lg p-4 overflow-x-auto text-xs text-textdark/90"><code>peer channel join -b ./channel-artifacts/fabric3-channel-standard.block</code></pre>
+                                                <p class="text-sm text-muted mb-2">Command untuk membuat channel:</p>
+                                                <pre class="bg-soft border border-border rounded-lg p-4 overflow-x-auto text-xs text-textdark/90"><code>cd /root/evaluasi-raft-hlf/fabric-3/raft-standard/network && ./network.sh up -ca && ./network.sh createChannel -c fabric3-channel-standard -ca</code></pre>
                                             </div>
                                         </div>
                                     </div>
@@ -353,22 +311,8 @@
 
                                         <div class="space-y-3">
                                             <div>
-                                                <p class="text-sm text-muted mb-2">1. Generate channel genesis block:</p>
-                                                <pre class="bg-soft border border-border rounded-lg p-4 overflow-x-auto text-xs text-textdark/90"><code>configtxgen -profile ChannelUsingRaft -outputBlock ./channel-artifacts/fabric3-channel-variant.block -channelID fabric3-channel-variant</code></pre>
-                                            </div>
-
-                                            <div>
-                                                <p class="text-sm text-muted mb-2">2. Join orderer to channel:</p>
-                                                <pre class="bg-soft border border-border rounded-lg p-4 overflow-x-auto text-xs text-textdark/90"><code>osnadmin channel join --channelID fabric3-channel-variant \
-  --config-block ./channel-artifacts/fabric3-channel-variant.block \
-  -o localhost:8253 --ca-file "$ORDERER_CA" \
-  --client-cert "$ORDERER_ADMIN_TLS_SIGN_CERT" \
-  --client-key "$ORDERER_ADMIN_TLS_PRIVATE_KEY"</code></pre>
-                                            </div>
-
-                                            <div>
-                                                <p class="text-sm text-muted mb-2">3. Join peers to channel:</p>
-                                                <pre class="bg-soft border border-border rounded-lg p-4 overflow-x-auto text-xs text-textdark/90"><code>peer channel join -b ./channel-artifacts/fabric3-channel-variant.block</code></pre>
+                                                <p class="text-sm text-muted mb-2">Command untuk membuat channel:</p>
+                                                <pre class="bg-soft border border-border rounded-lg p-4 overflow-x-auto text-xs text-textdark/90"><code>cd /root/evaluasi-raft-hlf/fabric-3/raft-variant/network && ./network.sh up -ca && ./network.sh createChannel -c fabric3-channel-variant -ca</code></pre>
                                             </div>
                                         </div>
                                     </div>

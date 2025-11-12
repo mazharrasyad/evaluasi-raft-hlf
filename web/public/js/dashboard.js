@@ -77,11 +77,13 @@ const normalizedPath = typeof currentPath === 'string' && currentPath.length > 1
     : currentPath;
 const fabricContext = normalizedPath === '/'
     ? 'all'
-    : normalizedPath.startsWith('/fabric-3/')
-        ? 'fabric-3'
-        : normalizedPath.startsWith('/fabric-2/')
-            ? 'fabric-2'
-            : DEFAULT_FABRIC_CONTEXT;
+    : normalizedPath.includes('/menjalankan-network')
+        ? 'all'
+        : normalizedPath.startsWith('/fabric-3/')
+            ? 'fabric-3'
+            : normalizedPath.startsWith('/fabric-2/')
+                ? 'fabric-2'
+                : DEFAULT_FABRIC_CONTEXT;
 
 const FABRIC_CONTEXT_RESULT_LABELS = {
     all: null,

@@ -1144,8 +1144,7 @@ const viewFiles = {
         experimentDesign: path.resolve(viewsRoot, 'penelitian/rancangan-eksperimen.html'),
         simulationExecution: path.resolve(viewsRoot, 'penelitian/pelaksanaan-simulasi.html'),
         simulationSubsections: {
-            pembuatanChannel: path.resolve(viewsRoot, 'penelitian/pelaksanaan-simulasi/pembuatan-channel.html'),
-            deploymentChaincode: path.resolve(viewsRoot, 'penelitian/pelaksanaan-simulasi/deployment-chaincode.html'),
+            menjalankanNetwork: path.resolve(viewsRoot, 'penelitian/pelaksanaan-simulasi/menjalankan-network.html'),
             pembuatanDataSimulasi: path.resolve(viewsRoot, 'penelitian/pelaksanaan-simulasi/pembuatan-data-simulasi.html'),
             eksekusiSimulasi: path.resolve(viewsRoot, 'penelitian/pelaksanaan-simulasi/eksekusi-simulasi.html'),
             pencatatanDataTransaksi: path.resolve(viewsRoot, 'penelitian/pelaksanaan-simulasi/pencatatan-data-transaksi.html'),
@@ -1217,12 +1216,8 @@ app.get('/penelitian/pelaksanaan-simulasi', (req, res) => {
     res.sendFile(viewFiles.research.simulationExecution);
 });
 
-app.get('/penelitian/pelaksanaan-simulasi/pembuatan-channel', (req, res) => {
-    res.sendFile(viewFiles.research.simulationSubsections.pembuatanChannel);
-});
-
-app.get('/penelitian/pelaksanaan-simulasi/deployment-chaincode', (req, res) => {
-    res.sendFile(viewFiles.research.simulationSubsections.deploymentChaincode);
+app.get('/penelitian/pelaksanaan-simulasi/menjalankan-network', (req, res) => {
+    res.sendFile(viewFiles.research.simulationSubsections.menjalankanNetwork);
 });
 
 app.get('/penelitian/pelaksanaan-simulasi/pembuatan-data-simulasi', (req, res) => {

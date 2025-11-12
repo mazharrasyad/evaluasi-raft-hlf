@@ -502,7 +502,6 @@
 
         async function checkNetwork(fabricVersion, raftType) {
             const networkLabel = getNetworkLabel(fabricVersion, raftType);
-            const networkId = getNetworkId(fabricVersion, raftType);
 
             Swal.fire({
                 title: 'Memeriksa Network...',
@@ -520,64 +519,51 @@
                 const response = await fetch('/api/check-network');
                 const result = await response.json();
 
-                if (result.overallStatus === 'success' || result.overallStatus === 'partial') {
-                    const networkData = result.details.find(detail => detail.targetId === networkId);
+                if (result.overallStatus === 'healthy' || result.overallStatus === 'partial') {
+                    const networkResults = result.results || [];
+                    let htmlContent = '<div class="text-left"><strong>Status Semua Network:</strong><br><br>';
 
-                    if (networkData && networkData.containers && networkData.containers.length > 0) {
-                        const containers = networkData.containers;
-                        let containerHtml = '<div class="text-left mt-4" style="max-height: 400px; overflow-y: auto;">';
+                    if (networkResults.length > 0) {
+                        htmlContent += '<div class="space-y-2">';
+                        networkResults.forEach((item, index) => {
+                            const statusColor = item.status === 'healthy' ? '#10B981' : item.status === 'unhealthy' ? '#EF4444' : '#F59E0B';
+                            const statusText = item.status === 'healthy' ? 'Sehat' :
+                                             item.status === 'unhealthy' ? 'Tidak Sehat' :
+                                             item.status === 'not_found' ? 'Tidak Ditemukan' :
+                                             item.status === 'incomplete' ? 'Tidak Lengkap' : item.status;
 
-                        containers.forEach((container, index) => {
-                            const name = container.name || container.Names || 'Unknown';
-                            const status = container.status || container.Status || 'Unknown';
-                            const statusColor = status.toLowerCase().includes('up') ? '#10B981' : '#EF4444';
-
-                            containerHtml += `
-                                <div class="mb-3 p-3 rounded" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
-                                    <div style="font-weight: 600; color: #38BDF8; margin-bottom: 4px;">${index + 1}. ${name}</div>
-                                    <div style="font-size: 0.875rem; color: ${statusColor};">Status: ${status}</div>
-                                </div>
-                            `;
+                            htmlContent += `<div class="mb-3 p-3 rounded" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">`;
+                            htmlContent += `<div style="font-weight: 600; color: #38BDF8; margin-bottom: 4px;">${item.label || 'Network'}</div>`;
+                            htmlContent += `<div style="font-size: 0.875rem; color: ${statusColor};">Status: ${statusText}</div>`;
+                            if (item.blockHeight !== null && item.blockHeight !== undefined) {
+                                htmlContent += `<div style="font-size: 0.875rem; color: #94A3B8;">Block Height: ${item.blockHeight}</div>`;
+                            }
+                            if (item.message) {
+                                htmlContent += `<div style="font-size: 0.875rem; color: #94A3B8; margin-top: 4px;">${item.message}</div>`;
+                            }
+                            htmlContent += `</div>`;
                         });
-
-                        containerHtml += '</div>';
-
-                        await Swal.fire({
-                            icon: 'success',
-                            title: `Status ${networkLabel}`,
-                            html: `
-                                <div class="text-left">
-                                    <p style="margin-bottom: 8px;"><strong>Status:</strong> <span style="color: #10B981;">${networkData.status}</span></p>
-                                    <p style="margin-bottom: 16px;"><strong>Total Container:</strong> ${containers.length}</p>
-                                    <p style="margin-bottom: 8px; font-weight: 600;">Container yang Berjalan:</p>
-                                </div>
-                                ${containerHtml}
-                            `,
-                            background: '#0F172A',
-                            color: '#E2E8F0',
-                            confirmButtonColor: '#38BDF8',
-                            width: '600px'
-                        });
+                        htmlContent += '</div>';
                     } else {
-                        await Swal.fire({
-                            icon: 'info',
-                            title: `Status ${networkLabel}`,
-                            html: `
-                                <div class="text-left">
-                                    <p><strong>Status:</strong> <span style="color: #EF4444;">Tidak Aktif</span></p>
-                                    <p style="margin-top: 12px;">Tidak ada container yang berjalan.</p>
-                                </div>
-                            `,
-                            background: '#0F172A',
-                            color: '#E2E8F0',
-                            confirmButtonColor: '#38BDF8'
-                        });
+                        htmlContent += '<div style="color: #F59E0B;">Tidak ada network yang tersedia.</div>';
                     }
+
+                    htmlContent += '</div>';
+
+                    await Swal.fire({
+                        icon: result.overallStatus === 'healthy' ? 'success' : 'warning',
+                        title: 'Status Network',
+                        html: htmlContent,
+                        background: '#0F172A',
+                        color: '#E2E8F0',
+                        confirmButtonColor: '#38BDF8',
+                        width: '600px'
+                    });
                 } else {
                     await Swal.fire({
                         icon: 'error',
-                        title: 'Gagal Memeriksa Network',
-                        text: result.error || 'Terjadi kesalahan tidak diketahui',
+                        title: 'Network Tidak Aktif',
+                        html: `Status: Tidak aktif<br>Tidak ada network yang berjalan.<br><br>${result.error ? '<small>' + result.error + '</small>' : ''}`,
                         background: '#0F172A',
                         color: '#E2E8F0',
                         confirmButtonColor: '#EF4444'

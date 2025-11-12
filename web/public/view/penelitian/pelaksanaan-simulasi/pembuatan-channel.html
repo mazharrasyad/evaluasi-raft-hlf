@@ -110,13 +110,13 @@
 
                                     <div class="flex flex-wrap gap-3 pt-4">
                                         <button onclick="startNetwork('fabric-2', 'raft-standard')" class="px-6 py-2.5 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-green-500/50">
-                                            Start Deploy
+                                            Start Channel
                                         </button>
                                         <button onclick="stopNetwork('fabric-2', 'raft-standard')" class="px-6 py-2.5 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-red-500/50">
-                                            Stop Deploy
+                                            Stop Channel
                                         </button>
                                         <button onclick="checkNetwork('fabric-2', 'raft-standard')" class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-blue-500/50">
-                                            Check Deploy
+                                            Check Channel
                                         </button>
                                     </div>
                                 </div>
@@ -159,13 +159,13 @@
 
                                     <div class="flex flex-wrap gap-3 pt-4">
                                         <button onclick="startNetwork('fabric-2', 'raft-variant')" class="px-6 py-2.5 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-green-500/50">
-                                            Start Deploy
+                                            Start Channel
                                         </button>
                                         <button onclick="stopNetwork('fabric-2', 'raft-variant')" class="px-6 py-2.5 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-red-500/50">
-                                            Stop Deploy
+                                            Stop Channel
                                         </button>
                                         <button onclick="checkNetwork('fabric-2', 'raft-variant')" class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-blue-500/50">
-                                            Check Deploy
+                                            Check Channel
                                         </button>
                                     </div>
                                 </div>
@@ -208,13 +208,13 @@
 
                                     <div class="flex flex-wrap gap-3 pt-4">
                                         <button onclick="startNetwork('fabric-3', 'raft-standard')" class="px-6 py-2.5 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-green-500/50">
-                                            Start Deploy
+                                            Start Channel
                                         </button>
                                         <button onclick="stopNetwork('fabric-3', 'raft-standard')" class="px-6 py-2.5 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-red-500/50">
-                                            Stop Deploy
+                                            Stop Channel
                                         </button>
                                         <button onclick="checkNetwork('fabric-3', 'raft-standard')" class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-blue-500/50">
-                                            Check Deploy
+                                            Check Channel
                                         </button>
                                     </div>
                                 </div>
@@ -257,13 +257,13 @@
 
                                     <div class="flex flex-wrap gap-3 pt-4">
                                         <button onclick="startNetwork('fabric-3', 'raft-variant')" class="px-6 py-2.5 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-green-500/50">
-                                            Start Deploy
+                                            Start Channel
                                         </button>
                                         <button onclick="stopNetwork('fabric-3', 'raft-variant')" class="px-6 py-2.5 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-red-500/50">
-                                            Stop Deploy
+                                            Stop Channel
                                         </button>
                                         <button onclick="checkNetwork('fabric-3', 'raft-variant')" class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-blue-500/50">
-                                            Check Deploy
+                                            Check Channel
                                         </button>
                                     </div>
                                 </div>
@@ -297,7 +297,7 @@
                 'fabric-3-raft-standard': 'Fabric 3 RAFT Standard',
                 'fabric-3-raft-variant': 'Fabric 3 RAFT Variant'
             };
-            return labelMap[`${fabricVersion}-${raftType}`] || 'Deploy';
+            return labelMap[`${fabricVersion}-${raftType}`] || 'Channel';
         }
 
         async function startNetwork(fabricVersion, raftType) {
@@ -307,8 +307,8 @@
             if (!networkId) {
                 await Swal.fire({
                     icon: 'error',
-                    title: 'Deploy ID Tidak Valid',
-                    text: 'ID deploy yang diminta tidak ditemukan.',
+                    title: 'Channel ID Tidak Valid',
+                    text: 'ID channel yang diminta tidak ditemukan.',
                     background: '#0F172A',
                     color: '#E2E8F0',
                     confirmButtonColor: '#38BDF8'
@@ -317,7 +317,7 @@
             }
 
             const result = await Swal.fire({
-                title: 'Konfirmasi Start Deploy',
+                title: 'Konfirmasi Start Channel',
                 html: `Apakah Anda yakin ingin memulai <strong>${networkLabel}</strong>?`,
                 icon: 'question',
                 showCancelButton: true,
@@ -334,7 +334,7 @@
             }
 
             Swal.fire({
-                title: 'Memulai Deploy...',
+                title: 'Memulai Channel...',
                 html: `Sedang memulai <strong>${networkLabel}</strong>`,
                 allowOutsideClick: false,
                 allowEscapeKey: false,
@@ -361,7 +361,7 @@
                 if (data.overallStatus === 'success') {
                     await Swal.fire({
                         icon: 'success',
-                        title: 'Deploy Berhasil Dimulai!',
+                        title: 'Channel Berhasil Dimulai!',
                         html: `<strong>${networkLabel}</strong> berhasil dimulai dengan sukses.`,
                         background: '#0F172A',
                         color: '#E2E8F0',
@@ -370,7 +370,7 @@
                 } else if (data.overallStatus === 'partial') {
                     await Swal.fire({
                         icon: 'warning',
-                        title: 'Deploy Dimulai Sebagian',
+                        title: 'Channel Dimulai Sebagian',
                         html: `<strong>${networkLabel}</strong> dimulai sebagian. Beberapa komponen mungkin gagal.`,
                         background: '#0F172A',
                         color: '#E2E8F0',
@@ -380,7 +380,7 @@
                     const errorMsg = data.error || 'Terjadi kesalahan tidak diketahui';
                     await Swal.fire({
                         icon: 'error',
-                        title: 'Gagal Memulai Deploy',
+                        title: 'Gagal Memulai Channel',
                         html: `Gagal memulai <strong>${networkLabel}</strong>:<br/><br/>${errorMsg}`,
                         background: '#0F172A',
                         color: '#E2E8F0',
@@ -407,8 +407,8 @@
             if (!networkId) {
                 await Swal.fire({
                     icon: 'error',
-                    title: 'Deploy ID Tidak Valid',
-                    text: 'ID deploy yang diminta tidak ditemukan.',
+                    title: 'Channel ID Tidak Valid',
+                    text: 'ID channel yang diminta tidak ditemukan.',
                     background: '#0F172A',
                     color: '#E2E8F0',
                     confirmButtonColor: '#38BDF8'
@@ -417,7 +417,7 @@
             }
 
             const result = await Swal.fire({
-                title: 'Konfirmasi Stop Deploy',
+                title: 'Konfirmasi Stop Channel',
                 html: `Apakah Anda yakin ingin menghentikan <strong>${networkLabel}</strong>?`,
                 icon: 'warning',
                 showCancelButton: true,
@@ -434,7 +434,7 @@
             }
 
             Swal.fire({
-                title: 'Menghentikan Deploy...',
+                title: 'Menghentikan Channel...',
                 html: `Sedang menghentikan <strong>${networkLabel}</strong>`,
                 allowOutsideClick: false,
                 allowEscapeKey: false,
@@ -461,7 +461,7 @@
                 if (data.overallStatus === 'success') {
                     await Swal.fire({
                         icon: 'success',
-                        title: 'Deploy Berhasil Dihentikan!',
+                        title: 'Channel Berhasil Dihentikan!',
                         html: `<strong>${networkLabel}</strong> berhasil dihentikan dengan sukses.`,
                         background: '#0F172A',
                         color: '#E2E8F0',
@@ -470,7 +470,7 @@
                 } else if (data.overallStatus === 'partial') {
                     await Swal.fire({
                         icon: 'warning',
-                        title: 'Deploy Dihentikan Sebagian',
+                        title: 'Channel Dihentikan Sebagian',
                         html: `<strong>${networkLabel}</strong> dihentikan sebagian. Beberapa komponen mungkin masih berjalan.`,
                         background: '#0F172A',
                         color: '#E2E8F0',
@@ -480,7 +480,7 @@
                     const errorMsg = data.error || 'Terjadi kesalahan tidak diketahui';
                     await Swal.fire({
                         icon: 'error',
-                        title: 'Gagal Menghentikan Deploy',
+                        title: 'Gagal Menghentikan Channel',
                         html: `Gagal menghentikan <strong>${networkLabel}</strong>:<br/><br/>${errorMsg}`,
                         background: '#0F172A',
                         color: '#E2E8F0',
@@ -504,7 +504,7 @@
             const networkLabel = getNetworkLabel(fabricVersion, raftType);
 
             Swal.fire({
-                title: 'Memeriksa Deploy...',
+                title: 'Memeriksa Channel...',
                 html: `Sedang memeriksa status <strong>${networkLabel}</strong>`,
                 allowOutsideClick: false,
                 allowEscapeKey: false,

@@ -20,7 +20,7 @@ const fabric3VariantNetworkDir = path.resolve(__dirname, '../../fabric-3/raft-va
 
 const networkConfigurations = [
     {
-        label: 'RAFT Standard',
+        label: 'Fabric 2 RAFT Standard',
         networkDir: standardNetworkDir,
         channelName: 'fabric2-channel-standard',
         peerEndpoint: 'localhost:7051',
@@ -32,7 +32,7 @@ const networkConfigurations = [
         }
     },
     {
-        label: 'RAFT Variant',
+        label: 'Fabric 2 RAFT Variant',
         networkDir: variantNetworkDir,
         channelName: 'fabric2-channel-variant',
         peerEndpoint: 'localhost:7052',

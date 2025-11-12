@@ -1143,6 +1143,14 @@ const viewFiles = {
         environmentSetup: path.resolve(viewsRoot, 'penelitian/pembangunan-lingkungan-uji.html'),
         experimentDesign: path.resolve(viewsRoot, 'penelitian/rancangan-eksperimen.html'),
         simulationExecution: path.resolve(viewsRoot, 'penelitian/pelaksanaan-simulasi.html'),
+        simulationSubsections: {
+            pembuatanChannel: path.resolve(viewsRoot, 'penelitian/pelaksanaan-simulasi/pembuatan-channel.html'),
+            deploymentChaincode: path.resolve(viewsRoot, 'penelitian/pelaksanaan-simulasi/deployment-chaincode.html'),
+            pembuatanDataSimulasi: path.resolve(viewsRoot, 'penelitian/pelaksanaan-simulasi/pembuatan-data-simulasi.html'),
+            eksekusiSimulasi: path.resolve(viewsRoot, 'penelitian/pelaksanaan-simulasi/eksekusi-simulasi.html'),
+            pencatatanDataTransaksi: path.resolve(viewsRoot, 'penelitian/pelaksanaan-simulasi/pencatatan-data-transaksi.html'),
+            penampilanHasil: path.resolve(viewsRoot, 'penelitian/pelaksanaan-simulasi/penampilan-hasil.html'),
+        },
     },
     fabric2: {
         dashboard: path.resolve(viewsRoot, 'fabric-2/dashboard.html'),
@@ -1207,6 +1215,30 @@ app.get('/penelitian/rancangan-eksperimen', (req, res) => {
 });
 app.get('/penelitian/pelaksanaan-simulasi', (req, res) => {
     res.sendFile(viewFiles.research.simulationExecution);
+});
+
+app.get('/penelitian/pelaksanaan-simulasi/pembuatan-channel', (req, res) => {
+    res.sendFile(viewFiles.research.simulationSubsections.pembuatanChannel);
+});
+
+app.get('/penelitian/pelaksanaan-simulasi/deployment-chaincode', (req, res) => {
+    res.sendFile(viewFiles.research.simulationSubsections.deploymentChaincode);
+});
+
+app.get('/penelitian/pelaksanaan-simulasi/pembuatan-data-simulasi', (req, res) => {
+    res.sendFile(viewFiles.research.simulationSubsections.pembuatanDataSimulasi);
+});
+
+app.get('/penelitian/pelaksanaan-simulasi/eksekusi-simulasi', (req, res) => {
+    res.sendFile(viewFiles.research.simulationSubsections.eksekusiSimulasi);
+});
+
+app.get('/penelitian/pelaksanaan-simulasi/pencatatan-data-transaksi', (req, res) => {
+    res.sendFile(viewFiles.research.simulationSubsections.pencatatanDataTransaksi);
+});
+
+app.get('/penelitian/pelaksanaan-simulasi/penampilan-hasil', (req, res) => {
+    res.sendFile(viewFiles.research.simulationSubsections.penampilanHasil);
 });
 
 app.get('/dashboard', (req, res) => {

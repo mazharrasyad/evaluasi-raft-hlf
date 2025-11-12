@@ -87,7 +87,7 @@ const fabricContext = normalizedPath === '/'
 
 const FABRIC_CONTEXT_RESULT_LABELS = {
     all: null,
-    'fabric-2': ['RAFT Standard', 'RAFT Variant'],
+    'fabric-2': ['Fabric 2 RAFT Standard', 'Fabric 2 RAFT Variant'],
     'fabric-3': ['Fabric 3 RAFT Standard', 'Fabric 3 RAFT Variant'],
 };
 
@@ -486,13 +486,13 @@ let isIngestingSimulation = false;
 const ALL_BLOCKCHAIN_TARGETS = [
     {
         id: 'channel-standard',
-        label: 'RAFT Standard',
+        label: 'Fabric 2 RAFT Standard',
         channel: 'fabric2-channel-standard',
         scope: 'fabric-2',
     },
     {
         id: 'channel-variant',
-        label: 'RAFT Variant',
+        label: 'Fabric 2 RAFT Variant',
         channel: 'fabric2-channel-variant',
         scope: 'fabric-2',
     },
@@ -999,12 +999,12 @@ async function confirmNetworkShutdown(networkType, networkLabel) {
 
     if (normalizedType === 'standard') {
         title = `Shut down ${label}?`;
-        text = 'This command runs ./network.sh down for the RAFT Standard network.';
-        confirmButtonText = 'Yes, shut down RAFT Standard';
+        text = 'This command runs ./network.sh down for the Fabric 2 RAFT Standard network.';
+        confirmButtonText = 'Yes, shut down Fabric 2 RAFT Standard';
     } else if (normalizedType === 'variant') {
         title = `Shut down ${label}?`;
-        text = 'This command runs ./network.sh down for the RAFT Variant network.';
-        confirmButtonText = 'Yes, shut down RAFT Variant';
+        text = 'This command runs ./network.sh down for the Fabric 2 RAFT Variant network.';
+        confirmButtonText = 'Yes, shut down Fabric 2 RAFT Variant';
     } else if (normalizedType === 'fabric3-standard') {
         title = `Shut down ${label}?`;
         text = 'This command runs ./network.sh down for the Fabric 3 RAFT Standard network.';

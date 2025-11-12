@@ -46,6 +46,8 @@ const networkStartupStatusDefaults = new Map();
 const networkStartupLabels = new Map();
 const networkCheckButton = document.getElementById('networkCheckButton');
 const networkCheckStatusEl = document.getElementById('networkCheckStatus');
+const networkCheckButtons = Array.from(document.querySelectorAll('[id^="networkCheckButton-"]'));
+const networkCheckStatusElements = new Map();
 const networkShutdownButtons = Array.from(document.querySelectorAll('[data-network-shutdown-button]'));
 const networkShutdownStatusFallbackEl = document.getElementById('networkShutdownStatus');
 const networkShutdownStatusElements = new Map();
@@ -5089,6 +5091,135 @@ async function triggerAutomaticNetworkCheck() {
     await handleNetworkCheckButtonClick();
 }
 
+async function handleIndividualChannelCheckButtonClick(event) {
+    const button = event?.currentTarget instanceof HTMLElement
+        ? event.currentTarget
+        : null;
+
+    if (!button) {
+        return;
+    }
+
+    const buttonId = button.id;
+    const networkType = button.dataset.networkType;
+    const statusElementId = buttonId.replace('Button', 'Status');
+    const statusEl = document.getElementById(statusElementId);
+
+    if (!networkType) {
+        console.error('Network type not found for button:', buttonId);
+        return;
+    }
+
+    const originalContent = button.innerHTML;
+    button.disabled = true;
+    button.classList.add('cursor-not-allowed', 'opacity-60');
+    button.innerHTML = '<span class="text-base animate-spin">⟳</span><span>Checking...</span>';
+
+    if (statusEl) {
+        const indicator = statusEl.querySelector('[data-indicator]');
+        const messageEl = statusEl.querySelector('[data-message]');
+        if (indicator) {
+            indicator.className = 'h-2 w-2 rounded-full bg-accent animate-pulse';
+        }
+        if (messageEl) {
+            messageEl.textContent = 'Checking channel status...';
+        }
+    }
+
+    try {
+        const response = await fetch('/api/check-channel', {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ networkType }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`Server responded with status ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (statusEl) {
+            const indicator = statusEl.querySelector('[data-indicator]');
+            const messageEl = statusEl.querySelector('[data-message]');
+
+            if (data.status === 'active') {
+                if (indicator) {
+                    indicator.className = 'h-2 w-2 rounded-full bg-emerald-400';
+                }
+                if (messageEl) {
+                    messageEl.textContent = data.message || 'Channel is active.';
+                }
+                await Swal.fire({
+                    icon: 'success',
+                    title: 'Channel Active',
+                    text: data.message || 'The channel is active.',
+                    confirmButtonColor: '#38BDF8',
+                    background: '#0F172A',
+                    color: '#E2E8F0',
+                });
+            } else if (data.status === 'inactive') {
+                if (indicator) {
+                    indicator.className = 'h-2 w-2 rounded-full bg-amber-400';
+                }
+                if (messageEl) {
+                    messageEl.textContent = data.message || 'Channel is inactive.';
+                }
+                await Swal.fire({
+                    icon: 'warning',
+                    title: 'Channel Inactive',
+                    text: data.message || 'The channel is not active.',
+                    confirmButtonColor: '#38BDF8',
+                    background: '#0F172A',
+                    color: '#E2E8F0',
+                });
+            } else {
+                if (indicator) {
+                    indicator.className = 'h-2 w-2 rounded-full bg-rose-400';
+                }
+                if (messageEl) {
+                    messageEl.textContent = data.error || 'Failed to check channel status.';
+                }
+                await Swal.fire({
+                    icon: 'error',
+                    title: 'Check Failed',
+                    text: data.error || 'Failed to check channel status.',
+                    confirmButtonColor: '#38BDF8',
+                    background: '#0F172A',
+                    color: '#E2E8F0',
+                });
+            }
+        }
+    } catch (error) {
+        console.error('Failed to check channel:', error);
+        if (statusEl) {
+            const indicator = statusEl.querySelector('[data-indicator]');
+            const messageEl = statusEl.querySelector('[data-message]');
+            if (indicator) {
+                indicator.className = 'h-2 w-2 rounded-full bg-rose-400';
+            }
+            if (messageEl) {
+                messageEl.textContent = 'Failed to check channel status.';
+            }
+        }
+        await Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to check channel status. Please try again.',
+            confirmButtonColor: '#38BDF8',
+            background: '#0F172A',
+            color: '#E2E8F0',
+        });
+    } finally {
+        button.disabled = false;
+        button.classList.remove('cursor-not-allowed', 'opacity-60');
+        button.innerHTML = originalContent;
+    }
+}
+
 if (networkStartupStatusElements.size > 0) {
     networkStartupStatusElements.forEach((_, type) => {
         updateNetworkStartupStatus('idle', getNetworkStartupDefaultMessage(type), type);
@@ -5108,6 +5239,12 @@ if (networkCheckButton) {
     networkCheckButton.addEventListener('click', handleNetworkCheckButtonClick);
 } else {
     updateNetworkCheckStatus('idle', DEFAULT_NETWORK_STATUS_MESSAGE);
+}
+
+if (networkCheckButtons.length > 0) {
+    networkCheckButtons.forEach(button => {
+        button.addEventListener('click', handleIndividualChannelCheckButtonClick);
+    });
 }
 
 async function handleNetworkShutdownButtonClick(event) {

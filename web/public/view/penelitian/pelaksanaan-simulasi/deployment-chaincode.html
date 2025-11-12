@@ -67,8 +67,132 @@
                                 <div class="space-y-5">
                                     <h1 class="text-3xl font-semibold text-textdark md:text-4xl">Deployment Chaincode</h1>
                                     <p class="text-sm text-textdark/70 md:text-base">
-                                        Isi konten...
+                                        Pada tahap ini, dilakukan pembuatan channel untuk setiap jaringan Hyperledger Fabric yang akan digunakan dalam evaluasi performa konsensus RAFT. Berikut adalah perintah untuk membuat channel pada masing-masing konfigurasi jaringan.
                                     </p>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Fabric 2 - Raft Standard -->
+                        <section class="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-surface via-soft to-[#020817] p-10 shadow-2xl shadow-black/30">
+                            <div class="flex flex-col gap-6">
+                                <div class="flex items-center gap-3">
+                                    <div class="inline-flex w-fit items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-4 py-1 text-xs font-semibold uppercase tracking-wide text-primary/90">
+                                        Fabric 2
+                                    </div>
+                                    <h2 class="text-2xl font-semibold text-textdark">Raft Standard</h2>
+                                </div>
+
+                                <div class="space-y-4">
+                                    <h3 class="text-sm font-medium text-textdark/80">Perintah Pembuatan Channel:</h3>
+                                    <div class="rounded-lg bg-black/30 border border-white/5 p-4 overflow-x-auto">
+                                        <code class="text-sm text-primary font-mono">cd fabric-2/raft-standard/network && ./network.sh createChannel -c fabric2-channel-standard</code>
+                                    </div>
+
+                                    <div class="flex flex-wrap gap-3 pt-2">
+                                        <button onclick="startNetwork('fabric-2', 'raft-standard')" class="px-6 py-2.5 rounded-lg bg-gradient-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 text-white font-medium text-sm transition-all duration-200 shadow-lg hover:shadow-green-500/20 border border-green-500/20">
+                                            Start Network
+                                        </button>
+                                        <button onclick="stopNetwork('fabric-2', 'raft-standard')" class="px-6 py-2.5 rounded-lg bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-medium text-sm transition-all duration-200 shadow-lg hover:shadow-red-500/20 border border-red-500/20">
+                                            Stop Network
+                                        </button>
+                                        <button onclick="checkNetwork('fabric-2', 'raft-standard')" class="px-6 py-2.5 rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white font-medium text-sm transition-all duration-200 shadow-lg hover:shadow-blue-500/20 border border-blue-500/20">
+                                            Check Network
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Fabric 2 - Raft Variant -->
+                        <section class="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-surface via-soft to-[#020817] p-10 shadow-2xl shadow-black/30">
+                            <div class="flex flex-col gap-6">
+                                <div class="flex items-center gap-3">
+                                    <div class="inline-flex w-fit items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-4 py-1 text-xs font-semibold uppercase tracking-wide text-primary/90">
+                                        Fabric 2
+                                    </div>
+                                    <h2 class="text-2xl font-semibold text-textdark">Raft Variant</h2>
+                                </div>
+
+                                <div class="space-y-4">
+                                    <h3 class="text-sm font-medium text-textdark/80">Perintah Pembuatan Channel:</h3>
+                                    <div class="rounded-lg bg-black/30 border border-white/5 p-4 overflow-x-auto">
+                                        <code class="text-sm text-primary font-mono">cd fabric-2/raft-variant/network && ./network.sh createChannel -c fabric2-channel-variant</code>
+                                    </div>
+
+                                    <div class="flex flex-wrap gap-3 pt-2">
+                                        <button onclick="startNetwork('fabric-2', 'raft-variant')" class="px-6 py-2.5 rounded-lg bg-gradient-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 text-white font-medium text-sm transition-all duration-200 shadow-lg hover:shadow-green-500/20 border border-green-500/20">
+                                            Start Network
+                                        </button>
+                                        <button onclick="stopNetwork('fabric-2', 'raft-variant')" class="px-6 py-2.5 rounded-lg bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-medium text-sm transition-all duration-200 shadow-lg hover:shadow-red-500/20 border border-red-500/20">
+                                            Stop Network
+                                        </button>
+                                        <button onclick="checkNetwork('fabric-2', 'raft-variant')" class="px-6 py-2.5 rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white font-medium text-sm transition-all duration-200 shadow-lg hover:shadow-blue-500/20 border border-blue-500/20">
+                                            Check Network
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Fabric 3 - Raft Standard -->
+                        <section class="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-surface via-soft to-[#020817] p-10 shadow-2xl shadow-black/30">
+                            <div class="flex flex-col gap-6">
+                                <div class="flex items-center gap-3">
+                                    <div class="inline-flex w-fit items-center gap-2 rounded-full border border-secondary/40 bg-secondary/10 px-4 py-1 text-xs font-semibold uppercase tracking-wide text-secondary/90">
+                                        Fabric 3
+                                    </div>
+                                    <h2 class="text-2xl font-semibold text-textdark">Raft Standard</h2>
+                                </div>
+
+                                <div class="space-y-4">
+                                    <h3 class="text-sm font-medium text-textdark/80">Perintah Pembuatan Channel:</h3>
+                                    <div class="rounded-lg bg-black/30 border border-white/5 p-4 overflow-x-auto">
+                                        <code class="text-sm text-secondary font-mono">cd fabric-3/raft-standard/network && ./network.sh createChannel -c fabric3-channel-standard</code>
+                                    </div>
+
+                                    <div class="flex flex-wrap gap-3 pt-2">
+                                        <button onclick="startNetwork('fabric-3', 'raft-standard')" class="px-6 py-2.5 rounded-lg bg-gradient-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 text-white font-medium text-sm transition-all duration-200 shadow-lg hover:shadow-green-500/20 border border-green-500/20">
+                                            Start Network
+                                        </button>
+                                        <button onclick="stopNetwork('fabric-3', 'raft-standard')" class="px-6 py-2.5 rounded-lg bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-medium text-sm transition-all duration-200 shadow-lg hover:shadow-red-500/20 border border-red-500/20">
+                                            Stop Network
+                                        </button>
+                                        <button onclick="checkNetwork('fabric-3', 'raft-standard')" class="px-6 py-2.5 rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white font-medium text-sm transition-all duration-200 shadow-lg hover:shadow-blue-500/20 border border-blue-500/20">
+                                            Check Network
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Fabric 3 - Raft Variant -->
+                        <section class="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-surface via-soft to-[#020817] p-10 shadow-2xl shadow-black/30">
+                            <div class="flex flex-col gap-6">
+                                <div class="flex items-center gap-3">
+                                    <div class="inline-flex w-fit items-center gap-2 rounded-full border border-secondary/40 bg-secondary/10 px-4 py-1 text-xs font-semibold uppercase tracking-wide text-secondary/90">
+                                        Fabric 3
+                                    </div>
+                                    <h2 class="text-2xl font-semibold text-textdark">Raft Variant</h2>
+                                </div>
+
+                                <div class="space-y-4">
+                                    <h3 class="text-sm font-medium text-textdark/80">Perintah Pembuatan Channel:</h3>
+                                    <div class="rounded-lg bg-black/30 border border-white/5 p-4 overflow-x-auto">
+                                        <code class="text-sm text-secondary font-mono">cd fabric-3/raft-variant/network && ./network.sh createChannel -c fabric3-channel-variant</code>
+                                    </div>
+
+                                    <div class="flex flex-wrap gap-3 pt-2">
+                                        <button onclick="startNetwork('fabric-3', 'raft-variant')" class="px-6 py-2.5 rounded-lg bg-gradient-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 text-white font-medium text-sm transition-all duration-200 shadow-lg hover:shadow-green-500/20 border border-green-500/20">
+                                            Start Network
+                                        </button>
+                                        <button onclick="stopNetwork('fabric-3', 'raft-variant')" class="px-6 py-2.5 rounded-lg bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-medium text-sm transition-all duration-200 shadow-lg hover:shadow-red-500/20 border border-red-500/20">
+                                            Stop Network
+                                        </button>
+                                        <button onclick="checkNetwork('fabric-3', 'raft-variant')" class="px-6 py-2.5 rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white font-medium text-sm transition-all duration-200 shadow-lg hover:shadow-blue-500/20 border border-blue-500/20">
+                                            Check Network
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </section>
@@ -82,5 +206,163 @@
 
     <script src="/js/layout.js" defer></script>
     <script src="/js/navigation.js" defer></script>
+    <script>
+        function getNetworkId(fabricVersion, raftType) {
+            const idMap = {
+                'fabric-2-raft-standard': 'standard',
+                'fabric-2-raft-variant': 'variant',
+                'fabric-3-raft-standard': 'fabric3-standard',
+                'fabric-3-raft-variant': 'fabric3-variant'
+            };
+            return idMap[`${fabricVersion}-${raftType}`] || null;
+        }
+
+        function getNetworkLabel(fabricVersion, raftType) {
+            const labelMap = {
+                'fabric-2-raft-standard': 'Fabric 2 RAFT Standard',
+                'fabric-2-raft-variant': 'Fabric 2 RAFT Variant',
+                'fabric-3-raft-standard': 'Fabric 3 RAFT Standard',
+                'fabric-3-raft-variant': 'Fabric 3 RAFT Variant'
+            };
+            return labelMap[`${fabricVersion}-${raftType}`] || 'Network';
+        }
+
+        async function startNetwork(fabricVersion, raftType) {
+            const networkId = getNetworkId(fabricVersion, raftType);
+            const networkLabel = getNetworkLabel(fabricVersion, raftType);
+
+            if (!networkId) {
+                alert('Network ID tidak valid');
+                return;
+            }
+
+            if (!confirm(`Apakah Anda yakin ingin memulai ${networkLabel}?`)) {
+                return;
+            }
+
+            const loadingMsg = document.createElement('div');
+            loadingMsg.textContent = `Memulai ${networkLabel}...`;
+            loadingMsg.style.cssText = 'position:fixed;top:20px;right:20px;background:#1a1a1a;color:#38BDF8;padding:15px 25px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.5);z-index:9999;border:1px solid #38BDF8;';
+            document.body.appendChild(loadingMsg);
+
+            try {
+                const response = await fetch('/api/start-network', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        networkType: networkId
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.overallStatus === 'success') {
+                    alert(`✓ ${networkLabel} berhasil dimulai!`);
+                } else if (result.overallStatus === 'partial') {
+                    alert(`⚠ ${networkLabel} dimulai sebagian. Beberapa komponen mungkin gagal.`);
+                } else {
+                    const errorMsg = result.error || 'Terjadi kesalahan tidak diketahui';
+                    alert(`✗ Gagal memulai ${networkLabel}:\n${errorMsg}`);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert(`✗ Terjadi kesalahan: ${error.message}`);
+            } finally {
+                document.body.removeChild(loadingMsg);
+            }
+        }
+
+        async function stopNetwork(fabricVersion, raftType) {
+            const networkId = getNetworkId(fabricVersion, raftType);
+            const networkLabel = getNetworkLabel(fabricVersion, raftType);
+
+            if (!networkId) {
+                alert('Network ID tidak valid');
+                return;
+            }
+
+            if (!confirm(`Apakah Anda yakin ingin menghentikan ${networkLabel}?`)) {
+                return;
+            }
+
+            const loadingMsg = document.createElement('div');
+            loadingMsg.textContent = `Menghentikan ${networkLabel}...`;
+            loadingMsg.style.cssText = 'position:fixed;top:20px;right:20px;background:#1a1a1a;color:#F97316;padding:15px 25px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.5);z-index:9999;border:1px solid #F97316;';
+            document.body.appendChild(loadingMsg);
+
+            try {
+                const response = await fetch('/api/shutdown-network', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        networkType: networkId
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.overallStatus === 'success') {
+                    alert(`✓ ${networkLabel} berhasil dihentikan!`);
+                } else if (result.overallStatus === 'partial') {
+                    alert(`⚠ ${networkLabel} dihentikan sebagian. Beberapa komponen mungkin masih berjalan.`);
+                } else {
+                    const errorMsg = result.error || 'Terjadi kesalahan tidak diketahui';
+                    alert(`✗ Gagal menghentikan ${networkLabel}:\n${errorMsg}`);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert(`✗ Terjadi kesalahan: ${error.message}`);
+            } finally {
+                document.body.removeChild(loadingMsg);
+            }
+        }
+
+        async function checkNetwork(fabricVersion, raftType) {
+            const networkLabel = getNetworkLabel(fabricVersion, raftType);
+
+            try {
+                const response = await fetch('/api/check-network');
+                const result = await response.json();
+
+                if (result.overallStatus === 'success' || result.overallStatus === 'partial') {
+                    // Find the specific network in the results
+                    const networkId = getNetworkId(fabricVersion, raftType);
+                    const networkData = result.details.find(detail => detail.targetId === networkId);
+
+                    if (networkData) {
+                        const containers = networkData.containers || [];
+                        let message = `Status ${networkLabel}:\n\n`;
+                        message += `Status: ${networkData.status}\n`;
+                        message += `Total Container: ${containers.length}\n\n`;
+
+                        if (containers.length > 0) {
+                            message += 'Containers yang berjalan:\n';
+                            containers.forEach((container, index) => {
+                                const name = container.name || container.Names || 'Unknown';
+                                const status = container.status || container.Status || 'Unknown';
+                                message += `${index + 1}. ${name}\n`;
+                                message += `   Status: ${status}\n\n`;
+                            });
+                        } else {
+                            message += 'Tidak ada container yang berjalan.';
+                        }
+
+                        alert(message);
+                    } else {
+                        alert(`${networkLabel}\n\nStatus: Tidak aktif\nTidak ada container yang berjalan.`);
+                    }
+                } else {
+                    alert(`Gagal memeriksa status network: ${result.error || 'Unknown error'}`);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert(`✗ Terjadi kesalahan: ${error.message}`);
+            }
+        }
+    </script>
 </body>
 </html>

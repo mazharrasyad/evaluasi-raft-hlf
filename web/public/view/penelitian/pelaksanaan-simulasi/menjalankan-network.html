@@ -74,364 +74,243 @@
                             </div>
                         </section>
 
-                        <!-- Fabric 2 Networks -->
-                        <section id="fabric-2-networks" class="rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20 backdrop-blur-sm">
+                        <!-- All Networks -->
+                        <section id="all-networks" class="rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20 backdrop-blur-sm">
                             <header class="flex flex-col gap-2 border-b border-white/10 pb-6">
-                                <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Fabric 2 Networks</h2>
-                                <p class="text-sm text-textdark/70">Jalankan pemeriksaan <code>npm run check-network</code> secara langsung dari dashboard untuk memastikan setiap jaringan RAFT siap digunakan.</p>
+                                <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Network Management</h2>
+                                <p class="text-sm text-textdark/70">Kelola semua jaringan RAFT (Fabric 2 dan Fabric 3) dari satu dashboard terpadu.</p>
                             </header>
                             <div class="mt-6 space-y-6">
                                 <div class="flex flex-col gap-2 rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6 text-sm text-textdark">
-                                    <p class="text-sm text-textdark/70">Pemeriksaan akan menghubungi peer <code>peer0.org1.fabric2.standard.com</code> dan menjalankan transaksi <code>GetAllCatatan</code> untuk memastikan chaincode merespons.</p>
-                                    <p class="text-xs text-textdark/50">Pastikan jaringan Hyperledger Fabric telah dijalankan sebelum memulai pemeriksaan.</p>
+                                    <p class="text-sm text-textdark/70">Gunakan tombol di bawah untuk menjalankan, menghentikan, atau memeriksa status semua jaringan blockchain.</p>
+                                    <p class="text-xs text-textdark/50">Pastikan Docker dan semua dependensi telah terinstal sebelum menjalankan network.</p>
                                 </div>
-                                <div class="grid gap-4 md:grid-cols-2">
-                                    <article
-                                        class="flex flex-col gap-4 rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6 shadow-lg shadow-black/20"
-                                        data-fabric-scope="fabric-2"
-                                    >
-                                        <header class="flex items-center justify-between">
-                                            <div>
-                                                <p class="text-xs uppercase tracking-[0.3em] text-emerald-300">Network actions</p>
-                                                <h3 class="text-lg font-semibold text-textdark">Start RAFT Networks</h3>
-                                            </div>
-                                            <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-300">⚡</span>
-                                        </header>
-                                        <p class="text-sm text-textdark/70">Run the <code>network.sh</code> helpers to boot any available RAFT network.</p>
-                                        <div class="space-y-4">
-                                            <div class="flex flex-col gap-3" data-fabric-scope="fabric-2">
-                                                <button
-                                                    type="button"
-                                                    class="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-500/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-emerald-500/40 transition duration-200 hover:-translate-y-0.5 hover:bg-emerald-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
-                                                    data-network-startup-button="standard"
-                                                    data-network-label="RAFT Standard Network"
-                                                >
-                                                    <span>Start RAFT Standard</span>
-                                                </button>
-                                                <p
-                                                    class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 py-2 text-xs font-medium text-textdark/80"
-                                                    role="status"
-                                                    aria-live="polite"
-                                                    data-network-startup-status="standard"
-                                                    data-network-label="RAFT Standard Network"
-                                                >
-                                                    <span data-indicator class="h-2 w-2 rounded-full bg-secondary"></span>
-                                                    <span data-message>No startup command has been executed for the RAFT Standard network yet.</span>
-                                                </p>
-                                            </div>
-                                            <div class="flex flex-col gap-3" data-fabric-scope="fabric-2">
-                                                <button
-                                                    type="button"
-                                                    class="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-400/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-emerald-400/40 transition duration-200 hover:-translate-y-0.5 hover:bg-emerald-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300"
-                                                    data-network-startup-button="variant"
-                                                    data-network-label="RAFT Variant Network"
-                                                >
-                                                    <span>Start RAFT Variant</span>
-                                                </button>
-                                                <p
-                                                    class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 py-2 text-xs font-medium text-textdark/80"
-                                                    role="status"
-                                                    aria-live="polite"
-                                                    data-network-startup-status="variant"
-                                                    data-network-label="RAFT Variant Network"
-                                                >
-                                                    <span data-indicator class="h-2 w-2 rounded-full bg-secondary"></span>
-                                                    <span data-message>No startup command has been executed for the RAFT Variant network yet.</span>
-                                                </p>
-                                            </div>
+
+                                <!-- Start Network - 4 Columns -->
+                                <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
+                                    <header class="mb-4 flex items-center justify-between">
+                                        <div>
+                                            <p class="text-xs uppercase tracking-[0.3em] text-emerald-300">Network actions</p>
+                                            <h3 class="text-lg font-semibold text-textdark">Start Networks</h3>
                                         </div>
-                                    </article>
-                                    <article
-                                        class="flex flex-col gap-4 rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6 shadow-lg shadow-black/20"
-                                        data-fabric-scope="fabric-2"
-                                    >
-                                        <header class="flex items-center justify-between">
-                                            <div>
-                                                <p class="text-xs uppercase tracking-[0.3em] text-rose-300">Network actions</p>
-                                                <h3 class="text-lg font-semibold text-textdark">Stop RAFT Networks</h3>
-                                            </div>
-                                            <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-rose-500/10 text-rose-400">⏻</span>
-                                        </header>
-                                        <p class="text-sm text-textdark/70">Choose which RAFT network to shut down.</p>
-                                        <div class="flex flex-col gap-4">
-                                            <div class="flex flex-col gap-3" data-fabric-scope="fabric-2">
-                                                <button
-                                                    type="button"
-                                                    data-network-shutdown-button="standard"
-                                                    data-network-label="RAFT Standard Network"
-                                                    class="inline-flex items-center justify-center gap-2 rounded-lg bg-rose-500/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-rose-500/40 transition duration-200 hover:-translate-y-0.5 hover:bg-rose-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-400"
-                                                >
-                                                    <span>Stop RAFT Standard</span>
-                                                </button>
-                                                <p
-                                                    class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 py-2 text-xs font-medium text-textdark/80"
-                                                    role="status"
-                                                    aria-live="polite"
-                                                    data-network-shutdown-status="standard"
-                                                    data-network-label="RAFT Standard Network"
-                                                    data-default-message="No shutdown command has been executed for the RAFT Standard network yet."
-                                                >
-                                                    <span data-indicator class="h-2 w-2 rounded-full bg-secondary"></span>
-                                                    <span data-message>No shutdown command has been executed for the RAFT Standard network yet.</span>
-                                                </p>
-                                            </div>
-                                            <div class="flex flex-col gap-3" data-fabric-scope="fabric-2">
-                                                <button
-                                                    type="button"
-                                                    data-network-shutdown-button="variant"
-                                                    data-network-label="RAFT Variant Network"
-                                                    class="inline-flex items-center justify-center gap-2 rounded-lg bg-rose-500/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-rose-500/40 transition duration-200 hover:-translate-y-0.5 hover:bg-rose-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-400"
-                                                >
-                                                    <span>Stop RAFT Variant</span>
-                                                </button>
-                                                <p
-                                                    class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 py-2 text-xs font-medium text-textdark/80"
-                                                    role="status"
-                                                    aria-live="polite"
-                                                    data-network-shutdown-status="variant"
-                                                    data-network-label="RAFT Variant Network"
-                                                    data-default-message="No shutdown command has been executed for the RAFT Variant network yet."
-                                                >
-                                                    <span data-indicator class="h-2 w-2 rounded-full bg-secondary"></span>
-                                                    <span data-message>No shutdown command has been executed for the RAFT Variant network yet.</span>
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </article>
-                                    <article class="flex flex-col gap-4 rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6 shadow-lg shadow-black/20">
-                                        <header class="flex items-center justify-between">
-                                            <div>
-                                                <p class="text-xs uppercase tracking-[0.3em] text-secondary">Network actions</p>
-                                                <h3 class="text-lg font-semibold text-textdark">Check RAFT Networks</h3>
-                                            </div>
-                                            <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-secondary/20 text-secondary">⟳</span>
-                                        </header>
-                                        <p class="text-sm text-textdark/70">Run a health check across all configured RAFT environments.</p>
-                                        <div class="flex flex-col gap-3">
-                                            <button type="button" id="networkCheckButton" class="inline-flex items-center justify-center gap-2 rounded-lg bg-secondary/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-textdark shadow-lg shadow-secondary/40 transition duration-200 hover:-translate-y-0.5 hover:bg-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary">
-                                                <span>Check network</span>
-                                            </button>
-                                            <p id="networkCheckStatus" class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 py-2 text-xs font-medium text-textdark/80" role="status" aria-live="polite">
-                                                <span data-indicator class="h-2 w-2 rounded-full bg-secondary"></span>
-                                                <span data-message>No network check has been executed yet.</span>
-                                            </p>
-                                        </div>
-                                    </article>
-                                    <article class="flex flex-col gap-4 rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6 shadow-lg shadow-black/20">
-                                        <header class="flex items-center justify-between">
-                                            <div>
-                                                <p class="text-xs uppercase tracking-[0.3em] text-sky-300">Network actions</p>
-                                                <h3 class="text-lg font-semibold text-textdark">Restart RAFT Networks</h3>
-                                            </div>
-                                            <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-sky-500/10 text-sky-300">⟳</span>
-                                        </header>
-                                        <p class="text-sm text-textdark/70">Shut down every RAFT network and immediately start each configured cluster.</p>
-                                        <div class="flex flex-col gap-3">
+                                        <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-300">⚡</span>
+                                    </header>
+                                    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                                        <!-- Fabric 2 RAFT Standard -->
+                                        <div class="flex flex-col gap-3" data-fabric-scope="fabric-2">
                                             <button
                                                 type="button"
-                                                id="networkRestartButton"
-                                                class="inline-flex items-center justify-center gap-2 rounded-lg bg-sky-500/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-sky-500/40 transition duration-200 hover:-translate-y-0.5 hover:bg-sky-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400"
+                                                class="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-500/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-emerald-500/40 transition duration-200 hover:-translate-y-0.5 hover:bg-emerald-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
+                                                data-network-startup-button="standard"
+                                                data-network-label="Fabric 2 RAFT Standard"
                                             >
-                                                <span>Restart RAFT Networks</span>
+                                                <span>Fabric 2 Standard</span>
                                             </button>
                                             <p
-                                                id="networkRestartStatus"
                                                 class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 py-2 text-xs font-medium text-textdark/80"
                                                 role="status"
                                                 aria-live="polite"
+                                                data-network-startup-status="standard"
+                                                data-network-label="Fabric 2 RAFT Standard"
                                             >
                                                 <span data-indicator class="h-2 w-2 rounded-full bg-secondary"></span>
-                                                <span data-message>No restart command has been executed yet.</span>
+                                                <span data-message>Siap untuk dijalankan</span>
                                             </p>
                                         </div>
-                                    </article>
+
+                                        <!-- Fabric 2 RAFT Variant -->
+                                        <div class="flex flex-col gap-3" data-fabric-scope="fabric-2">
+                                            <button
+                                                type="button"
+                                                class="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-500/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-emerald-500/40 transition duration-200 hover:-translate-y-0.5 hover:bg-emerald-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
+                                                data-network-startup-button="variant"
+                                                data-network-label="Fabric 2 RAFT Variant"
+                                            >
+                                                <span>Fabric 2 Variant</span>
+                                            </button>
+                                            <p
+                                                class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 py-2 text-xs font-medium text-textdark/80"
+                                                role="status"
+                                                aria-live="polite"
+                                                data-network-startup-status="variant"
+                                                data-network-label="Fabric 2 RAFT Variant"
+                                            >
+                                                <span data-indicator class="h-2 w-2 rounded-full bg-secondary"></span>
+                                                <span data-message>Siap untuk dijalankan</span>
+                                            </p>
+                                        </div>
+
+                                        <!-- Fabric 3 RAFT Standard -->
+                                        <div class="flex flex-col gap-3" data-fabric-scope="fabric-3">
+                                            <button
+                                                type="button"
+                                                class="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-500/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-emerald-500/40 transition duration-200 hover:-translate-y-0.5 hover:bg-emerald-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
+                                                data-network-startup-button="fabric3-standard"
+                                                data-network-label="Fabric 3 RAFT Standard"
+                                            >
+                                                <span>Fabric 3 Standard</span>
+                                            </button>
+                                            <p
+                                                class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 py-2 text-xs font-medium text-textdark/80"
+                                                role="status"
+                                                aria-live="polite"
+                                                data-network-startup-status="fabric3-standard"
+                                                data-network-label="Fabric 3 RAFT Standard"
+                                            >
+                                                <span data-indicator class="h-2 w-2 rounded-full bg-secondary"></span>
+                                                <span data-message>Siap untuk dijalankan</span>
+                                            </p>
+                                        </div>
+
+                                        <!-- Fabric 3 RAFT Variant -->
+                                        <div class="flex flex-col gap-3" data-fabric-scope="fabric-3">
+                                            <button
+                                                type="button"
+                                                class="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-500/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-emerald-500/40 transition duration-200 hover:-translate-y-0.5 hover:bg-emerald-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
+                                                data-network-startup-button="fabric3-variant"
+                                                data-network-label="Fabric 3 RAFT Variant"
+                                            >
+                                                <span>Fabric 3 Variant</span>
+                                            </button>
+                                            <p
+                                                class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 py-2 text-xs font-medium text-textdark/80"
+                                                role="status"
+                                                aria-live="polite"
+                                                data-network-startup-status="fabric3-variant"
+                                                data-network-label="Fabric 3 RAFT Variant"
+                                            >
+                                                <span data-indicator class="h-2 w-2 rounded-full bg-secondary"></span>
+                                                <span data-message>Siap untuk dijalankan</span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Stop Network - 4 Columns -->
+                                <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
+                                    <header class="mb-4 flex items-center justify-between">
+                                        <div>
+                                            <p class="text-xs uppercase tracking-[0.3em] text-rose-300">Network actions</p>
+                                            <h3 class="text-lg font-semibold text-textdark">Stop Networks</h3>
+                                        </div>
+                                        <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-rose-500/10 text-rose-400">⏻</span>
+                                    </header>
+                                    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                                        <!-- Fabric 2 RAFT Standard -->
+                                        <div class="flex flex-col gap-3" data-fabric-scope="fabric-2">
+                                            <button
+                                                type="button"
+                                                data-network-shutdown-button="standard"
+                                                data-network-label="Fabric 2 RAFT Standard"
+                                                class="inline-flex items-center justify-center gap-2 rounded-lg bg-rose-500/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-rose-500/40 transition duration-200 hover:-translate-y-0.5 hover:bg-rose-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-400"
+                                            >
+                                                <span>Fabric 2 Standard</span>
+                                            </button>
+                                            <p
+                                                class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 py-2 text-xs font-medium text-textdark/80"
+                                                role="status"
+                                                aria-live="polite"
+                                                data-network-shutdown-status="standard"
+                                                data-network-label="Fabric 2 RAFT Standard"
+                                            >
+                                                <span data-indicator class="h-2 w-2 rounded-full bg-secondary"></span>
+                                                <span data-message>Siap untuk dihentikan</span>
+                                            </p>
+                                        </div>
+
+                                        <!-- Fabric 2 RAFT Variant -->
+                                        <div class="flex flex-col gap-3" data-fabric-scope="fabric-2">
+                                            <button
+                                                type="button"
+                                                data-network-shutdown-button="variant"
+                                                data-network-label="Fabric 2 RAFT Variant"
+                                                class="inline-flex items-center justify-center gap-2 rounded-lg bg-rose-500/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-rose-500/40 transition duration-200 hover:-translate-y-0.5 hover:bg-rose-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-400"
+                                            >
+                                                <span>Fabric 2 Variant</span>
+                                            </button>
+                                            <p
+                                                class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 py-2 text-xs font-medium text-textdark/80"
+                                                role="status"
+                                                aria-live="polite"
+                                                data-network-shutdown-status="variant"
+                                                data-network-label="Fabric 2 RAFT Variant"
+                                            >
+                                                <span data-indicator class="h-2 w-2 rounded-full bg-secondary"></span>
+                                                <span data-message>Siap untuk dihentikan</span>
+                                            </p>
+                                        </div>
+
+                                        <!-- Fabric 3 RAFT Standard -->
+                                        <div class="flex flex-col gap-3" data-fabric-scope="fabric-3">
+                                            <button
+                                                type="button"
+                                                data-network-shutdown-button="fabric3-standard"
+                                                data-network-label="Fabric 3 RAFT Standard"
+                                                class="inline-flex items-center justify-center gap-2 rounded-lg bg-rose-500/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-rose-500/40 transition duration-200 hover:-translate-y-0.5 hover:bg-rose-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-400"
+                                            >
+                                                <span>Fabric 3 Standard</span>
+                                            </button>
+                                            <p
+                                                class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 py-2 text-xs font-medium text-textdark/80"
+                                                role="status"
+                                                aria-live="polite"
+                                                data-network-shutdown-status="fabric3-standard"
+                                                data-network-label="Fabric 3 RAFT Standard"
+                                            >
+                                                <span data-indicator class="h-2 w-2 rounded-full bg-secondary"></span>
+                                                <span data-message>Siap untuk dihentikan</span>
+                                            </p>
+                                        </div>
+
+                                        <!-- Fabric 3 RAFT Variant -->
+                                        <div class="flex flex-col gap-3" data-fabric-scope="fabric-3">
+                                            <button
+                                                type="button"
+                                                data-network-shutdown-button="fabric3-variant"
+                                                data-network-label="Fabric 3 RAFT Variant"
+                                                class="inline-flex items-center justify-center gap-2 rounded-lg bg-rose-500/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-rose-500/40 transition duration-200 hover:-translate-y-0.5 hover:bg-rose-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-400"
+                                            >
+                                                <span>Fabric 3 Variant</span>
+                                            </button>
+                                            <p
+                                                class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 py-2 text-xs font-medium text-textdark/80"
+                                                role="status"
+                                                aria-live="polite"
+                                                data-network-shutdown-status="fabric3-variant"
+                                                data-network-label="Fabric 3 RAFT Variant"
+                                            >
+                                                <span data-indicator class="h-2 w-2 rounded-full bg-secondary"></span>
+                                                <span data-message>Siap untuk dihentikan</span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Check Network - 1 Column -->
+                                <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
+                                    <header class="mb-4 flex items-center justify-between">
+                                        <div>
+                                            <p class="text-xs uppercase tracking-[0.3em] text-secondary">Network actions</p>
+                                            <h3 class="text-lg font-semibold text-textdark">Check All Networks</h3>
+                                        </div>
+                                        <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-secondary/20 text-secondary">⟳</span>
+                                    </header>
+                                    <p class="text-sm text-textdark/70 mb-4">Jalankan pemeriksaan kesehatan untuk semua jaringan RAFT (Fabric 2 dan Fabric 3).</p>
+                                    <div class="flex flex-col gap-3">
+                                        <button type="button" id="networkCheckButton" class="inline-flex items-center justify-center gap-2 rounded-lg bg-secondary/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-textdark shadow-lg shadow-secondary/40 transition duration-200 hover:-translate-y-0.5 hover:bg-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary">
+                                            <span>Check All Networks</span>
+                                        </button>
+                                        <p id="networkCheckStatus" class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 py-2 text-xs font-medium text-textdark/80" role="status" aria-live="polite">
+                                            <span data-indicator class="h-2 w-2 rounded-full bg-secondary"></span>
+                                            <span data-message>Belum ada pemeriksaan yang dijalankan</span>
+                                        </p>
+                                    </div>
+                                </div>
                                 </div>
                                 <div id="networkHealthResults" class="hidden space-y-4 rounded-2xl border border-white/10 bg-surfaceMuted/60 p-6 text-sm text-textdark">
                                     <div id="networkBlockSummary" class="grid gap-4 md:grid-cols-2"></div>
                                     <div id="networkHealthSummary" class="rounded-xl border border-white/10 bg-surface p-4 text-sm text-textdark/80 shadow-lg shadow-black/10"></div>
                                     <div id="networkHealthList" class="grid gap-4 md:grid-cols-2"></div>
-                                </div>
-                            </div>
-                        </section>
-
-                        <!-- Fabric 3 Networks -->
-                        <section id="fabric-3-networks" class="rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20 backdrop-blur-sm">
-                            <header class="flex flex-col gap-2 border-b border-white/10 pb-6">
-                                <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Fabric 3 Networks</h2>
-                                <p class="text-sm text-textdark/70">Kelola jaringan Fabric 3 RAFT Standard dan RAFT Variant tanpa keluar dari dashboard.</p>
-                            </header>
-                            <div class="mt-6 space-y-6">
-                                <div class="flex flex-col gap-2 rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6 text-sm text-textdark">
-                                    <p class="text-sm text-textdark/70">Pemeriksaan akan menghubungi peer utama pada klaster Fabric 3 dan menjalankan transaksi <code>GetAllCatatan</code> untuk memastikan chaincode merespons.</p>
-                                    <p class="text-xs text-textdark/50">Pastikan jaringan Hyperledger Fabric telah dijalankan sebelum memulai pemeriksaan.</p>
-                                </div>
-                                <div class="grid gap-4 md:grid-cols-2">
-                                    <article
-                                        class="flex flex-col gap-4 rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6 shadow-lg shadow-black/20"
-                                        data-fabric-scope="fabric-3"
-                                    >
-                                        <header class="flex items-center justify-between">
-                                            <div>
-                                                <p class="text-xs uppercase tracking-[0.3em] text-emerald-300">Network actions</p>
-                                                <h3 class="text-lg font-semibold text-textdark">Start RAFT Networks</h3>
-                                            </div>
-                                            <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-300">⚡</span>
-                                        </header>
-                                        <p class="text-sm text-textdark/70">Run the <code>network.sh</code> helpers to boot any available RAFT network.</p>
-                                        <div class="space-y-4">
-                                            <div class="flex flex-col gap-3" data-fabric-scope="fabric-3">
-                                                <button
-                                                    type="button"
-                                                    class="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-500/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-emerald-500/40 transition duration-200 hover:-translate-y-0.5 hover:bg-emerald-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
-                                                    data-network-startup-button="fabric3-standard"
-                                                    data-network-label="Fabric 3 RAFT Standard Network"
-                                                >
-                                                    <span>Start RAFT Standard</span>
-                                                </button>
-                                                <p
-                                                    class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 py-2 text-xs font-medium text-textdark/80"
-                                                    role="status"
-                                                    aria-live="polite"
-                                                    data-network-startup-status="fabric3-standard"
-                                                    data-network-label="Fabric 3 RAFT Standard Network"
-                                                    data-default-message="No startup command has been executed for the Fabric 3 RAFT Standard network yet."
-                                                >
-                                                    <span data-indicator class="h-2 w-2 rounded-full bg-secondary"></span>
-                                                    <span data-message>No startup command has been executed for the Fabric 3 RAFT Standard network yet.</span>
-                                                </p>
-                                            </div>
-                                            <div class="flex flex-col gap-3" data-fabric-scope="fabric-3">
-                                                <button
-                                                    type="button"
-                                                    class="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-400/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-emerald-400/40 transition duration-200 hover:-translate-y-0.5 hover:bg-emerald-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300"
-                                                    data-network-startup-button="fabric3-variant"
-                                                    data-network-label="Fabric 3 RAFT Variant Network"
-                                                >
-                                                    <span>Start RAFT Variant</span>
-                                                </button>
-                                                <p
-                                                    class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 py-2 text-xs font-medium text-textdark/80"
-                                                    role="status"
-                                                    aria-live="polite"
-                                                    data-network-startup-status="fabric3-variant"
-                                                    data-network-label="Fabric 3 RAFT Variant Network"
-                                                    data-default-message="No startup command has been executed for the Fabric 3 RAFT Variant network yet."
-                                                >
-                                                    <span data-indicator class="h-2 w-2 rounded-full bg-secondary"></span>
-                                                    <span data-message>No startup command has been executed for the Fabric 3 RAFT Variant network yet.</span>
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </article>
-                                    <article
-                                        class="flex flex-col gap-4 rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6 shadow-lg shadow-black/20"
-                                        data-fabric-scope="fabric-3"
-                                    >
-                                        <header class="flex items-center justify-between">
-                                            <div>
-                                                <p class="text-xs uppercase tracking-[0.3em] text-rose-300">Network actions</p>
-                                                <h3 class="text-lg font-semibold text-textdark">Stop RAFT Networks</h3>
-                                            </div>
-                                            <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-rose-500/10 text-rose-400">⏻</span>
-                                        </header>
-                                        <p class="text-sm text-textdark/70">Choose which RAFT network to shut down.</p>
-                                        <div class="flex flex-col gap-4">
-                                            <div class="flex flex-col gap-3" data-fabric-scope="fabric-3">
-                                                <button
-                                                    type="button"
-                                                    data-network-shutdown-button="fabric3-standard"
-                                                    data-network-label="Fabric 3 RAFT Standard Network"
-                                                    class="inline-flex items-center justify-center gap-2 rounded-lg bg-rose-500/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-rose-500/40 transition duration-200 hover:-translate-y-0.5 hover:bg-rose-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-400"
-                                                >
-                                                    <span>Stop RAFT Standard</span>
-                                                </button>
-                                                <p
-                                                    class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 py-2 text-xs font-medium text-textdark/80"
-                                                    role="status"
-                                                    aria-live="polite"
-                                                    data-network-shutdown-status="fabric3-standard"
-                                                    data-network-label="Fabric 3 RAFT Standard Network"
-                                                    data-default-message="No shutdown command has been executed for the Fabric 3 RAFT Standard network yet."
-                                                >
-                                                    <span data-indicator class="h-2 w-2 rounded-full bg-secondary"></span>
-                                                    <span data-message>No shutdown command has been executed for the Fabric 3 RAFT Standard network yet.</span>
-                                                </p>
-                                            </div>
-                                            <div class="flex flex-col gap-3" data-fabric-scope="fabric-3">
-                                                <button
-                                                    type="button"
-                                                    data-network-shutdown-button="fabric3-variant"
-                                                    data-network-label="Fabric 3 RAFT Variant Network"
-                                                    class="inline-flex items-center justify-center gap-2 rounded-lg bg-rose-500/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-rose-500/40 transition duration-200 hover:-translate-y-0.5 hover:bg-rose-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-400"
-                                                >
-                                                    <span>Stop RAFT Variant</span>
-                                                </button>
-                                                <p
-                                                    class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 py-2 text-xs font-medium text-textdark/80"
-                                                    role="status"
-                                                    aria-live="polite"
-                                                    data-network-shutdown-status="fabric3-variant"
-                                                    data-network-label="Fabric 3 RAFT Variant Network"
-                                                    data-default-message="No shutdown command has been executed for the Fabric 3 RAFT Variant network yet."
-                                                >
-                                                    <span data-indicator class="h-2 w-2 rounded-full bg-secondary"></span>
-                                                    <span data-message>No shutdown command has been executed for the Fabric 3 RAFT Variant network yet.</span>
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </article>
-                                    <article class="flex flex-col gap-4 rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6 shadow-lg shadow-black/20">
-                                        <header class="flex items-center justify-between">
-                                            <div>
-                                                <p class="text-xs uppercase tracking-[0.3em] text-secondary">Network actions</p>
-                                                <h3 class="text-lg font-semibold text-textdark">Check RAFT Networks</h3>
-                                            </div>
-                                            <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-secondary/20 text-secondary">⟳</span>
-                                        </header>
-                                        <p class="text-sm text-textdark/70">Run a health check across all configured RAFT environments.</p>
-                                        <div class="flex flex-col gap-3">
-                                            <button type="button" id="fabric3NetworkCheckButton" class="inline-flex items-center justify-center gap-2 rounded-lg bg-secondary/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-textdark shadow-lg shadow-secondary/40 transition duration-200 hover:-translate-y-0.5 hover:bg-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary">
-                                                <span>Check network</span>
-                                            </button>
-                                            <p id="fabric3NetworkCheckStatus" class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 py-2 text-xs font-medium text-textdark/80" role="status" aria-live="polite">
-                                                <span data-indicator class="h-2 w-2 rounded-full bg-secondary"></span>
-                                                <span data-message>No network check has been executed yet.</span>
-                                            </p>
-                                        </div>
-                                    </article>
-                                    <article class="flex flex-col gap-4 rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6 shadow-lg shadow-black/20">
-                                        <header class="flex items-center justify-between">
-                                            <div>
-                                                <p class="text-xs uppercase tracking-[0.3em] text-sky-300">Network actions</p>
-                                                <h3 class="text-lg font-semibold text-textdark">Restart RAFT Networks</h3>
-                                            </div>
-                                            <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-sky-500/10 text-sky-300">⟳</span>
-                                        </header>
-                                        <p class="text-sm text-textdark/70">Shut down every RAFT network and immediately start each configured cluster.</p>
-                                        <div class="flex flex-col gap-3">
-                                            <button
-                                                type="button"
-                                                id="fabric3NetworkRestartButton"
-                                                class="inline-flex items-center justify-center gap-2 rounded-lg bg-sky-500/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-sky-500/40 transition duration-200 hover:-translate-y-0.5 hover:bg-sky-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400"
-                                            >
-                                                <span>Restart RAFT Networks</span>
-                                            </button>
-                                            <p
-                                                id="fabric3NetworkRestartStatus"
-                                                class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 py-2 text-xs font-medium text-textdark/80"
-                                                role="status"
-                                                aria-live="polite"
-                                            >
-                                                <span data-indicator class="h-2 w-2 rounded-full bg-secondary"></span>
-                                                <span data-message>No restart command has been executed yet.</span>
-                                            </p>
-                                        </div>
-                                    </article>
-                                </div>
-                                <div id="fabric3NetworkHealthResults" class="hidden space-y-4 rounded-2xl border border-white/10 bg-surfaceMuted/60 p-6 text-sm text-textdark">
-                                    <div id="fabric3NetworkBlockSummary" class="grid gap-4 md:grid-cols-2"></div>
-                                    <div id="fabric3NetworkHealthSummary" class="rounded-xl border border-white/10 bg-surface p-4 text-sm text-textdark/80 shadow-lg shadow-black/10"></div>
-                                    <div id="fabric3NetworkHealthList" class="grid gap-4 md:grid-cols-2"></div>
                                 </div>
                             </div>
                         </section>

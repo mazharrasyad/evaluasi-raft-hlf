@@ -1151,18 +1151,6 @@ const viewFiles = {
             penampilanHasil: path.resolve(viewsRoot, 'penelitian/pelaksanaan-simulasi/penampilan-hasil.html'),
         },
     },
-    fabric2: {
-        dashboard: path.resolve(viewsRoot, 'fabric-2/dashboard.html'),
-        networkHealth: path.resolve(viewsRoot, 'fabric-2/kesehatan-jaringan.html'),
-        simulasiData: path.resolve(viewsRoot, 'fabric-2/simulasi-data.html'),
-        wilayahDataset: path.resolve(viewsRoot, 'fabric-2/wilayah-indonesia.html'),
-    },
-    fabric3: {
-        dashboard: path.resolve(viewsRoot, 'fabric-3/dashboard.html'),
-        networkHealth: path.resolve(viewsRoot, 'fabric-3/kesehatan-jaringan.html'),
-        simulasiData: path.resolve(viewsRoot, 'fabric-3/simulasi-data.html'),
-        wilayahDataset: path.resolve(viewsRoot, 'fabric-3/wilayah-indonesia.html'),
-    },
 };
 
 app.use(express.static(staticRoot));
@@ -1238,50 +1226,6 @@ app.get('/penelitian/pelaksanaan-simulasi/penampilan-hasil', (req, res) => {
 
 app.get('/dashboard', (req, res) => {
     res.redirect(302, '/');
-});
-
-app.get('/fabric-2/dashboard', (req, res) => {
-    res.sendFile(viewFiles.fabric2.dashboard);
-});
-
-app.get('/fabric-3/dashboard', (req, res) => {
-    res.sendFile(viewFiles.fabric3.dashboard);
-});
-
-app.get('/kesehatan-jaringan', (req, res) => {
-    res.redirect(302, '/fabric-2/kesehatan-jaringan');
-});
-
-app.get('/fabric-2/kesehatan-jaringan', (req, res) => {
-    res.sendFile(viewFiles.fabric2.networkHealth);
-});
-
-app.get('/fabric-3/kesehatan-jaringan', (req, res) => {
-    res.sendFile(viewFiles.fabric3.networkHealth);
-});
-
-app.get('/simulasi-data', (req, res) => {
-    res.redirect(302, '/fabric-2/simulasi-data');
-});
-
-app.get('/fabric-2/simulasi-data', (req, res) => {
-    res.sendFile(viewFiles.fabric2.simulasiData);
-});
-
-app.get('/fabric-3/simulasi-data', (req, res) => {
-    res.sendFile(viewFiles.fabric3.simulasiData);
-});
-
-app.get('/wilayah-indonesia', (req, res) => {
-    res.redirect(302, '/fabric-2/wilayah-indonesia');
-});
-
-app.get('/fabric-2/wilayah-indonesia', (req, res) => {
-    res.sendFile(viewFiles.fabric2.wilayahDataset);
-});
-
-app.get('/fabric-3/wilayah-indonesia', (req, res) => {
-    res.sendFile(viewFiles.fabric3.wilayahDataset);
 });
 
 app.get('/api/check-network', async (req, res) => {

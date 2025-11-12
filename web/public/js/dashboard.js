@@ -60,6 +60,14 @@ const networkBlockSummaryEl = document.getElementById('networkBlockSummary');
 const networkHealthSummaryEl = document.getElementById('networkHealthSummary');
 const networkHealthListEl = document.getElementById('networkHealthList');
 const fabricNetworkSummaries = document.getElementById('fabricNetworkSummaries');
+const fabric3NetworkCheckButton = document.getElementById('fabric3NetworkCheckButton');
+const fabric3NetworkCheckStatusEl = document.getElementById('fabric3NetworkCheckStatus');
+const fabric3NetworkRestartButton = document.getElementById('fabric3NetworkRestartButton');
+const fabric3NetworkRestartStatusEl = document.getElementById('fabric3NetworkRestartStatus');
+const fabric3NetworkHealthResultsContainer = document.getElementById('fabric3NetworkHealthResults');
+const fabric3NetworkBlockSummaryEl = document.getElementById('fabric3NetworkBlockSummary');
+const fabric3NetworkHealthSummaryEl = document.getElementById('fabric3NetworkHealthSummary');
+const fabric3NetworkHealthListEl = document.getElementById('fabric3NetworkHealthList');
 
 const DEFAULT_FABRIC_CONTEXT = 'fabric-2';
 const DEFAULT_OVERALL_STATUS = 'unknown';
@@ -1254,6 +1262,44 @@ function updateNetworkRestartStatus(state = 'idle', message = DEFAULT_NETWORK_RE
 
     const indicator = networkRestartStatusEl.querySelector('[data-indicator]');
     const messageEl = networkRestartStatusEl.querySelector('[data-message]');
+
+    if (indicator) {
+        indicator.className = `h-2 w-2 rounded-full ${NETWORK_STATUS_INDICATOR[state] || NETWORK_STATUS_INDICATOR.idle}`;
+    }
+
+    if (messageEl && typeof message === 'string') {
+        messageEl.textContent = message;
+    }
+
+    if (state !== 'idle') {
+        setNetworkOperationOverlayMessage(message);
+    }
+}
+
+function updateFabric3NetworkCheckStatus(state = 'idle', message = 'Belum ada pemeriksaan jaringan yang dijalankan untuk Fabric 3.') {
+    if (!fabric3NetworkCheckStatusEl) {
+        return;
+    }
+
+    const indicator = fabric3NetworkCheckStatusEl.querySelector('[data-indicator]');
+    const messageEl = fabric3NetworkCheckStatusEl.querySelector('[data-message]');
+
+    if (indicator) {
+        indicator.className = `h-2 w-2 rounded-full ${NETWORK_STATUS_INDICATOR[state] || NETWORK_STATUS_INDICATOR.idle}`;
+    }
+
+    if (messageEl && typeof message === 'string') {
+        messageEl.textContent = message;
+    }
+}
+
+function updateFabric3NetworkRestartStatus(state = 'idle', message = 'Belum ada perintah restart yang dijalankan untuk Fabric 3.') {
+    if (!fabric3NetworkRestartStatusEl) {
+        return;
+    }
+
+    const indicator = fabric3NetworkRestartStatusEl.querySelector('[data-indicator]');
+    const messageEl = fabric3NetworkRestartStatusEl.querySelector('[data-message]');
 
     if (indicator) {
         indicator.className = `h-2 w-2 rounded-full ${NETWORK_STATUS_INDICATOR[state] || NETWORK_STATUS_INDICATOR.idle}`;
@@ -5668,6 +5714,241 @@ async function handleNetworkRestartButtonClick() {
     }
 }
 
+async function handleFabric3NetworkCheckButtonClick() {
+    if (!fabric3NetworkCheckButton) {
+        return;
+    }
+
+    const originalContent = fabric3NetworkCheckButton.innerHTML;
+    fabric3NetworkCheckButton.disabled = true;
+    fabric3NetworkCheckButton.classList.add('cursor-not-allowed', 'opacity-60');
+    fabric3NetworkCheckButton.innerHTML = '<span class="text-base animate-spin">⟳</span><span>Checking...</span>';
+
+    updateFabric3NetworkCheckStatus('loading', 'Pemeriksaan jaringan Fabric 3 sedang berlangsung...');
+
+    try {
+        const response = await fetch('/api/check-network', {
+            headers: {
+                Accept: 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(`Server responded with status ${response.status}`);
+        }
+
+        const data = await response.json();
+        const normalizedResults = Array.isArray(data?.results) ? data.results : [];
+
+        // Filter for Fabric 3 results only
+        const fabric3Results = normalizedResults.filter(result =>
+            result?.label && (
+                result.label.includes('Fabric 3') ||
+                result.label.includes('fabric3')
+            )
+        );
+
+        // Compute overall status for Fabric 3 only
+        const fabric3OverallStatus = fabric3Results.length && fabric3Results.every(item => item.status === 'healthy')
+            ? 'healthy'
+            : fabric3Results.some(item => item.status === 'healthy')
+                ? 'partial'
+                : 'unavailable';
+
+        // Render results in Fabric 3 section
+        if (fabric3NetworkHealthResultsContainer) {
+            fabric3NetworkHealthResultsContainer.classList.remove('hidden');
+        }
+
+        if (fabric3NetworkBlockSummaryEl) {
+            fabric3NetworkBlockSummaryEl.innerHTML = '';
+            fabric3Results.forEach((result) => {
+                const blockCard = document.createElement('div');
+                blockCard.className = 'rounded-xl border border-white/10 bg-surface p-4 shadow-lg shadow-black/10';
+
+                const statusColor = result.status === 'healthy' ? 'text-emerald-400' : 'text-rose-400';
+                const blockHeight = result.blockHeight || 'N/A';
+
+                blockCard.innerHTML = `
+                    <div class="mb-2 text-xs font-semibold uppercase tracking-wider text-muted">${result.label || 'Network'}</div>
+                    <div class="text-2xl font-bold ${statusColor}">${blockHeight}</div>
+                    <div class="mt-1 text-xs text-textdark/60">Block Height</div>
+                `;
+
+                fabric3NetworkBlockSummaryEl.appendChild(blockCard);
+            });
+        }
+
+        if (fabric3NetworkHealthSummaryEl) {
+            const summaryMeta = OVERALL_STATUS_META[fabric3OverallStatus];
+            const summaryTitle = summaryMeta?.title || 'Status tidak diketahui';
+            const summaryColor = summaryMeta?.color || 'text-muted';
+
+            fabric3NetworkHealthSummaryEl.innerHTML = `
+                <div class="text-sm font-semibold ${summaryColor}">${summaryTitle}</div>
+                <div class="mt-2 text-xs text-textdark/70">Diperiksa pada ${new Date().toLocaleString('id-ID')}</div>
+            `;
+        }
+
+        if (fabric3NetworkHealthListEl) {
+            fabric3NetworkHealthListEl.innerHTML = '';
+            fabric3Results.forEach((result) => {
+                const resultCard = document.createElement('div');
+                resultCard.className = 'rounded-xl border border-white/10 bg-surface p-4 shadow-lg shadow-black/10';
+
+                const statusMeta = OVERALL_STATUS_META[result.status] || OVERALL_STATUS_META.unavailable;
+
+                resultCard.innerHTML = `
+                    <div class="mb-2 text-xs font-semibold uppercase tracking-wider text-muted">${result.label || 'Network'}</div>
+                    <div class="text-sm font-semibold ${statusMeta.color}">${statusMeta.title}</div>
+                    <div class="mt-2 text-xs text-textdark/70">${result.message || 'Tidak ada pesan'}</div>
+                `;
+
+                fabric3NetworkHealthListEl.appendChild(resultCard);
+            });
+        }
+
+        if (data?.error) {
+            const errorMessage = typeof data.error === 'string'
+                ? data.error
+                : 'Pemeriksaan jaringan tidak dapat diselesaikan. Periksa log server.';
+            updateFabric3NetworkCheckStatus('error', errorMessage);
+            await showErrorAlert(
+                `Gagal menjalankan pemeriksaan jaringan. ${errorMessage}`,
+                { title: 'Pemeriksaan jaringan gagal' }
+            );
+            return;
+        }
+
+        const summaryMeta = OVERALL_STATUS_META[fabric3OverallStatus];
+        const successMessage = summaryMeta
+            ? summaryMeta.title
+            : 'Pemeriksaan jaringan selesai.';
+        updateFabric3NetworkCheckStatus('success', successMessage);
+    } catch (error) {
+        console.error('Failed to run Fabric 3 network check:', error);
+        updateFabric3NetworkCheckStatus('error', 'Pemeriksaan jaringan gagal. Periksa log server.');
+        await showErrorAlert('Gagal menjalankan pemeriksaan jaringan. Pastikan jaringan Fabric sedang berjalan dan coba lagi.');
+    } finally {
+        fabric3NetworkCheckButton.disabled = false;
+        fabric3NetworkCheckButton.classList.remove('cursor-not-allowed', 'opacity-60');
+        fabric3NetworkCheckButton.innerHTML = originalContent;
+    }
+}
+
+async function handleFabric3NetworkRestartButtonClick() {
+    if (!fabric3NetworkRestartButton) {
+        return;
+    }
+
+    const originalContent = fabric3NetworkRestartButton.innerHTML;
+    fabric3NetworkRestartButton.disabled = true;
+    fabric3NetworkRestartButton.classList.add('cursor-not-allowed', 'opacity-60');
+    fabric3NetworkRestartButton.innerHTML = '<span class="text-base animate-spin">⟳</span><span>Restarting...</span>';
+
+    const fabric3NetworkTypes = ['fabric3-standard', 'fabric3-variant'];
+    const overlayMessage = 'Melakukan restart jaringan Fabric 3...';
+
+    showNetworkOperationOverlay('restart', overlayMessage);
+    updateFabric3NetworkRestartStatus('loading', overlayMessage);
+
+    setNetworkOperationOverlayProgress('Langkah 1 dari 3 · Menghentikan jaringan Fabric 3...');
+
+    fabric3NetworkTypes.forEach(type => {
+        updateNetworkShutdownStatus('loading', `Menghentikan ${type} sebagai bagian dari restart...`, type);
+    });
+
+    let shouldTriggerNetworkCheck = false;
+
+    try {
+        // Shutdown Fabric 3 networks
+        const shutdownHeaders = {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+        };
+
+        setNetworkOperationOverlayProgress('Langkah 1 dari 3 · Menghentikan Fabric 3 Standard...');
+        const shutdownStandardResponse = await fetch('/api/shutdown-network', {
+            method: 'POST',
+            headers: shutdownHeaders,
+            body: JSON.stringify({ networkType: 'fabric3-standard' }),
+        });
+
+        setNetworkOperationOverlayProgress('Langkah 1 dari 3 · Menghentikan Fabric 3 Variant...');
+        const shutdownVariantResponse = await fetch('/api/shutdown-network', {
+            method: 'POST',
+            headers: shutdownHeaders,
+            body: JSON.stringify({ networkType: 'fabric3-variant' }),
+        });
+
+        if (!shutdownStandardResponse.ok || !shutdownVariantResponse.ok) {
+            throw new Error('Gagal menghentikan jaringan Fabric 3');
+        }
+
+        // Wait a bit before starting up
+        setNetworkOperationOverlayProgress('Langkah 2 dari 3 · Menunggu sistem bersih...');
+        await new Promise(resolve => setTimeout(resolve, 2000));
+
+        // Startup Fabric 3 networks
+        const startupHeaders = {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+        };
+
+        setNetworkOperationOverlayProgress('Langkah 3 dari 3 · Menyalakan Fabric 3 Standard...');
+        const startupStandardResponse = await fetch('/api/start-network', {
+            method: 'POST',
+            headers: startupHeaders,
+            body: JSON.stringify({ networkType: 'fabric3-standard' }),
+        });
+
+        setNetworkOperationOverlayProgress('Langkah 3 dari 3 · Menyalakan Fabric 3 Variant...');
+        const startupVariantResponse = await fetch('/api/start-network', {
+            method: 'POST',
+            headers: startupHeaders,
+            body: JSON.stringify({ networkType: 'fabric3-variant' }),
+        });
+
+        if (!startupStandardResponse.ok || !startupVariantResponse.ok) {
+            throw new Error('Gagal menyalakan jaringan Fabric 3');
+        }
+
+        fabric3NetworkTypes.forEach(type => {
+            updateNetworkShutdownStatus('success', 'Berhasil dihentikan dan dimulai ulang.', type);
+            updateNetworkStartupStatus('success', 'Berhasil dimulai ulang.', type);
+        });
+
+        const completionMessage = 'Semua jaringan Fabric 3 berhasil di-restart.';
+        updateFabric3NetworkRestartStatus('success', completionMessage);
+
+        await showSuccessAlert('Jaringan Fabric 3 telah berhasil di-restart.', { title: 'Restart berhasil' });
+        shouldTriggerNetworkCheck = true;
+    } catch (error) {
+        console.error('Failed to restart Fabric 3 networks:', error);
+        const message = error instanceof Error && error.message
+            ? error.message
+            : 'Gagal melakukan restart jaringan. Periksa log server.';
+        updateFabric3NetworkRestartStatus('error', message);
+
+        fabric3NetworkTypes.forEach(type => {
+            updateNetworkStartupStatus('error', message, type);
+            updateNetworkShutdownStatus('error', message, type);
+        });
+
+        setNetworkOperationOverlayProgress('Proses restart gagal. Periksa notifikasi untuk detail.');
+        await showErrorAlert(message, { title: 'Restart gagal' });
+    } finally {
+        hideNetworkOperationOverlay();
+        fabric3NetworkRestartButton.disabled = false;
+        fabric3NetworkRestartButton.classList.remove('cursor-not-allowed', 'opacity-60');
+        fabric3NetworkRestartButton.innerHTML = originalContent;
+
+        if (shouldTriggerNetworkCheck) {
+            await handleFabric3NetworkCheckButtonClick();
+        }
+    }
+}
+
 if (networkShutdownStatusElements.size > 0) {
     networkShutdownStatusElements.forEach((_, type) => {
         updateNetworkShutdownStatus('idle', getNetworkShutdownDefaultMessage(type), type);
@@ -5688,6 +5969,16 @@ if (networkRestartStatusEl) {
 
 if (networkRestartButton) {
     networkRestartButton.addEventListener('click', handleNetworkRestartButtonClick);
+}
+
+if (fabric3NetworkCheckButton) {
+    updateFabric3NetworkCheckStatus('idle', 'Belum ada pemeriksaan jaringan yang dijalankan untuk Fabric 3.');
+    fabric3NetworkCheckButton.addEventListener('click', handleFabric3NetworkCheckButtonClick);
+}
+
+if (fabric3NetworkRestartButton) {
+    updateFabric3NetworkRestartStatus('idle', 'Belum ada perintah restart yang dijalankan untuk Fabric 3.');
+    fabric3NetworkRestartButton.addEventListener('click', handleFabric3NetworkRestartButtonClick);
 }
 
 if (hierarchyBackButton) {

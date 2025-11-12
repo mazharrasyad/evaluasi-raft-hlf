@@ -392,12 +392,12 @@
                                         </header>
                                         <p class="text-sm text-textdark/70">Jalankan pemeriksaan kesehatan untuk memastikan setiap komponen Fabric 3 merespons.</p>
                                         <div class="flex flex-col gap-3">
-                                            <button type="button" id="networkCheckButton" class="inline-flex items-center justify-center gap-2 rounded-lg bg-accent/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#041226] shadow-lg shadow-accent/40 transition duration-200 hover:-translate-y-0.5 hover:bg-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">
+                                            <button type="button" id="fabric3NetworkCheckButton" class="inline-flex items-center justify-center gap-2 rounded-lg bg-accent/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#041226] shadow-lg shadow-accent/40 transition duration-200 hover:-translate-y-0.5 hover:bg-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">
                                                 <span>Check Fabric 3</span>
                                             </button>
-                                            <p id="networkCheckStatus" class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 py-2 text-xs font-medium text-textdark/80" role="status" aria-live="polite">
+                                            <p id="fabric3NetworkCheckStatus" class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 py-2 text-xs font-medium text-textdark/80" role="status" aria-live="polite">
                                                 <span data-indicator class="h-2 w-2 rounded-full bg-accent"></span>
-                                                <span data-message>No network check has been executed yet.</span>
+                                                <span data-message>Belum ada pemeriksaan jaringan yang dijalankan untuk Fabric 3.</span>
                                             </p>
                                         </div>
                                     </article>
@@ -413,27 +413,27 @@
                                         <div class="flex flex-col gap-3">
                                             <button
                                                 type="button"
-                                                id="networkRestartButton"
+                                                id="fabric3NetworkRestartButton"
                                                 class="inline-flex items-center justify-center gap-2 rounded-lg bg-sky-500/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-sky-500/40 transition duration-200 hover:-translate-y-0.5 hover:bg-sky-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400"
                                             >
                                                 <span>Restart Fabric 3</span>
                                             </button>
                                             <p
-                                                id="networkRestartStatus"
+                                                id="fabric3NetworkRestartStatus"
                                                 class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 py-2 text-xs font-medium text-textdark/80"
                                                 role="status"
                                                 aria-live="polite"
                                             >
                                                 <span data-indicator class="h-2 w-2 rounded-full bg-accent"></span>
-                                                <span data-message>No restart command has been executed yet.</span>
+                                                <span data-message">Belum ada perintah restart yang dijalankan untuk Fabric 3.</span>
                                             </p>
                                         </div>
                                     </article>
                                 </div>
-                                <div id="networkHealthResults" class="hidden space-y-4 rounded-2xl border border-white/10 bg-surfaceMuted/60 p-6 text-sm text-textdark">
-                                    <div id="networkBlockSummary" class="grid gap-4 md:grid-cols-2"></div>
-                                    <div id="networkHealthSummary" class="rounded-xl border border-white/10 bg-surface p-4 text-sm text-textdark/80 shadow-lg shadow-black/10"></div>
-                                    <div id="networkHealthList" class="grid gap-4 md:grid-cols-2"></div>
+                                <div id="fabric3NetworkHealthResults" class="hidden space-y-4 rounded-2xl border border-white/10 bg-surfaceMuted/60 p-6 text-sm text-textdark">
+                                    <div id="fabric3NetworkBlockSummary" class="grid gap-4 md:grid-cols-2"></div>
+                                    <div id="fabric3NetworkHealthSummary" class="rounded-xl border border-white/10 bg-surface p-4 text-sm text-textdark/80 shadow-lg shadow-black/10"></div>
+                                    <div id="fabric3NetworkHealthList" class="grid gap-4 md:grid-cols-2"></div>
                                 </div>
                             </div>
                         </section>

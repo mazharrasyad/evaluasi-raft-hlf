@@ -67,8 +67,204 @@
                                 <div class="space-y-5">
                                     <h1 class="text-3xl font-semibold text-textdark md:text-4xl">Pembuatan Channel</h1>
                                     <p class="text-sm text-textdark/70 md:text-base">
-                                        Isi konten...
+                                        Pembuatan channel merupakan tahap penting dalam membangun jaringan Hyperledger Fabric. Channel memungkinkan komunikasi privat antara subset organisasi dalam jaringan. Berikut adalah command yang digunakan untuk membuat channel pada Fabric 2 dan Fabric 3, untuk RAFT Standard dan Variantnya.
                                     </p>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Fabric 2 - RAFT Standard -->
+                        <section class="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-surface via-soft to-[#020817] p-10 shadow-2xl shadow-black/30">
+                            <div class="flex flex-col gap-6">
+                                <div class="inline-flex w-fit items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-primary/90">
+                                    Fabric 2
+                                </div>
+                                <h2 class="text-2xl font-semibold text-textdark">RAFT Standard</h2>
+
+                                <div class="space-y-4">
+                                    <div>
+                                        <h3 class="text-lg font-medium text-textdark mb-3">Channel Name: <span class="text-primary">fabric2-channel-standard</span></h3>
+
+                                        <div class="space-y-3">
+                                            <div>
+                                                <p class="text-sm text-muted mb-2">1. Generate channel genesis block:</p>
+                                                <pre class="bg-soft border border-border rounded-lg p-4 overflow-x-auto text-xs text-textdark/90"><code>configtxgen -profile ChannelUsingRaft -outputBlock ./channel-artifacts/fabric2-channel-standard.block -channelID fabric2-channel-standard</code></pre>
+                                            </div>
+
+                                            <div>
+                                                <p class="text-sm text-muted mb-2">2. Join orderer to channel:</p>
+                                                <pre class="bg-soft border border-border rounded-lg p-4 overflow-x-auto text-xs text-textdark/90"><code>osnadmin channel join --channelID fabric2-channel-standard \
+  --config-block ./channel-artifacts/fabric2-channel-standard.block \
+  -o localhost:7053 --ca-file "$ORDERER_CA" \
+  --client-cert "$ORDERER_ADMIN_TLS_SIGN_CERT" \
+  --client-key "$ORDERER_ADMIN_TLS_PRIVATE_KEY"</code></pre>
+                                            </div>
+
+                                            <div>
+                                                <p class="text-sm text-muted mb-2">3. Join peers to channel:</p>
+                                                <pre class="bg-soft border border-border rounded-lg p-4 overflow-x-auto text-xs text-textdark/90"><code>peer channel join -b ./channel-artifacts/fabric2-channel-standard.block</code></pre>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex flex-wrap gap-3 pt-4">
+                                        <button class="px-6 py-2.5 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-green-500/50">
+                                            Start Network
+                                        </button>
+                                        <button class="px-6 py-2.5 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-red-500/50">
+                                            Stop Network
+                                        </button>
+                                        <button class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-blue-500/50">
+                                            Check Network
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Fabric 2 - RAFT Variant -->
+                        <section class="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-surface via-soft to-[#020817] p-10 shadow-2xl shadow-black/30">
+                            <div class="flex flex-col gap-6">
+                                <div class="inline-flex w-fit items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-primary/90">
+                                    Fabric 2
+                                </div>
+                                <h2 class="text-2xl font-semibold text-textdark">RAFT Variant</h2>
+
+                                <div class="space-y-4">
+                                    <div>
+                                        <h3 class="text-lg font-medium text-textdark mb-3">Channel Name: <span class="text-primary">fabric2-channel-variant</span></h3>
+
+                                        <div class="space-y-3">
+                                            <div>
+                                                <p class="text-sm text-muted mb-2">1. Generate channel genesis block:</p>
+                                                <pre class="bg-soft border border-border rounded-lg p-4 overflow-x-auto text-xs text-textdark/90"><code>configtxgen -profile ChannelUsingRaft -outputBlock ./channel-artifacts/fabric2-channel-variant.block -channelID fabric2-channel-variant</code></pre>
+                                            </div>
+
+                                            <div>
+                                                <p class="text-sm text-muted mb-2">2. Join orderer to channel:</p>
+                                                <pre class="bg-soft border border-border rounded-lg p-4 overflow-x-auto text-xs text-textdark/90"><code>osnadmin channel join --channelID fabric2-channel-variant \
+  --config-block ./channel-artifacts/fabric2-channel-variant.block \
+  -o localhost:7253 --ca-file "$ORDERER_CA" \
+  --client-cert "$ORDERER_ADMIN_TLS_SIGN_CERT" \
+  --client-key "$ORDERER_ADMIN_TLS_PRIVATE_KEY"</code></pre>
+                                            </div>
+
+                                            <div>
+                                                <p class="text-sm text-muted mb-2">3. Join peers to channel:</p>
+                                                <pre class="bg-soft border border-border rounded-lg p-4 overflow-x-auto text-xs text-textdark/90"><code>peer channel join -b ./channel-artifacts/fabric2-channel-variant.block</code></pre>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex flex-wrap gap-3 pt-4">
+                                        <button class="px-6 py-2.5 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-green-500/50">
+                                            Start Network
+                                        </button>
+                                        <button class="px-6 py-2.5 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-red-500/50">
+                                            Stop Network
+                                        </button>
+                                        <button class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-blue-500/50">
+                                            Check Network
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Fabric 3 - RAFT Standard -->
+                        <section class="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-surface via-soft to-[#020817] p-10 shadow-2xl shadow-black/30">
+                            <div class="flex flex-col gap-6">
+                                <div class="inline-flex w-fit items-center gap-2 rounded-full border border-accent/40 bg-accent/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-accent/90">
+                                    Fabric 3
+                                </div>
+                                <h2 class="text-2xl font-semibold text-textdark">RAFT Standard</h2>
+
+                                <div class="space-y-4">
+                                    <div>
+                                        <h3 class="text-lg font-medium text-textdark mb-3">Channel Name: <span class="text-accent">fabric3-channel-standard</span></h3>
+
+                                        <div class="space-y-3">
+                                            <div>
+                                                <p class="text-sm text-muted mb-2">1. Generate channel genesis block:</p>
+                                                <pre class="bg-soft border border-border rounded-lg p-4 overflow-x-auto text-xs text-textdark/90"><code>configtxgen -profile ChannelUsingRaft -outputBlock ./channel-artifacts/fabric3-channel-standard.block -channelID fabric3-channel-standard</code></pre>
+                                            </div>
+
+                                            <div>
+                                                <p class="text-sm text-muted mb-2">2. Join orderer to channel:</p>
+                                                <pre class="bg-soft border border-border rounded-lg p-4 overflow-x-auto text-xs text-textdark/90"><code>osnadmin channel join --channelID fabric3-channel-standard \
+  --config-block ./channel-artifacts/fabric3-channel-standard.block \
+  -o localhost:8053 --ca-file "$ORDERER_CA" \
+  --client-cert "$ORDERER_ADMIN_TLS_SIGN_CERT" \
+  --client-key "$ORDERER_ADMIN_TLS_PRIVATE_KEY"</code></pre>
+                                            </div>
+
+                                            <div>
+                                                <p class="text-sm text-muted mb-2">3. Join peers to channel:</p>
+                                                <pre class="bg-soft border border-border rounded-lg p-4 overflow-x-auto text-xs text-textdark/90"><code>peer channel join -b ./channel-artifacts/fabric3-channel-standard.block</code></pre>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex flex-wrap gap-3 pt-4">
+                                        <button class="px-6 py-2.5 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-green-500/50">
+                                            Start Network
+                                        </button>
+                                        <button class="px-6 py-2.5 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-red-500/50">
+                                            Stop Network
+                                        </button>
+                                        <button class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-blue-500/50">
+                                            Check Network
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Fabric 3 - RAFT Variant -->
+                        <section class="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-surface via-soft to-[#020817] p-10 shadow-2xl shadow-black/30">
+                            <div class="flex flex-col gap-6">
+                                <div class="inline-flex w-fit items-center gap-2 rounded-full border border-accent/40 bg-accent/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-accent/90">
+                                    Fabric 3
+                                </div>
+                                <h2 class="text-2xl font-semibold text-textdark">RAFT Variant</h2>
+
+                                <div class="space-y-4">
+                                    <div>
+                                        <h3 class="text-lg font-medium text-textdark mb-3">Channel Name: <span class="text-accent">fabric3-channel-variant</span></h3>
+
+                                        <div class="space-y-3">
+                                            <div>
+                                                <p class="text-sm text-muted mb-2">1. Generate channel genesis block:</p>
+                                                <pre class="bg-soft border border-border rounded-lg p-4 overflow-x-auto text-xs text-textdark/90"><code>configtxgen -profile ChannelUsingRaft -outputBlock ./channel-artifacts/fabric3-channel-variant.block -channelID fabric3-channel-variant</code></pre>
+                                            </div>
+
+                                            <div>
+                                                <p class="text-sm text-muted mb-2">2. Join orderer to channel:</p>
+                                                <pre class="bg-soft border border-border rounded-lg p-4 overflow-x-auto text-xs text-textdark/90"><code>osnadmin channel join --channelID fabric3-channel-variant \
+  --config-block ./channel-artifacts/fabric3-channel-variant.block \
+  -o localhost:8253 --ca-file "$ORDERER_CA" \
+  --client-cert "$ORDERER_ADMIN_TLS_SIGN_CERT" \
+  --client-key "$ORDERER_ADMIN_TLS_PRIVATE_KEY"</code></pre>
+                                            </div>
+
+                                            <div>
+                                                <p class="text-sm text-muted mb-2">3. Join peers to channel:</p>
+                                                <pre class="bg-soft border border-border rounded-lg p-4 overflow-x-auto text-xs text-textdark/90"><code>peer channel join -b ./channel-artifacts/fabric3-channel-variant.block</code></pre>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex flex-wrap gap-3 pt-4">
+                                        <button class="px-6 py-2.5 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-green-500/50">
+                                            Start Network
+                                        </button>
+                                        <button class="px-6 py-2.5 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-red-500/50">
+                                            Stop Network
+                                        </button>
+                                        <button class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-blue-500/50">
+                                            Check Network
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </section>

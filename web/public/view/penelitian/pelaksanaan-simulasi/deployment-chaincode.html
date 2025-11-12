@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Evaluasi RAFT HLF — Deployment Chaincode</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -232,18 +233,48 @@
             const networkLabel = getNetworkLabel(fabricVersion, raftType);
 
             if (!networkId) {
-                alert('Network ID tidak valid');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Network ID tidak valid',
+                    background: '#1a1a1a',
+                    color: '#E2E8F0',
+                    confirmButtonColor: '#38BDF8'
+                });
                 return;
             }
 
-            if (!confirm(`Apakah Anda yakin ingin memulai ${networkLabel}?`)) {
+            const confirmResult = await Swal.fire({
+                title: 'Konfirmasi',
+                text: `Apakah Anda yakin ingin memulai ${networkLabel}?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Mulai',
+                cancelButtonText: 'Batal',
+                background: '#1a1a1a',
+                color: '#E2E8F0',
+                confirmButtonColor: '#22c55e',
+                cancelButtonColor: '#6b7280'
+            });
+
+            if (!confirmResult.isConfirmed) {
                 return;
             }
 
-            const loadingMsg = document.createElement('div');
-            loadingMsg.textContent = `Memulai ${networkLabel}...`;
-            loadingMsg.style.cssText = 'position:fixed;top:20px;right:20px;background:#1a1a1a;color:#38BDF8;padding:15px 25px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.5);z-index:9999;border:1px solid #38BDF8;';
-            document.body.appendChild(loadingMsg);
+            Swal.fire({
+                title: 'Memulai Network',
+                html: `Sedang memulai <strong>${networkLabel}</strong>...<br><small>Mohon tunggu, proses ini mungkin memakan waktu beberapa menit.</small>`,
+                icon: 'info',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                allowEnterKey: false,
+                showConfirmButton: false,
+                background: '#1a1a1a',
+                color: '#E2E8F0',
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
 
             try {
                 const response = await fetch('/api/start-network', {
@@ -259,18 +290,44 @@
                 const result = await response.json();
 
                 if (result.overallStatus === 'success') {
-                    alert(`✓ ${networkLabel} berhasil dimulai!`);
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil!',
+                        html: `<strong>${networkLabel}</strong> berhasil dimulai!`,
+                        background: '#1a1a1a',
+                        color: '#E2E8F0',
+                        confirmButtonColor: '#22c55e'
+                    });
                 } else if (result.overallStatus === 'partial') {
-                    alert(`⚠ ${networkLabel} dimulai sebagian. Beberapa komponen mungkin gagal.`);
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Dimulai Sebagian',
+                        html: `<strong>${networkLabel}</strong> dimulai sebagian.<br>Beberapa komponen mungkin gagal.`,
+                        background: '#1a1a1a',
+                        color: '#E2E8F0',
+                        confirmButtonColor: '#f59e0b'
+                    });
                 } else {
                     const errorMsg = result.error || 'Terjadi kesalahan tidak diketahui';
-                    alert(`✗ Gagal memulai ${networkLabel}:\n${errorMsg}`);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal Memulai',
+                        html: `Gagal memulai <strong>${networkLabel}</strong>:<br><small>${errorMsg}</small>`,
+                        background: '#1a1a1a',
+                        color: '#E2E8F0',
+                        confirmButtonColor: '#ef4444'
+                    });
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert(`✗ Terjadi kesalahan: ${error.message}`);
-            } finally {
-                document.body.removeChild(loadingMsg);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    html: `Terjadi kesalahan:<br><small>${error.message}</small>`,
+                    background: '#1a1a1a',
+                    color: '#E2E8F0',
+                    confirmButtonColor: '#ef4444'
+                });
             }
         }
 
@@ -279,18 +336,48 @@
             const networkLabel = getNetworkLabel(fabricVersion, raftType);
 
             if (!networkId) {
-                alert('Network ID tidak valid');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Network ID tidak valid',
+                    background: '#1a1a1a',
+                    color: '#E2E8F0',
+                    confirmButtonColor: '#38BDF8'
+                });
                 return;
             }
 
-            if (!confirm(`Apakah Anda yakin ingin menghentikan ${networkLabel}?`)) {
+            const confirmResult = await Swal.fire({
+                title: 'Konfirmasi',
+                text: `Apakah Anda yakin ingin menghentikan ${networkLabel}?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Hentikan',
+                cancelButtonText: 'Batal',
+                background: '#1a1a1a',
+                color: '#E2E8F0',
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#6b7280'
+            });
+
+            if (!confirmResult.isConfirmed) {
                 return;
             }
 
-            const loadingMsg = document.createElement('div');
-            loadingMsg.textContent = `Menghentikan ${networkLabel}...`;
-            loadingMsg.style.cssText = 'position:fixed;top:20px;right:20px;background:#1a1a1a;color:#F97316;padding:15px 25px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.5);z-index:9999;border:1px solid #F97316;';
-            document.body.appendChild(loadingMsg);
+            Swal.fire({
+                title: 'Menghentikan Network',
+                html: `Sedang menghentikan <strong>${networkLabel}</strong>...<br><small>Mohon tunggu...</small>`,
+                icon: 'info',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                allowEnterKey: false,
+                showConfirmButton: false,
+                background: '#1a1a1a',
+                color: '#E2E8F0',
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
 
             try {
                 const response = await fetch('/api/shutdown-network', {
@@ -306,61 +393,122 @@
                 const result = await response.json();
 
                 if (result.overallStatus === 'success') {
-                    alert(`✓ ${networkLabel} berhasil dihentikan!`);
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil!',
+                        html: `<strong>${networkLabel}</strong> berhasil dihentikan!`,
+                        background: '#1a1a1a',
+                        color: '#E2E8F0',
+                        confirmButtonColor: '#22c55e'
+                    });
                 } else if (result.overallStatus === 'partial') {
-                    alert(`⚠ ${networkLabel} dihentikan sebagian. Beberapa komponen mungkin masih berjalan.`);
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Dihentikan Sebagian',
+                        html: `<strong>${networkLabel}</strong> dihentikan sebagian.<br>Beberapa komponen mungkin masih berjalan.`,
+                        background: '#1a1a1a',
+                        color: '#E2E8F0',
+                        confirmButtonColor: '#f59e0b'
+                    });
                 } else {
                     const errorMsg = result.error || 'Terjadi kesalahan tidak diketahui';
-                    alert(`✗ Gagal menghentikan ${networkLabel}:\n${errorMsg}`);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal Menghentikan',
+                        html: `Gagal menghentikan <strong>${networkLabel}</strong>:<br><small>${errorMsg}</small>`,
+                        background: '#1a1a1a',
+                        color: '#E2E8F0',
+                        confirmButtonColor: '#ef4444'
+                    });
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert(`✗ Terjadi kesalahan: ${error.message}`);
-            } finally {
-                document.body.removeChild(loadingMsg);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    html: `Terjadi kesalahan:<br><small>${error.message}</small>`,
+                    background: '#1a1a1a',
+                    color: '#E2E8F0',
+                    confirmButtonColor: '#ef4444'
+                });
             }
         }
 
         async function checkNetwork(fabricVersion, raftType) {
             const networkLabel = getNetworkLabel(fabricVersion, raftType);
 
+            Swal.fire({
+                title: 'Memeriksa Network',
+                html: `Sedang memeriksa status <strong>${networkLabel}</strong>...`,
+                icon: 'info',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                allowEnterKey: false,
+                showConfirmButton: false,
+                background: '#1a1a1a',
+                color: '#E2E8F0',
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
             try {
                 const response = await fetch('/api/check-network');
                 const result = await response.json();
 
-                if (result.overallStatus === 'success' || result.overallStatus === 'partial') {
+                if (result.overallStatus === 'healthy' || result.overallStatus === 'partial') {
                     // Find the specific network in the results
-                    const networkId = getNetworkId(fabricVersion, raftType);
-                    const networkData = result.details.find(detail => detail.targetId === networkId);
+                    const networkResults = result.results || [];
+                    let htmlContent = `<div class="text-left"><strong>Status ${networkLabel}:</strong><br><br>`;
 
-                    if (networkData) {
-                        const containers = networkData.containers || [];
-                        let message = `Status ${networkLabel}:\n\n`;
-                        message += `Status: ${networkData.status}\n`;
-                        message += `Total Container: ${containers.length}\n\n`;
-
-                        if (containers.length > 0) {
-                            message += 'Containers yang berjalan:\n';
-                            containers.forEach((container, index) => {
-                                const name = container.name || container.Names || 'Unknown';
-                                const status = container.status || container.Status || 'Unknown';
-                                message += `${index + 1}. ${name}\n`;
-                                message += `   Status: ${status}\n\n`;
-                            });
-                        } else {
-                            message += 'Tidak ada container yang berjalan.';
-                        }
-
-                        alert(message);
+                    if (networkResults.length > 0) {
+                        htmlContent += '<div class="space-y-2">';
+                        networkResults.forEach((item, index) => {
+                            const statusColor = item.status === 'healthy' ? '#22c55e' : item.status === 'error' ? '#ef4444' : '#f59e0b';
+                            htmlContent += `<div class="p-2 rounded" style="background: rgba(255,255,255,0.05);">`;
+                            htmlContent += `<div style="color: ${statusColor}; font-weight: 600;">${item.label || 'Network'}</div>`;
+                            htmlContent += `<div style="font-size: 0.875rem; color: #94A3B8;">Status: ${item.status}</div>`;
+                            if (item.message) {
+                                htmlContent += `<div style="font-size: 0.875rem; color: #94A3B8;">${item.message}</div>`;
+                            }
+                            htmlContent += `</div>`;
+                        });
+                        htmlContent += '</div>';
                     } else {
-                        alert(`${networkLabel}\n\nStatus: Tidak aktif\nTidak ada container yang berjalan.`);
+                        htmlContent += '<div style="color: #f59e0b;">Tidak ada container yang berjalan.</div>';
                     }
+
+                    htmlContent += '</div>';
+
+                    Swal.fire({
+                        icon: result.overallStatus === 'healthy' ? 'success' : 'warning',
+                        title: 'Status Network',
+                        html: htmlContent,
+                        background: '#1a1a1a',
+                        color: '#E2E8F0',
+                        confirmButtonColor: '#38BDF8',
+                        width: '600px'
+                    });
                 } else {
-                    alert(`Gagal memeriksa status network: ${result.error || 'Unknown error'}`);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Network Tidak Aktif',
+                        html: `<strong>${networkLabel}</strong><br><br>Status: Tidak aktif<br>Tidak ada container yang berjalan.<br><br>${result.error ? '<small>' + result.error + '</small>' : ''}`,
+                        background: '#1a1a1a',
+                        color: '#E2E8F0',
+                        confirmButtonColor: '#ef4444'
+                    });
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert(`✗ Terjadi kesalahan: ${error.message}`);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    html: `Terjadi kesalahan saat memeriksa network:<br><small>${error.message}</small>`,
+                    background: '#1a1a1a',
+                    color: '#E2E8F0',
+                    confirmButtonColor: '#ef4444'
+                });
             }
         }
     </script>

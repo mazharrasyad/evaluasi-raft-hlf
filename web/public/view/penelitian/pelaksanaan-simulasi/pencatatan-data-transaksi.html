@@ -99,12 +99,20 @@
                             <div class="flex flex-col gap-6">
                                 <div class="flex items-center justify-between">
                                     <h2 class="text-2xl font-semibold text-textdark">Ringkasan Keseluruhan</h2>
-                                    <button onclick="loadSimulationData()" class="rounded-lg bg-primary/10 border border-primary/40 px-4 py-2 text-xs font-semibold text-primary transition hover:bg-primary/20">
-                                        <svg class="inline h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                        </svg>
-                                        Refresh
-                                    </button>
+                                    <div class="flex items-center gap-2">
+                                        <button onclick="clearSimulationData()" class="rounded-lg bg-red-500/10 border border-red-500/40 px-4 py-2 text-xs font-semibold text-red-400 transition hover:bg-red-500/20">
+                                            <svg class="inline h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                            Hapus Data
+                                        </button>
+                                        <button onclick="loadSimulationData()" class="rounded-lg bg-primary/10 border border-primary/40 px-4 py-2 text-xs font-semibold text-primary transition hover:bg-primary/20">
+                                            <svg class="inline h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                            </svg>
+                                            Refresh
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -893,8 +901,8 @@
                 overallSummary.classList.add('hidden');
                 networkResults.classList.add('hidden');
 
-                // Fetch data from API
-                const response = await fetch('/api/simulations/summary');
+                // Fetch data from API with cache busting
+                const response = await fetch(`/api/simulations/summary?t=${Date.now()}`);
 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -1012,11 +1020,12 @@
                 const state = fabricPaginationState[config.prefix];
                 const offset = (state.currentPage - 1) * state.pageSize;
 
-                // Build query string
+                // Build query string with cache busting
                 const params = new URLSearchParams({
                     limit: state.pageSize,
                     offset: offset,
-                    targetId: networkId
+                    targetId: networkId,
+                    t: Date.now()
                 });
 
                 // Fetch data from API
@@ -1210,6 +1219,40 @@
                 closeTransactionModal();
             }
         });
+
+        // Clear simulation data
+        async function clearSimulationData() {
+            if (!confirm('Apakah Anda yakin ingin menghapus semua data simulasi? Tindakan ini tidak dapat dibatalkan.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/simulations/data', {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    alert('Data simulasi berhasil dihapus!');
+                    // Reload data to show empty state
+                    loadSimulationData();
+                    loadAllTransactions();
+                } else {
+                    throw new Error(result.error || 'Gagal menghapus data');
+                }
+            } catch (error) {
+                console.error('Error clearing simulation data:', error);
+                alert(`Gagal menghapus data simulasi: ${error.message}`);
+            }
+        }
     </script>
 </body>
 </html>

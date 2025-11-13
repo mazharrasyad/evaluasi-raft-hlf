@@ -11,7 +11,7 @@ import { randomUUID } from 'crypto';
 import { checkNetworkHealth } from './network-check.js';
 import { submitSimulationRecord } from './simulation-ingest.js';
 import { loadFabricDescriptions } from './fabric-description.js';
-import { appendSimulationResults, loadSimulationSummary } from './simulation-summary-store.js';
+import { appendSimulationResults, loadSimulationSummary, clearSimulationData } from './simulation-summary-store.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -2034,6 +2034,33 @@ app.post('/api/simulations/records', async (req, res) => {
             receivedAt,
             error: message,
             code: errorCode,
+        });
+    }
+});
+
+app.delete('/api/simulations/data', async (req, res) => {
+    const requestedAt = new Date().toISOString();
+
+    try {
+        const summary = await clearSimulationData();
+        const completedAt = new Date().toISOString();
+
+        res.json({
+            requestedAt,
+            completedAt,
+            status: 'success',
+            message: 'Data simulasi berhasil dihapus.',
+            summary,
+        });
+    } catch (error) {
+        console.error('Failed to clear simulation data:', error);
+        const message = error instanceof Error ? error.message : String(error);
+
+        res.status(500).json({
+            requestedAt,
+            completedAt: new Date().toISOString(),
+            status: 'error',
+            error: message,
         });
     }
 });

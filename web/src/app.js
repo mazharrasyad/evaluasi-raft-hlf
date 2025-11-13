@@ -11,7 +11,7 @@ import { randomUUID } from 'crypto';
 import { checkNetworkHealth } from './network-check.js';
 import { submitSimulationRecord } from './simulation-ingest.js';
 import { loadFabricDescriptions } from './fabric-description.js';
-import { appendSimulationResults, loadSimulationSummary, updateNetworkBlockHeights } from './simulation-summary-store.js';
+import { appendSimulationResults, loadSimulationSummary, updateNetworkBlockHeights, clearSimulationData } from './simulation-summary-store.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -1766,6 +1766,41 @@ app.post('/api/shutdown-network', async (req, res) => {
         : successCount > 0
             ? 'partial'
             : 'error';
+
+    // Clear simulation data after successful shutdown
+    if (successCount > 0) {
+        try {
+            if (normalizedNetworkType) {
+                // Clear data for specific network - need to map shutdown target ID to simulation target IDs
+                // Find matching simulation endpoints for this shutdown target
+                const matchingEndpoints = Object.entries(NETWORK_SIMULATION_ENDPOINTS)
+                    .filter(([_, config]) => {
+                        if (!Array.isArray(config.candidateIds)) return false;
+                        return config.candidateIds.includes(normalizedNetworkType);
+                    })
+                    .flatMap(([_, config]) => config.candidateIds);
+
+                // Clear data for all matching target IDs
+                if (matchingEndpoints.length > 0) {
+                    for (const targetId of matchingEndpoints) {
+                        await clearSimulationData(targetId);
+                    }
+                    console.log(`[Shutdown] Cleared simulation data for network: ${normalizedNetworkType} (matched ${matchingEndpoints.length} target IDs)`);
+                } else {
+                    // Fallback: clear using the shutdown target ID directly
+                    await clearSimulationData(normalizedNetworkType);
+                    console.log(`[Shutdown] Cleared simulation data for network: ${normalizedNetworkType}`);
+                }
+            } else {
+                // Clear all simulation data if shutting down all networks
+                await clearSimulationData(null);
+                console.log('[Shutdown] Cleared all simulation data');
+            }
+        } catch (clearError) {
+            console.error('Failed to clear simulation data after shutdown:', clearError);
+            // Don't fail the shutdown request if data clearing fails
+        }
+    }
 
     res.json({
         requestedAt,

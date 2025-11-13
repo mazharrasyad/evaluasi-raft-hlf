@@ -443,6 +443,39 @@ export function getSummaryFilePath() {
     return summaryFilePath;
 }
 
+export async function clearSimulationData(targetId = null) {
+    const operation = async () => {
+        const summary = await readSummaryFile();
+
+        if (targetId) {
+            // Clear data for specific network
+            if (summary.networks && summary.networks[targetId]) {
+                console.log(`[Clear Data] Clearing simulation data for network: ${targetId}`);
+                delete summary.networks[targetId];
+            }
+
+            // Clear transactions for specific network
+            if (Array.isArray(summary.transactions)) {
+                const beforeCount = summary.transactions.length;
+                summary.transactions = summary.transactions.filter(tx => tx.targetId !== targetId);
+                const afterCount = summary.transactions.length;
+                console.log(`[Clear Data] Removed ${beforeCount - afterCount} transactions for network: ${targetId}`);
+            }
+        } else {
+            // Clear all simulation data
+            console.log('[Clear Data] Clearing all simulation data');
+            summary.networks = {};
+            summary.transactions = [];
+        }
+
+        summary.updatedAt = new Date().toISOString();
+        await writeSummaryFile(summary);
+        return summary;
+    };
+
+    return enqueueSummaryTask(operation);
+}
+
 export async function updateNetworkBlockHeights(networkChecks) {
     if (!Array.isArray(networkChecks) || networkChecks.length === 0) {
         return loadSimulationSummary();

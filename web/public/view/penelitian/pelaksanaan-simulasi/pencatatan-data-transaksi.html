@@ -892,12 +892,24 @@
 
                 const data = await response.json();
 
+                // Debug: Log the API response
+                console.log(`[${config.prefix}] API Response:`, {
+                    total: data.total,
+                    transactionCount: data.transactions?.length,
+                    offset: data.offset,
+                    limit: data.limit
+                });
+
                 // Hide loading state
                 loadingState.classList.add('hidden');
 
+                // Check total from API response
+                const total = data.total || 0;
+
                 // Check if there are transactions
-                if (!data.transactions || data.transactions.length === 0) {
+                if (!data.transactions || data.transactions.length === 0 || total === 0) {
                     emptyState.classList.remove('hidden');
+                    pagination.classList.add('hidden');
                     return;
                 }
 
@@ -924,16 +936,16 @@
 
                 // Update pagination
                 const start = offset + 1;
-                const end = Math.min(offset + data.transactions.length, data.total);
+                const end = Math.min(offset + data.transactions.length, total);
                 document.getElementById(`${config.prefix}-showing`).textContent = `${start}-${end}`;
-                document.getElementById(`${config.prefix}-total`).textContent = data.total;
+                document.getElementById(`${config.prefix}-total`).textContent = total;
                 document.getElementById(`${config.prefix}-current-page`).textContent = state.currentPage;
 
                 // Update pagination buttons
                 const btnPrev = document.getElementById(`${config.prefix}-btn-prev`);
                 const btnNext = document.getElementById(`${config.prefix}-btn-next`);
                 btnPrev.disabled = state.currentPage === 1;
-                btnNext.disabled = end >= data.total;
+                btnNext.disabled = end >= total;
 
                 // Show pagination if there are results
                 pagination.classList.remove('hidden');

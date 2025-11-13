@@ -11,7 +11,7 @@ import { randomUUID } from 'crypto';
 import { checkNetworkHealth } from './network-check.js';
 import { submitSimulationRecord } from './simulation-ingest.js';
 import { loadFabricDescriptions } from './fabric-description.js';
-import { appendSimulationResults, loadSimulationSummary } from './simulation-summary-store.js';
+import { appendSimulationResults, loadSimulationSummary, updateNetworkBlockHeights } from './simulation-summary-store.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -1244,6 +1244,14 @@ app.get('/api/check-network', async (req, res) => {
             : results.some(item => item.status === 'healthy')
                 ? 'partial'
                 : 'unavailable';
+
+        // Update simulation summary with block heights from network check
+        try {
+            await updateNetworkBlockHeights(results);
+        } catch (summaryError) {
+            console.error('Failed to update simulation summary with block heights:', summaryError);
+            // Continue even if summary update fails
+        }
 
         res.json({
             checkedAt,

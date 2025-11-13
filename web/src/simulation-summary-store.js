@@ -442,3 +442,14 @@ export async function loadSimulationSummary() {
 export function getSummaryFilePath() {
     return summaryFilePath;
 }
+
+export async function clearSimulationData() {
+    const operation = async () => {
+        const summary = createEmptySummary();
+        summary.updatedAt = new Date().toISOString();
+        await writeSummaryFile(summary);
+        return summary;
+    };
+
+    return enqueueSummaryTask(operation);
+}

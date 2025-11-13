@@ -442,3 +442,66 @@ export async function loadSimulationSummary() {
 export function getSummaryFilePath() {
     return summaryFilePath;
 }
+
+export async function updateNetworkBlockHeights(networkChecks) {
+    if (!Array.isArray(networkChecks) || networkChecks.length === 0) {
+        return loadSimulationSummary();
+    }
+
+    const operation = async () => {
+        const summary = await readSummaryFile();
+
+        networkChecks.forEach((check) => {
+            if (!check || !check.targetId) {
+                return;
+            }
+
+            const networkSummary = ensureNetworkSummary(summary, check);
+            if (!networkSummary) {
+                return;
+            }
+
+            // Update block height from network check
+            if (check.blockHeight !== null && check.blockHeight !== undefined) {
+                const rawBlockHeight = check.blockHeight;
+                let actualBlockHeight;
+
+                if (typeof rawBlockHeight === 'bigint') {
+                    actualBlockHeight = rawBlockHeight <= BigInt(Number.MAX_SAFE_INTEGER)
+                        ? Number(rawBlockHeight)
+                        : Number(rawBlockHeight.toString());
+                } else if (typeof rawBlockHeight === 'number') {
+                    actualBlockHeight = rawBlockHeight;
+                } else if (typeof rawBlockHeight === 'string') {
+                    actualBlockHeight = Number.parseInt(rawBlockHeight, 10);
+                } else {
+                    actualBlockHeight = null;
+                }
+
+                // Subtract 7 blocks (genesis/setup blocks) to get simulation block count
+                if (actualBlockHeight !== null && !isNaN(actualBlockHeight) && actualBlockHeight >= 7) {
+                    networkSummary.blockCount = actualBlockHeight - 7;
+                    networkSummary.lastBlockNumber = actualBlockHeight - 1; // Zero-indexed
+                    networkSummary.lastBlockLabel = formatBlockLabel(actualBlockHeight - 1);
+                    networkSummary.lastBlockUpdatedAt = check.timestamp || new Date().toISOString();
+                }
+            }
+
+            // Update last check status
+            if (check.status) {
+                networkSummary.lastStatus = check.status;
+            }
+            if (check.message) {
+                networkSummary.lastMessage = check.message;
+            }
+
+            networkSummary.lastUpdatedAt = check.timestamp || new Date().toISOString();
+        });
+
+        summary.updatedAt = new Date().toISOString();
+        await writeSummaryFile(summary);
+        return summary;
+    };
+
+    return enqueueSummaryTask(operation);
+}

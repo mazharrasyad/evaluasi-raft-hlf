@@ -198,6 +198,43 @@
                                             <span class="text-textdark" id="fabric2-standard-updated">-</span>
                                         </div>
                                     </div>
+
+                                    <!-- Transaction Table -->
+                                    <div class="border-t border-white/10 pt-6">
+                                        <div class="flex items-center justify-between mb-4">
+                                            <h3 class="text-lg font-semibold text-textdark">Transaksi Terbaru</h3>
+                                            <button onclick="loadNetworkTransactions('channel-standard')" class="rounded-lg bg-primary/10 border border-primary/40 px-3 py-1.5 text-xs font-semibold text-primary transition hover:bg-primary/20">
+                                                <svg class="inline h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                                </svg>
+                                                Refresh
+                                            </button>
+                                        </div>
+
+                                        <div class="overflow-x-auto">
+                                            <table class="w-full text-xs">
+                                                <thead>
+                                                    <tr class="border-b border-white/10">
+                                                        <th class="px-3 py-2 text-left text-textdark/70 font-semibold">Waktu</th>
+                                                        <th class="px-3 py-2 text-left text-textdark/70 font-semibold">Transaction ID</th>
+                                                        <th class="px-3 py-2 text-left text-textdark/70 font-semibold">Status</th>
+                                                        <th class="px-3 py-2 text-right text-textdark/70 font-semibold">Latency</th>
+                                                        <th class="px-3 py-2 text-right text-textdark/70 font-semibold">Block</th>
+                                                        <th class="px-3 py-2 text-right text-textdark/70 font-semibold">Payload</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="fabric2-standard-tbody"></tbody>
+                                            </table>
+                                        </div>
+
+                                        <div id="fabric2-standard-empty" class="hidden py-6 text-center">
+                                            <p class="text-xs text-textdark/60">Belum ada transaksi</p>
+                                        </div>
+
+                                        <div id="fabric2-standard-loading" class="hidden py-6 text-center">
+                                            <div class="inline-block h-5 w-5 animate-spin rounded-full border-4 border-primary/30 border-t-primary"></div>
+                                        </div>
+                                    </div>
                                 </div>
                             </section>
 
@@ -252,6 +289,43 @@
                                         <div class="flex justify-between text-xs">
                                             <span class="text-textdark/60">Terakhir Diperbarui:</span>
                                             <span class="text-textdark" id="fabric2-variant-updated">-</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Transaction Table -->
+                                    <div class="border-t border-white/10 pt-6">
+                                        <div class="flex items-center justify-between mb-4">
+                                            <h3 class="text-lg font-semibold text-textdark">Transaksi Terbaru</h3>
+                                            <button onclick="loadNetworkTransactions('channel-variant')" class="rounded-lg bg-primary/10 border border-primary/40 px-3 py-1.5 text-xs font-semibold text-primary transition hover:bg-primary/20">
+                                                <svg class="inline h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                                </svg>
+                                                Refresh
+                                            </button>
+                                        </div>
+
+                                        <div class="overflow-x-auto">
+                                            <table class="w-full text-xs">
+                                                <thead>
+                                                    <tr class="border-b border-white/10">
+                                                        <th class="px-3 py-2 text-left text-textdark/70 font-semibold">Waktu</th>
+                                                        <th class="px-3 py-2 text-left text-textdark/70 font-semibold">Transaction ID</th>
+                                                        <th class="px-3 py-2 text-left text-textdark/70 font-semibold">Status</th>
+                                                        <th class="px-3 py-2 text-right text-textdark/70 font-semibold">Latency</th>
+                                                        <th class="px-3 py-2 text-right text-textdark/70 font-semibold">Block</th>
+                                                        <th class="px-3 py-2 text-right text-textdark/70 font-semibold">Payload</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="fabric2-variant-tbody"></tbody>
+                                            </table>
+                                        </div>
+
+                                        <div id="fabric2-variant-empty" class="hidden py-6 text-center">
+                                            <p class="text-xs text-textdark/60">Belum ada transaksi</p>
+                                        </div>
+
+                                        <div id="fabric2-variant-loading" class="hidden py-6 text-center">
+                                            <div class="inline-block h-5 w-5 animate-spin rounded-full border-4 border-primary/30 border-t-primary"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -310,6 +384,43 @@
                                             <span class="text-textdark" id="fabric3-standard-updated">-</span>
                                         </div>
                                     </div>
+
+                                    <!-- Transaction Table -->
+                                    <div class="border-t border-white/10 pt-6">
+                                        <div class="flex items-center justify-between mb-4">
+                                            <h3 class="text-lg font-semibold text-textdark">Transaksi Terbaru</h3>
+                                            <button onclick="loadNetworkTransactions('channel-fabric3-standard')" class="rounded-lg bg-highlight/10 border border-highlight/40 px-3 py-1.5 text-xs font-semibold text-highlight transition hover:bg-highlight/20">
+                                                <svg class="inline h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                                </svg>
+                                                Refresh
+                                            </button>
+                                        </div>
+
+                                        <div class="overflow-x-auto">
+                                            <table class="w-full text-xs">
+                                                <thead>
+                                                    <tr class="border-b border-white/10">
+                                                        <th class="px-3 py-2 text-left text-textdark/70 font-semibold">Waktu</th>
+                                                        <th class="px-3 py-2 text-left text-textdark/70 font-semibold">Transaction ID</th>
+                                                        <th class="px-3 py-2 text-left text-textdark/70 font-semibold">Status</th>
+                                                        <th class="px-3 py-2 text-right text-textdark/70 font-semibold">Latency</th>
+                                                        <th class="px-3 py-2 text-right text-textdark/70 font-semibold">Block</th>
+                                                        <th class="px-3 py-2 text-right text-textdark/70 font-semibold">Payload</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="fabric3-standard-tbody"></tbody>
+                                            </table>
+                                        </div>
+
+                                        <div id="fabric3-standard-empty" class="hidden py-6 text-center">
+                                            <p class="text-xs text-textdark/60">Belum ada transaksi</p>
+                                        </div>
+
+                                        <div id="fabric3-standard-loading" class="hidden py-6 text-center">
+                                            <div class="inline-block h-5 w-5 animate-spin rounded-full border-4 border-primary/30 border-t-primary"></div>
+                                        </div>
+                                    </div>
                                 </div>
                             </section>
 
@@ -366,188 +477,42 @@
                                             <span class="text-textdark" id="fabric3-variant-updated">-</span>
                                         </div>
                                     </div>
-                                </div>
-                            </section>
-                        </div>
 
-                        <!-- Transactions Tables - One per Network -->
-                        <div id="network-transactions-section" class="hidden space-y-8">
-                            <!-- Fabric 2 Standard Transactions -->
-                            <section class="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-surface via-soft to-[#020817] p-10 shadow-2xl shadow-black/30">
-                                <div class="flex flex-col gap-6">
-                                    <div class="flex items-center justify-between">
-                                        <div>
-                                            <div class="inline-flex w-fit items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-primary/90 mb-2">
-                                                Fabric 2 - Standard
-                                            </div>
-                                            <h3 class="text-xl font-semibold text-textdark">Detail Transaksi</h3>
-                                            <p class="text-xs text-textdark/60 mt-1">Channel: fabric2-channel-standard</p>
+                                    <!-- Transaction Table -->
+                                    <div class="border-t border-white/10 pt-6">
+                                        <div class="flex items-center justify-between mb-4">
+                                            <h3 class="text-lg font-semibold text-textdark">Transaksi Terbaru</h3>
+                                            <button onclick="loadNetworkTransactions('channel-fabric3-variant')" class="rounded-lg bg-highlight/10 border border-highlight/40 px-3 py-1.5 text-xs font-semibold text-highlight transition hover:bg-highlight/20">
+                                                <svg class="inline h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                                </svg>
+                                                Refresh
+                                            </button>
                                         </div>
-                                        <button onclick="loadNetworkTransactions('channel-standard')" class="rounded-lg bg-primary/10 border border-primary/40 px-4 py-2 text-xs font-semibold text-primary transition hover:bg-primary/20">
-                                            <svg class="inline h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                            </svg>
-                                            Refresh
-                                        </button>
-                                    </div>
 
-                                    <div class="overflow-x-auto">
-                                        <table class="w-full text-xs">
-                                            <thead>
-                                                <tr class="border-b border-white/10">
-                                                    <th class="px-4 py-3 text-left text-textdark/70 font-semibold">Waktu</th>
-                                                    <th class="px-4 py-3 text-left text-textdark/70 font-semibold">Transaction ID</th>
-                                                    <th class="px-4 py-3 text-left text-textdark/70 font-semibold">Status</th>
-                                                    <th class="px-4 py-3 text-right text-textdark/70 font-semibold">Latency</th>
-                                                    <th class="px-4 py-3 text-right text-textdark/70 font-semibold">Block</th>
-                                                    <th class="px-4 py-3 text-right text-textdark/70 font-semibold">Payload</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="fabric2-standard-tbody"></tbody>
-                                        </table>
-                                    </div>
-
-                                    <div id="fabric2-standard-empty" class="hidden py-8 text-center">
-                                        <p class="text-sm text-textdark/60">Belum ada transaksi</p>
-                                    </div>
-
-                                    <div id="fabric2-standard-loading" class="hidden py-8 text-center">
-                                        <div class="inline-block h-6 w-6 animate-spin rounded-full border-4 border-primary/30 border-t-primary"></div>
-                                    </div>
-                                </div>
-                            </section>
-
-                            <!-- Fabric 2 Variant Transactions -->
-                            <section class="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-surface via-soft to-[#020817] p-10 shadow-2xl shadow-black/30">
-                                <div class="flex flex-col gap-6">
-                                    <div class="flex items-center justify-between">
-                                        <div>
-                                            <div class="inline-flex w-fit items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-primary/90 mb-2">
-                                                Fabric 2 - Variant
-                                            </div>
-                                            <h3 class="text-xl font-semibold text-textdark">Detail Transaksi</h3>
-                                            <p class="text-xs text-textdark/60 mt-1">Channel: fabric2-channel-variant</p>
+                                        <div class="overflow-x-auto">
+                                            <table class="w-full text-xs">
+                                                <thead>
+                                                    <tr class="border-b border-white/10">
+                                                        <th class="px-3 py-2 text-left text-textdark/70 font-semibold">Waktu</th>
+                                                        <th class="px-3 py-2 text-left text-textdark/70 font-semibold">Transaction ID</th>
+                                                        <th class="px-3 py-2 text-left text-textdark/70 font-semibold">Status</th>
+                                                        <th class="px-3 py-2 text-right text-textdark/70 font-semibold">Latency</th>
+                                                        <th class="px-3 py-2 text-right text-textdark/70 font-semibold">Block</th>
+                                                        <th class="px-3 py-2 text-right text-textdark/70 font-semibold">Payload</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="fabric3-variant-tbody"></tbody>
+                                            </table>
                                         </div>
-                                        <button onclick="loadNetworkTransactions('channel-variant')" class="rounded-lg bg-primary/10 border border-primary/40 px-4 py-2 text-xs font-semibold text-primary transition hover:bg-primary/20">
-                                            <svg class="inline h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                            </svg>
-                                            Refresh
-                                        </button>
-                                    </div>
 
-                                    <div class="overflow-x-auto">
-                                        <table class="w-full text-xs">
-                                            <thead>
-                                                <tr class="border-b border-white/10">
-                                                    <th class="px-4 py-3 text-left text-textdark/70 font-semibold">Waktu</th>
-                                                    <th class="px-4 py-3 text-left text-textdark/70 font-semibold">Transaction ID</th>
-                                                    <th class="px-4 py-3 text-left text-textdark/70 font-semibold">Status</th>
-                                                    <th class="px-4 py-3 text-right text-textdark/70 font-semibold">Latency</th>
-                                                    <th class="px-4 py-3 text-right text-textdark/70 font-semibold">Block</th>
-                                                    <th class="px-4 py-3 text-right text-textdark/70 font-semibold">Payload</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="fabric2-variant-tbody"></tbody>
-                                        </table>
-                                    </div>
-
-                                    <div id="fabric2-variant-empty" class="hidden py-8 text-center">
-                                        <p class="text-sm text-textdark/60">Belum ada transaksi</p>
-                                    </div>
-
-                                    <div id="fabric2-variant-loading" class="hidden py-8 text-center">
-                                        <div class="inline-block h-6 w-6 animate-spin rounded-full border-4 border-primary/30 border-t-primary"></div>
-                                    </div>
-                                </div>
-                            </section>
-
-                            <!-- Fabric 3 Standard Transactions -->
-                            <section class="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-surface via-soft to-[#020817] p-10 shadow-2xl shadow-black/30">
-                                <div class="flex flex-col gap-6">
-                                    <div class="flex items-center justify-between">
-                                        <div>
-                                            <div class="inline-flex w-fit items-center gap-2 rounded-full border border-highlight/40 bg-highlight/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-highlight/90 mb-2">
-                                                Fabric 3 - Standard
-                                            </div>
-                                            <h3 class="text-xl font-semibold text-textdark">Detail Transaksi</h3>
-                                            <p class="text-xs text-textdark/60 mt-1">Channel: fabric3-channel-standard</p>
+                                        <div id="fabric3-variant-empty" class="hidden py-6 text-center">
+                                            <p class="text-xs text-textdark/60">Belum ada transaksi</p>
                                         </div>
-                                        <button onclick="loadNetworkTransactions('channel-fabric3-standard')" class="rounded-lg bg-highlight/10 border border-highlight/40 px-4 py-2 text-xs font-semibold text-highlight transition hover:bg-highlight/20">
-                                            <svg class="inline h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                            </svg>
-                                            Refresh
-                                        </button>
-                                    </div>
 
-                                    <div class="overflow-x-auto">
-                                        <table class="w-full text-xs">
-                                            <thead>
-                                                <tr class="border-b border-white/10">
-                                                    <th class="px-4 py-3 text-left text-textdark/70 font-semibold">Waktu</th>
-                                                    <th class="px-4 py-3 text-left text-textdark/70 font-semibold">Transaction ID</th>
-                                                    <th class="px-4 py-3 text-left text-textdark/70 font-semibold">Status</th>
-                                                    <th class="px-4 py-3 text-right text-textdark/70 font-semibold">Latency</th>
-                                                    <th class="px-4 py-3 text-right text-textdark/70 font-semibold">Block</th>
-                                                    <th class="px-4 py-3 text-right text-textdark/70 font-semibold">Payload</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="fabric3-standard-tbody"></tbody>
-                                        </table>
-                                    </div>
-
-                                    <div id="fabric3-standard-empty" class="hidden py-8 text-center">
-                                        <p class="text-sm text-textdark/60">Belum ada transaksi</p>
-                                    </div>
-
-                                    <div id="fabric3-standard-loading" class="hidden py-8 text-center">
-                                        <div class="inline-block h-6 w-6 animate-spin rounded-full border-4 border-primary/30 border-t-primary"></div>
-                                    </div>
-                                </div>
-                            </section>
-
-                            <!-- Fabric 3 Variant Transactions -->
-                            <section class="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-surface via-soft to-[#020817] p-10 shadow-2xl shadow-black/30">
-                                <div class="flex flex-col gap-6">
-                                    <div class="flex items-center justify-between">
-                                        <div>
-                                            <div class="inline-flex w-fit items-center gap-2 rounded-full border border-highlight/40 bg-highlight/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-highlight/90 mb-2">
-                                                Fabric 3 - Variant
-                                            </div>
-                                            <h3 class="text-xl font-semibold text-textdark">Detail Transaksi</h3>
-                                            <p class="text-xs text-textdark/60 mt-1">Channel: fabric3-channel-variant</p>
+                                        <div id="fabric3-variant-loading" class="hidden py-6 text-center">
+                                            <div class="inline-block h-5 w-5 animate-spin rounded-full border-4 border-primary/30 border-t-primary"></div>
                                         </div>
-                                        <button onclick="loadNetworkTransactions('channel-fabric3-variant')" class="rounded-lg bg-highlight/10 border border-highlight/40 px-4 py-2 text-xs font-semibold text-highlight transition hover:bg-highlight/20">
-                                            <svg class="inline h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                            </svg>
-                                            Refresh
-                                        </button>
-                                    </div>
-
-                                    <div class="overflow-x-auto">
-                                        <table class="w-full text-xs">
-                                            <thead>
-                                                <tr class="border-b border-white/10">
-                                                    <th class="px-4 py-3 text-left text-textdark/70 font-semibold">Waktu</th>
-                                                    <th class="px-4 py-3 text-left text-textdark/70 font-semibold">Transaction ID</th>
-                                                    <th class="px-4 py-3 text-left text-textdark/70 font-semibold">Status</th>
-                                                    <th class="px-4 py-3 text-right text-textdark/70 font-semibold">Latency</th>
-                                                    <th class="px-4 py-3 text-right text-textdark/70 font-semibold">Block</th>
-                                                    <th class="px-4 py-3 text-right text-textdark/70 font-semibold">Payload</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="fabric3-variant-tbody"></tbody>
-                                        </table>
-                                    </div>
-
-                                    <div id="fabric3-variant-empty" class="hidden py-8 text-center">
-                                        <p class="text-sm text-textdark/60">Belum ada transaksi</p>
-                                    </div>
-
-                                    <div id="fabric3-variant-loading" class="hidden py-8 text-center">
-                                        <div class="inline-block h-6 w-6 animate-spin rounded-full border-4 border-primary/30 border-t-primary"></div>
                                     </div>
                                 </div>
                             </section>
@@ -812,9 +777,6 @@
 
         // Load transactions for all networks
         async function loadAllTransactions() {
-            const section = document.getElementById('network-transactions-section');
-            section.classList.remove('hidden');
-
             // Load transactions for each network
             for (const config of NETWORK_CONFIGS) {
                 await loadNetworkTransactions(config.id);

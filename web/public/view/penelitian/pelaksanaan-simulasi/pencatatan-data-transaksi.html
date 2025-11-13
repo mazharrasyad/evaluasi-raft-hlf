@@ -583,30 +583,9 @@
             }
         }
 
-        // Auto-refresh data every 5 seconds
-        let autoRefreshInterval;
-
-        function startAutoRefresh() {
-            autoRefreshInterval = setInterval(() => {
-                loadSimulationData();
-            }, 5000);
-        }
-
-        function stopAutoRefresh() {
-            if (autoRefreshInterval) {
-                clearInterval(autoRefreshInterval);
-            }
-        }
-
-        // Load data when page loads
+        // Load data when page loads (no auto-refresh)
         document.addEventListener('DOMContentLoaded', () => {
             loadSimulationData();
-            startAutoRefresh();
-        });
-
-        // Clean up on page unload
-        window.addEventListener('beforeunload', () => {
-            stopAutoRefresh();
         });
     </script>
 </body>

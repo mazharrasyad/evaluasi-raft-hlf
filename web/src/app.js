@@ -1424,6 +1424,64 @@ app.get('/api/simulations/summary', async (req, res) => {
     }
 });
 
+app.get('/api/simulations/transactions', async (req, res) => {
+    try {
+        const rawSummary = await loadSimulationSummary();
+        const transactions = Array.isArray(rawSummary?.transactions)
+            ? rawSummary.transactions
+            : [];
+
+        // Get pagination parameters
+        const limit = parseInt(req.query.limit) || 50;
+        const offset = parseInt(req.query.offset) || 0;
+
+        // Get filter parameters
+        const targetId = req.query.targetId;
+        const status = req.query.status;
+
+        // Filter transactions
+        let filteredTransactions = transactions;
+
+        if (targetId) {
+            filteredTransactions = filteredTransactions.filter(tx => tx.targetId === targetId);
+        }
+
+        if (status) {
+            filteredTransactions = filteredTransactions.filter(tx => tx.status === status);
+        }
+
+        // Sort by recordedAt descending (newest first)
+        filteredTransactions.sort((a, b) => {
+            const timeA = a.recordedAt || a.completedAt || a.startedAt || '';
+            const timeB = b.recordedAt || b.completedAt || b.startedAt || '';
+            return timeB.localeCompare(timeA);
+        });
+
+        // Apply pagination
+        const total = filteredTransactions.length;
+        const paginatedTransactions = filteredTransactions.slice(offset, offset + limit);
+
+        res.json({
+            fetchedAt: new Date().toISOString(),
+            updatedAt: rawSummary?.updatedAt || null,
+            total,
+            limit,
+            offset,
+            transactions: paginatedTransactions,
+        });
+    } catch (error) {
+        console.error('Failed to load transactions:', error);
+        const message = error instanceof Error ? error.message : String(error);
+
+        res.status(500).json({
+            fetchedAt: new Date().toISOString(),
+            error: message,
+            total: 0,
+            transactions: [],
+        });
+    }
+});
+
 Object.entries(NETWORK_SIMULATION_ENDPOINTS).forEach(([slug, config]) => {
     app.get(`/api/${slug}`, async (req, res) => {
         try {

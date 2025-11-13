@@ -12,6 +12,7 @@ function createEmptySummary() {
     return {
         updatedAt: null,
         networks: {},
+        transactions: [],
     };
 }
 
@@ -116,6 +117,10 @@ async function readSummaryFile() {
             parsed.networks = parsed.networks && typeof parsed.networks === 'object'
                 ? parsed.networks
                 : {};
+
+            parsed.transactions = Array.isArray(parsed.transactions)
+                ? parsed.transactions
+                : [];
 
             Object.values(parsed.networks).forEach(network => {
                 if (!network || typeof network !== 'object') {
@@ -382,13 +387,42 @@ export async function appendSimulationResults(results) {
 
     const operation = async () => {
         const summary = await readSummaryFile();
+
+        if (!Array.isArray(summary.transactions)) {
+            summary.transactions = [];
+        }
+
         results.forEach((result) => {
             const networkSummary = ensureNetworkSummary(summary, result);
             if (!networkSummary) {
                 return;
             }
             applyResultToSummary(networkSummary, result);
+
+            // Store individual transaction details
+            const transaction = {
+                transactionId: result.transactionId || null,
+                targetId: result.targetId || null,
+                targetLabel: result.label || null,
+                channel: result.channel || null,
+                scope: result.scope || null,
+                status: result.status || null,
+                message: result.message || null,
+                latencyMs: result.latencyMs || null,
+                payloadSizeBytes: result.payloadSizeBytes || null,
+                resultSizeBytes: result.resultSizeBytes || null,
+                blockNumber: result.commitStatus?.blockNumber ?? result.blockNumber ?? null,
+                commitCode: result.commitStatus?.code ?? null,
+                commitCodeName: result.commitStatus?.codeName ?? null,
+                commitSuccessful: result.commitStatus?.successful ?? null,
+                startedAt: result.startedAt || null,
+                completedAt: result.completedAt || null,
+                recordedAt: new Date().toISOString(),
+            };
+
+            summary.transactions.push(transaction);
         });
+
         summary.updatedAt = new Date().toISOString();
         await writeSummaryFile(summary);
         return summary;

@@ -478,6 +478,44 @@ export async function updateNetworkBlockHeights(networkChecks) {
                     actualBlockHeight = null;
                 }
 
+                // Detect network restart: if current network block height is less than stored block height
+                // and there's existing transaction data, the network was likely restarted
+                if (actualBlockHeight !== null && !isNaN(actualBlockHeight)) {
+                    const storedBlockNumber = networkSummary.lastBlockNumber;
+                    const hasStoredData = storedBlockNumber !== null &&
+                                         storedBlockNumber !== undefined &&
+                                         (networkSummary.totalCount > 0 || Object.keys(networkSummary.blocks || {}).length > 0);
+
+                    // Network restart detected: new block height is significantly lower than stored
+                    // (allowing for small variations but detecting clear restarts)
+                    if (hasStoredData && actualBlockHeight < storedBlockNumber && (storedBlockNumber - actualBlockHeight) > 5) {
+                        console.log(`[Network Restart Detected] ${check.targetId}: block height dropped from ${storedBlockNumber} to ${actualBlockHeight}. Clearing local data...`);
+
+                        // Clear all data for this network
+                        networkSummary.totalCount = 0;
+                        networkSummary.successCount = 0;
+                        networkSummary.failureCount = 0;
+                        networkSummary.totalLatencyMs = 0;
+                        networkSummary.totalProcessingTimeMs = 0;
+                        networkSummary.processingCount = 0;
+                        networkSummary.totalPayloadBytes = 0;
+                        networkSummary.totalResultBytes = 0;
+                        networkSummary.blocks = {};
+                        networkSummary.blockCount = 0;
+                        networkSummary.lastBlockNumber = null;
+                        networkSummary.lastBlockLabel = null;
+                        networkSummary.lastBlockUpdatedAt = null;
+                        networkSummary.firstStartedAt = null;
+                        networkSummary.lastCompletedAt = null;
+                        networkSummary.lastTransactionId = null;
+
+                        // Clear all transactions for this network
+                        if (Array.isArray(summary.transactions)) {
+                            summary.transactions = summary.transactions.filter(tx => tx.targetId !== check.targetId);
+                        }
+                    }
+                }
+
                 // Subtract 7 blocks (genesis/setup blocks) to get simulation block count
                 if (actualBlockHeight !== null && !isNaN(actualBlockHeight) && actualBlockHeight >= 7) {
                     networkSummary.blockCount = actualBlockHeight - 7;

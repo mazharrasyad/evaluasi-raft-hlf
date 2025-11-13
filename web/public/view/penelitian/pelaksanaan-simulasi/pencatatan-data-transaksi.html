@@ -221,6 +221,7 @@
                                                         <th class="px-3 py-2 text-right text-textdark/70 font-semibold">Latency</th>
                                                         <th class="px-3 py-2 text-right text-textdark/70 font-semibold">Block</th>
                                                         <th class="px-3 py-2 text-right text-textdark/70 font-semibold">Payload</th>
+                                                        <th class="px-3 py-2 text-center text-textdark/70 font-semibold">Aksi</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody id="fabric2-standard-tbody"></tbody>
@@ -238,7 +239,7 @@
                                         <!-- Pagination -->
                                         <div id="fabric2-standard-pagination" class="hidden flex items-center justify-between border-t border-white/10 pt-4 mt-4">
                                             <div class="text-xs text-textdark/60">
-                                                Menampilkan <span id="fabric2-standard-showing">0</span> dari <span id="fabric2-standard-total">0</span> transaksi
+                                                Menampilkan <span id="fabric2-standard-showing">0</span> dari <span id="fabric2-standard-total-rows">0</span> transaksi
                                             </div>
                                             <div class="flex items-center gap-2">
                                                 <button id="fabric2-standard-btn-prev" onclick="changeFabricPage('fabric2-standard', -1)" class="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-textdark transition hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed">
@@ -330,6 +331,7 @@
                                                         <th class="px-3 py-2 text-right text-textdark/70 font-semibold">Latency</th>
                                                         <th class="px-3 py-2 text-right text-textdark/70 font-semibold">Block</th>
                                                         <th class="px-3 py-2 text-right text-textdark/70 font-semibold">Payload</th>
+                                                        <th class="px-3 py-2 text-center text-textdark/70 font-semibold">Aksi</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody id="fabric2-variant-tbody"></tbody>
@@ -347,7 +349,7 @@
                                         <!-- Pagination -->
                                         <div id="fabric2-variant-pagination" class="hidden flex items-center justify-between border-t border-white/10 pt-4 mt-4">
                                             <div class="text-xs text-textdark/60">
-                                                Menampilkan <span id="fabric2-variant-showing">0</span> dari <span id="fabric2-variant-total">0</span> transaksi
+                                                Menampilkan <span id="fabric2-variant-showing">0</span> dari <span id="fabric2-variant-total-rows">0</span> transaksi
                                             </div>
                                             <div class="flex items-center gap-2">
                                                 <button id="fabric2-variant-btn-prev" onclick="changeFabricPage('fabric2-variant', -1)" class="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-textdark transition hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed">
@@ -439,6 +441,7 @@
                                                         <th class="px-3 py-2 text-right text-textdark/70 font-semibold">Latency</th>
                                                         <th class="px-3 py-2 text-right text-textdark/70 font-semibold">Block</th>
                                                         <th class="px-3 py-2 text-right text-textdark/70 font-semibold">Payload</th>
+                                                        <th class="px-3 py-2 text-center text-textdark/70 font-semibold">Aksi</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody id="fabric3-standard-tbody"></tbody>
@@ -456,7 +459,7 @@
                                         <!-- Pagination -->
                                         <div id="fabric3-standard-pagination" class="hidden flex items-center justify-between border-t border-white/10 pt-4 mt-4">
                                             <div class="text-xs text-textdark/60">
-                                                Menampilkan <span id="fabric3-standard-showing">0</span> dari <span id="fabric3-standard-total">0</span> transaksi
+                                                Menampilkan <span id="fabric3-standard-showing">0</span> dari <span id="fabric3-standard-total-rows">0</span> transaksi
                                             </div>
                                             <div class="flex items-center gap-2">
                                                 <button id="fabric3-standard-btn-prev" onclick="changeFabricPage('fabric3-standard', -1)" class="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-textdark transition hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed">
@@ -548,6 +551,7 @@
                                                         <th class="px-3 py-2 text-right text-textdark/70 font-semibold">Latency</th>
                                                         <th class="px-3 py-2 text-right text-textdark/70 font-semibold">Block</th>
                                                         <th class="px-3 py-2 text-right text-textdark/70 font-semibold">Payload</th>
+                                                        <th class="px-3 py-2 text-center text-textdark/70 font-semibold">Aksi</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody id="fabric3-variant-tbody"></tbody>
@@ -565,7 +569,7 @@
                                         <!-- Pagination -->
                                         <div id="fabric3-variant-pagination" class="hidden flex items-center justify-between border-t border-white/10 pt-4 mt-4">
                                             <div class="text-xs text-textdark/60">
-                                                Menampilkan <span id="fabric3-variant-showing">0</span> dari <span id="fabric3-variant-total">0</span> transaksi
+                                                Menampilkan <span id="fabric3-variant-showing">0</span> dari <span id="fabric3-variant-total-rows">0</span> transaksi
                                             </div>
                                             <div class="flex items-center gap-2">
                                                 <button id="fabric3-variant-btn-prev" onclick="changeFabricPage('fabric3-variant', -1)" class="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-textdark transition hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed">
@@ -585,6 +589,108 @@
                 </main>
 
                 <div data-component="footer"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transaction Detail Modal -->
+    <div id="transaction-detail-modal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <!-- Background overlay -->
+            <div class="fixed inset-0 transition-opacity bg-black/70 backdrop-blur-sm" onclick="closeTransactionModal()"></div>
+
+            <!-- Modal panel -->
+            <div class="inline-block align-bottom bg-gradient-to-br from-surface via-soft to-[#020817] rounded-3xl border border-white/10 text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl sm:w-full">
+                <div class="p-8">
+                    <div class="flex items-start justify-between mb-6">
+                        <h3 class="text-2xl font-semibold text-textdark">Detail Transaksi</h3>
+                        <button onclick="closeTransactionModal()" class="rounded-lg bg-white/5 border border-white/10 p-2 text-textdark/70 transition hover:bg-white/10">
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="space-y-4">
+                        <!-- Transaction Info -->
+                        <div class="rounded-xl border border-white/10 bg-white/5 p-4">
+                            <h4 class="text-sm font-semibold text-textdark/80 mb-3 uppercase tracking-wider">Informasi Transaksi</h4>
+                            <div class="space-y-2 text-xs">
+                                <div class="flex justify-between">
+                                    <span class="text-textdark/60">Transaction ID:</span>
+                                    <span class="text-textdark font-mono" id="modal-tx-id">-</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-textdark/60">Network:</span>
+                                    <span class="text-textdark" id="modal-network">-</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-textdark/60">Status:</span>
+                                    <span id="modal-status">-</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-textdark/60">Block Number:</span>
+                                    <span class="text-textdark" id="modal-block">-</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Timing Info -->
+                        <div class="rounded-xl border border-white/10 bg-white/5 p-4">
+                            <h4 class="text-sm font-semibold text-textdark/80 mb-3 uppercase tracking-wider">Waktu Eksekusi</h4>
+                            <div class="space-y-2 text-xs">
+                                <div class="flex justify-between">
+                                    <span class="text-textdark/60">Started At:</span>
+                                    <span class="text-textdark" id="modal-started">-</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-textdark/60">Completed At:</span>
+                                    <span class="text-textdark" id="modal-completed">-</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-textdark/60">Latency:</span>
+                                    <span class="text-accent font-semibold" id="modal-latency">-</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Payload Info -->
+                        <div class="rounded-xl border border-white/10 bg-white/5 p-4">
+                            <h4 class="text-sm font-semibold text-textdark/80 mb-3 uppercase tracking-wider">Payload</h4>
+                            <div class="space-y-2 text-xs">
+                                <div class="flex justify-between">
+                                    <span class="text-textdark/60">Payload Size:</span>
+                                    <span class="text-textdark" id="modal-payload-size">-</span>
+                                </div>
+                                <div class="mt-3">
+                                    <span class="text-textdark/60 block mb-2">Payload Data:</span>
+                                    <pre class="bg-black/30 rounded-lg p-3 text-textdark/80 overflow-x-auto text-xs font-mono" id="modal-payload-data">-</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Error Info (if any) -->
+                        <div id="modal-error-section" class="hidden rounded-xl border border-red-500/20 bg-red-500/5 p-4">
+                            <h4 class="text-sm font-semibold text-red-400/80 mb-3 uppercase tracking-wider">Error</h4>
+                            <div class="space-y-2 text-xs">
+                                <div class="flex justify-between">
+                                    <span class="text-red-400/60">Error Message:</span>
+                                    <span class="text-red-400" id="modal-error-msg">-</span>
+                                </div>
+                                <div class="mt-2">
+                                    <span class="text-red-400/60 block mb-2">Stack Trace:</span>
+                                    <pre class="bg-black/30 rounded-lg p-3 text-red-400/80 overflow-x-auto text-xs font-mono" id="modal-error-stack">-</pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 flex justify-end">
+                        <button onclick="closeTransactionModal()" class="rounded-lg bg-primary/90 px-6 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-primary/40 transition duration-200 hover:-translate-y-0.5 hover:bg-primary">
+                            Tutup
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -929,6 +1035,11 @@
                         <td class="px-3 py-2 text-right text-textdark/70">${formatLatency(tx.latencyMs)}</td>
                         <td class="px-3 py-2 text-right text-textdark/70">${blockNum}</td>
                         <td class="px-3 py-2 text-right text-textdark/70">${formatBytes(tx.payloadSizeBytes)}</td>
+                        <td class="px-3 py-2 text-center">
+                            <button class="rounded-lg bg-primary/10 border border-primary/40 px-3 py-1 text-xs font-semibold text-primary transition hover:bg-primary/20" onclick='showTransactionDetail(${JSON.stringify(tx)}, "${networkId}")'>
+                                Detail
+                            </button>
+                        </td>
                     `;
 
                     tbody.appendChild(row);
@@ -938,7 +1049,7 @@
                 const start = offset + 1;
                 const end = Math.min(offset + data.transactions.length, total);
                 document.getElementById(`${config.prefix}-showing`).textContent = `${start}-${end}`;
-                document.getElementById(`${config.prefix}-total`).textContent = total;
+                document.getElementById(`${config.prefix}-total-rows`).textContent = total;
                 document.getElementById(`${config.prefix}-current-page`).textContent = state.currentPage;
 
                 // Update pagination buttons
@@ -972,6 +1083,70 @@
                 loadNetworkTransactions(config.id);
             }
         }
+
+        // Show transaction detail modal
+        function showTransactionDetail(txData, networkId) {
+            // Get network name
+            const networkNames = {
+                'channel-standard': 'Fabric 2 - RAFT Standard',
+                'channel-variant': 'Fabric 2 - RAFT Variant with BFT',
+                'channel-fabric3-standard': 'Fabric 3 - RAFT Standard',
+                'channel-fabric3-variant': 'Fabric 3 - RAFT Variant with BFT'
+            };
+
+            // Populate modal with data
+            document.getElementById('modal-tx-id').textContent = txData.transactionId || '-';
+            document.getElementById('modal-network').textContent = networkNames[networkId] || networkId;
+            document.getElementById('modal-status').innerHTML = getStatusBadge(txData.status);
+            document.getElementById('modal-block').textContent = txData.blockNumber !== null && txData.blockNumber !== undefined ? `#${txData.blockNumber}` : '-';
+
+            document.getElementById('modal-started').textContent = formatDateTime(txData.startedAt);
+            document.getElementById('modal-completed').textContent = formatDateTime(txData.completedAt);
+            document.getElementById('modal-latency').textContent = formatLatency(txData.latencyMs);
+
+            document.getElementById('modal-payload-size').textContent = formatBytes(txData.payloadSizeBytes);
+
+            // Format payload data
+            let payloadDisplay = '-';
+            if (txData.payload) {
+                try {
+                    // Try to parse as JSON for pretty printing
+                    const parsed = typeof txData.payload === 'string' ? JSON.parse(txData.payload) : txData.payload;
+                    payloadDisplay = JSON.stringify(parsed, null, 2);
+                } catch (e) {
+                    // If not JSON, display as is
+                    payloadDisplay = txData.payload;
+                }
+            }
+            document.getElementById('modal-payload-data').textContent = payloadDisplay;
+
+            // Show/hide error section
+            const errorSection = document.getElementById('modal-error-section');
+            if (txData.errorMessage) {
+                errorSection.classList.remove('hidden');
+                document.getElementById('modal-error-msg').textContent = txData.errorMessage || '-';
+                document.getElementById('modal-error-stack').textContent = txData.errorStack || 'No stack trace available';
+            } else {
+                errorSection.classList.add('hidden');
+            }
+
+            // Show modal
+            document.getElementById('transaction-detail-modal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Close transaction detail modal
+        function closeTransactionModal() {
+            document.getElementById('transaction-detail-modal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close modal when pressing ESC key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeTransactionModal();
+            }
+        });
     </script>
 </body>
 </html>

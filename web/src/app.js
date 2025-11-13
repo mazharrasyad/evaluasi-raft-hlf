@@ -593,6 +593,11 @@ function transformNetworkSummaryItem(item) {
         .filter(block => block && typeof block === 'object')
         .map(toBlockSummary)
         .filter(Boolean)
+        .filter(block => {
+            // Filter out first 7 blocks (genesis and setup blocks)
+            const blockNum = block.blockNumber;
+            return blockNum === null || blockNum === undefined || blockNum >= 7;
+        })
         .sort(compareBlockSummaries);
 
     const blockCount = Number.isFinite(item.blockCount)

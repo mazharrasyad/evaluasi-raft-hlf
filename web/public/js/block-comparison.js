@@ -884,11 +884,18 @@ componentLoaderReady.then(() => {
         }
 
         const blocks = Array.isArray(network.blocks) ? network.blocks : [];
-        if (!limit || blocks.length <= limit) {
-            return blocks.slice();
+
+        // Filter out first 7 blocks (genesis and setup blocks)
+        const simulationBlocks = blocks.filter(block => {
+            const blockNum = resolveBlockNumber(block);
+            return blockNum === null || blockNum >= 7;
+        });
+
+        if (!limit || simulationBlocks.length <= limit) {
+            return simulationBlocks.slice();
         }
 
-        return blocks.slice(-limit);
+        return simulationBlocks.slice(-limit);
     }
 
     function buildBlockAxisLabels(blocksPerNetwork, limit = 12) {

@@ -2272,16 +2272,27 @@ function normalizeBlockHeight(value) {
         return null;
     }
 
+    // Subtract 7 to exclude genesis and setup blocks, showing only simulation blocks
+    const adjustValue = (val) => {
+        const adjusted = val - 7;
+        return adjusted > 0 ? adjusted : 0;
+    };
+
     if (typeof value === 'number' && Number.isFinite(value)) {
-        return { numeric: value, text: formatCount(value) };
+        const adjustedValue = adjustValue(value);
+        return { numeric: adjustedValue, text: formatCount(adjustedValue) };
     }
 
     if (typeof value === 'bigint') {
         const isSafe = value <= BigInt(Number.MAX_SAFE_INTEGER);
-        return {
-            numeric: isSafe ? Number(value) : null,
-            text: isSafe ? formatCount(Number(value)) : value.toString()
-        };
+        if (isSafe) {
+            const adjustedValue = adjustValue(Number(value));
+            return { numeric: adjustedValue, text: formatCount(adjustedValue) };
+        }
+        // For very large bigints, subtract 7 in bigint arithmetic
+        const adjusted = value - BigInt(7);
+        const adjustedValue = adjusted > BigInt(0) ? adjusted : BigInt(0);
+        return { numeric: null, text: adjustedValue.toString() };
     }
 
     if (typeof value === 'string') {
@@ -2291,7 +2302,8 @@ function normalizeBlockHeight(value) {
         }
         const parsed = Number.parseInt(trimmed, 10);
         if (!Number.isNaN(parsed)) {
-            return { numeric: parsed, text: formatCount(parsed) };
+            const adjustedValue = adjustValue(parsed);
+            return { numeric: adjustedValue, text: formatCount(adjustedValue) };
         }
         return { numeric: null, text: trimmed };
     }
@@ -2319,7 +2331,7 @@ function resolveBlockHeightInfo(result) {
     if (formatted) {
         return {
             primary: formatted,
-            secondary: 'Jumlah blok pada channel saat pemeriksaan ini.',
+            secondary: 'Jumlah blok simulasi (tidak termasuk 7 blok setup awal).',
             hasData: true,
         };
     }

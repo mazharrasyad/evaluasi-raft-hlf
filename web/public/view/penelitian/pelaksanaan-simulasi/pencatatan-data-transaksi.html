@@ -947,10 +947,35 @@
             'fabric3-variant': { currentPage: 1, pageSize: 10 }
         };
 
-        // Load data when page loads (no auto-refresh)
+        // Load data when page loads
         document.addEventListener('DOMContentLoaded', () => {
             loadSimulationData();
             loadAllTransactions();
+        });
+
+        // Reload data when page becomes visible (e.g., after navigation)
+        let lastVisibilityChange = 0;
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                // Debounce to avoid multiple reloads
+                const now = Date.now();
+                if (now - lastVisibilityChange > 1000) {
+                    lastVisibilityChange = now;
+                    console.log('[Pencatatan Data] Page became visible, reloading data...');
+                    loadSimulationData();
+                    loadAllTransactions();
+                }
+            }
+        });
+
+        // Also reload when returning from another page (for SPAs or navigation)
+        window.addEventListener('pageshow', (event) => {
+            // Check if page was loaded from cache (back/forward navigation)
+            if (event.persisted || performance.getEntriesByType('navigation')[0]?.type === 'back_forward') {
+                console.log('[Pencatatan Data] Page loaded from cache, reloading data...');
+                loadSimulationData();
+                loadAllTransactions();
+            }
         });
 
         // Format bytes

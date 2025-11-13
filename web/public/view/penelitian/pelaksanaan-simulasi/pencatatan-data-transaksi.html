@@ -65,13 +65,310 @@
                                     Bab 4.4.4
                                 </div>
                                 <div class="space-y-5">
-                                    <h1 class="text-3xl font-semibold text-textdark md:text-4xl">Penyimpanan Data Transaksi</h1>
-                                    <p class="text-sm text-textdark/70 md:text-base">
-                                        Isi konten...
+                                    <h1 class="text-3xl font-semibold text-textdark md:text-4xl">Pencatatan Data Transaksi</h1>
+                                    <p class="text-sm text-textdark/70 md:text-base leading-relaxed">
+                                        Halaman ini menampilkan hasil pencatatan data transaksi dari simulasi yang telah dieksekusi sebelumnya. Data ditampilkan untuk setiap jaringan Fabric dengan metrik performa lengkap termasuk throughput, latency, success rate, dan jumlah blok yang terbentuk.
                                     </p>
                                 </div>
                             </div>
                         </section>
+
+                        <!-- Loading State -->
+                        <div id="loading-state" class="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-surface via-soft to-[#020817] p-10 shadow-2xl shadow-black/30">
+                            <div class="flex flex-col items-center justify-center gap-4 py-12">
+                                <div class="h-12 w-12 animate-spin rounded-full border-4 border-primary/30 border-t-primary"></div>
+                                <p class="text-sm text-textdark/70">Memuat data simulasi...</p>
+                            </div>
+                        </div>
+
+                        <!-- Error State -->
+                        <div id="error-state" class="hidden relative isolate overflow-hidden rounded-3xl border border-red-500/20 bg-gradient-to-br from-surface via-soft to-[#020817] p-10 shadow-2xl shadow-black/30">
+                            <div class="flex flex-col items-center justify-center gap-4 py-12">
+                                <svg class="h-12 w-12 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                                <p class="text-sm text-red-400" id="error-message">Gagal memuat data simulasi</p>
+                                <button onclick="loadSimulationData()" class="mt-4 rounded-lg bg-primary/90 px-6 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-primary/40 transition duration-200 hover:-translate-y-0.5 hover:bg-primary">
+                                    Coba Lagi
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Overall Summary -->
+                        <section id="overall-summary" class="hidden relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-surface via-soft to-[#020817] p-10 shadow-2xl shadow-black/30">
+                            <div class="flex flex-col gap-6">
+                                <div class="flex items-center justify-between">
+                                    <h2 class="text-2xl font-semibold text-textdark">Ringkasan Keseluruhan</h2>
+                                    <button onclick="loadSimulationData()" class="rounded-lg bg-primary/10 border border-primary/40 px-4 py-2 text-xs font-semibold text-primary transition hover:bg-primary/20">
+                                        <svg class="inline h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                        </svg>
+                                        Refresh
+                                    </button>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                    <div class="rounded-xl border border-primary/20 bg-primary/5 p-6">
+                                        <p class="text-xs font-semibold uppercase tracking-wider text-primary/80 mb-2">Total Transaksi</p>
+                                        <p class="text-3xl font-bold text-textdark" id="overall-total-count">-</p>
+                                        <p class="text-xs text-textdark/60 mt-2">
+                                            <span class="text-green-400" id="overall-success-count">-</span> berhasil /
+                                            <span class="text-red-400" id="overall-failure-count">-</span> gagal
+                                        </p>
+                                    </div>
+
+                                    <div class="rounded-xl border border-green-500/20 bg-green-500/5 p-6">
+                                        <p class="text-xs font-semibold uppercase tracking-wider text-green-400/80 mb-2">Success Rate</p>
+                                        <p class="text-3xl font-bold text-green-400" id="overall-success-rate">-</p>
+                                        <p class="text-xs text-textdark/60 mt-2">Tingkat keberhasilan</p>
+                                    </div>
+
+                                    <div class="rounded-xl border border-accent/20 bg-accent/5 p-6">
+                                        <p class="text-xs font-semibold uppercase tracking-wider text-accent/80 mb-2">Avg Latency</p>
+                                        <p class="text-3xl font-bold text-accent" id="overall-avg-latency">-</p>
+                                        <p class="text-xs text-textdark/60 mt-2">Waktu rata-rata</p>
+                                    </div>
+
+                                    <div class="rounded-xl border border-secondary/20 bg-secondary/5 p-6">
+                                        <p class="text-xs font-semibold uppercase tracking-wider text-secondary/80 mb-2">Total Blok</p>
+                                        <p class="text-3xl font-bold text-secondary" id="overall-block-count">-</p>
+                                        <p class="text-xs text-textdark/60 mt-2">Blok terbentuk</p>
+                                    </div>
+                                </div>
+
+                                <div class="text-xs text-textdark/50 mt-2">
+                                    <p>Terakhir diperbarui: <span id="overall-last-updated">-</span></p>
+                                    <p>Periode: <span id="overall-period">-</span></p>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Network Results -->
+                        <div id="network-results" class="hidden space-y-8">
+                            <!-- Fabric 2 RAFT Standard -->
+                            <section class="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-surface via-soft to-[#020817] p-10 shadow-2xl shadow-black/30">
+                                <div class="flex flex-col gap-6">
+                                    <div class="flex items-start justify-between">
+                                        <div>
+                                            <div class="inline-flex w-fit items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-primary/90 mb-4">
+                                                Fabric 2
+                                            </div>
+                                            <h2 class="text-2xl font-semibold text-textdark">RAFT Standard</h2>
+                                            <p class="text-sm text-textdark/60 mt-1">Channel: fabric2-channel-standard</p>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-xs text-textdark/50">Status</p>
+                                            <span class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold" id="fabric2-standard-status-badge">
+                                                <span class="h-2 w-2 rounded-full"></span>
+                                                <span id="fabric2-standard-status-text">-</span>
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                        <div class="rounded-lg border border-white/10 bg-white/5 p-4">
+                                            <p class="text-xs text-textdark/60 mb-1">Transaksi</p>
+                                            <p class="text-xl font-bold text-textdark" id="fabric2-standard-total">-</p>
+                                        </div>
+                                        <div class="rounded-lg border border-white/10 bg-white/5 p-4">
+                                            <p class="text-xs text-textdark/60 mb-1">Success Rate</p>
+                                            <p class="text-xl font-bold text-green-400" id="fabric2-standard-success-rate">-</p>
+                                        </div>
+                                        <div class="rounded-lg border border-white/10 bg-white/5 p-4">
+                                            <p class="text-xs text-textdark/60 mb-1">Avg Latency</p>
+                                            <p class="text-xl font-bold text-accent" id="fabric2-standard-latency">-</p>
+                                        </div>
+                                        <div class="rounded-lg border border-white/10 bg-white/5 p-4">
+                                            <p class="text-xs text-textdark/60 mb-1">Blok</p>
+                                            <p class="text-xl font-bold text-secondary" id="fabric2-standard-blocks">-</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <div class="flex justify-between text-xs">
+                                            <span class="text-textdark/60">Throughput:</span>
+                                            <span class="text-textdark" id="fabric2-standard-throughput">-</span>
+                                        </div>
+                                        <div class="flex justify-between text-xs">
+                                            <span class="text-textdark/60">Periode Simulasi:</span>
+                                            <span class="text-textdark" id="fabric2-standard-period">-</span>
+                                        </div>
+                                        <div class="flex justify-between text-xs">
+                                            <span class="text-textdark/60">Terakhir Diperbarui:</span>
+                                            <span class="text-textdark" id="fabric2-standard-updated">-</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <!-- Fabric 2 RAFT Variant -->
+                            <section class="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-surface via-soft to-[#020817] p-10 shadow-2xl shadow-black/30">
+                                <div class="flex flex-col gap-6">
+                                    <div class="flex items-start justify-between">
+                                        <div>
+                                            <div class="inline-flex w-fit items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-primary/90 mb-4">
+                                                Fabric 2
+                                            </div>
+                                            <h2 class="text-2xl font-semibold text-textdark">RAFT Variant with BFT</h2>
+                                            <p class="text-sm text-textdark/60 mt-1">Channel: fabric2-channel-variant</p>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-xs text-textdark/50">Status</p>
+                                            <span class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold" id="fabric2-variant-status-badge">
+                                                <span class="h-2 w-2 rounded-full"></span>
+                                                <span id="fabric2-variant-status-text">-</span>
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                        <div class="rounded-lg border border-white/10 bg-white/5 p-4">
+                                            <p class="text-xs text-textdark/60 mb-1">Transaksi</p>
+                                            <p class="text-xl font-bold text-textdark" id="fabric2-variant-total">-</p>
+                                        </div>
+                                        <div class="rounded-lg border border-white/10 bg-white/5 p-4">
+                                            <p class="text-xs text-textdark/60 mb-1">Success Rate</p>
+                                            <p class="text-xl font-bold text-green-400" id="fabric2-variant-success-rate">-</p>
+                                        </div>
+                                        <div class="rounded-lg border border-white/10 bg-white/5 p-4">
+                                            <p class="text-xs text-textdark/60 mb-1">Avg Latency</p>
+                                            <p class="text-xl font-bold text-accent" id="fabric2-variant-latency">-</p>
+                                        </div>
+                                        <div class="rounded-lg border border-white/10 bg-white/5 p-4">
+                                            <p class="text-xs text-textdark/60 mb-1">Blok</p>
+                                            <p class="text-xl font-bold text-secondary" id="fabric2-variant-blocks">-</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <div class="flex justify-between text-xs">
+                                            <span class="text-textdark/60">Throughput:</span>
+                                            <span class="text-textdark" id="fabric2-variant-throughput">-</span>
+                                        </div>
+                                        <div class="flex justify-between text-xs">
+                                            <span class="text-textdark/60">Periode Simulasi:</span>
+                                            <span class="text-textdark" id="fabric2-variant-period">-</span>
+                                        </div>
+                                        <div class="flex justify-between text-xs">
+                                            <span class="text-textdark/60">Terakhir Diperbarui:</span>
+                                            <span class="text-textdark" id="fabric2-variant-updated">-</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <!-- Fabric 3 RAFT Standard -->
+                            <section class="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-surface via-soft to-[#020817] p-10 shadow-2xl shadow-black/30">
+                                <div class="flex flex-col gap-6">
+                                    <div class="flex items-start justify-between">
+                                        <div>
+                                            <div class="inline-flex w-fit items-center gap-2 rounded-full border border-highlight/40 bg-highlight/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-highlight/90 mb-4">
+                                                Fabric 3
+                                            </div>
+                                            <h2 class="text-2xl font-semibold text-textdark">RAFT Standard</h2>
+                                            <p class="text-sm text-textdark/60 mt-1">Channel: fabric3-channel-standard</p>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-xs text-textdark/50">Status</p>
+                                            <span class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold" id="fabric3-standard-status-badge">
+                                                <span class="h-2 w-2 rounded-full"></span>
+                                                <span id="fabric3-standard-status-text">-</span>
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                        <div class="rounded-lg border border-white/10 bg-white/5 p-4">
+                                            <p class="text-xs text-textdark/60 mb-1">Transaksi</p>
+                                            <p class="text-xl font-bold text-textdark" id="fabric3-standard-total">-</p>
+                                        </div>
+                                        <div class="rounded-lg border border-white/10 bg-white/5 p-4">
+                                            <p class="text-xs text-textdark/60 mb-1">Success Rate</p>
+                                            <p class="text-xl font-bold text-green-400" id="fabric3-standard-success-rate">-</p>
+                                        </div>
+                                        <div class="rounded-lg border border-white/10 bg-white/5 p-4">
+                                            <p class="text-xs text-textdark/60 mb-1">Avg Latency</p>
+                                            <p class="text-xl font-bold text-accent" id="fabric3-standard-latency">-</p>
+                                        </div>
+                                        <div class="rounded-lg border border-white/10 bg-white/5 p-4">
+                                            <p class="text-xs text-textdark/60 mb-1">Blok</p>
+                                            <p class="text-xl font-bold text-secondary" id="fabric3-standard-blocks">-</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <div class="flex justify-between text-xs">
+                                            <span class="text-textdark/60">Throughput:</span>
+                                            <span class="text-textdark" id="fabric3-standard-throughput">-</span>
+                                        </div>
+                                        <div class="flex justify-between text-xs">
+                                            <span class="text-textdark/60">Periode Simulasi:</span>
+                                            <span class="text-textdark" id="fabric3-standard-period">-</span>
+                                        </div>
+                                        <div class="flex justify-between text-xs">
+                                            <span class="text-textdark/60">Terakhir Diperbarui:</span>
+                                            <span class="text-textdark" id="fabric3-standard-updated">-</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <!-- Fabric 3 RAFT Variant -->
+                            <section class="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-surface via-soft to-[#020817] p-10 shadow-2xl shadow-black/30">
+                                <div class="flex flex-col gap-6">
+                                    <div class="flex items-start justify-between">
+                                        <div>
+                                            <div class="inline-flex w-fit items-center gap-2 rounded-full border border-highlight/40 bg-highlight/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-highlight/90 mb-4">
+                                                Fabric 3
+                                            </div>
+                                            <h2 class="text-2xl font-semibold text-textdark">RAFT Variant with BFT</h2>
+                                            <p class="text-sm text-textdark/60 mt-1">Channel: fabric3-channel-variant</p>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-xs text-textdark/50">Status</p>
+                                            <span class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold" id="fabric3-variant-status-badge">
+                                                <span class="h-2 w-2 rounded-full"></span>
+                                                <span id="fabric3-variant-status-text">-</span>
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                        <div class="rounded-lg border border-white/10 bg-white/5 p-4">
+                                            <p class="text-xs text-textdark/60 mb-1">Transaksi</p>
+                                            <p class="text-xl font-bold text-textdark" id="fabric3-variant-total">-</p>
+                                        </div>
+                                        <div class="rounded-lg border border-white/10 bg-white/5 p-4">
+                                            <p class="text-xs text-textdark/60 mb-1">Success Rate</p>
+                                            <p class="text-xl font-bold text-green-400" id="fabric3-variant-success-rate">-</p>
+                                        </div>
+                                        <div class="rounded-lg border border-white/10 bg-white/5 p-4">
+                                            <p class="text-xs text-textdark/60 mb-1">Avg Latency</p>
+                                            <p class="text-xl font-bold text-accent" id="fabric3-variant-latency">-</p>
+                                        </div>
+                                        <div class="rounded-lg border border-white/10 bg-white/5 p-4">
+                                            <p class="text-xs text-textdark/60 mb-1">Blok</p>
+                                            <p class="text-xl font-bold text-secondary" id="fabric3-variant-blocks">-</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <div class="flex justify-between text-xs">
+                                            <span class="text-textdark/60">Throughput:</span>
+                                            <span class="text-textdark" id="fabric3-variant-throughput">-</span>
+                                        </div>
+                                        <div class="flex justify-between text-xs">
+                                            <span class="text-textdark/60">Periode Simulasi:</span>
+                                            <span class="text-textdark" id="fabric3-variant-period">-</span>
+                                        </div>
+                                        <div class="flex justify-between text-xs">
+                                            <span class="text-textdark/60">Terakhir Diperbarui:</span>
+                                            <span class="text-textdark" id="fabric3-variant-updated">-</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
                     </div>
                 </main>
 
@@ -82,5 +379,235 @@
 
     <script src="/js/layout.js" defer></script>
     <script src="/js/navigation.js" defer></script>
+
+    <script>
+        // Network configuration mapping - maps API network ID to UI element prefix
+        const NETWORK_ID_TO_PREFIX = {
+            'channel-standard': 'fabric2-standard',
+            'channel-variant': 'fabric2-variant',
+            'channel-fabric3-standard': 'fabric3-standard',
+            'channel-fabric3-variant': 'fabric3-variant'
+        };
+
+        // Format number with thousand separators
+        function formatNumber(num) {
+            if (num === null || num === undefined || isNaN(num)) return '-';
+            return new Intl.NumberFormat('id-ID').format(num);
+        }
+
+        // Format percentage
+        function formatPercentage(num) {
+            if (num === null || num === undefined || isNaN(num)) return '-';
+            return `${num.toFixed(2)}%`;
+        }
+
+        // Format latency in milliseconds
+        function formatLatency(ms) {
+            if (ms === null || ms === undefined || isNaN(ms)) return '-';
+            return `${ms.toFixed(2)} ms`;
+        }
+
+        // Format throughput
+        function formatThroughput(tps) {
+            if (tps === null || tps === undefined || isNaN(tps)) return '-';
+            return `${tps.toFixed(2)} TPS`;
+        }
+
+        // Format date/time
+        function formatDateTime(isoString) {
+            if (!isoString) return '-';
+            try {
+                const date = new Date(isoString);
+                return new Intl.DateTimeFormat('id-ID', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                }).format(date);
+            } catch (e) {
+                return '-';
+            }
+        }
+
+        // Format duration
+        function formatDuration(startTime, endTime) {
+            if (!startTime || !endTime) return '-';
+            try {
+                const start = new Date(startTime);
+                const end = new Date(endTime);
+                const diffMs = end - start;
+                const diffSec = Math.floor(diffMs / 1000);
+                const hours = Math.floor(diffSec / 3600);
+                const minutes = Math.floor((diffSec % 3600) / 60);
+                const seconds = diffSec % 60;
+
+                if (hours > 0) {
+                    return `${hours}j ${minutes}m ${seconds}d`;
+                } else if (minutes > 0) {
+                    return `${minutes}m ${seconds}d`;
+                } else {
+                    return `${seconds}d`;
+                }
+            } catch (e) {
+                return '-';
+            }
+        }
+
+        // Get status badge classes
+        function getStatusBadgeClasses(status) {
+            if (status === 'success') {
+                return 'bg-green-500/10 border border-green-500/40 text-green-400';
+            } else if (status === 'error' || status === 'commit_failed') {
+                return 'bg-red-500/10 border border-red-500/40 text-red-400';
+            } else {
+                return 'bg-yellow-500/10 border border-yellow-500/40 text-yellow-400';
+            }
+        }
+
+        // Update overall summary
+        function updateOverallSummary(data) {
+            const overall = data.overall || {};
+
+            document.getElementById('overall-total-count').textContent = formatNumber(overall.totalCount || 0);
+            document.getElementById('overall-success-count').textContent = formatNumber(overall.successCount || 0);
+            document.getElementById('overall-failure-count').textContent = formatNumber(overall.failureCount || 0);
+            document.getElementById('overall-success-rate').textContent = formatPercentage(overall.successRate || 0);
+            document.getElementById('overall-avg-latency').textContent = formatLatency(overall.averageLatencyMs || 0);
+            document.getElementById('overall-block-count').textContent = formatNumber(overall.blockCount || 0);
+            document.getElementById('overall-last-updated').textContent = formatDateTime(data.updatedAt);
+            document.getElementById('overall-period').textContent = formatDuration(overall.firstStartedAt, overall.lastCompletedAt);
+        }
+
+        // Update network card
+        function updateNetworkCard(networkData) {
+            if (!networkData || !networkData.id) return;
+
+            const prefix = NETWORK_ID_TO_PREFIX[networkData.id];
+            if (!prefix) {
+                console.warn(`Unknown network ID: ${networkData.id}`);
+                return;
+            }
+
+            // Update metrics
+            document.getElementById(`${prefix}-total`).textContent = formatNumber(networkData.totalCount || 0);
+            document.getElementById(`${prefix}-success-rate`).textContent = formatPercentage(
+                networkData.totalCount > 0 ? (networkData.successCount / networkData.totalCount * 100) : 0
+            );
+
+            const avgLatency = networkData.totalCount > 0
+                ? (networkData.totalLatencyMs / networkData.totalCount)
+                : 0;
+            document.getElementById(`${prefix}-latency`).textContent = formatLatency(avgLatency);
+            document.getElementById(`${prefix}-blocks`).textContent = formatNumber(networkData.blockCount || 0);
+
+            // Update additional info
+            const duration = networkData.lastCompletedAt && networkData.firstStartedAt
+                ? (new Date(networkData.lastCompletedAt) - new Date(networkData.firstStartedAt)) / 1000
+                : 0;
+            const throughput = duration > 0 ? (networkData.successCount / duration) : 0;
+            document.getElementById(`${prefix}-throughput`).textContent = formatThroughput(throughput);
+            document.getElementById(`${prefix}-period`).textContent = formatDuration(networkData.firstStartedAt, networkData.lastCompletedAt);
+            document.getElementById(`${prefix}-updated`).textContent = formatDateTime(networkData.lastUpdatedAt);
+
+            // Update status badge
+            const statusBadge = document.getElementById(`${prefix}-status-badge`);
+            const statusText = document.getElementById(`${prefix}-status-text`);
+            const statusDot = statusBadge.querySelector('.h-2.w-2');
+
+            const status = networkData.lastStatus || 'unknown';
+            statusBadge.className = `inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold ${getStatusBadgeClasses(status)}`;
+
+            if (status === 'success') {
+                statusText.textContent = 'Aktif';
+                statusDot.className = 'h-2 w-2 rounded-full bg-green-400 animate-pulse';
+            } else if (status === 'error' || status === 'commit_failed') {
+                statusText.textContent = 'Error';
+                statusDot.className = 'h-2 w-2 rounded-full bg-red-400';
+            } else {
+                statusText.textContent = 'Standby';
+                statusDot.className = 'h-2 w-2 rounded-full bg-yellow-400';
+            }
+        }
+
+        // Load simulation data from API
+        async function loadSimulationData() {
+            const loadingState = document.getElementById('loading-state');
+            const errorState = document.getElementById('error-state');
+            const overallSummary = document.getElementById('overall-summary');
+            const networkResults = document.getElementById('network-results');
+
+            try {
+                // Show loading state
+                loadingState.classList.remove('hidden');
+                errorState.classList.add('hidden');
+                overallSummary.classList.add('hidden');
+                networkResults.classList.add('hidden');
+
+                // Fetch data from API
+                const response = await fetch('/api/simulations/summary');
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                // Update overall summary
+                updateOverallSummary(data);
+
+                // Update network cards
+                if (data.networks && Array.isArray(data.networks)) {
+                    data.networks.forEach(network => {
+                        updateNetworkCard(network);
+                    });
+                }
+
+                // Show results
+                loadingState.classList.add('hidden');
+                overallSummary.classList.remove('hidden');
+                networkResults.classList.remove('hidden');
+
+            } catch (error) {
+                console.error('Error loading simulation data:', error);
+
+                // Show error state
+                loadingState.classList.add('hidden');
+                errorState.classList.remove('hidden');
+                overallSummary.classList.add('hidden');
+                networkResults.classList.add('hidden');
+
+                document.getElementById('error-message').textContent =
+                    `Gagal memuat data simulasi: ${error.message}`;
+            }
+        }
+
+        // Auto-refresh data every 5 seconds
+        let autoRefreshInterval;
+
+        function startAutoRefresh() {
+            autoRefreshInterval = setInterval(() => {
+                loadSimulationData();
+            }, 5000);
+        }
+
+        function stopAutoRefresh() {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+            }
+        }
+
+        // Load data when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSimulationData();
+            startAutoRefresh();
+        });
+
+        // Clean up on page unload
+        window.addEventListener('beforeunload', () => {
+            stopAutoRefresh();
+        });
+    </script>
 </body>
 </html>

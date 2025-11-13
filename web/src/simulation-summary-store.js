@@ -418,6 +418,9 @@ export async function appendSimulationResults(results) {
                 startedAt: result.startedAt || null,
                 completedAt: result.completedAt || null,
                 recordedAt: new Date().toISOString(),
+                payload: result.payload || null,
+                errorMessage: result.errorMessage || null,
+                errorStack: result.errorStack || null,
             };
 
             summary.transactions.push(transaction);

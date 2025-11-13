@@ -253,6 +253,7 @@ async function submitToSingleNetwork(target, record) {
             ...baseResult,
             status: 'not_found',
             message: 'Direktori jaringan tidak ditemukan.',
+            payload: record,
         };
         await logIngestResult(result);
         return result;
@@ -278,6 +279,7 @@ async function submitToSingleNetwork(target, record) {
             ...baseResult,
             status: 'incomplete',
             message: missing.message,
+            payload: record,
         };
         await logIngestResult(result);
         return result;
@@ -337,6 +339,7 @@ async function submitToSingleNetwork(target, record) {
 
         if (submitError) {
             const message = submitError instanceof Error ? submitError.message : String(submitError);
+            const errorStack = submitError instanceof Error && submitError.stack ? submitError.stack : null;
             const result = {
                 ...baseResult,
                 status: 'commit_failed',
@@ -349,6 +352,9 @@ async function submitToSingleNetwork(target, record) {
                 commitStatus: commitStatusSummary,
                 completedAt,
                 resolution: formatResolutionFromError(message),
+                payload: record,
+                errorMessage: message,
+                errorStack: errorStack,
             };
             await logIngestResult(result, submitError);
             return result;
@@ -368,18 +374,23 @@ async function submitToSingleNetwork(target, record) {
             resultUtf8,
             commitStatus: commitStatusSummary,
             completedAt,
+            payload: record,
         };
 
         await logIngestResult(result);
         return result;
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
+        const errorStack = error instanceof Error && error.stack ? error.stack : null;
         const result = {
             ...baseResult,
             status: 'error',
             message: errorMessage,
             resolution: formatResolutionFromError(errorMessage),
             completedAt: new Date().toISOString(),
+            payload: record,
+            errorMessage: errorMessage,
+            errorStack: errorStack,
         };
         await logIngestResult(result, error);
         return result;

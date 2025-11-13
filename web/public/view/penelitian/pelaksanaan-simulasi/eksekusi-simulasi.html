@@ -525,12 +525,13 @@
 
             return {
                 id: reportId,
+                reportId: reportId,
                 timestamp: timestamp,
                 substance: weightedRandom(SIMULATION_DATA.substances),
                 reporterGroup: weightedRandom(SIMULATION_DATA.reporterGroups),
                 reportedGroup: weightedRandom(SIMULATION_DATA.reportedGroups),
                 receivingOffice: SIMULATION_DATA.offices[Math.floor(Math.random() * SIMULATION_DATA.offices.length)],
-                description: `Laporan maladministrasi ${reportId}`,
+                description: `Deskripsi singkat laporan maladministrasi ${reportId}`,
                 status: 'pending'
             };
         }

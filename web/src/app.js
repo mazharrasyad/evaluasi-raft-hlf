@@ -1447,6 +1447,12 @@ app.get('/api/simulations/transactions', async (req, res) => {
         // Filter transactions
         let filteredTransactions = transactions;
 
+        // Filter out transactions from setup blocks (first 7 blocks)
+        filteredTransactions = filteredTransactions.filter(tx => {
+            const blockNum = tx.blockNumber;
+            return blockNum === null || blockNum === undefined || blockNum >= 7;
+        });
+
         if (targetId) {
             filteredTransactions = filteredTransactions.filter(tx => tx.targetId === targetId);
         }

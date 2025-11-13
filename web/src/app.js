@@ -1304,6 +1304,11 @@ app.get('/api/fabric-descriptions', async (req, res) => {
 });
 
 app.get('/api/simulations/summary', async (req, res) => {
+    // Disable caching to ensure fresh data
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+
     try {
         const rawSummary = await loadSimulationSummary();
         const networksRecord = rawSummary?.networks && typeof rawSummary.networks === 'object'
@@ -1438,6 +1443,11 @@ app.get('/api/simulations/summary', async (req, res) => {
 });
 
 app.get('/api/simulations/transactions', async (req, res) => {
+    // Disable caching to ensure fresh data
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+
     try {
         const rawSummary = await loadSimulationSummary();
         const transactions = Array.isArray(rawSummary?.transactions)

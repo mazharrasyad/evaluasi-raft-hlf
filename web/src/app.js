@@ -10,6 +10,7 @@ import { randomUUID } from 'crypto';
 
 import { checkNetworkHealth } from './network-check.js';
 import { loadFabricDescriptions } from './fabric-description.js';
+import { submitToNetworks } from './fabric-gateway.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -1300,6 +1301,56 @@ app.post('/api/check-channel', async (req, res) => {
     }
 });
 
+
+app.post('/api/simulations/records', async (req, res) => {
+    const submittedAt = new Date().toISOString();
+
+    try {
+        const { record, targetIds } = req.body;
+
+        // Validate input
+        if (!record || typeof record !== 'object') {
+            return res.status(400).json({
+                submittedAt,
+                completedAt: new Date().toISOString(),
+                success: false,
+                error: 'Record data is required',
+            });
+        }
+
+        if (!targetIds || !Array.isArray(targetIds) || targetIds.length === 0) {
+            return res.status(400).json({
+                submittedAt,
+                completedAt: new Date().toISOString(),
+                success: false,
+                error: 'At least one target network ID is required',
+            });
+        }
+
+        // Submit to blockchain networks
+        const results = await submitToNetworks(record, targetIds);
+
+        const completedAt = new Date().toISOString();
+        const successCount = results.filter(r => r.success).length;
+
+        res.json({
+            submittedAt,
+            completedAt,
+            success: successCount > 0,
+            successCount,
+            totalCount: results.length,
+            results,
+        });
+    } catch (error) {
+        console.error('Error submitting simulation record:', error);
+        res.status(500).json({
+            submittedAt,
+            completedAt: new Date().toISOString(),
+            success: false,
+            error: error instanceof Error ? error.message : String(error),
+        });
+    }
+});
 
 app.get('*', (req, res) => {
     res.sendFile(viewFiles.home);

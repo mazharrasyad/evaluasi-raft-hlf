@@ -10,13 +10,16 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Use PROJECT_ROOT environment variable if set, otherwise use relative path from __dirname
+const PROJECT_ROOT = process.env.PROJECT_ROOT || path.resolve(__dirname, '../..');
+
 // Configuration
 const mspId = 'Org1MSP';
 const chaincodeName = 'pelaporan';
-const standardNetworkDir = path.resolve(__dirname, '../../fabric-2/raft-standard/network');
-const variantNetworkDir = path.resolve(__dirname, '../../fabric-2/raft-variant/network');
-const fabric3StandardNetworkDir = path.resolve(__dirname, '../../fabric-3/raft-standard/network');
-const fabric3VariantNetworkDir = path.resolve(__dirname, '../../fabric-3/raft-variant/network');
+const standardNetworkDir = path.join(PROJECT_ROOT, 'fabric-2/raft-standard/network');
+const variantNetworkDir = path.join(PROJECT_ROOT, 'fabric-2/raft-variant/network');
+const fabric3StandardNetworkDir = path.join(PROJECT_ROOT, 'fabric-3/raft-standard/network');
+const fabric3VariantNetworkDir = path.join(PROJECT_ROOT, 'fabric-3/raft-variant/network');
 
 const networkConfigurations = [
     {

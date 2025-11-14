@@ -7,9 +7,12 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Use PROJECT_ROOT environment variable if set, otherwise use relative path from __dirname
+const PROJECT_ROOT = process.env.PROJECT_ROOT || path.resolve(__dirname, '../..');
+
 // Define paths to check
-const standardNetworkPath = path.resolve(__dirname, '../../fabric-2/raft-standard/network');
-const variantNetworkPath = path.resolve(__dirname, '../../fabric-2/raft-variant/network');
+const standardNetworkPath = path.join(PROJECT_ROOT, 'fabric-2/raft-standard/network');
+const variantNetworkPath = path.join(PROJECT_ROOT, 'fabric-2/raft-variant/network');
 
 const networkCandidates = [
   standardNetworkPath,

@@ -581,8 +581,65 @@
             }
         }
 
+        // Check if network is healthy
+        async function checkNetworkHealth() {
+            try {
+                const response = await fetch('/api/check-network');
+                if (!response.ok) {
+                    throw new Error('Failed to check network health');
+                }
+                const data = await response.json();
+                return data.results || [];
+            } catch (error) {
+                console.error('Error checking network health:', error);
+                return [];
+            }
+        }
+
+        // Map network IDs to their corresponding network labels
+        function getNetworkLabel(networkId) {
+            const networkMap = {
+                'channel-standard': 'Fabric 2 RAFT Standard',
+                'channel-variant': 'Fabric 2 RAFT Variant',
+                'channel-fabric3-standard': 'Fabric 3 RAFT Standard',
+                'channel-fabric3-variant': 'Fabric 3 RAFT Variant'
+            };
+            return networkMap[networkId] || networkId;
+        }
+
+        // Check if specific network is running
+        async function isNetworkRunning(networkId) {
+            const healthResults = await checkNetworkHealth();
+            const networkLabel = getNetworkLabel(networkId);
+
+            const networkStatus = healthResults.find(result => result.label === networkLabel);
+
+            if (!networkStatus) {
+                return { running: false, message: 'Status network tidak dapat diperiksa' };
+            }
+
+            if (networkStatus.status === 'healthy') {
+                return { running: true, message: 'Network aktif dan siap' };
+            } else {
+                return {
+                    running: false,
+                    message: `Network belum aktif (Status: ${networkStatus.status})`
+                };
+            }
+        }
+
         // Run simulation
         async function runSimulation(networkId, loadType) {
+            // Check network health first
+            updateStatus(networkId, loadType, 'Memeriksa status network...');
+            const networkCheck = await isNetworkRunning(networkId);
+
+            if (!networkCheck.running) {
+                updateStatus(networkId, loadType, `Gagal: ${networkCheck.message}`);
+                alert(`Tidak dapat menjalankan simulasi!\n\n${networkCheck.message}\n\nSilakan nyalakan network terlebih dahulu di halaman "Menjalankan Network".`);
+                return;
+            }
+
             const config = getLoadConfig(loadType);
             const { count, batchSize, delayMs } = config;
 
@@ -639,6 +696,29 @@
             }
         }
 
+        // Update network status indicators on page load
+        async function updateNetworkStatusIndicators() {
+            const healthResults = await checkNetworkHealth();
+
+            // For each network, update status for all load types
+            const networkIds = ['channel-standard', 'channel-variant', 'channel-fabric3-standard', 'channel-fabric3-variant'];
+
+            networkIds.forEach(networkId => {
+                const networkLabel = getNetworkLabel(networkId);
+                const networkStatus = healthResults.find(result => result.label === networkLabel);
+                const isHealthy = networkStatus && networkStatus.status === 'healthy';
+
+                const loadTypes = ['light', 'medium', 'high'];
+                loadTypes.forEach(loadType => {
+                    if (isHealthy) {
+                        updateStatus(networkId, loadType, 'Siap (Network aktif)');
+                    } else {
+                        updateStatus(networkId, loadType, 'Network tidak aktif');
+                    }
+                });
+            });
+        }
+
         // Initialize event listeners
         document.addEventListener('DOMContentLoaded', () => {
             const buttons = document.querySelectorAll('[data-simulation-button]');
@@ -651,6 +731,9 @@
                     runSimulation(networkId, loadType);
                 });
             });
+
+            // Check and update network status on page load
+            updateNetworkStatusIndicators();
         });
     </script>
 </body>

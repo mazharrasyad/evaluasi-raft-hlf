@@ -7,6 +7,9 @@ import { connect, signers } from '@hyperledger/fabric-gateway';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Use PROJECT_ROOT environment variable if set, otherwise use relative path from __dirname
+const PROJECT_ROOT = process.env.PROJECT_ROOT || path.resolve(__dirname, '../..');
+
 // Network configuration mapping
 const NETWORK_CONFIGS = {
     'channel-standard': {
@@ -74,7 +77,7 @@ async function createGrpcClient(config) {
     const peerHostAlias = config.peerHostAlias;
 
     // Read TLS certificate
-    const networkDir = path.resolve(__dirname, `../../${config.fabricVersion}/${config.variant}/network`);
+    const networkDir = path.join(PROJECT_ROOT, config.fabricVersion, config.variant, 'network');
     const tlsCertPath = path.join(
         networkDir,
         'organizations/peerOrganizations',
@@ -102,7 +105,7 @@ async function createGrpcClient(config) {
  * Create identity for signing transactions
  */
 async function createIdentity(config) {
-    const networkDir = path.resolve(__dirname, `../../${config.fabricVersion}/${config.variant}/network`);
+    const networkDir = path.join(PROJECT_ROOT, config.fabricVersion, config.variant, 'network');
 
     // Read certificate
     const certPath = path.join(
@@ -130,7 +133,7 @@ async function createIdentity(config) {
  * Create signer for signing transactions
  */
 async function createSigner(config) {
-    const networkDir = path.resolve(__dirname, `../../${config.fabricVersion}/${config.variant}/network`);
+    const networkDir = path.join(PROJECT_ROOT, config.fabricVersion, config.variant, 'network');
 
     // Read private key
     const keyDirPath = path.join(

@@ -536,7 +536,6 @@ const BLOCKCHAIN_SUBMISSION_PHASES = BLOCKCHAIN_TARGETS.map(target => ({
 
 const MAX_EVALUATION_HISTORY_LENGTH = 50;
 
-const SESSION_STORAGE_KEY = 'simulasiPelaporan';
 const dateTimeFormatter = new Intl.DateTimeFormat('id-ID', {
     dateStyle: 'long',
     timeStyle: 'short'
@@ -2680,26 +2679,57 @@ async function loadWilayahDataset() {
     }
 }
 
-function loadSimulationDataFromSession() {
+async function loadSimulationDataFromAPI() {
     try {
-        const raw = window.sessionStorage.getItem(SESSION_STORAGE_KEY);
-        if (!raw) {
+        const response = await fetch('/api/simulations/transactions?limit=10000', {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'Cache-Control': 'no-cache'
+            }
+        });
+
+        if (!response.ok) {
+            console.warn('Failed to load simulation data from API:', response.status);
             return [];
         }
-        const parsed = JSON.parse(raw);
-        return Array.isArray(parsed) ? parsed : [];
+
+        const data = await response.json();
+        // Extract transactions array from response object
+        const transactions = data?.transactions;
+
+        if (!Array.isArray(transactions)) {
+            return [];
+        }
+
+        // Transform transactions to match expected record format
+        // Transactions from API have payload field containing the original record
+        const records = transactions
+            .map(tx => {
+                if (!tx.payload || typeof tx.payload !== 'object') {
+                    return null;
+                }
+                // Return the payload (original record) with transaction metadata
+                return {
+                    ...tx.payload,
+                    transactionId: tx.transactionId,
+                    blockNumber: tx.blockNumber,
+                    targetId: tx.targetId,
+                    recordedAt: tx.recordedAt || tx.completedAt || tx.startedAt,
+                };
+            })
+            .filter(record => record !== null);
+
+        return records;
     } catch (error) {
-        console.warn('Gagal memuat data simulasi dari session storage:', error);
+        console.warn('Gagal memuat data simulasi dari API:', error);
         return [];
     }
 }
 
-function saveSimulationDataToSession(data) {
-    try {
-        window.sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(data));
-    } catch (error) {
-        console.warn('Gagal menyimpan data simulasi ke session storage:', error);
-    }
+async function reloadSimulationData() {
+    simulationData = await loadSimulationDataFromAPI();
+    renderSimulationData();
 }
 
 function createEmptyMessage(text) {
@@ -2745,9 +2775,9 @@ function renderSimulationSummary(records) {
         const provinceText = uniqueProvinces.size ? `${formatCount(uniqueProvinces.size)} provinsi terlibat` : 'menjangkau beberapa provinsi';
         metaInfo.textContent = formattedDate
             ? `Memuat ${provinceText}. Pembaruan terakhir ${formattedDate}.`
-            : `Memuat ${provinceText}.`; 
+            : `Memuat ${provinceText}.`;
     } else {
-        metaInfo.textContent = 'Belum ada data simulasi tersimpan pada sesi ini.';
+        metaInfo.textContent = 'Belum ada data simulasi tersimpan di jaringan blockchain.';
     }
 
     totalCard.appendChild(totalLabel);
@@ -2771,7 +2801,7 @@ function renderSimulationSummary(records) {
 
     const guidanceHint = document.createElement('p');
     guidanceHint.className = 'text-xs text-textdark/60';
-    guidanceHint.textContent = 'Seluruh data hanya tersimpan di session browser dan dapat dihapus kapan saja melalui tombol "Hapus Data".';
+    guidanceHint.textContent = 'Seluruh data tersimpan di jaringan Hyperledger Fabric dan dapat dibersihkan kapan saja melalui tombol "Hapus Data".';
 
     guidanceCard.appendChild(guidanceTitle);
     guidanceCard.appendChild(guidanceDescription);
@@ -4888,9 +4918,6 @@ async function handleSimulationSubmit(event) {
         return;
     }
 
-    simulationData = [...simulationData, ...generated];
-    saveSimulationDataToSession(simulationData);
-    renderSimulationData();
     ensureEvaluationSectionInitialized();
 
     const preparationMessage = `Berhasil membuat ${formatCount(generated.length)} data simulasi. Memulai pengiriman ke jaringan blockchain...`;
@@ -4937,6 +4964,8 @@ async function handleSimulationSubmit(event) {
     } finally {
         isIngestingSimulation = false;
         restoreSimulationControls(previousControlState);
+        // Reload simulation data from blockchain networks
+        await reloadSimulationData();
     }
 }
 
@@ -6026,13 +6055,32 @@ if (clearSimulationButton) {
             return;
         }
 
-        simulationData = [];
-        saveSimulationDataToSession(simulationData);
-        renderSimulationData();
-        resetEvaluationStats();
-        const successMessage = 'Seluruh data simulasi berhasil dihapus.';
-        updateSimulationStatus(successMessage, 'success');
-        await showSuccessAlert(successMessage);
+        try {
+            // Clear simulation data via API
+            const response = await fetch('/api/simulations/data', {
+                method: 'DELETE',
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to clear simulation data');
+            }
+
+            // Reload data from API
+            await reloadSimulationData();
+            resetEvaluationStats();
+
+            const successMessage = 'Seluruh data simulasi berhasil dihapus.';
+            updateSimulationStatus(successMessage, 'success');
+            await showSuccessAlert(successMessage);
+        } catch (error) {
+            console.error('Failed to clear simulation data:', error);
+            const errorMessage = 'Gagal menghapus data simulasi. Periksa log server.';
+            updateSimulationStatus(errorMessage, 'error');
+            await showErrorAlert(errorMessage);
+        }
     });
 }
 
@@ -6047,7 +6095,8 @@ if (simulationModalOverlay) {
 document.addEventListener('keydown', handleModalKeyDown);
 
 async function initialize() {
-    simulationData = loadSimulationDataFromSession();
+    // Load simulation data from API (blockchain networks)
+    simulationData = await loadSimulationDataFromAPI();
     renderSimulationData();
     ensureEvaluationSectionInitialized();
     resetEvaluationStats();

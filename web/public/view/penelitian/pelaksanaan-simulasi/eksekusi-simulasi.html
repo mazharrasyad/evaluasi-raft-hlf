@@ -29,6 +29,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="icon" type="image/svg+xml" href="/images/logo-ai-center.svg">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         body { font-family: 'Inter', sans-serif; }
 
@@ -636,7 +637,13 @@
 
             if (!networkCheck.running) {
                 updateStatus(networkId, loadType, `Gagal: ${networkCheck.message}`);
-                alert(`Tidak dapat menjalankan simulasi!\n\n${networkCheck.message}\n\nSilakan nyalakan network terlebih dahulu di halaman "Menjalankan Network".`);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Tidak dapat menjalankan simulasi!',
+                    html: `${networkCheck.message}<br><br>Silakan nyalakan network terlebih dahulu di halaman "Menjalankan Network".`,
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#EF4444'
+                });
                 return;
             }
 

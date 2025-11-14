@@ -185,6 +185,14 @@ const NETWORK_SHUTDOWN_TARGETS = [
     },
 ];
 
+// Mapping from shutdown target ID to simulation target ID
+const SHUTDOWN_TO_SIMULATION_ID_MAP = {
+    'standard': 'channel-standard',                    // Fabric 2 RAFT Standard
+    'variant': 'channel-variant',                      // Fabric 2 RAFT Variant
+    'fabric3-standard': 'channel-fabric3-standard',    // Fabric 3 RAFT Standard
+    'fabric3-variant': 'channel-fabric3-variant',      // Fabric 3 RAFT Variant
+};
+
 const NETWORK_START_TARGETS = [
     {
         id: 'standard',
@@ -1801,25 +1809,25 @@ app.post('/api/shutdown-network', async (req, res) => {
     if (successCount > 0) {
         try {
             if (normalizedNetworkType) {
-                // Clear data for specific network - need to map shutdown target ID to simulation target IDs
-                // Find matching simulation endpoints for this shutdown target
-                const matchingEndpoints = Object.entries(NETWORK_SIMULATION_ENDPOINTS)
-                    .filter(([_, config]) => {
-                        if (!Array.isArray(config.candidateIds)) return false;
-                        return config.candidateIds.includes(normalizedNetworkType);
-                    })
-                    .flatMap(([_, config]) => config.candidateIds);
+                // Map shutdown target ID to simulation target ID
+                const simulationTargetIds = [];
 
-                // Clear data for all matching target IDs
-                if (matchingEndpoints.length > 0) {
-                    for (const targetId of matchingEndpoints) {
-                        await clearSimulationData(targetId);
+                // Check if we're shutting down multiple networks
+                for (const target of selectedTargets) {
+                    const simulationId = SHUTDOWN_TO_SIMULATION_ID_MAP[target.id];
+                    if (simulationId) {
+                        simulationTargetIds.push(simulationId);
                     }
-                    console.log(`[Shutdown] Cleared simulation data for network: ${normalizedNetworkType} (matched ${matchingEndpoints.length} target IDs)`);
+                }
+
+                // Clear data for all mapped simulation target IDs
+                if (simulationTargetIds.length > 0) {
+                    for (const targetId of simulationTargetIds) {
+                        await clearSimulationData(targetId);
+                        console.log(`[Shutdown] Cleared simulation data for targetId: ${targetId}`);
+                    }
                 } else {
-                    // Fallback: clear using the shutdown target ID directly
-                    await clearSimulationData(normalizedNetworkType);
-                    console.log(`[Shutdown] Cleared simulation data for network: ${normalizedNetworkType}`);
+                    console.warn(`[Shutdown] No simulation target ID found for shutdown network: ${normalizedNetworkType}`);
                 }
             } else {
                 // Clear all simulation data if shutting down all networks

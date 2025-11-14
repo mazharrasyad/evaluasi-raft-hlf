@@ -1511,6 +1511,36 @@ app.get('/api/simulations/transactions', async (req, res) => {
     }
 });
 
+app.delete('/api/simulations/data', async (req, res) => {
+    try {
+        const targetId = req.query.targetId || null;
+
+        if (targetId) {
+            console.log(`[API] Clearing simulation data for network: ${targetId}`);
+        } else {
+            console.log('[API] Clearing all simulation data');
+        }
+
+        await clearSimulationData(targetId);
+
+        res.json({
+            success: true,
+            message: targetId
+                ? `Simulation data cleared for network: ${targetId}`
+                : 'All simulation data cleared',
+            clearedAt: new Date().toISOString(),
+        });
+    } catch (error) {
+        console.error('Failed to clear simulation data:', error);
+        const message = error instanceof Error ? error.message : String(error);
+
+        res.status(500).json({
+            success: false,
+            error: message,
+        });
+    }
+});
+
 Object.entries(NETWORK_SIMULATION_ENDPOINTS).forEach(([slug, config]) => {
     app.get(`/api/${slug}`, async (req, res) => {
         try {

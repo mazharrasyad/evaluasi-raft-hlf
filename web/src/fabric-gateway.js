@@ -19,8 +19,8 @@ const NETWORK_CONFIGS = {
         channel: 'fabric2-channel-standard',
         chaincode: 'pelaporan',
         peerEndpoint: 'localhost:7051',
-        peerHostAlias: 'peer0.org1.example.com',
-        orgPath: 'org1.example.com',
+        peerHostAlias: 'peer0.org1.fabric2.standard.com',
+        orgPath: 'org1.standard.com',
         mspId: 'Org1MSP',
     },
     'channel-variant': {
@@ -30,8 +30,8 @@ const NETWORK_CONFIGS = {
         channel: 'fabric2-channel-variant',
         chaincode: 'pelaporan',
         peerEndpoint: 'localhost:7052',
-        peerHostAlias: 'peer0.org1.example.com',
-        orgPath: 'org1.example.com',
+        peerHostAlias: 'peer0.org1.fabric2.variant.com',
+        orgPath: 'org1.variant.com',
         mspId: 'Org1MSP',
     },
     'channel-fabric3-standard': {
@@ -41,8 +41,8 @@ const NETWORK_CONFIGS = {
         channel: 'fabric3-channel-standard',
         chaincode: 'pelaporan',
         peerEndpoint: 'localhost:7153',
-        peerHostAlias: 'peer0.org1.example.com',
-        orgPath: 'org1.example.com',
+        peerHostAlias: 'peer0.org1.fabric3.standard',
+        orgPath: 'org1.fabric3.standard',
         mspId: 'Org1MSP',
     },
     'channel-fabric3-variant': {
@@ -52,8 +52,8 @@ const NETWORK_CONFIGS = {
         channel: 'fabric3-channel-variant',
         chaincode: 'pelaporan',
         peerEndpoint: 'localhost:7353',
-        peerHostAlias: 'peer0.org1.example.com',
-        orgPath: 'org1.example.com',
+        peerHostAlias: 'peer0.org1.fabric3.variant',
+        orgPath: 'org1.fabric3.variant',
         mspId: 'Org1MSP',
     },
 };

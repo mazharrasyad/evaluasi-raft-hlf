@@ -20,6 +20,9 @@ componentLoaderReady.then(() => {
     const progressText = document.getElementById('progressText');
     const resultsSection = document.getElementById('resultsSection');
     const resultsContent = document.getElementById('resultsContent');
+    const networkHealthContent = document.getElementById('networkHealthContent');
+    const networkWarning = document.getElementById('networkWarning');
+    const refreshNetworkStatusBtn = document.getElementById('refreshNetworkStatus');
 
     // Load type configuration
     const LOAD_CONFIGS = {
@@ -90,6 +93,121 @@ componentLoaderReady.then(() => {
 
     let isExecuting = false;
     let currentLoadType = null;
+    let networkHealthStatus = {};
+
+    // Network ID to label mapping
+    const NETWORK_LABELS = {
+        'channel-standard': 'Fabric 2 RAFT Standard',
+        'channel-variant': 'Fabric 2 RAFT Variant',
+        'channel-fabric3-standard': 'Fabric 3 RAFT Standard',
+        'channel-fabric3-variant': 'Fabric 3 RAFT Variant'
+    };
+
+    // Fetch network health status
+    async function fetchNetworkHealth() {
+        try {
+            const response = await fetch('/api/check-network');
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error fetching network health:', error);
+            return null;
+        }
+    }
+
+    // Display network health status
+    function displayNetworkHealth(healthData) {
+        if (!healthData || !healthData.results) {
+            networkHealthContent.innerHTML = `
+                <div class="rounded-lg border border-red-400/30 bg-red-400/10 p-4">
+                    <div class="flex items-center gap-3">
+                        <svg class="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                        <p class="text-sm text-red-400">Gagal memeriksa status network</p>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+
+        networkHealthStatus = {};
+        let healthHTML = '';
+
+        healthData.results.forEach(network => {
+            const isHealthy = network.status === 'healthy';
+            networkHealthStatus[network.targetId] = isHealthy;
+
+            const statusColor = isHealthy
+                ? 'border-green-400/30 bg-green-400/10'
+                : 'border-red-400/30 bg-red-400/10';
+
+            const statusIcon = isHealthy
+                ? '<svg class="h-5 w-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>'
+                : '<svg class="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>';
+
+            const statusText = isHealthy
+                ? '<span class="text-sm font-semibold text-green-400">Online</span>'
+                : '<span class="text-sm font-semibold text-red-400">Offline</span>';
+
+            healthHTML += `
+                <div class="flex items-center justify-between rounded-lg border ${statusColor} p-4">
+                    <div class="flex items-center gap-3">
+                        ${statusIcon}
+                        <div>
+                            <div class="font-semibold text-textdark">${network.label}</div>
+                            <div class="text-xs text-textdark/60">${network.targetId}</div>
+                        </div>
+                    </div>
+                    ${statusText}
+                </div>
+            `;
+        });
+
+        networkHealthContent.innerHTML = healthHTML;
+        updateNetworkWarning();
+    }
+
+    // Update network warning based on selected networks
+    function updateNetworkWarning() {
+        const selectedNetworks = getSelectedNetworks();
+        const unhealthySelected = selectedNetworks.filter(id => !networkHealthStatus[id]);
+
+        if (unhealthySelected.length > 0) {
+            networkWarning.classList.remove('hidden');
+        } else {
+            networkWarning.classList.add('hidden');
+        }
+    }
+
+    // Check network health
+    async function checkNetworkHealth() {
+        if (refreshNetworkStatusBtn) {
+            refreshNetworkStatusBtn.disabled = true;
+        }
+
+        networkHealthContent.innerHTML = `
+            <div class="flex items-center justify-center rounded-lg border border-white/10 bg-white/5 p-8">
+                <div class="text-center">
+                    <svg class="mx-auto mb-3 h-8 w-8 animate-spin text-primary" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <p class="text-sm text-textdark/70">Memeriksa status network...</p>
+                </div>
+            </div>
+        `;
+
+        const healthData = await fetchNetworkHealth();
+        displayNetworkHealth(healthData);
+
+        if (refreshNetworkStatusBtn) {
+            refreshNetworkStatusBtn.disabled = false;
+        }
+    }
 
     // Weighted random selection
     function weightedRandom(items) {
@@ -329,6 +447,34 @@ componentLoaderReady.then(() => {
             return;
         }
 
+        // Check network health
+        const unhealthyNetworks = selectedNetworks.filter(id => !networkHealthStatus[id]);
+        if (unhealthyNetworks.length > 0) {
+            const unhealthyLabels = unhealthyNetworks.map(id => NETWORK_LABELS[id] || id).join(', ');
+
+            const result = await Swal.fire({
+                icon: 'warning',
+                title: 'Network Belum Siap',
+                html: `
+                    <p class="mb-3 text-textdark/80">Network berikut belum berjalan atau tidak dapat diakses:</p>
+                    <p class="mb-4 text-sm font-semibold text-yellow-400">${unhealthyLabels}</p>
+                    <p class="text-sm text-textdark/60">Silakan jalankan network terlebih dahulu atau hapus dari pilihan.</p>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'Jalankan Network',
+                cancelButtonText: 'Batal',
+                background: '#0F172A',
+                color: '#E2E8F0',
+                confirmButtonColor: '#38BDF8',
+                cancelButtonColor: '#64748B'
+            });
+
+            if (result.isConfirmed) {
+                window.location.href = '/penelitian/pelaksanaan-simulasi/menjalankan-network';
+            }
+            return;
+        }
+
         const count = parseInt(transactionCountInput.value);
         if (isNaN(count) || count < 1 || count > 10000) {
             Swal.fire({
@@ -504,13 +650,25 @@ componentLoaderReady.then(() => {
     if (selectAllBtn) {
         selectAllBtn.addEventListener('click', () => {
             networkCheckboxes.forEach(cb => cb.checked = true);
+            updateNetworkWarning();
         });
     }
 
     if (deselectAllBtn) {
         deselectAllBtn.addEventListener('click', () => {
             networkCheckboxes.forEach(cb => cb.checked = false);
+            updateNetworkWarning();
         });
+    }
+
+    // Event: Network checkbox changes
+    networkCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateNetworkWarning);
+    });
+
+    // Event: Refresh network status
+    if (refreshNetworkStatusBtn) {
+        refreshNetworkStatusBtn.addEventListener('click', checkNetworkHealth);
     }
 
     // Event: Execute button
@@ -524,4 +682,7 @@ componentLoaderReady.then(() => {
         lightRadio.checked = true;
         handleLoadTypeChange('light');
     }
+
+    // Initialize: Check network health on page load
+    checkNetworkHealth();
 });

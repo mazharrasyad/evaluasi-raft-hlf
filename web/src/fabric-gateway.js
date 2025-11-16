@@ -235,22 +235,14 @@ export async function submitTransaction(networkId, record) {
         const network = gateway.getNetwork(config.channel);
         const contract = network.getContract(config.chaincode);
 
-        // Submit transaction and get commit status
-        const proposal = contract.newProposal('CreateCatatan');
-        proposal.addArguments([record.id, JSON.stringify(record)]);
+        // Submit transaction
+        const resultBytes = await contract.submitTransaction(
+            'CreateCatatan',
+            record.id,
+            JSON.stringify(record)
+        );
 
-        const transaction = await proposal.endorse();
-        const commit = await transaction.submit();
-
-        // Get transaction ID
-        const txId = transaction.getTransactionId();
-
-        // Wait for commit and get block info
-        const status = await commit.getStatus();
-        const blockNumber = status.blockNumber;
-
-        // Get result from transaction
-        const resultBytes = transaction.getResult();
+        // Parse result
         const resultString = new TextDecoder().decode(resultBytes);
         const result = JSON.parse(resultString);
 
@@ -263,8 +255,6 @@ export async function submitTransaction(networkId, record) {
             result,
             networkId,
             recordId: record.id,
-            transactionId: txId,
-            blockNumber: blockNumber.toString(),
             timestamp: new Date().toISOString(),
         };
     } catch (error) {

@@ -192,14 +192,9 @@ const NETWORK_START_TARGETS = [
         channel: 'fabric2-channel-standard',
         commands: [
             {
-                label: 'Start core services',
-                args: ['up', '-ca'],
-                displayCommand: './network.sh up -ca',
-            },
-            {
-                label: 'Create channel',
-                args: ['createChannel', '-c', 'fabric2-channel-standard', '-ca'],
-                displayCommand: './network.sh createChannel -c fabric2-channel-standard -ca',
+                label: 'Start network and create channel',
+                args: ['up', 'createChannel', '-ca', '-c', 'fabric2-channel-standard'],
+                displayCommand: './network.sh up createChannel -ca -c fabric2-channel-standard',
             },
             {
                 label: 'Deploy chaincode',
@@ -226,14 +221,9 @@ const NETWORK_START_TARGETS = [
         channel: 'fabric2-channel-variant',
         commands: [
             {
-                label: 'Start core services',
-                args: ['up', '-ca', '-bft'],
-                displayCommand: './network.sh up -ca -bft',
-            },
-            {
-                label: 'Create channel',
-                args: ['createChannel', '-c', 'fabric2-channel-variant', '-ca', '-bft'],
-                displayCommand: './network.sh createChannel -c fabric2-channel-variant -ca -bft',
+                label: 'Start network and create channel',
+                args: ['up', 'createChannel', '-ca', '-c', 'fabric2-channel-variant'],
+                displayCommand: './network.sh up createChannel -ca -c fabric2-channel-variant',
             },
             {
                 label: 'Deploy chaincode',
@@ -247,10 +237,9 @@ const NETWORK_START_TARGETS = [
                     'javascript',
                     '-c',
                     'fabric2-channel-variant',
-                    '-bft',
                 ],
                 displayCommand:
-                    './network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl javascript -c fabric2-channel-variant -bft',
+                    './network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl javascript -c fabric2-channel-variant',
             },
         ],
     },
@@ -261,14 +250,9 @@ const NETWORK_START_TARGETS = [
         channel: 'fabric3-channel-standard',
         commands: [
             {
-                label: 'Start core services',
-                args: ['up'],
-                displayCommand: './network.sh up',
-            },
-            {
-                label: 'Create channel',
-                args: ['createChannel', '-c', 'fabric3-channel-standard'],
-                displayCommand: './network.sh createChannel -c fabric3-channel-standard',
+                label: 'Start network and create channel',
+                args: ['up', 'createChannel', '-c', 'fabric3-channel-standard'],
+                displayCommand: './network.sh up createChannel -c fabric3-channel-standard',
             },
             {
                 label: 'Deploy chaincode',
@@ -295,14 +279,9 @@ const NETWORK_START_TARGETS = [
         channel: 'fabric3-channel-variant',
         commands: [
             {
-                label: 'Start core services',
-                args: ['up'],
-                displayCommand: './network.sh up',
-            },
-            {
-                label: 'Create channel',
-                args: ['createChannel', '-c', 'fabric3-channel-variant'],
-                displayCommand: './network.sh createChannel -c fabric3-channel-variant',
+                label: 'Start network and create channel',
+                args: ['up', 'createChannel', '-c', 'fabric3-channel-variant'],
+                displayCommand: './network.sh up createChannel -c fabric3-channel-variant',
             },
             {
                 label: 'Deploy chaincode',

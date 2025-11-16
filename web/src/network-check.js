@@ -23,6 +23,7 @@ const fabric3VariantNetworkDir = path.join(PROJECT_ROOT, 'fabric-3/raft-variant/
 
 const networkConfigurations = [
     {
+        targetId: 'channel-standard',
         label: 'Fabric 2 RAFT Standard',
         networkDir: standardNetworkDir,
         channelName: 'fabric2-channel-standard',
@@ -35,6 +36,7 @@ const networkConfigurations = [
         }
     },
     {
+        targetId: 'channel-variant',
         label: 'Fabric 2 RAFT Variant',
         networkDir: variantNetworkDir,
         channelName: 'fabric2-channel-variant',
@@ -47,6 +49,7 @@ const networkConfigurations = [
         }
     },
     {
+        targetId: 'channel-fabric3-standard',
         label: 'Fabric 3 RAFT Standard',
         networkDir: fabric3StandardNetworkDir,
         channelName: 'fabric3-channel-standard',
@@ -59,6 +62,7 @@ const networkConfigurations = [
         }
     },
     {
+        targetId: 'channel-fabric3-variant',
         label: 'Fabric 3 RAFT Variant',
         networkDir: fabric3VariantNetworkDir,
         channelName: 'fabric3-channel-variant',
@@ -212,7 +216,7 @@ async function readFirstVisibleFile(directory) {
     return path.join(directory, candidate);
 }
 
-async function checkSingleNetwork({ label, networkDir, channelName, instructions, peerEndpoint, domain, peerHostAlias: configuredPeerHostAlias, orgName = 'org1', peerName = 'peer0' }) {
+async function checkSingleNetwork({ targetId, label, networkDir, channelName, instructions, peerEndpoint, domain, peerHostAlias: configuredPeerHostAlias, orgName = 'org1', peerName = 'peer0' }) {
     const effectivePeerEndpoint = peerEndpoint || 'localhost:7051';
     const effectiveDomain = domain ?? 'standard.com';
     const orgDomain = `${orgName}.${effectiveDomain}`;
@@ -220,6 +224,7 @@ async function checkSingleNetwork({ label, networkDir, channelName, instructions
     const peerHostAlias = configuredPeerHostAlias ?? `${peerName}.${orgDomain}`;
     const timestamp = new Date().toISOString();
     const baseResult = {
+        targetId,
         label,
         networkDir,
         channel: channelName,

@@ -3,7 +3,9 @@
     "allow": [
       "Bash(find:*)",
       "Bash(docker ps:*)",
-      "Bash(./network.sh:*)"
+      "Bash(./network.sh:*)",
+      "Bash(curl:*)",
+      "Bash(taskkill:*)"
     ],
     "deny": [],
     "ask": []

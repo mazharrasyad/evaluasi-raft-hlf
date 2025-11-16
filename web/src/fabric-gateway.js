@@ -235,10 +235,16 @@ export async function submitTransaction(networkId, record) {
         const network = gateway.getNetwork(config.channel);
         const contract = network.getContract(config.chaincode);
 
+        // Use reportId as the ID (frontend sends reportId, not id)
+        const recordId = record.reportId || record.id;
+        if (!recordId) {
+            throw new Error('Record must have either reportId or id property');
+        }
+
         // Submit transaction
         const resultBytes = await contract.submitTransaction(
             'CreateCatatan',
-            record.id,
+            recordId,
             JSON.stringify(record)
         );
 
@@ -254,7 +260,8 @@ export async function submitTransaction(networkId, record) {
             success: true,
             result,
             networkId,
-            recordId: record.id,
+            label: config.label,
+            recordId: recordId,
             timestamp: new Date().toISOString(),
         };
     } catch (error) {
@@ -268,11 +275,13 @@ export async function submitTransaction(networkId, record) {
             }
         }
 
+        const recordId = record.reportId || record.id;
         return {
             success: false,
             error: error.message,
             networkId,
-            recordId: record.id,
+            label: config.label,
+            recordId: recordId,
         };
     }
 }

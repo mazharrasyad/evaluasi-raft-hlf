@@ -1,4 +1,4 @@
-// Input Data Simulasi - Handler for manual data input and submission to multiple networks
+// Input Data Simulasi - Auto-generate simulation data based on 2024 statistics and submit to multiple networks
 
 const componentLoaderReady = window.componentLoaderReady instanceof Promise
     ? window.componentLoaderReady
@@ -6,125 +6,161 @@ const componentLoaderReady = window.componentLoaderReady instanceof Promise
 
 componentLoaderReady.then(() => {
     // DOM Elements
-    const form = document.getElementById('simulationInputForm');
-    const submitButton = document.getElementById('submitButton');
-    const resetButton = document.getElementById('resetButton');
-    const generateButton = document.getElementById('generateButton');
+    const loadCards = document.querySelectorAll('.load-card');
+    const loadRadios = document.querySelectorAll('input[name="loadType"]');
+    const transactionCountInput = document.getElementById('transactionCount');
+    const networkCheckboxes = document.querySelectorAll('input[name="network"]');
     const selectAllBtn = document.getElementById('selectAllNetworks');
     const deselectAllBtn = document.getElementById('deselectAllNetworks');
+    const executeButton = document.getElementById('executeButton');
+    const statusSection = document.getElementById('statusSection');
+    const statusContent = document.getElementById('statusContent');
+    const progressContainer = document.getElementById('progressContainer');
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
     const resultsSection = document.getElementById('resultsSection');
-    const resultsContainer = document.getElementById('resultsContainer');
-    const clearResultsBtn = document.getElementById('clearResultsButton');
+    const resultsContent = document.getElementById('resultsContent');
 
-    // Form fields
-    const reportIdInput = document.getElementById('reportId');
-    const timestampInput = document.getElementById('timestamp');
-    const substanceInput = document.getElementById('substance');
-    const reporterGroupInput = document.getElementById('reporterGroup');
-    const reportedGroupInput = document.getElementById('reportedGroup');
-    const receivingOfficeInput = document.getElementById('receivingOffice');
-    const descriptionInput = document.getElementById('description');
-    const statusInput = document.getElementById('status');
+    // Load type configuration
+    const LOAD_CONFIGS = {
+        light: { min: 100, max: 500, tps: '10-20' },
+        medium: { min: 1000, max: 3000, tps: '50-100' },
+        heavy: { min: 5000, max: 10000, tps: '200-500' }
+    };
 
-    // Network checkboxes
-    const networkCheckboxes = document.querySelectorAll('input[name="network"]');
+    // Data distributions based on 2024 statistics
+    const DISTRIBUTIONS = {
+        substances: [
+            { value: 'Agraria (Pertanahan dan Tata Ruang)', weight: 17.2 },
+            { value: 'Kepegawaian', weight: 12.5 },
+            { value: 'Pendidikan', weight: 9.6 },
+            { value: 'Perhubungan dan Infrastruktur', weight: 6.7 },
+            { value: 'Hak Sipil dan Politik', weight: 6.3 },
+            { value: 'Administrasi Kependudukan', weight: 6.0 },
+            { value: 'Kepolisian', weight: 5.7 },
+            { value: 'Kesehatan', weight: 4.8 },
+            { value: 'Pelayanan Umum', weight: 4.2 },
+            { value: 'Lainnya', weight: 27.0 }
+        ],
+        reporterGroups: [
+            { value: 'Perorangan', weight: 77.3 },
+            { value: 'Badan Hukum/Organisasi', weight: 7.6 },
+            { value: 'Anggota Keluarga', weight: 3.8 },
+            { value: 'Kelompok Masyarakat', weight: 1.2 },
+            { value: 'Bukan Korban Langsung maupun Kuasa', weight: 1.0 },
+            { value: 'Kantor Hukum (Advokat)', weight: 0.4 },
+            { value: 'Tidak Diketahui', weight: 8.7 }
+        ],
+        reportedGroups: [
+            { value: 'Pemerintah Daerah', weight: 47.5 },
+            { value: 'Badan Pertanahan Nasional', weight: 12.3 },
+            { value: 'BUMN/BUMD', weight: 6.7 },
+            { value: 'Lembaga Pendidikan Negeri', weight: 6.0 },
+            { value: 'Kepolisian', weight: 5.8 },
+            { value: 'Instansi Pemerintah / Kementerian', weight: 5.8 },
+            { value: 'Lainnya', weight: 15.9 }
+        ],
+        offices: [
+            { value: 'Pusat', weight: 10.2 },
+            { value: 'Sumatera Barat', weight: 5.0 },
+            { value: 'Sumatera Selatan', weight: 4.5 },
+            { value: 'Jakarta Raya', weight: 3.7 },
+            { value: 'Sulawesi Selatan', weight: 3.7 },
+            { value: 'Kalimantan Barat', weight: 3.6 },
+            { value: 'Jawa Tengah', weight: 3.6 },
+            { value: 'Jawa Barat', weight: 3.5 },
+            { value: 'Jawa Timur', weight: 3.4 },
+            { value: 'Sumatera Utara', weight: 3.2 },
+            { value: 'Lainnya', weight: 55.6 }
+        ]
+    };
 
-    // Initialize timestamp with current date/time
-    function initializeTimestamp() {
+    const SAMPLE_DESCRIPTIONS = [
+        'Penundaan proses administrasi yang tidak wajar dalam pelayanan publik',
+        'Diskriminasi dalam pemberian layanan kepada masyarakat',
+        'Pungutan liar yang dilakukan oleh aparat dalam pengurusan dokumen',
+        'Ketidakjelasan prosedur pelayanan yang merugikan masyarakat',
+        'Penolakan pelayanan tanpa alasan yang jelas dan tidak sesuai SOP',
+        'Keterlambatan pemberian izin melebihi waktu yang ditentukan',
+        'Pelanggaran standar operasional prosedur dalam pelayanan masyarakat',
+        'Penyalahgunaan wewenang dalam pelaksanaan tugas pelayanan publik',
+        'Ketidakpastian waktu penyelesaian layanan administrasi',
+        'Pembiaran atas pelanggaran yang dilakukan oleh bawahan'
+    ];
+
+    let isExecuting = false;
+    let currentLoadType = null;
+
+    // Weighted random selection
+    function weightedRandom(items) {
+        const totalWeight = items.reduce((sum, item) => sum + item.weight, 0);
+        let random = Math.random() * totalWeight;
+
+        for (const item of items) {
+            random -= item.weight;
+            if (random <= 0) {
+                return item.value;
+            }
+        }
+
+        return items[items.length - 1].value;
+    }
+
+    // Generate random timestamp
+    function generateTimestamp(loadType) {
         const now = new Date();
         const year = now.getFullYear();
-        const month = String(now.getMonth() + 1).padStart(2, '0');
-        const day = String(now.getDate()).padStart(2, '0');
-        const hours = String(now.getHours()).padStart(2, '0');
-        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const month = now.getMonth();
+        const day = now.getDate();
 
-        timestampInput.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+        let hour, minute, second;
+
+        if (loadType === 'light') {
+            // Distributed throughout the day (00:00 - 23:59)
+            hour = Math.floor(Math.random() * 24);
+            minute = Math.floor(Math.random() * 60);
+        } else if (loadType === 'medium') {
+            // Concentrated during work hours (08:00 - 16:00)
+            hour = 8 + Math.floor(Math.random() * 9);
+            minute = Math.floor(Math.random() * 60);
+        } else {
+            // Burst in peak hours (10:00 - 14:00)
+            hour = 10 + Math.floor(Math.random() * 5);
+            minute = Math.floor(Math.random() * 60);
+        }
+
+        second = Math.floor(Math.random() * 60);
+
+        return new Date(year, month, day, hour, minute, second).toISOString();
     }
 
-    // Generate random report ID
-    function generateReportId() {
-        const year = new Date().getFullYear();
-        const random = Math.floor(Math.random() * 99999) + 1;
-        const paddedRandom = String(random).padStart(5, '0');
-        return `RPT-${year}-${paddedRandom}`;
+    // Generate report ID
+    function generateReportId(index, total) {
+        const paddedIndex = String(index).padStart(5, '0');
+        return `RPT-2024-${paddedIndex}`;
     }
 
-    // Data for auto-generation
-    const substances = [
-        'Agraria (Pertanahan dan Tata Ruang)',
-        'Kepegawaian',
-        'Pendidikan',
-        'Perhubungan dan Infrastruktur',
-        'Hak Sipil dan Politik',
-        'Administrasi Kependudukan',
-        'Kepolisian',
-        'Kesehatan',
-        'Pelayanan Umum'
-    ];
-
-    const reporterGroups = [
-        'Perorangan',
-        'Badan Hukum/Organisasi',
-        'Anggota Keluarga',
-        'Kelompok Masyarakat',
-        'Kantor Hukum (Advokat)'
-    ];
-
-    const reportedGroups = [
-        'Pemerintah Daerah',
-        'Badan Pertanahan Nasional',
-        'BUMN/BUMD',
-        'Lembaga Pendidikan Negeri',
-        'Kepolisian',
-        'Instansi Pemerintah / Kementerian',
-        'Lembaga Peradilan'
-    ];
-
-    const offices = [
-        'Pusat', 'Jakarta Raya', 'Jawa Barat', 'Jawa Tengah', 'Jawa Timur',
-        'Sumatera Utara', 'Sumatera Barat', 'Sumatera Selatan',
-        'Kalimantan Barat', 'Kalimantan Selatan', 'Kalimantan Timur',
-        'Sulawesi Selatan', 'Sulawesi Utara', 'Bali', 'Yogyakarta'
-    ];
-
-    const sampleDescriptions = [
-        'Penundaan proses administrasi yang tidak wajar',
-        'Diskriminasi dalam pelayanan publik',
-        'Pungutan liar dalam pengurusan dokumen',
-        'Ketidakjelasan prosedur pelayanan',
-        'Penolakan pelayanan tanpa alasan yang jelas',
-        'Keterlambatan pemberian izin melebihi waktu yang ditentukan',
-        'Pelanggaran SOP dalam pelayanan masyarakat',
-        'Penyalahgunaan wewenang dalam pelayanan publik'
-    ];
-
-    // Get random item from array
-    function getRandomItem(array) {
-        return array[Math.floor(Math.random() * array.length)];
+    // Generate single record
+    function generateRecord(index, total, loadType) {
+        return {
+            reportId: generateReportId(index, total),
+            timestamp: generateTimestamp(loadType),
+            substance: weightedRandom(DISTRIBUTIONS.substances),
+            reporterGroup: weightedRandom(DISTRIBUTIONS.reporterGroups),
+            reportedGroup: weightedRandom(DISTRIBUTIONS.reportedGroups),
+            receivingOffice: weightedRandom(DISTRIBUTIONS.offices),
+            description: SAMPLE_DESCRIPTIONS[Math.floor(Math.random() * SAMPLE_DESCRIPTIONS.length)],
+            status: 'pending'
+        };
     }
 
-    // Auto-generate form data
-    function generateFormData() {
-        reportIdInput.value = generateReportId();
-        initializeTimestamp();
-        substanceInput.value = getRandomItem(substances);
-        reporterGroupInput.value = getRandomItem(reporterGroups);
-        reportedGroupInput.value = getRandomItem(reportedGroups);
-        receivingOfficeInput.value = getRandomItem(offices);
-        descriptionInput.value = getRandomItem(sampleDescriptions);
-        statusInput.value = 'pending';
-
-        // Show feedback
-        Swal.fire({
-            icon: 'success',
-            title: 'Data Berhasil Digenerate',
-            text: 'Form telah diisi dengan data otomatis. Silakan review dan kirim.',
-            background: '#0F172A',
-            color: '#E2E8F0',
-            confirmButtonColor: '#38BDF8',
-            timer: 2000,
-            showConfirmButton: false
-        });
+    // Generate multiple records
+    function generateRecords(count, loadType) {
+        const records = [];
+        for (let i = 1; i <= count; i++) {
+            records.push(generateRecord(i, count, loadType));
+        }
+        return records;
     }
 
     // Get selected networks
@@ -138,55 +174,8 @@ componentLoaderReady.then(() => {
         return selected;
     }
 
-    // Validate form
-    function validateForm() {
-        const selectedNetworks = getSelectedNetworks();
-
-        if (selectedNetworks.length === 0) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Pilih Network',
-                text: 'Silakan pilih minimal satu network untuk menerima data.',
-                background: '#0F172A',
-                color: '#E2E8F0',
-                confirmButtonColor: '#38BDF8'
-            });
-            return false;
-        }
-
-        // Validate report ID format
-        const reportIdPattern = /^RPT-\d{4}-\d{5}$/;
-        if (!reportIdPattern.test(reportIdInput.value)) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Format ID Tidak Valid',
-                text: 'Format ID Laporan harus: RPT-YYYY-XXXXX',
-                background: '#0F172A',
-                color: '#E2E8F0',
-                confirmButtonColor: '#38BDF8'
-            });
-            return false;
-        }
-
-        return true;
-    }
-
-    // Build record object from form
-    function buildRecordFromForm() {
-        return {
-            reportId: reportIdInput.value.trim(),
-            timestamp: new Date(timestampInput.value).toISOString(),
-            substance: substanceInput.value,
-            reporterGroup: reporterGroupInput.value,
-            reportedGroup: reportedGroupInput.value,
-            receivingOffice: receivingOfficeInput.value,
-            description: descriptionInput.value.trim(),
-            status: statusInput.value
-        };
-    }
-
-    // Submit record to blockchain networks
-    async function submitToNetworks(record, targetIds) {
+    // Submit record to blockchain
+    async function submitRecord(record, targetIds) {
         const response = await fetch('/api/simulations/records', {
             method: 'POST',
             headers: {
@@ -200,14 +189,14 @@ componentLoaderReady.then(() => {
         });
 
         if (!response.ok) {
-            let errorMessage = `Server mengembalikan status ${response.status}`;
+            let errorMessage = `Server error: ${response.status}`;
             try {
                 const errorData = await response.json();
                 if (errorData.error) {
                     errorMessage = errorData.error;
                 }
             } catch (e) {
-                // Ignore JSON parse error
+                // Ignore
             }
             throw new Error(errorMessage);
         }
@@ -215,222 +204,324 @@ componentLoaderReady.then(() => {
         return response.json();
     }
 
-    // Display results
-    function displayResults(results, record) {
-        resultsSection.classList.remove('hidden');
+    // Update progress
+    function updateProgress(current, total) {
+        const percentage = Math.round((current / total) * 100);
+        progressBar.style.width = `${percentage}%`;
+        progressText.textContent = `${percentage}%`;
+    }
 
-        const resultHTML = results.map(result => {
-            const statusClass = result.success ? 'status-success' : 'status-error';
-            const statusIcon = result.success
-                ? '<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>'
-                : '<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>';
+    // Show status message
+    function showStatus(message, type = 'info') {
+        const iconMap = {
+            info: '<svg class="h-5 w-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>',
+            success: '<svg class="h-5 w-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>',
+            error: '<svg class="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>',
+            warning: '<svg class="h-5 w-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>'
+        };
 
-            const badgeClass = result.networkId.includes('fabric3') ? 'badge-fabric3' : 'badge-fabric2';
+        const colorMap = {
+            info: 'border-primary/20 bg-primary/5',
+            success: 'border-green-400/20 bg-green-400/5',
+            error: 'border-red-400/20 bg-red-400/5',
+            warning: 'border-yellow-400/20 bg-yellow-400/5'
+        };
 
-            let detailsHTML = '';
-            if (result.success && result.result) {
-                const transactionId = result.result.transactionId || 'N/A';
-                const blockNumber = result.result.blockNumber || 'N/A';
-                const timestamp = result.result.timestamp
-                    ? new Date(result.result.timestamp).toLocaleString('id-ID')
-                    : 'N/A';
-
-                detailsHTML = `
-                    <div class="mt-3 space-y-1 text-xs">
-                        <div class="flex justify-between">
-                            <span class="text-textdark/60">Transaction ID:</span>
-                            <span class="font-mono text-textdark/80">${transactionId.substring(0, 16)}...</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-textdark/60">Block Number:</span>
-                            <span class="font-mono text-textdark/80">${blockNumber}</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-textdark/60">Timestamp:</span>
-                            <span class="text-textdark/80">${timestamp}</span>
-                        </div>
-                    </div>
-                `;
-            } else if (!result.success && result.error) {
-                detailsHTML = `
-                    <div class="mt-3 text-xs text-red-300">
-                        Error: ${result.error}
-                    </div>
-                `;
-            }
-
-            return `
-                <div class="rounded-xl border border-white/10 bg-white/5 p-5">
-                    <div class="flex items-start gap-4">
-                        <div class="${statusClass} mt-1">${statusIcon}</div>
-                        <div class="flex-1">
-                            <div class="flex items-center gap-2 mb-2">
-                                <h3 class="text-base font-semibold text-textdark">${result.label || result.networkId}</h3>
-                                <span class="${badgeClass} rounded-full border px-2 py-0.5 text-xs font-semibold">
-                                    ${result.networkId.includes('fabric3') ? 'Fabric 3' : 'Fabric 2'}
-                                </span>
-                            </div>
-                            <p class="text-sm ${statusClass}">
-                                ${result.success ? 'Berhasil dikirim ke blockchain' : 'Gagal mengirim ke blockchain'}
-                            </p>
-                            ${detailsHTML}
-                        </div>
-                    </div>
-                </div>
-            `;
-        }).join('');
-
-        const timestamp = new Date().toLocaleString('id-ID');
-        const recordInfoHTML = `
-            <div class="mb-6 rounded-xl border border-primary/20 bg-primary/5 p-5">
-                <h3 class="mb-3 text-lg font-semibold text-primary">Data yang Dikirim</h3>
-                <div class="grid grid-cols-2 gap-3 text-sm">
-                    <div>
-                        <span class="text-textdark/60">ID Laporan:</span>
-                        <span class="ml-2 font-mono text-textdark">${record.reportId}</span>
-                    </div>
-                    <div>
-                        <span class="text-textdark/60">Substansi:</span>
-                        <span class="ml-2 text-textdark">${record.substance}</span>
-                    </div>
-                    <div>
-                        <span class="text-textdark/60">Pelapor:</span>
-                        <span class="ml-2 text-textdark">${record.reporterGroup}</span>
-                    </div>
-                    <div>
-                        <span class="text-textdark/60">Terlapor:</span>
-                        <span class="ml-2 text-textdark">${record.reportedGroup}</span>
-                    </div>
-                    <div>
-                        <span class="text-textdark/60">Kantor:</span>
-                        <span class="ml-2 text-textdark">${record.receivingOffice}</span>
-                    </div>
-                    <div>
-                        <span class="text-textdark/60">Status:</span>
-                        <span class="ml-2 text-textdark">${record.status}</span>
-                    </div>
-                </div>
-                <div class="mt-3 text-xs text-textdark/50">Dikirim pada: ${timestamp}</div>
+        const statusHTML = `
+            <div class="flex items-start gap-3 rounded-lg border ${colorMap[type]} p-4">
+                ${iconMap[type]}
+                <p class="flex-1 text-sm text-textdark/90">${message}</p>
             </div>
         `;
 
-        resultsContainer.innerHTML = recordInfoHTML + resultHTML;
+        statusContent.insertAdjacentHTML('beforeend', statusHTML);
+        statusSection.classList.remove('hidden');
+        statusSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
 
-        // Scroll to results
+    // Show results
+    function showResults(summary) {
+        const totalRecords = summary.totalRecords || 0;
+        const totalNetworks = summary.networks?.length || 0;
+
+        let resultsHTML = `
+            <div class="rounded-xl border border-primary/20 bg-primary/5 p-6">
+                <h3 class="mb-4 text-lg font-semibold text-primary">Ringkasan Simulasi</h3>
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <div class="text-textdark/60">Total Transaksi</div>
+                        <div class="text-2xl font-bold text-textdark">${totalRecords}</div>
+                    </div>
+                    <div>
+                        <div class="text-textdark/60">Target Network</div>
+                        <div class="text-2xl font-bold text-textdark">${totalNetworks}</div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        if (summary.networks && summary.networks.length > 0) {
+            resultsHTML += '<div class="space-y-4">';
+
+            summary.networks.forEach(network => {
+                const successRate = network.total > 0
+                    ? Math.round((network.success / network.total) * 100)
+                    : 0;
+
+                const statusColor = successRate === 100
+                    ? 'border-green-400/30 bg-green-400/5'
+                    : successRate > 0
+                        ? 'border-yellow-400/30 bg-yellow-400/5'
+                        : 'border-red-400/30 bg-red-400/5';
+
+                resultsHTML += `
+                    <div class="rounded-xl border ${statusColor} p-5">
+                        <div class="mb-3 flex items-center justify-between">
+                            <h4 class="font-semibold text-textdark">${network.label}</h4>
+                            <span class="rounded-full px-3 py-1 text-xs font-semibold ${
+                                successRate === 100 ? 'bg-green-400/20 text-green-400' :
+                                successRate > 0 ? 'bg-yellow-400/20 text-yellow-400' :
+                                'bg-red-400/20 text-red-400'
+                            }">${successRate}%</span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-3 text-sm">
+                            <div>
+                                <div class="text-xs text-textdark/60">Total</div>
+                                <div class="text-lg font-semibold text-textdark">${network.total}</div>
+                            </div>
+                            <div>
+                                <div class="text-xs text-textdark/60">Berhasil</div>
+                                <div class="text-lg font-semibold text-green-400">${network.success}</div>
+                            </div>
+                            <div>
+                                <div class="text-xs text-textdark/60">Gagal</div>
+                                <div class="text-lg font-semibold text-red-400">${network.failed}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            resultsHTML += '</div>';
+        }
+
+        resultsContent.innerHTML = resultsHTML;
+        resultsSection.classList.remove('hidden');
         resultsSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
-    // Handle form submission
-    async function handleSubmit(event) {
-        event.preventDefault();
-
-        if (!validateForm()) {
+    // Execute simulation
+    async function executeSimulation() {
+        if (isExecuting) {
             return;
         }
 
         const selectedNetworks = getSelectedNetworks();
-        const record = buildRecordFromForm();
+        if (selectedNetworks.length === 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Pilih Network',
+                text: 'Silakan pilih minimal satu network untuk menerima data simulasi.',
+                background: '#0F172A',
+                color: '#E2E8F0',
+                confirmButtonColor: '#38BDF8'
+            });
+            return;
+        }
 
-        // Show loading
-        submitButton.disabled = true;
-        submitButton.innerHTML = `
-            <svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            Mengirim...
-        `;
+        const count = parseInt(transactionCountInput.value);
+        if (isNaN(count) || count < 1 || count > 10000) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Jumlah Tidak Valid',
+                text: 'Masukkan jumlah transaksi antara 1 - 10.000',
+                background: '#0F172A',
+                color: '#E2E8F0',
+                confirmButtonColor: '#38BDF8'
+            });
+            return;
+        }
+
+        // Confirm execution
+        const result = await Swal.fire({
+            icon: 'question',
+            title: 'Konfirmasi Eksekusi',
+            html: `
+                <p class="text-textdark/80">Akan membangkitkan <strong>${count}</strong> transaksi dan mengirimkan ke <strong>${selectedNetworks.length}</strong> network.</p>
+                <p class="mt-2 text-sm text-textdark/60">Total: ${count * selectedNetworks.length} operasi blockchain</p>
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'Lanjutkan',
+            cancelButtonText: 'Batal',
+            background: '#0F172A',
+            color: '#E2E8F0',
+            confirmButtonColor: '#38BDF8',
+            cancelButtonColor: '#64748B'
+        });
+
+        if (!result.isConfirmed) {
+            return;
+        }
+
+        isExecuting = true;
+        executeButton.disabled = true;
+
+        // Clear previous results
+        statusContent.innerHTML = '';
+        resultsContent.innerHTML = '';
+        progressBar.style.width = '0%';
+        progressText.textContent = '0%';
+        statusSection.classList.remove('hidden');
+        progressContainer.classList.remove('hidden');
+
+        showStatus(`Membangkitkan ${count} data simulasi...`, 'info');
 
         try {
-            const response = await submitToNetworks(record, selectedNetworks);
+            // Generate records
+            const records = generateRecords(count, currentLoadType);
+            showStatus(`Berhasil membangkitkan ${records.length} data simulasi`, 'success');
 
-            if (response.success) {
-                // Display results
-                displayResults(response.results || [], record);
+            // Submit records
+            showStatus(`Memulai pengiriman ke ${selectedNetworks.length} network...`, 'info');
 
-                // Show success message
-                const successCount = response.successCount || 0;
-                const totalCount = response.totalCount || selectedNetworks.length;
+            const networkSummary = selectedNetworks.map(id => ({
+                id: id,
+                label: id,
+                total: 0,
+                success: 0,
+                failed: 0
+            }));
 
-                Swal.fire({
-                    icon: successCount === totalCount ? 'success' : 'warning',
-                    title: successCount === totalCount ? 'Berhasil Dikirim' : 'Sebagian Berhasil',
-                    text: `${successCount} dari ${totalCount} network berhasil menerima data.`,
-                    background: '#0F172A',
-                    color: '#E2E8F0',
-                    confirmButtonColor: '#38BDF8'
-                });
+            for (let i = 0; i < records.length; i++) {
+                const record = records[i];
 
-                // Reset form if all successful
-                if (successCount === totalCount) {
-                    form.reset();
-                    initializeTimestamp();
+                try {
+                    const response = await submitRecord(record, selectedNetworks);
+
+                    if (response.results) {
+                        response.results.forEach(result => {
+                            const network = networkSummary.find(n => n.id === result.networkId);
+                            if (network) {
+                                network.total++;
+                                if (result.success) {
+                                    network.success++;
+                                } else {
+                                    network.failed++;
+                                }
+                                network.label = result.label || network.id;
+                            }
+                        });
+                    }
+                } catch (error) {
+                    console.error(`Error submitting record ${record.reportId}:`, error);
+                    networkSummary.forEach(network => {
+                        network.total++;
+                        network.failed++;
+                    });
                 }
-            } else {
-                throw new Error(response.error || 'Gagal mengirim data ke network');
+
+                updateProgress(i + 1, records.length);
             }
+
+            showStatus(`Selesai mengirim ${records.length} transaksi`, 'success');
+
+            // Show results
+            showResults({
+                totalRecords: records.length,
+                networks: networkSummary
+            });
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Simulasi Selesai',
+                text: `Berhasil mengirim ${records.length} transaksi ke ${selectedNetworks.length} network`,
+                background: '#0F172A',
+                color: '#E2E8F0',
+                confirmButtonColor: '#38BDF8'
+            });
+
         } catch (error) {
-            console.error('Error submitting to networks:', error);
+            console.error('Execution error:', error);
+            showStatus(`Error: ${error.message}`, 'error');
 
             Swal.fire({
                 icon: 'error',
-                title: 'Gagal Mengirim',
-                text: error.message || 'Terjadi kesalahan saat mengirim data ke network.',
+                title: 'Eksekusi Gagal',
+                text: error.message || 'Terjadi kesalahan saat eksekusi simulasi',
                 background: '#0F172A',
                 color: '#E2E8F0',
                 confirmButtonColor: '#38BDF8'
             });
         } finally {
-            // Restore button
-            submitButton.disabled = false;
-            submitButton.innerHTML = `
-                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
-                </svg>
-                Kirim ke Network Terpilih
-            `;
+            isExecuting = false;
+            executeButton.disabled = false;
         }
     }
 
-    // Event Listeners
-    if (form) {
-        form.addEventListener('submit', handleSubmit);
-    }
-
-    if (resetButton) {
-        resetButton.addEventListener('click', () => {
-            form.reset();
-            initializeTimestamp();
+    // Event: Load type selection
+    loadCards.forEach(card => {
+        card.addEventListener('click', () => {
+            const loadType = card.dataset.loadType;
+            const radio = card.querySelector('input[type="radio"]');
+            if (radio) {
+                radio.checked = true;
+                handleLoadTypeChange(loadType);
+            }
         });
+    });
+
+    loadRadios.forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                handleLoadTypeChange(e.target.value);
+            }
+        });
+    });
+
+    function handleLoadTypeChange(loadType) {
+        currentLoadType = loadType;
+
+        // Update visual selection
+        loadCards.forEach(card => {
+            if (card.dataset.loadType === loadType) {
+                card.classList.add('selected');
+            } else {
+                card.classList.remove('selected');
+            }
+        });
+
+        // Update transaction count
+        const config = LOAD_CONFIGS[loadType];
+        if (config) {
+            const suggested = Math.floor((config.min + config.max) / 2);
+            transactionCountInput.value = suggested;
+            transactionCountInput.min = config.min;
+            transactionCountInput.max = config.max;
+        }
     }
 
-    if (generateButton) {
-        generateButton.addEventListener('click', generateFormData);
-    }
-
+    // Event: Network selection
     if (selectAllBtn) {
         selectAllBtn.addEventListener('click', () => {
-            networkCheckboxes.forEach(checkbox => {
-                checkbox.checked = true;
-            });
+            networkCheckboxes.forEach(cb => cb.checked = true);
         });
     }
 
     if (deselectAllBtn) {
         deselectAllBtn.addEventListener('click', () => {
-            networkCheckboxes.forEach(checkbox => {
-                checkbox.checked = false;
-            });
+            networkCheckboxes.forEach(cb => cb.checked = false);
         });
     }
 
-    if (clearResultsBtn) {
-        clearResultsBtn.addEventListener('click', () => {
-            resultsContainer.innerHTML = '';
-            resultsSection.classList.add('hidden');
-        });
+    // Event: Execute button
+    if (executeButton) {
+        executeButton.addEventListener('click', executeSimulation);
     }
 
-    // Initialize
-    initializeTimestamp();
+    // Initialize: Select light load by default
+    const lightRadio = document.getElementById('loadLight');
+    if (lightRadio) {
+        lightRadio.checked = true;
+        handleLoadTypeChange('light');
+    }
 });

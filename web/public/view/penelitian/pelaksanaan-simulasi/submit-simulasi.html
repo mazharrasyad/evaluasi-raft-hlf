@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluasi RAFT HLF — Submit Simulasi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#38BDF8',
+                        secondary: '#6366F1',
+                        accent: '#F59E0B',
+                        highlight: '#F97316',
+                        soft: '#050B16',
+                        surface: '#0F172A',
+                        surfaceMuted: '#16213F',
+                        border: '#1E293B',
+                        muted: '#94A3B8',
+                        textdark: '#E2E8F0'
+                    }
+                }
+            }
+        };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="/images/logo-ai-center.svg">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+
+        .component-link[data-active="true"] {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.28), rgba(56, 189, 248, 0.22));
+            color: #E2E8F0;
+            border-color: rgba(249, 115, 22, 0.45);
+            box-shadow: 0 12px 40px rgba(15, 23, 42, 0.45);
+        }
+
+        .component-link[data-active="true"] .component-link__index {
+            background-color: rgba(249, 115, 22, 0.35);
+            color: #E2E8F0;
+        }
+
+        .network-checkbox:checked + label {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(99, 102, 241, 0.20));
+            border-color: rgba(56, 189, 248, 0.6);
+        }
+
+        .spinner {
+            border: 3px solid rgba(56, 189, 248, 0.1);
+            border-top-color: #38BDF8;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .result-item {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body class="bg-soft text-textdark">
+    <div data-component="header"></div>
+    <div class="relative min-h-screen overflow-hidden">
+        <div class="absolute inset-0 -z-10 h-full w-full">
+            <div class="absolute -left-1/3 top-0 h-[720px] w-[720px] rounded-full bg-gradient-to-br from-highlight/30 via-secondary/20 to-transparent opacity-70 blur-3xl"></div>
+            <div class="absolute -right-1/4 bottom-0 h-[620px] w-[620px] rounded-full bg-gradient-to-tr from-accent/35 via-secondary/25 to-primary/20 opacity-70 blur-3xl"></div>
+        </div>
+
+        <div class="flex min-h-screen flex-col lg:flex-row">
+            <div data-component="sidebar"></div>
+
+            <div class="flex-1">
+                <main class="mx-auto w-full max-w-5xl px-6 py-12">
+                    <div class="space-y-10">
+                        <!-- Header Section -->
+                        <section class="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-surface via-soft to-[#020817] p-10 shadow-2xl shadow-black/30">
+                            <div class="flex flex-col gap-6">
+                                <div class="inline-flex w-fit items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-primary/90">
+                                    Bab 4.4.3
+                                </div>
+                                <div class="space-y-5">
+                                    <h1 class="text-3xl font-semibold text-textdark md:text-4xl">Submit Simulasi ke Jaringan</h1>
+                                    <p class="text-sm text-textdark/70 md:text-base leading-relaxed">
+                                        Halaman ini memungkinkan Anda untuk mengirimkan data simulasi pelaporan maladministrasi ke dalam jaringan blockchain Hyperledger Fabric yang telah dikonfigurasi. Anda dapat memilih kategori beban simulasi dan menentukan jaringan target untuk pengujian performa konsensus RAFT.
+                                    </p>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Submit Form -->
+                        <section class="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-surface via-soft to-[#020817] p-10 shadow-2xl shadow-black/30">
+                            <h2 class="mb-6 text-2xl font-semibold text-textdark">Form Submit Simulasi</h2>
+
+                            <form id="simulationForm" class="space-y-8">
+                                <!-- Load Category Selection -->
+                                <div class="space-y-4">
+                                    <label class="text-sm font-semibold text-textdark">
+                                        Kategori Beban Simulasi
+                                        <span class="text-red-400">*</span>
+                                    </label>
+                                    <div class="space-y-3">
+                                        <!-- Beban Ringan -->
+                                        <div class="rounded-2xl border border-green-500/20 bg-green-500/5 p-5 transition-all hover:border-green-500/40">
+                                            <label class="flex cursor-pointer items-start gap-4">
+                                                <input type="radio" name="loadCategory" value="light" class="mt-1 h-5 w-5 text-green-500 focus:ring-green-500" required>
+                                                <div class="flex-1">
+                                                    <div class="mb-2 flex items-center gap-3">
+                                                        <span class="rounded-lg bg-green-500/20 px-3 py-1 text-sm font-semibold text-green-400">Beban Ringan</span>
+                                                        <span class="text-xs text-textdark/60">100-500 transaksi • 10-20 TPS</span>
+                                                    </div>
+                                                    <p class="text-sm text-textdark/70">
+                                                        Kondisi normal dengan jumlah transaksi rendah, menggambarkan aktivitas harian yang stabil.
+                                                    </p>
+                                                </div>
+                                            </label>
+                                        </div>
+
+                                        <!-- Beban Sedang -->
+                                        <div class="rounded-2xl border border-yellow-500/20 bg-yellow-500/5 p-5 transition-all hover:border-yellow-500/40">
+                                            <label class="flex cursor-pointer items-start gap-4">
+                                                <input type="radio" name="loadCategory" value="medium" class="mt-1 h-5 w-5 text-yellow-500 focus:ring-yellow-500" required>
+                                                <div class="flex-1">
+                                                    <div class="mb-2 flex items-center gap-3">
+                                                        <span class="rounded-lg bg-yellow-500/20 px-3 py-1 text-sm font-semibold text-yellow-400">Beban Sedang</span>
+                                                        <span class="text-xs text-textdark/60">1.000-3.000 transaksi • 50-100 TPS</span>
+                                                    </div>
+                                                    <p class="text-sm text-textdark/70">
+                                                        Kondisi aktivitas menengah dengan peningkatan volume transaksi.
+                                                    </p>
+                                                </div>
+                                            </label>
+                                        </div>
+
+                                        <!-- Beban Tinggi -->
+                                        <div class="rounded-2xl border border-red-500/20 bg-red-500/5 p-5 transition-all hover:border-red-500/40">
+                                            <label class="flex cursor-pointer items-start gap-4">
+                                                <input type="radio" name="loadCategory" value="high" class="mt-1 h-5 w-5 text-red-500 focus:ring-red-500" required>
+                                                <div class="flex-1">
+                                                    <div class="mb-2 flex items-center gap-3">
+                                                        <span class="rounded-lg bg-red-500/20 px-3 py-1 text-sm font-semibold text-red-400">Beban Tinggi</span>
+                                                        <span class="text-xs text-textdark/60">5.000-10.000 transaksi • 200-500 TPS</span>
+                                                    </div>
+                                                    <p class="text-sm text-textdark/70">
+                                                        Kondisi puncak dengan lonjakan transaksi secara signifikan.
+                                                    </p>
+                                                </div>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Transaction Count Input -->
+                                <div class="space-y-3">
+                                    <label for="transactionCount" class="text-sm font-semibold text-textdark">
+                                        Jumlah Transaksi
+                                        <span class="text-red-400">*</span>
+                                    </label>
+                                    <input
+                                        type="number"
+                                        id="transactionCount"
+                                        name="transactionCount"
+                                        min="1"
+                                        max="10000"
+                                        placeholder="Masukkan jumlah transaksi"
+                                        class="w-full rounded-xl border border-white/10 bg-surfaceMuted/60 px-4 py-3 text-textdark placeholder-textdark/40 focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                        required
+                                    >
+                                    <p class="text-xs text-textdark/60">Masukkan jumlah transaksi sesuai dengan kategori beban yang dipilih.</p>
+                                </div>
+
+                                <!-- Target Networks Selection -->
+                                <div class="space-y-4">
+                                    <label class="text-sm font-semibold text-textdark">
+                                        Jaringan Target
+                                        <span class="text-red-400">*</span>
+                                    </label>
+                                    <p class="text-xs text-textdark/60">Pilih satu atau lebih jaringan blockchain untuk mengirimkan simulasi.</p>
+
+                                    <div class="grid gap-4 md:grid-cols-2">
+                                        <!-- Fabric 2 RAFT Standard -->
+                                        <div class="rounded-2xl border border-white/10 bg-surfaceMuted/40 p-5 transition-all hover:bg-surfaceMuted/60">
+                                            <input
+                                                type="checkbox"
+                                                id="channel-standard"
+                                                name="targetNetworks"
+                                                value="channel-standard"
+                                                class="network-checkbox peer hidden"
+                                            >
+                                            <label for="channel-standard" class="flex cursor-pointer items-start gap-4 rounded-xl border border-white/10 bg-white/5 p-4 transition-all peer-checked:border-secondary/50 peer-checked:bg-secondary/10">
+                                                <div class="mt-0.5 flex h-5 w-5 items-center justify-center rounded border-2 border-white/30 peer-checked:border-secondary peer-checked:bg-secondary">
+                                                    <svg class="hidden h-3 w-3 text-white peer-checked:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                                                    </svg>
+                                                </div>
+                                                <div class="flex-1">
+                                                    <div class="mb-1 text-sm font-semibold text-textdark">Fabric 2 RAFT Standard</div>
+                                                    <div class="text-xs text-textdark/60">Hyperledger Fabric v2 dengan konsensus RAFT standar</div>
+                                                </div>
+                                            </label>
+                                        </div>
+
+                                        <!-- Fabric 2 RAFT Variant -->
+                                        <div class="rounded-2xl border border-white/10 bg-surfaceMuted/40 p-5 transition-all hover:bg-surfaceMuted/60">
+                                            <input
+                                                type="checkbox"
+                                                id="channel-variant"
+                                                name="targetNetworks"
+                                                value="channel-variant"
+                                                class="network-checkbox peer hidden"
+                                            >
+                                            <label for="channel-variant" class="flex cursor-pointer items-start gap-4 rounded-xl border border-white/10 bg-white/5 p-4 transition-all peer-checked:border-highlight/50 peer-checked:bg-highlight/10">
+                                                <div class="mt-0.5 flex h-5 w-5 items-center justify-center rounded border-2 border-white/30 peer-checked:border-highlight peer-checked:bg-highlight">
+                                                    <svg class="hidden h-3 w-3 text-white peer-checked:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                                                    </svg>
+                                                </div>
+                                                <div class="flex-1">
+                                                    <div class="mb-1 text-sm font-semibold text-textdark">Fabric 2 RAFT Variant</div>
+                                                    <div class="text-xs text-textdark/60">Hyperledger Fabric v2 dengan varian konsensus RAFT</div>
+                                                </div>
+                                            </label>
+                                        </div>
+
+                                        <!-- Fabric 3 RAFT Standard -->
+                                        <div class="rounded-2xl border border-white/10 bg-surfaceMuted/40 p-5 transition-all hover:bg-surfaceMuted/60">
+                                            <input
+                                                type="checkbox"
+                                                id="channel-fabric3-standard"
+                                                name="targetNetworks"
+                                                value="channel-fabric3-standard"
+                                                class="network-checkbox peer hidden"
+                                            >
+                                            <label for="channel-fabric3-standard" class="flex cursor-pointer items-start gap-4 rounded-xl border border-white/10 bg-white/5 p-4 transition-all peer-checked:border-accent/50 peer-checked:bg-accent/10">
+                                                <div class="mt-0.5 flex h-5 w-5 items-center justify-center rounded border-2 border-white/30 peer-checked:border-accent peer-checked:bg-accent">
+                                                    <svg class="hidden h-3 w-3 text-white peer-checked:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                                                    </svg>
+                                                </div>
+                                                <div class="flex-1">
+                                                    <div class="mb-1 text-sm font-semibold text-textdark">Fabric 3 RAFT Standard</div>
+                                                    <div class="text-xs text-textdark/60">Hyperledger Fabric v3 dengan konsensus RAFT standar</div>
+                                                </div>
+                                            </label>
+                                        </div>
+
+                                        <!-- Fabric 3 RAFT Variant -->
+                                        <div class="rounded-2xl border border-white/10 bg-surfaceMuted/40 p-5 transition-all hover:bg-surfaceMuted/60">
+                                            <input
+                                                type="checkbox"
+                                                id="channel-fabric3-variant"
+                                                name="targetNetworks"
+                                                value="channel-fabric3-variant"
+                                                class="network-checkbox peer hidden"
+                                            >
+                                            <label for="channel-fabric3-variant" class="flex cursor-pointer items-start gap-4 rounded-xl border border-white/10 bg-white/5 p-4 transition-all peer-checked:border-primary/50 peer-checked:bg-primary/10">
+                                                <div class="mt-0.5 flex h-5 w-5 items-center justify-center rounded border-2 border-white/30 peer-checked:border-primary peer-checked:bg-primary">
+                                                    <svg class="hidden h-3 w-3 text-white peer-checked:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                                                    </svg>
+                                                </div>
+                                                <div class="flex-1">
+                                                    <div class="mb-1 text-sm font-semibold text-textdark">Fabric 3 RAFT Variant</div>
+                                                    <div class="text-xs text-textdark/60">Hyperledger Fabric v3 dengan varian konsensus RAFT</div>
+                                                </div>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div id="networkError" class="hidden rounded-lg border border-red-500/40 bg-red-500/10 p-3 text-sm text-red-200">
+                                        Pilih minimal satu jaringan target.
+                                    </div>
+                                </div>
+
+                                <!-- Submit Button -->
+                                <div class="flex gap-4">
+                                    <button
+                                        type="submit"
+                                        id="submitButton"
+                                        class="flex-1 rounded-xl border border-primary/40 bg-gradient-to-r from-primary/20 to-secondary/20 px-6 py-4 font-semibold text-textdark transition-all hover:from-primary/30 hover:to-secondary/30 hover:shadow-lg hover:shadow-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
+                                    >
+                                        <span id="submitButtonText">Submit Simulasi ke Jaringan</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        id="resetButton"
+                                        class="rounded-xl border border-white/10 bg-surfaceMuted/60 px-6 py-4 font-semibold text-textdark transition-all hover:bg-surfaceMuted/80"
+                                    >
+                                        Reset
+                                    </button>
+                                </div>
+                            </form>
+                        </section>
+
+                        <!-- Progress Section -->
+                        <section id="progressSection" class="hidden relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-surface via-soft to-[#020817] p-10 shadow-2xl shadow-black/30">
+                            <h2 class="mb-6 text-2xl font-semibold text-textdark">Progress Submit</h2>
+                            <div class="space-y-4">
+                                <div class="flex items-center gap-4">
+                                    <div class="spinner"></div>
+                                    <div class="flex-1">
+                                        <div class="text-sm font-semibold text-textdark" id="progressStatus">Memproses...</div>
+                                        <div class="text-xs text-textdark/60" id="progressDetail">Menunggu respons dari server</div>
+                                    </div>
+                                </div>
+                                <div class="h-2 overflow-hidden rounded-full bg-white/10">
+                                    <div id="progressBar" class="h-full bg-gradient-to-r from-primary to-secondary transition-all duration-500" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Results Section -->
+                        <section id="resultsSection" class="hidden relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-surface via-soft to-[#020817] p-10 shadow-2xl shadow-black/30">
+                            <h2 class="mb-6 text-2xl font-semibold text-textdark">Hasil Submit</h2>
+                            <div id="resultsContainer" class="space-y-4"></div>
+                        </section>
+                    </div>
+                </main>
+
+                <div data-component="footer"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/layout.js" defer></script>
+    <script src="/js/navigation.js" defer></script>
+    <script src="/js/submit-simulasi.js" defer></script>
+</body>
+</html>

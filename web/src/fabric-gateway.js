@@ -2,7 +2,8 @@ import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import * as grpc from '@grpc/grpc-js';
-import { connect, signers } from '@hyperledger/fabric-gateway';
+import { connect, signers, hash } from '@hyperledger/fabric-gateway';
+import crypto from 'crypto';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -107,15 +108,29 @@ async function createGrpcClient(config) {
 async function createIdentity(config) {
     const networkDir = path.join(PROJECT_ROOT, config.fabricVersion, config.variant, 'network');
 
-    // Read certificate
-    const certPath = path.join(
+    // Read certificate directory
+    const certDirPath = path.join(
         networkDir,
         'organizations/peerOrganizations',
         config.orgPath,
         'users/User1@' + config.orgPath,
-        'msp/signcerts/cert.pem'
+        'msp/signcerts'
     );
 
+    let files;
+    try {
+        files = await fs.readdir(certDirPath);
+    } catch (error) {
+        throw new Error(`Failed to read signcerts directory at ${certDirPath}: ${error.message}`);
+    }
+
+    // Find first non-hidden file
+    const certFile = files.find(f => !f.startsWith('.'));
+    if (!certFile) {
+        throw new Error(`No certificate files found in directory at ${certDirPath}`);
+    }
+
+    const certPath = path.join(certDirPath, certFile);
     let certificate;
     try {
         certificate = await fs.readFile(certPath);
@@ -155,10 +170,16 @@ async function createSigner(config) {
         throw new Error(`No private key files found in keystore directory at ${keyDirPath}`);
     }
 
-    const keyPath = path.join(keyDirPath, files[0]);
+    // Find first non-hidden file
+    const keyFile = files.find(f => !f.startsWith('.'));
+    if (!keyFile) {
+        throw new Error(`No valid private key files found in keystore directory at ${keyDirPath}`);
+    }
+
+    const keyPath = path.join(keyDirPath, keyFile);
     let privateKeyPem;
     try {
-        privateKeyPem = await fs.readFile(keyPath, 'utf8');
+        privateKeyPem = await fs.readFile(keyPath);
     } catch (error) {
         throw new Error(`Failed to read private key at ${keyPath}: ${error.message}`);
     }
@@ -167,7 +188,9 @@ async function createSigner(config) {
         throw new Error(`Private key content is empty at ${keyPath}`);
     }
 
-    return signers.newPrivateKeySigner(privateKeyPem);
+    // Create private key object using crypto module
+    const privateKey = crypto.createPrivateKey(privateKeyPem);
+    return signers.newPrivateKeySigner(privateKey);
 }
 
 /**
@@ -185,6 +208,7 @@ export async function connectToGateway(networkId) {
             client,
             identity,
             signer,
+            hash: hash.sha256,
         });
 
         return {

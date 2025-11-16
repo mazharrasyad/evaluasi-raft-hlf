@@ -151,8 +151,21 @@ async function createSigner(config) {
         throw new Error(`Failed to read keystore directory at ${keyDirPath}: ${error.message}`);
     }
 
+    if (!files || files.length === 0) {
+        throw new Error(`No private key files found in keystore directory at ${keyDirPath}`);
+    }
+
     const keyPath = path.join(keyDirPath, files[0]);
-    const privateKeyPem = await fs.readFile(keyPath);
+    let privateKeyPem;
+    try {
+        privateKeyPem = await fs.readFile(keyPath, 'utf8');
+    } catch (error) {
+        throw new Error(`Failed to read private key at ${keyPath}: ${error.message}`);
+    }
+
+    if (!privateKeyPem) {
+        throw new Error(`Private key content is empty at ${keyPath}`);
+    }
 
     return signers.newPrivateKeySigner(privateKeyPem);
 }

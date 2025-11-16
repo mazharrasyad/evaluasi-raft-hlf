@@ -681,7 +681,6 @@ const viewFiles = {
         simulationSubsections: {
             menjalankanNetwork: path.resolve(viewsRoot, 'penelitian/pelaksanaan-simulasi/menjalankan-network.html'),
             pembuatanDataSimulasi: path.resolve(viewsRoot, 'penelitian/pelaksanaan-simulasi/pembuatan-data-simulasi.html'),
-            eksekusiSimulasi: path.resolve(viewsRoot, 'penelitian/pelaksanaan-simulasi/eksekusi-simulasi.html'),
             penampilanHasil: path.resolve(viewsRoot, 'penelitian/pelaksanaan-simulasi/penampilan-hasil.html'),
         },
     },
@@ -744,10 +743,6 @@ app.get('/penelitian/pelaksanaan-simulasi/menjalankan-network', (req, res) => {
 
 app.get('/penelitian/pelaksanaan-simulasi/pembuatan-data-simulasi', (req, res) => {
     res.sendFile(viewFiles.research.simulationSubsections.pembuatanDataSimulasi);
-});
-
-app.get('/penelitian/pelaksanaan-simulasi/eksekusi-simulasi', (req, res) => {
-    res.sendFile(viewFiles.research.simulationSubsections.eksekusiSimulasi);
 });
 
 app.get('/penelitian/pelaksanaan-simulasi/penampilan-hasil', (req, res) => {

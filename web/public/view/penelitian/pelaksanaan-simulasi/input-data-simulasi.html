@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluasi RAFT HLF — Input Data Simulasi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#38BDF8',
+                        secondary: '#6366F1',
+                        accent: '#F59E0B',
+                        highlight: '#F97316',
+                        soft: '#050B16',
+                        surface: '#0F172A',
+                        surfaceMuted: '#16213F',
+                        border: '#1E293B',
+                        muted: '#94A3B8',
+                        textdark: '#E2E8F0'
+                    }
+                }
+            }
+        };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="/images/logo-ai-center.svg">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+
+        .component-link[data-active="true"] {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.28), rgba(56, 189, 248, 0.22));
+            color: #E2E8F0;
+            border-color: rgba(249, 115, 22, 0.45);
+            box-shadow: 0 12px 40px rgba(15, 23, 42, 0.45);
+        }
+
+        .component-link[data-active="true"] .component-link__index {
+            background-color: rgba(249, 115, 22, 0.35);
+            color: #E2E8F0;
+        }
+
+        .network-checkbox:checked {
+            background-color: #38BDF8;
+            border-color: #38BDF8;
+        }
+
+        .status-pending { color: #F59E0B; }
+        .status-success { color: #10B981; }
+        .status-error { color: #EF4444; }
+
+        .badge-fabric2 {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(56, 189, 248, 0.2));
+            border-color: rgba(99, 102, 241, 0.4);
+        }
+
+        .badge-fabric3 {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.2), rgba(245, 158, 11, 0.2));
+            border-color: rgba(249, 115, 22, 0.4);
+        }
+    </style>
+</head>
+<body class="bg-soft text-textdark">
+    <div data-component="header"></div>
+    <div class="relative min-h-screen overflow-hidden">
+        <div class="absolute inset-0 -z-10 h-full w-full">
+            <div class="absolute -left-1/3 top-0 h-[720px] w-[720px] rounded-full bg-gradient-to-br from-highlight/30 via-secondary/20 to-transparent opacity-70 blur-3xl"></div>
+            <div class="absolute -right-1/4 bottom-0 h-[620px] w-[620px] rounded-full bg-gradient-to-tr from-accent/35 via-secondary/25 to-primary/20 opacity-70 blur-3xl"></div>
+        </div>
+
+        <div class="flex min-h-screen flex-col lg:flex-row">
+            <div data-component="sidebar"></div>
+
+            <div class="flex-1">
+                <main class="mx-auto w-full max-w-6xl px-6 py-12">
+                    <div class="space-y-10">
+                        <!-- Header Section -->
+                        <section class="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-surface via-soft to-[#020817] p-10 shadow-2xl shadow-black/30">
+                            <div class="flex flex-col gap-6">
+                                <div class="inline-flex w-fit items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-primary/90">
+                                    Bab 4.4.3
+                                </div>
+                                <div class="space-y-5">
+                                    <h1 class="text-3xl font-semibold text-textdark md:text-4xl">Input Data Simulasi</h1>
+                                    <p class="text-sm text-textdark/70 md:text-base leading-relaxed">
+                                        Halaman ini memungkinkan Anda untuk memasukkan data simulasi laporan maladministrasi ke dalam masing-masing blok fabric network. Data yang diinput akan dikirim ke network yang Anda pilih untuk kemudian dianalisa perbedaan performa antar network.
+                                    </p>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Network Selection -->
+                        <section class="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-surface via-soft to-[#020817] p-10 shadow-2xl shadow-black/30">
+                            <h2 class="mb-6 text-2xl font-semibold text-textdark">Pilih Target Network</h2>
+                            <p class="mb-8 text-sm text-textdark/70 leading-relaxed">
+                                Pilih satu atau lebih network blockchain yang akan menerima data simulasi. Anda dapat memilih untuk mengirim data ke semua network sekaligus untuk membandingkan performa.
+                            </p>
+
+                            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                <!-- Fabric 2 Standard -->
+                                <label class="flex cursor-pointer items-start gap-4 rounded-xl border border-white/10 bg-white/5 p-5 transition hover:border-primary/30 hover:bg-white/10">
+                                    <input type="checkbox" name="network" value="channel-standard" class="network-checkbox mt-1 h-5 w-5 rounded border-white/20 bg-white/5 text-primary focus:ring-2 focus:ring-primary/50" checked>
+                                    <div class="flex-1">
+                                        <div class="flex items-center gap-2 mb-2">
+                                            <span class="text-base font-semibold text-textdark">Fabric 2 RAFT Standard</span>
+                                            <span class="badge-fabric2 rounded-full border px-2 py-0.5 text-xs font-semibold text-secondary">v2.5.8</span>
+                                        </div>
+                                        <p class="text-xs text-textdark/60">Hyperledger Fabric 2.5.8 dengan konfigurasi RAFT standar</p>
+                                        <p class="mt-1 text-xs text-muted">Port: 7051 • Channel: fabric2-channel-standard</p>
+                                    </div>
+                                </label>
+
+                                <!-- Fabric 2 Variant -->
+                                <label class="flex cursor-pointer items-start gap-4 rounded-xl border border-white/10 bg-white/5 p-5 transition hover:border-primary/30 hover:bg-white/10">
+                                    <input type="checkbox" name="network" value="channel-variant" class="network-checkbox mt-1 h-5 w-5 rounded border-white/20 bg-white/5 text-primary focus:ring-2 focus:ring-primary/50" checked>
+                                    <div class="flex-1">
+                                        <div class="flex items-center gap-2 mb-2">
+                                            <span class="text-base font-semibold text-textdark">Fabric 2 RAFT Variant</span>
+                                            <span class="badge-fabric2 rounded-full border px-2 py-0.5 text-xs font-semibold text-secondary">v2.5.8</span>
+                                        </div>
+                                        <p class="text-xs text-textdark/60">Hyperledger Fabric 2.5.8 dengan konfigurasi RAFT yang dimodifikasi</p>
+                                        <p class="mt-1 text-xs text-muted">Port: 7052 • Channel: fabric2-channel-variant</p>
+                                    </div>
+                                </label>
+
+                                <!-- Fabric 3 Standard -->
+                                <label class="flex cursor-pointer items-start gap-4 rounded-xl border border-white/10 bg-white/5 p-5 transition hover:border-primary/30 hover:bg-white/10">
+                                    <input type="checkbox" name="network" value="channel-fabric3-standard" class="network-checkbox mt-1 h-5 w-5 rounded border-white/20 bg-white/5 text-primary focus:ring-2 focus:ring-primary/50" checked>
+                                    <div class="flex-1">
+                                        <div class="flex items-center gap-2 mb-2">
+                                            <span class="text-base font-semibold text-textdark">Fabric 3 RAFT Standard</span>
+                                            <span class="badge-fabric3 rounded-full border px-2 py-0.5 text-xs font-semibold text-highlight">v3.0</span>
+                                        </div>
+                                        <p class="text-xs text-textdark/60">Hyperledger Fabric 3.0 dengan konfigurasi RAFT standar</p>
+                                        <p class="mt-1 text-xs text-muted">Port: 7153 • Channel: fabric3-channel-standard</p>
+                                    </div>
+                                </label>
+
+                                <!-- Fabric 3 Variant -->
+                                <label class="flex cursor-pointer items-start gap-4 rounded-xl border border-white/10 bg-white/5 p-5 transition hover:border-primary/30 hover:bg-white/10">
+                                    <input type="checkbox" name="network" value="channel-fabric3-variant" class="network-checkbox mt-1 h-5 w-5 rounded border-white/20 bg-white/5 text-primary focus:ring-2 focus:ring-primary/50" checked>
+                                    <div class="flex-1">
+                                        <div class="flex items-center gap-2 mb-2">
+                                            <span class="text-base font-semibold text-textdark">Fabric 3 RAFT Variant</span>
+                                            <span class="badge-fabric3 rounded-full border px-2 py-0.5 text-xs font-semibold text-highlight">v3.0</span>
+                                        </div>
+                                        <p class="text-xs text-textdark/60">Hyperledger Fabric 3.0 dengan konfigurasi RAFT yang dimodifikasi</p>
+                                        <p class="mt-1 text-xs text-muted">Port: 7353 • Channel: fabric3-channel-variant</p>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <div class="mt-6 flex items-center gap-3">
+                                <button type="button" id="selectAllNetworks" class="rounded-lg border border-primary/40 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary transition hover:bg-primary/20">
+                                    Pilih Semua
+                                </button>
+                                <button type="button" id="deselectAllNetworks" class="rounded-lg border border-white/20 bg-white/5 px-4 py-2 text-sm font-semibold text-textdark/70 transition hover:bg-white/10">
+                                    Hapus Semua
+                                </button>
+                            </div>
+                        </section>
+
+                        <!-- Data Input Form -->
+                        <section class="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-surface via-soft to-[#020817] p-10 shadow-2xl shadow-black/30">
+                            <h2 class="mb-6 text-2xl font-semibold text-textdark">Form Input Data Laporan</h2>
+
+                            <form id="simulationInputForm" class="space-y-6">
+                                <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                                    <!-- Report ID -->
+                                    <div>
+                                        <label for="reportId" class="mb-2 block text-sm font-semibold text-textdark">ID Laporan</label>
+                                        <input type="text" id="reportId" name="reportId"
+                                            class="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-textdark placeholder-textdark/40 focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                            placeholder="RPT-2024-00001" required>
+                                        <p class="mt-1 text-xs text-textdark/50">Format: RPT-YYYY-XXXXX</p>
+                                    </div>
+
+                                    <!-- Timestamp -->
+                                    <div>
+                                        <label for="timestamp" class="mb-2 block text-sm font-semibold text-textdark">Waktu Laporan</label>
+                                        <input type="datetime-local" id="timestamp" name="timestamp"
+                                            class="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-textdark focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                            required>
+                                    </div>
+
+                                    <!-- Substance -->
+                                    <div>
+                                        <label for="substance" class="mb-2 block text-sm font-semibold text-textdark">Substansi Laporan</label>
+                                        <select id="substance" name="substance"
+                                            class="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-textdark focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                            required>
+                                            <option value="">Pilih Substansi...</option>
+                                            <option value="Agraria (Pertanahan dan Tata Ruang)">Agraria (Pertanahan dan Tata Ruang)</option>
+                                            <option value="Kepegawaian">Kepegawaian</option>
+                                            <option value="Pendidikan">Pendidikan</option>
+                                            <option value="Perhubungan dan Infrastruktur">Perhubungan dan Infrastruktur</option>
+                                            <option value="Hak Sipil dan Politik">Hak Sipil dan Politik</option>
+                                            <option value="Administrasi Kependudukan">Administrasi Kependudukan</option>
+                                            <option value="Kepolisian">Kepolisian</option>
+                                            <option value="Kesehatan">Kesehatan</option>
+                                            <option value="Pelayanan Umum">Pelayanan Umum</option>
+                                            <option value="Lainnya">Lainnya</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Reporter Group -->
+                                    <div>
+                                        <label for="reporterGroup" class="mb-2 block text-sm font-semibold text-textdark">Kelompok Pelapor</label>
+                                        <select id="reporterGroup" name="reporterGroup"
+                                            class="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-textdark focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                            required>
+                                            <option value="">Pilih Kelompok Pelapor...</option>
+                                            <option value="Perorangan">Perorangan</option>
+                                            <option value="Badan Hukum/Organisasi">Badan Hukum/Organisasi</option>
+                                            <option value="Anggota Keluarga">Anggota Keluarga</option>
+                                            <option value="Kelompok Masyarakat">Kelompok Masyarakat</option>
+                                            <option value="Kantor Hukum (Advokat)">Kantor Hukum (Advokat)</option>
+                                            <option value="Bukan Korban Langsung maupun Kuasa">Bukan Korban Langsung maupun Kuasa</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Reported Group -->
+                                    <div>
+                                        <label for="reportedGroup" class="mb-2 block text-sm font-semibold text-textdark">Kelompok Terlapor</label>
+                                        <select id="reportedGroup" name="reportedGroup"
+                                            class="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-textdark focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                            required>
+                                            <option value="">Pilih Kelompok Terlapor...</option>
+                                            <option value="Pemerintah Daerah">Pemerintah Daerah</option>
+                                            <option value="Badan Pertanahan Nasional">Badan Pertanahan Nasional</option>
+                                            <option value="BUMN/BUMD">BUMN/BUMD</option>
+                                            <option value="Lembaga Pendidikan Negeri">Lembaga Pendidikan Negeri</option>
+                                            <option value="Kepolisian">Kepolisian</option>
+                                            <option value="Instansi Pemerintah / Kementerian">Instansi Pemerintah / Kementerian</option>
+                                            <option value="Lembaga Peradilan">Lembaga Peradilan</option>
+                                            <option value="Lainnya">Lainnya</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Receiving Office -->
+                                    <div>
+                                        <label for="receivingOffice" class="mb-2 block text-sm font-semibold text-textdark">Kantor Penerimaan</label>
+                                        <select id="receivingOffice" name="receivingOffice"
+                                            class="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-textdark focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                            required>
+                                            <option value="">Pilih Kantor...</option>
+                                            <option value="Pusat">Pusat</option>
+                                            <option value="Aceh">Aceh</option>
+                                            <option value="Sumatera Utara">Sumatera Utara</option>
+                                            <option value="Sumatera Barat">Sumatera Barat</option>
+                                            <option value="Riau">Riau</option>
+                                            <option value="Jambi">Jambi</option>
+                                            <option value="Sumatera Selatan">Sumatera Selatan</option>
+                                            <option value="Lampung">Lampung</option>
+                                            <option value="Kepulauan Bangka Belitung">Kepulauan Bangka Belitung</option>
+                                            <option value="Kepulauan Riau">Kepulauan Riau</option>
+                                            <option value="Jakarta Raya">Jakarta Raya</option>
+                                            <option value="Jawa Barat">Jawa Barat</option>
+                                            <option value="Jawa Tengah">Jawa Tengah</option>
+                                            <option value="Yogyakarta">Yogyakarta</option>
+                                            <option value="Jawa Timur">Jawa Timur</option>
+                                            <option value="Banten">Banten</option>
+                                            <option value="Bali">Bali</option>
+                                            <option value="Nusa Tenggara Barat">Nusa Tenggara Barat</option>
+                                            <option value="Nusa Tenggara Timur">Nusa Tenggara Timur</option>
+                                            <option value="Kalimantan Barat">Kalimantan Barat</option>
+                                            <option value="Kalimantan Tengah">Kalimantan Tengah</option>
+                                            <option value="Kalimantan Selatan">Kalimantan Selatan</option>
+                                            <option value="Kalimantan Timur">Kalimantan Timur</option>
+                                            <option value="Kalimantan Utara">Kalimantan Utara</option>
+                                            <option value="Sulawesi Utara">Sulawesi Utara</option>
+                                            <option value="Sulawesi Tengah">Sulawesi Tengah</option>
+                                            <option value="Sulawesi Selatan">Sulawesi Selatan</option>
+                                            <option value="Sulawesi Tenggara">Sulawesi Tenggara</option>
+                                            <option value="Gorontalo">Gorontalo</option>
+                                            <option value="Sulawesi Barat">Sulawesi Barat</option>
+                                            <option value="Maluku">Maluku</option>
+                                            <option value="Maluku Utara">Maluku Utara</option>
+                                            <option value="Papua">Papua</option>
+                                            <option value="Papua Barat">Papua Barat</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- Description -->
+                                <div>
+                                    <label for="description" class="mb-2 block text-sm font-semibold text-textdark">Deskripsi Laporan</label>
+                                    <textarea id="description" name="description" rows="4"
+                                        class="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-textdark placeholder-textdark/40 focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                        placeholder="Masukkan deskripsi singkat laporan maladministrasi..."
+                                        required></textarea>
+                                </div>
+
+                                <!-- Status -->
+                                <div>
+                                    <label for="status" class="mb-2 block text-sm font-semibold text-textdark">Status Laporan</label>
+                                    <select id="status" name="status"
+                                        class="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-textdark focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                        required>
+                                        <option value="pending">Pending</option>
+                                        <option value="investigating">Sedang Diselidiki</option>
+                                        <option value="resolved">Selesai</option>
+                                        <option value="rejected">Ditolak</option>
+                                    </select>
+                                </div>
+
+                                <!-- Submit Button -->
+                                <div class="flex items-center gap-4 pt-4">
+                                    <button type="submit" id="submitButton"
+                                        class="flex items-center gap-2 rounded-lg bg-gradient-to-r from-primary to-secondary px-6 py-3 font-semibold text-white shadow-lg transition hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50">
+                                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                                        </svg>
+                                        Kirim ke Network Terpilih
+                                    </button>
+                                    <button type="button" id="resetButton"
+                                        class="rounded-lg border border-white/20 bg-white/5 px-6 py-3 font-semibold text-textdark transition hover:bg-white/10">
+                                        Reset Form
+                                    </button>
+                                    <button type="button" id="generateButton"
+                                        class="rounded-lg border border-accent/40 bg-accent/10 px-6 py-3 font-semibold text-accent transition hover:bg-accent/20">
+                                        Generate Data Otomatis
+                                    </button>
+                                </div>
+                            </form>
+                        </section>
+
+                        <!-- Submission Results -->
+                        <section id="resultsSection" class="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-surface via-soft to-[#020817] p-10 shadow-2xl shadow-black/30 hidden">
+                            <h2 class="mb-6 text-2xl font-semibold text-textdark">Hasil Pengiriman</h2>
+
+                            <div id="resultsContainer" class="space-y-4">
+                                <!-- Results will be inserted here dynamically -->
+                            </div>
+
+                            <div class="mt-6">
+                                <button type="button" id="clearResultsButton"
+                                    class="rounded-lg border border-white/20 bg-white/5 px-4 py-2 text-sm font-semibold text-textdark transition hover:bg-white/10">
+                                    Bersihkan Hasil
+                                </button>
+                            </div>
+                        </section>
+                    </div>
+                </main>
+
+                <div data-component="footer"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/layout.js" defer></script>
+    <script src="/js/navigation.js" defer></script>
+    <script src="/js/input-data-simulasi.js" defer></script>
+</body>
+</html>

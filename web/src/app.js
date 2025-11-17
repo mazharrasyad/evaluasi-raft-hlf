@@ -1414,7 +1414,7 @@ app.post('/api/simulations/records', async (req, res) => {
         const completedAt = new Date().toISOString();
         const successCount = results.filter(r => r.success).length;
 
-        const responseData = {
+        res.json({
             submittedAt,
             completedAt,
             success: successCount > 0,
@@ -1422,17 +1422,7 @@ app.post('/api/simulations/records', async (req, res) => {
             totalCount: results.length,
             simulationData: record, // Include the full simulation data in response
             results,
-        };
-
-        // Save complete response data to JSONL file
-        try {
-            await appendSimulationData(responseData);
-        } catch (storageError) {
-            console.error('Failed to save simulation data to storage:', storageError);
-            // Continue even if storage fails - blockchain data is already saved
-        }
-
-        res.json(responseData);
+        });
     } catch (error) {
         console.error('Error submitting simulation record:', error);
         res.status(500).json({

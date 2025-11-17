@@ -223,10 +223,14 @@ export async function connectToGateway(networkId) {
 
 /**
  * Submit a transaction to create a record
+ * @param {string} networkId - The network ID to submit to
+ * @param {object} record - The record data to submit
+ * @param {object} metadata - Additional metadata about the submission
  */
-export async function submitTransaction(networkId, record) {
+export async function submitTransaction(networkId, record, metadata = {}) {
     let connection = null;
     let config = null;
+    const submittedAt = new Date().toISOString();
 
     try {
         config = getNetworkConfig(networkId);
@@ -243,12 +247,27 @@ export async function submitTransaction(networkId, record) {
             throw new Error('Record must have either reportId or id property');
         }
 
+        // Prepare comprehensive data to store in blockchain
+        const comprehensiveData = {
+            // Original simulation data
+            ...record,
+            // Submission metadata
+            submittedAt: metadata.submittedAt || submittedAt,
+            submittedToNetwork: config.label,
+            networkId: networkId,
+            // Ensure ID fields are consistent
+            reportId: recordId,
+            id: recordId,
+        };
+
         // Submit transaction using CreateOrUpdateCatatan to handle both new and existing records
         const resultBytes = await contract.submitTransaction(
             'CreateOrUpdateCatatan',
             recordId,
-            JSON.stringify(record)
+            JSON.stringify(comprehensiveData)
         );
+
+        const completedAt = new Date().toISOString();
 
         // Parse result
         const resultString = new TextDecoder().decode(resultBytes);
@@ -264,7 +283,9 @@ export async function submitTransaction(networkId, record) {
             networkId,
             label: config.label,
             recordId: recordId,
-            timestamp: new Date().toISOString(),
+            submittedAt,
+            completedAt,
+            timestamp: completedAt,
         };
     } catch (error) {
         // Close connection if it was opened
@@ -278,12 +299,16 @@ export async function submitTransaction(networkId, record) {
         }
 
         const recordId = record.reportId || record.id;
+        const completedAt = new Date().toISOString();
+
         return {
             success: false,
             error: error.message,
             networkId,
             label: config ? config.label : networkId,
             recordId: recordId,
+            submittedAt,
+            completedAt,
         };
     }
 }
@@ -293,10 +318,25 @@ export async function submitTransaction(networkId, record) {
  */
 export async function submitToNetworks(record, targetNetworkIds) {
     const results = [];
+    const batchSubmittedAt = new Date().toISOString();
+
+    // Prepare shared metadata for all submissions
+    const metadata = {
+        submittedAt: batchSubmittedAt,
+        totalNetworks: targetNetworkIds.length,
+        targetNetworks: targetNetworkIds.map(id => {
+            try {
+                const config = getNetworkConfig(id);
+                return { id, label: config.label };
+            } catch (e) {
+                return { id, label: id };
+            }
+        }),
+    };
 
     for (const networkId of targetNetworkIds) {
         try {
-            const result = await submitTransaction(networkId, record);
+            const result = await submitTransaction(networkId, record, metadata);
             results.push(result);
         } catch (error) {
             // Get config safely for label
@@ -314,6 +354,8 @@ export async function submitToNetworks(record, targetNetworkIds) {
                 networkId,
                 label: label,
                 recordId: record.reportId || record.id,
+                submittedAt: batchSubmittedAt,
+                completedAt: new Date().toISOString(),
             });
         }
     }

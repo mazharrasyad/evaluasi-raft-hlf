@@ -328,66 +328,124 @@ componentLoaderReady.then(() => {
         'channel-fabric3-variant': 'Fabric 3 RAFT Variant',
     };
 
-    // Fetch block submissions from API
-    async function fetchBlockSubmissions() {
+    // Fetch block data from API - Using /api/blocks for metadata
+    async function fetchBlockData() {
         try {
-            const response = await fetch('/api/catatan');
+            const response = await fetch('/api/blocks');
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const data = await response.json();
-            console.log('📊 API Response /api/catatan:', data);
+            console.log('📊 API Response /api/blocks:', data);
             console.log('📋 Results:', data.results);
             return data.results || [];
         } catch (error) {
-            console.error('❌ Error fetching block submissions:', error);
+            console.error('❌ Error fetching blocks:', error);
             return [];
         }
     }
 
-    // Create network table for block submissions
-    function createNetworkBlockTable(networkData) {
-        const wrapper = document.createElement('div');
-        wrapper.className = 'space-y-4';
+    // Fetch catatan data (transaction details) - fallback to blocks if fails
+    async function fetchCatatanData() {
+        try {
+            const response = await fetch('/api/catatan');
+            if (!response.ok) {
+                console.warn('⚠️ Failed to fetch /api/catatan');
+                return [];
+            }
+            const data = await response.json();
+            console.log('📊 API Response /api/catatan:', data);
+            return data.results || [];
+        } catch (error) {
+            console.warn('⚠️ Error fetching catatan:', error);
+            return [];
+        }
+    }
 
-        // Network header
-        const header = document.createElement('div');
-        header.className = 'flex items-center gap-3 rounded-lg border border-white/10 bg-surfaceMuted/50 p-4';
+    // Create network card with block data
+    function createNetworkBlockCard(networkData) {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'rounded-xl border border-white/10 bg-surfaceMuted/30 p-6 space-y-4';
 
         const colors = submissionNetworkColors[networkData.targetId] || { bg: 'bg-gray-500/15', text: 'text-gray-400', border: 'border-gray-500/30' };
         const networkLabel = networkData.label || submissionNetworkLabels[networkData.targetId] || networkData.targetId;
 
+        // Check if network has data (blocks or records)
+        const hasBlocks = networkData.blocks && networkData.blocks.length > 0;
+        const hasRecords = networkData.records && networkData.records.length > 0;
+        const blockHeight = networkData.blockHeight || 0;
+        const totalBlocks = hasBlocks ? networkData.blocks.length : 0;
+        const totalTx = hasBlocks ? networkData.blocks.reduce((sum, block) => sum + (block.transactionCount || 0), 0) : 0;
+
+        // Network header
+        const header = document.createElement('div');
+        header.className = 'flex items-center justify-between';
         header.innerHTML = `
-            <div class="inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 ${colors.bg} ${colors.text} ${colors.border}">
-                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"></path>
-                </svg>
-                <span class="text-sm font-semibold">${networkLabel}</span>
+            <div class="flex items-center gap-3">
+                <div class="inline-flex items-center gap-2 rounded-lg border px-3 py-2 ${colors.bg} ${colors.text} ${colors.border}">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"></path>
+                    </svg>
+                    <span class="font-semibold">${networkLabel}</span>
+                </div>
+                <span class="rounded-full px-2.5 py-1 text-xs font-semibold ${
+                    networkData.status === 'healthy' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
+                }">
+                    ${networkData.status === 'healthy' ? 'Online' : 'Offline'}
+                </span>
             </div>
-            <span class="ml-auto text-sm text-textdark/60">${networkData.records.length} data</span>
+            <div class="text-sm text-textdark/60">
+                Block Height: <span class="font-semibold text-primary">${blockHeight}</span>
+            </div>
         `;
 
-        // Table container
+        // Stats cards
+        const stats = document.createElement('div');
+        stats.className = 'grid grid-cols-3 gap-3';
+        stats.innerHTML = `
+            <div class="rounded-lg border border-white/5 bg-white/5 p-3">
+                <div class="text-xs text-textdark/60">Total Blocks</div>
+                <div class="mt-1 text-xl font-bold text-textdark">${totalBlocks}</div>
+            </div>
+            <div class="rounded-lg border border-white/5 bg-white/5 p-3">
+                <div class="text-xs text-textdark/60">Transactions</div>
+                <div class="mt-1 text-xl font-bold text-primary">${totalTx}</div>
+            </div>
+            <div class="rounded-lg border border-white/5 bg-white/5 p-3">
+                <div class="text-xs text-textdark/60">Records</div>
+                <div class="mt-1 text-xl font-bold text-accent">${hasRecords ? networkData.records.length : 0}</div>
+            </div>
+        `;
+
+        // Table container for blocks
         const tableContainer = document.createElement('div');
         tableContainer.className = 'overflow-x-auto rounded-xl border border-white/10';
 
         const table = document.createElement('table');
         table.className = 'w-full text-sm';
 
-        // Table header
+        // Table header - simplified for block data
         const thead = document.createElement('thead');
         thead.className = 'border-b border-white/10 bg-surfaceMuted/50';
         const headerRow = document.createElement('tr');
 
-        const headers = [
-            { label: 'Report ID', width: '15%' },
-            { label: 'Timestamp', width: '20%' },
-            { label: 'Substansi', width: '20%' },
-            { label: 'Pelapor', width: '15%' },
-            { label: 'Status', width: '10%' },
-            { label: 'Kantor Penerima', width: '15%' },
-            { label: 'Aksi', width: '5%' }
-        ];
+        const headers = hasRecords
+            ? [
+                { label: 'Report ID', width: '15%' },
+                { label: 'Timestamp', width: '18%' },
+                { label: 'Substansi', width: '22%' },
+                { label: 'Pelapor', width: '15%' },
+                { label: 'Status', width: '10%' },
+                { label: 'Kantor', width: '15%' },
+                { label: 'Aksi', width: '5%' }
+            ]
+            : [
+                { label: 'Block #', width: '15%' },
+                { label: 'Previous Hash', width: '35%' },
+                { label: 'Data Hash', width: '35%' },
+                { label: 'TX Count', width: '10%' },
+                { label: 'Timestamp', width: '15%' }
+            ];
 
         headers.forEach(header => {
             const th = document.createElement('th');
@@ -404,15 +462,8 @@ componentLoaderReady.then(() => {
         const tbody = document.createElement('tbody');
         tbody.className = 'divide-y divide-white/10 bg-surfaceMuted/30';
 
-        if (networkData.records.length === 0) {
-            const emptyRow = document.createElement('tr');
-            const emptyCell = document.createElement('td');
-            emptyCell.colSpan = 7;
-            emptyCell.className = 'px-4 py-8 text-center text-textdark/60';
-            emptyCell.textContent = 'Tidak ada data blok';
-            emptyRow.appendChild(emptyCell);
-            tbody.appendChild(emptyRow);
-        } else {
+        // Show records if available, otherwise show blocks
+        if (hasRecords && networkData.records.length > 0) {
             // Sort by timestamp descending (newest first)
             const sortedRecords = [...networkData.records].sort((a, b) =>
                 new Date(b.timestamp) - new Date(a.timestamp)
@@ -493,11 +544,61 @@ componentLoaderReady.then(() => {
                 row.append(reportIdCell, timestampCell, substanceCell, reporterCell, statusCell, officeCell, actionCell);
                 tbody.appendChild(row);
             });
+        } else if (hasBlocks && networkData.blocks.length > 0) {
+            // Show blocks data
+            const sortedBlocks = [...networkData.blocks].sort((a, b) => b.blockNumber - a.blockNumber);
+
+            sortedBlocks.forEach((block, index) => {
+                const row = document.createElement('tr');
+                row.className = 'table-row transition hover:bg-primary/5';
+                row.style.animationDelay = `${index * 0.03}s`;
+
+                // Block Number cell
+                const blockNumCell = document.createElement('td');
+                blockNumCell.className = 'px-4 py-3';
+                blockNumCell.innerHTML = `<span class="font-mono text-sm font-semibold text-primary">#${block.blockNumber}</span>`;
+
+                // Previous Hash cell
+                const prevHashCell = document.createElement('td');
+                prevHashCell.className = 'px-4 py-3';
+                const shortPrevHash = block.previousHash ? (block.previousHash.substring(0, 16) + '...') : 'N/A';
+                prevHashCell.innerHTML = `<span class="font-mono text-xs text-textdark/60" title="${block.previousHash || ''}">${shortPrevHash}</span>`;
+
+                // Data Hash cell
+                const dataHashCell = document.createElement('td');
+                dataHashCell.className = 'px-4 py-3';
+                const shortDataHash = block.dataHash ? (block.dataHash.substring(0, 16) + '...') : 'N/A';
+                dataHashCell.innerHTML = `<span class="font-mono text-xs text-textdark/60" title="${block.dataHash || ''}">${shortDataHash}</span>`;
+
+                // Transaction Count cell
+                const txCountCell = document.createElement('td');
+                txCountCell.className = 'px-4 py-3 text-center';
+                txCountCell.innerHTML = `<span class="inline-flex items-center justify-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">${block.transactionCount || 0}</span>`;
+
+                // Timestamp cell
+                const timestampCell = document.createElement('td');
+                timestampCell.className = 'px-4 py-3 text-xs text-textdark/70';
+                timestampCell.textContent = block.timestamp
+                    ? new Date(block.timestamp).toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' })
+                    : '-';
+
+                row.append(blockNumCell, prevHashCell, dataHashCell, txCountCell, timestampCell);
+                tbody.appendChild(row);
+            });
+        } else {
+            // No data available
+            const emptyRow = document.createElement('tr');
+            const emptyCell = document.createElement('td');
+            emptyCell.colSpan = hasRecords ? 7 : 5;
+            emptyCell.className = 'px-4 py-8 text-center text-textdark/60';
+            emptyCell.textContent = 'Tidak ada data';
+            emptyRow.appendChild(emptyCell);
+            tbody.appendChild(emptyRow);
         }
 
         table.appendChild(tbody);
         tableContainer.appendChild(table);
-        wrapper.append(header, tableContainer);
+        wrapper.append(header, stats, tableContainer);
 
         return wrapper;
     }
@@ -604,8 +705,23 @@ componentLoaderReady.then(() => {
             </div>
         `;
 
-        const results = await fetchBlockSubmissions();
-        console.log('🔍 Total networks fetched:', results.length);
+        // Fetch both blocks and catatan data
+        const [blockResults, catatanResults] = await Promise.all([
+            fetchBlockData(),
+            fetchCatatanData()
+        ]);
+
+        console.log('🔍 Total networks fetched (blocks):', blockResults.length);
+        console.log('🔍 Total networks fetched (catatan):', catatanResults.length);
+
+        // Merge block data with catatan data
+        const results = blockResults.map(blockNetwork => {
+            const catatanNetwork = catatanResults.find(c => c.targetId === blockNetwork.targetId);
+            return {
+                ...blockNetwork,
+                records: catatanNetwork?.records || []
+            };
+        });
 
         if (!results || results.length === 0) {
             blockSubmissionsContainerEl.innerHTML = `
@@ -634,40 +750,23 @@ componentLoaderReady.then(() => {
         console.log('📋 All networks status:');
         results.forEach((network, index) => {
             console.log(`  ${index + 1}. [${network.status}] ${network.label || network.targetId}`);
-            console.log(`     - Has records: ${network.records ? 'Yes' : 'No'}`);
-            console.log(`     - Record count: ${network.records ? network.records.length : 0}`);
+            console.log(`     - Block height: ${network.blockHeight || 0}`);
+            console.log(`     - Has blocks: ${network.blocks ? 'Yes' : 'No'} (${network.blocks ? network.blocks.length : 0})`);
+            console.log(`     - Has records: ${network.records ? 'Yes' : 'No'} (${network.records ? network.records.length : 0})`);
             if (network.message) {
                 console.log(`     - Message: ${network.message}`);
             }
         });
 
-        // Filter networks with records (regardless of status for debugging)
-        const networksWithRecords = results.filter(network =>
-            network.records && Array.isArray(network.records) && network.records.length > 0
+        // Filter networks that have blocks OR records (show all active networks)
+        const networksWithData = results.filter(network =>
+            (network.blocks && network.blocks.length > 0) || (network.records && network.records.length > 0)
         );
 
-        console.log('📦 Networks with records (any status):', networksWithRecords.length);
+        console.log('📦 Networks with data (blocks or records):', networksWithData.length);
 
-        // Filter only healthy networks with records
-        const healthyNetworks = results.filter(network =>
-            network.status === 'healthy' && network.records && network.records.length > 0
-        );
-
-        console.log('✅ Healthy networks with data:', healthyNetworks.length);
-        healthyNetworks.forEach((network, index) => {
-            console.log(`  ${index + 1}. ${network.label || network.targetId} - ${network.records.length} records`);
-        });
-
-        if (healthyNetworks.length === 0) {
-            // Check if there are networks with records but unhealthy status
-            if (networksWithRecords.length > 0) {
-                console.warn('⚠️  Found networks with records but not healthy. Showing anyway for debugging.');
-                // Use networks with records even if not healthy
-                renderNetworkTables(networksWithRecords);
-                return;
-            }
-
-            // Truly no data available
+        if (networksWithData.length === 0) {
+            // No networks with data
             blockSubmissionsContainerEl.innerHTML = `
                 <div class="flex flex-col items-center gap-3 rounded-xl border border-white/10 bg-surfaceMuted/30 p-12 text-center">
                     <svg class="h-12 w-12 text-textdark/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -675,32 +774,39 @@ componentLoaderReady.then(() => {
                     </svg>
                     <div>
                         <p class="mb-2 text-textdark">Tidak ada data yang tersedia di blockchain</p>
-                        <p class="text-xs text-textdark/50">Network mungkin belum berjalan atau belum ada data yang diinput</p>
+                        <p class="text-xs text-textdark/50">Pastikan network sudah berjalan dan ada data yang diinput</p>
                     </div>
+                    <a href="/penelitian/pelaksanaan-simulasi/menjalankan-network"
+                       class="inline-flex items-center gap-2 rounded-lg border border-primary/40 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary transition hover:bg-primary/20">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                        Jalankan Network
+                    </a>
                 </div>
             `;
             return;
         }
 
-        // Render tables for healthy networks
-        renderNetworkTables(healthyNetworks);
+        // Render cards for all networks with data
+        renderNetworkCards(networksWithData);
     }
 
-    // Helper function to render network tables
-    function renderNetworkTables(networks) {
+    // Helper function to render network cards
+    function renderNetworkCards(networks) {
         // Clear container
         blockSubmissionsContainerEl.innerHTML = '';
 
-        // Create container for all networks
+        // Create container for all networks - 2 columns grid
         const networksContainer = document.createElement('div');
-        networksContainer.className = 'space-y-6';
+        networksContainer.className = 'grid grid-cols-1 gap-6 lg:grid-cols-2';
 
-        // Render table for each network
+        // Render card for each network
         networks.forEach((networkData, index) => {
-            const networkTable = createNetworkBlockTable(networkData);
-            networkTable.classList.add('fade-in');
-            networkTable.style.animationDelay = `${index * 0.1}s`;
-            networksContainer.appendChild(networkTable);
+            const networkCard = createNetworkBlockCard(networkData);
+            networkCard.classList.add('fade-in');
+            networkCard.style.animationDelay = `${index * 0.1}s`;
+            networksContainer.appendChild(networkCard);
         });
 
         blockSubmissionsContainerEl.appendChild(networksContainer);

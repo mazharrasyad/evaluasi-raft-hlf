@@ -8,7 +8,7 @@ import { promisify } from 'util';
 import { EventEmitter } from 'events';
 import { randomUUID } from 'crypto';
 
-import { checkNetworkHealth } from './network-check.js';
+import { checkNetworkHealth, getAllBlocks } from './network-check.js';
 import { loadFabricDescriptions } from './fabric-description.js';
 import { submitToNetworks } from './fabric-gateway.js';
 
@@ -821,6 +821,35 @@ app.get('/api/fabric-descriptions', async (req, res) => {
             fetchedAt: new Date().toISOString(),
             error: message,
             descriptions: [],
+        });
+    }
+});
+
+app.get('/api/blocks', async (req, res) => {
+    const fetchedAt = new Date().toISOString();
+
+    try {
+        const results = await getAllBlocks();
+        const overallStatus = results.length && results.every(item => item.status === 'healthy')
+            ? 'healthy'
+            : results.some(item => item.status === 'healthy')
+                ? 'partial'
+                : 'unavailable';
+
+        res.json({
+            fetchedAt,
+            overallStatus,
+            results,
+        });
+    } catch (error) {
+        console.error('Failed to fetch blocks:', error);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+
+        res.status(500).json({
+            fetchedAt,
+            overallStatus: 'unavailable',
+            error: errorMessage,
+            results: [],
         });
     }
 });

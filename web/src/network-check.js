@@ -364,6 +364,274 @@ async function checkSingleNetwork({ targetId, label, networkDir, channelName, in
     }
 }
 
+function decodeBlock(bytes) {
+    const buffer = Buffer.from(bytes);
+    let offset = 0;
+    const result = {
+        header: {},
+        data: {},
+        metadata: {},
+    };
+
+    while (offset < buffer.length) {
+        const key = buffer[offset++];
+        if (typeof key === 'undefined') break;
+
+        const fieldNumber = key >> 3;
+        const wireType = key & 0x07;
+
+        if (fieldNumber === 1 && wireType === 2) {
+            // header
+            const { value: lengthValue, offset: lengthOffset } = readVarint(buffer, offset);
+            const length = Number(lengthValue);
+            offset = lengthOffset;
+            const sliceEnd = Math.min(buffer.length, offset + length);
+            const headerBytes = buffer.slice(offset, sliceEnd);
+            result.header = decodeBlockHeader(headerBytes);
+            offset = sliceEnd;
+            continue;
+        }
+
+        if (fieldNumber === 2 && wireType === 2) {
+            // data
+            const { value: lengthValue, offset: lengthOffset } = readVarint(buffer, offset);
+            const length = Number(lengthValue);
+            offset = lengthOffset;
+            const sliceEnd = Math.min(buffer.length, offset + length);
+            const dataBytes = buffer.slice(offset, sliceEnd);
+            result.data = decodeBlockData(dataBytes);
+            offset = sliceEnd;
+            continue;
+        }
+
+        offset = skipUnknownField(buffer, offset, wireType);
+    }
+
+    return result;
+}
+
+function decodeBlockHeader(bytes) {
+    const buffer = Buffer.from(bytes);
+    let offset = 0;
+    const result = {
+        number: null,
+        previousHash: null,
+        dataHash: null,
+    };
+
+    while (offset < buffer.length) {
+        const key = buffer[offset++];
+        if (typeof key === 'undefined') break;
+
+        const fieldNumber = key >> 3;
+        const wireType = key & 0x07;
+
+        if (fieldNumber === 1 && wireType === 0) {
+            // number
+            const { value, offset: nextOffset } = readVarint(buffer, offset);
+            result.number = value;
+            offset = nextOffset;
+            continue;
+        }
+
+        if ((fieldNumber === 2 || fieldNumber === 3) && wireType === 2) {
+            // hash fields
+            const { value: lengthValue, offset: lengthOffset } = readVarint(buffer, offset);
+            const length = Number(lengthValue);
+            offset = lengthOffset;
+            const sliceEnd = Math.min(buffer.length, offset + length);
+            const hashValue = buffer.slice(offset, sliceEnd);
+            if (fieldNumber === 2) {
+                result.previousHash = hashValue.toString('hex');
+            } else {
+                result.dataHash = hashValue.toString('hex');
+            }
+            offset = sliceEnd;
+            continue;
+        }
+
+        offset = skipUnknownField(buffer, offset, wireType);
+    }
+
+    return result;
+}
+
+function decodeBlockData(bytes) {
+    const buffer = Buffer.from(bytes);
+    let offset = 0;
+    const transactions = [];
+
+    while (offset < buffer.length) {
+        const key = buffer[offset++];
+        if (typeof key === 'undefined') break;
+
+        const fieldNumber = key >> 3;
+        const wireType = key & 0x07;
+
+        if (fieldNumber === 1 && wireType === 2) {
+            // data field (transactions)
+            const { value: lengthValue, offset: lengthOffset } = readVarint(buffer, offset);
+            const length = Number(lengthValue);
+            offset = lengthOffset;
+            const sliceEnd = Math.min(buffer.length, offset + length);
+            transactions.push(buffer.slice(offset, sliceEnd));
+            offset = sliceEnd;
+            continue;
+        }
+
+        offset = skipUnknownField(buffer, offset, wireType);
+    }
+
+    return { transactionCount: transactions.length };
+}
+
+async function getAllBlocksFromNetwork({ targetId, label, networkDir, channelName, peerEndpoint, domain, peerHostAlias: configuredPeerHostAlias, orgName = 'org1', peerName = 'peer0' }) {
+    const effectivePeerEndpoint = peerEndpoint || 'localhost:7051';
+    const effectiveDomain = domain ?? 'standard.com';
+    const orgDomain = `${orgName}.${effectiveDomain}`;
+    const mspUser = `User1@${orgDomain}`;
+    const peerHostAlias = configuredPeerHostAlias ?? `${peerName}.${orgDomain}`;
+    const timestamp = new Date().toISOString();
+    const baseResult = {
+        targetId,
+        label,
+        networkDir,
+        channel: channelName,
+        peer: effectivePeerEndpoint,
+        timestamp,
+        blocks: []
+    };
+
+    if (!existsSync(networkDir)) {
+        return {
+            ...baseResult,
+            status: 'not_found',
+            message: 'Direktori jaringan tidak ditemukan.'
+        };
+    }
+
+    const cryptoPath = path.resolve(networkDir, `organizations/peerOrganizations/${orgDomain}`);
+    const userPath = path.resolve(cryptoPath, `users/${mspUser}/msp`);
+    const keyDirPath = path.resolve(userPath, 'keystore');
+    const certDirPath = path.resolve(userPath, 'signcerts');
+    const tlsCertPath = path.resolve(cryptoPath, `peers/${peerHostAlias}/tls/ca.crt`);
+
+    const requiredPaths = [cryptoPath, userPath, keyDirPath, certDirPath, tlsCertPath];
+    const missing = requiredPaths.filter(p => !existsSync(p));
+    if (missing.length) {
+        return {
+            ...baseResult,
+            status: 'incomplete',
+            message: 'Material kriptografi tidak lengkap.'
+        };
+    }
+
+    async function newGrpcConnection() {
+        const tlsRootCert = await fs.readFile(tlsCertPath);
+        const tlsCredentials = grpc.credentials.createSsl(tlsRootCert);
+        return new grpc.Client(effectivePeerEndpoint, tlsCredentials, {
+            'grpc.ssl_target_name_override': peerHostAlias,
+            'grpc.keepalive_time_ms': 120000,
+            'grpc.keepalive_timeout_ms': 20000,
+            'grpc.keepalive_permit_without_calls': true,
+            'grpc.http2.max_pings_without_data': 0,
+            'grpc.http2.min_time_between_pings_ms': 10000,
+            'grpc.http2.min_ping_interval_without_data_ms': 300000
+        });
+    }
+
+    async function newIdentity() {
+        const certFile = await readFirstVisibleFile(certDirPath);
+        const credentials = await fs.readFile(certFile);
+        return { mspId, credentials };
+    }
+
+    async function newSigner() {
+        const keyFile = await readFirstVisibleFile(keyDirPath);
+        const privateKeyPem = await fs.readFile(keyFile);
+        const privateKey = crypto.createPrivateKey(privateKeyPem);
+        return signers.newPrivateKeySigner(privateKey);
+    }
+
+    let client;
+    let gateway;
+
+    try {
+        client = await newGrpcConnection();
+        gateway = connect({
+            client,
+            identity: await newIdentity(),
+            signer: await newSigner(),
+            hash: hash.sha256,
+        });
+
+        const network = gateway.getNetwork(channelName);
+        const qscc = network.getContract('qscc');
+
+        // Get blockchain info first
+        const chainInfoBytes = await qscc.evaluateTransaction('GetChainInfo', channelName);
+        const chainInfo = decodeBlockchainInfo(chainInfoBytes);
+
+        let blockHeight = 0;
+        if (chainInfo.height !== null && chainInfo.height !== undefined) {
+            const heightBigInt = chainInfo.height;
+            if (typeof heightBigInt === 'bigint') {
+                blockHeight = Number(heightBigInt);
+            } else if (typeof heightBigInt === 'number') {
+                blockHeight = heightBigInt;
+            }
+        }
+
+        // Fetch all blocks
+        const blocks = [];
+        for (let i = 0; i < blockHeight; i++) {
+            try {
+                const blockBytes = await qscc.evaluateTransaction('GetBlockByNumber', channelName, i.toString());
+                const blockData = decodeBlock(blockBytes);
+
+                blocks.push({
+                    blockNumber: typeof blockData.header.number === 'bigint' ? Number(blockData.header.number) : blockData.header.number,
+                    previousHash: blockData.header.previousHash || '',
+                    dataHash: blockData.header.dataHash || '',
+                    transactionCount: blockData.data.transactionCount || 0,
+                    timestamp: new Date().toISOString(), // This would ideally come from block metadata
+                });
+            } catch (error) {
+                console.warn(`Failed to fetch block ${i} from ${label}:`, error);
+            }
+        }
+
+        return {
+            ...baseResult,
+            status: 'healthy',
+            blockHeight,
+            blocks
+        };
+    } catch (error) {
+        return {
+            ...baseResult,
+            status: 'unhealthy',
+            message: error instanceof Error ? error.message : 'Terjadi kesalahan saat mengakses blockchain.'
+        };
+    } finally {
+        if (gateway) {
+            gateway.close();
+        }
+        if (client) {
+            client.close();
+        }
+    }
+}
+
+async function getAllBlocks() {
+    const results = [];
+    for (const config of networkConfigurations) {
+        const result = await getAllBlocksFromNetwork(config);
+        results.push(result);
+    }
+    return results;
+}
+
 async function checkNetworkHealth() {
     const results = [];
     for (const config of networkConfigurations) {
@@ -373,4 +641,4 @@ async function checkNetworkHealth() {
     return results;
 }
 
-export { checkNetworkHealth };
+export { checkNetworkHealth, getAllBlocks };

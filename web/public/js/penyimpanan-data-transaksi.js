@@ -297,10 +297,154 @@ componentLoaderReady.then(() => {
         }
     }
 
-    // Create blocks data table
+    // Pagination state for each network
+    const paginationState = {};
+
+    // Pagination configuration
+    const ITEMS_PER_PAGE = 10;
+
+    // Create pagination controls
+    function createPaginationControls(networkId, totalItems, currentPage, onPageChange) {
+        const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+
+        if (totalPages <= 1) {
+            return null; // No pagination needed for single page
+        }
+
+        const paginationWrapper = document.createElement('div');
+        paginationWrapper.className = 'flex items-center justify-between border-t border-white/10 bg-surfaceMuted/30 px-6 py-4';
+
+        // Info text
+        const infoText = document.createElement('div');
+        infoText.className = 'text-sm text-textdark/60';
+        const startItem = (currentPage - 1) * ITEMS_PER_PAGE + 1;
+        const endItem = Math.min(currentPage * ITEMS_PER_PAGE, totalItems);
+        infoText.textContent = `Menampilkan ${startItem}-${endItem} dari ${totalItems} blok`;
+
+        // Pagination buttons
+        const buttonGroup = document.createElement('div');
+        buttonGroup.className = 'flex items-center gap-2';
+
+        // Previous button
+        const prevButton = document.createElement('button');
+        prevButton.type = 'button';
+        prevButton.className = 'flex items-center gap-1 rounded-lg border px-3 py-2 text-sm font-semibold transition';
+        prevButton.disabled = currentPage === 1;
+
+        if (currentPage === 1) {
+            prevButton.className += ' border-white/10 bg-surfaceMuted/30 text-textdark/30 cursor-not-allowed';
+        } else {
+            prevButton.className += ' border-primary/40 bg-primary/10 text-primary hover:bg-primary/20';
+        }
+
+        prevButton.innerHTML = `
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+            <span>Previous</span>
+        `;
+        prevButton.addEventListener('click', () => {
+            if (currentPage > 1) {
+                onPageChange(currentPage - 1);
+            }
+        });
+
+        // Page numbers
+        const pageNumbers = document.createElement('div');
+        pageNumbers.className = 'flex items-center gap-1';
+
+        const maxVisiblePages = 5;
+        let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+        let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+        if (endPage - startPage < maxVisiblePages - 1) {
+            startPage = Math.max(1, endPage - maxVisiblePages + 1);
+        }
+
+        // First page
+        if (startPage > 1) {
+            const firstPageBtn = createPageButton(1, currentPage === 1, () => onPageChange(1));
+            pageNumbers.appendChild(firstPageBtn);
+
+            if (startPage > 2) {
+                const ellipsis = document.createElement('span');
+                ellipsis.className = 'px-2 text-textdark/40';
+                ellipsis.textContent = '...';
+                pageNumbers.appendChild(ellipsis);
+            }
+        }
+
+        // Page buttons
+        for (let i = startPage; i <= endPage; i++) {
+            const pageBtn = createPageButton(i, i === currentPage, () => onPageChange(i));
+            pageNumbers.appendChild(pageBtn);
+        }
+
+        // Last page
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) {
+                const ellipsis = document.createElement('span');
+                ellipsis.className = 'px-2 text-textdark/40';
+                ellipsis.textContent = '...';
+                pageNumbers.appendChild(ellipsis);
+            }
+
+            const lastPageBtn = createPageButton(totalPages, currentPage === totalPages, () => onPageChange(totalPages));
+            pageNumbers.appendChild(lastPageBtn);
+        }
+
+        // Next button
+        const nextButton = document.createElement('button');
+        nextButton.type = 'button';
+        nextButton.className = 'flex items-center gap-1 rounded-lg border px-3 py-2 text-sm font-semibold transition';
+        nextButton.disabled = currentPage === totalPages;
+
+        if (currentPage === totalPages) {
+            nextButton.className += ' border-white/10 bg-surfaceMuted/30 text-textdark/30 cursor-not-allowed';
+        } else {
+            nextButton.className += ' border-primary/40 bg-primary/10 text-primary hover:bg-primary/20';
+        }
+
+        nextButton.innerHTML = `
+            <span>Next</span>
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+        `;
+        nextButton.addEventListener('click', () => {
+            if (currentPage < totalPages) {
+                onPageChange(currentPage + 1);
+            }
+        });
+
+        buttonGroup.append(prevButton, pageNumbers, nextButton);
+        paginationWrapper.append(infoText, buttonGroup);
+
+        return paginationWrapper;
+    }
+
+    // Create individual page button
+    function createPageButton(pageNum, isActive, onClick) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'h-9 w-9 rounded-lg border text-sm font-semibold transition';
+
+        if (isActive) {
+            button.className += ' border-primary/40 bg-primary/20 text-primary';
+        } else {
+            button.className += ' border-white/10 bg-surfaceMuted/30 text-textdark/70 hover:border-primary/30 hover:bg-primary/10 hover:text-primary';
+        }
+
+        button.textContent = pageNum;
+        button.addEventListener('click', onClick);
+
+        return button;
+    }
+
+    // Create blocks data table with pagination
     function createBlocksDataTable(networksData) {
         const wrapper = document.createElement('div');
-        wrapper.className = 'space-y-8';
+        wrapper.className = 'space-y-6';
 
         if (!networksData || networksData.length === 0) {
             const emptyState = document.createElement('div');
@@ -316,13 +460,23 @@ componentLoaderReady.then(() => {
         }
 
         networksData.forEach((network, networkIndex) => {
-            const networkSection = document.createElement('div');
-            networkSection.className = 'fade-in';
-            networkSection.style.animationDelay = `${networkIndex * 0.1}s`;
+            const networkId = network.targetId || `network-${networkIndex}`;
+
+            // Initialize pagination state for this network
+            if (!paginationState[networkId]) {
+                paginationState[networkId] = { currentPage: 1 };
+            }
+
+            const currentPage = paginationState[networkId].currentPage;
+
+            // Network card wrapper
+            const networkCard = document.createElement('article');
+            networkCard.className = 'fade-in relative isolate overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-surface/80 via-surfaceMuted/60 to-soft/80 shadow-xl shadow-black/20';
+            networkCard.style.animationDelay = `${networkIndex * 0.1}s`;
 
             // Network header
             const networkHeader = document.createElement('div');
-            networkHeader.className = 'mb-4 flex items-center justify-between gap-4';
+            networkHeader.className = 'flex items-center justify-between gap-4 border-b border-white/10 bg-surfaceMuted/30 px-6 py-5';
 
             const networkTitle = document.createElement('div');
             networkTitle.className = 'flex items-center gap-3';
@@ -348,17 +502,23 @@ componentLoaderReady.then(() => {
             `;
 
             networkHeader.append(networkTitle, blockCount);
-            networkSection.appendChild(networkHeader);
+            networkCard.appendChild(networkHeader);
 
             // Blocks table
             if (!network.blocks || network.blocks.length === 0) {
                 const emptyBlock = document.createElement('div');
-                emptyBlock.className = 'rounded-xl border border-white/10 bg-surfaceMuted/30 p-8 text-center text-sm text-textdark/60';
+                emptyBlock.className = 'p-8 text-center text-sm text-textdark/60';
                 emptyBlock.textContent = 'Tidak ada blok yang tersedia untuk network ini';
-                networkSection.appendChild(emptyBlock);
+                networkCard.appendChild(emptyBlock);
             } else {
+                // Calculate pagination
+                const totalBlocks = network.blocks.length;
+                const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+                const endIndex = startIndex + ITEMS_PER_PAGE;
+                const paginatedBlocks = network.blocks.slice(startIndex, endIndex);
+
                 const tableWrapper = document.createElement('div');
-                tableWrapper.className = 'overflow-hidden rounded-xl border border-white/10';
+                tableWrapper.className = 'overflow-x-auto';
 
                 const table = document.createElement('table');
                 table.className = 'w-full text-sm';
@@ -391,10 +551,9 @@ componentLoaderReady.then(() => {
                 const tbody = document.createElement('tbody');
                 tbody.className = 'divide-y divide-white/10 bg-surfaceMuted/20';
 
-                network.blocks.forEach((block, blockIndex) => {
+                paginatedBlocks.forEach((block, blockIndex) => {
                     const row = document.createElement('tr');
                     row.className = 'table-row transition hover:bg-primary/5';
-                    row.style.animationDelay = `${blockIndex * 0.02}s`;
 
                     // Block Number
                     const blockNumCell = document.createElement('td');
@@ -448,10 +607,25 @@ componentLoaderReady.then(() => {
 
                 table.appendChild(tbody);
                 tableWrapper.appendChild(table);
-                networkSection.appendChild(tableWrapper);
+                networkCard.appendChild(tableWrapper);
+
+                // Add pagination controls
+                const paginationControls = createPaginationControls(
+                    networkId,
+                    totalBlocks,
+                    currentPage,
+                    (newPage) => {
+                        paginationState[networkId].currentPage = newPage;
+                        loadBlocksData();
+                    }
+                );
+
+                if (paginationControls) {
+                    networkCard.appendChild(paginationControls);
+                }
             }
 
-            wrapper.appendChild(networkSection);
+            wrapper.appendChild(networkCard);
         });
 
         return wrapper;

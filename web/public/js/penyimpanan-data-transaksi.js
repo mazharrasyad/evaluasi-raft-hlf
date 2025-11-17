@@ -806,6 +806,68 @@ componentLoaderReady.then(() => {
                     </div>
                 </div>
 
+                ${block.simulationData ? `
+                <!-- Simulation Data -->
+                <div class="rounded-xl border border-accent/20 bg-accent/5 p-5">
+                    <h4 class="mb-4 text-base font-semibold text-accent">Data Simulasi Terakhir</h4>
+                    <div class="space-y-3 text-sm">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <span class="font-semibold text-textdark/70">Report ID:</span>
+                                <div class="mt-1 font-mono text-primary">${block.simulationData.reportId || '-'}</div>
+                            </div>
+                            <div>
+                                <span class="font-semibold text-textdark/70">Timestamp:</span>
+                                <div class="mt-1 text-textdark">${block.simulationData.timestamp ? new Date(block.simulationData.timestamp).toLocaleString('id-ID') : '-'}</div>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="font-semibold text-textdark/70">Substansi:</span>
+                            <div class="mt-1 text-textdark">${block.simulationData.substance || '-'}</div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <span class="font-semibold text-textdark/70">Pelapor:</span>
+                                <div class="mt-1 text-textdark">${block.simulationData.reporterGroup || '-'}</div>
+                            </div>
+                            <div>
+                                <span class="font-semibold text-textdark/70">Terlapor:</span>
+                                <div class="mt-1 text-textdark">${block.simulationData.reportedGroup || '-'}</div>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="font-semibold text-textdark/70">Kantor Penerima:</span>
+                            <div class="mt-1 text-textdark">${block.simulationData.receivingOffice || '-'}</div>
+                        </div>
+                        <div>
+                            <span class="font-semibold text-textdark/70">Deskripsi:</span>
+                            <div class="mt-1 text-textdark">${block.simulationData.description || '-'}</div>
+                        </div>
+                        <div>
+                            <span class="font-semibold text-textdark/70">Status:</span>
+                            <div class="mt-1">
+                                <span class="inline-flex items-center gap-1.5 rounded-full border ${
+                                    block.simulationData.status === 'completed' || block.simulationData.status === 'resolved'
+                                        ? 'border-green-500/30 bg-green-500/10 text-green-400'
+                                        : block.simulationData.status === 'processing' || block.simulationData.status === 'in_progress'
+                                        ? 'border-blue-500/30 bg-blue-500/10 text-blue-400'
+                                        : 'border-yellow-500/30 bg-yellow-500/10 text-yellow-400'
+                                } px-3 py-1 text-xs font-semibold">
+                                    <span class="h-1.5 w-1.5 rounded-full ${
+                                        block.simulationData.status === 'completed' || block.simulationData.status === 'resolved'
+                                            ? 'bg-green-400'
+                                            : block.simulationData.status === 'processing' || block.simulationData.status === 'in_progress'
+                                            ? 'bg-blue-400'
+                                            : 'bg-yellow-400'
+                                    }"></span>
+                                    ${block.simulationData.status || 'pending'}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                ` : ''}
+
                 <!-- Raw Block Data JSON -->
                 <div class="rounded-xl border border-white/10 bg-surfaceMuted/30 p-5">
                     <h4 class="mb-3 text-base font-semibold text-textdark">Data Blok Lengkap (JSON)</h4>

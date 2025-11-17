@@ -312,12 +312,20 @@ componentLoaderReady.then(() => {
     const blockDetailContent = document.getElementById('blockDetailContent');
     const closeModalBtn = document.getElementById('closeModalBtn');
 
-    // Network color mapping for block submissions
+    // Network color mapping for block submissions (matching targetId from backend)
     const submissionNetworkColors = {
         'channel-standard': { bg: 'bg-blue-500/15', text: 'text-blue-400', border: 'border-blue-500/30' },
         'channel-variant': { bg: 'bg-purple-500/15', text: 'text-purple-400', border: 'border-purple-500/30' },
         'channel-fabric3-standard': { bg: 'bg-green-500/15', text: 'text-green-400', border: 'border-green-500/30' },
         'channel-fabric3-variant': { bg: 'bg-orange-500/15', text: 'text-orange-400', border: 'border-orange-500/30' },
+    };
+
+    // Network label mapping
+    const submissionNetworkLabels = {
+        'channel-standard': 'Fabric 2 RAFT Standard',
+        'channel-variant': 'Fabric 2 RAFT Variant',
+        'channel-fabric3-standard': 'Fabric 3 RAFT Standard',
+        'channel-fabric3-variant': 'Fabric 3 RAFT Variant',
     };
 
     // Fetch block submissions from API
@@ -328,9 +336,11 @@ componentLoaderReady.then(() => {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const data = await response.json();
+            console.log('📊 API Response /api/catatan:', data);
+            console.log('📋 Results:', data.results);
             return data.results || [];
         } catch (error) {
-            console.error('Error fetching block submissions:', error);
+            console.error('❌ Error fetching block submissions:', error);
             return [];
         }
     }
@@ -345,13 +355,14 @@ componentLoaderReady.then(() => {
         header.className = 'flex items-center gap-3 rounded-lg border border-white/10 bg-surfaceMuted/50 p-4';
 
         const colors = submissionNetworkColors[networkData.targetId] || { bg: 'bg-gray-500/15', text: 'text-gray-400', border: 'border-gray-500/30' };
+        const networkLabel = networkData.label || submissionNetworkLabels[networkData.targetId] || networkData.targetId;
 
         header.innerHTML = `
             <div class="inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 ${colors.bg} ${colors.text} ${colors.border}">
                 <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"></path>
                 </svg>
-                <span class="text-sm font-semibold">${networkData.label}</span>
+                <span class="text-sm font-semibold">${networkLabel}</span>
             </div>
             <span class="ml-auto text-sm text-textdark/60">${networkData.records.length} data</span>
         `;
@@ -476,7 +487,7 @@ componentLoaderReady.then(() => {
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                 `;
-                detailBtn.addEventListener('click', () => showBlockDetail(record, networkData.label));
+                detailBtn.addEventListener('click', () => showBlockDetail(record, networkLabel));
                 actionCell.appendChild(detailBtn);
 
                 row.append(reportIdCell, timestampCell, substanceCell, reporterCell, statusCell, officeCell, actionCell);
@@ -594,6 +605,7 @@ componentLoaderReady.then(() => {
         `;
 
         const results = await fetchBlockSubmissions();
+        console.log('🔍 Total networks fetched:', results.length);
 
         if (!results || results.length === 0) {
             blockSubmissionsContainerEl.innerHTML = `
@@ -621,6 +633,11 @@ componentLoaderReady.then(() => {
         const healthyNetworks = results.filter(network =>
             network.status === 'healthy' && network.records && network.records.length > 0
         );
+
+        console.log('✅ Healthy networks with data:', healthyNetworks.length);
+        healthyNetworks.forEach((network, index) => {
+            console.log(`  ${index + 1}. ${network.label || network.targetId} - ${network.records.length} records`);
+        });
 
         if (healthyNetworks.length === 0) {
             blockSubmissionsContainerEl.innerHTML = `

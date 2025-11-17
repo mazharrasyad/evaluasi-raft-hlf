@@ -1380,6 +1380,7 @@ app.post('/api/simulations/records', async (req, res) => {
             success: successCount > 0,
             successCount,
             totalCount: results.length,
+            simulationData: record, // Include the full simulation data in response
             results,
         });
     } catch (error) {

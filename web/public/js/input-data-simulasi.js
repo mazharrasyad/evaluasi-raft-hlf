@@ -361,6 +361,7 @@ componentLoaderReady.then(() => {
     function showResults(summary) {
         const totalRecords = summary.totalRecords || 0;
         const totalNetworks = summary.networks?.length || 0;
+        const lastSubmittedData = summary.lastSubmittedData;
 
         let resultsHTML = `
             <div class="rounded-xl border border-primary/20 bg-primary/5 p-6">
@@ -377,6 +378,57 @@ componentLoaderReady.then(() => {
                 </div>
             </div>
         `;
+
+        // Show last submitted data sample
+        if (lastSubmittedData) {
+            resultsHTML += `
+                <div class="rounded-xl border border-accent/20 bg-accent/5 p-6">
+                    <h4 class="mb-4 text-base font-semibold text-accent">Contoh Data Simulasi Terakhir</h4>
+                    <div class="space-y-3 text-sm">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <span class="font-semibold text-textdark/70">Report ID:</span>
+                                <div class="mt-1 font-mono text-primary">${lastSubmittedData.reportId || '-'}</div>
+                            </div>
+                            <div>
+                                <span class="font-semibold text-textdark/70">Timestamp:</span>
+                                <div class="mt-1 text-textdark">${lastSubmittedData.timestamp || '-'}</div>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="font-semibold text-textdark/70">Substansi:</span>
+                            <div class="mt-1 text-textdark">${lastSubmittedData.substance || '-'}</div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <span class="font-semibold text-textdark/70">Pelapor:</span>
+                                <div class="mt-1 text-textdark">${lastSubmittedData.reporterGroup || '-'}</div>
+                            </div>
+                            <div>
+                                <span class="font-semibold text-textdark/70">Terlapor:</span>
+                                <div class="mt-1 text-textdark">${lastSubmittedData.reportedGroup || '-'}</div>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="font-semibold text-textdark/70">Kantor Penerima:</span>
+                            <div class="mt-1 text-textdark">${lastSubmittedData.receivingOffice || '-'}</div>
+                        </div>
+                        <div>
+                            <span class="font-semibold text-textdark/70">Deskripsi:</span>
+                            <div class="mt-1 text-textdark">${lastSubmittedData.description || '-'}</div>
+                        </div>
+                        <div>
+                            <span class="font-semibold text-textdark/70">Status:</span>
+                            <div class="mt-1">
+                                <span class="inline-flex items-center gap-1.5 rounded-full border border-yellow-500/30 bg-yellow-500/10 px-3 py-1 text-xs font-semibold text-yellow-400">
+                                    ${lastSubmittedData.status || 'pending'}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
 
         if (summary.networks && summary.networks.length > 0) {
             resultsHTML += '<div class="space-y-4">';
@@ -538,11 +590,18 @@ componentLoaderReady.then(() => {
                 failed: 0
             }));
 
+            let lastSubmittedData = null;
+
             for (let i = 0; i < records.length; i++) {
                 const record = records[i];
 
                 try {
                     const response = await submitRecord(record, selectedNetworks);
+
+                    // Store the last submitted data to show as example
+                    if (response.simulationData) {
+                        lastSubmittedData = response.simulationData;
+                    }
 
                     if (response.results) {
                         response.results.forEach(result => {
@@ -571,10 +630,11 @@ componentLoaderReady.then(() => {
 
             showStatus(`Selesai mengirim ${records.length} transaksi`, 'success');
 
-            // Show results
+            // Show results with last submitted data
             showResults({
                 totalRecords: records.length,
-                networks: networkSummary
+                networks: networkSummary,
+                lastSubmittedData: lastSubmittedData
             });
 
             Swal.fire({

@@ -480,6 +480,28 @@ componentLoaderReady.then(() => {
         resultsSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
+    // Save block submission data to localStorage
+    function saveBlockSubmissionData(response) {
+        try {
+            // Get existing submissions from localStorage
+            const existingData = localStorage.getItem('blockSubmissions');
+            let submissions = existingData ? JSON.parse(existingData) : [];
+
+            // Add new submission
+            submissions.push(response);
+
+            // Keep only last 1000 submissions to avoid localStorage overflow
+            if (submissions.length > 1000) {
+                submissions = submissions.slice(-1000);
+            }
+
+            // Save back to localStorage
+            localStorage.setItem('blockSubmissions', JSON.stringify(submissions));
+        } catch (error) {
+            console.error('Error saving block submission data:', error);
+        }
+    }
+
     // Execute simulation
     async function executeSimulation() {
         if (isExecuting) {
@@ -623,6 +645,11 @@ componentLoaderReady.then(() => {
                     // Update batch completion time
                     if (response.completedAt) {
                         batchCompletedAt = response.completedAt;
+                    }
+
+                    // Save block submission data to localStorage
+                    if (response.success && response.results) {
+                        saveBlockSubmissionData(response);
                     }
                 } catch (error) {
                     console.error(`Error submitting record ${record.reportId}:`, error);

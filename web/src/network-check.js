@@ -482,7 +482,295 @@ function decodeBlockData(bytes) {
         offset = skipUnknownField(buffer, offset, wireType);
     }
 
-    return { transactionCount: transactions.length };
+    return { transactionCount: transactions.length, transactions };
+}
+
+// Decode transaction envelope to extract payload
+function decodeEnvelope(bytes) {
+    const buffer = Buffer.from(bytes);
+    let offset = 0;
+    let payload = null;
+
+    while (offset < buffer.length) {
+        const key = buffer[offset++];
+        if (typeof key === 'undefined') break;
+
+        const fieldNumber = key >> 3;
+        const wireType = key & 0x07;
+
+        if (fieldNumber === 1 && wireType === 2) {
+            // payload field
+            const { value: lengthValue, offset: lengthOffset } = readVarint(buffer, offset);
+            const length = Number(lengthValue);
+            offset = lengthOffset;
+            const sliceEnd = Math.min(buffer.length, offset + length);
+            payload = buffer.slice(offset, sliceEnd);
+            offset = sliceEnd;
+            continue;
+        }
+
+        offset = skipUnknownField(buffer, offset, wireType);
+    }
+
+    return payload;
+}
+
+// Decode payload to extract transaction data
+function decodePayload(bytes) {
+    const buffer = Buffer.from(bytes);
+    let offset = 0;
+    let data = null;
+
+    while (offset < buffer.length) {
+        const key = buffer[offset++];
+        if (typeof key === 'undefined') break;
+
+        const fieldNumber = key >> 3;
+        const wireType = key & 0x07;
+
+        if (fieldNumber === 2 && wireType === 2) {
+            // data field (contains Transaction)
+            const { value: lengthValue, offset: lengthOffset } = readVarint(buffer, offset);
+            const length = Number(lengthValue);
+            offset = lengthOffset;
+            const sliceEnd = Math.min(buffer.length, offset + length);
+            data = buffer.slice(offset, sliceEnd);
+            offset = sliceEnd;
+            continue;
+        }
+
+        offset = skipUnknownField(buffer, offset, wireType);
+    }
+
+    return data;
+}
+
+// Decode transaction to extract chaincode action payload
+function decodeTransaction(bytes) {
+    const buffer = Buffer.from(bytes);
+    let offset = 0;
+    const actions = [];
+
+    while (offset < buffer.length) {
+        const key = buffer[offset++];
+        if (typeof key === 'undefined') break;
+
+        const fieldNumber = key >> 3;
+        const wireType = key & 0x07;
+
+        if (fieldNumber === 1 && wireType === 2) {
+            // actions field
+            const { value: lengthValue, offset: lengthOffset } = readVarint(buffer, offset);
+            const length = Number(lengthValue);
+            offset = lengthOffset;
+            const sliceEnd = Math.min(buffer.length, offset + length);
+            actions.push(buffer.slice(offset, sliceEnd));
+            offset = sliceEnd;
+            continue;
+        }
+
+        offset = skipUnknownField(buffer, offset, wireType);
+    }
+
+    return actions;
+}
+
+// Decode chaincode action to extract proposal response payload
+function decodeChaincodeActionPayload(bytes) {
+    const buffer = Buffer.from(bytes);
+    let offset = 0;
+    let action = null;
+
+    while (offset < buffer.length) {
+        const key = buffer[offset++];
+        if (typeof key === 'undefined') break;
+
+        const fieldNumber = key >> 3;
+        const wireType = key & 0x07;
+
+        if (fieldNumber === 2 && wireType === 2) {
+            // action field (contains ChaincodeEndorsedAction)
+            const { value: lengthValue, offset: lengthOffset } = readVarint(buffer, offset);
+            const length = Number(lengthValue);
+            offset = lengthOffset;
+            const sliceEnd = Math.min(buffer.length, offset + length);
+            action = buffer.slice(offset, sliceEnd);
+            offset = sliceEnd;
+            continue;
+        }
+
+        offset = skipUnknownField(buffer, offset, wireType);
+    }
+
+    return action;
+}
+
+// Decode chaincode endorsed action to extract proposal response payload
+function decodeChaincodeEndorsedAction(bytes) {
+    const buffer = Buffer.from(bytes);
+    let offset = 0;
+    let proposalResponsePayload = null;
+
+    while (offset < buffer.length) {
+        const key = buffer[offset++];
+        if (typeof key === 'undefined') break;
+
+        const fieldNumber = key >> 3;
+        const wireType = key & 0x07;
+
+        if (fieldNumber === 1 && wireType === 2) {
+            // proposal_response_payload field
+            const { value: lengthValue, offset: lengthOffset } = readVarint(buffer, offset);
+            const length = Number(lengthValue);
+            offset = lengthOffset;
+            const sliceEnd = Math.min(buffer.length, offset + length);
+            proposalResponsePayload = buffer.slice(offset, sliceEnd);
+            offset = sliceEnd;
+            continue;
+        }
+
+        offset = skipUnknownField(buffer, offset, wireType);
+    }
+
+    return proposalResponsePayload;
+}
+
+// Decode proposal response payload to extract chaincode action
+function decodeProposalResponsePayload(bytes) {
+    const buffer = Buffer.from(bytes);
+    let offset = 0;
+    let extension = null;
+
+    while (offset < buffer.length) {
+        const key = buffer[offset++];
+        if (typeof key === 'undefined') break;
+
+        const fieldNumber = key >> 3;
+        const wireType = key & 0x07;
+
+        if (fieldNumber === 2 && wireType === 2) {
+            // extension field (contains ChaincodeAction)
+            const { value: lengthValue, offset: lengthOffset } = readVarint(buffer, offset);
+            const length = Number(lengthValue);
+            offset = lengthOffset;
+            const sliceEnd = Math.min(buffer.length, offset + length);
+            extension = buffer.slice(offset, sliceEnd);
+            offset = sliceEnd;
+            continue;
+        }
+
+        offset = skipUnknownField(buffer, offset, wireType);
+    }
+
+    return extension;
+}
+
+// Decode chaincode action to extract response
+function decodeChaincodeAction(bytes) {
+    const buffer = Buffer.from(bytes);
+    let offset = 0;
+    let response = null;
+
+    while (offset < buffer.length) {
+        const key = buffer[offset++];
+        if (typeof key === 'undefined') break;
+
+        const fieldNumber = key >> 3;
+        const wireType = key & 0x07;
+
+        if (fieldNumber === 2 && wireType === 2) {
+            // response field
+            const { value: lengthValue, offset: lengthOffset } = readVarint(buffer, offset);
+            const length = Number(lengthValue);
+            offset = lengthOffset;
+            const sliceEnd = Math.min(buffer.length, offset + length);
+            response = buffer.slice(offset, sliceEnd);
+            offset = sliceEnd;
+            continue;
+        }
+
+        offset = skipUnknownField(buffer, offset, wireType);
+    }
+
+    return response;
+}
+
+// Decode response to extract payload
+function decodeResponse(bytes) {
+    const buffer = Buffer.from(bytes);
+    let offset = 0;
+    let payload = null;
+
+    while (offset < buffer.length) {
+        const key = buffer[offset++];
+        if (typeof key === 'undefined') break;
+
+        const fieldNumber = key >> 3;
+        const wireType = key & 0x07;
+
+        if (fieldNumber === 2 && wireType === 2) {
+            // payload field
+            const { value: lengthValue, offset: lengthOffset } = readVarint(buffer, offset);
+            const length = Number(lengthValue);
+            offset = lengthOffset;
+            const sliceEnd = Math.min(buffer.length, offset + length);
+            payload = buffer.slice(offset, sliceEnd);
+            offset = sliceEnd;
+            continue;
+        }
+
+        offset = skipUnknownField(buffer, offset, wireType);
+    }
+
+    return payload;
+}
+
+// Extract simulation data from transaction
+function extractSimulationData(transactionBytes) {
+    try {
+        // Decode envelope
+        const payloadBytes = decodeEnvelope(transactionBytes);
+        if (!payloadBytes) return null;
+
+        // Decode payload to get transaction
+        const transactionBytes2 = decodePayload(payloadBytes);
+        if (!transactionBytes2) return null;
+
+        // Decode transaction to get actions
+        const actions = decodeTransaction(transactionBytes2);
+        if (!actions || actions.length === 0) return null;
+
+        // Decode first action (usually there's only one)
+        const actionPayload = decodeChaincodeActionPayload(actions[0]);
+        if (!actionPayload) return null;
+
+        // Decode chaincode endorsed action
+        const proposalResponsePayload = decodeChaincodeEndorsedAction(actionPayload);
+        if (!proposalResponsePayload) return null;
+
+        // Decode proposal response payload
+        const extension = decodeProposalResponsePayload(proposalResponsePayload);
+        if (!extension) return null;
+
+        // Decode chaincode action
+        const response = decodeChaincodeAction(extension);
+        if (!response) return null;
+
+        // Decode response to get payload
+        const responsePayload = decodeResponse(response);
+        if (!responsePayload) return null;
+
+        // Try to parse as JSON
+        const payloadString = responsePayload.toString('utf8');
+        try {
+            return JSON.parse(payloadString);
+        } catch {
+            return { rawData: payloadString };
+        }
+    } catch (error) {
+        console.warn('Failed to extract simulation data from transaction:', error);
+        return null;
+    }
 }
 
 async function getAllBlocksFromNetwork({ targetId, label, networkDir, channelName, peerEndpoint, domain, peerHostAlias: configuredPeerHostAlias, orgName = 'org1', peerName = 'peer0' }) {
@@ -589,12 +877,21 @@ async function getAllBlocksFromNetwork({ targetId, label, networkDir, channelNam
                 const blockBytes = await qscc.evaluateTransaction('GetBlockByNumber', channelName, i.toString());
                 const blockData = decodeBlock(blockBytes);
 
+                // Extract simulation data from transactions
+                let simulationData = null;
+                if (blockData.data.transactions && blockData.data.transactions.length > 0) {
+                    // Try to extract data from the last transaction (most recent)
+                    const lastTx = blockData.data.transactions[blockData.data.transactions.length - 1];
+                    simulationData = extractSimulationData(lastTx);
+                }
+
                 blocks.push({
                     blockNumber: typeof blockData.header.number === 'bigint' ? Number(blockData.header.number) : blockData.header.number,
                     previousHash: blockData.header.previousHash || '',
                     dataHash: blockData.header.dataHash || '',
                     transactionCount: blockData.data.transactionCount || 0,
                     timestamp: new Date().toISOString(), // This would ideally come from block metadata
+                    simulationData: simulationData // Add simulation data
                 });
             } catch (error) {
                 console.warn(`Failed to fetch block ${i} from ${label}:`, error);

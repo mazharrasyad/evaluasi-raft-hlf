@@ -726,49 +726,76 @@ function decodeResponse(bytes) {
 }
 
 // Extract simulation data from transaction
-function extractSimulationData(transactionBytes) {
+function extractSimulationData(transactionBytes, debugInfo = '') {
     try {
         // Decode envelope
         const payloadBytes = decodeEnvelope(transactionBytes);
-        if (!payloadBytes) return null;
+        if (!payloadBytes) {
+            console.debug(`${debugInfo} Failed at decodeEnvelope`);
+            return null;
+        }
 
         // Decode payload to get transaction
         const transactionBytes2 = decodePayload(payloadBytes);
-        if (!transactionBytes2) return null;
+        if (!transactionBytes2) {
+            console.debug(`${debugInfo} Failed at decodePayload`);
+            return null;
+        }
 
         // Decode transaction to get actions
         const actions = decodeTransaction(transactionBytes2);
-        if (!actions || actions.length === 0) return null;
+        if (!actions || actions.length === 0) {
+            console.debug(`${debugInfo} Failed at decodeTransaction or no actions`);
+            return null;
+        }
 
         // Decode first action (usually there's only one)
         const actionPayload = decodeChaincodeActionPayload(actions[0]);
-        if (!actionPayload) return null;
+        if (!actionPayload) {
+            console.debug(`${debugInfo} Failed at decodeChaincodeActionPayload`);
+            return null;
+        }
 
         // Decode chaincode endorsed action
         const proposalResponsePayload = decodeChaincodeEndorsedAction(actionPayload);
-        if (!proposalResponsePayload) return null;
+        if (!proposalResponsePayload) {
+            console.debug(`${debugInfo} Failed at decodeChaincodeEndorsedAction`);
+            return null;
+        }
 
         // Decode proposal response payload
         const extension = decodeProposalResponsePayload(proposalResponsePayload);
-        if (!extension) return null;
+        if (!extension) {
+            console.debug(`${debugInfo} Failed at decodeProposalResponsePayload`);
+            return null;
+        }
 
         // Decode chaincode action
         const response = decodeChaincodeAction(extension);
-        if (!response) return null;
+        if (!response) {
+            console.debug(`${debugInfo} Failed at decodeChaincodeAction`);
+            return null;
+        }
 
         // Decode response to get payload
         const responsePayload = decodeResponse(response);
-        if (!responsePayload) return null;
+        if (!responsePayload) {
+            console.debug(`${debugInfo} Failed at decodeResponse`);
+            return null;
+        }
 
         // Try to parse as JSON
         const payloadString = responsePayload.toString('utf8');
         try {
-            return JSON.parse(payloadString);
-        } catch {
+            const parsed = JSON.parse(payloadString);
+            console.debug(`${debugInfo} Successfully extracted simulation data`);
+            return parsed;
+        } catch (e) {
+            console.debug(`${debugInfo} Failed to parse JSON, returning raw data`);
             return { rawData: payloadString };
         }
     } catch (error) {
-        console.warn('Failed to extract simulation data from transaction:', error);
+        console.warn(`${debugInfo} Failed to extract simulation data from transaction:`, error.message);
         return null;
     }
 }
@@ -880,9 +907,23 @@ async function getAllBlocksFromNetwork({ targetId, label, networkDir, channelNam
                 // Extract simulation data from transactions
                 let simulationData = null;
                 if (blockData.data.transactions && blockData.data.transactions.length > 0) {
-                    // Try to extract data from the last transaction (most recent)
-                    const lastTx = blockData.data.transactions[blockData.data.transactions.length - 1];
-                    simulationData = extractSimulationData(lastTx);
+                    // Try to extract data from all transactions (try newest first, then older ones)
+                    for (let txIdx = blockData.data.transactions.length - 1; txIdx >= 0; txIdx--) {
+                        const tx = blockData.data.transactions[txIdx];
+                        const debugInfo = `[Block ${i}, Tx ${txIdx}/${blockData.data.transactions.length - 1}]`;
+                        const extracted = extractSimulationData(tx, debugInfo);
+
+                        if (extracted && extracted.reportId) {
+                            // Found valid simulation data with reportId
+                            simulationData = extracted;
+                            console.log(`${debugInfo} Successfully extracted simulation data with reportId: ${extracted.reportId}`);
+                            break;
+                        }
+                    }
+
+                    if (!simulationData) {
+                        console.debug(`[Block ${i}] No valid simulation data found in ${blockData.data.transactions.length} transaction(s)`);
+                    }
                 }
 
                 blocks.push({

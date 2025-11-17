@@ -226,10 +226,12 @@ export async function connectToGateway(networkId) {
  */
 export async function submitTransaction(networkId, record) {
     let connection = null;
+    let config = null;
 
     try {
+        config = getNetworkConfig(networkId);
         connection = await connectToGateway(networkId);
-        const { gateway, config, client } = connection;
+        const { gateway, client } = connection;
 
         // Get network and contract
         const network = gateway.getNetwork(config.channel);
@@ -280,7 +282,7 @@ export async function submitTransaction(networkId, record) {
             success: false,
             error: error.message,
             networkId,
-            label: config.label,
+            label: config ? config.label : networkId,
             recordId: recordId,
         };
     }
@@ -297,11 +299,21 @@ export async function submitToNetworks(record, targetNetworkIds) {
             const result = await submitTransaction(networkId, record);
             results.push(result);
         } catch (error) {
+            // Get config safely for label
+            let label = networkId;
+            try {
+                const config = getNetworkConfig(networkId);
+                label = config.label;
+            } catch (e) {
+                // Use networkId as fallback
+            }
+
             results.push({
                 success: false,
                 error: error.message,
                 networkId,
-                recordId: record.id,
+                label: label,
+                recordId: record.reportId || record.id,
             });
         }
     }

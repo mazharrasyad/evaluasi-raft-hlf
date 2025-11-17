@@ -648,10 +648,7 @@ componentLoaderReady.then(() => {
 
                     const statusColor = statusColors[record.status] || 'bg-gray-500/10 text-gray-400 border-gray-500/30';
 
-                    // Find submission data for this record
-                    const submission = findSubmissionByReportId(record.reportId || record.id);
-
-                    let cardHTML = `
+                    const cardHTML = `
                         <div class="mb-3 flex items-start justify-between gap-3">
                             <div class="flex-1">
                                 <div class="mb-1 font-mono text-sm font-semibold text-primary">${record.reportId || record.id}</div>
@@ -661,61 +658,11 @@ componentLoaderReady.then(() => {
                                 ${record.status || 'unknown'}
                             </span>
                         </div>
-                    `;
-
-                    // Add submission metadata if available
-                    if (submission) {
-                        // Display batch submission info
-                        cardHTML += `
-                            <div class="mb-3 rounded-lg border border-primary/20 bg-primary/5 p-3">
-                                <div class="mb-2 text-xs font-semibold uppercase tracking-wider text-primary">Batch Submission Info</div>
-                                <div class="grid grid-cols-2 gap-2 text-xs">
-                                    <div>
-                                        <span class="text-textdark/60">Submitted:</span>
-                                        <span class="ml-1 text-textdark">${submission.submittedAt ? dateTimeFormatter.format(new Date(submission.submittedAt)) : '-'}</span>
-                                    </div>
-                                    <div>
-                                        <span class="text-textdark/60">Completed:</span>
-                                        <span class="ml-1 text-textdark">${submission.completedAt ? dateTimeFormatter.format(new Date(submission.completedAt)) : '-'}</span>
-                                    </div>
-                                    <div>
-                                        <span class="text-textdark/60">Success:</span>
-                                        <span class="ml-1 font-semibold ${submission.success ? 'text-green-400' : 'text-red-400'}">${submission.success ? 'Ya' : 'Tidak'}</span>
-                                    </div>
-                                    <div>
-                                        <span class="text-textdark/60">Networks:</span>
-                                        <span class="ml-1 text-textdark">${submission.successCount || 0}/${submission.totalCount || 0}</span>
-                                    </div>
-                                </div>
-                        `;
-
-                        // Display matched simulation data if available
-                        if (submission.matchedSimulationData) {
-                            const simData = submission.matchedSimulationData;
-                            cardHTML += `
-                                <div class="mt-3 border-t border-primary/20 pt-3">
-                                    <div class="mb-2 text-xs font-semibold uppercase tracking-wider text-accent">Original Simulation Data</div>
-                                    <div class="grid grid-cols-2 gap-2 text-xs">
-                                        <div>
-                                            <span class="text-textdark/60">Report ID:</span>
-                                            <span class="ml-1 font-mono text-primary">${simData.reportId || '-'}</span>
-                                        </div>
-                                        <div>
-                                            <span class="text-textdark/60">Timestamp:</span>
-                                            <span class="ml-1 text-textdark">${simData.timestamp ? dateTimeFormatter.format(new Date(simData.timestamp)) : '-'}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            `;
-                        }
-
-                        cardHTML += `
-                            </div>
-                        `;
-                    }
-
-                    cardHTML += `
                         <div class="mb-3 grid grid-cols-2 gap-2 text-xs">
+                            <div>
+                                <span class="text-textdark/60">Waktu Dibuat:</span>
+                                <span class="ml-1 text-textdark">${record.createdAt ? dateTimeFormatter.format(new Date(record.createdAt)) : '-'}</span>
+                            </div>
                             <div>
                                 <span class="text-textdark/60">Substansi:</span>
                                 <span class="ml-1 text-textdark">${record.substance || '-'}</span>
@@ -728,7 +675,7 @@ componentLoaderReady.then(() => {
                                 <span class="text-textdark/60">Pelapor:</span>
                                 <span class="ml-1 text-textdark">${record.reporterGroup || '-'}</span>
                             </div>
-                            <div>
+                            <div class="col-span-2">
                                 <span class="text-textdark/60">Terlapor:</span>
                                 <span class="ml-1 text-textdark">${record.reportedGroup || '-'}</span>
                             </div>

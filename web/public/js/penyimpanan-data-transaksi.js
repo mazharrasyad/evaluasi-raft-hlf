@@ -307,7 +307,7 @@ componentLoaderReady.then(() => {
     // ============================================
 
     const blockSubmissionsContainerEl = document.getElementById('blockSubmissionsContainer');
-    const clearBlockDataBtn = document.getElementById('clearBlockData');
+    const refreshBlockDataBtn = document.getElementById('refreshBlockData');
     const blockDetailModal = document.getElementById('blockDetailModal');
     const blockDetailContent = document.getElementById('blockDetailContent');
     const closeModalBtn = document.getElementById('closeModalBtn');
@@ -320,48 +320,19 @@ componentLoaderReady.then(() => {
         'channel-fabric3-variant': { bg: 'bg-orange-500/15', text: 'text-orange-400', border: 'border-orange-500/30' },
     };
 
-    // Load block submissions from localStorage
-    function loadBlockSubmissions() {
+    // Fetch block submissions from API
+    async function fetchBlockSubmissions() {
         try {
-            const data = localStorage.getItem('blockSubmissions');
-            return data ? JSON.parse(data) : [];
+            const response = await fetch('/api/catatan');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            return data.results || [];
         } catch (error) {
-            console.error('Error loading block submissions:', error);
+            console.error('Error fetching block submissions:', error);
             return [];
         }
-    }
-
-    // Group submissions by network
-    function groupSubmissionsByNetwork(submissions) {
-        const grouped = {};
-
-        submissions.forEach(submission => {
-            if (submission.results && Array.isArray(submission.results)) {
-                submission.results.forEach(result => {
-                    const networkId = result.networkId;
-
-                    if (!grouped[networkId]) {
-                        grouped[networkId] = {
-                            networkId: networkId,
-                            label: result.label || networkId,
-                            submissions: []
-                        };
-                    }
-
-                    grouped[networkId].submissions.push({
-                        submittedAt: submission.submittedAt,
-                        completedAt: submission.completedAt,
-                        success: result.success,
-                        recordId: result.recordId,
-                        timestamp: result.timestamp,
-                        simulationData: submission.simulationData,
-                        fullData: submission
-                    });
-                });
-            }
-        });
-
-        return grouped;
     }
 
     // Create network table for block submissions
@@ -373,7 +344,7 @@ componentLoaderReady.then(() => {
         const header = document.createElement('div');
         header.className = 'flex items-center gap-3 rounded-lg border border-white/10 bg-surfaceMuted/50 p-4';
 
-        const colors = submissionNetworkColors[networkData.networkId] || { bg: 'bg-gray-500/15', text: 'text-gray-400', border: 'border-gray-500/30' };
+        const colors = submissionNetworkColors[networkData.targetId] || { bg: 'bg-gray-500/15', text: 'text-gray-400', border: 'border-gray-500/30' };
 
         header.innerHTML = `
             <div class="inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 ${colors.bg} ${colors.text} ${colors.border}">
@@ -382,7 +353,7 @@ componentLoaderReady.then(() => {
                 </svg>
                 <span class="text-sm font-semibold">${networkData.label}</span>
             </div>
-            <span class="ml-auto text-sm text-textdark/60">${networkData.submissions.length} blok</span>
+            <span class="ml-auto text-sm text-textdark/60">${networkData.records.length} data</span>
         `;
 
         // Table container
@@ -398,11 +369,12 @@ componentLoaderReady.then(() => {
         const headerRow = document.createElement('tr');
 
         const headers = [
-            { label: 'Report ID', width: '20%' },
-            { label: 'Waktu Submit', width: '20%' },
-            { label: 'Waktu Selesai', width: '20%' },
-            { label: 'Status', width: '15%' },
+            { label: 'Report ID', width: '15%' },
+            { label: 'Timestamp', width: '20%' },
             { label: 'Substansi', width: '20%' },
+            { label: 'Pelapor', width: '15%' },
+            { label: 'Status', width: '10%' },
+            { label: 'Kantor Penerima', width: '15%' },
             { label: 'Aksi', width: '5%' }
         ];
 
@@ -421,21 +393,21 @@ componentLoaderReady.then(() => {
         const tbody = document.createElement('tbody');
         tbody.className = 'divide-y divide-white/10 bg-surfaceMuted/30';
 
-        if (networkData.submissions.length === 0) {
+        if (networkData.records.length === 0) {
             const emptyRow = document.createElement('tr');
             const emptyCell = document.createElement('td');
-            emptyCell.colSpan = 6;
+            emptyCell.colSpan = 7;
             emptyCell.className = 'px-4 py-8 text-center text-textdark/60';
             emptyCell.textContent = 'Tidak ada data blok';
             emptyRow.appendChild(emptyCell);
             tbody.appendChild(emptyRow);
         } else {
             // Sort by timestamp descending (newest first)
-            const sortedSubmissions = [...networkData.submissions].sort((a, b) =>
-                new Date(b.submittedAt) - new Date(a.submittedAt)
+            const sortedRecords = [...networkData.records].sort((a, b) =>
+                new Date(b.timestamp) - new Date(a.timestamp)
             );
 
-            sortedSubmissions.forEach((submission, index) => {
+            sortedRecords.forEach((record, index) => {
                 const row = document.createElement('tr');
                 row.className = 'table-row transition hover:bg-primary/5';
                 row.style.animationDelay = `${index * 0.03}s`;
@@ -443,45 +415,55 @@ componentLoaderReady.then(() => {
                 // Report ID cell
                 const reportIdCell = document.createElement('td');
                 reportIdCell.className = 'px-4 py-3';
-                reportIdCell.innerHTML = `<span class="font-mono text-xs text-primary">${submission.recordId || '-'}</span>`;
+                reportIdCell.innerHTML = `<span class="font-mono text-xs text-primary">${record.reportId || '-'}</span>`;
 
-                // Submitted At cell
-                const submittedAtCell = document.createElement('td');
-                submittedAtCell.className = 'px-4 py-3 text-xs text-textdark/70';
-                submittedAtCell.textContent = submission.submittedAt
-                    ? dateTimeFormatter.format(new Date(submission.submittedAt))
+                // Timestamp cell
+                const timestampCell = document.createElement('td');
+                timestampCell.className = 'px-4 py-3 text-xs text-textdark/70';
+                timestampCell.textContent = record.timestamp
+                    ? dateTimeFormatter.format(new Date(record.timestamp))
                     : '-';
 
-                // Completed At cell
-                const completedAtCell = document.createElement('td');
-                completedAtCell.className = 'px-4 py-3 text-xs text-textdark/70';
-                completedAtCell.textContent = submission.completedAt
-                    ? dateTimeFormatter.format(new Date(submission.completedAt))
-                    : '-';
+                // Substance cell
+                const substanceCell = document.createElement('td');
+                substanceCell.className = 'px-4 py-3 text-xs text-textdark/70';
+                substanceCell.textContent = record.substance || '-';
+
+                // Reporter Group cell
+                const reporterCell = document.createElement('td');
+                reporterCell.className = 'px-4 py-3 text-xs text-textdark/70';
+                reporterCell.textContent = record.reporterGroup || '-';
 
                 // Status cell
                 const statusCell = document.createElement('td');
                 statusCell.className = 'px-4 py-3';
                 const statusBadge = document.createElement('span');
-                if (submission.success) {
+                const statusValue = record.status || 'pending';
+                if (statusValue === 'completed' || statusValue === 'resolved') {
                     statusBadge.className = 'inline-flex items-center gap-1.5 rounded-full border border-green-500/30 bg-green-500/10 px-2.5 py-0.5 text-xs font-semibold text-green-400';
                     statusBadge.innerHTML = `
                         <span class="h-1.5 w-1.5 rounded-full bg-green-400"></span>
-                        Berhasil
+                        ${statusValue}
+                    `;
+                } else if (statusValue === 'processing' || statusValue === 'in_progress') {
+                    statusBadge.className = 'inline-flex items-center gap-1.5 rounded-full border border-blue-500/30 bg-blue-500/10 px-2.5 py-0.5 text-xs font-semibold text-blue-400';
+                    statusBadge.innerHTML = `
+                        <span class="h-1.5 w-1.5 rounded-full bg-blue-400"></span>
+                        ${statusValue}
                     `;
                 } else {
-                    statusBadge.className = 'inline-flex items-center gap-1.5 rounded-full border border-red-500/30 bg-red-500/10 px-2.5 py-0.5 text-xs font-semibold text-red-400';
+                    statusBadge.className = 'inline-flex items-center gap-1.5 rounded-full border border-yellow-500/30 bg-yellow-500/10 px-2.5 py-0.5 text-xs font-semibold text-yellow-400';
                     statusBadge.innerHTML = `
-                        <span class="h-1.5 w-1.5 rounded-full bg-red-400"></span>
-                        Gagal
+                        <span class="h-1.5 w-1.5 rounded-full bg-yellow-400"></span>
+                        ${statusValue}
                     `;
                 }
                 statusCell.appendChild(statusBadge);
 
-                // Substance cell
-                const substanceCell = document.createElement('td');
-                substanceCell.className = 'px-4 py-3 text-xs text-textdark/70';
-                substanceCell.textContent = submission.simulationData?.substance || '-';
+                // Receiving Office cell
+                const officeCell = document.createElement('td');
+                officeCell.className = 'px-4 py-3 text-xs text-textdark/70';
+                officeCell.textContent = record.receivingOffice || '-';
 
                 // Action cell
                 const actionCell = document.createElement('td');
@@ -494,10 +476,10 @@ componentLoaderReady.then(() => {
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                 `;
-                detailBtn.addEventListener('click', () => showBlockDetail(submission.fullData));
+                detailBtn.addEventListener('click', () => showBlockDetail(record, networkData.label));
                 actionCell.appendChild(detailBtn);
 
-                row.append(reportIdCell, submittedAtCell, completedAtCell, statusCell, substanceCell, actionCell);
+                row.append(reportIdCell, timestampCell, substanceCell, reporterCell, statusCell, officeCell, actionCell);
                 tbody.appendChild(row);
             });
         }
@@ -510,127 +492,72 @@ componentLoaderReady.then(() => {
     }
 
     // Show block detail in modal
-    function showBlockDetail(data) {
+    function showBlockDetail(data, networkLabel) {
         if (!data) return;
 
         let detailHTML = `
             <div class="space-y-6">
-                <!-- Summary -->
+                <!-- Network Info -->
                 <div class="rounded-xl border border-primary/20 bg-primary/5 p-5">
-                    <h4 class="mb-4 text-base font-semibold text-primary">Ringkasan Submission</h4>
+                    <h4 class="mb-4 text-base font-semibold text-primary">Informasi Jaringan</h4>
                     <div class="grid grid-cols-2 gap-4 text-sm">
                         <div>
-                            <div class="text-textdark/60">Waktu Submit</div>
-                            <div class="mt-1 text-textdark">${data.submittedAt ? dateTimeFormatter.format(new Date(data.submittedAt)) : '-'}</div>
+                            <div class="text-textdark/60">Network</div>
+                            <div class="mt-1 font-semibold text-textdark">${networkLabel || '-'}</div>
                         </div>
                         <div>
-                            <div class="text-textdark/60">Waktu Selesai</div>
-                            <div class="mt-1 text-textdark">${data.completedAt ? dateTimeFormatter.format(new Date(data.completedAt)) : '-'}</div>
-                        </div>
-                        <div>
-                            <div class="text-textdark/60">Status</div>
-                            <div class="mt-1">
-                                <span class="inline-flex items-center gap-1.5 rounded-full border ${data.success ? 'border-green-500/30 bg-green-500/10 text-green-400' : 'border-red-500/30 bg-red-500/10 text-red-400'} px-3 py-1 text-xs font-semibold">
-                                    ${data.success ? 'Berhasil' : 'Gagal'}
-                                </span>
-                            </div>
-                        </div>
-                        <div>
-                            <div class="text-textdark/60">Jumlah Berhasil / Total</div>
-                            <div class="mt-1 text-textdark">${data.successCount || 0} / ${data.totalCount || 0}</div>
+                            <div class="text-textdark/60">Report ID</div>
+                            <div class="mt-1 font-mono text-primary">${data.reportId || '-'}</div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Simulation Data -->
-                ${data.simulationData ? `
-                    <div class="rounded-xl border border-accent/20 bg-accent/5 p-5">
-                        <h4 class="mb-4 text-base font-semibold text-accent">Data Simulasi</h4>
-                        <div class="space-y-3 text-sm">
-                            <div class="grid grid-cols-2 gap-3">
-                                <div>
-                                    <span class="font-semibold text-textdark/70">Report ID:</span>
-                                    <div class="mt-1 font-mono text-primary">${data.simulationData.reportId || '-'}</div>
-                                </div>
-                                <div>
-                                    <span class="font-semibold text-textdark/70">Timestamp:</span>
-                                    <div class="mt-1 text-textdark">${data.simulationData.timestamp ? new Date(data.simulationData.timestamp).toLocaleString('id-ID') : '-'}</div>
-                                </div>
+                <!-- Record Data -->
+                <div class="rounded-xl border border-accent/20 bg-accent/5 p-5">
+                    <h4 class="mb-4 text-base font-semibold text-accent">Data Laporan</h4>
+                    <div class="space-y-3 text-sm">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <span class="font-semibold text-textdark/70">Report ID:</span>
+                                <div class="mt-1 font-mono text-primary">${data.reportId || '-'}</div>
                             </div>
                             <div>
-                                <span class="font-semibold text-textdark/70">Substansi:</span>
-                                <div class="mt-1 text-textdark">${data.simulationData.substance || '-'}</div>
+                                <span class="font-semibold text-textdark/70">Timestamp:</span>
+                                <div class="mt-1 text-textdark">${data.timestamp ? new Date(data.timestamp).toLocaleString('id-ID') : '-'}</div>
                             </div>
-                            <div class="grid grid-cols-2 gap-3">
-                                <div>
-                                    <span class="font-semibold text-textdark/70">Pelapor:</span>
-                                    <div class="mt-1 text-textdark">${data.simulationData.reporterGroup || '-'}</div>
-                                </div>
-                                <div>
-                                    <span class="font-semibold text-textdark/70">Terlapor:</span>
-                                    <div class="mt-1 text-textdark">${data.simulationData.reportedGroup || '-'}</div>
-                                </div>
+                        </div>
+                        <div>
+                            <span class="font-semibold text-textdark/70">Substansi:</span>
+                            <div class="mt-1 text-textdark">${data.substance || '-'}</div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <span class="font-semibold text-textdark/70">Pelapor:</span>
+                                <div class="mt-1 text-textdark">${data.reporterGroup || '-'}</div>
                             </div>
                             <div>
-                                <span class="font-semibold text-textdark/70">Kantor Penerima:</span>
-                                <div class="mt-1 text-textdark">${data.simulationData.receivingOffice || '-'}</div>
+                                <span class="font-semibold text-textdark/70">Terlapor:</span>
+                                <div class="mt-1 text-textdark">${data.reportedGroup || '-'}</div>
                             </div>
-                            <div>
-                                <span class="font-semibold text-textdark/70">Deskripsi:</span>
-                                <div class="mt-1 text-textdark">${data.simulationData.description || '-'}</div>
-                            </div>
-                            <div>
-                                <span class="font-semibold text-textdark/70">Status:</span>
-                                <div class="mt-1">
-                                    <span class="inline-flex items-center gap-1.5 rounded-full border border-yellow-500/30 bg-yellow-500/10 px-3 py-1 text-xs font-semibold text-yellow-400">
-                                        ${data.simulationData.status || 'pending'}
-                                    </span>
-                                </div>
+                        </div>
+                        <div>
+                            <span class="font-semibold text-textdark/70">Kantor Penerima:</span>
+                            <div class="mt-1 text-textdark">${data.receivingOffice || '-'}</div>
+                        </div>
+                        <div>
+                            <span class="font-semibold text-textdark/70">Deskripsi:</span>
+                            <div class="mt-1 text-textdark">${data.description || '-'}</div>
+                        </div>
+                        <div>
+                            <span class="font-semibold text-textdark/70">Status:</span>
+                            <div class="mt-1">
+                                <span class="inline-flex items-center gap-1.5 rounded-full border border-yellow-500/30 bg-yellow-500/10 px-3 py-1 text-xs font-semibold text-yellow-400">
+                                    ${data.status || 'pending'}
+                                </span>
                             </div>
                         </div>
                     </div>
-                ` : ''}
-
-                <!-- Results per Network -->
-                ${data.results && data.results.length > 0 ? `
-                    <div class="rounded-xl border border-white/10 bg-surfaceMuted/30 p-5">
-                        <h4 class="mb-4 text-base font-semibold text-textdark">Hasil per Network</h4>
-                        <div class="space-y-3">
-                            ${data.results.map(result => {
-                                const colors = submissionNetworkColors[result.networkId] || { bg: 'bg-gray-500/15', text: 'text-gray-400', border: 'border-gray-500/30' };
-                                return `
-                                    <div class="rounded-lg border ${colors.border} ${colors.bg} p-4">
-                                        <div class="mb-3 flex items-center justify-between">
-                                            <div class="inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 ${colors.border} ${colors.text}">
-                                                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"></path>
-                                                </svg>
-                                                <span class="text-xs font-semibold">${result.label || result.networkId}</span>
-                                            </div>
-                                            <span class="inline-flex items-center gap-1.5 rounded-full border ${result.success ? 'border-green-500/30 bg-green-500/10 text-green-400' : 'border-red-500/30 bg-red-500/10 text-red-400'} px-2.5 py-0.5 text-xs font-semibold">
-                                                ${result.success ? 'Berhasil' : 'Gagal'}
-                                            </span>
-                                        </div>
-                                        <div class="grid grid-cols-2 gap-3 text-sm">
-                                            <div>
-                                                <div class="text-xs text-textdark/60">Record ID</div>
-                                                <div class="mt-1 font-mono text-xs ${colors.text}">${result.recordId || '-'}</div>
-                                            </div>
-                                            <div>
-                                                <div class="text-xs text-textdark/60">Status</div>
-                                                <div class="mt-1 text-textdark">${result.result?.status || '-'}</div>
-                                            </div>
-                                            <div class="col-span-2">
-                                                <div class="text-xs text-textdark/60">Timestamp</div>
-                                                <div class="mt-1 text-textdark">${result.timestamp ? dateTimeFormatter.format(new Date(result.timestamp)) : '-'}</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                `;
-                            }).join('')}
-                        </div>
-                    </div>
-                ` : ''}
+                </div>
 
                 <!-- Raw JSON -->
                 <div class="rounded-xl border border-white/10 bg-surfaceMuted/30 p-5">
@@ -652,10 +579,23 @@ componentLoaderReady.then(() => {
     }
 
     // Render block submissions
-    function renderBlockSubmissions() {
-        const submissions = loadBlockSubmissions();
+    async function renderBlockSubmissions() {
+        // Show loading state
+        blockSubmissionsContainerEl.innerHTML = `
+            <div class="flex items-center justify-center rounded-xl border border-white/10 bg-surfaceMuted/50 p-12">
+                <div class="text-center">
+                    <svg class="mx-auto mb-3 h-8 w-8 animate-spin text-primary" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <p class="text-sm text-textdark/70">Memuat data blok dari blockchain...</p>
+                </div>
+            </div>
+        `;
 
-        if (submissions.length === 0) {
+        const results = await fetchBlockSubmissions();
+
+        if (!results || results.length === 0) {
             blockSubmissionsContainerEl.innerHTML = `
                 <div class="flex flex-col items-center gap-4 rounded-xl border border-white/10 bg-surfaceMuted/30 p-12 text-center">
                     <svg class="h-16 w-16 text-textdark/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -663,7 +603,7 @@ componentLoaderReady.then(() => {
                     </svg>
                     <div>
                         <p class="mb-2 text-lg font-semibold text-textdark">Belum Ada Data Blok</p>
-                        <p class="text-sm text-textdark/60">Silakan input data simulasi terlebih dahulu di halaman Input Data Simulasi</p>
+                        <p class="text-sm text-textdark/60">Silakan input data simulasi terlebih dahulu di halaman Input Data Simulasi atau pastikan network berjalan</p>
                     </div>
                     <a href="/penelitian/pelaksanaan-simulasi/input-data-simulasi"
                        class="inline-flex items-center gap-2 rounded-lg border border-primary/40 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary transition hover:bg-primary/20">
@@ -677,17 +617,18 @@ componentLoaderReady.then(() => {
             return;
         }
 
-        // Group by network
-        const groupedData = groupSubmissionsByNetwork(submissions);
-        const networks = Object.values(groupedData);
+        // Filter only healthy networks with records
+        const healthyNetworks = results.filter(network =>
+            network.status === 'healthy' && network.records && network.records.length > 0
+        );
 
-        if (networks.length === 0) {
+        if (healthyNetworks.length === 0) {
             blockSubmissionsContainerEl.innerHTML = `
                 <div class="flex flex-col items-center gap-3 rounded-xl border border-white/10 bg-surfaceMuted/30 p-12 text-center">
                     <svg class="h-12 w-12 text-textdark/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
                     </svg>
-                    <p class="text-textdark/60">Tidak ada data network yang tersedia</p>
+                    <p class="text-textdark/60">Tidak ada data yang tersedia di blockchain</p>
                 </div>
             `;
             return;
@@ -701,7 +642,7 @@ componentLoaderReady.then(() => {
         networksContainer.className = 'space-y-6';
 
         // Render table for each network
-        networks.forEach((networkData, index) => {
+        healthyNetworks.forEach((networkData, index) => {
             const networkTable = createNetworkBlockTable(networkData);
             networkTable.classList.add('fade-in');
             networkTable.style.animationDelay = `${index * 0.1}s`;
@@ -711,34 +652,9 @@ componentLoaderReady.then(() => {
         blockSubmissionsContainerEl.appendChild(networksContainer);
     }
 
-    // Clear all block data
-    function clearAllBlockData() {
-        if (confirm('Apakah Anda yakin ingin menghapus semua data blok? Tindakan ini tidak dapat dibatalkan.')) {
-            localStorage.removeItem('blockSubmissions');
-            renderBlockSubmissions();
-
-            // Show notification
-            const notification = document.createElement('div');
-            notification.className = 'fixed bottom-6 right-6 z-50 rounded-lg border border-green-400/30 bg-green-400/10 px-6 py-3 shadow-lg';
-            notification.innerHTML = `
-                <div class="flex items-center gap-3">
-                    <svg class="h-5 w-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                    <p class="text-sm font-semibold text-green-400">Data blok berhasil dihapus</p>
-                </div>
-            `;
-            document.body.appendChild(notification);
-
-            setTimeout(() => {
-                notification.remove();
-            }, 3000);
-        }
-    }
-
     // Event listeners
-    if (clearBlockDataBtn) {
-        clearBlockDataBtn.addEventListener('click', clearAllBlockData);
+    if (refreshBlockDataBtn) {
+        refreshBlockDataBtn.addEventListener('click', renderBlockSubmissions);
     }
 
     if (closeModalBtn) {

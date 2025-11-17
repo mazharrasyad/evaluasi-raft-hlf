@@ -370,12 +370,16 @@ componentLoaderReady.then(() => {
         const colors = submissionNetworkColors[networkData.targetId] || { bg: 'bg-gray-500/15', text: 'text-gray-400', border: 'border-gray-500/30' };
         const networkLabel = networkData.label || submissionNetworkLabels[networkData.targetId] || networkData.targetId;
 
+        // Filter out first 7 blocks (initialization blocks) - only show simulation data (block number >= 7)
+        const simulationBlocks = networkData.blocks ? networkData.blocks.filter(block => block.blockNumber >= 7) : [];
+
         // Check if network has data (blocks or records)
-        const hasBlocks = networkData.blocks && networkData.blocks.length > 0;
+        const hasBlocks = simulationBlocks && simulationBlocks.length > 0;
         const hasRecords = networkData.records && networkData.records.length > 0;
         const blockHeight = networkData.blockHeight || 0;
-        const totalBlocks = hasBlocks ? networkData.blocks.length : 0;
-        const totalTx = hasBlocks ? networkData.blocks.reduce((sum, block) => sum + (block.transactionCount || 0), 0) : 0;
+        const adjustedBlockHeight = Math.max(0, blockHeight - 7); // Exclude 7 initialization blocks
+        const totalBlocks = hasBlocks ? simulationBlocks.length : 0;
+        const totalTx = hasBlocks ? simulationBlocks.reduce((sum, block) => sum + (block.transactionCount || 0), 0) : 0;
 
         // Network header
         const header = document.createElement('div');
@@ -395,7 +399,7 @@ componentLoaderReady.then(() => {
                 </span>
             </div>
             <div class="text-sm text-textdark/60">
-                Block Height: <span class="font-semibold text-primary">${blockHeight}</span>
+                Block Height: <span class="font-semibold text-primary">${adjustedBlockHeight}</span> <span class="text-xs text-textdark/40">(simulasi)</span>
             </div>
         `;
 
@@ -545,9 +549,9 @@ componentLoaderReady.then(() => {
                 row.append(reportIdCell, timestampCell, substanceCell, reporterCell, statusCell, officeCell, actionCell);
                 tbody.appendChild(row);
             });
-        } else if (hasBlocks && networkData.blocks.length > 0) {
-            // Show blocks data
-            const sortedBlocks = [...networkData.blocks].sort((a, b) => b.blockNumber - a.blockNumber);
+        } else if (hasBlocks && simulationBlocks.length > 0) {
+            // Show blocks data - only simulation blocks (>= 7)
+            const sortedBlocks = [...simulationBlocks].sort((a, b) => b.blockNumber - a.blockNumber);
 
             sortedBlocks.forEach((block, index) => {
                 const row = document.createElement('tr');
@@ -889,10 +893,12 @@ componentLoaderReady.then(() => {
             }
         });
 
-        // Filter networks that have blocks OR records (show all active networks)
-        const networksWithData = results.filter(network =>
-            (network.blocks && network.blocks.length > 0) || (network.records && network.records.length > 0)
-        );
+        // Filter networks that have simulation blocks (>= 7) OR records (show only networks with actual data)
+        const networksWithData = results.filter(network => {
+            // Only include simulation blocks (blockNumber >= 7)
+            const simulationBlocks = network.blocks ? network.blocks.filter(block => block.blockNumber >= 7) : [];
+            return (simulationBlocks.length > 0) || (network.records && network.records.length > 0);
+        });
 
         console.log('📦 Networks with data (blocks or records):', networksWithData.length);
 
@@ -928,9 +934,9 @@ componentLoaderReady.then(() => {
         // Clear container
         blockSubmissionsContainerEl.innerHTML = '';
 
-        // Create container for all networks - 2 columns grid
+        // Create container for all networks - single column for better readability
         const networksContainer = document.createElement('div');
-        networksContainer.className = 'grid grid-cols-1 gap-6 lg:grid-cols-2';
+        networksContainer.className = 'space-y-6';
 
         // Render card for each network
         networks.forEach((networkData, index) => {

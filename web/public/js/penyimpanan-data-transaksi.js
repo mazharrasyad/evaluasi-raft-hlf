@@ -615,7 +615,8 @@ componentLoaderReady.then(() => {
                     </svg>
                     <div>
                         <p class="mb-2 text-lg font-semibold text-textdark">Belum Ada Data Blok</p>
-                        <p class="text-sm text-textdark/60">Silakan input data simulasi terlebih dahulu di halaman Input Data Simulasi atau pastikan network berjalan</p>
+                        <p class="text-sm text-textdark/60">Server tidak merespons atau belum berjalan. Pastikan server gateway sedang aktif.</p>
+                        <p class="mt-2 text-xs text-textdark/40">Jalankan: npm start di folder web/</p>
                     </div>
                     <a href="/penelitian/pelaksanaan-simulasi/input-data-simulasi"
                        class="inline-flex items-center gap-2 rounded-lg border border-primary/40 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary transition hover:bg-primary/20">
@@ -629,6 +630,24 @@ componentLoaderReady.then(() => {
             return;
         }
 
+        // Debug: Log all networks status
+        console.log('📋 All networks status:');
+        results.forEach((network, index) => {
+            console.log(`  ${index + 1}. [${network.status}] ${network.label || network.targetId}`);
+            console.log(`     - Has records: ${network.records ? 'Yes' : 'No'}`);
+            console.log(`     - Record count: ${network.records ? network.records.length : 0}`);
+            if (network.message) {
+                console.log(`     - Message: ${network.message}`);
+            }
+        });
+
+        // Filter networks with records (regardless of status for debugging)
+        const networksWithRecords = results.filter(network =>
+            network.records && Array.isArray(network.records) && network.records.length > 0
+        );
+
+        console.log('📦 Networks with records (any status):', networksWithRecords.length);
+
         // Filter only healthy networks with records
         const healthyNetworks = results.filter(network =>
             network.status === 'healthy' && network.records && network.records.length > 0
@@ -640,17 +659,35 @@ componentLoaderReady.then(() => {
         });
 
         if (healthyNetworks.length === 0) {
+            // Check if there are networks with records but unhealthy status
+            if (networksWithRecords.length > 0) {
+                console.warn('⚠️  Found networks with records but not healthy. Showing anyway for debugging.');
+                // Use networks with records even if not healthy
+                renderNetworkTables(networksWithRecords);
+                return;
+            }
+
+            // Truly no data available
             blockSubmissionsContainerEl.innerHTML = `
                 <div class="flex flex-col items-center gap-3 rounded-xl border border-white/10 bg-surfaceMuted/30 p-12 text-center">
                     <svg class="h-12 w-12 text-textdark/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
                     </svg>
-                    <p class="text-textdark/60">Tidak ada data yang tersedia di blockchain</p>
+                    <div>
+                        <p class="mb-2 text-textdark">Tidak ada data yang tersedia di blockchain</p>
+                        <p class="text-xs text-textdark/50">Network mungkin belum berjalan atau belum ada data yang diinput</p>
+                    </div>
                 </div>
             `;
             return;
         }
 
+        // Render tables for healthy networks
+        renderNetworkTables(healthyNetworks);
+    }
+
+    // Helper function to render network tables
+    function renderNetworkTables(networks) {
         // Clear container
         blockSubmissionsContainerEl.innerHTML = '';
 
@@ -659,7 +696,7 @@ componentLoaderReady.then(() => {
         networksContainer.className = 'space-y-6';
 
         // Render table for each network
-        healthyNetworks.forEach((networkData, index) => {
+        networks.forEach((networkData, index) => {
             const networkTable = createNetworkBlockTable(networkData);
             networkTable.classList.add('fade-in');
             networkTable.style.animationDelay = `${index * 0.1}s`;

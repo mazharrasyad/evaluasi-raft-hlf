@@ -9,7 +9,8 @@
       "Bash(python -m json.tool:*)",
       "Bash(tasklist:*)",
       "Bash(findstr:*)",
-      "Bash(dir:*)"
+      "Bash(dir:*)",
+      "Bash(netstat:*)"
     ],
     "deny": [],
     "ask": []

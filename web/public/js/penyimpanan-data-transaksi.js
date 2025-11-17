@@ -440,11 +440,12 @@ componentLoaderReady.then(() => {
                 { label: 'Aksi', width: '5%' }
             ]
             : [
-                { label: 'Block #', width: '15%' },
-                { label: 'Previous Hash', width: '35%' },
-                { label: 'Data Hash', width: '35%' },
+                { label: 'Block #', width: '12%' },
+                { label: 'Previous Hash', width: '30%' },
+                { label: 'Data Hash', width: '30%' },
                 { label: 'TX Count', width: '10%' },
-                { label: 'Timestamp', width: '15%' }
+                { label: 'Timestamp', width: '13%' },
+                { label: 'Aksi', width: '5%' }
             ];
 
         headers.forEach(header => {
@@ -582,14 +583,28 @@ componentLoaderReady.then(() => {
                     ? new Date(block.timestamp).toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' })
                     : '-';
 
-                row.append(blockNumCell, prevHashCell, dataHashCell, txCountCell, timestampCell);
+                // Action cell
+                const actionCell = document.createElement('td');
+                actionCell.className = 'px-4 py-3';
+                const detailBtn = document.createElement('button');
+                detailBtn.type = 'button';
+                detailBtn.className = 'rounded-lg p-2 text-primary transition hover:bg-primary/10';
+                detailBtn.innerHTML = `
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                `;
+                detailBtn.addEventListener('click', () => showBlockDetailFromBlock(block, networkData));
+                actionCell.appendChild(detailBtn);
+
+                row.append(blockNumCell, prevHashCell, dataHashCell, txCountCell, timestampCell, actionCell);
                 tbody.appendChild(row);
             });
         } else {
             // No data available
             const emptyRow = document.createElement('tr');
             const emptyCell = document.createElement('td');
-            emptyCell.colSpan = hasRecords ? 7 : 5;
+            emptyCell.colSpan = hasRecords ? 7 : 6;
             emptyCell.className = 'px-4 py-8 text-center text-textdark/60';
             emptyCell.textContent = 'Tidak ada data';
             emptyRow.appendChild(emptyCell);
@@ -675,6 +690,122 @@ componentLoaderReady.then(() => {
                 <div class="rounded-xl border border-white/10 bg-surfaceMuted/30 p-5">
                     <h4 class="mb-3 text-base font-semibold text-textdark">Data Lengkap (JSON)</h4>
                     <pre class="overflow-x-auto rounded-lg bg-soft p-4 text-xs text-textdark/80"><code>${JSON.stringify(data, null, 2)}</code></pre>
+                </div>
+            </div>
+        `;
+
+        blockDetailContent.innerHTML = detailHTML;
+        blockDetailModal.classList.remove('hidden');
+        blockDetailModal.classList.add('flex');
+    }
+
+    // Show block detail from blockchain block data
+    function showBlockDetailFromBlock(block, networkData) {
+        if (!block) return;
+
+        const networkLabel = networkData.label || submissionNetworkLabels[networkData.targetId] || networkData.targetId;
+        const colors = submissionNetworkColors[networkData.targetId] || { bg: 'bg-gray-500/15', text: 'text-gray-400', border: 'border-gray-500/30' };
+
+        let detailHTML = `
+            <div class="space-y-6">
+                <!-- Network Info -->
+                <div class="rounded-xl border border-primary/20 bg-primary/5 p-5">
+                    <h4 class="mb-4 text-base font-semibold text-primary">Informasi Jaringan</h4>
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <div class="text-textdark/60">Network</div>
+                            <div class="mt-1 font-semibold text-textdark">${networkLabel}</div>
+                        </div>
+                        <div>
+                            <div class="text-textdark/60">Channel</div>
+                            <div class="mt-1 font-mono text-textdark/80">${networkData.channel || '-'}</div>
+                        </div>
+                        <div>
+                            <div class="text-textdark/60">Peer Endpoint</div>
+                            <div class="mt-1 font-mono text-xs text-textdark/70">${networkData.peer || '-'}</div>
+                        </div>
+                        <div>
+                            <div class="text-textdark/60">Status</div>
+                            <div class="mt-1">
+                                <span class="inline-flex items-center gap-1.5 rounded-full border ${
+                                    networkData.status === 'healthy'
+                                        ? 'border-green-500/30 bg-green-500/10'
+                                        : 'border-red-500/30 bg-red-500/10'
+                                } px-3 py-1 text-xs font-semibold ${
+                                    networkData.status === 'healthy'
+                                        ? 'text-green-400'
+                                        : 'text-red-400'
+                                }">
+                                    <span class="h-1.5 w-1.5 rounded-full ${
+                                        networkData.status === 'healthy'
+                                            ? 'bg-green-400 animate-pulse'
+                                            : 'bg-red-400'
+                                    }"></span>
+                                    ${networkData.status === 'healthy' ? 'Aktif' : 'Tidak Aktif'}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Block Header -->
+                <div class="rounded-xl border border-accent/20 bg-accent/5 p-5">
+                    <h4 class="mb-4 text-base font-semibold text-accent">Informasi Blok</h4>
+                    <div class="space-y-4 text-sm">
+                        <div>
+                            <div class="text-textdark/60">Block Number</div>
+                            <div class="mt-1 text-2xl font-bold text-primary">#${block.blockNumber}</div>
+                        </div>
+                        <div class="grid grid-cols-1 gap-3">
+                            <div>
+                                <span class="font-semibold text-textdark/70">Previous Hash:</span>
+                                <div class="mt-1 break-all rounded-lg bg-surfaceMuted/50 p-3 font-mono text-xs text-textdark/80">${block.previousHash || 'N/A'}</div>
+                            </div>
+                            <div>
+                                <span class="font-semibold text-textdark/70">Data Hash:</span>
+                                <div class="mt-1 break-all rounded-lg bg-surfaceMuted/50 p-3 font-mono text-xs text-textdark/80">${block.dataHash || 'N/A'}</div>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <span class="font-semibold text-textdark/70">Jumlah Transaksi:</span>
+                                <div class="mt-1">
+                                    <span class="inline-flex items-center justify-center rounded-full bg-primary/10 px-3 py-1.5 text-lg font-bold text-primary">${block.transactionCount || 0}</span>
+                                </div>
+                            </div>
+                            <div>
+                                <span class="font-semibold text-textdark/70">Timestamp:</span>
+                                <div class="mt-1 text-textdark">${block.timestamp ? new Date(block.timestamp).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'long' }) : '-'}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Block Properties -->
+                <div class="rounded-xl border border-secondary/20 bg-secondary/5 p-5">
+                    <h4 class="mb-4 text-base font-semibold text-secondary">Properti Blok</h4>
+                    <div class="space-y-3 text-sm">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="rounded-lg border border-white/5 bg-white/5 p-3">
+                                <div class="text-xs text-textdark/60">Hash Algoritma</div>
+                                <div class="mt-1 font-semibold text-textdark">SHA-256</div>
+                            </div>
+                            <div class="rounded-lg border border-white/5 bg-white/5 p-3">
+                                <div class="text-xs text-textdark/60">Hash Length</div>
+                                <div class="mt-1 font-mono font-semibold text-textdark">${block.dataHash ? block.dataHash.length : 0} chars</div>
+                            </div>
+                        </div>
+                        <div class="rounded-lg border border-white/5 bg-white/5 p-3">
+                            <div class="text-xs text-textdark/60">Block Height pada Network</div>
+                            <div class="mt-1 font-semibold text-textdark">${networkData.blockHeight || 0} blok</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Raw Block Data JSON -->
+                <div class="rounded-xl border border-white/10 bg-surfaceMuted/30 p-5">
+                    <h4 class="mb-3 text-base font-semibold text-textdark">Data Blok Lengkap (JSON)</h4>
+                    <pre class="overflow-x-auto rounded-lg bg-soft p-4 text-xs text-textdark/80"><code>${JSON.stringify(block, null, 2)}</code></pre>
                 </div>
             </div>
         `;

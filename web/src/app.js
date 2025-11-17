@@ -1478,6 +1478,83 @@ app.delete('/api/simulations/data', async (req, res) => {
     }
 });
 
+// Get summary of simulation data saved in blockchain blocks per network
+app.get('/api/simulations/blockchain-summary', async (req, res) => {
+    const fetchedAt = new Date().toISOString();
+
+    try {
+        console.log('\n📊 Fetching blockchain simulation data summary...');
+
+        const networks = [
+            { id: 'channel-standard', label: 'Fabric 2 RAFT Standard' },
+            { id: 'channel-variant', label: 'Fabric 2 RAFT Variant' },
+            { id: 'channel-fabric3-standard', label: 'Fabric 3 RAFT Standard' },
+            { id: 'channel-fabric3-variant', label: 'Fabric 3 RAFT Variant' },
+        ];
+
+        const summary = [];
+
+        for (const network of networks) {
+            try {
+                console.log(`  Querying ${network.label}...`);
+
+                // Get all records from this network
+                const records = await queryAllCatatan(network.id);
+
+                // Count records with blockchain metadata
+                const recordsWithBlockchainMetadata = records.filter(r => r.blockchainMetadata && r.blockchainMetadata.savedToBlockchain);
+
+                summary.push({
+                    networkId: network.id,
+                    label: network.label,
+                    success: true,
+                    totalRecords: records.length,
+                    recordsWithBlockchainMetadata: recordsWithBlockchainMetadata.length,
+                    recordsWithNetworkMetadata: records.filter(r => r.networkMetadata).length,
+                    sampleRecord: records.length > 0 ? {
+                        reportId: records[0].reportId,
+                        timestamp: records[0].timestamp,
+                        hasBlockchainMetadata: !!records[0].blockchainMetadata,
+                        hasNetworkMetadata: !!records[0].networkMetadata,
+                    } : null,
+                });
+
+                console.log(`  ✓ ${network.label}: ${records.length} records`);
+            } catch (error) {
+                console.error(`  ✗ ${network.label}: ${error.message}`);
+                summary.push({
+                    networkId: network.id,
+                    label: network.label,
+                    success: false,
+                    error: error.message,
+                    totalRecords: 0,
+                });
+            }
+        }
+
+        const totalRecords = summary.reduce((sum, s) => sum + (s.totalRecords || 0), 0);
+        const successfulNetworks = summary.filter(s => s.success).length;
+
+        console.log(`✅ Summary complete: ${totalRecords} total records across ${successfulNetworks} networks\n`);
+
+        res.json({
+            fetchedAt,
+            success: true,
+            totalRecords,
+            networksQueried: networks.length,
+            successfulNetworks,
+            networks: summary,
+        });
+    } catch (error) {
+        console.error('Error fetching blockchain summary:', error);
+        res.status(500).json({
+            fetchedAt,
+            success: false,
+            error: error instanceof Error ? error.message : String(error),
+        });
+    }
+});
+
 app.get('*', (req, res) => {
     res.sendFile(viewFiles.home);
 });

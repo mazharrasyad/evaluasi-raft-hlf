@@ -7,8 +7,6 @@ componentLoaderReady.then(() => {
     const blockSummaryContainerEl = document.getElementById('blockSummaryContainer');
     const tableContainerEl = document.getElementById('tableContainer');
     const refreshDataBtn = document.getElementById('refreshData');
-    const simulationHistoryContainer = document.getElementById('simulationHistoryContainer');
-    const refreshSimulationHistoryBtn = document.getElementById('refreshSimulationHistory');
 
     // Network-specific containers
     const networkContainers = {
@@ -451,53 +449,6 @@ componentLoaderReady.then(() => {
         button.addEventListener('click', onClick);
 
         return button;
-    }
-
-    // Get submission history from localStorage
-    function getSubmissionHistory() {
-        try {
-            const STORAGE_KEY = 'simulation_submission_history';
-            const existingData = localStorage.getItem(STORAGE_KEY);
-            if (existingData) {
-                const history = JSON.parse(existingData);
-                return Array.isArray(history) ? history : [];
-            }
-        } catch (error) {
-            console.error('Error reading submission history:', error);
-        }
-        return [];
-    }
-
-    // Find submission by reportId
-    function findSubmissionByReportId(reportId) {
-        const history = getSubmissionHistory();
-
-        // Search through all submissions
-        for (const submission of history) {
-            if (!submission.simulationData) continue;
-
-            // Handle both single object and array format for backward compatibility
-            if (Array.isArray(submission.simulationData)) {
-                // Find in array
-                const found = submission.simulationData.find(data => data.reportId === reportId);
-                if (found) {
-                    return {
-                        ...submission,
-                        matchedSimulationData: found
-                    };
-                }
-            } else {
-                // Legacy format: single object
-                if (submission.simulationData.reportId === reportId) {
-                    return {
-                        ...submission,
-                        matchedSimulationData: submission.simulationData
-                    };
-                }
-            }
-        }
-
-        return null;
     }
 
     // Get all blocks for a network to calculate transaction offsets
@@ -1026,241 +977,6 @@ componentLoaderReady.then(() => {
         }
     }
 
-    // Load and display simulation history
-    function loadSimulationHistory() {
-        if (!simulationHistoryContainer) return;
-
-        const history = getSubmissionHistory();
-
-        if (history.length === 0) {
-            simulationHistoryContainer.innerHTML = `
-                <div class="flex flex-col items-center gap-3 bg-surfaceMuted/50 p-12 text-center">
-                    <svg class="h-12 w-12 text-textdark/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                    </svg>
-                    <p class="text-textdark/60">Belum ada riwayat data simulasi tersimpan</p>
-                    <p class="text-xs text-textdark/40">Data akan muncul setelah Anda menjalankan simulasi di halaman Input Data Simulasi</p>
-                </div>
-            `;
-            return;
-        }
-
-        // Display most recent submissions first
-        const recentHistory = [...history].reverse().slice(0, 10);
-
-        let historyHTML = '<div class="divide-y divide-white/10 bg-surfaceMuted/20">';
-
-        recentHistory.forEach((submission, index) => {
-            const simulationDataArray = Array.isArray(submission.simulationData)
-                ? submission.simulationData
-                : [submission.simulationData];
-
-            const dataCount = simulationDataArray.length;
-            const successRate = submission.totalCount > 0
-                ? Math.round((submission.successCount / submission.totalCount) * 100)
-                : 0;
-
-            historyHTML += `
-                <div class="p-6 transition hover:bg-primary/5">
-                    <div class="mb-4 flex items-start justify-between">
-                        <div class="flex-1">
-                            <div class="mb-2 flex items-center gap-3">
-                                <h3 class="text-lg font-semibold text-textdark">Batch #${history.length - index}</h3>
-                                <span class="inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold ${
-                                    successRate === 100 ? 'border-green-400/30 bg-green-400/10 text-green-400' :
-                                    successRate > 0 ? 'border-yellow-400/30 bg-yellow-400/10 text-yellow-400' :
-                                    'border-red-400/30 bg-red-400/10 text-red-400'
-                                }">
-                                    ${successRate}% Success
-                                </span>
-                            </div>
-                            <div class="grid grid-cols-2 gap-3 text-xs text-textdark/60 md:grid-cols-4">
-                                <div>
-                                    <span class="font-semibold">Submitted:</span>
-                                    <div class="mt-1 text-textdark">${submission.submittedAt ? dateTimeFormatter.format(new Date(submission.submittedAt)) : '-'}</div>
-                                </div>
-                                <div>
-                                    <span class="font-semibold">Completed:</span>
-                                    <div class="mt-1 text-textdark">${submission.completedAt ? dateTimeFormatter.format(new Date(submission.completedAt)) : '-'}</div>
-                                </div>
-                                <div>
-                                    <span class="font-semibold">Data Count:</span>
-                                    <div class="mt-1 text-primary font-bold">${numberFormatter.format(dataCount)}</div>
-                                </div>
-                                <div>
-                                    <span class="font-semibold">Networks:</span>
-                                    <div class="mt-1 text-textdark">${submission.successCount || 0}/${submission.totalCount || 0}</div>
-                                </div>
-                            </div>
-                        </div>
-                        <button class="ml-4 rounded-lg border border-primary/40 bg-primary/10 px-3 py-2 text-xs font-semibold text-primary transition hover:bg-primary/20 view-simulation-data-btn" data-index="${history.length - index - 1}">
-                            Lihat Detail
-                        </button>
-                    </div>
-                </div>
-            `;
-        });
-
-        historyHTML += '</div>';
-
-        if (history.length > 10) {
-            historyHTML += `
-                <div class="bg-surfaceMuted/30 p-4 text-center text-xs text-textdark/60">
-                    Menampilkan 10 batch terbaru dari ${history.length} total batch
-                </div>
-            `;
-        }
-
-        simulationHistoryContainer.innerHTML = historyHTML;
-
-        // Add event listeners for view detail buttons
-        document.querySelectorAll('.view-simulation-data-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const index = parseInt(e.currentTarget.dataset.index);
-                showSimulationDataModal(history[index]);
-            });
-        });
-    }
-
-    // Show simulation data detail modal
-    function showSimulationDataModal(submission) {
-        const simulationDataArray = Array.isArray(submission.simulationData)
-            ? submission.simulationData
-            : [submission.simulationData];
-
-        // Create modal backdrop
-        const backdrop = document.createElement('div');
-        backdrop.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 overflow-y-auto';
-        backdrop.style.animation = 'fadeIn 0.2s ease-out';
-
-        // Create modal container
-        const modal = document.createElement('div');
-        modal.className = 'relative w-full max-w-6xl my-8 rounded-2xl border border-white/10 bg-surface p-8 shadow-2xl';
-        modal.style.animation = 'fadeIn 0.3s ease-out';
-
-        // Modal header
-        const header = document.createElement('div');
-        header.className = 'mb-6 flex items-start justify-between';
-
-        const title = document.createElement('h3');
-        title.className = 'text-2xl font-semibold text-textdark';
-        title.textContent = `Detail Data Simulasi (${numberFormatter.format(simulationDataArray.length)} Data)`;
-
-        const closeButton = document.createElement('button');
-        closeButton.type = 'button';
-        closeButton.className = 'rounded-lg p-2 text-textdark/60 transition hover:bg-white/10 hover:text-textdark';
-        closeButton.innerHTML = `
-            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-            </svg>
-        `;
-        closeButton.addEventListener('click', () => {
-            document.body.removeChild(backdrop);
-        });
-
-        header.append(title, closeButton);
-
-        // Modal body
-        const body = document.createElement('div');
-        body.className = 'space-y-6';
-
-        // Batch summary
-        const summarySection = document.createElement('div');
-        summarySection.className = 'rounded-xl border border-primary/20 bg-primary/5 p-6';
-        summarySection.innerHTML = `
-            <h4 class="mb-4 text-lg font-semibold text-primary">Ringkasan Batch</h4>
-            <div class="grid grid-cols-2 gap-4 text-sm md:grid-cols-4">
-                <div>
-                    <div class="text-textdark/60">Submitted</div>
-                    <div class="mt-1 font-semibold text-textdark">${submission.submittedAt ? dateTimeFormatter.format(new Date(submission.submittedAt)) : '-'}</div>
-                </div>
-                <div>
-                    <div class="text-textdark/60">Completed</div>
-                    <div class="mt-1 font-semibold text-textdark">${submission.completedAt ? dateTimeFormatter.format(new Date(submission.completedAt)) : '-'}</div>
-                </div>
-                <div>
-                    <div class="text-textdark/60">Success Rate</div>
-                    <div class="mt-1 font-semibold ${submission.success ? 'text-green-400' : 'text-red-400'}">${submission.successCount || 0}/${submission.totalCount || 0}</div>
-                </div>
-                <div>
-                    <div class="text-textdark/60">Total Data</div>
-                    <div class="mt-1 text-2xl font-bold text-accent">${numberFormatter.format(simulationDataArray.length)}</div>
-                </div>
-            </div>
-        `;
-        body.appendChild(summarySection);
-
-        // Data list
-        const dataSection = document.createElement('div');
-        dataSection.innerHTML = '<h4 class="mb-3 text-lg font-semibold text-textdark">Daftar Data Simulasi</h4>';
-
-        const dataContainer = document.createElement('div');
-        dataContainer.className = 'max-h-96 space-y-3 overflow-y-auto';
-
-        simulationDataArray.forEach((data, index) => {
-            const dataCard = document.createElement('div');
-            dataCard.className = 'rounded-lg border border-white/10 bg-surfaceMuted/30 p-4';
-            dataCard.innerHTML = `
-                <div class="mb-3 flex items-start justify-between">
-                    <div class="flex-1">
-                        <div class="mb-1 font-mono text-sm font-semibold text-primary">${data.reportId || `Data #${index + 1}`}</div>
-                        <div class="text-xs text-textdark/60">${data.timestamp ? dateTimeFormatter.format(new Date(data.timestamp)) : '-'}</div>
-                    </div>
-                    <span class="inline-flex items-center gap-1.5 rounded-full border border-yellow-500/30 bg-yellow-500/10 px-3 py-1 text-xs font-semibold text-yellow-400">
-                        ${data.status || 'pending'}
-                    </span>
-                </div>
-                <div class="grid grid-cols-2 gap-2 text-xs">
-                    <div>
-                        <span class="text-textdark/60">Substansi:</span>
-                        <span class="ml-1 text-textdark">${data.substance || '-'}</span>
-                    </div>
-                    <div>
-                        <span class="text-textdark/60">Kantor:</span>
-                        <span class="ml-1 text-textdark">${data.receivingOffice || '-'}</span>
-                    </div>
-                    <div>
-                        <span class="text-textdark/60">Pelapor:</span>
-                        <span class="ml-1 text-textdark">${data.reporterGroup || '-'}</span>
-                    </div>
-                    <div>
-                        <span class="text-textdark/60">Terlapor:</span>
-                        <span class="ml-1 text-textdark">${data.reportedGroup || '-'}</span>
-                    </div>
-                </div>
-                <div class="mt-2 text-xs text-textdark/80">
-                    <span class="font-semibold text-textdark/60">Deskripsi:</span>
-                    <p class="mt-1">${data.description || '-'}</p>
-                </div>
-            `;
-            dataContainer.appendChild(dataCard);
-        });
-
-        dataSection.appendChild(dataContainer);
-        body.appendChild(dataSection);
-
-        modal.append(header, body);
-        backdrop.appendChild(modal);
-
-        // Close on backdrop click
-        backdrop.addEventListener('click', (e) => {
-            if (e.target === backdrop) {
-                document.body.removeChild(backdrop);
-            }
-        });
-
-        // Close on Escape key
-        const handleEscape = (e) => {
-            if (e.key === 'Escape' && document.body.contains(backdrop)) {
-                document.body.removeChild(backdrop);
-                document.removeEventListener('keydown', handleEscape);
-            }
-        };
-        document.addEventListener('keydown', handleEscape);
-
-        document.body.appendChild(backdrop);
-    }
-
     // Event listeners
     if (refreshDataBtn) {
         refreshDataBtn.addEventListener('click', async () => {
@@ -1271,12 +987,6 @@ componentLoaderReady.then(() => {
 
             refreshDataBtn.disabled = false;
             refreshDataBtn.querySelector('svg').classList.remove('animate-spin');
-        });
-    }
-
-    if (refreshSimulationHistoryBtn) {
-        refreshSimulationHistoryBtn.addEventListener('click', () => {
-            loadSimulationHistory();
         });
     }
 
@@ -1297,5 +1007,4 @@ componentLoaderReady.then(() => {
     // Initialize - load data on page load
     loadBlockData();
     loadBlocksData();
-    loadSimulationHistory();
 });

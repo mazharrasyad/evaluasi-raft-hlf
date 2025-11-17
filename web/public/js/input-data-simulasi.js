@@ -322,6 +322,50 @@ componentLoaderReady.then(() => {
         return response.json();
     }
 
+    // Save submission to history in localStorage
+    function saveSubmissionToHistory(submissionResponse) {
+        try {
+            const STORAGE_KEY = 'simulation_submission_history';
+            const MAX_HISTORY_SIZE = 1000; // Keep last 1000 submissions
+
+            // Get existing history
+            let history = [];
+            const existingData = localStorage.getItem(STORAGE_KEY);
+            if (existingData) {
+                try {
+                    history = JSON.parse(existingData);
+                    if (!Array.isArray(history)) {
+                        history = [];
+                    }
+                } catch (e) {
+                    console.error('Error parsing submission history:', e);
+                    history = [];
+                }
+            }
+
+            // Add new submission to history
+            history.push({
+                submittedAt: submissionResponse.submittedAt,
+                completedAt: submissionResponse.completedAt,
+                success: submissionResponse.success,
+                successCount: submissionResponse.successCount,
+                totalCount: submissionResponse.totalCount,
+                simulationData: submissionResponse.simulationData,
+                results: submissionResponse.results
+            });
+
+            // Keep only the most recent submissions
+            if (history.length > MAX_HISTORY_SIZE) {
+                history = history.slice(-MAX_HISTORY_SIZE);
+            }
+
+            // Save to localStorage
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+        } catch (error) {
+            console.error('Error saving submission to history:', error);
+        }
+    }
+
     // Update progress
     function updateProgress(current, total) {
         const percentage = Math.round((current / total) * 100);
@@ -601,6 +645,11 @@ componentLoaderReady.then(() => {
                     // Store the last submitted data to show as example
                     if (response.simulationData) {
                         lastSubmittedData = response.simulationData;
+                    }
+
+                    // Save submission history to localStorage
+                    if (response.success && response.simulationData) {
+                        saveSubmissionToHistory(response);
                     }
 
                     if (response.results) {

@@ -451,6 +451,29 @@ componentLoaderReady.then(() => {
         return button;
     }
 
+    // Get submission history from localStorage
+    function getSubmissionHistory() {
+        try {
+            const STORAGE_KEY = 'simulation_submission_history';
+            const existingData = localStorage.getItem(STORAGE_KEY);
+            if (existingData) {
+                const history = JSON.parse(existingData);
+                return Array.isArray(history) ? history : [];
+            }
+        } catch (error) {
+            console.error('Error reading submission history:', error);
+        }
+        return [];
+    }
+
+    // Find submission by reportId
+    function findSubmissionByReportId(reportId) {
+        const history = getSubmissionHistory();
+        return history.find(submission =>
+            submission.simulationData && submission.simulationData.reportId === reportId
+        );
+    }
+
     // Show block detail modal with transaction data
     async function showBlockDetail(block, networkId) {
         // Create modal backdrop
@@ -587,7 +610,10 @@ componentLoaderReady.then(() => {
 
                     const statusColor = statusColors[record.status] || 'bg-gray-500/10 text-gray-400 border-gray-500/30';
 
-                    recordCard.innerHTML = `
+                    // Find submission data for this record
+                    const submission = findSubmissionByReportId(record.reportId || record.id);
+
+                    let cardHTML = `
                         <div class="mb-3 flex items-start justify-between gap-3">
                             <div class="flex-1">
                                 <div class="mb-1 font-mono text-sm font-semibold text-primary">${record.reportId || record.id}</div>
@@ -597,6 +623,36 @@ componentLoaderReady.then(() => {
                                 ${record.status || 'unknown'}
                             </span>
                         </div>
+                    `;
+
+                    // Add submission metadata if available
+                    if (submission) {
+                        cardHTML += `
+                            <div class="mb-3 rounded-lg border border-primary/20 bg-primary/5 p-3">
+                                <div class="mb-2 text-xs font-semibold uppercase tracking-wider text-primary">Data Submission</div>
+                                <div class="grid grid-cols-2 gap-2 text-xs">
+                                    <div>
+                                        <span class="text-textdark/60">Submitted:</span>
+                                        <span class="ml-1 text-textdark">${submission.submittedAt ? dateTimeFormatter.format(new Date(submission.submittedAt)) : '-'}</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-textdark/60">Completed:</span>
+                                        <span class="ml-1 text-textdark">${submission.completedAt ? dateTimeFormatter.format(new Date(submission.completedAt)) : '-'}</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-textdark/60">Success:</span>
+                                        <span class="ml-1 font-semibold ${submission.success ? 'text-green-400' : 'text-red-400'}">${submission.success ? 'Ya' : 'Tidak'}</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-textdark/60">Networks:</span>
+                                        <span class="ml-1 text-textdark">${submission.successCount || 0}/${submission.totalCount || 0}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    cardHTML += `
                         <div class="mb-3 grid grid-cols-2 gap-2 text-xs">
                             <div>
                                 <span class="text-textdark/60">Substansi:</span>
@@ -620,6 +676,8 @@ componentLoaderReady.then(() => {
                             <p class="mt-1">${record.description || '-'}</p>
                         </div>
                     `;
+
+                    recordCard.innerHTML = cardHTML;
                     recordsContainer.appendChild(recordCard);
                 });
 

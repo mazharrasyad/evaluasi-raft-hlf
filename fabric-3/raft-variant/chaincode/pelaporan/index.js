@@ -63,6 +63,76 @@ class CatatanDigitalContract extends Contract {
   }
 
   /**
+   * Memperbarui catatan yang sudah ada di ledger
+   * @param {Context} ctx
+   * @param {String} id
+   * @param {String} payload (JSON string)
+   */
+  async UpdateCatatan(ctx, id, payload) {
+    if (!id) {
+      throw new Error('❌ ID catatan wajib diisi.');
+    }
+
+    const exists = await this.CatatanExists(ctx, id);
+    if (!exists) {
+      throw new Error(`❌ Catatan dengan ID ${id} tidak ditemukan. Gunakan CreateCatatan untuk membuat catatan baru.`);
+    }
+
+    let data;
+    try {
+      data = JSON.parse(payload);
+    } catch (e) {
+      throw new Error('Payload harus dalam format JSON string');
+    }
+
+    if (data.id && data.id !== id) {
+      throw new Error('ID pada payload tidak sesuai dengan parameter ID.');
+    }
+
+    const txTimestamp = ctx.stub.getTxTimestamp();
+    const millis = (txTimestamp.seconds.low * 1000) + Math.floor(txTimestamp.nanos / 1000000);
+    const timestamp = new Date(millis).toISOString();
+
+    // Get existing record to preserve createdAt
+    const existingDataJSON = await ctx.stub.getState(id);
+    const existingData = JSON.parse(existingDataJSON.toString());
+
+    const updatedCatatan = {
+      ...data,
+      id,
+      createdAt: existingData.createdAt || data.createdAt || timestamp,
+      createdAtDisplay: existingData.createdAtDisplay || data.createdAtDisplay || timestamp,
+      updatedAt: timestamp,
+      updatedAtDisplay: timestamp,
+    };
+
+    await ctx.stub.putState(id, Buffer.from(JSON.stringify(updatedCatatan)));
+    console.log(`✅ Catatan ${id} berhasil diperbarui`);
+    return JSON.stringify({ status: 'updated', id });
+  }
+
+  /**
+   * Membuat atau memperbarui catatan di ledger
+   * Jika catatan sudah ada, akan diperbarui; jika belum ada, akan dibuat baru
+   * @param {Context} ctx
+   * @param {String} id
+   * @param {String} payload (JSON string)
+   */
+  async CreateOrUpdateCatatan(ctx, id, payload) {
+    if (!id) {
+      throw new Error('❌ ID catatan wajib diisi.');
+    }
+
+    const exists = await this.CatatanExists(ctx, id);
+
+    if (exists) {
+      return await this.UpdateCatatan(ctx, id, payload);
+    } else {
+      return await this.CreateCatatan(ctx, id, payload);
+    }
+  }
+
+  /**
    * Membaca catatan berdasarkan ID
    */
   async ReadCatatan(ctx, id) {

@@ -243,9 +243,9 @@ export async function submitTransaction(networkId, record) {
             throw new Error('Record must have either reportId or id property');
         }
 
-        // Submit transaction
+        // Submit transaction using CreateOrUpdateCatatan to handle both new and existing records
         const resultBytes = await contract.submitTransaction(
-            'CreateCatatan',
+            'CreateOrUpdateCatatan',
             recordId,
             JSON.stringify(record)
         );

@@ -46,21 +46,48 @@ class CatatanDigitalContract extends Contract {
       throw new Error('ID pada payload tidak sesuai dengan parameter ID.');
     }
 
+    // Get blockchain transaction metadata
+    const txId = ctx.stub.getTxID();
     const txTimestamp = ctx.stub.getTxTimestamp();
     const millis = (txTimestamp.seconds.low * 1000) + Math.floor(txTimestamp.nanos / 1000000);
     const blockchainTimestamp = new Date(millis).toISOString();
+    const channelId = ctx.stub.getChannelID();
 
+    console.log(`📦 Saving simulationData to blockchain block...`);
+    console.log(`   Record ID: ${id}`);
+    console.log(`   Channel: ${channelId}`);
+    console.log(`   Transaction ID: ${txId}`);
+    console.log(`   Blockchain Timestamp: ${blockchainTimestamp}`);
+
+    // Prepare comprehensive data with blockchain metadata
     const storedCatatan = {
       ...data,
       id,
       timestamp: data.timestamp || blockchainTimestamp,
       createdAt: data.createdAt || blockchainTimestamp,
       createdAtDisplay: data.createdAtDisplay || blockchainTimestamp,
+      // Blockchain metadata
+      blockchainMetadata: {
+        transactionId: txId,
+        channelId: channelId,
+        blockTimestamp: blockchainTimestamp,
+        savedToBlockchain: true,
+        createdInBlock: true,
+      },
     };
 
     await ctx.stub.putState(id, Buffer.from(JSON.stringify(storedCatatan)));
-    console.log(`✅ Catatan ${id} berhasil disimpan`);
-    return JSON.stringify({ status: 'success', id });
+    console.log(`✅ SimulationData ${id} berhasil disimpan ke blockchain block!`);
+    console.log(`   Transaction ID: ${txId}`);
+    console.log(`   Channel: ${channelId}`);
+
+    return JSON.stringify({
+      status: 'success',
+      id,
+      transactionId: txId,
+      channelId: channelId,
+      savedAt: blockchainTimestamp,
+    });
   }
 
   /**
@@ -90,11 +117,19 @@ class CatatanDigitalContract extends Contract {
       throw new Error('ID pada payload tidak sesuai dengan parameter ID.');
     }
 
+    // Get blockchain transaction metadata
+    const txId = ctx.stub.getTxID();
     const txTimestamp = ctx.stub.getTxTimestamp();
     const millis = (txTimestamp.seconds.low * 1000) + Math.floor(txTimestamp.nanos / 1000000);
     const blockchainTimestamp = new Date(millis).toISOString();
+    const channelId = ctx.stub.getChannelID();
 
-    // Get existing record to preserve createdAt
+    console.log(`🔄 Updating simulationData in blockchain block...`);
+    console.log(`   Record ID: ${id}`);
+    console.log(`   Channel: ${channelId}`);
+    console.log(`   Transaction ID: ${txId}`);
+
+    // Get existing record to preserve createdAt and original blockchain metadata
     const existingDataJSON = await ctx.stub.getState(id);
     const existingData = JSON.parse(existingDataJSON.toString());
 
@@ -106,11 +141,27 @@ class CatatanDigitalContract extends Contract {
       createdAtDisplay: existingData.createdAtDisplay || data.createdAtDisplay || blockchainTimestamp,
       updatedAt: blockchainTimestamp,
       updatedAtDisplay: blockchainTimestamp,
+      // Preserve original blockchain metadata and add update info
+      blockchainMetadata: {
+        ...(existingData.blockchainMetadata || {}),
+        lastUpdateTransactionId: txId,
+        lastUpdateTimestamp: blockchainTimestamp,
+        savedToBlockchain: true,
+      },
     };
 
     await ctx.stub.putState(id, Buffer.from(JSON.stringify(updatedCatatan)));
-    console.log(`✅ Catatan ${id} berhasil diperbarui`);
-    return JSON.stringify({ status: 'updated', id });
+    console.log(`✅ SimulationData ${id} berhasil diperbarui di blockchain block!`);
+    console.log(`   Transaction ID: ${txId}`);
+    console.log(`   Channel: ${channelId}`);
+
+    return JSON.stringify({
+      status: 'updated',
+      id,
+      transactionId: txId,
+      channelId: channelId,
+      updatedAt: blockchainTimestamp,
+    });
   }
 
   /**

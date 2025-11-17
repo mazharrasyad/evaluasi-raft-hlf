@@ -247,7 +247,12 @@ export async function submitTransaction(networkId, record, metadata = {}) {
             throw new Error('Record must have either reportId or id property');
         }
 
-        // Prepare comprehensive data to store in blockchain
+        console.log(`📝 [${config.label}] Preparing to save simulationData to blockchain block...`);
+        console.log(`   Record ID: ${recordId}`);
+        console.log(`   Network: ${networkId} (${config.label})`);
+        console.log(`   Channel: ${config.channel}`);
+
+        // Prepare comprehensive data to store in blockchain block
         const comprehensiveData = {
             // Original simulation data
             ...record,
@@ -255,10 +260,21 @@ export async function submitTransaction(networkId, record, metadata = {}) {
             submittedAt: metadata.submittedAt || submittedAt,
             submittedToNetwork: config.label,
             networkId: networkId,
+            // Network configuration metadata
+            networkMetadata: {
+                channel: config.channel,
+                chaincode: config.chaincode,
+                fabricVersion: config.fabricVersion,
+                variant: config.variant,
+                peerEndpoint: config.peerEndpoint,
+                label: config.label,
+            },
             // Ensure ID fields are consistent
             reportId: recordId,
             id: recordId,
         };
+
+        console.log(`💾 [${config.label}] Submitting transaction to create/update record in blockchain...`);
 
         // Submit transaction using CreateOrUpdateCatatan to handle both new and existing records
         const resultBytes = await contract.submitTransaction(
@@ -273,6 +289,27 @@ export async function submitTransaction(networkId, record, metadata = {}) {
         const resultString = new TextDecoder().decode(resultBytes);
         const result = JSON.parse(resultString);
 
+        console.log(`✅ [${config.label}] SimulationData successfully saved to blockchain block!`);
+        console.log(`   Status: ${result.status}`);
+        console.log(`   Record ID: ${recordId}`);
+        console.log(`   Completed at: ${completedAt}`);
+
+        // Validate the data was saved by reading it back
+        console.log(`🔍 [${config.label}] Validating data was saved correctly...`);
+        try {
+            const validationBytes = await contract.evaluateTransaction('ReadCatatan', recordId);
+            const validationString = new TextDecoder().decode(validationBytes);
+            const savedData = JSON.parse(validationString);
+
+            if (savedData && savedData.reportId === recordId) {
+                console.log(`✓ [${config.label}] Validation successful - data confirmed in blockchain!`);
+            } else {
+                console.warn(`⚠ [${config.label}] Validation warning - data may not match`);
+            }
+        } catch (validationError) {
+            console.warn(`⚠ [${config.label}] Could not validate saved data:`, validationError.message);
+        }
+
         // Close connection
         gateway.close();
         client.close();
@@ -286,8 +323,12 @@ export async function submitTransaction(networkId, record, metadata = {}) {
             submittedAt,
             completedAt,
             timestamp: completedAt,
+            channel: config.channel,
+            chaincode: config.chaincode,
         };
     } catch (error) {
+        console.error(`❌ [${config ? config.label : networkId}] Failed to save simulationData to blockchain:`, error.message);
+
         // Close connection if it was opened
         if (connection) {
             try {
@@ -315,10 +356,21 @@ export async function submitTransaction(networkId, record, metadata = {}) {
 
 /**
  * Submit multiple transactions to multiple networks
+ * Saves simulationData to blockchain blocks across all target networks
  */
 export async function submitToNetworks(record, targetNetworkIds) {
     const results = [];
     const batchSubmittedAt = new Date().toISOString();
+    const recordId = record.reportId || record.id;
+
+    console.log('\n' + '='.repeat(80));
+    console.log('📦 SAVING SIMULATIONDATA TO BLOCKCHAIN BLOCKS');
+    console.log('='.repeat(80));
+    console.log(`Record ID: ${recordId}`);
+    console.log(`Target Networks: ${targetNetworkIds.length}`);
+    console.log(`Networks: ${targetNetworkIds.join(', ')}`);
+    console.log(`Started at: ${batchSubmittedAt}`);
+    console.log('='.repeat(80) + '\n');
 
     // Prepare shared metadata for all submissions
     const metadata = {
@@ -334,7 +386,10 @@ export async function submitToNetworks(record, targetNetworkIds) {
         }),
     };
 
-    for (const networkId of targetNetworkIds) {
+    for (let i = 0; i < targetNetworkIds.length; i++) {
+        const networkId = targetNetworkIds[i];
+        console.log(`\n[${i + 1}/${targetNetworkIds.length}] Processing network: ${networkId}`);
+
         try {
             const result = await submitTransaction(networkId, record, metadata);
             results.push(result);
@@ -348,17 +403,50 @@ export async function submitToNetworks(record, targetNetworkIds) {
                 // Use networkId as fallback
             }
 
+            console.error(`❌ [${label}] Failed to save to network:`, error.message);
+
             results.push({
                 success: false,
                 error: error.message,
                 networkId,
                 label: label,
-                recordId: record.reportId || record.id,
+                recordId: recordId,
                 submittedAt: batchSubmittedAt,
                 completedAt: new Date().toISOString(),
             });
         }
     }
+
+    const batchCompletedAt = new Date().toISOString();
+    const successCount = results.filter(r => r.success).length;
+    const failCount = results.filter(r => !r.success).length;
+
+    console.log('\n' + '='.repeat(80));
+    console.log('✨ SIMULATIONDATA SAVE SUMMARY');
+    console.log('='.repeat(80));
+    console.log(`Record ID: ${recordId}`);
+    console.log(`Total Networks: ${targetNetworkIds.length}`);
+    console.log(`✓ Successful: ${successCount}`);
+    console.log(`✗ Failed: ${failCount}`);
+    console.log(`Completed at: ${batchCompletedAt}`);
+
+    if (successCount > 0) {
+        console.log('\n📊 Successfully saved to:');
+        results.filter(r => r.success).forEach(r => {
+            console.log(`   ✓ ${r.label} (${r.networkId})`);
+            console.log(`     Channel: ${r.channel}`);
+        });
+    }
+
+    if (failCount > 0) {
+        console.log('\n⚠️  Failed to save to:');
+        results.filter(r => !r.success).forEach(r => {
+            console.log(`   ✗ ${r.label} (${r.networkId})`);
+            console.log(`     Error: ${r.error}`);
+        });
+    }
+
+    console.log('='.repeat(80) + '\n');
 
     return results;
 }

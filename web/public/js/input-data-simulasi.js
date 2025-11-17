@@ -322,8 +322,8 @@ componentLoaderReady.then(() => {
         return response.json();
     }
 
-    // Save submission to history in localStorage
-    function saveSubmissionToHistory(submissionResponse) {
+    // Save batch submission to history in localStorage
+    function saveBatchSubmissionToHistory(batchSubmission) {
         try {
             const STORAGE_KEY = 'simulation_submission_history';
             const MAX_HISTORY_SIZE = 1000; // Keep last 1000 submissions
@@ -343,16 +343,8 @@ componentLoaderReady.then(() => {
                 }
             }
 
-            // Add new submission to history
-            history.push({
-                submittedAt: submissionResponse.submittedAt,
-                completedAt: submissionResponse.completedAt,
-                success: submissionResponse.success,
-                successCount: submissionResponse.successCount,
-                totalCount: submissionResponse.totalCount,
-                simulationData: submissionResponse.simulationData,
-                results: submissionResponse.results
-            });
+            // Add new batch submission to history
+            history.push(batchSubmission);
 
             // Keep only the most recent submissions
             if (history.length > MAX_HISTORY_SIZE) {
@@ -635,6 +627,12 @@ componentLoaderReady.then(() => {
             }));
 
             let lastSubmittedData = null;
+            let allSimulationData = []; // Collect all simulation data
+            let allResults = []; // Collect all results
+            let batchSubmittedAt = new Date().toISOString();
+            let batchCompletedAt = null;
+            let batchSuccessCount = 0;
+            let batchTotalCount = 0;
 
             for (let i = 0; i < records.length; i++) {
                 const record = records[i];
@@ -642,39 +640,60 @@ componentLoaderReady.then(() => {
                 try {
                     const response = await submitRecord(record, selectedNetworks);
 
-                    // Store the last submitted data to show as example
+                    // Collect simulation data
                     if (response.simulationData) {
                         lastSubmittedData = response.simulationData;
+                        allSimulationData.push(response.simulationData);
                     }
 
-                    // Save submission history to localStorage
-                    if (response.success && response.simulationData) {
-                        saveSubmissionToHistory(response);
-                    }
-
+                    // Collect results
                     if (response.results) {
+                        allResults.push(...response.results);
+
                         response.results.forEach(result => {
                             const network = networkSummary.find(n => n.id === result.networkId);
                             if (network) {
                                 network.total++;
                                 if (result.success) {
                                     network.success++;
+                                    batchSuccessCount++;
                                 } else {
                                     network.failed++;
                                 }
                                 network.label = result.label || network.id;
                             }
+                            batchTotalCount++;
                         });
+                    }
+
+                    // Update batch completion time
+                    if (response.completedAt) {
+                        batchCompletedAt = response.completedAt;
                     }
                 } catch (error) {
                     console.error(`Error submitting record ${record.reportId}:`, error);
                     networkSummary.forEach(network => {
                         network.total++;
                         network.failed++;
+                        batchTotalCount++;
                     });
                 }
 
                 updateProgress(i + 1, records.length);
+            }
+
+            // Save batch submission to localStorage
+            if (allSimulationData.length > 0) {
+                const batchSubmission = {
+                    submittedAt: batchSubmittedAt,
+                    completedAt: batchCompletedAt || new Date().toISOString(),
+                    success: batchSuccessCount > 0,
+                    successCount: batchSuccessCount,
+                    totalCount: batchTotalCount,
+                    simulationData: allSimulationData, // Array of all simulation data
+                    results: allResults
+                };
+                saveBatchSubmissionToHistory(batchSubmission);
             }
 
             showStatus(`Selesai mengirim ${records.length} transaksi`, 'success');

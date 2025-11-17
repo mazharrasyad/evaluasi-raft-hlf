@@ -474,6 +474,22 @@ componentLoaderReady.then(() => {
         );
     }
 
+    // Get all blocks for a network to calculate transaction offsets
+    async function getNetworkBlocks(networkId) {
+        try {
+            const response = await fetch('/api/blocks');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            const networkData = data.results?.find(r => r.targetId === networkId);
+            return networkData?.blocks || [];
+        } catch (error) {
+            console.error('Error fetching network blocks:', error);
+            return [];
+        }
+    }
+
     // Show block detail modal with transaction data
     async function showBlockDetail(block, networkId) {
         // Create modal backdrop
@@ -542,9 +558,15 @@ componentLoaderReady.then(() => {
 
         // Transaction data section
         const transactionSection = document.createElement('div');
-        transactionSection.innerHTML = `
-            <h4 class="mb-3 text-sm font-semibold uppercase tracking-wider text-textdark/70">Data Transaksi Simulasi</h4>
+        const headerWithInfo = document.createElement('div');
+        headerWithInfo.className = 'mb-3 flex items-center justify-between gap-3';
+        headerWithInfo.innerHTML = `
+            <h4 class="text-sm font-semibold uppercase tracking-wider text-textdark/70">Data Transaksi dalam Blok Ini</h4>
+            <span class="inline-flex items-center gap-1.5 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-xs font-semibold text-accent">
+                ${numberFormatter.format(block.transactionCount || 0)} Transaksi
+            </span>
         `;
+        transactionSection.appendChild(headerWithInfo);
 
         const loadingDiv = document.createElement('div');
         loadingDiv.className = 'flex items-center justify-center rounded-lg border border-white/10 bg-surfaceMuted/50 p-8';
@@ -592,13 +614,52 @@ componentLoaderReady.then(() => {
             const networkData = data.results?.find(r => r.targetId === networkId);
 
             if (networkData && networkData.records && networkData.records.length > 0) {
-                // Replace loading with transaction data
-                loadingDiv.remove();
+                // Get all blocks for this network to calculate the correct offset
+                const allBlocks = await getNetworkBlocks(networkId);
 
-                const recordsContainer = document.createElement('div');
-                recordsContainer.className = 'space-y-3 max-h-96 overflow-y-auto';
+                // Filter out the first 7 setup blocks
+                const simulationBlocks = allBlocks.filter(b => b.blockNumber >= 7);
 
-                networkData.records.forEach((record, index) => {
+                // Sort by block number to ensure correct order
+                simulationBlocks.sort((a, b) => a.blockNumber - b.blockNumber);
+
+                // Sort records by timestamp to get them in chronological order
+                const sortedRecords = [...networkData.records].sort((a, b) => {
+                    const timeA = new Date(a.timestamp || 0).getTime();
+                    const timeB = new Date(b.timestamp || 0).getTime();
+                    return timeA - timeB;
+                });
+
+                // Calculate the starting index by summing transactions from all previous blocks
+                let startIndex = 0;
+                for (const prevBlock of simulationBlocks) {
+                    if (prevBlock.blockNumber < block.blockNumber) {
+                        startIndex += prevBlock.transactionCount || 0;
+                    } else {
+                        break;
+                    }
+                }
+
+                // Get only the records that belong to this specific block
+                const blockRecords = sortedRecords.slice(startIndex, startIndex + (block.transactionCount || 0));
+
+                if (blockRecords.length === 0) {
+                    loadingDiv.innerHTML = `
+                        <div class="text-center">
+                            <svg class="mx-auto mb-3 h-12 w-12 text-textdark/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            <p class="text-sm text-textdark/60">Tidak ada data transaksi dalam blok ini</p>
+                        </div>
+                    `;
+                } else {
+                    // Replace loading with transaction data
+                    loadingDiv.remove();
+
+                    const recordsContainer = document.createElement('div');
+                    recordsContainer.className = 'space-y-3 max-h-96 overflow-y-auto';
+
+                    blockRecords.forEach((record, index) => {
                     const recordCard = document.createElement('div');
                     recordCard.className = 'rounded-lg border border-white/10 bg-surfaceMuted/30 p-4';
 
@@ -679,16 +740,17 @@ componentLoaderReady.then(() => {
 
                     recordCard.innerHTML = cardHTML;
                     recordsContainer.appendChild(recordCard);
-                });
+                    });
 
-                transactionSection.appendChild(recordsContainer);
+                    transactionSection.appendChild(recordsContainer);
+                }
             } else {
                 loadingDiv.innerHTML = `
                     <div class="text-center">
                         <svg class="mx-auto mb-3 h-12 w-12 text-textdark/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                         </svg>
-                        <p class="text-sm text-textdark/60">Tidak ada data transaksi simulasi</p>
+                        <p class="text-sm text-textdark/60">Tidak ada data transaksi simulasi di network ini</p>
                     </div>
                 `;
             }

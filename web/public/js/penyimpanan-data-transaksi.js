@@ -52,11 +52,13 @@ componentLoaderReady.then(() => {
 
         const value = document.createElement('p');
         value.className = 'text-4xl font-bold text-primary';
-        value.textContent = numberFormatter.format(data.blockHeight || 0);
+        // Exclude 7 setup blocks from the count
+        const adjustedBlockHeight = Math.max(0, (data.blockHeight || 0) - 7);
+        value.textContent = numberFormatter.format(adjustedBlockHeight);
 
         const description = document.createElement('span');
         description.className = 'text-xs text-textdark/50';
-        description.textContent = 'Total Blok';
+        description.textContent = 'Blok Simulasi';
 
         // Additional info
         const info = document.createElement('div');
@@ -155,7 +157,9 @@ componentLoaderReady.then(() => {
                 blockHeightCell.className = 'px-6 py-4';
                 const blockHeightValue = document.createElement('span');
                 blockHeightValue.className = 'font-mono text-base font-semibold text-primary';
-                blockHeightValue.textContent = numberFormatter.format(record.blockHeight || 0);
+                // Exclude 7 setup blocks from the count
+                const adjustedBlockHeight = Math.max(0, (record.blockHeight || 0) - 7);
+                blockHeightValue.textContent = numberFormatter.format(adjustedBlockHeight);
                 blockHeightCell.appendChild(blockHeightValue);
 
                 // Status cell
@@ -447,16 +451,16 @@ componentLoaderReady.then(() => {
         return button;
     }
 
-    // Show block detail modal
-    function showBlockDetail(block, networkId) {
+    // Show block detail modal with transaction data
+    async function showBlockDetail(block, networkId) {
         // Create modal backdrop
         const backdrop = document.createElement('div');
-        backdrop.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4';
+        backdrop.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 overflow-y-auto';
         backdrop.style.animation = 'fadeIn 0.2s ease-out';
 
         // Create modal container
         const modal = document.createElement('div');
-        modal.className = 'relative w-full max-w-3xl rounded-2xl border border-white/10 bg-surface p-8 shadow-2xl';
+        modal.className = 'relative w-full max-w-5xl my-8 rounded-2xl border border-white/10 bg-surface p-8 shadow-2xl';
         modal.style.animation = 'fadeIn 0.3s ease-out';
 
         // Modal header
@@ -483,72 +487,55 @@ componentLoaderReady.then(() => {
 
         // Modal body
         const body = document.createElement('div');
-        body.className = 'space-y-4';
+        body.className = 'space-y-6';
 
-        // Block information
-        const infoItems = [
-            { label: 'Block Number', value: block.blockNumber, mono: true },
-            { label: 'Transaction Count', value: numberFormatter.format(block.transactionCount || 0), mono: false },
-            { label: 'Timestamp', value: block.timestamp ? dateTimeFormatter.format(new Date(block.timestamp)) : '-', mono: false },
-            { label: 'Data Hash', value: block.dataHash || '-', mono: true, copyable: true },
-            { label: 'Previous Hash', value: block.previousHash || '-', mono: true, copyable: true }
+        // Block basic information
+        const basicInfoSection = document.createElement('div');
+        basicInfoSection.innerHTML = `
+            <h4 class="mb-3 text-sm font-semibold uppercase tracking-wider text-textdark/70">Informasi Blok</h4>
+        `;
+
+        const basicInfoGrid = document.createElement('div');
+        basicInfoGrid.className = 'grid grid-cols-2 gap-3';
+
+        const basicInfo = [
+            { label: 'Block Number', value: block.blockNumber },
+            { label: 'Transaction Count', value: numberFormatter.format(block.transactionCount || 0) },
+            { label: 'Timestamp', value: block.timestamp ? dateTimeFormatter.format(new Date(block.timestamp)) : '-' }
         ];
 
-        infoItems.forEach(item => {
-            const infoRow = document.createElement('div');
-            infoRow.className = 'rounded-lg border border-white/10 bg-surfaceMuted/50 p-4';
-
-            const label = document.createElement('div');
-            label.className = 'mb-2 text-xs font-semibold uppercase tracking-wider text-textdark/60';
-            label.textContent = item.label;
-
-            const valueContainer = document.createElement('div');
-            valueContainer.className = 'flex items-center gap-2';
-
-            const value = document.createElement('div');
-            value.className = item.mono
-                ? 'flex-1 overflow-hidden text-ellipsis font-mono text-sm text-textdark'
-                : 'flex-1 text-base font-medium text-textdark';
-            value.textContent = item.value;
-            value.title = item.value;
-
-            valueContainer.appendChild(value);
-
-            // Add copy button for copyable fields
-            if (item.copyable && item.value !== '-') {
-                const copyButton = document.createElement('button');
-                copyButton.type = 'button';
-                copyButton.className = 'rounded-lg border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary transition hover:bg-primary/20';
-                copyButton.innerHTML = `
-                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
-                    </svg>
-                `;
-                copyButton.addEventListener('click', async () => {
-                    try {
-                        await navigator.clipboard.writeText(item.value);
-                        copyButton.innerHTML = `
-                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                        `;
-                        setTimeout(() => {
-                            copyButton.innerHTML = `
-                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
-                                </svg>
-                            `;
-                        }, 2000);
-                    } catch (err) {
-                        console.error('Failed to copy:', err);
-                    }
-                });
-                valueContainer.appendChild(copyButton);
-            }
-
-            infoRow.append(label, valueContainer);
-            body.appendChild(infoRow);
+        basicInfo.forEach(item => {
+            const infoItem = document.createElement('div');
+            infoItem.className = 'rounded-lg border border-white/10 bg-surfaceMuted/50 p-3';
+            infoItem.innerHTML = `
+                <div class="mb-1 text-xs font-semibold uppercase tracking-wider text-textdark/60">${item.label}</div>
+                <div class="text-base font-medium text-textdark">${item.value}</div>
+            `;
+            basicInfoGrid.appendChild(infoItem);
         });
+
+        basicInfoSection.appendChild(basicInfoGrid);
+        body.appendChild(basicInfoSection);
+
+        // Transaction data section
+        const transactionSection = document.createElement('div');
+        transactionSection.innerHTML = `
+            <h4 class="mb-3 text-sm font-semibold uppercase tracking-wider text-textdark/70">Data Transaksi Simulasi</h4>
+        `;
+
+        const loadingDiv = document.createElement('div');
+        loadingDiv.className = 'flex items-center justify-center rounded-lg border border-white/10 bg-surfaceMuted/50 p-8';
+        loadingDiv.innerHTML = `
+            <div class="text-center">
+                <svg class="mx-auto mb-3 h-8 w-8 animate-spin text-primary" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <p class="text-sm text-textdark/70">Memuat data transaksi...</p>
+            </div>
+        `;
+        transactionSection.appendChild(loadingDiv);
+        body.appendChild(transactionSection);
 
         modal.append(header, body);
         backdrop.appendChild(modal);
@@ -570,6 +557,95 @@ componentLoaderReady.then(() => {
         document.addEventListener('keydown', handleEscape);
 
         document.body.appendChild(backdrop);
+
+        // Fetch transaction data
+        try {
+            const response = await fetch('/api/catatan');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            const networkData = data.results?.find(r => r.targetId === networkId);
+
+            if (networkData && networkData.records && networkData.records.length > 0) {
+                // Replace loading with transaction data
+                loadingDiv.remove();
+
+                const recordsContainer = document.createElement('div');
+                recordsContainer.className = 'space-y-3 max-h-96 overflow-y-auto';
+
+                networkData.records.forEach((record, index) => {
+                    const recordCard = document.createElement('div');
+                    recordCard.className = 'rounded-lg border border-white/10 bg-surfaceMuted/30 p-4';
+
+                    const statusColors = {
+                        'pending': 'bg-yellow-500/10 text-yellow-400 border-yellow-500/30',
+                        'in_progress': 'bg-blue-500/10 text-blue-400 border-blue-500/30',
+                        'resolved': 'bg-green-500/10 text-green-400 border-green-500/30'
+                    };
+
+                    const statusColor = statusColors[record.status] || 'bg-gray-500/10 text-gray-400 border-gray-500/30';
+
+                    recordCard.innerHTML = `
+                        <div class="mb-3 flex items-start justify-between gap-3">
+                            <div class="flex-1">
+                                <div class="mb-1 font-mono text-sm font-semibold text-primary">${record.reportId || record.id}</div>
+                                <div class="text-xs text-textdark/60">${record.timestamp ? dateTimeFormatter.format(new Date(record.timestamp)) : '-'}</div>
+                            </div>
+                            <span class="inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold ${statusColor}">
+                                ${record.status || 'unknown'}
+                            </span>
+                        </div>
+                        <div class="mb-3 grid grid-cols-2 gap-2 text-xs">
+                            <div>
+                                <span class="text-textdark/60">Substansi:</span>
+                                <span class="ml-1 text-textdark">${record.substance || '-'}</span>
+                            </div>
+                            <div>
+                                <span class="text-textdark/60">Kantor Penerima:</span>
+                                <span class="ml-1 text-textdark">${record.receivingOffice || '-'}</span>
+                            </div>
+                            <div>
+                                <span class="text-textdark/60">Pelapor:</span>
+                                <span class="ml-1 text-textdark">${record.reporterGroup || '-'}</span>
+                            </div>
+                            <div>
+                                <span class="text-textdark/60">Terlapor:</span>
+                                <span class="ml-1 text-textdark">${record.reportedGroup || '-'}</span>
+                            </div>
+                        </div>
+                        <div class="text-sm text-textdark/80">
+                            <span class="font-semibold text-textdark/60">Deskripsi:</span>
+                            <p class="mt-1">${record.description || '-'}</p>
+                        </div>
+                    `;
+                    recordsContainer.appendChild(recordCard);
+                });
+
+                transactionSection.appendChild(recordsContainer);
+            } else {
+                loadingDiv.innerHTML = `
+                    <div class="text-center">
+                        <svg class="mx-auto mb-3 h-12 w-12 text-textdark/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        <p class="text-sm text-textdark/60">Tidak ada data transaksi simulasi</p>
+                    </div>
+                `;
+            }
+        } catch (error) {
+            console.error('Error loading transaction data:', error);
+            loadingDiv.innerHTML = `
+                <div class="text-center">
+                    <svg class="mx-auto mb-3 h-12 w-12 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <p class="mb-2 font-semibold text-red-400">Gagal Memuat Data Transaksi</p>
+                    <p class="text-sm text-textdark/60">${error.message || 'Terjadi kesalahan'}</p>
+                </div>
+            `;
+        }
     }
 
     // Create single network blocks table

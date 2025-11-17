@@ -632,6 +632,123 @@ async function getAllBlocks() {
     return results;
 }
 
+async function getAllCatatanFromNetwork({ targetId, label, networkDir, channelName, peerEndpoint, domain, peerHostAlias: configuredPeerHostAlias, orgName = 'org1', peerName = 'peer0' }) {
+    const effectivePeerEndpoint = peerEndpoint || 'localhost:7051';
+    const effectiveDomain = domain ?? 'standard.com';
+    const orgDomain = `${orgName}.${effectiveDomain}`;
+    const mspUser = `User1@${orgDomain}`;
+    const peerHostAlias = configuredPeerHostAlias ?? `${peerName}.${orgDomain}`;
+    const timestamp = new Date().toISOString();
+    const baseResult = {
+        targetId,
+        label,
+        networkDir,
+        channel: channelName,
+        peer: effectivePeerEndpoint,
+        timestamp,
+        records: []
+    };
+
+    if (!existsSync(networkDir)) {
+        return {
+            ...baseResult,
+            status: 'not_found',
+            message: 'Direktori jaringan tidak ditemukan.'
+        };
+    }
+
+    const cryptoPath = path.resolve(networkDir, `organizations/peerOrganizations/${orgDomain}`);
+    const userPath = path.resolve(cryptoPath, `users/${mspUser}/msp`);
+    const keyDirPath = path.resolve(userPath, 'keystore');
+    const certDirPath = path.resolve(userPath, 'signcerts');
+    const tlsCertPath = path.resolve(cryptoPath, `peers/${peerHostAlias}/tls/ca.crt`);
+
+    const requiredPaths = [cryptoPath, userPath, keyDirPath, certDirPath, tlsCertPath];
+    const missing = requiredPaths.filter(p => !existsSync(p));
+    if (missing.length) {
+        return {
+            ...baseResult,
+            status: 'incomplete',
+            message: 'Material kriptografi tidak lengkap.'
+        };
+    }
+
+    async function newGrpcConnection() {
+        const tlsRootCert = await fs.readFile(tlsCertPath);
+        const tlsCredentials = grpc.credentials.createSsl(tlsRootCert);
+        return new grpc.Client(effectivePeerEndpoint, tlsCredentials, {
+            'grpc.ssl_target_name_override': peerHostAlias,
+            'grpc.keepalive_time_ms': 120000,
+            'grpc.keepalive_timeout_ms': 20000,
+            'grpc.keepalive_permit_without_calls': true,
+            'grpc.http2.max_pings_without_data': 0,
+            'grpc.http2.min_time_between_pings_ms': 10000,
+            'grpc.http2.min_ping_interval_without_data_ms': 300000
+        });
+    }
+
+    async function newIdentity() {
+        const certFile = await readFirstVisibleFile(certDirPath);
+        const credentials = await fs.readFile(certFile);
+        return { mspId, credentials };
+    }
+
+    async function newSigner() {
+        const keyFile = await readFirstVisibleFile(keyDirPath);
+        const privateKeyPem = await fs.readFile(keyFile);
+        const privateKey = crypto.createPrivateKey(privateKeyPem);
+        return signers.newPrivateKeySigner(privateKey);
+    }
+
+    let client;
+    let gateway;
+
+    try {
+        client = await newGrpcConnection();
+        gateway = connect({
+            client,
+            identity: await newIdentity(),
+            signer: await newSigner(),
+            hash: hash.sha256,
+        });
+
+        const network = gateway.getNetwork(channelName);
+        const contract = network.getContract(chaincodeName);
+
+        // Get all catatan from the ledger
+        const resultBytes = await contract.evaluateTransaction('GetAllCatatan');
+        const records = JSON.parse(resultBytes.toString());
+
+        return {
+            ...baseResult,
+            status: 'healthy',
+            records
+        };
+    } catch (error) {
+        return {
+            ...baseResult,
+            status: 'unhealthy',
+            message: error instanceof Error ? error.message : 'Terjadi kesalahan saat mengakses blockchain.'
+        };
+    } finally {
+        if (gateway) {
+            gateway.close();
+        }
+        if (client) {
+            client.close();
+        }
+    }
+}
+
+async function getAllCatatan() {
+    const results = [];
+    for (const config of networkConfigurations) {
+        const result = await getAllCatatanFromNetwork(config);
+        results.push(result);
+    }
+    return results;
+}
+
 async function checkNetworkHealth() {
     const results = [];
     for (const config of networkConfigurations) {
@@ -641,4 +758,4 @@ async function checkNetworkHealth() {
     return results;
 }
 
-export { checkNetworkHealth, getAllBlocks };
+export { checkNetworkHealth, getAllBlocks, getAllCatatan };

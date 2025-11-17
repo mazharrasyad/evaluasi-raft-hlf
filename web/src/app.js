@@ -8,7 +8,7 @@ import { promisify } from 'util';
 import { EventEmitter } from 'events';
 import { randomUUID } from 'crypto';
 
-import { checkNetworkHealth, getAllBlocks } from './network-check.js';
+import { checkNetworkHealth, getAllBlocks, getAllCatatan } from './network-check.js';
 import { loadFabricDescriptions } from './fabric-description.js';
 import { submitToNetworks } from './fabric-gateway.js';
 
@@ -854,6 +854,34 @@ app.get('/api/blocks', async (req, res) => {
     }
 });
 
+app.get('/api/catatan', async (req, res) => {
+    const fetchedAt = new Date().toISOString();
+
+    try {
+        const results = await getAllCatatan();
+        const overallStatus = results.length && results.every(item => item.status === 'healthy')
+            ? 'healthy'
+            : results.some(item => item.status === 'healthy')
+                ? 'partial'
+                : 'unavailable';
+
+        res.json({
+            fetchedAt,
+            overallStatus,
+            results,
+        });
+    } catch (error) {
+        console.error('Failed to fetch catatan:', error);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+
+        res.status(500).json({
+            fetchedAt,
+            overallStatus: 'unavailable',
+            error: errorMessage,
+            results: [],
+        });
+    }
+});
 
 
 

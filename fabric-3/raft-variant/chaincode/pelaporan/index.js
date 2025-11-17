@@ -48,13 +48,14 @@ class CatatanDigitalContract extends Contract {
 
     const txTimestamp = ctx.stub.getTxTimestamp();
     const millis = (txTimestamp.seconds.low * 1000) + Math.floor(txTimestamp.nanos / 1000000);
-    const timestamp = new Date(millis).toISOString();
+    const blockchainTimestamp = new Date(millis).toISOString();
 
     const storedCatatan = {
       ...data,
       id,
-      createdAt: data.createdAt || timestamp,
-      createdAtDisplay: data.createdAtDisplay || timestamp,
+      timestamp: data.timestamp || blockchainTimestamp,
+      createdAt: data.createdAt || blockchainTimestamp,
+      createdAtDisplay: data.createdAtDisplay || blockchainTimestamp,
     };
 
     await ctx.stub.putState(id, Buffer.from(JSON.stringify(storedCatatan)));
@@ -91,7 +92,7 @@ class CatatanDigitalContract extends Contract {
 
     const txTimestamp = ctx.stub.getTxTimestamp();
     const millis = (txTimestamp.seconds.low * 1000) + Math.floor(txTimestamp.nanos / 1000000);
-    const timestamp = new Date(millis).toISOString();
+    const blockchainTimestamp = new Date(millis).toISOString();
 
     // Get existing record to preserve createdAt
     const existingDataJSON = await ctx.stub.getState(id);
@@ -100,10 +101,11 @@ class CatatanDigitalContract extends Contract {
     const updatedCatatan = {
       ...data,
       id,
-      createdAt: existingData.createdAt || data.createdAt || timestamp,
-      createdAtDisplay: existingData.createdAtDisplay || data.createdAtDisplay || timestamp,
-      updatedAt: timestamp,
-      updatedAtDisplay: timestamp,
+      timestamp: data.timestamp || existingData.timestamp || blockchainTimestamp,
+      createdAt: existingData.createdAt || data.createdAt || blockchainTimestamp,
+      createdAtDisplay: existingData.createdAtDisplay || data.createdAtDisplay || blockchainTimestamp,
+      updatedAt: blockchainTimestamp,
+      updatedAtDisplay: blockchainTimestamp,
     };
 
     await ctx.stub.putState(id, Buffer.from(JSON.stringify(updatedCatatan)));

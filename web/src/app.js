@@ -22,8 +22,48 @@ const networkShutdownLogPath = path.resolve(logsRoot, 'network-shutdown.log');
 const networkStartupLogPath = path.resolve(logsRoot, 'network-start.log');
 const EXEC_MAX_BUFFER = 20 * 1024 * 1024;
 
+const dataRoot = path.resolve(__dirname, '../data');
+const simulationsDataPath = path.resolve(dataRoot, 'simulations.jsonl');
+
 const networkOperationEmitter = new EventEmitter();
 networkOperationEmitter.setMaxListeners(0);
+
+// Helper functions for JSONL data storage
+async function appendSimulationData(data) {
+    try {
+        await fs.mkdir(dataRoot, { recursive: true });
+        const jsonLine = JSON.stringify(data) + '\n';
+        await fs.appendFile(simulationsDataPath, jsonLine, 'utf8');
+    } catch (error) {
+        console.error('Failed to append simulation data:', error);
+        throw error;
+    }
+}
+
+async function readSimulationData() {
+    try {
+        const fileContent = await fs.readFile(simulationsDataPath, 'utf8');
+        const lines = fileContent.trim().split('\n').filter(Boolean);
+        return lines.map(line => JSON.parse(line));
+    } catch (error) {
+        if (error.code === 'ENOENT') {
+            // File doesn't exist yet, return empty array
+            return [];
+        }
+        console.error('Failed to read simulation data:', error);
+        throw error;
+    }
+}
+
+async function clearSimulationData() {
+    try {
+        await fs.mkdir(dataRoot, { recursive: true });
+        await fs.writeFile(simulationsDataPath, '', 'utf8');
+    } catch (error) {
+        console.error('Failed to clear simulation data:', error);
+        throw error;
+    }
+}
 
 function broadcastNetworkOperationEvent(event) {
     if (!event || typeof event !== 'object') {
@@ -1374,7 +1414,7 @@ app.post('/api/simulations/records', async (req, res) => {
         const completedAt = new Date().toISOString();
         const successCount = results.filter(r => r.success).length;
 
-        res.json({
+        const responseData = {
             submittedAt,
             completedAt,
             success: successCount > 0,
@@ -1382,12 +1422,66 @@ app.post('/api/simulations/records', async (req, res) => {
             totalCount: results.length,
             simulationData: record, // Include the full simulation data in response
             results,
-        });
+        };
+
+        // Save complete response data to JSONL file
+        try {
+            await appendSimulationData(responseData);
+        } catch (storageError) {
+            console.error('Failed to save simulation data to storage:', storageError);
+            // Continue even if storage fails - blockchain data is already saved
+        }
+
+        res.json(responseData);
     } catch (error) {
         console.error('Error submitting simulation record:', error);
         res.status(500).json({
             submittedAt,
             completedAt: new Date().toISOString(),
+            success: false,
+            error: error instanceof Error ? error.message : String(error),
+        });
+    }
+});
+
+app.get('/api/simulations/data', async (req, res) => {
+    const fetchedAt = new Date().toISOString();
+
+    try {
+        const data = await readSimulationData();
+
+        res.json({
+            fetchedAt,
+            success: true,
+            count: data.length,
+            data,
+        });
+    } catch (error) {
+        console.error('Error fetching simulation data:', error);
+        res.status(500).json({
+            fetchedAt,
+            success: false,
+            error: error instanceof Error ? error.message : String(error),
+            data: [],
+        });
+    }
+});
+
+app.delete('/api/simulations/data', async (req, res) => {
+    const deletedAt = new Date().toISOString();
+
+    try {
+        await clearSimulationData();
+
+        res.json({
+            deletedAt,
+            success: true,
+            message: 'All simulation data has been cleared successfully',
+        });
+    } catch (error) {
+        console.error('Error deleting simulation data:', error);
+        res.status(500).json({
+            deletedAt,
             success: false,
             error: error instanceof Error ? error.message : String(error),
         });

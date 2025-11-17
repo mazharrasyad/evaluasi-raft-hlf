@@ -717,18 +717,39 @@ async function getAllCatatanFromNetwork({ targetId, label, networkDir, channelNa
 
         // Get all catatan from the ledger
         const resultBytes = await contract.evaluateTransaction('GetAllCatatan');
-        const records = JSON.parse(resultBytes.toString());
+        const resultString = resultBytes.toString('utf8');
+
+        // Clean up response - remove any console.log output or emoji
+        let cleanString = resultString.trim();
+
+        // Try to find JSON array start
+        const jsonStartIndex = cleanString.indexOf('[');
+        if (jsonStartIndex > 0) {
+            cleanString = cleanString.substring(jsonStartIndex);
+        }
+
+        // Parse cleaned JSON
+        let records = [];
+        try {
+            records = JSON.parse(cleanString);
+        } catch (parseError) {
+            console.error('Failed to parse GetAllCatatan response:', cleanString.substring(0, 100));
+            throw new Error(`Invalid JSON response from chaincode: ${parseError.message}`);
+        }
 
         return {
             ...baseResult,
             status: 'healthy',
-            records
+            records: Array.isArray(records) ? records : []
         };
     } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Terjadi kesalahan saat mengakses blockchain.';
+        console.error(`Error in getAllCatatanFromNetwork for ${label}:`, errorMessage);
+
         return {
             ...baseResult,
             status: 'unhealthy',
-            message: error instanceof Error ? error.message : 'Terjadi kesalahan saat mengakses blockchain.'
+            message: errorMessage
         };
     } finally {
         if (gateway) {

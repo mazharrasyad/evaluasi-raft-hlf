@@ -447,6 +447,131 @@ componentLoaderReady.then(() => {
         return button;
     }
 
+    // Show block detail modal
+    function showBlockDetail(block, networkId) {
+        // Create modal backdrop
+        const backdrop = document.createElement('div');
+        backdrop.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4';
+        backdrop.style.animation = 'fadeIn 0.2s ease-out';
+
+        // Create modal container
+        const modal = document.createElement('div');
+        modal.className = 'relative w-full max-w-3xl rounded-2xl border border-white/10 bg-surface p-8 shadow-2xl';
+        modal.style.animation = 'fadeIn 0.3s ease-out';
+
+        // Modal header
+        const header = document.createElement('div');
+        header.className = 'mb-6 flex items-start justify-between';
+
+        const title = document.createElement('h3');
+        title.className = 'text-2xl font-semibold text-textdark';
+        title.textContent = `Detail Blok #${block.blockNumber}`;
+
+        const closeButton = document.createElement('button');
+        closeButton.type = 'button';
+        closeButton.className = 'rounded-lg p-2 text-textdark/60 transition hover:bg-white/10 hover:text-textdark';
+        closeButton.innerHTML = `
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+        `;
+        closeButton.addEventListener('click', () => {
+            document.body.removeChild(backdrop);
+        });
+
+        header.append(title, closeButton);
+
+        // Modal body
+        const body = document.createElement('div');
+        body.className = 'space-y-4';
+
+        // Block information
+        const infoItems = [
+            { label: 'Block Number', value: block.blockNumber, mono: true },
+            { label: 'Transaction Count', value: numberFormatter.format(block.transactionCount || 0), mono: false },
+            { label: 'Timestamp', value: block.timestamp ? dateTimeFormatter.format(new Date(block.timestamp)) : '-', mono: false },
+            { label: 'Data Hash', value: block.dataHash || '-', mono: true, copyable: true },
+            { label: 'Previous Hash', value: block.previousHash || '-', mono: true, copyable: true }
+        ];
+
+        infoItems.forEach(item => {
+            const infoRow = document.createElement('div');
+            infoRow.className = 'rounded-lg border border-white/10 bg-surfaceMuted/50 p-4';
+
+            const label = document.createElement('div');
+            label.className = 'mb-2 text-xs font-semibold uppercase tracking-wider text-textdark/60';
+            label.textContent = item.label;
+
+            const valueContainer = document.createElement('div');
+            valueContainer.className = 'flex items-center gap-2';
+
+            const value = document.createElement('div');
+            value.className = item.mono
+                ? 'flex-1 overflow-hidden text-ellipsis font-mono text-sm text-textdark'
+                : 'flex-1 text-base font-medium text-textdark';
+            value.textContent = item.value;
+            value.title = item.value;
+
+            valueContainer.appendChild(value);
+
+            // Add copy button for copyable fields
+            if (item.copyable && item.value !== '-') {
+                const copyButton = document.createElement('button');
+                copyButton.type = 'button';
+                copyButton.className = 'rounded-lg border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary transition hover:bg-primary/20';
+                copyButton.innerHTML = `
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                    </svg>
+                `;
+                copyButton.addEventListener('click', async () => {
+                    try {
+                        await navigator.clipboard.writeText(item.value);
+                        copyButton.innerHTML = `
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        `;
+                        setTimeout(() => {
+                            copyButton.innerHTML = `
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                </svg>
+                            `;
+                        }, 2000);
+                    } catch (err) {
+                        console.error('Failed to copy:', err);
+                    }
+                });
+                valueContainer.appendChild(copyButton);
+            }
+
+            infoRow.append(label, valueContainer);
+            body.appendChild(infoRow);
+        });
+
+        modal.append(header, body);
+        backdrop.appendChild(modal);
+
+        // Close on backdrop click
+        backdrop.addEventListener('click', (e) => {
+            if (e.target === backdrop) {
+                document.body.removeChild(backdrop);
+            }
+        });
+
+        // Close on Escape key
+        const handleEscape = (e) => {
+            if (e.key === 'Escape' && document.body.contains(backdrop)) {
+                document.body.removeChild(backdrop);
+                document.removeEventListener('keydown', handleEscape);
+            }
+        };
+        document.addEventListener('keydown', handleEscape);
+
+        document.body.appendChild(backdrop);
+    }
+
     // Create single network blocks table
     function createSingleNetworkBlocksTable(network) {
         const networkId = network.targetId;
@@ -471,11 +596,14 @@ componentLoaderReady.then(() => {
             return emptyState;
         }
 
+        // Filter out first 7 initialization blocks
+        const filteredBlocks = network.blocks.slice(7);
+
         // Calculate pagination
-        const totalBlocks = network.blocks.length;
+        const totalBlocks = filteredBlocks.length;
         const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
         const endIndex = startIndex + ITEMS_PER_PAGE;
-        const paginatedBlocks = network.blocks.slice(startIndex, endIndex);
+        const paginatedBlocks = filteredBlocks.slice(startIndex, endIndex);
 
         const wrapper = document.createElement('div');
 
@@ -491,11 +619,10 @@ componentLoaderReady.then(() => {
         const headerRow = document.createElement('tr');
 
         const headers = [
-            { label: 'Block #', width: '10%' },
-            { label: 'Data Hash', width: '30%' },
-            { label: 'Previous Hash', width: '30%' },
-            { label: 'Transaksi', width: '15%' },
-            { label: 'Timestamp', width: '15%' }
+            { label: 'Block #', width: '15%' },
+            { label: 'Transaksi', width: '20%' },
+            { label: 'Timestamp', width: '25%' },
+            { label: 'Detail', width: '15%' }
         ];
 
         headers.forEach(header => {
@@ -525,27 +652,9 @@ componentLoaderReady.then(() => {
             blockNum.textContent = block.blockNumber !== null && block.blockNumber !== undefined ? block.blockNumber : '-';
             blockNumCell.appendChild(blockNum);
 
-            // Data Hash
-            const dataHashCell = document.createElement('td');
-            dataHashCell.className = 'px-6 py-4';
-            const dataHashValue = document.createElement('code');
-            dataHashValue.className = 'block overflow-hidden text-ellipsis whitespace-nowrap font-mono text-xs text-textdark/70';
-            dataHashValue.textContent = block.dataHash || '-';
-            dataHashValue.title = block.dataHash || '';
-            dataHashCell.appendChild(dataHashValue);
-
-            // Previous Hash
-            const prevHashCell = document.createElement('td');
-            prevHashCell.className = 'px-6 py-4';
-            const prevHashValue = document.createElement('code');
-            prevHashValue.className = 'block overflow-hidden text-ellipsis whitespace-nowrap font-mono text-xs text-textdark/70';
-            prevHashValue.textContent = block.previousHash || '-';
-            prevHashValue.title = block.previousHash || '';
-            prevHashCell.appendChild(prevHashValue);
-
             // Transaction Count
             const txCountCell = document.createElement('td');
-            txCountCell.className = 'px-6 py-4 text-center';
+            txCountCell.className = 'px-6 py-4';
             const txCount = document.createElement('span');
             txCount.className = 'inline-flex items-center gap-1.5 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-xs font-semibold text-accent';
             txCount.innerHTML = `
@@ -563,7 +672,25 @@ componentLoaderReady.then(() => {
                 ? dateTimeFormatter.format(new Date(block.timestamp))
                 : '-';
 
-            row.append(blockNumCell, dataHashCell, prevHashCell, txCountCell, timestampCell);
+            // Detail Button
+            const detailCell = document.createElement('td');
+            detailCell.className = 'px-6 py-4';
+            const detailButton = document.createElement('button');
+            detailButton.type = 'button';
+            detailButton.className = 'inline-flex items-center gap-1.5 rounded-lg border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary transition hover:bg-primary/20';
+            detailButton.innerHTML = `
+                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                </svg>
+                <span>Lihat Detail</span>
+            `;
+            detailButton.addEventListener('click', () => {
+                showBlockDetail(block, networkId);
+            });
+            detailCell.appendChild(detailButton);
+
+            row.append(blockNumCell, txCountCell, timestampCell, detailCell);
             tbody.appendChild(row);
         });
 

@@ -161,13 +161,9 @@
         </div>
     </div>
 
-    <script type="module">
-        import { initHeader } from '/js/header.js';
-        import { initSidebar } from '/js/sidebar.js';
-
-        initHeader();
-        initSidebar();
-
+    <script src="/js/layout.js" defer></script>
+    <script src="/js/navigation.js" defer></script>
+    <script>
         const NETWORKS = [
             { id: 'channel-standard', label: 'Fabric 2 RAFT Standard', endpoint: '/api/fabric-2/raft-standard/pelaporan', color: 'from-blue-500/20 to-cyan-500/20' },
             { id: 'channel-variant', label: 'Fabric 2 RAFT Variant', endpoint: '/api/fabric-2/raft-variant/pelaporan', color: 'from-purple-500/20 to-pink-500/20' },

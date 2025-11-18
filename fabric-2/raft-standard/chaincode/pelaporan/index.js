@@ -81,13 +81,8 @@ class CatatanDigitalContract extends Contract {
     console.log(`   Transaction ID: ${txId}`);
     console.log(`   Channel: ${channelId}`);
 
-    return JSON.stringify({
-      status: 'success',
-      id,
-      transactionId: txId,
-      channelId: channelId,
-      savedAt: blockchainTimestamp,
-    });
+    // Return the complete stored data so it can be extracted from blockchain blocks
+    return JSON.stringify(storedCatatan);
   }
 
   /**
@@ -155,13 +150,8 @@ class CatatanDigitalContract extends Contract {
     console.log(`   Transaction ID: ${txId}`);
     console.log(`   Channel: ${channelId}`);
 
-    return JSON.stringify({
-      status: 'updated',
-      id,
-      transactionId: txId,
-      channelId: channelId,
-      updatedAt: blockchainTimestamp,
-    });
+    // Return the complete updated data so it can be extracted from blockchain blocks
+    return JSON.stringify(updatedCatatan);
   }
 
   /**

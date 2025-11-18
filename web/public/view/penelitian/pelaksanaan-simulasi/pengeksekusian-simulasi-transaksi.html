@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluasi RAFT HLF — Pengeksekusian Simulasi Transaksi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#38BDF8',
+                        secondary: '#6366F1',
+                        accent: '#F59E0B',
+                        highlight: '#F97316',
+                        soft: '#050B16',
+                        surface: '#0F172A',
+                        surfaceMuted: '#16213F',
+                        border: '#1E293B',
+                        muted: '#94A3B8',
+                        textdark: '#E2E8F0'
+                    }
+                }
+            }
+        };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="/images/logo-ai-center.svg">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+
+        .component-link[data-active="true"] {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.28), rgba(56, 189, 248, 0.22));
+            color: #E2E8F0;
+            border-color: rgba(249, 115, 22, 0.45);
+            box-shadow: 0 12px 40px rgba(15, 23, 42, 0.45);
+        }
+
+        .component-link[data-active="true"] .component-link__index {
+            background-color: rgba(249, 115, 22, 0.35);
+            color: #E2E8F0;
+        }
+
+        .result-success {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(34, 197, 94, 0.05));
+            border-color: rgba(34, 197, 94, 0.3);
+        }
+
+        .result-error {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.05));
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        .loading {
+            animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body class="bg-soft text-textdark">
+    <div data-component="header"></div>
+    <div class="relative min-h-screen overflow-hidden">
+        <div class="absolute inset-0 -z-10 h-full w-full">
+            <div class="absolute -left-1/3 top-0 h-[720px] w-[720px] rounded-full bg-gradient-to-br from-highlight/30 via-secondary/20 to-transparent opacity-70 blur-3xl"></div>
+            <div class="absolute -right-1/4 bottom-0 h-[620px] w-[620px] rounded-full bg-gradient-to-tr from-accent/35 via-secondary/25 to-primary/20 opacity-70 blur-3xl"></div>
+        </div>
+
+        <div class="flex min-h-screen flex-col lg:flex-row">
+            <div data-component="sidebar"></div>
+
+            <div class="flex-1">
+                <main class="mx-auto w-full max-w-5xl px-6 py-12">
+                    <div class="space-y-10">
+                        <!-- Header Section -->
+                        <section class="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-surface via-soft to-[#020817] p-10 shadow-2xl shadow-black/30">
+                            <div class="flex flex-col gap-6">
+                                <div class="inline-flex w-fit items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-primary/90">
+                                    Bab 4.4.3
+                                </div>
+                                <div class="space-y-5">
+                                    <h1 class="text-3xl font-semibold text-textdark md:text-4xl">Pengeksekusian Simulasi Transaksi</h1>
+                                    <p class="text-sm text-textdark/70 md:text-base leading-relaxed">
+                                        Halaman ini digunakan untuk mengeksekusi simulasi transaksi dengan mengirimkan data pelaporan ke semua jaringan Hyperledger Fabric yang telah dikonfigurasi. Setelah pengiriman, sistem akan memverifikasi bahwa data telah berhasil tersimpan di blockchain masing-masing network.
+                                    </p>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Transaction Form -->
+                        <section class="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-surface via-soft to-[#020817] p-10 shadow-2xl shadow-black/30">
+                            <h2 class="mb-6 text-2xl font-semibold text-textdark">Form Data Transaksi</h2>
+                            <p class="mb-8 text-sm text-textdark/70 leading-relaxed">
+                                Masukkan data pelaporan yang akan dikirimkan ke semua jaringan Fabric. Data akan dikirim secara bersamaan ke 4 network: Fabric 2 RAFT Standard, Fabric 2 RAFT Variant, Fabric 3 RAFT Standard, dan Fabric 3 RAFT Variant.
+                            </p>
+
+                            <div class="space-y-6">
+                                <!-- JSON Editor -->
+                                <div>
+                                    <label class="mb-2 block text-sm font-semibold text-textdark" for="transactionData">Data JSON Pelaporan</label>
+                                    <textarea
+                                        id="transactionData"
+                                        rows="15"
+                                        class="w-full rounded-xl border border-white/20 bg-black/30 p-4 font-mono text-sm text-textdark focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                        placeholder="Masukkan data JSON..."
+>{
+  "reportId": "RPT-2024-00001",
+  "timestamp": "2024-12-31T14:30:45.123Z",
+  "substance": "Agraria (Pertanahan dan Tata Ruang)",
+  "reporterGroup": "Perorangan",
+  "reportedGroup": "Pemerintah Daerah",
+  "receivingOffice": "Jawa Barat",
+  "description": "Deskripsi singkat laporan maladministrasi",
+  "status": "pending"
+}</textarea>
+                                </div>
+
+                                <!-- Action Buttons -->
+                                <div class="flex flex-wrap gap-4">
+                                    <button
+                                        id="submitBtn"
+                                        class="flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary to-secondary px-6 py-3 font-semibold text-white shadow-lg transition hover:shadow-xl hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                                        </svg>
+                                        Submit ke Semua Network
+                                    </button>
+
+                                    <button
+                                        id="verifyBtn"
+                                        class="flex items-center gap-2 rounded-xl bg-gradient-to-r from-accent to-highlight px-6 py-3 font-semibold text-white shadow-lg transition hover:shadow-xl hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        Verifikasi Data
+                                    </button>
+
+                                    <button
+                                        id="clearBtn"
+                                        class="flex items-center gap-2 rounded-xl border border-white/20 bg-white/5 px-6 py-3 font-semibold text-textdark transition hover:bg-white/10"
+                                    >
+                                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                        </svg>
+                                        Clear Results
+                                    </button>
+                                </div>
+
+                                <!-- Format Helper -->
+                                <div class="rounded-xl border border-blue-500/20 bg-blue-500/5 p-4">
+                                    <div class="mb-2 flex items-center gap-2">
+                                        <svg class="h-5 w-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        <span class="text-sm font-semibold text-blue-400">Format Data</span>
+                                    </div>
+                                    <p class="text-xs text-textdark/70">
+                                        Data harus dalam format JSON yang valid. Field yang diperlukan: <code class="rounded bg-black/30 px-1.5 py-0.5 font-mono text-blue-400">reportId</code>, <code class="rounded bg-black/30 px-1.5 py-0.5 font-mono text-blue-400">timestamp</code>, <code class="rounded bg-black/30 px-1.5 py-0.5 font-mono text-blue-400">substance</code>, <code class="rounded bg-black/30 px-1.5 py-0.5 font-mono text-blue-400">reporterGroup</code>, <code class="rounded bg-black/30 px-1.5 py-0.5 font-mono text-blue-400">reportedGroup</code>, <code class="rounded bg-black/30 px-1.5 py-0.5 font-mono text-blue-400">receivingOffice</code>, <code class="rounded bg-black/30 px-1.5 py-0.5 font-mono text-blue-400">description</code>, <code class="rounded bg-black/30 px-1.5 py-0.5 font-mono text-blue-400">status</code>.
+                                    </p>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Results Section -->
+                        <section id="resultsSection" class="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-surface via-soft to-[#020817] p-10 shadow-2xl shadow-black/30 hidden">
+                            <h2 class="mb-6 text-2xl font-semibold text-textdark">Hasil Eksekusi</h2>
+
+                            <div id="resultsContainer" class="space-y-6">
+                                <!-- Results will be inserted here dynamically -->
+                            </div>
+                        </section>
+                    </div>
+                </main>
+
+                <div data-component="footer"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/layout.js" defer></script>
+    <script src="/js/navigation.js" defer></script>
+    <script>
+        const networks = [
+            {
+                id: 'fabric2-standard',
+                label: 'Fabric 2 RAFT Standard',
+                postUrl: '/api/fabric-2/raft-standard/pelaporan',
+                getUrl: '/api/fabric-2/raft-standard/pelaporan',
+                color: 'blue'
+            },
+            {
+                id: 'fabric2-variant',
+                label: 'Fabric 2 RAFT Variant',
+                postUrl: '/api/fabric-2/raft-variant/pelaporan',
+                getUrl: '/api/fabric-2/raft-variant/pelaporan',
+                color: 'indigo'
+            },
+            {
+                id: 'fabric3-standard',
+                label: 'Fabric 3 RAFT Standard',
+                postUrl: '/api/fabric-3/raft-standard/pelaporan',
+                getUrl: '/api/fabric-3/raft-standard/pelaporan',
+                color: 'purple'
+            },
+            {
+                id: 'fabric3-variant',
+                label: 'Fabric 3 RAFT Variant',
+                postUrl: '/api/fabric-3/raft-variant/pelaporan',
+                getUrl: '/api/fabric-3/raft-variant/pelaporan',
+                color: 'pink'
+            }
+        ];
+
+        const submitBtn = document.getElementById('submitBtn');
+        const verifyBtn = document.getElementById('verifyBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const transactionData = document.getElementById('transactionData');
+        const resultsSection = document.getElementById('resultsSection');
+        const resultsContainer = document.getElementById('resultsContainer');
+
+        // Submit to all networks
+        submitBtn.addEventListener('click', async () => {
+            try {
+                const data = JSON.parse(transactionData.value);
+
+                submitBtn.disabled = true;
+                verifyBtn.disabled = true;
+                submitBtn.innerHTML = '<div class="loading">Mengirim data...</div>';
+
+                resultsSection.classList.remove('hidden');
+                resultsContainer.innerHTML = '<div class="text-center text-textdark/70 loading">Memproses transaksi ke semua network...</div>';
+
+                const results = await Promise.all(
+                    networks.map(async (network) => {
+                        try {
+                            const response = await fetch(network.postUrl, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify(data)
+                            });
+
+                            const result = await response.json();
+                            return {
+                                network,
+                                success: result.success,
+                                data: result,
+                                error: null
+                            };
+                        } catch (error) {
+                            return {
+                                network,
+                                success: false,
+                                data: null,
+                                error: error.message
+                            };
+                        }
+                    })
+                );
+
+                displayResults(results, 'submit');
+
+            } catch (error) {
+                alert('Error parsing JSON: ' + error.message);
+            } finally {
+                submitBtn.disabled = false;
+                verifyBtn.disabled = false;
+                submitBtn.innerHTML = `
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                    </svg>
+                    Submit ke Semua Network
+                `;
+            }
+        });
+
+        // Verify data from all networks
+        verifyBtn.addEventListener('click', async () => {
+            submitBtn.disabled = true;
+            verifyBtn.disabled = true;
+            verifyBtn.innerHTML = '<div class="loading">Memverifikasi...</div>';
+
+            resultsSection.classList.remove('hidden');
+            resultsContainer.innerHTML = '<div class="text-center text-textdark/70 loading">Mengambil data dari semua network...</div>';
+
+            const results = await Promise.all(
+                networks.map(async (network) => {
+                    try {
+                        const response = await fetch(network.getUrl);
+                        const result = await response.json();
+
+                        return {
+                            network,
+                            success: result.success,
+                            data: result,
+                            error: null
+                        };
+                    } catch (error) {
+                        return {
+                            network,
+                            success: false,
+                            data: null,
+                            error: error.message
+                        };
+                    }
+                })
+            );
+
+            displayResults(results, 'verify');
+
+            submitBtn.disabled = false;
+            verifyBtn.disabled = false;
+            verifyBtn.innerHTML = `
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                Verifikasi Data
+            `;
+        });
+
+        // Clear results
+        clearBtn.addEventListener('click', () => {
+            resultsContainer.innerHTML = '';
+            resultsSection.classList.add('hidden');
+        });
+
+        // Display results
+        function displayResults(results, type) {
+            const html = results.map(({ network, success, data, error }) => {
+                const resultClass = success ? 'result-success' : 'result-error';
+                const statusColor = success ? 'text-green-400' : 'text-red-400';
+                const borderColor = success ? 'border-green-500/30' : 'border-red-500/30';
+
+                let content = '';
+
+                if (type === 'submit') {
+                    content = `
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-textdark/70">Status:</span>
+                                <span class="${statusColor} font-semibold">${success ? 'Success' : 'Failed'}</span>
+                            </div>
+                            ${data?.submittedAt ? `
+                                <div class="flex justify-between">
+                                    <span class="text-textdark/70">Submitted At:</span>
+                                    <span class="font-mono text-xs text-textdark">${new Date(data.submittedAt).toLocaleString('id-ID')}</span>
+                                </div>
+                            ` : ''}
+                            ${data?.completedAt ? `
+                                <div class="flex justify-between">
+                                    <span class="text-textdark/70">Completed At:</span>
+                                    <span class="font-mono text-xs text-textdark">${new Date(data.completedAt).toLocaleString('id-ID')}</span>
+                                </div>
+                            ` : ''}
+                            ${error ? `
+                                <div class="mt-3 rounded-lg border border-red-500/30 bg-red-500/10 p-3">
+                                    <div class="text-xs font-semibold text-red-400 mb-1">Error:</div>
+                                    <div class="text-xs text-red-300">${error}</div>
+                                </div>
+                            ` : ''}
+                            ${data?.error ? `
+                                <div class="mt-3 rounded-lg border border-red-500/30 bg-red-500/10 p-3">
+                                    <div class="text-xs font-semibold text-red-400 mb-1">Error:</div>
+                                    <div class="text-xs text-red-300">${data.error}</div>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                } else if (type === 'verify') {
+                    content = `
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-textdark/70">Status:</span>
+                                <span class="${statusColor} font-semibold">${success ? 'Success' : 'Failed'}</span>
+                            </div>
+                            ${data?.count !== undefined ? `
+                                <div class="flex justify-between">
+                                    <span class="text-textdark/70">Total Records:</span>
+                                    <span class="font-semibold text-primary">${data.count}</span>
+                                </div>
+                            ` : ''}
+                            ${data?.totalBlocks !== undefined ? `
+                                <div class="flex justify-between">
+                                    <span class="text-textdark/70">Total Blocks:</span>
+                                    <span class="font-mono text-textdark">${data.totalBlocks}</span>
+                                </div>
+                            ` : ''}
+                            ${data?.source ? `
+                                <div class="flex justify-between">
+                                    <span class="text-textdark/70">Source:</span>
+                                    <span class="font-mono text-xs text-textdark/80">${data.source}</span>
+                                </div>
+                            ` : ''}
+                            ${error ? `
+                                <div class="mt-3 rounded-lg border border-red-500/30 bg-red-500/10 p-3">
+                                    <div class="text-xs font-semibold text-red-400 mb-1">Error:</div>
+                                    <div class="text-xs text-red-300">${error}</div>
+                                </div>
+                            ` : ''}
+                            ${data?.error ? `
+                                <div class="mt-3 rounded-lg border border-red-500/30 bg-red-500/10 p-3">
+                                    <div class="text-xs font-semibold text-red-400 mb-1">Error:</div>
+                                    <div class="text-xs text-red-300">${data.error}</div>
+                                </div>
+                            ` : ''}
+                            ${success && data?.records?.length > 0 ? `
+                                <details class="mt-4">
+                                    <summary class="cursor-pointer text-xs font-semibold text-primary hover:text-primary/80">
+                                        View Records (${data.records.length})
+                                    </summary>
+                                    <div class="mt-3 max-h-96 overflow-auto rounded-lg border border-white/10 bg-black/30 p-3">
+                                        <pre class="text-xs text-textdark/90">${JSON.stringify(data.records.slice(0, 10), null, 2)}</pre>
+                                        ${data.records.length > 10 ? `<div class="mt-2 text-xs text-textdark/50">... and ${data.records.length - 10} more records</div>` : ''}
+                                    </div>
+                                </details>
+                            ` : ''}
+                        </div>
+                    `;
+                }
+
+                return `
+                    <div class="rounded-2xl border ${borderColor} ${resultClass} p-6">
+                        <div class="mb-4 flex items-center gap-3">
+                            <div class="rounded-lg bg-${network.color}-500/20 px-3 py-1">
+                                <span class="text-sm font-semibold text-${network.color}-400">${network.label}</span>
+                            </div>
+                        </div>
+                        ${content}
+                    </div>
+                `;
+            }).join('');
+
+            resultsContainer.innerHTML = html;
+        }
+
+        // Auto-update timestamp when page loads
+        window.addEventListener('DOMContentLoaded', () => {
+            try {
+                const data = JSON.parse(transactionData.value);
+                data.timestamp = new Date().toISOString();
+                transactionData.value = JSON.stringify(data, null, 2);
+            } catch (error) {
+                // Ignore if JSON is invalid
+            }
+        });
+    </script>
+</body>
+</html>

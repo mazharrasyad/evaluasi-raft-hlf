@@ -713,6 +713,7 @@ const viewsRoot = path.resolve(staticRoot, 'view');
 
 const viewFiles = {
     home: path.resolve(viewsRoot, 'home.html'),
+    listApi: path.resolve(viewsRoot, 'list-api.html'),
     research: {
         overview: path.resolve(viewsRoot, 'penelitian/gambaran-umum.html'),
         environmentSetup: path.resolve(viewsRoot, 'penelitian/pembangunan-lingkungan-uji.html'),
@@ -762,6 +763,10 @@ app.get('/api/network-operations/stream', (req, res) => {
 
 app.get('/', (req, res) => {
     res.sendFile(viewFiles.home);
+});
+
+app.get('/list-api', (req, res) => {
+    res.sendFile(viewFiles.listApi);
 });
 
 app.get('/penelitian/gambaran-umum', (req, res) => {
@@ -2441,6 +2446,274 @@ app.post('/api/pelaporan/blockchain/fix-chain', async (req, res) => {
             data: null
         });
     }
+});
+
+// API List - Returns metadata of all available API endpoints
+app.get('/api/list', (req, res) => {
+    const apiEndpoints = [
+        {
+            category: 'Network Operations',
+            endpoints: [
+                {
+                    method: 'GET',
+                    path: '/api/network-operations/stream',
+                    description: 'Server-Sent Events (SSE) stream untuk real-time network operation status updates',
+                    response: 'Event stream dengan keep-alive pings setiap 15 detik'
+                },
+                {
+                    method: 'GET',
+                    path: '/api/check-network',
+                    description: 'Cek kesehatan semua Fabric networks',
+                    response: '{ checkedAt, overallStatus, results[] }'
+                },
+                {
+                    method: 'POST',
+                    path: '/api/start-network',
+                    description: 'Menyalakan Fabric networks',
+                    body: '{ networkType: string (optional) }',
+                    response: '{ requestedAt, completedAt, overallStatus, operationId, results[] }'
+                },
+                {
+                    method: 'POST',
+                    path: '/api/shutdown-network',
+                    description: 'Mematikan Fabric networks',
+                    body: '{ networkType: string (optional) }',
+                    response: '{ requestedAt, completedAt, overallStatus, results[] }'
+                },
+                {
+                    method: 'POST',
+                    path: '/api/create-channel',
+                    description: 'Membuat channel baru pada network yang ditentukan',
+                    body: '{ networkType: string (required) }',
+                    response: '{ requestedAt, completedAt, overallStatus, results[] }'
+                },
+                {
+                    method: 'POST',
+                    path: '/api/check-channel',
+                    description: 'Cek apakah channel aktif/inactive',
+                    body: '{ networkType: string (required) }',
+                    response: '{ checkedAt, status, containers[] }'
+                }
+            ]
+        },
+        {
+            category: 'Blockchain Data',
+            endpoints: [
+                {
+                    method: 'GET',
+                    path: '/api/blocks',
+                    description: 'Mengambil semua blocks dari networks yang berjalan',
+                    response: '{ fetchedAt, overallStatus, results[] }'
+                },
+                {
+                    method: 'GET',
+                    path: '/api/catatan',
+                    description: 'Mengambil semua transaction notes/records',
+                    response: '{ fetchedAt, overallStatus, results[] }'
+                },
+                {
+                    method: 'GET',
+                    path: '/api/blocks-with-simulation',
+                    description: 'Mengambil blocks dengan simulation data yang sudah matched',
+                    response: '{ fetchedAt, overallStatus, results[] }'
+                },
+                {
+                    method: 'GET',
+                    path: '/api/fabric-descriptions',
+                    description: 'Memuat fabric configuration descriptions',
+                    response: '{ fetchedAt, descriptions }'
+                }
+            ]
+        },
+        {
+            category: 'Simulation Data Management',
+            endpoints: [
+                {
+                    method: 'POST',
+                    path: '/api/simulations/records',
+                    description: 'Submit simulation record ke blockchain networks',
+                    body: '{ record: object, targetIds: string[] }',
+                    response: '{ submittedAt, completedAt, success, successCount, totalCount, results[] }'
+                },
+                {
+                    method: 'GET',
+                    path: '/api/simulations/data',
+                    description: 'Mengambil semua saved simulation data',
+                    response: '{ fetchedAt, success, count, data[] }'
+                },
+                {
+                    method: 'DELETE',
+                    path: '/api/simulations/data',
+                    description: 'Menghapus semua simulation data',
+                    response: '{ deletedAt, success, message }'
+                },
+                {
+                    method: 'GET',
+                    path: '/api/simulations/blockchain-summary',
+                    description: 'Summary simulation data yang tersimpan di blockchain per network',
+                    response: '{ fetchedAt, totalRecords, networksQueried, successfulNetworks, networks[] }'
+                }
+            ]
+        },
+        {
+            category: 'Fabric 2 RAFT Standard',
+            endpoints: [
+                {
+                    method: 'POST',
+                    path: '/api/fabric-2/raft-standard/pelaporan',
+                    description: 'Submit reporting data ke Fabric 2 RAFT Standard',
+                    body: 'reporting record object',
+                    response: '{ submittedAt, completedAt, success, networkId, result }'
+                },
+                {
+                    method: 'GET',
+                    path: '/api/fabric-2/raft-standard/pelaporan',
+                    description: 'Query semua transactions dari Fabric 2 RAFT Standard',
+                    response: '{ fetchedAt, success, networkId, count, records[], totalBlocks }'
+                }
+            ]
+        },
+        {
+            category: 'Fabric 2 RAFT Variant',
+            endpoints: [
+                {
+                    method: 'POST',
+                    path: '/api/fabric-2/raft-variant/pelaporan',
+                    description: 'Submit reporting data ke Fabric 2 RAFT Variant',
+                    body: 'reporting record object',
+                    response: '{ submittedAt, completedAt, success, networkId, result }'
+                },
+                {
+                    method: 'GET',
+                    path: '/api/fabric-2/raft-variant/pelaporan',
+                    description: 'Query semua transactions dari Fabric 2 RAFT Variant',
+                    response: '{ fetchedAt, success, networkId, count, records[], totalBlocks }'
+                }
+            ]
+        },
+        {
+            category: 'Fabric 3 RAFT Standard',
+            endpoints: [
+                {
+                    method: 'POST',
+                    path: '/api/fabric-3/raft-standard/pelaporan',
+                    description: 'Submit reporting data ke Fabric 3 RAFT Standard',
+                    body: 'reporting record object',
+                    response: '{ submittedAt, completedAt, success, networkId, result }'
+                },
+                {
+                    method: 'GET',
+                    path: '/api/fabric-3/raft-standard/pelaporan',
+                    description: 'Query semua transactions dari Fabric 3 RAFT Standard',
+                    response: '{ fetchedAt, success, networkId, count, records[], totalBlocks }'
+                }
+            ]
+        },
+        {
+            category: 'Fabric 3 RAFT Variant',
+            endpoints: [
+                {
+                    method: 'POST',
+                    path: '/api/fabric-3/raft-variant/pelaporan',
+                    description: 'Submit reporting data ke Fabric 3 RAFT Variant',
+                    body: 'reporting record object',
+                    response: '{ submittedAt, completedAt, success, networkId, result }'
+                },
+                {
+                    method: 'GET',
+                    path: '/api/fabric-3/raft-variant/pelaporan',
+                    description: 'Query semua transactions dari Fabric 3 RAFT Variant',
+                    response: '{ fetchedAt, success, networkId, count, records[], totalBlocks }'
+                }
+            ]
+        },
+        {
+            category: 'Pelaporan API (Standardized)',
+            endpoints: [
+                {
+                    method: 'GET',
+                    path: '/api/pelaporan/health',
+                    description: 'Health check untuk semua pelaporan networks',
+                    response: '{ error, message, data: { status, networks[] } }'
+                },
+                {
+                    method: 'GET',
+                    path: '/api/pelaporan/blockchain/info',
+                    description: 'Blockchain information (hashes, block height, transaction count)',
+                    query: '?network=fabric-2-standard|fabric-2-variant|fabric-3-standard|fabric-3-variant',
+                    response: '{ error, message, data: { network, blockchain } }'
+                },
+                {
+                    method: 'GET',
+                    path: '/api/pelaporan',
+                    description: 'Get all pelaporan records dari network',
+                    query: '?network=...',
+                    response: '{ error, message, total_data, data[] }'
+                },
+                {
+                    method: 'GET',
+                    path: '/api/pelaporan/:id',
+                    description: 'Get specific pelaporan record by ID',
+                    response: '{ error, message, total_data, data: record }'
+                },
+                {
+                    method: 'GET',
+                    path: '/api/pelaporan/:id/hash',
+                    description: 'Get SHA256 hash dari specific record',
+                    response: '{ error, message, data: { id, currentHash, shortHash, previousHash, blockchain } }'
+                },
+                {
+                    method: 'GET',
+                    path: '/api/pelaporan/:id/history',
+                    description: 'Get transaction history untuk sebuah record',
+                    response: '{ error, message, total_data, data: history[] }'
+                },
+                {
+                    method: 'POST',
+                    path: '/api/pelaporan',
+                    description: 'Create new pelaporan record',
+                    body: 'must include reportId or id field',
+                    response: '{ error, message, total_data, data: record }'
+                },
+                {
+                    method: 'PUT',
+                    path: '/api/pelaporan/:id',
+                    description: 'Update existing pelaporan record',
+                    body: 'update data object',
+                    response: '{ error, message, total_data, data: updated record }'
+                },
+                {
+                    method: 'GET',
+                    path: '/api/pelaporan/blockchain/verify-chain',
+                    description: 'Verify blockchain chain integrity',
+                    response: '{ error, message, data: { chainStatus, totalBlocks, tamperedBlocks, blocks[] } }'
+                },
+                {
+                    method: 'POST',
+                    path: '/api/pelaporan/blockchain/fix-chain',
+                    description: 'Fix/regenerate blockchain chain hashes',
+                    response: '{ error, message, data: { chainStatus, totalBlocks, fixedBlocks, blocks[] } }'
+                }
+            ]
+        }
+    ];
+
+    const totalEndpoints = apiEndpoints.reduce((sum, cat) => sum + cat.endpoints.length, 0);
+
+    res.json({
+        fetchedAt: new Date().toISOString(),
+        success: true,
+        totalCategories: apiEndpoints.length,
+        totalEndpoints: totalEndpoints,
+        version: '1.0.0',
+        serverInfo: {
+            framework: 'Express.js',
+            nodeVersion: process.version,
+            port: PORT,
+            host: HOST
+        },
+        categories: apiEndpoints
+    });
 });
 
 app.get('*', (req, res) => {

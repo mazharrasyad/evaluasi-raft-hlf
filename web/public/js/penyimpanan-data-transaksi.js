@@ -328,15 +328,15 @@ componentLoaderReady.then(() => {
         'channel-fabric3-variant': 'Fabric 3 RAFT Variant',
     };
 
-    // Fetch block data from API - Using /api/blocks for metadata
+    // Fetch block data from API - Using NEW /api/blocks-with-simulation for matched data
     async function fetchBlockData() {
         try {
-            const response = await fetch('/api/blocks');
+            const response = await fetch('/api/blocks-with-simulation');
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const data = await response.json();
-            console.log('📊 API Response /api/blocks:', data);
+            console.log('📊 API Response /api/blocks-with-simulation:', data);
             console.log('📋 Results:', data.results);
             return data.results || [];
         } catch (error) {

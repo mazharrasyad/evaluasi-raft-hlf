@@ -352,10 +352,11 @@
 
         // Event listeners
         document.getElementById('refreshBtn').addEventListener('click', async () => {
-            await Swal.fire({
+            Swal.fire({
                 title: 'Memuat ulang data...',
                 text: 'Mengambil data terbaru dari blockchain',
                 allowOutsideClick: false,
+                showConfirmButton: false,
                 didOpen: () => {
                     Swal.showLoading();
                 }

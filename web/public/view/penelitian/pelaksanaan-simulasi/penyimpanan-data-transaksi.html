@@ -296,10 +296,10 @@
                                             <tr class="hover:bg-white/5 transition-colors">
                                                 <td class="px-4 py-3 text-textdark font-mono">${record.reportId || record.id || 'N/A'}</td>
                                                 <td class="px-4 py-3 text-muted">${formatDate(record.timestamp)}</td>
-                                                <td class="px-4 py-3 text-textdark">${record.terlapor || 'N/A'}</td>
+                                                <td class="px-4 py-3 text-textdark">${record.reportedGroup || record.terlapor || 'N/A'}</td>
                                                 <td class="px-4 py-3">
                                                     <span class="inline-flex rounded-full bg-primary/20 px-2 py-1 text-xs text-primary">
-                                                        ${record.kategori || 'N/A'}
+                                                        ${record.substance || record.kategori || 'N/A'}
                                                     </span>
                                                 </td>
                                             </tr>

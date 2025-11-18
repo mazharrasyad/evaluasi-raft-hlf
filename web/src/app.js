@@ -10,7 +10,7 @@ import { randomUUID } from 'crypto';
 
 import { checkNetworkHealth, getAllBlocks, getAllCatatan, getBlocksWithSimulationData } from './network-check.js';
 import { loadFabricDescriptions } from './fabric-description.js';
-import { submitToNetworks, submitTransaction, queryRecordsFromNetwork } from './fabric-gateway.js';
+import { submitToNetworks, submitTransaction, queryRecordsFromNetwork, queryAllTransactionsFromBlocks } from './fabric-gateway.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -1640,7 +1640,8 @@ app.get('/api/fabric-2/raft-standard/pelaporan', async (req, res) => {
     const networkId = 'channel-standard';
 
     try {
-        const result = await queryRecordsFromNetwork(networkId);
+        // Mengambil SEMUA transaksi dari blockchain blocks, bukan hanya dari state database
+        const result = await queryAllTransactionsFromBlocks(networkId);
 
         res.json({
             fetchedAt,
@@ -1650,6 +1651,8 @@ app.get('/api/fabric-2/raft-standard/pelaporan', async (req, res) => {
             label: 'Fabric 2 RAFT Standard',
             count: result.count,
             records: result.records,
+            source: result.source,
+            totalBlocks: result.totalBlocks
         });
     } catch (error) {
         console.error('Error querying from Fabric 2 RAFT Standard:', error);
@@ -1714,7 +1717,8 @@ app.get('/api/fabric-2/raft-variant/pelaporan', async (req, res) => {
     const networkId = 'channel-variant';
 
     try {
-        const result = await queryRecordsFromNetwork(networkId);
+        // Mengambil SEMUA transaksi dari blockchain blocks, bukan hanya dari state database
+        const result = await queryAllTransactionsFromBlocks(networkId);
 
         res.json({
             fetchedAt,
@@ -1724,6 +1728,8 @@ app.get('/api/fabric-2/raft-variant/pelaporan', async (req, res) => {
             label: 'Fabric 2 RAFT Variant',
             count: result.count,
             records: result.records,
+            source: result.source,
+            totalBlocks: result.totalBlocks
         });
     } catch (error) {
         console.error('Error querying from Fabric 2 RAFT Variant:', error);
@@ -1788,7 +1794,8 @@ app.get('/api/fabric-3/raft-standard/pelaporan', async (req, res) => {
     const networkId = 'channel-fabric3-standard';
 
     try {
-        const result = await queryRecordsFromNetwork(networkId);
+        // Mengambil SEMUA transaksi dari blockchain blocks, bukan hanya dari state database
+        const result = await queryAllTransactionsFromBlocks(networkId);
 
         res.json({
             fetchedAt,
@@ -1798,6 +1805,8 @@ app.get('/api/fabric-3/raft-standard/pelaporan', async (req, res) => {
             label: 'Fabric 3 RAFT Standard',
             count: result.count,
             records: result.records,
+            source: result.source,
+            totalBlocks: result.totalBlocks
         });
     } catch (error) {
         console.error('Error querying from Fabric 3 RAFT Standard:', error);
@@ -1862,7 +1871,8 @@ app.get('/api/fabric-3/raft-variant/pelaporan', async (req, res) => {
     const networkId = 'channel-fabric3-variant';
 
     try {
-        const result = await queryRecordsFromNetwork(networkId);
+        // Mengambil SEMUA transaksi dari blockchain blocks, bukan hanya dari state database
+        const result = await queryAllTransactionsFromBlocks(networkId);
 
         res.json({
             fetchedAt,
@@ -1872,6 +1882,8 @@ app.get('/api/fabric-3/raft-variant/pelaporan', async (req, res) => {
             label: 'Fabric 3 RAFT Variant',
             count: result.count,
             records: result.records,
+            source: result.source,
+            totalBlocks: result.totalBlocks
         });
     } catch (error) {
         console.error('Error querying from Fabric 3 RAFT Variant:', error);

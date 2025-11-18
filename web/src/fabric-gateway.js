@@ -355,6 +355,99 @@ export async function submitTransaction(networkId, record, metadata = {}) {
 }
 
 /**
+ * Query all records from a specific network
+ * @param {string} networkId - The network ID to query from
+ * @returns {Promise<Object>} - Object containing success status and records array
+ */
+export async function queryRecordsFromNetwork(networkId) {
+    let connection = null;
+    let config = null;
+    const queriedAt = new Date().toISOString();
+
+    try {
+        config = getNetworkConfig(networkId);
+        connection = await connectToGateway(networkId);
+        const { gateway, client } = connection;
+
+        // Get network and contract
+        const network = gateway.getNetwork(config.channel);
+        const contract = network.getContract(config.chaincode);
+
+        console.log(`🔍 [${config.label}] Querying all records from blockchain...`);
+        console.log(`   Network: ${networkId} (${config.label})`);
+        console.log(`   Channel: ${config.channel}`);
+
+        // Query all records using GetAllCatatan
+        const resultBytes = await contract.evaluateTransaction('GetAllCatatan');
+        const resultString = new TextDecoder().decode(resultBytes);
+
+        // Clean up response - remove any console.log output or emoji
+        let cleanString = resultString.trim();
+
+        // Try to find JSON array start
+        const jsonStartIndex = cleanString.indexOf('[');
+        if (jsonStartIndex > 0) {
+            cleanString = cleanString.substring(jsonStartIndex);
+        }
+
+        // Parse cleaned JSON
+        let records = [];
+        try {
+            records = JSON.parse(cleanString);
+        } catch (parseError) {
+            console.error('Failed to parse GetAllCatatan response:', cleanString.substring(0, 100));
+            throw new Error(`Invalid JSON response from chaincode: ${parseError.message}`);
+        }
+
+        const completedAt = new Date().toISOString();
+
+        console.log(`✅ [${config.label}] Successfully retrieved ${records.length} records from blockchain!`);
+        console.log(`   Completed at: ${completedAt}`);
+
+        // Close connection
+        gateway.close();
+        client.close();
+
+        return {
+            success: true,
+            networkId,
+            label: config.label,
+            channel: config.channel,
+            chaincode: config.chaincode,
+            queriedAt,
+            completedAt,
+            count: records.length,
+            records: Array.isArray(records) ? records : [],
+        };
+    } catch (error) {
+        console.error(`❌ [${config ? config.label : networkId}] Failed to query records from blockchain:`, error.message);
+
+        // Close connection if it was opened
+        if (connection) {
+            try {
+                connection.gateway.close();
+                connection.client.close();
+            } catch (closeError) {
+                console.error('Error closing connection:', closeError);
+            }
+        }
+
+        const completedAt = new Date().toISOString();
+
+        return {
+            success: false,
+            error: error.message,
+            networkId,
+            label: config ? config.label : networkId,
+            queriedAt,
+            completedAt,
+            count: 0,
+            records: [],
+        };
+    }
+}
+
+/**
  * Submit multiple transactions to multiple networks
  * Saves simulationData to blockchain blocks across all target networks
  */

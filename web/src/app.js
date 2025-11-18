@@ -10,7 +10,7 @@ import { randomUUID } from 'crypto';
 
 import { checkNetworkHealth, getAllBlocks, getAllCatatan, getBlocksWithSimulationData } from './network-check.js';
 import { loadFabricDescriptions } from './fabric-description.js';
-import { submitToNetworks } from './fabric-gateway.js';
+import { submitToNetworks, submitTransaction, queryRecordsFromNetwork } from './fabric-gateway.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -1577,6 +1577,307 @@ app.get('/api/simulations/blockchain-summary', async (req, res) => {
             fetchedAt,
             success: false,
             error: error instanceof Error ? error.message : String(error),
+        });
+    }
+});
+
+// ============================================================================
+// FABRIC-SPECIFIC API ENDPOINTS
+// ============================================================================
+// These endpoints allow direct interaction with specific fabric networks
+
+// Fabric 2 RAFT Standard - POST endpoint
+app.post('/api/fabric-2/raft-standard/pelaporan', async (req, res) => {
+    const submittedAt = new Date().toISOString();
+    const networkId = 'channel-standard';
+
+    try {
+        const record = req.body;
+
+        // Validate input
+        if (!record || typeof record !== 'object') {
+            return res.status(400).json({
+                submittedAt,
+                completedAt: new Date().toISOString(),
+                success: false,
+                error: 'Record data is required',
+            });
+        }
+
+        // Submit to specific network
+        const result = await submitTransaction(networkId, record);
+
+        const completedAt = new Date().toISOString();
+
+        res.json({
+            submittedAt,
+            completedAt,
+            success: result.success,
+            networkId,
+            label: 'Fabric 2 RAFT Standard',
+            result,
+        });
+    } catch (error) {
+        console.error('Error submitting to Fabric 2 RAFT Standard:', error);
+        res.status(500).json({
+            submittedAt,
+            completedAt: new Date().toISOString(),
+            success: false,
+            networkId,
+            error: error instanceof Error ? error.message : String(error),
+        });
+    }
+});
+
+// Fabric 2 RAFT Standard - GET endpoint
+app.get('/api/fabric-2/raft-standard/pelaporan', async (req, res) => {
+    const fetchedAt = new Date().toISOString();
+    const networkId = 'channel-standard';
+
+    try {
+        const result = await queryRecordsFromNetwork(networkId);
+
+        res.json({
+            fetchedAt,
+            completedAt: new Date().toISOString(),
+            success: result.success,
+            networkId,
+            label: 'Fabric 2 RAFT Standard',
+            count: result.count,
+            records: result.records,
+        });
+    } catch (error) {
+        console.error('Error querying from Fabric 2 RAFT Standard:', error);
+        res.status(500).json({
+            fetchedAt,
+            completedAt: new Date().toISOString(),
+            success: false,
+            networkId,
+            error: error instanceof Error ? error.message : String(error),
+            count: 0,
+            records: [],
+        });
+    }
+});
+
+// Fabric 2 RAFT Variant - POST endpoint
+app.post('/api/fabric-2/raft-variant/pelaporan', async (req, res) => {
+    const submittedAt = new Date().toISOString();
+    const networkId = 'channel-variant';
+
+    try {
+        const record = req.body;
+
+        // Validate input
+        if (!record || typeof record !== 'object') {
+            return res.status(400).json({
+                submittedAt,
+                completedAt: new Date().toISOString(),
+                success: false,
+                error: 'Record data is required',
+            });
+        }
+
+        // Submit to specific network
+        const result = await submitTransaction(networkId, record);
+
+        const completedAt = new Date().toISOString();
+
+        res.json({
+            submittedAt,
+            completedAt,
+            success: result.success,
+            networkId,
+            label: 'Fabric 2 RAFT Variant',
+            result,
+        });
+    } catch (error) {
+        console.error('Error submitting to Fabric 2 RAFT Variant:', error);
+        res.status(500).json({
+            submittedAt,
+            completedAt: new Date().toISOString(),
+            success: false,
+            networkId,
+            error: error instanceof Error ? error.message : String(error),
+        });
+    }
+});
+
+// Fabric 2 RAFT Variant - GET endpoint
+app.get('/api/fabric-2/raft-variant/pelaporan', async (req, res) => {
+    const fetchedAt = new Date().toISOString();
+    const networkId = 'channel-variant';
+
+    try {
+        const result = await queryRecordsFromNetwork(networkId);
+
+        res.json({
+            fetchedAt,
+            completedAt: new Date().toISOString(),
+            success: result.success,
+            networkId,
+            label: 'Fabric 2 RAFT Variant',
+            count: result.count,
+            records: result.records,
+        });
+    } catch (error) {
+        console.error('Error querying from Fabric 2 RAFT Variant:', error);
+        res.status(500).json({
+            fetchedAt,
+            completedAt: new Date().toISOString(),
+            success: false,
+            networkId,
+            error: error instanceof Error ? error.message : String(error),
+            count: 0,
+            records: [],
+        });
+    }
+});
+
+// Fabric 3 RAFT Standard - POST endpoint
+app.post('/api/fabric-3/raft-standard/pelaporan', async (req, res) => {
+    const submittedAt = new Date().toISOString();
+    const networkId = 'channel-fabric3-standard';
+
+    try {
+        const record = req.body;
+
+        // Validate input
+        if (!record || typeof record !== 'object') {
+            return res.status(400).json({
+                submittedAt,
+                completedAt: new Date().toISOString(),
+                success: false,
+                error: 'Record data is required',
+            });
+        }
+
+        // Submit to specific network
+        const result = await submitTransaction(networkId, record);
+
+        const completedAt = new Date().toISOString();
+
+        res.json({
+            submittedAt,
+            completedAt,
+            success: result.success,
+            networkId,
+            label: 'Fabric 3 RAFT Standard',
+            result,
+        });
+    } catch (error) {
+        console.error('Error submitting to Fabric 3 RAFT Standard:', error);
+        res.status(500).json({
+            submittedAt,
+            completedAt: new Date().toISOString(),
+            success: false,
+            networkId,
+            error: error instanceof Error ? error.message : String(error),
+        });
+    }
+});
+
+// Fabric 3 RAFT Standard - GET endpoint
+app.get('/api/fabric-3/raft-standard/pelaporan', async (req, res) => {
+    const fetchedAt = new Date().toISOString();
+    const networkId = 'channel-fabric3-standard';
+
+    try {
+        const result = await queryRecordsFromNetwork(networkId);
+
+        res.json({
+            fetchedAt,
+            completedAt: new Date().toISOString(),
+            success: result.success,
+            networkId,
+            label: 'Fabric 3 RAFT Standard',
+            count: result.count,
+            records: result.records,
+        });
+    } catch (error) {
+        console.error('Error querying from Fabric 3 RAFT Standard:', error);
+        res.status(500).json({
+            fetchedAt,
+            completedAt: new Date().toISOString(),
+            success: false,
+            networkId,
+            error: error instanceof Error ? error.message : String(error),
+            count: 0,
+            records: [],
+        });
+    }
+});
+
+// Fabric 3 RAFT Variant - POST endpoint
+app.post('/api/fabric-3/raft-variant/pelaporan', async (req, res) => {
+    const submittedAt = new Date().toISOString();
+    const networkId = 'channel-fabric3-variant';
+
+    try {
+        const record = req.body;
+
+        // Validate input
+        if (!record || typeof record !== 'object') {
+            return res.status(400).json({
+                submittedAt,
+                completedAt: new Date().toISOString(),
+                success: false,
+                error: 'Record data is required',
+            });
+        }
+
+        // Submit to specific network
+        const result = await submitTransaction(networkId, record);
+
+        const completedAt = new Date().toISOString();
+
+        res.json({
+            submittedAt,
+            completedAt,
+            success: result.success,
+            networkId,
+            label: 'Fabric 3 RAFT Variant',
+            result,
+        });
+    } catch (error) {
+        console.error('Error submitting to Fabric 3 RAFT Variant:', error);
+        res.status(500).json({
+            submittedAt,
+            completedAt: new Date().toISOString(),
+            success: false,
+            networkId,
+            error: error instanceof Error ? error.message : String(error),
+        });
+    }
+});
+
+// Fabric 3 RAFT Variant - GET endpoint
+app.get('/api/fabric-3/raft-variant/pelaporan', async (req, res) => {
+    const fetchedAt = new Date().toISOString();
+    const networkId = 'channel-fabric3-variant';
+
+    try {
+        const result = await queryRecordsFromNetwork(networkId);
+
+        res.json({
+            fetchedAt,
+            completedAt: new Date().toISOString(),
+            success: result.success,
+            networkId,
+            label: 'Fabric 3 RAFT Variant',
+            count: result.count,
+            records: result.records,
+        });
+    } catch (error) {
+        console.error('Error querying from Fabric 3 RAFT Variant:', error);
+        res.status(500).json({
+            fetchedAt,
+            completedAt: new Date().toISOString(),
+            success: false,
+            networkId,
+            error: error instanceof Error ? error.message : String(error),
+            count: 0,
+            records: [],
         });
     }
 });

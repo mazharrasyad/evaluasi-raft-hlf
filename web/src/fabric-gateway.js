@@ -99,6 +99,12 @@ async function createGrpcClient(config) {
 
     return new grpc.Client(peerEndpoint, tlsCredentials, {
         'grpc.ssl_target_name_override': peerHostAlias,
+        'grpc.keepalive_time_ms': 120000,
+        'grpc.keepalive_timeout_ms': 20000,
+        'grpc.keepalive_permit_without_calls': true,
+        'grpc.http2.max_pings_without_data': 0,
+        'grpc.http2.min_time_between_pings_ms': 10000,
+        'grpc.http2.min_ping_interval_without_data_ms': 300000
     });
 }
 
@@ -209,6 +215,9 @@ export async function connectToGateway(networkId) {
             identity,
             signer,
             hash: hash.sha256,
+            evaluateOptions: () => ({ deadline: Date.now() + 5000 }),
+            endorseOptions: () => ({ deadline: Date.now() + 15000 }),
+            submitOptions: () => ({ deadline: Date.now() + 30000 }),
         });
 
         return {

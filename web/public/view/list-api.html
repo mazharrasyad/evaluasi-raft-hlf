@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>List API &mdash; Evaluasi RAFT HLF</title>
+    <title>Evaluasi RAFT HLF — List API</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -30,11 +30,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="icon" type="image/svg+xml" href="/images/logo-ai-center.svg">
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #050B16;
-            color: #E2E8F0;
-        }
+        body { font-family: 'Inter', sans-serif; }
 
         .method-badge {
             display: inline-block;
@@ -161,29 +157,33 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        .component-link[data-active="true"] {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.28), rgba(56, 189, 248, 0.22));
+            color: #E2E8F0;
+            border-color: rgba(249, 115, 22, 0.45);
+            box-shadow: 0 12px 40px rgba(15, 23, 42, 0.45);
+        }
+
+        .component-link[data-active="true"] .component-link__index {
+            background-color: rgba(249, 115, 22, 0.35);
+            color: #E2E8F0;
+        }
     </style>
 </head>
-<body class="bg-soft min-h-screen">
-    <!-- Header -->
-    <header class="bg-surface border-b border-border sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-4">
-                    <img src="/images/logo-ai-center.svg" alt="Logo" class="h-10 w-10">
-                    <div>
-                        <h1 class="text-2xl font-bold text-textdark">List API</h1>
-                        <p class="text-sm text-muted">Dokumentasi Lengkap API Endpoints</p>
-                    </div>
-                </div>
-                <a href="/" class="text-primary hover:text-primary/80 transition-colors text-sm font-medium">
-                    ← Kembali ke Home
-                </a>
-            </div>
+<body class="bg-soft text-textdark">
+    <div data-component="header"></div>
+    <div class="relative min-h-screen overflow-hidden">
+        <div class="absolute inset-0 -z-10 h-full w-full">
+            <div class="absolute -left-1/3 top-0 h-[720px] w-[720px] rounded-full bg-gradient-to-br from-highlight/30 via-secondary/20 to-transparent opacity-70 blur-3xl"></div>
+            <div class="absolute -right-1/4 bottom-0 h-[620px] w-[620px] rounded-full bg-gradient-to-tr from-accent/35 via-secondary/25 to-primary/20 opacity-70 blur-3xl"></div>
         </div>
-    </header>
 
-    <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex min-h-screen flex-col lg:flex-row">
+            <div data-component="sidebar"></div>
+
+            <div class="flex-1">
+                <main class="mx-auto w-full max-w-5xl px-6 py-12">
         <!-- Stats Section -->
         <div id="statsSection" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
             <!-- Stats will be loaded here -->
@@ -236,19 +236,16 @@
             <div class="text-muted text-5xl mb-4">🔍</div>
             <p class="text-muted text-lg">Tidak ada API yang cocok dengan pencarian Anda</p>
         </div>
-    </main>
+                </main>
 
-    <!-- Footer -->
-    <footer class="bg-surface border-t border-border mt-16">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <div class="text-center text-sm text-muted">
-                <p>&copy; 2024 Evaluasi RAFT Hyperledger Fabric. All rights reserved.</p>
-                <p class="mt-2">AI Research Center - Universitas Hasanuddin</p>
+                <div data-component="footer"></div>
             </div>
         </div>
-    </footer>
+    </div>
 
     <!-- JavaScript -->
     <script src="/js/list-api.js"></script>
+    <script src="/js/layout.js" defer></script>
+    <script src="/js/navigation.js" defer></script>
 </body>
 </html>

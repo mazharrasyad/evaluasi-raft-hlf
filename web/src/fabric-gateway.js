@@ -379,14 +379,18 @@ export async function queryAllTransactionsFromBlocks(networkId) {
         const allTransactions = [];
         let blockNumber = 0;
         let hasMoreBlocks = true;
+        let totalEnvelopes = 0;
+        let totalEndorserTransactions = 0;
 
         // Read blocks sequentially
         while (hasMoreBlocks) {
             try {
                 const block = await network.getBlockByNumber(BigInt(blockNumber));
+                console.log(`   📦 Block ${blockNumber}: ${block.envelopes.length} envelopes`);
 
                 // Process each envelope (transaction) in the block
                 for (const envelope of block.envelopes) {
+                    totalEnvelopes++;
                     try {
                         // Get transaction ID and timestamp
                         const txId = envelope.transactionId;
@@ -397,9 +401,12 @@ export async function queryAllTransactionsFromBlocks(networkId) {
                             continue;
                         }
 
+                        totalEndorserTransactions++;
+
                         // Get chaincode actions
                         const transaction = envelope.transactionPayload;
                         if (!transaction || !transaction.actions) {
+                            console.log(`      ⚠️  No actions in transaction ${txId}`);
                             continue;
                         }
 
@@ -415,6 +422,7 @@ export async function queryAllTransactionsFromBlocks(networkId) {
 
                                 // Decode function name
                                 const functionName = new TextDecoder().decode(chaincodeInput.args[0]);
+                                console.log(`      🔧 Function: ${functionName} (${chaincodeInput.args.length} args)`);
 
                                 // Only process our chaincode functions
                                 if (functionName === 'CreateCatatan' || functionName === 'UpdateCatatan' || functionName === 'CreateOrUpdateCatatan') {
@@ -443,10 +451,13 @@ export async function queryAllTransactionsFromBlocks(networkId) {
                                             };
 
                                             allTransactions.push(transactionRecord);
+                                            console.log(`      ✅ Found record: ${recordId}`);
                                         } catch (parseError) {
-                                            console.error(`   Failed to parse record data in block ${blockNumber}:`, parseError.message);
+                                            console.error(`      ❌ Failed to parse record data in block ${blockNumber}:`, parseError.message);
                                         }
                                     }
+                                } else {
+                                    console.log(`      ⏭️  Skipping function: ${functionName}`);
                                 }
                             } catch (actionError) {
                                 console.error(`   Error processing action in block ${blockNumber}:`, actionError.message);
@@ -466,7 +477,11 @@ export async function queryAllTransactionsFromBlocks(networkId) {
 
         const completedAt = new Date().toISOString();
 
-        console.log(`✅ [${config.label}] Successfully retrieved ${allTransactions.length} transactions from ${blockNumber} blocks!`);
+        console.log(`\n✅ [${config.label}] Successfully retrieved ${allTransactions.length} transactions from ${blockNumber} blocks!`);
+        console.log(`   Total blocks read: ${blockNumber}`);
+        console.log(`   Total envelopes: ${totalEnvelopes}`);
+        console.log(`   Total endorser transactions: ${totalEndorserTransactions}`);
+        console.log(`   Records found: ${allTransactions.length}`);
         console.log(`   Completed at: ${completedAt}`);
 
         // Close connection

@@ -1104,6 +1104,210 @@ async function getAllBlocks() {
     return results;
 }
 
+// NEW SIMPLIFIED API: Get blocks with matched simulation data
+async function getBlocksWithSimulationData() {
+    const results = [];
+
+    for (const config of networkConfigurations) {
+        const { targetId, label, networkDir, channelName, peerEndpoint, domain, peerHostAlias: configuredPeerHostAlias, orgName = 'org1', peerName = 'peer0' } = config;
+
+        const effectivePeerEndpoint = peerEndpoint || 'localhost:7051';
+        const effectiveDomain = domain ?? 'standard.com';
+        const orgDomain = `${orgName}.${effectiveDomain}`;
+        const mspUser = `User1@${orgDomain}`;
+        const peerHostAlias = configuredPeerHostAlias ?? `${peerName}.${orgDomain}`;
+        const timestamp = new Date().toISOString();
+
+        const baseResult = {
+            targetId,
+            label,
+            networkDir,
+            channel: channelName,
+            peer: effectivePeerEndpoint,
+            timestamp,
+            blocks: []
+        };
+
+        if (!existsSync(networkDir)) {
+            results.push({
+                ...baseResult,
+                status: 'not_found',
+                message: 'Direktori jaringan tidak ditemukan.'
+            });
+            continue;
+        }
+
+        const cryptoPath = path.resolve(networkDir, `organizations/peerOrganizations/${orgDomain}`);
+        const userPath = path.resolve(cryptoPath, `users/${mspUser}/msp`);
+        const keyDirPath = path.resolve(userPath, 'keystore');
+        const certDirPath = path.resolve(userPath, 'signcerts');
+        const tlsCertPath = path.resolve(cryptoPath, `peers/${peerHostAlias}/tls/ca.crt`);
+
+        const requiredPaths = [cryptoPath, userPath, keyDirPath, certDirPath, tlsCertPath];
+        const missing = requiredPaths.filter(p => !existsSync(p));
+        if (missing.length) {
+            results.push({
+                ...baseResult,
+                status: 'incomplete',
+                message: 'Material kriptografi tidak lengkap.'
+            });
+            continue;
+        }
+
+        async function newGrpcConnection() {
+            const tlsRootCert = await fs.readFile(tlsCertPath);
+            const tlsCredentials = grpc.credentials.createSsl(tlsRootCert);
+            return new grpc.Client(effectivePeerEndpoint, tlsCredentials, {
+                'grpc.ssl_target_name_override': peerHostAlias,
+                'grpc.keepalive_time_ms': 120000,
+                'grpc.keepalive_timeout_ms': 20000,
+                'grpc.keepalive_permit_without_calls': true,
+                'grpc.http2.max_pings_without_data': 0,
+                'grpc.http2.min_time_between_pings_ms': 10000,
+                'grpc.http2.min_ping_interval_without_data_ms': 300000
+            });
+        }
+
+        async function newIdentity() {
+            const certFile = await readFirstVisibleFile(certDirPath);
+            const credentials = await fs.readFile(certFile);
+            return { mspId, credentials };
+        }
+
+        async function newSigner() {
+            const keyFile = await readFirstVisibleFile(keyDirPath);
+            const privateKeyPem = await fs.readFile(keyFile);
+            const privateKey = crypto.createPrivateKey(privateKeyPem);
+            return signers.newPrivateKeySigner(privateKey);
+        }
+
+        let client;
+        let gateway;
+
+        try {
+            client = await newGrpcConnection();
+            gateway = connect({
+                client,
+                identity: await newIdentity(),
+                signer: await newSigner(),
+                hash: hash.sha256,
+            });
+
+            const network = gateway.getNetwork(channelName);
+            const qscc = network.getContract('qscc');
+            const contract = network.getContract(chaincodeName);
+
+            console.log(`\n🔍 [${label}] Fetching blockchain data...`);
+
+            // Step 1: Get all records from ledger
+            let allRecords = [];
+            try {
+                const resultBytes = await contract.evaluateTransaction('GetAllCatatan');
+                const resultString = resultBytes.toString('utf8');
+                let cleanString = resultString.trim();
+                const jsonStartIndex = cleanString.indexOf('[');
+                if (jsonStartIndex > 0) {
+                    cleanString = cleanString.substring(jsonStartIndex);
+                }
+                allRecords = JSON.parse(cleanString);
+                console.log(`   ✅ Found ${allRecords.length} records in ledger`);
+            } catch (error) {
+                console.warn(`   ⚠️  Could not fetch records: ${error.message}`);
+            }
+
+            // Step 2: Get blockchain info
+            const chainInfoBytes = await qscc.evaluateTransaction('GetChainInfo', channelName);
+            const chainInfo = decodeBlockchainInfo(chainInfoBytes);
+
+            let blockHeight = 0;
+            if (chainInfo.height !== null && chainInfo.height !== undefined) {
+                const heightBigInt = chainInfo.height;
+                if (typeof heightBigInt === 'bigint') {
+                    blockHeight = Number(heightBigInt);
+                } else if (typeof heightBigInt === 'number') {
+                    blockHeight = heightBigInt;
+                }
+            }
+            console.log(`   📊 Block height: ${blockHeight}`);
+
+            // Step 3: For each record, get its transaction to find block number
+            const recordToBlockMap = new Map(); // txId -> {record, blockNumber}
+
+            for (const record of allRecords) {
+                const txId = record.blockchainMetadata?.transactionId ||
+                            record.blockchainMetadata?.lastUpdateTransactionId;
+
+                if (txId) {
+                    try {
+                        // Query transaction by ID to get block number
+                        const txBytes = await qscc.evaluateTransaction('GetBlockByTxID', channelName, txId);
+                        const txBlock = decodeBlock(txBytes);
+                        const blockNum = typeof txBlock.header.number === 'bigint'
+                            ? Number(txBlock.header.number)
+                            : txBlock.header.number;
+
+                        recordToBlockMap.set(blockNum, record);
+                        console.log(`   🔗 Record ${record.reportId || record.id} -> Block ${blockNum}`);
+                    } catch (error) {
+                        console.debug(`   ⚠️  Could not get block for txId ${txId.substring(0, 16)}...`);
+                    }
+                }
+            }
+
+            // Step 4: Fetch all blocks and match with records
+            const blocks = [];
+            for (let i = 0; i < blockHeight; i++) {
+                try {
+                    const blockBytes = await qscc.evaluateTransaction('GetBlockByNumber', channelName, i.toString());
+                    const blockData = decodeBlock(blockBytes);
+
+                    // Check if this block has a matching record
+                    const simulationData = recordToBlockMap.get(i) || null;
+
+                    blocks.push({
+                        blockNumber: typeof blockData.header.number === 'bigint'
+                            ? Number(blockData.header.number)
+                            : blockData.header.number,
+                        previousHash: blockData.header.previousHash || '',
+                        dataHash: blockData.header.dataHash || '',
+                        transactionCount: blockData.data.transactionCount || 0,
+                        timestamp: new Date().toISOString(),
+                        simulationData: simulationData
+                    });
+                } catch (error) {
+                    console.warn(`   ❌ Failed to fetch block ${i}: ${error.message}`);
+                }
+            }
+
+            console.log(`   ✅ Fetched ${blocks.length} blocks with simulation data matched\n`);
+
+            results.push({
+                ...baseResult,
+                status: 'healthy',
+                blockHeight,
+                blocks
+            });
+
+        } catch (error) {
+            console.error(`   ❌ Error for ${label}:`, error.message);
+            results.push({
+                ...baseResult,
+                status: 'unhealthy',
+                message: error instanceof Error ? error.message : 'Terjadi kesalahan saat mengakses blockchain.'
+            });
+        } finally {
+            if (gateway) {
+                gateway.close();
+            }
+            if (client) {
+                client.close();
+            }
+        }
+    }
+
+    return results;
+}
+
 async function getAllCatatanFromNetwork({ targetId, label, networkDir, channelName, peerEndpoint, domain, peerHostAlias: configuredPeerHostAlias, orgName = 'org1', peerName = 'peer0' }) {
     const effectivePeerEndpoint = peerEndpoint || 'localhost:7051';
     const effectiveDomain = domain ?? 'standard.com';
@@ -1251,4 +1455,4 @@ async function checkNetworkHealth() {
     return results;
 }
 
-export { checkNetworkHealth, getAllBlocks, getAllCatatan };
+export { checkNetworkHealth, getAllBlocks, getAllCatatan, getBlocksWithSimulationData };

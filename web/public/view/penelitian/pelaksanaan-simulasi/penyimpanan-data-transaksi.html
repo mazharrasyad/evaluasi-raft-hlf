@@ -85,6 +85,57 @@
         .table-container::-webkit-scrollbar-thumb:hover {
             background: #0EA5E9;
         }
+
+        .json-container {
+            background: #020817;
+            border-radius: 8px;
+            padding: 1rem;
+            overflow-x: auto;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .json-container::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        .json-container::-webkit-scrollbar-track {
+            background: #1E293B;
+        }
+
+        .json-container::-webkit-scrollbar-thumb {
+            background: #38BDF8;
+            border-radius: 3px;
+        }
+
+        .json-key {
+            color: #38BDF8;
+        }
+
+        .json-string {
+            color: #10B981;
+        }
+
+        .json-number {
+            color: #F59E0B;
+        }
+
+        .json-boolean {
+            color: #8B5CF6;
+        }
+
+        .json-null {
+            color: #94A3B8;
+        }
+
+        .api-card {
+            transition: all 0.2s ease;
+        }
+
+        .api-card:hover {
+            transform: translateX(4px);
+        }
     </style>
 </head>
 <body class="bg-soft text-textdark">
@@ -113,6 +164,28 @@
                                         Halaman ini menampilkan data transaksi yang telah disimpan ke masing-masing fabric network. Anda dapat melihat detail record yang tersimpan di blockchain, termasuk metadata network, channel, dan informasi transaksi lainnya.
                                     </p>
                                 </div>
+                            </div>
+                        </section>
+
+                        <!-- API Monitor Section -->
+                        <section class="rounded-2xl border border-white/10 bg-surface/50 p-6 shadow-xl backdrop-blur-sm">
+                            <div class="flex items-center justify-between mb-6">
+                                <div class="space-y-1">
+                                    <h2 class="text-lg font-semibold text-textdark">API Monitor & Response</h2>
+                                    <p class="text-sm text-muted">Daftar API endpoints dan response dari masing-masing network</p>
+                                </div>
+                                <button
+                                    id="toggleApiMonitor"
+                                    class="inline-flex items-center gap-2 rounded-lg border border-accent/30 bg-accent/10 px-4 py-2 text-sm font-medium text-accent transition-all hover:bg-accent/20 hover:border-accent/50">
+                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                                    </svg>
+                                    Toggle API Details
+                                </button>
+                            </div>
+
+                            <div id="apiMonitorContainer" class="space-y-4">
+                                <!-- API cards will be inserted here -->
                             </div>
                         </section>
 
@@ -172,29 +245,222 @@
         ];
 
         let networksData = [];
+        let apiCallsData = [];
+
+        function syntaxHighlightJSON(json) {
+            if (typeof json !== 'string') {
+                json = JSON.stringify(json, null, 2);
+            }
+            json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+                let cls = 'json-number';
+                if (/^"/.test(match)) {
+                    if (/:$/.test(match)) {
+                        cls = 'json-key';
+                    } else {
+                        cls = 'json-string';
+                    }
+                } else if (/true|false/.test(match)) {
+                    cls = 'json-boolean';
+                } else if (/null/.test(match)) {
+                    cls = 'json-null';
+                }
+                return '<span class="' + cls + '">' + match + '</span>';
+            });
+        }
+
+        function renderApiMonitor() {
+            const container = document.getElementById('apiMonitorContainer');
+            container.innerHTML = '';
+
+            if (apiCallsData.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8 text-muted">
+                        <p>Belum ada API call yang dilakukan</p>
+                    </div>
+                `;
+                return;
+            }
+
+            apiCallsData.forEach((apiCall, index) => {
+                const card = document.createElement('div');
+                card.className = 'api-card rounded-lg border border-white/10 bg-soft/50 overflow-hidden';
+
+                const statusColor = apiCall.status === 200 ? 'green' :
+                                  apiCall.status === 'Error' ? 'red' : 'yellow';
+                const statusText = apiCall.status === 200 ? 'Success' :
+                                 apiCall.status === 'Error' ? 'Failed' : apiCall.status;
+
+                card.innerHTML = `
+                    <div class="flex items-center justify-between p-4 border-b border-white/10">
+                        <div class="flex items-center gap-3">
+                            <span class="inline-flex items-center gap-1.5 rounded-md bg-${statusColor}-500/20 px-2 py-1 text-xs font-medium text-${statusColor}-400">
+                                <span class="h-1.5 w-1.5 rounded-full bg-${statusColor}-400"></span>
+                                ${statusText}
+                            </span>
+                            <span class="text-sm font-semibold text-textdark">${apiCall.network}</span>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <span class="text-xs text-muted">${apiCall.responseTime}ms</span>
+                            <button
+                                onclick="toggleApiDetails('api-${index}')"
+                                class="text-xs text-primary hover:text-primary/80 transition-colors">
+                                Toggle Details
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="api-${index}" class="hidden">
+                        <!-- Request Section -->
+                        <div class="p-4 border-b border-white/10">
+                            <h4 class="text-xs font-semibold text-accent mb-3 flex items-center gap-2">
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                REQUEST
+                            </h4>
+                            <div class="space-y-2 text-xs">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-muted">Method:</span>
+                                    <span class="inline-flex items-center rounded bg-blue-500/20 px-2 py-0.5 font-mono font-semibold text-blue-400">${apiCall.method}</span>
+                                </div>
+                                <div class="flex items-start gap-2">
+                                    <span class="text-muted shrink-0">URL:</span>
+                                    <code class="font-mono text-primary break-all">${apiCall.url}</code>
+                                </div>
+                                <div class="flex items-start gap-2">
+                                    <span class="text-muted shrink-0">Time:</span>
+                                    <span class="font-mono text-textdark">${new Date(apiCall.timestamp).toLocaleString('id-ID')}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Response Section -->
+                        <div class="p-4">
+                            <h4 class="text-xs font-semibold text-primary mb-3 flex items-center gap-2">
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 15l-3-3m0 0l3-3m-3 3h8M3 12a9 9 0 1118 0 9 9 0 01-18 0z"></path>
+                                </svg>
+                                RESPONSE
+                            </h4>
+                            ${apiCall.error ? `
+                                <div class="rounded-lg border border-red-500/20 bg-red-500/10 p-3">
+                                    <p class="text-xs text-red-400 font-mono">${apiCall.error}</p>
+                                </div>
+                            ` : `
+                                <div class="space-y-3">
+                                    <div class="flex items-center gap-4 text-xs">
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-muted">Status:</span>
+                                            <span class="inline-flex items-center rounded bg-green-500/20 px-2 py-0.5 font-mono font-semibold text-green-400">${apiCall.status}</span>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-muted">Response Time:</span>
+                                            <span class="font-mono text-textdark">${apiCall.responseTime}ms</span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="flex items-center justify-between mb-2">
+                                            <span class="text-xs text-muted">Response Body:</span>
+                                            <button
+                                                onclick="copyToClipboard('${index}')"
+                                                class="text-xs text-primary hover:text-primary/80 transition-colors">
+                                                Copy JSON
+                                            </button>
+                                        </div>
+                                        <div class="json-container">
+                                            <pre class="text-xs font-mono leading-relaxed" id="json-${index}">${syntaxHighlightJSON(apiCall.response)}</pre>
+                                        </div>
+                                    </div>
+                                </div>
+                            `}
+                        </div>
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+        }
+
+        window.toggleApiDetails = function(id) {
+            const element = document.getElementById(id);
+            if (element) {
+                element.classList.toggle('hidden');
+            }
+        };
+
+        window.copyToClipboard = function(index) {
+            const apiCall = apiCallsData[index];
+            const jsonString = JSON.stringify(apiCall.response, null, 2);
+            navigator.clipboard.writeText(jsonString).then(() => {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Copied!',
+                    text: 'JSON response copied to clipboard',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+            });
+        };
 
         async function fetchNetworkData(network) {
+            const startTime = performance.now();
+            const apiCall = {
+                network: network.label,
+                method: 'GET',
+                url: network.endpoint,
+                timestamp: new Date().toISOString(),
+                status: null,
+                responseTime: null,
+                request: {
+                    method: 'GET',
+                    url: network.endpoint,
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                },
+                response: null,
+                error: null
+            };
+
             try {
                 const response = await fetch(network.endpoint);
+                const endTime = performance.now();
+                apiCall.responseTime = Math.round(endTime - startTime);
+                apiCall.status = response.status;
+
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
+
                 const data = await response.json();
+                apiCall.response = data;
+
+                apiCallsData.push(apiCall);
+
                 return {
                     ...network,
                     success: data.success,
                     count: data.count || 0,
                     records: data.records || [],
-                    error: data.error
+                    error: data.error,
+                    apiCall
                 };
             } catch (error) {
+                const endTime = performance.now();
+                apiCall.responseTime = Math.round(endTime - startTime);
+                apiCall.error = error.message;
+                apiCall.status = 'Error';
+                apiCallsData.push(apiCall);
+
                 console.error(`Error fetching ${network.label}:`, error);
                 return {
                     ...network,
                     success: false,
                     count: 0,
                     records: [],
-                    error: error.message
+                    error: error.message,
+                    apiCall
                 };
             }
         }
@@ -209,12 +475,18 @@
             networksGrid.innerHTML = '';
             emptyState.classList.add('hidden');
 
+            // Reset API calls data
+            apiCallsData = [];
+
             // Fetch all networks in parallel
             const promises = NETWORKS.map(network => fetchNetworkData(network));
             networksData = await Promise.all(promises);
 
             // Hide loading
             loadingState.classList.add('hidden');
+
+            // Render API monitor
+            renderApiMonitor();
 
             // Check if any network has data
             const hasData = networksData.some(n => n.count > 0);
@@ -351,6 +623,22 @@
         };
 
         // Event listeners
+        document.getElementById('toggleApiMonitor').addEventListener('click', () => {
+            const container = document.getElementById('apiMonitorContainer');
+            if (container.children.length > 0) {
+                const allApiDetails = container.querySelectorAll('[id^="api-"]');
+                const anyVisible = Array.from(allApiDetails).some(el => !el.classList.contains('hidden'));
+
+                allApiDetails.forEach(el => {
+                    if (anyVisible) {
+                        el.classList.add('hidden');
+                    } else {
+                        el.classList.remove('hidden');
+                    }
+                });
+            }
+        });
+
         document.getElementById('refreshBtn').addEventListener('click', async () => {
             Swal.fire({
                 title: 'Memuat ulang data...',

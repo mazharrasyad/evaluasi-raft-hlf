@@ -800,6 +800,103 @@ function extractSimulationData(transactionBytes, debugInfo = '') {
     }
 }
 
+// Decode transaction ID from transaction envelope
+function extractTransactionId(bytes) {
+    try {
+        const buffer = Buffer.from(bytes);
+        let offset = 0;
+
+        // Get payload from envelope (field 1)
+        while (offset < buffer.length) {
+            const key = buffer[offset++];
+            if (typeof key === 'undefined') break;
+
+            const fieldNumber = key >> 3;
+            const wireType = key & 0x07;
+
+            if (fieldNumber === 1 && wireType === 2) {
+                const { value: lengthValue, offset: lengthOffset } = readVarint(buffer, offset);
+                const length = Number(lengthValue);
+                offset = lengthOffset;
+                const sliceEnd = Math.min(buffer.length, offset + length);
+                const payloadBytes = buffer.slice(offset, sliceEnd);
+
+                // Now decode payload to get header
+                let payloadOffset = 0;
+                while (payloadOffset < payloadBytes.length) {
+                    const payloadKey = payloadBytes[payloadOffset++];
+                    if (typeof payloadKey === 'undefined') break;
+
+                    const payloadFieldNumber = payloadKey >> 3;
+                    const payloadWireType = payloadKey & 0x07;
+
+                    // Field 1 in Payload is Header (which contains channel_header)
+                    if (payloadFieldNumber === 1 && payloadWireType === 2) {
+                        const { value: headerLengthValue, offset: headerLengthOffset } = readVarint(payloadBytes, payloadOffset);
+                        const headerLength = Number(headerLengthValue);
+                        payloadOffset = headerLengthOffset;
+                        const headerSliceEnd = Math.min(payloadBytes.length, payloadOffset + headerLength);
+                        const headerBytes = payloadBytes.slice(payloadOffset, headerSliceEnd);
+
+                        // Decode header to get channel_header
+                        let headerOffset = 0;
+                        while (headerOffset < headerBytes.length) {
+                            const headerKey = headerBytes[headerOffset++];
+                            if (typeof headerKey === 'undefined') break;
+
+                            const headerFieldNumber = headerKey >> 3;
+                            const headerWireType = headerKey & 0x07;
+
+                            // Field 1 in Header is channel_header
+                            if (headerFieldNumber === 1 && headerWireType === 2) {
+                                const { value: chLengthValue, offset: chLengthOffset } = readVarint(headerBytes, headerOffset);
+                                const chLength = Number(chLengthValue);
+                                headerOffset = chLengthOffset;
+                                const chSliceEnd = Math.min(headerBytes.length, headerOffset + chLength);
+                                const channelHeaderBytes = headerBytes.slice(headerOffset, chSliceEnd);
+
+                                // Field 4 in ChannelHeader is tx_id
+                                let chOffset = 0;
+                                while (chOffset < channelHeaderBytes.length) {
+                                    const chKey = channelHeaderBytes[chOffset++];
+                                    if (typeof chKey === 'undefined') break;
+
+                                    const chFieldNumber = chKey >> 3;
+                                    const chWireType = chKey & 0x07;
+
+                                    if (chFieldNumber === 4 && chWireType === 2) {
+                                        const { value: txIdLengthValue, offset: txIdLengthOffset } = readVarint(channelHeaderBytes, chOffset);
+                                        const txIdLength = Number(txIdLengthValue);
+                                        chOffset = txIdLengthOffset;
+                                        const txIdSliceEnd = Math.min(channelHeaderBytes.length, chOffset + txIdLength);
+                                        const txId = channelHeaderBytes.slice(chOffset, txIdSliceEnd).toString('utf8');
+                                        return txId;
+                                    }
+
+                                    chOffset = skipUnknownField(channelHeaderBytes, chOffset, chWireType);
+                                }
+                            }
+
+                            headerOffset = skipUnknownField(headerBytes, headerOffset, headerWireType);
+                        }
+                    }
+
+                    payloadOffset = skipUnknownField(payloadBytes, payloadOffset, payloadWireType);
+                }
+
+                break;
+            }
+
+            offset = skipUnknownField(buffer, offset, wireType);
+        }
+
+        return null;
+    } catch (error) {
+        console.debug(`Failed to extract transaction ID:`, error.message);
+        return null;
+    }
+}
+
 async function getAllBlocksFromNetwork({ targetId, label, networkDir, channelName, peerEndpoint, domain, peerHostAlias: configuredPeerHostAlias, orgName = 'org1', peerName = 'peer0' }) {
     const effectivePeerEndpoint = peerEndpoint || 'localhost:7051';
     const effectiveDomain = domain ?? 'standard.com';
@@ -882,6 +979,7 @@ async function getAllBlocksFromNetwork({ targetId, label, networkDir, channelNam
 
         const network = gateway.getNetwork(channelName);
         const qscc = network.getContract('qscc');
+        const contract = network.getContract(chaincodeName);
 
         // Get blockchain info first
         const chainInfoBytes = await qscc.evaluateTransaction('GetChainInfo', channelName);
@@ -897,6 +995,35 @@ async function getAllBlocksFromNetwork({ targetId, label, networkDir, channelNam
             }
         }
 
+        // Get all catatan records to match with blocks by transactionId
+        console.log(`\n🔍 Fetching all records from ${label} to match with blocks...`);
+        let allRecords = [];
+        try {
+            const resultBytes = await contract.evaluateTransaction('GetAllCatatan');
+            const resultString = resultBytes.toString('utf8');
+            let cleanString = resultString.trim();
+            const jsonStartIndex = cleanString.indexOf('[');
+            if (jsonStartIndex > 0) {
+                cleanString = cleanString.substring(jsonStartIndex);
+            }
+            allRecords = JSON.parse(cleanString);
+            console.log(`   ✅ Found ${allRecords.length} records in ledger`);
+        } catch (error) {
+            console.warn(`   ⚠️  Could not fetch records: ${error.message}`);
+        }
+
+        // Create a map of transactionId -> record for quick lookup
+        const recordsByTxId = new Map();
+        for (const record of allRecords) {
+            // Check both possible locations for transaction ID
+            const txId = record.blockchainMetadata?.transactionId ||
+                        record.blockchainMetadata?.lastUpdateTransactionId;
+            if (txId) {
+                recordsByTxId.set(txId, record);
+            }
+        }
+        console.log(`   📋 Created lookup map with ${recordsByTxId.size} transaction IDs\n`);
+
         // Fetch all blocks
         const blocks = [];
         for (let i = 0; i < blockHeight; i++) {
@@ -904,25 +1031,31 @@ async function getAllBlocksFromNetwork({ targetId, label, networkDir, channelNam
                 const blockBytes = await qscc.evaluateTransaction('GetBlockByNumber', channelName, i.toString());
                 const blockData = decodeBlock(blockBytes);
 
-                // Extract simulation data from transactions
+                // Extract transaction IDs from this block and find matching record
                 let simulationData = null;
-                if (blockData.data.transactions && blockData.data.transactions.length > 0) {
-                    // Try to extract data from all transactions (try newest first, then older ones)
-                    for (let txIdx = blockData.data.transactions.length - 1; txIdx >= 0; txIdx--) {
-                        const tx = blockData.data.transactions[txIdx];
-                        const debugInfo = `[Block ${i}, Tx ${txIdx}/${blockData.data.transactions.length - 1}]`;
-                        const extracted = extractSimulationData(tx, debugInfo);
+                const blockTxIds = [];
 
-                        if (extracted && extracted.reportId) {
-                            // Found valid simulation data with reportId
-                            simulationData = extracted;
-                            console.log(`${debugInfo} Successfully extracted simulation data with reportId: ${extracted.reportId}`);
-                            break;
+                if (blockData.data.transactions && blockData.data.transactions.length > 0) {
+                    // Extract transaction IDs from all transactions in this block
+                    for (let txIdx = 0; txIdx < blockData.data.transactions.length; txIdx++) {
+                        const tx = blockData.data.transactions[txIdx];
+                        const txId = extractTransactionId(tx);
+                        if (txId) {
+                            blockTxIds.push(txId);
+
+                            // Try to find matching record
+                            const matchingRecord = recordsByTxId.get(txId);
+                            if (matchingRecord && matchingRecord.reportId) {
+                                // Found a matching record with reportId - use this as simulationData
+                                simulationData = matchingRecord;
+                                console.log(`✅ Block ${i}: Matched with record ${matchingRecord.reportId} (txId: ${txId.substring(0, 16)}...)`);
+                                break;
+                            }
                         }
                     }
 
-                    if (!simulationData) {
-                        console.debug(`[Block ${i}] No valid simulation data found in ${blockData.data.transactions.length} transaction(s)`);
+                    if (!simulationData && blockTxIds.length > 0) {
+                        console.debug(`   Block ${i}: No matching simulation data for ${blockTxIds.length} transaction(s)`);
                     }
                 }
 
@@ -932,7 +1065,8 @@ async function getAllBlocksFromNetwork({ targetId, label, networkDir, channelNam
                     dataHash: blockData.header.dataHash || '',
                     transactionCount: blockData.data.transactionCount || 0,
                     timestamp: new Date().toISOString(), // This would ideally come from block metadata
-                    simulationData: simulationData // Add simulation data
+                    simulationData: simulationData, // Add matched simulation data from ledger
+                    transactionIds: blockTxIds // Also include transaction IDs for reference
                 });
             } catch (error) {
                 console.warn(`Failed to fetch block ${i} from ${label}:`, error);

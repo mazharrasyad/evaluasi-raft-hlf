@@ -95,7 +95,27 @@ componentLoaderReady.then(() => {
     let currentLoadType = null;
     let networkHealthStatus = {};
 
-    // Network ID to label mapping
+    // Network ID to label and endpoint mapping
+    const NETWORK_CONFIG = {
+        'channel-standard': {
+            label: 'Fabric 2 RAFT Standard',
+            endpoint: '/api/fabric-2/raft-standard/pelaporan'
+        },
+        'channel-variant': {
+            label: 'Fabric 2 RAFT Variant',
+            endpoint: '/api/fabric-2/raft-variant/pelaporan'
+        },
+        'channel-fabric3-standard': {
+            label: 'Fabric 3 RAFT Standard',
+            endpoint: '/api/fabric-3/raft-standard/pelaporan'
+        },
+        'channel-fabric3-variant': {
+            label: 'Fabric 3 RAFT Variant',
+            endpoint: '/api/fabric-3/raft-variant/pelaporan'
+        }
+    };
+
+    // Network ID to label mapping (for backward compatibility)
     const NETWORK_LABELS = {
         'channel-standard': 'Fabric 2 RAFT Standard',
         'channel-variant': 'Fabric 2 RAFT Variant',
@@ -292,34 +312,75 @@ componentLoaderReady.then(() => {
         return selected;
     }
 
-    // Submit record to blockchain
+    // Submit record to blockchain - sends to each network's pelaporan endpoint
     async function submitRecord(record, targetIds) {
-        const response = await fetch('/api/simulations/records', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify({
-                record: record,
-                targetIds: targetIds
-            })
-        });
+        const results = [];
 
-        if (!response.ok) {
-            let errorMessage = `Server error: ${response.status}`;
-            try {
-                const errorData = await response.json();
-                if (errorData.error) {
-                    errorMessage = errorData.error;
-                }
-            } catch (e) {
-                // Ignore
+        // Submit to each selected network's pelaporan endpoint
+        for (const networkId of targetIds) {
+            const networkConfig = NETWORK_CONFIG[networkId];
+
+            if (!networkConfig) {
+                results.push({
+                    networkId: networkId,
+                    label: NETWORK_LABELS[networkId] || networkId,
+                    success: false,
+                    error: 'Network configuration not found'
+                });
+                continue;
             }
-            throw new Error(errorMessage);
+
+            try {
+                const response = await fetch(networkConfig.endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(record)
+                });
+
+                if (!response.ok) {
+                    let errorMessage = `HTTP ${response.status}`;
+                    try {
+                        const errorData = await response.json();
+                        if (errorData.error) {
+                            errorMessage = errorData.error;
+                        }
+                    } catch (e) {
+                        // Ignore JSON parse error
+                    }
+
+                    results.push({
+                        networkId: networkId,
+                        label: networkConfig.label,
+                        success: false,
+                        error: errorMessage
+                    });
+                } else {
+                    const data = await response.json();
+                    results.push({
+                        networkId: networkId,
+                        label: networkConfig.label,
+                        success: true,
+                        data: data
+                    });
+                }
+            } catch (error) {
+                results.push({
+                    networkId: networkId,
+                    label: networkConfig.label,
+                    success: false,
+                    error: error.message
+                });
+            }
         }
 
-        return response.json();
+        return {
+            simulationData: record,
+            results: results,
+            completedAt: new Date().toISOString()
+        };
     }
 
     // Update progress

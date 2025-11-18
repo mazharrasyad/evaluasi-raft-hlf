@@ -349,6 +349,24 @@
                                 <span class="text-textdark/70">Status:</span>
                                 <span class="${statusColor} font-semibold">${success ? 'Success' : 'Failed'}</span>
                             </div>
+                            ${success ? `
+                                <div class="rounded-lg border border-green-500/30 bg-green-500/10 p-3 mb-3">
+                                    <div class="text-xs font-semibold text-green-400 mb-1">✓ Data tersimpan ke Blockchain</div>
+                                    <div class="text-xs text-green-300">Data berhasil disimpan melalui chaincode ke blockchain block</div>
+                                </div>
+                            ` : ''}
+                            ${data?.result?.channel ? `
+                                <div class="flex justify-between">
+                                    <span class="text-textdark/70">Channel:</span>
+                                    <span class="font-mono text-xs text-textdark">${data.result.channel}</span>
+                                </div>
+                            ` : ''}
+                            ${data?.result?.chaincode ? `
+                                <div class="flex justify-between">
+                                    <span class="text-textdark/70">Chaincode:</span>
+                                    <span class="font-mono text-xs text-textdark">${data.result.chaincode}</span>
+                                </div>
+                            ` : ''}
                             ${data?.submittedAt ? `
                                 <div class="flex justify-between">
                                     <span class="text-textdark/70">Submitted At:</span>
@@ -382,6 +400,12 @@
                                 <span class="text-textdark/70">Status:</span>
                                 <span class="${statusColor} font-semibold">${success ? 'Success' : 'Failed'}</span>
                             </div>
+                            ${success && data?.source === 'blockchain_blocks' ? `
+                                <div class="rounded-lg border border-blue-500/30 bg-blue-500/10 p-3 mb-3">
+                                    <div class="text-xs font-semibold text-blue-400 mb-1">✓ Data dibaca dari Blockchain Blocks</div>
+                                    <div class="text-xs text-blue-300">Data diambil langsung dari blockchain blocks melalui chaincode</div>
+                                </div>
+                            ` : ''}
                             ${data?.count !== undefined ? `
                                 <div class="flex justify-between">
                                     <span class="text-textdark/70">Total Records:</span>

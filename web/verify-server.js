@@ -208,7 +208,6 @@ async function main() {
     if (serverRunning && checkNetworkOk && catatanOk) {
         log('\n✅ All checks passed! Server is ready.', 'green');
         log('   🌐 Access the application at: http://localhost:5176', 'green');
-        log('   📄 View block data at: http://localhost:5176/penelitian/pelaksanaan-simulasi/penyimpanan-data-transaksi', 'green');
     } else {
         log('\n❌ Some checks failed. Please review the errors above.', 'red');
         process.exit(1);

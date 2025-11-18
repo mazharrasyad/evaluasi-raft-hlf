@@ -355,7 +355,167 @@ export async function submitTransaction(networkId, record, metadata = {}) {
 }
 
 /**
- * Query all records from a specific network
+ * Query all transactions from blockchain blocks (reads ALL transactions, including duplicates)
+ * @param {string} networkId - The network ID to query from
+ * @returns {Promise<Object>} - Object containing success status and all transactions array
+ */
+export async function queryAllTransactionsFromBlocks(networkId) {
+    let connection = null;
+    let config = null;
+    const queriedAt = new Date().toISOString();
+
+    try {
+        config = getNetworkConfig(networkId);
+        connection = await connectToGateway(networkId);
+        const { gateway, client } = connection;
+
+        // Get network
+        const network = gateway.getNetwork(config.channel);
+
+        console.log(`🔍 [${config.label}] Reading ALL transactions from blockchain blocks...`);
+        console.log(`   Network: ${networkId} (${config.label})`);
+        console.log(`   Channel: ${config.channel}`);
+
+        const allTransactions = [];
+        let blockNumber = 0;
+        let hasMoreBlocks = true;
+
+        // Read blocks sequentially
+        while (hasMoreBlocks) {
+            try {
+                const block = await network.getBlockByNumber(BigInt(blockNumber));
+
+                // Process each envelope (transaction) in the block
+                for (const envelope of block.envelopes) {
+                    try {
+                        // Get transaction ID and timestamp
+                        const txId = envelope.transactionId;
+                        const timestamp = envelope.timestamp;
+
+                        // Check if this is a chaincode transaction
+                        if (!envelope.isEndorserTransaction) {
+                            continue;
+                        }
+
+                        // Get chaincode actions
+                        const transaction = envelope.transactionPayload;
+                        if (!transaction || !transaction.actions) {
+                            continue;
+                        }
+
+                        for (const action of transaction.actions) {
+                            try {
+                                // Get chaincode input (function name and arguments)
+                                const proposal = action.proposal;
+                                const chaincodeInput = proposal.chaincodeInput;
+
+                                if (!chaincodeInput || !chaincodeInput.args || chaincodeInput.args.length < 3) {
+                                    continue;
+                                }
+
+                                // Decode function name
+                                const functionName = new TextDecoder().decode(chaincodeInput.args[0]);
+
+                                // Only process our chaincode functions
+                                if (functionName === 'CreateCatatan' || functionName === 'UpdateCatatan' || functionName === 'CreateOrUpdateCatatan') {
+                                    // Extract the record ID and data
+                                    const recordId = new TextDecoder().decode(chaincodeInput.args[1]);
+                                    const recordDataStr = new TextDecoder().decode(chaincodeInput.args[2]);
+
+                                    if (recordId && recordDataStr) {
+                                        try {
+                                            const recordData = JSON.parse(recordDataStr);
+
+                                            // Add transaction metadata
+                                            const transactionRecord = {
+                                                ...recordData,
+                                                id: recordId,
+                                                reportId: recordData.reportId || recordId,
+                                                blockchainMetadata: {
+                                                    ...(recordData.blockchainMetadata || {}),
+                                                    blockNumber: blockNumber,
+                                                    transactionId: txId,
+                                                    blockTimestamp: timestamp.toISOString(),
+                                                    functionCalled: functionName,
+                                                    extractedFromBlock: true,
+                                                    channel: config.channel
+                                                }
+                                            };
+
+                                            allTransactions.push(transactionRecord);
+                                        } catch (parseError) {
+                                            console.error(`   Failed to parse record data in block ${blockNumber}:`, parseError.message);
+                                        }
+                                    }
+                                }
+                            } catch (actionError) {
+                                console.error(`   Error processing action in block ${blockNumber}:`, actionError.message);
+                            }
+                        }
+                    } catch (envError) {
+                        console.error(`   Error processing envelope in block ${blockNumber}:`, envError.message);
+                    }
+                }
+
+                blockNumber++;
+            } catch (blockError) {
+                // No more blocks available
+                hasMoreBlocks = false;
+            }
+        }
+
+        const completedAt = new Date().toISOString();
+
+        console.log(`✅ [${config.label}] Successfully retrieved ${allTransactions.length} transactions from ${blockNumber} blocks!`);
+        console.log(`   Completed at: ${completedAt}`);
+
+        // Close connection
+        gateway.close();
+        client.close();
+
+        return {
+            success: true,
+            networkId,
+            label: config.label,
+            channel: config.channel,
+            chaincode: config.chaincode,
+            queriedAt,
+            completedAt,
+            count: allTransactions.length,
+            records: allTransactions,
+            source: 'blockchain_blocks',
+            totalBlocks: blockNumber
+        };
+    } catch (error) {
+        console.error(`❌ [${config ? config.label : networkId}] Failed to query transactions from blocks:`, error.message);
+
+        // Close connection if it was opened
+        if (connection) {
+            try {
+                connection.gateway.close();
+                connection.client.close();
+            } catch (closeError) {
+                console.error('Error closing connection:', closeError);
+            }
+        }
+
+        const completedAt = new Date().toISOString();
+
+        return {
+            success: false,
+            error: error.message,
+            networkId,
+            label: config ? config.label : networkId,
+            queriedAt,
+            completedAt,
+            count: 0,
+            records: [],
+        };
+    }
+}
+
+/**
+ * Query all records from a specific network (from state database - unique keys only)
  * @param {string} networkId - The network ID to query from
  * @returns {Promise<Object>} - Object containing success status and records array
  */

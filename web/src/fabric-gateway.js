@@ -425,19 +425,52 @@ export async function queryAllTransactionsFromBlocks(networkId) {
                                 const proposal = action.proposal;
                                 const chaincodeInput = proposal.chaincodeInput;
 
-                                if (!chaincodeInput || !chaincodeInput.args || chaincodeInput.args.length < 3) {
+                                if (!chaincodeInput || !chaincodeInput.args) {
+                                    console.log(`      ⚠️  No chaincode input or args in block ${blockNumber}`);
                                     continue;
                                 }
 
-                                // Decode function name
-                                const functionName = new TextDecoder().decode(chaincodeInput.args[0]);
+                                // Log raw args for debugging
+                                console.log(`      📋 Block ${blockNumber}: ${chaincodeInput.args.length} args`);
+
+                                // Try to decode function name (args[0])
+                                let functionName = '';
+                                try {
+                                    functionName = new TextDecoder().decode(chaincodeInput.args[0]);
+                                } catch (decodeError) {
+                                    console.log(`      ⚠️  Failed to decode function name:`, decodeError.message);
+                                    continue;
+                                }
+
                                 console.log(`      🔧 Function: ${functionName} (${chaincodeInput.args.length} args)`);
 
                                 // Only process our chaincode functions
                                 if (functionName === 'CreateCatatan' || functionName === 'UpdateCatatan' || functionName === 'CreateOrUpdateCatatan') {
+                                    // Ensure we have enough args (function name + record ID + record data)
+                                    if (chaincodeInput.args.length < 3) {
+                                        console.log(`      ⚠️  Not enough args for ${functionName}: ${chaincodeInput.args.length}`);
+                                        continue;
+                                    }
+
                                     // Extract the record ID and data
-                                    const recordId = new TextDecoder().decode(chaincodeInput.args[1]);
-                                    const recordDataStr = new TextDecoder().decode(chaincodeInput.args[2]);
+                                    let recordId = '';
+                                    let recordDataStr = '';
+
+                                    try {
+                                        recordId = new TextDecoder().decode(chaincodeInput.args[1]);
+                                        console.log(`      🔑 Record ID: ${recordId}`);
+                                    } catch (idError) {
+                                        console.error(`      ❌ Failed to decode record ID:`, idError.message);
+                                        continue;
+                                    }
+
+                                    try {
+                                        recordDataStr = new TextDecoder().decode(chaincodeInput.args[2]);
+                                        console.log(`      📄 Data length: ${recordDataStr.length} chars`);
+                                    } catch (dataError) {
+                                        console.error(`      ❌ Failed to decode record data:`, dataError.message);
+                                        continue;
+                                    }
 
                                     if (recordId && recordDataStr) {
                                         try {
@@ -460,16 +493,20 @@ export async function queryAllTransactionsFromBlocks(networkId) {
                                             };
 
                                             allTransactions.push(transactionRecord);
-                                            console.log(`      ✅ Found record: ${recordId}`);
+                                            console.log(`      ✅ Found record: ${recordId} - Total: ${allTransactions.length}`);
                                         } catch (parseError) {
-                                            console.error(`      ❌ Failed to parse record data in block ${blockNumber}:`, parseError.message);
+                                            console.error(`      ❌ Failed to parse JSON in block ${blockNumber}:`, parseError.message);
+                                            console.error(`      Data preview: ${recordDataStr.substring(0, 100)}...`);
                                         }
+                                    } else {
+                                        console.log(`      ⚠️  Empty recordId or recordDataStr`);
                                     }
                                 } else {
                                     console.log(`      ⏭️  Skipping function: ${functionName}`);
                                 }
                             } catch (actionError) {
-                                console.error(`   Error processing action in block ${blockNumber}:`, actionError.message);
+                                console.error(`      ❌ Error processing action in block ${blockNumber}:`, actionError.message);
+                                console.error(`      Stack:`, actionError.stack);
                             }
                         }
                     } catch (envError) {
@@ -486,11 +523,58 @@ export async function queryAllTransactionsFromBlocks(networkId) {
 
         const completedAt = new Date().toISOString();
 
-        console.log(`\n✅ [${config.label}] Successfully retrieved ${allTransactions.length} transactions from ${blockNumber} blocks!`);
+        console.log(`\n📊 [${config.label}] Block scan complete!`);
         console.log(`   Total blocks read: ${blockNumber}`);
         console.log(`   Total envelopes: ${totalEnvelopes}`);
         console.log(`   Total endorser transactions: ${totalEndorserTransactions}`);
-        console.log(`   Records found: ${allTransactions.length}`);
+        console.log(`   Records found from blocks: ${allTransactions.length}`);
+
+        // Fallback: If no records found from blocks, try state database
+        if (allTransactions.length === 0 && blockNumber > 1) {
+            console.log(`\n⚠️  [${config.label}] No records found from blocks, trying state database...`);
+
+            try {
+                const contract = network.getContract(config.chaincode);
+                const resultBytes = await contract.evaluateTransaction('GetAllCatatan');
+                const resultString = new TextDecoder().decode(resultBytes);
+
+                // Clean up response
+                let cleanString = resultString.trim();
+                const jsonStartIndex = cleanString.indexOf('[');
+                if (jsonStartIndex > 0) {
+                    cleanString = cleanString.substring(jsonStartIndex);
+                }
+
+                const stateRecords = JSON.parse(cleanString);
+
+                if (Array.isArray(stateRecords) && stateRecords.length > 0) {
+                    console.log(`   ✅ Found ${stateRecords.length} records from state database!`);
+
+                    // Close connection
+                    gateway.close();
+                    client.close();
+
+                    return {
+                        success: true,
+                        networkId,
+                        label: config.label,
+                        channel: config.channel,
+                        chaincode: config.chaincode,
+                        queriedAt,
+                        completedAt,
+                        count: stateRecords.length,
+                        records: stateRecords,
+                        source: 'state_database_fallback',
+                        totalBlocks: blockNumber,
+                        note: 'Data retrieved from state database as fallback'
+                    };
+                }
+            } catch (stateError) {
+                console.error(`   ❌ State database fallback also failed:`, stateError.message);
+            }
+        }
+
+        console.log(`   ✅ Final result: ${allTransactions.length} records`);
         console.log(`   Completed at: ${completedAt}`);
 
         // Close connection
@@ -507,7 +591,7 @@ export async function queryAllTransactionsFromBlocks(networkId) {
             completedAt,
             count: allTransactions.length,
             records: allTransactions,
-            source: 'blockchain_blocks',
+            source: allTransactions.length > 0 ? 'blockchain_blocks' : 'blockchain_blocks_empty',
             totalBlocks: blockNumber
         };
     } catch (error) {

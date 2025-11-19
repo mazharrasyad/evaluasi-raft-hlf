@@ -542,6 +542,112 @@
                                 </div>
                             </div>
                         </section>
+
+                        <!-- Network Check -->
+                        <section class="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-surface via-soft to-[#020817] p-10 shadow-2xl shadow-black/30">
+                            <h2 class="mb-6 text-2xl font-semibold text-textdark">Network Check</h2>
+                            <p class="mb-8 text-sm text-textdark/70 leading-relaxed">
+                                Lakukan testing untuk memastikan setiap network dapat menerima data (POST) dan data yang dikirim dapat diambil kembali (GET).
+                            </p>
+
+                            <div class="space-y-6">
+                                <!-- Fabric 2 RAFT Standard -->
+                                <div class="rounded-2xl border border-primary/20 bg-primary/5 p-6">
+                                    <div class="mb-4 flex items-center justify-between">
+                                        <h3 class="text-lg font-semibold text-primary">Fabric 2 RAFT Standard</h3>
+                                        <button
+                                            id="test-standard-btn"
+                                            class="rounded-lg bg-primary/20 px-4 py-2 text-sm font-semibold text-primary transition hover:bg-primary/30 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                            Test Network
+                                        </button>
+                                    </div>
+                                    <div id="test-standard-result" class="hidden space-y-2 text-sm">
+                                        <div class="flex items-center gap-2">
+                                            <span class="font-semibold text-textdark/80">POST Test:</span>
+                                            <span id="test-standard-post-status" class="text-textdark/60">-</span>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <span class="font-semibold text-textdark/80">GET Test:</span>
+                                            <span id="test-standard-get-status" class="text-textdark/60">-</span>
+                                        </div>
+                                        <div id="test-standard-detail" class="mt-3 rounded-lg border border-white/10 bg-black/20 p-3 text-xs text-textdark/70"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Fabric 2 RAFT Variant -->
+                                <div class="rounded-2xl border border-secondary/20 bg-secondary/5 p-6">
+                                    <div class="mb-4 flex items-center justify-between">
+                                        <h3 class="text-lg font-semibold text-secondary">Fabric 2 RAFT Variant</h3>
+                                        <button
+                                            id="test-variant-btn"
+                                            class="rounded-lg bg-secondary/20 px-4 py-2 text-sm font-semibold text-secondary transition hover:bg-secondary/30 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                            Test Network
+                                        </button>
+                                    </div>
+                                    <div id="test-variant-result" class="hidden space-y-2 text-sm">
+                                        <div class="flex items-center gap-2">
+                                            <span class="font-semibold text-textdark/80">POST Test:</span>
+                                            <span id="test-variant-post-status" class="text-textdark/60">-</span>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <span class="font-semibold text-textdark/80">GET Test:</span>
+                                            <span id="test-variant-get-status" class="text-textdark/60">-</span>
+                                        </div>
+                                        <div id="test-variant-detail" class="mt-3 rounded-lg border border-white/10 bg-black/20 p-3 text-xs text-textdark/70"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Fabric 3 RAFT Standard -->
+                                <div class="rounded-2xl border border-accent/20 bg-accent/5 p-6">
+                                    <div class="mb-4 flex items-center justify-between">
+                                        <h3 class="text-lg font-semibold text-accent">Fabric 3 RAFT Standard</h3>
+                                        <button
+                                            id="test-fabric3-standard-btn"
+                                            class="rounded-lg bg-accent/20 px-4 py-2 text-sm font-semibold text-accent transition hover:bg-accent/30 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                            Test Network
+                                        </button>
+                                    </div>
+                                    <div id="test-fabric3-standard-result" class="hidden space-y-2 text-sm">
+                                        <div class="flex items-center gap-2">
+                                            <span class="font-semibold text-textdark/80">POST Test:</span>
+                                            <span id="test-fabric3-standard-post-status" class="text-textdark/60">-</span>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <span class="font-semibold text-textdark/80">GET Test:</span>
+                                            <span id="test-fabric3-standard-get-status" class="text-textdark/60">-</span>
+                                        </div>
+                                        <div id="test-fabric3-standard-detail" class="mt-3 rounded-lg border border-white/10 bg-black/20 p-3 text-xs text-textdark/70"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Fabric 3 RAFT Variant -->
+                                <div class="rounded-2xl border border-highlight/20 bg-highlight/5 p-6">
+                                    <div class="mb-4 flex items-center justify-between">
+                                        <h3 class="text-lg font-semibold text-highlight">Fabric 3 RAFT Variant</h3>
+                                        <button
+                                            id="test-fabric3-variant-btn"
+                                            class="rounded-lg bg-highlight/20 px-4 py-2 text-sm font-semibold text-highlight transition hover:bg-highlight/30 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                            Test Network
+                                        </button>
+                                    </div>
+                                    <div id="test-fabric3-variant-result" class="hidden space-y-2 text-sm">
+                                        <div class="flex items-center gap-2">
+                                            <span class="font-semibold text-textdark/80">POST Test:</span>
+                                            <span id="test-fabric3-variant-post-status" class="text-textdark/60">-</span>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <span class="font-semibold text-textdark/80">GET Test:</span>
+                                            <span id="test-fabric3-variant-get-status" class="text-textdark/60">-</span>
+                                        </div>
+                                        <div id="test-fabric3-variant-detail" class="mt-3 rounded-lg border border-white/10 bg-black/20 p-3 text-xs text-textdark/70"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
                     </div>
                 </main>
 
@@ -552,5 +658,150 @@
 
     <script src="/js/layout.js" defer></script>
     <script src="/js/navigation.js" defer></script>
+    <script>
+        // Network Check Functionality
+        const networks = [
+            {
+                id: 'standard',
+                name: 'Fabric 2 RAFT Standard',
+                postUrl: '/api/fabric-2/raft-standard/pelaporan',
+                getUrl: '/api/fabric-2/raft-standard/pelaporan'
+            },
+            {
+                id: 'variant',
+                name: 'Fabric 2 RAFT Variant',
+                postUrl: '/api/fabric-2/raft-variant/pelaporan',
+                getUrl: '/api/fabric-2/raft-variant/pelaporan'
+            },
+            {
+                id: 'fabric3-standard',
+                name: 'Fabric 3 RAFT Standard',
+                postUrl: '/api/fabric-3/raft-standard/pelaporan',
+                getUrl: '/api/fabric-3/raft-standard/pelaporan'
+            },
+            {
+                id: 'fabric3-variant',
+                name: 'Fabric 3 RAFT Variant',
+                postUrl: '/api/fabric-3/raft-variant/pelaporan',
+                getUrl: '/api/fabric-3/raft-variant/pelaporan'
+            }
+        ];
+
+        function generateTestData() {
+            const timestamp = new Date().toISOString();
+            const randomId = Math.floor(Math.random() * 100000);
+
+            return {
+                reportId: `TEST-${timestamp.split('T')[0].replace(/-/g, '')}-${randomId}`,
+                timestamp: timestamp,
+                substance: 'Network Check Test',
+                reporterGroup: 'System',
+                reportedGroup: 'Test',
+                receivingOffice: 'Test Office',
+                description: 'Network connectivity test - this is a test record',
+                status: 'test'
+            };
+        }
+
+        async function testNetwork(networkId) {
+            const network = networks.find(n => n.id === networkId);
+            if (!network) return;
+
+            const btn = document.getElementById(`test-${networkId}-btn`);
+            const resultDiv = document.getElementById(`test-${networkId}-result`);
+            const postStatus = document.getElementById(`test-${networkId}-post-status`);
+            const getStatus = document.getElementById(`test-${networkId}-get-status`);
+            const detailDiv = document.getElementById(`test-${networkId}-detail`);
+
+            // Disable button and show loading
+            btn.disabled = true;
+            btn.textContent = 'Testing...';
+            resultDiv.classList.remove('hidden');
+            postStatus.textContent = 'Testing...';
+            getStatus.textContent = 'Waiting...';
+            detailDiv.textContent = '';
+
+            let testData = null;
+            let postSuccess = false;
+
+            try {
+                // Step 1: POST test data
+                testData = generateTestData();
+                console.log(`Testing ${network.name} - POST:`, testData);
+
+                const postResponse = await fetch(network.postUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(testData)
+                });
+
+                const postResult = await postResponse.json();
+
+                if (postResponse.ok && postResult.success) {
+                    postStatus.innerHTML = '<span class="text-green-400">✓ Success</span>';
+                    postSuccess = true;
+                    detailDiv.innerHTML = `<strong>POST Result:</strong><br>${JSON.stringify(postResult, null, 2)}`;
+                } else {
+                    postStatus.innerHTML = '<span class="text-red-400">✗ Failed</span>';
+                    detailDiv.innerHTML = `<strong>POST Error:</strong><br>${JSON.stringify(postResult, null, 2)}`;
+                    getStatus.textContent = 'Skipped (POST failed)';
+                    return;
+                }
+
+                // Step 2: Wait a bit for transaction to be committed
+                getStatus.textContent = 'Waiting for commit...';
+                await new Promise(resolve => setTimeout(resolve, 2000));
+
+                // Step 3: GET test - verify data exists
+                getStatus.textContent = 'Testing...';
+                console.log(`Testing ${network.name} - GET`);
+
+                const getResponse = await fetch(network.getUrl);
+                const getResult = await getResponse.json();
+
+                if (getResponse.ok && getResult.success) {
+                    // Check if our test data is in the response
+                    const records = getResult.records || [];
+                    const foundRecord = records.find(r => r.reportId === testData.reportId);
+
+                    if (foundRecord) {
+                        getStatus.innerHTML = '<span class="text-green-400">✓ Success (Data verified)</span>';
+                        detailDiv.innerHTML += `<br><br><strong>GET Result:</strong><br>Found ${records.length} total records<br>Test record verified: ${testData.reportId}`;
+                    } else {
+                        getStatus.innerHTML = '<span class="text-yellow-400">⚠ Partial (Data not found yet)</span>';
+                        detailDiv.innerHTML += `<br><br><strong>GET Result:</strong><br>Found ${records.length} total records<br>Test record not found yet (may need more time)`;
+                    }
+                } else {
+                    getStatus.innerHTML = '<span class="text-red-400">✗ Failed</span>';
+                    detailDiv.innerHTML += `<br><br><strong>GET Error:</strong><br>${JSON.stringify(getResult, null, 2)}`;
+                }
+
+            } catch (error) {
+                console.error(`Error testing ${network.name}:`, error);
+                if (!postSuccess) {
+                    postStatus.innerHTML = '<span class="text-red-400">✗ Error</span>';
+                } else {
+                    getStatus.innerHTML = '<span class="text-red-400">✗ Error</span>';
+                }
+                detailDiv.innerHTML += `<br><br><strong>Error:</strong><br>${error.message}`;
+            } finally {
+                // Re-enable button
+                btn.disabled = false;
+                btn.textContent = 'Test Network';
+            }
+        }
+
+        // Attach event listeners when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            networks.forEach(network => {
+                const btn = document.getElementById(`test-${network.id}-btn`);
+                if (btn) {
+                    btn.addEventListener('click', () => testNetwork(network.id));
+                }
+            });
+        });
+    </script>
 </body>
 </html>

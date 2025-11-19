@@ -523,11 +523,58 @@ export async function queryAllTransactionsFromBlocks(networkId) {
 
         const completedAt = new Date().toISOString();
 
-        console.log(`\n✅ [${config.label}] Successfully retrieved ${allTransactions.length} transactions from ${blockNumber} blocks!`);
+        console.log(`\n📊 [${config.label}] Block scan complete!`);
         console.log(`   Total blocks read: ${blockNumber}`);
         console.log(`   Total envelopes: ${totalEnvelopes}`);
         console.log(`   Total endorser transactions: ${totalEndorserTransactions}`);
-        console.log(`   Records found: ${allTransactions.length}`);
+        console.log(`   Records found from blocks: ${allTransactions.length}`);
+
+        // Fallback: If no records found from blocks, try state database
+        if (allTransactions.length === 0 && blockNumber > 1) {
+            console.log(`\n⚠️  [${config.label}] No records found from blocks, trying state database...`);
+
+            try {
+                const contract = network.getContract(config.chaincode);
+                const resultBytes = await contract.evaluateTransaction('GetAllCatatan');
+                const resultString = new TextDecoder().decode(resultBytes);
+
+                // Clean up response
+                let cleanString = resultString.trim();
+                const jsonStartIndex = cleanString.indexOf('[');
+                if (jsonStartIndex > 0) {
+                    cleanString = cleanString.substring(jsonStartIndex);
+                }
+
+                const stateRecords = JSON.parse(cleanString);
+
+                if (Array.isArray(stateRecords) && stateRecords.length > 0) {
+                    console.log(`   ✅ Found ${stateRecords.length} records from state database!`);
+
+                    // Close connection
+                    gateway.close();
+                    client.close();
+
+                    return {
+                        success: true,
+                        networkId,
+                        label: config.label,
+                        channel: config.channel,
+                        chaincode: config.chaincode,
+                        queriedAt,
+                        completedAt,
+                        count: stateRecords.length,
+                        records: stateRecords,
+                        source: 'state_database_fallback',
+                        totalBlocks: blockNumber,
+                        note: 'Data retrieved from state database as fallback'
+                    };
+                }
+            } catch (stateError) {
+                console.error(`   ❌ State database fallback also failed:`, stateError.message);
+            }
+        }
+
+        console.log(`   ✅ Final result: ${allTransactions.length} records`);
         console.log(`   Completed at: ${completedAt}`);
 
         // Close connection
@@ -544,7 +591,7 @@ export async function queryAllTransactionsFromBlocks(networkId) {
             completedAt,
             count: allTransactions.length,
             records: allTransactions,
-            source: 'blockchain_blocks',
+            source: allTransactions.length > 0 ? 'blockchain_blocks' : 'blockchain_blocks_empty',
             totalBlocks: blockNumber
         };
     } catch (error) {

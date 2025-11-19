@@ -395,6 +395,37 @@
             });
         });
 
+        // Check network health before submit
+        async function checkNetworkHealth() {
+            try {
+                const response = await fetch('/api/check-network');
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('Failed to check network health:', error);
+                return { overallStatus: 'unavailable', results: [] };
+            }
+        }
+
+        // Verify data after submission
+        async function verifyDataInNetwork(network) {
+            try {
+                const response = await fetch(network.url, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    return { success: true, count: data.count || 0, records: data.records || [] };
+                } else {
+                    return { success: false, count: 0, error: 'Failed to fetch data' };
+                }
+            } catch (error) {
+                return { success: false, count: 0, error: error.message };
+            }
+        }
+
         // Submit to networks
         document.getElementById('submitToNetworksButton').addEventListener('click', async () => {
             if (generatedData.length === 0) {
@@ -402,6 +433,46 @@
                     icon: 'error',
                     title: 'Data Kosong',
                     text: 'Generate data terlebih dahulu sebelum submit',
+                    background: '#0F172A',
+                    color: '#E2E8F0',
+                    confirmButtonColor: '#38BDF8'
+                });
+                return;
+            }
+
+            // Check network health first
+            Swal.fire({
+                title: 'Memeriksa Status Network...',
+                text: 'Mohon tunggu',
+                background: '#0F172A',
+                color: '#E2E8F0',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            const healthCheck = await checkNetworkHealth();
+            Swal.close();
+
+            if (healthCheck.overallStatus === 'unavailable') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Network Tidak Tersedia',
+                    html: 'Tidak ada network yang aktif.<br><br>Silakan jalankan network terlebih dahulu di halaman <a href="/penelitian/pelaksanaan-simulasi/menjalankan-network" class="text-primary hover:underline">Pembuatan Network Blockchain</a>.',
+                    background: '#0F172A',
+                    color: '#E2E8F0',
+                    confirmButtonColor: '#38BDF8'
+                });
+                return;
+            }
+
+            const healthyNetworks = healthCheck.results.filter(r => r.status === 'healthy');
+            if (healthyNetworks.length === 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Network Tidak Sehat',
+                    html: 'Semua network tidak dalam kondisi sehat.<br><br>Silakan periksa status network di halaman <a href="/penelitian/pelaksanaan-simulasi/menjalankan-network" class="text-primary hover:underline">Pembuatan Network Blockchain</a>.',
                     background: '#0F172A',
                     color: '#E2E8F0',
                     confirmButtonColor: '#38BDF8'
@@ -419,6 +490,8 @@
             document.getElementById('submitToNetworksButton').disabled = true;
             document.getElementById('resultsSection').classList.add('hidden');
 
+            const networkResults = [];
+
             // Submit to each network
             for (const network of networks) {
                 const statusEl = document.getElementById(`status-${network.id}`);
@@ -429,6 +502,7 @@
 
                 let successCount = 0;
                 let failCount = 0;
+                let errorMessages = [];
 
                 for (let i = 0; i < generatedData.length; i++) {
                     try {
@@ -438,48 +512,150 @@
                             body: JSON.stringify(generatedData[i])
                         });
 
-                        if (response.ok) {
+                        const result = await response.json();
+
+                        if (response.ok && result.success) {
                             successCount++;
                         } else {
                             failCount++;
+                            if (result.error && errorMessages.length < 3) {
+                                errorMessages.push(result.error);
+                            }
                         }
 
                         progressEl.textContent = `${i + 1}/${generatedData.length} (${successCount} sukses)`;
                     } catch (error) {
                         failCount++;
+                        if (errorMessages.length < 3) {
+                            errorMessages.push(error.message);
+                        }
                         progressEl.textContent = `${i + 1}/${generatedData.length} (${failCount} gagal)`;
                     }
                 }
 
-                if (failCount === 0) {
-                    statusEl.className = 'h-2 w-2 rounded-full bg-emerald-500';
-                    progressEl.textContent = `${successCount}/${generatedData.length} sukses`;
+                // Verify data after submission
+                if (successCount > 0) {
+                    progressEl.textContent = 'Memverifikasi...';
+                    await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds for blockchain to process
+
+                    const verification = await verifyDataInNetwork(network);
+
+                    networkResults.push({
+                        network: network.name,
+                        sent: successCount,
+                        failed: failCount,
+                        verified: verification.count || 0,
+                        errors: errorMessages
+                    });
+
+                    if (verification.success && verification.count > 0) {
+                        statusEl.className = 'h-2 w-2 rounded-full bg-emerald-500';
+                        progressEl.textContent = `${successCount} terkirim, ${verification.count} terverifikasi`;
+                    } else if (failCount === 0 && verification.count === 0) {
+                        statusEl.className = 'h-2 w-2 rounded-full bg-yellow-500';
+                        progressEl.textContent = `${successCount} terkirim, menunggu verifikasi`;
+                    } else {
+                        statusEl.className = 'h-2 w-2 rounded-full bg-red-500';
+                        progressEl.textContent = `${successCount} terkirim, ${failCount} gagal`;
+                    }
                 } else {
+                    networkResults.push({
+                        network: network.name,
+                        sent: 0,
+                        failed: failCount,
+                        verified: 0,
+                        errors: errorMessages
+                    });
+
                     statusEl.className = 'h-2 w-2 rounded-full bg-red-500';
-                    progressEl.textContent = `${successCount} sukses, ${failCount} gagal`;
+                    progressEl.textContent = `Semua gagal dikirim`;
                 }
             }
 
             document.getElementById('submitToNetworksButton').disabled = false;
 
-            // Show results
+            // Show detailed results
             const resultsContent = document.getElementById('resultsContent');
-            resultsContent.innerHTML = `
-                <div class="rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-4">
-                    <p class="text-sm font-semibold text-emerald-400">Pengeksekusian Selesai</p>
-                    <p class="mt-2 text-xs text-textdark/80">${generatedData.length} transaksi telah dikirim ke semua network blockchain.</p>
-                </div>
-            `;
+            let resultsHTML = '';
+
+            const totalSent = networkResults.reduce((sum, r) => sum + r.sent, 0);
+            const totalVerified = networkResults.reduce((sum, r) => sum + r.verified, 0);
+            const totalFailed = networkResults.reduce((sum, r) => sum + r.failed, 0);
+
+            if (totalSent > 0) {
+                resultsHTML += `
+                    <div class="rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-4">
+                        <p class="text-sm font-semibold text-emerald-400">Pengeksekusian Selesai</p>
+                        <p class="mt-2 text-xs text-textdark/80">
+                            ${totalSent} transaksi terkirim, ${totalVerified} terverifikasi di blockchain
+                        </p>
+                    </div>
+                `;
+            }
+
+            if (totalFailed > 0) {
+                resultsHTML += `
+                    <div class="rounded-lg border border-red-500/30 bg-red-500/10 p-4 mt-4">
+                        <p class="text-sm font-semibold text-red-400">Beberapa Transaksi Gagal</p>
+                        <p class="mt-2 text-xs text-textdark/80">${totalFailed} transaksi gagal dikirim</p>
+                    </div>
+                `;
+            }
+
+            // Detail per network
+            resultsHTML += '<div class="mt-4 space-y-3">';
+            for (const result of networkResults) {
+                const hasErrors = result.errors && result.errors.length > 0;
+                resultsHTML += `
+                    <div class="rounded-lg border border-white/10 bg-surface/50 p-3">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-semibold text-textdark">${result.network}</span>
+                            <span class="text-xs text-textdark/60">${result.sent} terkirim / ${result.verified} terverifikasi</span>
+                        </div>
+                        ${hasErrors ? `
+                            <details class="mt-2">
+                                <summary class="cursor-pointer text-xs text-red-400">Lihat error (${result.errors.length})</summary>
+                                <ul class="mt-2 space-y-1 text-xs text-textdark/60">
+                                    ${result.errors.map(err => `<li>• ${err}</li>`).join('')}
+                                </ul>
+                            </details>
+                        ` : ''}
+                    </div>
+                `;
+            }
+            resultsHTML += '</div>';
+
+            resultsContent.innerHTML = resultsHTML;
             document.getElementById('resultsSection').classList.remove('hidden');
 
-            Swal.fire({
-                icon: 'success',
-                title: 'Pengeksekusian Selesai',
-                text: 'Data simulasi berhasil dikirim ke semua network',
-                background: '#0F172A',
-                color: '#E2E8F0',
-                confirmButtonColor: '#38BDF8'
-            });
+            if (totalVerified > 0) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Pengeksekusian Selesai',
+                    html: `${totalSent} transaksi terkirim<br>${totalVerified} transaksi terverifikasi di blockchain`,
+                    background: '#0F172A',
+                    color: '#E2E8F0',
+                    confirmButtonColor: '#38BDF8'
+                });
+            } else if (totalSent > 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Menunggu Verifikasi',
+                    html: `${totalSent} transaksi terkirim<br>Silakan refresh halaman dalam beberapa saat untuk verifikasi`,
+                    background: '#0F172A',
+                    color: '#E2E8F0',
+                    confirmButtonColor: '#38BDF8'
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Pengiriman Gagal',
+                    text: 'Tidak ada transaksi yang berhasil dikirim. Periksa log untuk detail.',
+                    background: '#0F172A',
+                    color: '#E2E8F0',
+                    confirmButtonColor: '#38BDF8'
+                });
+            }
         });
     </script>
 </body>

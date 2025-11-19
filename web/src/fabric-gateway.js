@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url';
 import * as grpc from '@grpc/grpc-js';
 import { connect, signers, hash } from '@hyperledger/fabric-gateway';
 import crypto from 'crypto';
+import { decodeBlockchainInfo } from './network-check.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -667,6 +668,29 @@ export async function queryRecordsFromNetwork(networkId) {
             throw new Error(`Invalid JSON response from chaincode: ${parseError.message}`);
         }
 
+        // Get block height from blockchain
+        let blockHeight = null;
+        try {
+            const qscc = network.getContract('qscc');
+            const chainInfoBytes = await qscc.evaluateTransaction('GetChainInfo', config.channel);
+
+            // Decode blockchain info to get height
+            const chainInfo = decodeBlockchainInfo(chainInfoBytes);
+            if (chainInfo.height !== null && chainInfo.height !== undefined) {
+                const heightBigInt = chainInfo.height;
+                if (typeof heightBigInt === 'bigint') {
+                    blockHeight = heightBigInt <= BigInt(Number.MAX_SAFE_INTEGER)
+                        ? Number(heightBigInt)
+                        : heightBigInt.toString();
+                } else if (typeof heightBigInt === 'number' && Number.isFinite(heightBigInt)) {
+                    blockHeight = heightBigInt;
+                }
+            }
+            console.log(`   Block Height: ${blockHeight}`);
+        } catch (error) {
+            console.warn(`   ⚠️  Failed to get block height for ${config.label}:`, error.message);
+        }
+
         const completedAt = new Date().toISOString();
 
         console.log(`✅ [${config.label}] Successfully retrieved ${records.length} records from blockchain!`);
@@ -686,6 +710,7 @@ export async function queryRecordsFromNetwork(networkId) {
             completedAt,
             count: records.length,
             records: Array.isArray(records) ? records : [],
+            blockHeight,
         };
     } catch (error) {
         console.error(`❌ [${config ? config.label : networkId}] Failed to query records from blockchain:`, error.message);

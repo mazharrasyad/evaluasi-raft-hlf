@@ -1455,4 +1455,4 @@ async function checkNetworkHealth() {
     return results;
 }
 
-export { checkNetworkHealth, getAllBlocks, getAllCatatan, getBlocksWithSimulationData };
+export { checkNetworkHealth, getAllBlocks, getAllCatatan, getBlocksWithSimulationData, decodeBlockchainInfo };

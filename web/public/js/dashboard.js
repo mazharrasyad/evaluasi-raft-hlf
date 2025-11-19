@@ -5131,7 +5131,39 @@ async function handleNetworkCheckButtonClick() {
         }
 
         const data = await response.json();
-        const normalizedResults = Array.isArray(data?.results) ? data.results : [];
+        let normalizedResults = Array.isArray(data?.results) ? data.results : [];
+
+        // Fetch blockHeight from pelaporan API for each network
+        const pelaporanEndpoints = {
+            'channel-standard': '/api/fabric-2/raft-standard/pelaporan',
+            'channel-variant': '/api/fabric-2/raft-variant/pelaporan',
+            'channel-fabric3-standard': '/api/fabric-3/raft-standard/pelaporan',
+            'channel-fabric3-variant': '/api/fabric-3/raft-variant/pelaporan'
+        };
+
+        // Fetch blockHeight from pelaporan API in parallel
+        const pelaporanPromises = normalizedResults.map(async (result) => {
+            const endpoint = pelaporanEndpoints[result.targetId];
+            if (endpoint && result.status === 'healthy') {
+                try {
+                    const pelaporanResponse = await fetch(endpoint, {
+                        headers: { Accept: 'application/json' }
+                    });
+                    if (pelaporanResponse.ok) {
+                        const pelaporanData = await pelaporanResponse.json();
+                        if (pelaporanData.blockHeight !== undefined && pelaporanData.blockHeight !== null) {
+                            return { ...result, blockHeight: pelaporanData.blockHeight };
+                        }
+                    }
+                } catch (error) {
+                    console.warn(`Failed to fetch blockHeight from ${endpoint}:`, error);
+                }
+            }
+            return result;
+        });
+
+        normalizedResults = await Promise.all(pelaporanPromises);
+
         const contextualOverallStatus = computeOverallStatusForResults(
             filterResultsByFabricContext(normalizedResults),
             typeof data?.overallStatus === 'string' && data.overallStatus.length > 0

@@ -22,7 +22,7 @@ export PATH=${ROOTDIR}/../bin:${PWD}/../bin:$PATH
 export FABRIC_CFG_PATH=${PWD}/configtx
 export VERBOSE=false
 
-: ${COMPOSE_PROJECT_NAME:="raftstandard3"}
+: ${COMPOSE_PROJECT_NAME:="raftvariant3"}
 export COMPOSE_PROJECT_NAME
 
 VOLUME_SUFFIXES=(
@@ -174,8 +174,8 @@ function checkPrereqs() {
 
 # Create Organization crypto material using cryptogen or CAs
 function createOrgs() {
-  if [ -d "organizations/peerOrganizations" ]; then
-    rm -Rf organizations/peerOrganizations && rm -Rf organizations/ordererOrganizations
+  if [ -d "organizations-variant/peerOrganizations" ]; then
+    rm -Rf organizations-variant/peerOrganizations && rm -Rf organizations-variant/ordererOrganizations
   fi
 
   # Create crypto material using cryptogen
@@ -189,7 +189,7 @@ function createOrgs() {
     infoln "Creating Org1 Identities"
 
     set -x
-    cryptogen generate --config=./organizations/cryptogen/crypto-config-org1.yaml --output="organizations"
+    cryptogen generate --config=./organizations/cryptogen/crypto-config-org1.yaml --output="organizations-variant"
     res=$?
     { set +x; } 2>/dev/null
     if [ $res -ne 0 ]; then
@@ -199,7 +199,7 @@ function createOrgs() {
     infoln "Creating Org2 Identities"
 
     set -x
-    cryptogen generate --config=./organizations/cryptogen/crypto-config-org2.yaml --output="organizations"
+    cryptogen generate --config=./organizations/cryptogen/crypto-config-org2.yaml --output="organizations-variant"
     res=$?
     { set +x; } 2>/dev/null
     if [ $res -ne 0 ]; then
@@ -209,7 +209,7 @@ function createOrgs() {
     infoln "Creating Orderer Org Identities"
 
     set -x
-    cryptogen generate --config=./organizations/cryptogen/crypto-config-orderer.yaml --output="organizations"
+    cryptogen generate --config=./organizations/cryptogen/crypto-config-orderer.yaml --output="organizations-variant"
     res=$?
     { set +x; } 2>/dev/null
     if [ $res -ne 0 ]; then
@@ -256,7 +256,7 @@ function createOrgs() {
     done
 
     # Make sure CA service is initialized and can accept requests before making register and enroll calls
-    export FABRIC_CA_CLIENT_HOME=${PWD}/organizations/peerOrganizations/org1.fabric3.variant/
+    export FABRIC_CA_CLIENT_HOME=${PWD}/organizations-variant/peerOrganizations/org1.fabric3.variant/
     COUNTER=0
     rc=1
     while [[ $rc -ne 0 && $COUNTER -lt $MAX_RETRY ]]; do
@@ -319,7 +319,7 @@ function networkUp() {
   checkPrereqs
 
   # generate artifacts if they don't exist
-  if [ ! -d "organizations/peerOrganizations" ]; then
+  if [ ! -d "organizations-variant/peerOrganizations" ]; then
     createOrgs
   fi
 
@@ -353,12 +353,12 @@ function createChannel() {
   CONTAINERS=($($CONTAINER_CLI ps | grep hyperledger/ | awk '{print $2}'))
   len=$(echo ${#CONTAINERS[@]})
 
-  if [[ $len -ge 4 ]] && [[ ! -d "organizations/peerOrganizations" ]]; then
+  if [[ $len -ge 4 ]] && [[ ! -d "organizations-variant/peerOrganizations" ]]; then
     echo "Bringing network down to sync certs with containers"
     networkDown
   fi
 
-  [[ $len -lt 4 ]] || [[ ! -d "organizations/peerOrganizations" ]] && bringUpNetwork="true" || echo "Network Running Already"
+  [[ $len -lt 4 ]] || [[ ! -d "organizations-variant/peerOrganizations" ]] && bringUpNetwork="true" || echo "Network Running Already"
 
   if [ $bringUpNetwork == "true"  ]; then
     infoln "Bringing up network"
@@ -495,7 +495,7 @@ function networkDown() {
     #Cleanup images
     removeUnwantedImages
     # remove orderer block and other channel configuration transactions and certs
-    ${CONTAINER_CLI} run --rm -v "$(pwd):/data" busybox sh -c 'cd /data && rm -rf system-genesis-block/*.block organizations/peerOrganizations organizations/ordererOrganizations'
+    ${CONTAINER_CLI} run --rm -v "$(pwd):/data" busybox sh -c 'cd /data && rm -rf system-genesis-block/*.block organizations-variant/peerOrganizations organizations-variant/ordererOrganizations'
     ## remove fabric ca artifacts
     ${CONTAINER_CLI} run --rm -v "$(pwd):/data" busybox sh -c 'cd /data && rm -rf organizations/fabric-ca/org1/msp organizations/fabric-ca/org1/tls-cert.pem organizations/fabric-ca/org1/ca-cert.pem organizations/fabric-ca/org1/IssuerPublicKey organizations/fabric-ca/org1/IssuerRevocationPublicKey organizations/fabric-ca/org1/fabric-ca-server.db'
     ${CONTAINER_CLI} run --rm -v "$(pwd):/data" busybox sh -c 'cd /data && rm -rf organizations/fabric-ca/org2/msp organizations/fabric-ca/org2/tls-cert.pem organizations/fabric-ca/org2/ca-cert.pem organizations/fabric-ca/org2/IssuerPublicKey organizations/fabric-ca/org2/IssuerRevocationPublicKey organizations/fabric-ca/org2/fabric-ca-server.db'
@@ -671,7 +671,7 @@ if [ $BFT -eq 1 ]; then
 fi
 
 # Are we generating crypto material with this command?
-if [ ! -d "organizations/peerOrganizations" ]; then
+if [ ! -d "organizations-variant/peerOrganizations" ]; then
   CRYPTO_MODE="with crypto from '${CRYPTO}'"
 else
   CRYPTO_MODE=""

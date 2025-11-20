@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluasi RAFT HLF — Pengolahan Nilai Rata-Rata dan Grafik</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#38BDF8',
+                        secondary: '#6366F1',
+                        accent: '#F59E0B',
+                        highlight: '#F97316',
+                        soft: '#050B16',
+                        surface: '#0F172A',
+                        surfaceMuted: '#16213F',
+                        border: '#1E293B',
+                        muted: '#94A3B8',
+                        textdark: '#E2E8F0'
+                    }
+                }
+            }
+        };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="/images/logo-ai-center.svg">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+
+        .component-link[data-active="true"] {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.28), rgba(56, 189, 248, 0.22));
+            color: #E2E8F0;
+            border-color: rgba(249, 115, 22, 0.45);
+            box-shadow: 0 12px 40px rgba(15, 23, 42, 0.45);
+        }
+
+        .component-link[data-active="true"] .component-link__index {
+            background-color: rgba(249, 115, 22, 0.35);
+            color: #E2E8F0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.8), rgba(22, 33, 63, 0.6));
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            border-color: rgba(56, 189, 248, 0.3);
+            box-shadow: 0 8px 32px rgba(56, 189, 248, 0.15);
+        }
+
+        .network-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-f2-standard {
+            background: rgba(34, 197, 94, 0.2);
+            color: rgb(74, 222, 128);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .badge-f2-variant {
+            background: rgba(59, 130, 246, 0.2);
+            color: rgb(96, 165, 250);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .badge-f3-standard {
+            background: rgba(168, 85, 247, 0.2);
+            color: rgb(192, 132, 252);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+        }
+
+        .badge-f3-variant {
+            background: rgba(236, 72, 153, 0.2);
+            color: rgb(244, 114, 182);
+            border: 1px solid rgba(236, 72, 153, 0.3);
+        }
+
+        .metric-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .metric-table th {
+            background: rgba(99, 102, 241, 0.1);
+            color: #E2E8F0;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .metric-table td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            color: rgba(226, 232, 240, 0.8);
+        }
+
+        .metric-table tr:hover {
+            background: rgba(56, 189, 248, 0.05);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body class="bg-soft text-textdark">
+    <div data-component="header"></div>
+    <div class="relative min-h-screen overflow-hidden">
+        <div class="absolute inset-0 -z-10 h-full w-full">
+            <div class="absolute -left-1/3 top-0 h-[720px] w-[720px] rounded-full bg-gradient-to-br from-highlight/30 via-secondary/20 to-transparent opacity-70 blur-3xl"></div>
+            <div class="absolute -right-1/4 bottom-0 h-[620px] w-[620px] rounded-full bg-gradient-to-tr from-accent/35 via-secondary/25 to-primary/20 opacity-70 blur-3xl"></div>
+        </div>
+
+        <div class="flex min-h-screen flex-col lg:flex-row">
+            <div data-component="sidebar"></div>
+
+            <div class="flex-1">
+                <main class="mx-auto w-full max-w-7xl px-6 py-12">
+                    <div class="space-y-10">
+                        <!-- Header Section -->
+                        <section class="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-surface via-soft to-[#020817] p-10 shadow-2xl shadow-black/30">
+                            <div class="flex flex-col gap-6">
+                                <div class="inline-flex w-fit items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-primary/90">
+                                    Bab 4.5.2
+                                </div>
+                                <div class="space-y-5">
+                                    <h1 class="text-3xl font-semibold text-textdark md:text-4xl">Pengolahan Nilai Rata-Rata dan Grafik</h1>
+                                    <p class="text-sm text-textdark/70 md:text-base leading-relaxed">
+                                        Halaman ini menampilkan analisis statistik mendalam terhadap data simulasi yang telah dikumpulkan dari keempat varian jaringan blockchain. Analisis meliputi perhitungan nilai rata-rata dari berbagai metrik kinerja seperti throughput, latency, dan tingkat keberhasilan transaksi.
+                                    </p>
+                                    <p class="text-sm text-textdark/70 md:text-base leading-relaxed">
+                                        Visualisasi data dalam bentuk grafik memudahkan perbandingan performa antar network dan membantu mengidentifikasi pola-pola penting dalam kinerja masing-masing varian algoritma konsensus RAFT pada Hyperledger Fabric versi 2 dan 3.
+                                    </p>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Control Panel -->
+                        <section class="rounded-3xl border border-white/10 bg-surface/80 p-8 shadow-2xl shadow-black/20 backdrop-blur-sm">
+                            <div class="flex items-center justify-between">
+                                <h2 class="text-2xl font-semibold text-textdark">Analisis Data Simulasi</h2>
+                                <button
+                                    onclick="loadAnalysisData()"
+                                    id="btn-analyze"
+                                    class="inline-flex items-center justify-center gap-2 rounded-lg bg-primary/90 px-6 py-2.5 text-sm font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-primary/40 transition duration-200 hover:-translate-y-0.5 hover:bg-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                                >
+                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                    </svg>
+                                    <span>Analisis Data</span>
+                                </button>
+                            </div>
+                            <div id="status-message" class="mt-4 hidden rounded-lg border border-primary/30 bg-primary/10 p-4 text-sm text-primary">
+                                Klik "Analisis Data" untuk memulai proses pengolahan statistik...
+                            </div>
+                        </section>
+
+                        <!-- Summary Statistics Cards -->
+                        <section id="summary-section" class="hidden space-y-6">
+                            <h2 class="text-2xl font-semibold text-textdark">Ringkasan Statistik</h2>
+                            <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+                                <!-- Fabric 2 RAFT Standard -->
+                                <div class="stat-card">
+                                    <div class="mb-3 flex items-center justify-between">
+                                        <span class="network-badge badge-f2-standard">F2 Standard</span>
+                                    </div>
+                                    <div class="space-y-4">
+                                        <div>
+                                            <p class="text-xs text-textdark/60 uppercase tracking-wider">Total Transaksi</p>
+                                            <p id="stat-f2-standard-total" class="text-2xl font-bold text-textdark">-</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-xs text-textdark/60 uppercase tracking-wider">Waktu Rata-Rata</p>
+                                            <p id="stat-f2-standard-avg" class="text-lg font-semibold text-textdark/80">-</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Fabric 2 RAFT Variant -->
+                                <div class="stat-card">
+                                    <div class="mb-3 flex items-center justify-between">
+                                        <span class="network-badge badge-f2-variant">F2 Variant</span>
+                                    </div>
+                                    <div class="space-y-4">
+                                        <div>
+                                            <p class="text-xs text-textdark/60 uppercase tracking-wider">Total Transaksi</p>
+                                            <p id="stat-f2-variant-total" class="text-2xl font-bold text-textdark">-</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-xs text-textdark/60 uppercase tracking-wider">Waktu Rata-Rata</p>
+                                            <p id="stat-f2-variant-avg" class="text-lg font-semibold text-textdark/80">-</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Fabric 3 RAFT Standard -->
+                                <div class="stat-card">
+                                    <div class="mb-3 flex items-center justify-between">
+                                        <span class="network-badge badge-f3-standard">F3 Standard</span>
+                                    </div>
+                                    <div class="space-y-4">
+                                        <div>
+                                            <p class="text-xs text-textdark/60 uppercase tracking-wider">Total Transaksi</p>
+                                            <p id="stat-f3-standard-total" class="text-2xl font-bold text-textdark">-</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-xs text-textdark/60 uppercase tracking-wider">Waktu Rata-Rata</p>
+                                            <p id="stat-f3-standard-avg" class="text-lg font-semibold text-textdark/80">-</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Fabric 3 RAFT Variant -->
+                                <div class="stat-card">
+                                    <div class="mb-3 flex items-center justify-between">
+                                        <span class="network-badge badge-f3-variant">F3 Variant</span>
+                                    </div>
+                                    <div class="space-y-4">
+                                        <div>
+                                            <p class="text-xs text-textdark/60 uppercase tracking-wider">Total Transaksi</p>
+                                            <p id="stat-f3-variant-total" class="text-2xl font-bold text-textdark">-</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-xs text-textdark/60 uppercase tracking-wider">Waktu Rata-Rata</p>
+                                            <p id="stat-f3-variant-avg" class="text-lg font-semibold text-textdark/80">-</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Comparison Bar Chart -->
+                        <section id="chart-comparison" class="hidden rounded-3xl border border-white/10 bg-surface/80 p-8 shadow-2xl shadow-black/20 backdrop-blur-sm">
+                            <h2 class="mb-6 text-2xl font-semibold text-textdark">Perbandingan Jumlah Transaksi</h2>
+                            <div class="overflow-hidden rounded-2xl border border-white/10 bg-surfaceMuted/50 p-6">
+                                <div class="chart-container">
+                                    <canvas id="comparisonChart"></canvas>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Distribution Chart -->
+                        <section id="chart-distribution" class="hidden rounded-3xl border border-white/10 bg-surface/80 p-8 shadow-2xl shadow-black/20 backdrop-blur-sm">
+                            <h2 class="mb-6 text-2xl font-semibold text-textdark">Distribusi Transaksi per Network</h2>
+                            <div class="overflow-hidden rounded-2xl border border-white/10 bg-surfaceMuted/50 p-6">
+                                <div class="chart-container" style="height: 500px;">
+                                    <canvas id="distributionChart"></canvas>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Detailed Statistics Table -->
+                        <section id="table-statistics" class="hidden rounded-3xl border border-white/10 bg-surface/80 p-8 shadow-2xl shadow-black/20 backdrop-blur-sm">
+                            <h2 class="mb-6 text-2xl font-semibold text-textdark">Tabel Statistik Detail</h2>
+                            <div class="overflow-x-auto rounded-2xl border border-white/10 bg-surfaceMuted/50 p-6">
+                                <table class="metric-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Network</th>
+                                            <th>Total Transaksi</th>
+                                            <th>Transaksi Berhasil</th>
+                                            <th>Tingkat Keberhasilan</th>
+                                            <th>Rata-Rata Waktu</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="statistics-tbody">
+                                        <!-- Data will be populated by JavaScript -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </section>
+
+                        <!-- Performance Insights -->
+                        <section id="insights-section" class="hidden rounded-3xl border border-white/10 bg-gradient-to-br from-secondary/20 via-surface/80 to-primary/20 p-8 shadow-2xl shadow-black/20 backdrop-blur-sm">
+                            <div class="flex items-start gap-4">
+                                <div class="rounded-full bg-primary/20 p-3">
+                                    <svg class="h-6 w-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                                    </svg>
+                                </div>
+                                <div class="flex-1 space-y-3">
+                                    <h3 class="text-xl font-semibold text-textdark">Insight Performa</h3>
+                                    <div id="insights-content" class="space-y-2 text-sm text-textdark/70">
+                                        <!-- Insights will be populated by JavaScript -->
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </main>
+
+                <div data-component="footer"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/layout.js" defer></script>
+    <script src="/js/navigation.js" defer></script>
+    <script>
+        // Network configuration
+        const networkConfig = {
+            'f2-standard': {
+                apiUrl: '/api/fabric-2/raft-standard/pelaporan',
+                label: 'Fabric 2 RAFT Standard',
+                shortLabel: 'F2 Standard',
+                color: 'rgba(34, 197, 94, 0.8)',
+                borderColor: 'rgba(34, 197, 94, 1)'
+            },
+            'f2-variant': {
+                apiUrl: '/api/fabric-2/raft-variant/pelaporan',
+                label: 'Fabric 2 RAFT Variant',
+                shortLabel: 'F2 Variant',
+                color: 'rgba(59, 130, 246, 0.8)',
+                borderColor: 'rgba(59, 130, 246, 1)'
+            },
+            'f3-standard': {
+                apiUrl: '/api/fabric-3/raft-standard/pelaporan',
+                label: 'Fabric 3 RAFT Standard',
+                shortLabel: 'F3 Standard',
+                color: 'rgba(168, 85, 247, 0.8)',
+                borderColor: 'rgba(168, 85, 247, 1)'
+            },
+            'f3-variant': {
+                apiUrl: '/api/fabric-3/raft-variant/pelaporan',
+                label: 'Fabric 3 RAFT Variant',
+                shortLabel: 'F3 Variant',
+                color: 'rgba(236, 72, 153, 0.8)',
+                borderColor: 'rgba(236, 72, 153, 1)'
+            }
+        };
+
+        // Store analysis data
+        let analysisData = {};
+        let comparisonChart = null;
+        let distributionChart = null;
+
+        // Show status message
+        function showStatus(message, type = 'info') {
+            const statusEl = document.getElementById('status-message');
+            statusEl.textContent = message;
+            statusEl.classList.remove('hidden', 'border-primary/30', 'bg-primary/10', 'text-primary', 'border-red-500/30', 'bg-red-500/10', 'text-red-400', 'border-green-500/30', 'bg-green-500/10', 'text-green-400');
+
+            if (type === 'error') {
+                statusEl.classList.add('border-red-500/30', 'bg-red-500/10', 'text-red-400');
+            } else if (type === 'success') {
+                statusEl.classList.add('border-green-500/30', 'bg-green-500/10', 'text-green-400');
+            } else {
+                statusEl.classList.add('border-primary/30', 'bg-primary/10', 'text-primary');
+            }
+        }
+
+        // Load data from a network
+        async function loadNetworkData(networkKey) {
+            const config = networkConfig[networkKey];
+            try {
+                const response = await fetch(config.apiUrl);
+                const data = await response.json();
+
+                if (!data.success) {
+                    throw new Error(data.error || 'Failed to fetch data');
+                }
+
+                return {
+                    networkKey,
+                    config,
+                    ...data
+                };
+            } catch (error) {
+                console.error(`Error loading ${networkKey}:`, error);
+                throw error;
+            }
+        }
+
+        // Calculate statistics
+        function calculateStatistics(data) {
+            const records = data.records || [];
+            const total = records.length;
+
+            // Calculate average time if timestamp data is available
+            let avgTime = 'N/A';
+            if (records.length > 0 && records[0].submittedAt) {
+                const timestamps = records.map(r => new Date(r.submittedAt).getTime());
+                const timeRanges = [];
+                for (let i = 1; i < timestamps.length; i++) {
+                    timeRanges.push(timestamps[i] - timestamps[i-1]);
+                }
+                if (timeRanges.length > 0) {
+                    const avgMs = timeRanges.reduce((a, b) => a + b, 0) / timeRanges.length;
+                    avgTime = `${(avgMs / 1000).toFixed(2)}s`;
+                }
+            }
+
+            // Count successful transactions (assuming status field indicates success)
+            const successful = records.filter(r =>
+                r.status && (r.status.toLowerCase() === 'success' || r.status.toLowerCase() === 'submitted' || r.status.toLowerCase() === 'completed')
+            ).length;
+
+            const successRate = total > 0 ? ((successful / total) * 100).toFixed(2) : '0.00';
+
+            return {
+                total,
+                successful,
+                successRate,
+                avgTime
+            };
+        }
+
+        // Create comparison chart
+        function createComparisonChart(data) {
+            const ctx = document.getElementById('comparisonChart').getContext('2d');
+
+            const labels = [];
+            const values = [];
+            const colors = [];
+            const borderColors = [];
+
+            Object.entries(data).forEach(([key, networkData]) => {
+                labels.push(networkConfig[key].shortLabel);
+                values.push(networkData.stats.total);
+                colors.push(networkConfig[key].color);
+                borderColors.push(networkConfig[key].borderColor);
+            });
+
+            if (comparisonChart) {
+                comparisonChart.destroy();
+            }
+
+            comparisonChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Jumlah Transaksi',
+                        data: values,
+                        backgroundColor: colors,
+                        borderColor: borderColors,
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `Total: ${context.parsed.y} transaksi`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                color: '#E2E8F0',
+                                font: {
+                                    size: 12
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: '#E2E8F0',
+                                font: {
+                                    size: 12
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.05)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Create distribution chart (doughnut)
+        function createDistributionChart(data) {
+            const ctx = document.getElementById('distributionChart').getContext('2d');
+
+            const labels = [];
+            const values = [];
+            const colors = [];
+            const borderColors = [];
+
+            Object.entries(data).forEach(([key, networkData]) => {
+                labels.push(networkConfig[key].label);
+                values.push(networkData.stats.total);
+                colors.push(networkConfig[key].color);
+                borderColors.push(networkConfig[key].borderColor);
+            });
+
+            if (distributionChart) {
+                distributionChart.destroy();
+            }
+
+            distributionChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: values,
+                        backgroundColor: colors,
+                        borderColor: borderColors,
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#E2E8F0',
+                                font: {
+                                    size: 12
+                                },
+                                padding: 15
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((context.parsed / total) * 100).toFixed(2);
+                                    return `${context.label}: ${context.parsed} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Populate statistics table
+        function populateStatisticsTable(data) {
+            const tbody = document.getElementById('statistics-tbody');
+            tbody.innerHTML = '';
+
+            Object.entries(data).forEach(([key, networkData]) => {
+                const config = networkConfig[key];
+                const stats = networkData.stats;
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><span class="network-badge badge-${key}">${config.shortLabel}</span></td>
+                    <td class="font-semibold">${stats.total}</td>
+                    <td>${stats.successful}</td>
+                    <td>${stats.successRate}%</td>
+                    <td>${stats.avgTime}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Generate insights
+        function generateInsights(data) {
+            const insightsEl = document.getElementById('insights-content');
+            const insights = [];
+
+            // Find network with highest transactions
+            let maxNetwork = null;
+            let maxCount = 0;
+            Object.entries(data).forEach(([key, networkData]) => {
+                if (networkData.stats.total > maxCount) {
+                    maxCount = networkData.stats.total;
+                    maxNetwork = key;
+                }
+            });
+
+            if (maxNetwork) {
+                insights.push(`<p>✓ <strong>${networkConfig[maxNetwork].label}</strong> memiliki jumlah transaksi tertinggi dengan <strong>${maxCount} transaksi</strong>.</p>`);
+            }
+
+            // Find network with highest success rate
+            let maxSuccessNetwork = null;
+            let maxSuccessRate = 0;
+            Object.entries(data).forEach(([key, networkData]) => {
+                const rate = parseFloat(networkData.stats.successRate);
+                if (rate > maxSuccessRate) {
+                    maxSuccessRate = rate;
+                    maxSuccessNetwork = key;
+                }
+            });
+
+            if (maxSuccessNetwork) {
+                insights.push(`<p>✓ <strong>${networkConfig[maxSuccessNetwork].label}</strong> memiliki tingkat keberhasilan tertinggi sebesar <strong>${maxSuccessRate}%</strong>.</p>`);
+            }
+
+            // Calculate total transactions
+            const totalTransactions = Object.values(data).reduce((sum, d) => sum + d.stats.total, 0);
+            insights.push(`<p>✓ Total <strong>${totalTransactions} transaksi</strong> telah diproses di semua network.</p>`);
+
+            // Compare Fabric 2 vs Fabric 3
+            const f2Total = (data['f2-standard']?.stats.total || 0) + (data['f2-variant']?.stats.total || 0);
+            const f3Total = (data['f3-standard']?.stats.total || 0) + (data['f3-variant']?.stats.total || 0);
+            if (f2Total > f3Total) {
+                insights.push(`<p>✓ Jaringan <strong>Fabric 2</strong> memproses lebih banyak transaksi (${f2Total}) dibanding <strong>Fabric 3</strong> (${f3Total}).</p>`);
+            } else if (f3Total > f2Total) {
+                insights.push(`<p>✓ Jaringan <strong>Fabric 3</strong> memproses lebih banyak transaksi (${f3Total}) dibanding <strong>Fabric 2</strong> (${f2Total}).</p>`);
+            }
+
+            insightsEl.innerHTML = insights.join('');
+        }
+
+        // Main analysis function
+        async function loadAnalysisData() {
+            const btnAnalyze = document.getElementById('btn-analyze');
+            btnAnalyze.disabled = true;
+            btnAnalyze.innerHTML = '<svg class="h-4 w-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span>Menganalisis...</span>';
+
+            showStatus('Mengumpulkan data dari semua network...', 'info');
+
+            try {
+                // Load all network data in parallel
+                const results = await Promise.all(
+                    Object.keys(networkConfig).map(key => loadNetworkData(key))
+                );
+
+                // Process results
+                results.forEach(result => {
+                    const stats = calculateStatistics(result);
+                    analysisData[result.networkKey] = {
+                        ...result,
+                        stats
+                    };
+
+                    // Update summary cards
+                    document.getElementById(`stat-${result.networkKey}-total`).textContent = stats.total;
+                    document.getElementById(`stat-${result.networkKey}-avg`).textContent = stats.avgTime;
+                });
+
+                // Show all sections
+                document.getElementById('summary-section').classList.remove('hidden');
+                document.getElementById('chart-comparison').classList.remove('hidden');
+                document.getElementById('chart-distribution').classList.remove('hidden');
+                document.getElementById('table-statistics').classList.remove('hidden');
+                document.getElementById('insights-section').classList.remove('hidden');
+
+                // Create visualizations
+                createComparisonChart(analysisData);
+                createDistributionChart(analysisData);
+                populateStatisticsTable(analysisData);
+                generateInsights(analysisData);
+
+                showStatus('Analisis berhasil diselesaikan!', 'success');
+                setTimeout(() => {
+                    document.getElementById('status-message').classList.add('hidden');
+                }, 5000);
+
+            } catch (error) {
+                console.error('Error during analysis:', error);
+                showStatus(`Error: ${error.message}`, 'error');
+            } finally {
+                btnAnalyze.disabled = false;
+                btnAnalyze.innerHTML = '<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg><span>Analisis Data</span>';
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('status-message').classList.remove('hidden');
+        });
+    </script>
+</body>
+</html>

@@ -57,6 +57,7 @@ const NETWORK_CONFIGS = {
         peerHostAlias: 'peer0.org1.fabric3.variant',
         orgPath: 'org1.fabric3.variant',
         mspId: 'Org1MSP',
+        organizationsDir: 'organizations-variant',
     },
 };
 

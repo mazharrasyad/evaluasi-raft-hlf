@@ -72,6 +72,7 @@ const networkConfigurations = [
         peerEndpoint: 'localhost:7353',
         peerHostAlias: 'peer0.org1.fabric3.variant',
         domain: 'fabric3.variant',
+        organizationsDir: 'organizations-variant',
         instructions: {
             up: `cd ${fabric3VariantNetworkDir} && ./network.sh up && ./network.sh createChannel -c fabric3-channel-variant`,
             deploy: `cd ${fabric3VariantNetworkDir} && ./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl node -c fabric3-channel-variant`

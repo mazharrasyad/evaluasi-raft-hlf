@@ -3,14 +3,24 @@
         position: fixed;
         top: 1.5rem;
         left: 1.5rem;
-        z-index: 45;
+        z-index: 50;
         display: none;
         align-items: center;
         justify-content: center;
+        animation: pulse-subtle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
     }
 
     .sidebar__floating-toggle-icon {
         transition: transform 0.2s ease;
+    }
+
+    @keyframes pulse-subtle {
+        0%, 100% {
+            box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.7);
+        }
+        50% {
+            box-shadow: 0 0 0 8px rgba(99, 102, 241, 0);
+        }
     }
 
     @media (min-width: 1024px) {
@@ -181,7 +191,7 @@
         </nav>
     </div>
 </aside>
-<button type="button" data-sidebar-desktop-toggle aria-pressed="false" class="sidebar__floating-toggle h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-surface/80 text-lg text-textdark shadow-lg shadow-black/30 backdrop-blur transition hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary">
-    <span aria-hidden="true" class="sidebar__floating-toggle-icon">›</span>
+<button type="button" data-sidebar-desktop-toggle aria-pressed="false" class="sidebar__floating-toggle h-14 w-14 items-center justify-center rounded-2xl border-2 border-secondary/50 bg-gradient-to-br from-secondary/30 via-primary/20 to-surface/90 text-2xl font-bold text-textdark shadow-2xl shadow-secondary/40 backdrop-blur-xl transition-all duration-300 hover:scale-110 hover:border-secondary/80 hover:shadow-secondary/60 hover:from-secondary/40 hover:via-primary/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-secondary">
+    <span aria-hidden="true" class="sidebar__floating-toggle-icon inline-flex items-center justify-center">›</span>
     <span class="sr-only" data-sidebar-desktop-toggle-label>Perluas sidebar</span>
 </button>

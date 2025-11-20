@@ -828,12 +828,27 @@ app.get('/api/network-operations/stream', (req, res) => {
     res.setHeader('Connection', 'keep-alive');
     res.setHeader('X-Accel-Buffering', 'no'); // Disable buffering in nginx
 
+    // Get client operation ID from query parameter for filtering
+    const rawClientOperationId = req.query.clientOperationId;
+    const clientOperationId = typeof rawClientOperationId === 'string'
+        ? rawClientOperationId.trim().slice(0, 200)
+        : null;
+
     // Send initial comment to establish connection
     res.write(': connected\n\n');
 
-    // Event handler for network operations
+    // Event handler for network operations with filtering support
     const eventHandler = (payload) => {
         try {
+            // Filter events by clientOperationId if provided
+            // This allows multiple concurrent operations without event mixing
+            if (clientOperationId && payload.clientOperationId) {
+                // Only send events matching this client's operation ID
+                if (payload.clientOperationId !== clientOperationId) {
+                    return;
+                }
+            }
+
             const data = JSON.stringify(payload);
             res.write(`data: ${data}\n\n`);
         } catch (error) {
@@ -965,10 +980,13 @@ app.post('/api/start-network', async (req, res) => {
         return;
     }
 
-    for (const target of selectedTargets) {
-        const result = await executeNetworkStartup(target, operationContext);
-        results.push(result);
-    }
+    // Execute network startups in parallel for better performance
+    // Each network is independent and can be started simultaneously
+    const startupPromises = selectedTargets.map(target =>
+        executeNetworkStartup(target, operationContext)
+    );
+    const parallelResults = await Promise.all(startupPromises);
+    results.push(...parallelResults);
 
     const completedAt = new Date().toISOString();
     const successCount = results.filter(result => result.status === 'success').length;
@@ -1059,10 +1077,13 @@ app.post('/api/shutdown-network', async (req, res) => {
         return;
     }
 
-    for (const target of selectedTargets) {
-        const result = await executeNetworkShutdown(target);
-        results.push(result);
-    }
+    // Execute network shutdowns in parallel for better performance
+    // Each network is independent and can be stopped simultaneously
+    const shutdownPromises = selectedTargets.map(target =>
+        executeNetworkShutdown(target)
+    );
+    const parallelResults = await Promise.all(shutdownPromises);
+    results.push(...parallelResults);
 
     const completedAt = new Date().toISOString();
     const successCount = results.filter(result => result.status === 'success').length;

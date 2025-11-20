@@ -57,6 +57,7 @@ const NETWORK_CONFIGS = {
         peerHostAlias: 'peer0.org1.fabric3.variant',
         orgPath: 'org1.fabric3.variant',
         mspId: 'Org1MSP',
+        organizationsDir: 'organizations-variant',
     },
 };
 
@@ -77,12 +78,13 @@ export function getNetworkConfig(networkId) {
 async function createGrpcClient(config) {
     const peerEndpoint = config.peerEndpoint;
     const peerHostAlias = config.peerHostAlias;
+    const organizationsDir = config.organizationsDir || 'organizations';
 
     // Read TLS certificate
     const networkDir = path.join(PROJECT_ROOT, config.fabricVersion, config.variant, 'network');
     const tlsCertPath = path.join(
         networkDir,
-        'organizations/peerOrganizations',
+        `${organizationsDir}/peerOrganizations`,
         config.orgPath,
         'peers',
         peerHostAlias,
@@ -114,11 +116,12 @@ async function createGrpcClient(config) {
  */
 async function createIdentity(config) {
     const networkDir = path.join(PROJECT_ROOT, config.fabricVersion, config.variant, 'network');
+    const organizationsDir = config.organizationsDir || 'organizations';
 
     // Read certificate directory
     const certDirPath = path.join(
         networkDir,
-        'organizations/peerOrganizations',
+        `${organizationsDir}/peerOrganizations`,
         config.orgPath,
         'users/User1@' + config.orgPath,
         'msp/signcerts'
@@ -156,11 +159,12 @@ async function createIdentity(config) {
  */
 async function createSigner(config) {
     const networkDir = path.join(PROJECT_ROOT, config.fabricVersion, config.variant, 'network');
+    const organizationsDir = config.organizationsDir || 'organizations';
 
     // Read private key
     const keyDirPath = path.join(
         networkDir,
-        'organizations/peerOrganizations',
+        `${organizationsDir}/peerOrganizations`,
         config.orgPath,
         'users/User1@' + config.orgPath,
         'msp/keystore'

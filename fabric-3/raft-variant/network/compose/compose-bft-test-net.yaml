@@ -48,8 +48,8 @@ services:
     working_dir: /root
     command: orderer
     volumes:
-      - ../organizations/ordererOrganizations/fabric3.variant/orderers/orderer.fabric3.variant/msp:/var/hyperledger/orderer/msp
-      - ../organizations/ordererOrganizations/fabric3.variant/orderers/orderer.fabric3.variant/tls/:/var/hyperledger/orderer/tls
+      - ../organizations-variant/ordererOrganizations/fabric3.variant/orderers/orderer.fabric3.variant/msp:/var/hyperledger/orderer/msp
+      - ../organizations-variant/ordererOrganizations/fabric3.variant/orderers/orderer.fabric3.variant/tls/:/var/hyperledger/orderer/tls
       - orderer.fabric3.variant:/var/hyperledger/production/orderer
     ports:
       - 8255:8055
@@ -92,8 +92,8 @@ services:
     working_dir: /root
     command: orderer
     volumes:
-      - ../organizations/ordererOrganizations/fabric3.variant/orderers/orderer2.fabric3.variant/msp:/var/hyperledger/orderer/msp
-      - ../organizations/ordererOrganizations/fabric3.variant/orderers/orderer2.fabric3.variant/tls/:/var/hyperledger/orderer/tls
+      - ../organizations-variant/ordererOrganizations/fabric3.variant/orderers/orderer2.fabric3.variant/msp:/var/hyperledger/orderer/msp
+      - ../organizations-variant/ordererOrganizations/fabric3.variant/orderers/orderer2.fabric3.variant/tls/:/var/hyperledger/orderer/tls
       - orderer2.fabric3.variant:/var/hyperledger/production/orderer
     ports:
       - 8252:8052
@@ -136,8 +136,8 @@ services:
     working_dir: /root
     command: orderer
     volumes:
-      - ../organizations/ordererOrganizations/fabric3.variant/orderers/orderer3.fabric3.variant/msp:/var/hyperledger/orderer/msp
-      - ../organizations/ordererOrganizations/fabric3.variant/orderers/orderer3.fabric3.variant/tls/:/var/hyperledger/orderer/tls
+      - ../organizations-variant/ordererOrganizations/fabric3.variant/orderers/orderer3.fabric3.variant/msp:/var/hyperledger/orderer/msp
+      - ../organizations-variant/ordererOrganizations/fabric3.variant/orderers/orderer3.fabric3.variant/tls/:/var/hyperledger/orderer/tls
       - orderer3.fabric3.variant:/var/hyperledger/production/orderer
     ports:
       - 8256:8056
@@ -180,8 +180,8 @@ services:
     working_dir: /root
     command: orderer
     volumes:
-      - ../organizations/ordererOrganizations/fabric3.variant/orderers/orderer4.fabric3.variant/msp:/var/hyperledger/orderer/msp
-      - ../organizations/ordererOrganizations/fabric3.variant/orderers/orderer4.fabric3.variant/tls/:/var/hyperledger/orderer/tls
+      - ../organizations-variant/ordererOrganizations/fabric3.variant/orderers/orderer4.fabric3.variant/msp:/var/hyperledger/orderer/msp
+      - ../organizations-variant/ordererOrganizations/fabric3.variant/orderers/orderer4.fabric3.variant/tls/:/var/hyperledger/orderer/tls
       - orderer4.fabric3.variant:/var/hyperledger/production/orderer
     ports:
       - 8258:8058
@@ -224,7 +224,7 @@ services:
       - CHAINCODE_AS_A_SERVICE_BUILDER_CONFIG={"peername":"peer0org1"}
       - CORE_CHAINCODE_EXECUTETIMEOUT=300s
     volumes:
-      - ../organizations/peerOrganizations/org1.fabric3.variant/peers/peer0.org1.fabric3.variant:/etc/hyperledger/fabric
+      - ../organizations-variant/peerOrganizations/org1.fabric3.variant/peers/peer0.org1.fabric3.variant:/etc/hyperledger/fabric
       - peer0.org1.fabric3.variant:/var/hyperledger/production
     working_dir: /root
     command: peer node start
@@ -265,7 +265,7 @@ services:
       - CHAINCODE_AS_A_SERVICE_BUILDER_CONFIG={"peername":"peer0org2"}
       - CORE_CHAINCODE_EXECUTETIMEOUT=300s
     volumes:
-      - ../organizations/peerOrganizations/org2.fabric3.variant/peers/peer0.org2.fabric3.variant:/etc/hyperledger/fabric
+      - ../organizations-variant/peerOrganizations/org2.fabric3.variant/peers/peer0.org2.fabric3.variant:/etc/hyperledger/fabric
       - peer0.org2.fabric3.variant:/var/hyperledger/production
     working_dir: /root
     command: peer node start

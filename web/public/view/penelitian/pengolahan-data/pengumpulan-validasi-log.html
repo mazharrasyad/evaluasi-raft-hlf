@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluasi RAFT HLF — Pengumpulan dan Validasi Log</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#38BDF8',
+                        secondary: '#6366F1',
+                        accent: '#F59E0B',
+                        highlight: '#F97316',
+                        soft: '#050B16',
+                        surface: '#0F172A',
+                        surfaceMuted: '#16213F',
+                        border: '#1E293B',
+                        muted: '#94A3B8',
+                        textdark: '#E2E8F0'
+                    }
+                }
+            }
+        };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="/images/logo-ai-center.svg">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+
+        .component-link[data-active="true"] {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.28), rgba(56, 189, 248, 0.22));
+            color: #E2E8F0;
+            border-color: rgba(249, 115, 22, 0.45);
+            box-shadow: 0 12px 40px rgba(15, 23, 42, 0.45);
+        }
+
+        .component-link[data-active="true"] .component-link__index {
+            background-color: rgba(249, 115, 22, 0.35);
+            color: #E2E8F0;
+        }
+
+        .network-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-f2-standard {
+            background: rgba(34, 197, 94, 0.2);
+            color: rgb(74, 222, 128);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .badge-f2-variant {
+            background: rgba(59, 130, 246, 0.2);
+            color: rgb(96, 165, 250);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .badge-f3-standard {
+            background: rgba(168, 85, 247, 0.2);
+            color: rgb(192, 132, 252);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+        }
+
+        .badge-f3-variant {
+            background: rgba(236, 72, 153, 0.2);
+            color: rgb(244, 114, 182);
+            border: 1px solid rgba(236, 72, 153, 0.3);
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-valid {
+            background: rgba(34, 197, 94, 0.2);
+            color: rgb(74, 222, 128);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .status-pending {
+            background: rgba(251, 191, 36, 0.2);
+            color: rgb(253, 224, 71);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+        }
+
+        .status-error {
+            background: rgba(239, 68, 68, 0.2);
+            color: rgb(248, 113, 113);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        /* DataTables Custom Styling */
+        .dataTables_wrapper {
+            color: #E2E8F0;
+        }
+
+        .dataTables_wrapper .dataTables_length,
+        .dataTables_wrapper .dataTables_filter,
+        .dataTables_wrapper .dataTables_info,
+        .dataTables_wrapper .dataTables_paginate {
+            color: #E2E8F0;
+            margin-bottom: 1rem;
+        }
+
+        .dataTables_wrapper .dataTables_filter input {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #E2E8F0;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            margin-left: 0.5rem;
+        }
+
+        .dataTables_wrapper .dataTables_length select {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #E2E8F0;
+            border-radius: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            margin: 0 0.5rem;
+        }
+
+        table.dataTable {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(22, 33, 63, 0.5);
+            border-radius: 1rem;
+        }
+
+        table.dataTable thead th {
+            background: rgba(99, 102, 241, 0.15);
+            color: #E2E8F0;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid rgba(99, 102, 241, 0.3);
+            border-top: none;
+        }
+
+        table.dataTable tbody td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            color: rgba(226, 232, 240, 0.9);
+        }
+
+        table.dataTable tbody tr:hover {
+            background: rgba(56, 189, 248, 0.08);
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+            background: rgba(15, 23, 42, 0.8) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            color: #E2E8F0 !important;
+            border-radius: 0.5rem !important;
+            padding: 0.5rem 1rem !important;
+            margin: 0 0.25rem !important;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+            background: rgba(56, 189, 248, 0.2) !important;
+            border-color: rgba(56, 189, 248, 0.4) !important;
+            color: #E2E8F0 !important;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+            background: rgba(99, 102, 241, 0.3) !important;
+            border-color: rgba(99, 102, 241, 0.5) !important;
+            color: #E2E8F0 !important;
+        }
+
+        .dt-buttons {
+            margin-bottom: 1rem;
+        }
+
+        .dt-button {
+            background: rgba(56, 189, 248, 0.2) !important;
+            border: 1px solid rgba(56, 189, 248, 0.3) !important;
+            color: #E2E8F0 !important;
+            border-radius: 0.5rem !important;
+            padding: 0.5rem 1rem !important;
+            margin-right: 0.5rem !important;
+            font-weight: 600 !important;
+            transition: all 0.2s ease !important;
+        }
+
+        .dt-button:hover {
+            background: rgba(56, 189, 248, 0.3) !important;
+            border-color: rgba(56, 189, 248, 0.5) !important;
+            transform: translateY(-1px);
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.8), rgba(22, 33, 63, 0.6));
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            border-color: rgba(56, 189, 248, 0.3);
+            box-shadow: 0 8px 32px rgba(56, 189, 248, 0.15);
+        }
+    </style>
+</head>
+<body class="bg-soft text-textdark">
+    <div data-component="header"></div>
+    <div class="relative min-h-screen overflow-hidden">
+        <div class="absolute inset-0 -z-10 h-full w-full">
+            <div class="absolute -left-1/3 top-0 h-[720px] w-[720px] rounded-full bg-gradient-to-br from-highlight/30 via-secondary/20 to-transparent opacity-70 blur-3xl"></div>
+            <div class="absolute -right-1/4 bottom-0 h-[620px] w-[620px] rounded-full bg-gradient-to-tr from-accent/35 via-secondary/25 to-primary/20 opacity-70 blur-3xl"></div>
+        </div>
+
+        <div class="flex min-h-screen flex-col lg:flex-row">
+            <div data-component="sidebar"></div>
+
+            <div class="flex-1">
+                <main class="mx-auto w-full max-w-7xl px-6 py-12">
+                    <div class="space-y-10">
+                        <!-- Header Section -->
+                        <section class="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-surface via-soft to-[#020817] p-10 shadow-2xl shadow-black/30">
+                            <div class="flex flex-col gap-6">
+                                <div class="inline-flex w-fit items-center gap-2 rounded-full border border-secondary/40 bg-secondary/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-secondary/90">
+                                    Bab 4.5.1
+                                </div>
+                                <div class="space-y-5">
+                                    <h1 class="text-3xl font-semibold text-textdark md:text-4xl">Pengumpulan dan Validasi Log</h1>
+                                    <p class="text-sm text-textdark/70 md:text-base leading-relaxed">
+                                        Halaman ini menampilkan proses pengumpulan log transaksi dari API masing-masing network blockchain Hyperledger Fabric. Log yang dikumpulkan mencakup seluruh data transaksi dari keempat varian jaringan: Fabric 2 RAFT Standard, Fabric 2 RAFT Variant, Fabric 3 RAFT Standard, dan Fabric 3 RAFT Variant.
+                                    </p>
+                                    <p class="text-sm text-textdark/70 md:text-base leading-relaxed">
+                                        Setiap log transaksi akan divalidasi untuk memastikan kelengkapan dan konsistensi data. Proses validasi mencakup pengecekan integritas data, kelengkapan field yang diperlukan, dan konsistensi timestamp. Data yang telah tervalidasi akan digunakan untuk analisis lebih lanjut dalam pengolahan nilai rata-rata dan visualisasi grafik.
+                                    </p>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Control Panel -->
+                        <section class="rounded-3xl border border-white/10 bg-surface/80 p-8 shadow-2xl shadow-black/20 backdrop-blur-sm">
+                            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                                <div>
+                                    <h2 class="text-2xl font-semibold text-textdark">Pengumpulan Log Transaksi</h2>
+                                    <p class="mt-2 text-sm text-textdark/60">Kumpulkan dan validasi log dari semua network</p>
+                                </div>
+                                <button
+                                    onclick="collectLogs()"
+                                    id="btn-collect"
+                                    class="inline-flex items-center justify-center gap-2 rounded-lg bg-secondary/90 px-6 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-secondary/40 transition duration-200 hover:-translate-y-0.5 hover:bg-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary"
+                                >
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                    </svg>
+                                    <span>Kumpulkan Log</span>
+                                </button>
+                            </div>
+                            <div id="status-message" class="mt-4 hidden rounded-lg border border-secondary/30 bg-secondary/10 p-4 text-sm text-secondary">
+                                Klik "Kumpulkan Log" untuk memulai proses pengumpulan data...
+                            </div>
+                        </section>
+
+                        <!-- Summary Statistics Cards -->
+                        <section id="summary-section" class="hidden space-y-6">
+                            <h2 class="text-2xl font-semibold text-textdark">Ringkasan Pengumpulan Log</h2>
+                            <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+                                <!-- Fabric 2 RAFT Standard -->
+                                <div class="stat-card">
+                                    <div class="mb-3 flex items-center justify-between">
+                                        <span class="network-badge badge-f2-standard">F2 Standard</span>
+                                        <span id="status-f2-standard" class="status-badge status-pending">
+                                            <span class="inline-block h-2 w-2 rounded-full bg-current"></span>
+                                            Pending
+                                        </span>
+                                    </div>
+                                    <div class="space-y-3">
+                                        <div>
+                                            <p class="text-xs text-textdark/60 uppercase tracking-wider">Total Records</p>
+                                            <p id="count-f2-standard" class="text-2xl font-bold text-textdark">-</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-xs text-textdark/60 uppercase tracking-wider">Status</p>
+                                            <p id="info-f2-standard" class="text-xs text-textdark/70">Belum dikumpulkan</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Fabric 2 RAFT Variant -->
+                                <div class="stat-card">
+                                    <div class="mb-3 flex items-center justify-between">
+                                        <span class="network-badge badge-f2-variant">F2 Variant</span>
+                                        <span id="status-f2-variant" class="status-badge status-pending">
+                                            <span class="inline-block h-2 w-2 rounded-full bg-current"></span>
+                                            Pending
+                                        </span>
+                                    </div>
+                                    <div class="space-y-3">
+                                        <div>
+                                            <p class="text-xs text-textdark/60 uppercase tracking-wider">Total Records</p>
+                                            <p id="count-f2-variant" class="text-2xl font-bold text-textdark">-</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-xs text-textdark/60 uppercase tracking-wider">Status</p>
+                                            <p id="info-f2-variant" class="text-xs text-textdark/70">Belum dikumpulkan</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Fabric 3 RAFT Standard -->
+                                <div class="stat-card">
+                                    <div class="mb-3 flex items-center justify-between">
+                                        <span class="network-badge badge-f3-standard">F3 Standard</span>
+                                        <span id="status-f3-standard" class="status-badge status-pending">
+                                            <span class="inline-block h-2 w-2 rounded-full bg-current"></span>
+                                            Pending
+                                        </span>
+                                    </div>
+                                    <div class="space-y-3">
+                                        <div>
+                                            <p class="text-xs text-textdark/60 uppercase tracking-wider">Total Records</p>
+                                            <p id="count-f3-standard" class="text-2xl font-bold text-textdark">-</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-xs text-textdark/60 uppercase tracking-wider">Status</p>
+                                            <p id="info-f3-standard" class="text-xs text-textdark/70">Belum dikumpulkan</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Fabric 3 RAFT Variant -->
+                                <div class="stat-card">
+                                    <div class="mb-3 flex items-center justify-between">
+                                        <span class="network-badge badge-f3-variant">F3 Variant</span>
+                                        <span id="status-f3-variant" class="status-badge status-pending">
+                                            <span class="inline-block h-2 w-2 rounded-full bg-current"></span>
+                                            Pending
+                                        </span>
+                                    </div>
+                                    <div class="space-y-3">
+                                        <div>
+                                            <p class="text-xs text-textdark/60 uppercase tracking-wider">Total Records</p>
+                                            <p id="count-f3-variant" class="text-2xl font-bold text-textdark">-</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-xs text-textdark/60 uppercase tracking-wider">Status</p>
+                                            <p id="info-f3-variant" class="text-xs text-textdark/70">Belum dikumpulkan</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Log Data Table -->
+                        <section id="table-section" class="hidden rounded-3xl border border-white/10 bg-surface/80 p-8 shadow-2xl shadow-black/20 backdrop-blur-sm">
+                            <h2 class="mb-6 text-2xl font-semibold text-textdark">Data Log Transaksi</h2>
+                            <div class="overflow-x-auto rounded-2xl border border-white/10 bg-surfaceMuted/50 p-6">
+                                <table id="logsTable" class="display" style="width:100%">
+                                    <thead>
+                                        <tr>
+                                            <th>No</th>
+                                            <th>Network</th>
+                                            <th>Transaction ID</th>
+                                            <th>Timestamp</th>
+                                            <th>Status</th>
+                                            <th>Details</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="logs-tbody">
+                                        <!-- Data will be populated by JavaScript -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </section>
+
+                        <!-- Validation Summary -->
+                        <section id="validation-section" class="hidden rounded-3xl border border-white/10 bg-gradient-to-br from-secondary/20 via-surface/80 to-primary/20 p-8 shadow-2xl shadow-black/20 backdrop-blur-sm">
+                            <div class="flex items-start gap-4">
+                                <div class="rounded-full bg-secondary/20 p-3">
+                                    <svg class="h-6 w-6 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <div class="flex-1 space-y-3">
+                                    <h3 class="text-xl font-semibold text-textdark">Hasil Validasi</h3>
+                                    <div id="validation-content" class="space-y-2 text-sm text-textdark/70">
+                                        <!-- Validation results will be populated by JavaScript -->
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </main>
+
+                <div data-component="footer"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/layout.js" defer></script>
+    <script src="/js/navigation.js" defer></script>
+    <script>
+        // Network configuration
+        const networkConfig = {
+            'f2-standard': {
+                apiUrl: '/api/fabric-2/raft-standard/pelaporan',
+                label: 'Fabric 2 RAFT Standard',
+                shortLabel: 'F2 Standard',
+                badgeClass: 'badge-f2-standard'
+            },
+            'f2-variant': {
+                apiUrl: '/api/fabric-2/raft-variant/pelaporan',
+                label: 'Fabric 2 RAFT Variant',
+                shortLabel: 'F2 Variant',
+                badgeClass: 'badge-f2-variant'
+            },
+            'f3-standard': {
+                apiUrl: '/api/fabric-3/raft-standard/pelaporan',
+                label: 'Fabric 3 RAFT Standard',
+                shortLabel: 'F3 Standard',
+                badgeClass: 'badge-f3-standard'
+            },
+            'f3-variant': {
+                apiUrl: '/api/fabric-3/raft-variant/pelaporan',
+                label: 'Fabric 3 RAFT Variant',
+                shortLabel: 'F3 Variant',
+                badgeClass: 'badge-f3-variant'
+            }
+        };
+
+        // Store collected data
+        let collectedLogs = [];
+        let logsTable = null;
+
+        // Update status message
+        function showStatus(message, type = 'info') {
+            const statusEl = document.getElementById('status-message');
+            statusEl.textContent = message;
+            statusEl.classList.remove('hidden', 'border-secondary/30', 'bg-secondary/10', 'text-secondary', 'border-red-500/30', 'bg-red-500/10', 'text-red-400', 'border-green-500/30', 'bg-green-500/10', 'text-green-400');
+
+            if (type === 'error') {
+                statusEl.classList.add('border-red-500/30', 'bg-red-500/10', 'text-red-400');
+            } else if (type === 'success') {
+                statusEl.classList.add('border-green-500/30', 'bg-green-500/10', 'text-green-400');
+            } else {
+                statusEl.classList.add('border-secondary/30', 'bg-secondary/10', 'text-secondary');
+            }
+        }
+
+        // Update network status card
+        function updateNetworkStatus(networkKey, count, status, info) {
+            document.getElementById(`count-${networkKey}`).textContent = count;
+            document.getElementById(`info-${networkKey}`).textContent = info;
+
+            const statusEl = document.getElementById(`status-${networkKey}`);
+            statusEl.classList.remove('status-pending', 'status-valid', 'status-error');
+
+            if (status === 'valid') {
+                statusEl.classList.add('status-valid');
+                statusEl.innerHTML = '<span class="inline-block h-2 w-2 rounded-full bg-current"></span>Valid';
+            } else if (status === 'error') {
+                statusEl.classList.add('status-error');
+                statusEl.innerHTML = '<span class="inline-block h-2 w-2 rounded-full bg-current"></span>Error';
+            } else {
+                statusEl.classList.add('status-pending');
+                statusEl.innerHTML = '<span class="inline-block h-2 w-2 rounded-full bg-current"></span>Pending';
+            }
+        }
+
+        // Validate log entry
+        function validateLogEntry(entry) {
+            const issues = [];
+
+            if (!entry.transactionId || entry.transactionId.trim() === '') {
+                issues.push('Missing transaction ID');
+            }
+
+            if (!entry.submittedAt) {
+                issues.push('Missing timestamp');
+            } else {
+                const timestamp = new Date(entry.submittedAt);
+                if (isNaN(timestamp.getTime())) {
+                    issues.push('Invalid timestamp format');
+                }
+            }
+
+            return {
+                isValid: issues.length === 0,
+                issues: issues
+            };
+        }
+
+        // Fetch logs from a network
+        async function fetchNetworkLogs(networkKey) {
+            const config = networkConfig[networkKey];
+
+            try {
+                showStatus(`Mengumpulkan log dari ${config.label}...`, 'info');
+
+                const response = await fetch(config.apiUrl);
+                const data = await response.json();
+
+                if (!data.success) {
+                    throw new Error(data.error || 'Failed to fetch data');
+                }
+
+                const records = data.records || [];
+                let validCount = 0;
+                let invalidCount = 0;
+
+                // Validate and process each record
+                const processedRecords = records.map((record, index) => {
+                    const validation = validateLogEntry(record);
+
+                    if (validation.isValid) {
+                        validCount++;
+                    } else {
+                        invalidCount++;
+                    }
+
+                    return {
+                        network: networkKey,
+                        networkLabel: config.shortLabel,
+                        badgeClass: config.badgeClass,
+                        ...record,
+                        validation: validation,
+                        index: collectedLogs.length + index + 1
+                    };
+                });
+
+                collectedLogs.push(...processedRecords);
+
+                // Update status card
+                const statusText = invalidCount > 0
+                    ? `${validCount} valid, ${invalidCount} invalid`
+                    : `${validCount} records collected`;
+
+                const status = invalidCount > 0 ? 'error' : 'valid';
+                updateNetworkStatus(networkKey, records.length, status, statusText);
+
+                return {
+                    networkKey,
+                    total: records.length,
+                    valid: validCount,
+                    invalid: invalidCount
+                };
+
+            } catch (error) {
+                console.error(`Error fetching ${networkKey}:`, error);
+                updateNetworkStatus(networkKey, 0, 'error', error.message);
+                throw error;
+            }
+        }
+
+        // Initialize or update DataTable
+        function updateLogsTable() {
+            const tbody = document.getElementById('logs-tbody');
+            tbody.innerHTML = '';
+
+            collectedLogs.forEach(log => {
+                const row = document.createElement('tr');
+
+                const timestamp = log.submittedAt
+                    ? new Date(log.submittedAt).toLocaleString('id-ID', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit'
+                    })
+                    : '-';
+
+                const statusBadge = log.validation.isValid
+                    ? '<span class="status-badge status-valid"><span class="inline-block h-2 w-2 rounded-full bg-current"></span>Valid</span>'
+                    : '<span class="status-badge status-error"><span class="inline-block h-2 w-2 rounded-full bg-current"></span>Invalid</span>';
+
+                const details = log.validation.isValid
+                    ? 'Semua field lengkap'
+                    : log.validation.issues.join(', ');
+
+                row.innerHTML = `
+                    <td>${log.index}</td>
+                    <td><span class="network-badge ${log.badgeClass}">${log.networkLabel}</span></td>
+                    <td class="font-mono text-xs">${log.transactionId || '-'}</td>
+                    <td class="text-xs">${timestamp}</td>
+                    <td>${statusBadge}</td>
+                    <td class="text-xs">${details}</td>
+                `;
+
+                tbody.appendChild(row);
+            });
+
+            // Initialize or refresh DataTable
+            if (logsTable) {
+                logsTable.destroy();
+            }
+
+            logsTable = $('#logsTable').DataTable({
+                pageLength: 25,
+                order: [[0, 'asc']],
+                dom: 'Bfrtip',
+                buttons: [
+                    {
+                        extend: 'csv',
+                        text: 'Export CSV',
+                        className: 'dt-button'
+                    },
+                    {
+                        extend: 'excel',
+                        text: 'Export Excel',
+                        className: 'dt-button'
+                    }
+                ],
+                language: {
+                    search: 'Cari:',
+                    lengthMenu: 'Tampilkan _MENU_ data per halaman',
+                    info: 'Menampilkan _START_ hingga _END_ dari _TOTAL_ data',
+                    infoEmpty: 'Tidak ada data',
+                    infoFiltered: '(difilter dari _MAX_ total data)',
+                    paginate: {
+                        first: 'Pertama',
+                        last: 'Terakhir',
+                        next: 'Berikutnya',
+                        previous: 'Sebelumnya'
+                    },
+                    zeroRecords: 'Tidak ada data yang ditemukan'
+                }
+            });
+        }
+
+        // Generate validation summary
+        function generateValidationSummary(results) {
+            const validationEl = document.getElementById('validation-content');
+            const summaryItems = [];
+
+            let totalRecords = 0;
+            let totalValid = 0;
+            let totalInvalid = 0;
+
+            results.forEach(result => {
+                totalRecords += result.total;
+                totalValid += result.valid;
+                totalInvalid += result.invalid;
+
+                const config = networkConfig[result.networkKey];
+                summaryItems.push(`
+                    <p>✓ <strong>${config.label}</strong>: ${result.total} records (${result.valid} valid, ${result.invalid} invalid)</p>
+                `);
+            });
+
+            const validPercentage = totalRecords > 0 ? ((totalValid / totalRecords) * 100).toFixed(2) : 0;
+
+            summaryItems.unshift(`
+                <p class="text-base font-semibold text-textdark">
+                    Total ${totalRecords} log transaksi dikumpulkan dari ${results.length} network.
+                </p>
+                <p class="text-base font-semibold text-textdark">
+                    Tingkat validitas: ${validPercentage}% (${totalValid} dari ${totalRecords} records)
+                </p>
+                <div class="my-4 h-px bg-white/20"></div>
+            `);
+
+            if (totalInvalid > 0) {
+                summaryItems.push(`
+                    <div class="mt-4 rounded-lg border border-yellow-500/30 bg-yellow-500/10 p-4">
+                        <p class="font-semibold text-yellow-400">⚠ Perhatian:</p>
+                        <p class="text-yellow-400/80">Terdapat ${totalInvalid} log dengan data tidak lengkap atau format tidak valid.</p>
+                    </div>
+                `);
+            }
+
+            validationEl.innerHTML = summaryItems.join('');
+        }
+
+        // Main collection function
+        async function collectLogs() {
+            const btnCollect = document.getElementById('btn-collect');
+            btnCollect.disabled = true;
+            btnCollect.innerHTML = '<svg class="h-5 w-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span>Mengumpulkan...</span>';
+
+            // Show summary section
+            document.getElementById('summary-section').classList.remove('hidden');
+
+            // Reset collected logs
+            collectedLogs = [];
+
+            try {
+                // Collect logs from all networks
+                const results = await Promise.all(
+                    Object.keys(networkConfig).map(key => fetchNetworkLogs(key))
+                );
+
+                // Show table and validation sections
+                document.getElementById('table-section').classList.remove('hidden');
+                document.getElementById('validation-section').classList.remove('hidden');
+
+                // Update table
+                updateLogsTable();
+
+                // Generate validation summary
+                generateValidationSummary(results);
+
+                showStatus('Pengumpulan log berhasil diselesaikan!', 'success');
+
+                setTimeout(() => {
+                    document.getElementById('status-message').classList.add('hidden');
+                }, 5000);
+
+            } catch (error) {
+                console.error('Error during log collection:', error);
+                showStatus(`Error: ${error.message}`, 'error');
+            } finally {
+                btnCollect.disabled = false;
+                btnCollect.innerHTML = '<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg><span>Kumpulkan Log</span>';
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('status-message').classList.remove('hidden');
+        });
+    </script>
+</body>
+</html>

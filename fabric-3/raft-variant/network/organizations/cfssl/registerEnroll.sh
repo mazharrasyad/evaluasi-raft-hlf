@@ -7,17 +7,17 @@ function peer_cert() {
     USER=$2
     ORG=$3
 
-    mkdir -p "organizations/peerOrganizations/$ORG.fabric3.variant/ca"
-    mkdir -p "organizations/peerOrganizations/$ORG.fabric3.variant/msp/cacerts"
-    mkdir -p "organizations/peerOrganizations/$ORG.fabric3.variant/msp/tlscacerts"
-    mkdir -p "organizations/peerOrganizations/$ORG.fabric3.variant/peers"
-    mkdir -p "organizations/peerOrganizations/$ORG.fabric3.variant/tlsca"
+    mkdir -p "organizations-variant/peerOrganizations/$ORG.fabric3.variant/ca"
+    mkdir -p "organizations-variant/peerOrganizations/$ORG.fabric3.variant/msp/cacerts"
+    mkdir -p "organizations-variant/peerOrganizations/$ORG.fabric3.variant/msp/tlscacerts"
+    mkdir -p "organizations-variant/peerOrganizations/$ORG.fabric3.variant/peers"
+    mkdir -p "organizations-variant/peerOrganizations/$ORG.fabric3.variant/tlsca"
 
-    CERT_DIR=organizations/peerOrganizations/$ORG.fabric3.variant
+    CERT_DIR=organizations-variant/peerOrganizations/$ORG.fabric3.variant
 
     if [ ! -f "$CERT_DIR/ca/ca-key.pem" ]; then
 
-        cfssl gencert -initca "${PWD}/organizations/cfssl/ca-peer.json" | cfssljson -bare "$CERT_DIR/ca/ca"
+        cfssl gencert -initca "${PWD}/organizations-variant/cfssl/ca-peer.json" | cfssljson -bare "$CERT_DIR/ca/ca"
 
         cp "$CERT_DIR/ca/ca.pem" "$CERT_DIR/tlsca/tlsca.$ORG.fabric3.variant-cert.pem"
         cp "$CERT_DIR/ca/ca.pem" "$CERT_DIR/ca/ca.$ORG.fabric3.variant-cert.pem"
@@ -57,17 +57,17 @@ function orderer_cert() {
     TYPE=$1 #orderer user
     USER=$2 #orderer.fabric3.variant
 
-    mkdir -p organizations/ordererOrganizations/fabric3.variant/ca
-    mkdir -p organizations/ordererOrganizations/fabric3.variant/msp/cacerts
-    mkdir -p organizations/ordererOrganizations/fabric3.variant/msp/tlscacerts
-    mkdir -p organizations/ordererOrganizations/fabric3.variant/orderers
-    mkdir -p organizations/ordererOrganizations/fabric3.variant/tlsca
+    mkdir -p organizations-variant/ordererOrganizations/fabric3.variant/ca
+    mkdir -p organizations-variant/ordererOrganizations/fabric3.variant/msp/cacerts
+    mkdir -p organizations-variant/ordererOrganizations/fabric3.variant/msp/tlscacerts
+    mkdir -p organizations-variant/ordererOrganizations/fabric3.variant/orderers
+    mkdir -p organizations-variant/ordererOrganizations/fabric3.variant/tlsca
 
-    CERT_DIR=organizations/ordererOrganizations/fabric3.variant
+    CERT_DIR=organizations-variant/ordererOrganizations/fabric3.variant
 
     if [ ! -f "$CERT_DIR/ca/ca-key.pem" ]; then
 
-        cfssl gencert -initca "${PWD}/organizations/cfssl/ca-orderer.json" | cfssljson -bare "$CERT_DIR/ca/ca"
+        cfssl gencert -initca "${PWD}/organizations-variant/cfssl/ca-orderer.json" | cfssljson -bare "$CERT_DIR/ca/ca"
 
         cp "$CERT_DIR/ca/ca.pem" "$CERT_DIR/tlsca/tlsca.fabric3.variant-cert.pem"
 
@@ -115,16 +115,16 @@ function generate_user_certs() {
         mkdir -p $CERT_DIR/users/$USER/msp/$DIR
     done
 
-    sed -e "s/{USER}/$USER/g" <"$PWD/organizations/cfssl/${TYPE}-csr-template.json" >$PWD/organizations/cfssl/${TYPE}-${USER}-csr.json
+    sed -e "s/{USER}/$USER/g" <"$PWD/organizations-variant/cfssl/${TYPE}-csr-template.json" >$PWD/organizations-variant/cfssl/${TYPE}-${USER}-csr.json
 
     cfssl gencert \
         -ca=$CERT_DIR/ca/ca.pem \
         -ca-key=$CERT_DIR/ca/ca-key.pem \
-        -config=$PWD/organizations/cfssl/cert-signing-config.json \
+        -config=$PWD/organizations-variant/cfssl/cert-signing-config.json \
         -cn="$USER" \
         -hostname="$USER,localhost,127.0.0.1" \
         -profile="sign" \
-        $PWD/organizations/cfssl/${TYPE}-${USER}-csr.json | cfssljson -bare $CERT_DIR/users/$USER/msp/signcerts/cert
+        $PWD/organizations-variant/cfssl/${TYPE}-${USER}-csr.json | cfssljson -bare $CERT_DIR/users/$USER/msp/signcerts/cert
 
     mv $CERT_DIR/users/$USER/msp/signcerts/cert-key.pem $CERT_DIR/users/$USER/msp/keystore/cert-key.pem
     cp $CERT_DIR/ca/ca.pem $CERT_DIR/users/$USER/msp/cacerts
@@ -148,17 +148,17 @@ function generate_user_certs() {
     cfssl gencert \
         -ca=$CERT_DIR/ca/ca.pem \
         -ca-key=$CERT_DIR/ca/ca-key.pem \
-        -config=$PWD/organizations/cfssl/cert-signing-config.json \
+        -config=$PWD/organizations-variant/cfssl/cert-signing-config.json \
         -cn="$USER" \
         -hostname="$USER,localhost,127.0.0.1" \
         -profile="tls" \
-        $PWD/organizations/cfssl/${TYPE}-${USER}-csr.json | cfssljson -bare $CERT_DIR/users/$USER/tls/client
+        $PWD/organizations-variant/cfssl/${TYPE}-${USER}-csr.json | cfssljson -bare $CERT_DIR/users/$USER/tls/client
 
     cp $CERT_DIR/ca/ca.pem $CERT_DIR/users/$USER/tls/ca.crt
     mv $CERT_DIR/users/$USER/tls/client-key.pem $CERT_DIR/users/$USER/tls/client.key
     mv $CERT_DIR/users/$USER/tls/client.pem $CERT_DIR/users/$USER/tls/client.crt
 
-    rm $PWD/organizations/cfssl/${TYPE}-${USER}-csr.json
+    rm $PWD/organizations-variant/cfssl/${TYPE}-${USER}-csr.json
 
 }
 
@@ -171,16 +171,16 @@ function generate_peer_certs() {
     done
 
     mkdir -p "$CERT_DIR/peers/$USER/tls"
-    sed -e "s/{USER}/$USER/g" <"$PWD/organizations/cfssl/peer-csr-template.json" >"$PWD/organizations/cfssl/peer-${USER}.json"
+    sed -e "s/{USER}/$USER/g" <"$PWD/organizations-variant/cfssl/peer-csr-template.json" >"$PWD/organizations-variant/cfssl/peer-${USER}.json"
 
     cfssl gencert \
         -ca="$CERT_DIR/ca/ca.pem" \
         -ca-key="$CERT_DIR/ca/ca-key.pem" \
-        -config="$PWD/organizations/cfssl/cert-signing-config.json" \
+        -config="$PWD/organizations-variant/cfssl/cert-signing-config.json" \
         -cn="$USER" \
         -hostname="$USER,localhost,127.0.0.1" \
         -profile="sign" \
-        "$PWD/organizations/cfssl/peer-${USER}.json" | cfssljson -bare "$CERT_DIR/peers/${USER}/msp/signcerts/cert"
+        "$PWD/organizations-variant/cfssl/peer-${USER}.json" | cfssljson -bare "$CERT_DIR/peers/${USER}/msp/signcerts/cert"
 
     mv "$CERT_DIR/peers/$USER/msp/signcerts/cert-key.pem" "$CERT_DIR/peers/$USER/msp/keystore"
 
@@ -205,17 +205,17 @@ function generate_peer_certs() {
     cfssl gencert \
         -ca="$CERT_DIR/ca/ca.pem" \
         -ca-key="$CERT_DIR/ca/ca-key.pem" \
-        -config="$PWD/organizations/cfssl/cert-signing-config.json" \
+        -config="$PWD/organizations-variant/cfssl/cert-signing-config.json" \
         -cn="$USER" \
         -hostname="$USER,localhost,127.0.0.1" \
         -profile="tls" \
-        "$PWD/organizations/cfssl/peer-${USER}.json" | cfssljson -bare "$CERT_DIR/peers/$USER/tls/server"
+        "$PWD/organizations-variant/cfssl/peer-${USER}.json" | cfssljson -bare "$CERT_DIR/peers/$USER/tls/server"
 
     cp "$CERT_DIR/ca/ca.pem" "$CERT_DIR/peers/$USER/tls/ca.crt"
     mv "$CERT_DIR/peers/$USER/tls/server.pem" "$CERT_DIR/peers/$USER/tls/server.crt"
     mv "$CERT_DIR/peers/$USER/tls/server-key.pem" "$CERT_DIR/peers/$USER/tls/server.key"
 
-    rm "$PWD/organizations/cfssl/peer-${USER}.json"
+    rm "$PWD/organizations-variant/cfssl/peer-${USER}.json"
 }
 
 function generate_orderer_certs() {
@@ -224,21 +224,21 @@ function generate_orderer_certs() {
     USER=$2
 
     for DIR in cacerts keystore signcerts tlscacerts; do
-        mkdir -p "organizations/ordererOrganizations/fabric3.variant/orderers/$USER/msp/$DIR"
+        mkdir -p "organizations-variant/ordererOrganizations/fabric3.variant/orderers/$USER/msp/$DIR"
     done
 
-    mkdir -p "organizations/ordererOrganizations/fabric3.variant/orderers/$USER/tls"
+    mkdir -p "organizations-variant/ordererOrganizations/fabric3.variant/orderers/$USER/tls"
 
-    sed -e "s/{USER}/$USER/g" <"$PWD/organizations/cfssl/orderer-csr-template.json" >"$PWD/organizations/cfssl/orderer-${USER}.json"
+    sed -e "s/{USER}/$USER/g" <"$PWD/organizations-variant/cfssl/orderer-csr-template.json" >"$PWD/organizations-variant/cfssl/orderer-${USER}.json"
 
     cfssl gencert \
         -ca="$CERT_DIR/ca/ca.pem" \
         -ca-key="$CERT_DIR/ca/ca-key.pem" \
-        -config="$PWD/organizations/cfssl/cert-signing-config.json" \
+        -config="$PWD/organizations-variant/cfssl/cert-signing-config.json" \
         -cn="$USER" \
         -hostname="$USER,localhost,127.0.0.1" \
         -profile="sign" \
-        "$PWD/organizations/cfssl/orderer-${USER}.json" | cfssljson -bare "$CERT_DIR/orderers/$USER/msp/signcerts/cert"
+        "$PWD/organizations-variant/cfssl/orderer-${USER}.json" | cfssljson -bare "$CERT_DIR/orderers/$USER/msp/signcerts/cert"
 
     mv "$CERT_DIR/orderers/$USER/msp/signcerts/cert-key.pem" "$CERT_DIR/orderers/$USER/msp/keystore"
 
@@ -263,14 +263,14 @@ function generate_orderer_certs() {
     cfssl gencert \
         -ca="$CERT_DIR/ca/ca.pem" \
         -ca-key="$CERT_DIR/ca/ca-key.pem" \
-        -config="$PWD/organizations/cfssl/cert-signing-config.json" \
+        -config="$PWD/organizations-variant/cfssl/cert-signing-config.json" \
         -cn="$USER" \
         -hostname="$USER,localhost,127.0.0.1" \
         -profile="tls" \
-        "$PWD/organizations/cfssl/orderer-${USER}.json" | cfssljson -bare "$CERT_DIR/orderers/$USER/tls/server"
+        "$PWD/organizations-variant/cfssl/orderer-${USER}.json" | cfssljson -bare "$CERT_DIR/orderers/$USER/tls/server"
 
     cp "$CERT_DIR/ca/ca.pem" "$CERT_DIR/orderers/$USER/tls/ca.crt"
     mv "$CERT_DIR/orderers/$USER/tls/server.pem" "$CERT_DIR/orderers/$USER/tls/server.crt"
     mv "$CERT_DIR/orderers/$USER/tls/server-key.pem" "$CERT_DIR/orderers/$USER/tls/server.key"
-    rm "$PWD/organizations/cfssl/orderer-${USER}.json"
+    rm "$PWD/organizations-variant/cfssl/orderer-${USER}.json"
 }

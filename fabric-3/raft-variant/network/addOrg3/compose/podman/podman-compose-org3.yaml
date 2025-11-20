@@ -42,7 +42,7 @@ services:
       - CORE_PEER_LOCALMSPID=Org3MSP
     volumes:
         - ../peercfg:/etc/hyperledger/peercfg
-        - ../../organizations/peerOrganizations/org3.fabric3.variant/peers/peer0.org3.fabric3.variant:/etc/hyperledger/fabric        
+        - ../../organizations-variant/peerOrganizations/org3.fabric3.variant/peers/peer0.org3.fabric3.variant:/etc/hyperledger/fabric
         - peer0.org3.fabric3.variant:/var/hyperledger/production
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
     command: peer node start

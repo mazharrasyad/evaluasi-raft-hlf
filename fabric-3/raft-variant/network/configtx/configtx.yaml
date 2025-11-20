@@ -22,7 +22,7 @@ Organizations:
     # ID to load the MSP definition as
     ID: OrdererMSP
     # MSPDir is the filesystem path which contains the MSP configuration
-    MSPDir: ../organizations/ordererOrganizations/fabric3.variant/msp
+    MSPDir: ../organizations-variant/ordererOrganizations/fabric3.variant/msp
     # Policies defines the set of policies at this level of the config tree
     # For organization policies, their canonical path is usually
     #   /Channel/<Application|Orderer>/<OrgName>/<PolicyName>
@@ -44,7 +44,7 @@ Organizations:
     Name: Org1MSP
     # ID to load the MSP definition as
     ID: Org1MSP
-    MSPDir: ../organizations/peerOrganizations/org1.fabric3.variant/msp
+    MSPDir: ../organizations-variant/peerOrganizations/org1.fabric3.variant/msp
     # Policies defines the set of policies at this level of the config tree
     # For organization policies, their canonical path is usually
     #   /Channel/<Application|Orderer>/<OrgName>/<PolicyName>
@@ -67,7 +67,7 @@ Organizations:
     Name: Org2MSP
     # ID to load the MSP definition as
     ID: Org2MSP
-    MSPDir: ../organizations/peerOrganizations/org2.fabric3.variant/msp
+    MSPDir: ../organizations-variant/peerOrganizations/org2.fabric3.variant/msp
     # Policies defines the set of policies at this level of the config tree
     # For organization policies, their canonical path is usually
     #   /Channel/<Application|Orderer>/<OrgName>/<PolicyName>
@@ -266,8 +266,8 @@ Profiles:
         Consenters:
           - Host: orderer.fabric3.variant
             Port: 8055
-            ClientTLSCert: ../organizations/ordererOrganizations/fabric3.variant/orderers/orderer.fabric3.variant/tls/server.crt
-            ServerTLSCert: ../organizations/ordererOrganizations/fabric3.variant/orderers/orderer.fabric3.variant/tls/server.crt
+            ClientTLSCert: ../organizations-variant/ordererOrganizations/fabric3.variant/orderers/orderer.fabric3.variant/tls/server.crt
+            ServerTLSCert: ../organizations-variant/ordererOrganizations/fabric3.variant/orderers/orderer.fabric3.variant/tls/server.crt
       Organizations:
         - *OrdererOrg
       Capabilities: *OrdererCapabilities

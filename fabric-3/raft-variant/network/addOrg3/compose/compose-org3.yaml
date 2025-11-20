@@ -44,7 +44,7 @@ services:
       - CHAINCODE_AS_A_SERVICE_BUILDER_CONFIG={"peername":"peer0org1"}
       - CORE_CHAINCODE_EXECUTETIMEOUT=300s      
     volumes:
-        - ../../organizations/peerOrganizations/org3.fabric3.variant/peers/peer0.org3.fabric3.variant:/etc/hyperledger/fabric        
+        - ../../organizations-variant/peerOrganizations/org3.fabric3.variant/peers/peer0.org3.fabric3.variant:/etc/hyperledger/fabric
         - peer0.org3.fabric3.variant:/var/hyperledger/production
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
     command: peer node start

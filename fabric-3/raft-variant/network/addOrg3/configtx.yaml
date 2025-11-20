@@ -21,7 +21,7 @@ Organizations:
         # ID to load the MSP definition as
         ID: Org3MSP
 
-        MSPDir: ../organizations/peerOrganizations/org3.fabric3.variant/msp
+        MSPDir: ../organizations-variant/peerOrganizations/org3.fabric3.variant/msp
 
         Policies:
             Readers:

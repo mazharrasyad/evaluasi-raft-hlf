@@ -221,11 +221,11 @@
                                     <thead>
                                         <tr>
                                             <th>ID Laporan</th>
-                                            <th>Nama Pelapor</th>
-                                            <th>Kategori</th>
+                                            <th>Substansi</th>
+                                            <th>Grup Pelapor</th>
+                                            <th>Grup Terlapor</th>
+                                            <th>Kantor Penerima</th>
                                             <th>Status</th>
-                                            <th>Provinsi</th>
-                                            <th>Prioritas</th>
                                             <th>Tanggal Submit</th>
                                         </tr>
                                     </thead>
@@ -262,11 +262,11 @@
                                     <thead>
                                         <tr>
                                             <th>ID Laporan</th>
-                                            <th>Nama Pelapor</th>
-                                            <th>Kategori</th>
+                                            <th>Substansi</th>
+                                            <th>Grup Pelapor</th>
+                                            <th>Grup Terlapor</th>
+                                            <th>Kantor Penerima</th>
                                             <th>Status</th>
-                                            <th>Provinsi</th>
-                                            <th>Prioritas</th>
                                             <th>Tanggal Submit</th>
                                         </tr>
                                     </thead>
@@ -303,11 +303,11 @@
                                     <thead>
                                         <tr>
                                             <th>ID Laporan</th>
-                                            <th>Nama Pelapor</th>
-                                            <th>Kategori</th>
+                                            <th>Substansi</th>
+                                            <th>Grup Pelapor</th>
+                                            <th>Grup Terlapor</th>
+                                            <th>Kantor Penerima</th>
                                             <th>Status</th>
-                                            <th>Provinsi</th>
-                                            <th>Prioritas</th>
                                             <th>Tanggal Submit</th>
                                         </tr>
                                     </thead>
@@ -344,11 +344,11 @@
                                     <thead>
                                         <tr>
                                             <th>ID Laporan</th>
-                                            <th>Nama Pelapor</th>
-                                            <th>Kategori</th>
+                                            <th>Substansi</th>
+                                            <th>Grup Pelapor</th>
+                                            <th>Grup Terlapor</th>
+                                            <th>Kantor Penerima</th>
                                             <th>Status</th>
-                                            <th>Provinsi</th>
-                                            <th>Prioritas</th>
                                             <th>Tanggal Submit</th>
                                         </tr>
                                     </thead>
@@ -421,12 +421,12 @@
 
                 // Prepare data for DataTable
                 const tableData = (data.records || []).map(record => [
-                    record.idLaporan || '-',
-                    record.namaPelapor || '-',
-                    record.kategori || '-',
+                    record.reportId || record.id || '-',
+                    record.substance || '-',
+                    record.reporterGroup || '-',
+                    record.reportedGroup || '-',
+                    record.receivingOffice || '-',
                     record.status || '-',
-                    record.provinsi || '-',
-                    record.prioritas || '-',
                     record.submittedAt ? new Date(record.submittedAt).toLocaleString('id-ID') : '-'
                 ]);
 

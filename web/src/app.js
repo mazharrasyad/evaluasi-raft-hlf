@@ -726,6 +726,11 @@ const viewFiles = {
             penyimpananDataTransaksi: path.resolve(viewsRoot, 'penelitian/pelaksanaan-simulasi/penyimpanan-data-transaksi.html'),
             penampilanHasil: path.resolve(viewsRoot, 'penelitian/pelaksanaan-simulasi/penampilan-hasil.html'),
         },
+        dataProcessing: path.resolve(viewsRoot, 'penelitian/pengolahan-data.html'),
+        dataProcessingSubsections: {
+            pengumpulanValidasiLog: path.resolve(viewsRoot, 'penelitian/pengolahan-data/pengumpulan-validasi-log.html'),
+            pengolahanNilaiRataRataGrafik: path.resolve(viewsRoot, 'penelitian/pengolahan-data/pengolahan-nilai-rata-rata-grafik.html'),
+        },
     },
 };
 
@@ -773,6 +778,18 @@ app.get('/penelitian/pelaksanaan-simulasi/penyimpanan-data-transaksi', (req, res
 
 app.get('/penelitian/pelaksanaan-simulasi/penampilan-hasil', (req, res) => {
     res.sendFile(viewFiles.research.simulationSubsections.penampilanHasil);
+});
+
+app.get('/penelitian/pengolahan-data', (req, res) => {
+    res.sendFile(viewFiles.research.dataProcessing);
+});
+
+app.get('/penelitian/pengolahan-data/pengumpulan-validasi-log', (req, res) => {
+    res.sendFile(viewFiles.research.dataProcessingSubsections.pengumpulanValidasiLog);
+});
+
+app.get('/penelitian/pengolahan-data/pengolahan-nilai-rata-rata-grafik', (req, res) => {
+    res.sendFile(viewFiles.research.dataProcessingSubsections.pengolahanNilaiRataRataGrafik);
 });
 
 app.get('/dashboard', (req, res) => {

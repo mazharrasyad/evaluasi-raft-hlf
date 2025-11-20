@@ -30,6 +30,7 @@ const networkConfigurations = [
         peerEndpoint: 'localhost:7051',
         peerHostAlias: 'peer0.org1.fabric2.standard.com',
         domain: 'standard.com',
+        organizationsDir: 'organizations',
         instructions: {
             up: `cd ${standardNetworkDir} && ./network.sh up -ca && ./network.sh createChannel -c fabric2-channel-standard -ca`,
             deploy: `cd ${standardNetworkDir} && ./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl javascript -c fabric2-channel-standard`
@@ -43,6 +44,7 @@ const networkConfigurations = [
         peerEndpoint: 'localhost:7052',
         peerHostAlias: 'peer0.org1.fabric2.variant.com',
         domain: 'variant.com',
+        organizationsDir: 'organizations',
         instructions: {
             up: `cd ${variantNetworkDir} && ./network.sh up -ca -bft && ./network.sh createChannel -c fabric2-channel-variant -ca -bft`,
             deploy: `cd ${variantNetworkDir} && ./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl javascript -c fabric2-channel-variant -bft`
@@ -56,6 +58,7 @@ const networkConfigurations = [
         peerEndpoint: 'localhost:7153',
         peerHostAlias: 'peer0.org1.fabric3.standard',
         domain: 'fabric3.standard',
+        organizationsDir: 'organizations',
         instructions: {
             up: `cd ${fabric3StandardNetworkDir} && ./network.sh up && ./network.sh createChannel -c fabric3-channel-standard`,
             deploy: `cd ${fabric3StandardNetworkDir} && ./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl node -c fabric3-channel-standard`
@@ -69,6 +72,7 @@ const networkConfigurations = [
         peerEndpoint: 'localhost:7353',
         peerHostAlias: 'peer0.org1.fabric3.variant',
         domain: 'fabric3.variant',
+        organizationsDir: 'organizations-variant',
         instructions: {
             up: `cd ${fabric3VariantNetworkDir} && ./network.sh up && ./network.sh createChannel -c fabric3-channel-variant`,
             deploy: `cd ${fabric3VariantNetworkDir} && ./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl node -c fabric3-channel-variant`
@@ -216,7 +220,7 @@ async function readFirstVisibleFile(directory) {
     return path.join(directory, candidate);
 }
 
-async function checkSingleNetwork({ targetId, label, networkDir, channelName, instructions, peerEndpoint, domain, peerHostAlias: configuredPeerHostAlias, orgName = 'org1', peerName = 'peer0' }) {
+async function checkSingleNetwork({ targetId, label, networkDir, channelName, instructions, peerEndpoint, domain, peerHostAlias: configuredPeerHostAlias, orgName = 'org1', peerName = 'peer0', organizationsDir = 'organizations' }) {
     const effectivePeerEndpoint = peerEndpoint || 'localhost:7051';
     const effectiveDomain = domain ?? 'standard.com';
     const orgDomain = `${orgName}.${effectiveDomain}`;
@@ -246,7 +250,7 @@ async function checkSingleNetwork({ targetId, label, networkDir, channelName, in
         return failureResult;
     }
 
-    const cryptoPath = path.resolve(networkDir, `organizations/peerOrganizations/${orgDomain}`);
+    const cryptoPath = path.resolve(networkDir, `${organizationsDir}/peerOrganizations/${orgDomain}`);
     const userPath = path.resolve(cryptoPath, `users/${mspUser}/msp`);
     const keyDirPath = path.resolve(userPath, 'keystore');
     const certDirPath = path.resolve(userPath, 'signcerts');
@@ -897,7 +901,7 @@ function extractTransactionId(bytes) {
     }
 }
 
-async function getAllBlocksFromNetwork({ targetId, label, networkDir, channelName, peerEndpoint, domain, peerHostAlias: configuredPeerHostAlias, orgName = 'org1', peerName = 'peer0' }) {
+async function getAllBlocksFromNetwork({ targetId, label, networkDir, channelName, peerEndpoint, domain, peerHostAlias: configuredPeerHostAlias, orgName = 'org1', peerName = 'peer0', organizationsDir = 'organizations' }) {
     const effectivePeerEndpoint = peerEndpoint || 'localhost:7051';
     const effectiveDomain = domain ?? 'standard.com';
     const orgDomain = `${orgName}.${effectiveDomain}`;
@@ -922,7 +926,7 @@ async function getAllBlocksFromNetwork({ targetId, label, networkDir, channelNam
         };
     }
 
-    const cryptoPath = path.resolve(networkDir, `organizations/peerOrganizations/${orgDomain}`);
+    const cryptoPath = path.resolve(networkDir, `${organizationsDir}/peerOrganizations/${orgDomain}`);
     const userPath = path.resolve(cryptoPath, `users/${mspUser}/msp`);
     const keyDirPath = path.resolve(userPath, 'keystore');
     const certDirPath = path.resolve(userPath, 'signcerts');
@@ -1109,7 +1113,7 @@ async function getBlocksWithSimulationData() {
     const results = [];
 
     for (const config of networkConfigurations) {
-        const { targetId, label, networkDir, channelName, peerEndpoint, domain, peerHostAlias: configuredPeerHostAlias, orgName = 'org1', peerName = 'peer0' } = config;
+        const { targetId, label, networkDir, channelName, peerEndpoint, domain, peerHostAlias: configuredPeerHostAlias, orgName = 'org1', peerName = 'peer0', organizationsDir = 'organizations' } = config;
 
         const effectivePeerEndpoint = peerEndpoint || 'localhost:7051';
         const effectiveDomain = domain ?? 'standard.com';
@@ -1137,7 +1141,7 @@ async function getBlocksWithSimulationData() {
             continue;
         }
 
-        const cryptoPath = path.resolve(networkDir, `organizations/peerOrganizations/${orgDomain}`);
+        const cryptoPath = path.resolve(networkDir, `${organizationsDir}/peerOrganizations/${orgDomain}`);
         const userPath = path.resolve(cryptoPath, `users/${mspUser}/msp`);
         const keyDirPath = path.resolve(userPath, 'keystore');
         const certDirPath = path.resolve(userPath, 'signcerts');
@@ -1308,7 +1312,7 @@ async function getBlocksWithSimulationData() {
     return results;
 }
 
-async function getAllCatatanFromNetwork({ targetId, label, networkDir, channelName, peerEndpoint, domain, peerHostAlias: configuredPeerHostAlias, orgName = 'org1', peerName = 'peer0' }) {
+async function getAllCatatanFromNetwork({ targetId, label, networkDir, channelName, peerEndpoint, domain, peerHostAlias: configuredPeerHostAlias, orgName = 'org1', peerName = 'peer0', organizationsDir = 'organizations' }) {
     const effectivePeerEndpoint = peerEndpoint || 'localhost:7051';
     const effectiveDomain = domain ?? 'standard.com';
     const orgDomain = `${orgName}.${effectiveDomain}`;
@@ -1333,7 +1337,7 @@ async function getAllCatatanFromNetwork({ targetId, label, networkDir, channelNa
         };
     }
 
-    const cryptoPath = path.resolve(networkDir, `organizations/peerOrganizations/${orgDomain}`);
+    const cryptoPath = path.resolve(networkDir, `${organizationsDir}/peerOrganizations/${orgDomain}`);
     const userPath = path.resolve(cryptoPath, `users/${mspUser}/msp`);
     const keyDirPath = path.resolve(userPath, 'keystore');
     const certDirPath = path.resolve(userPath, 'signcerts');

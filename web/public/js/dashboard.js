@@ -1056,7 +1056,7 @@ async function confirmNetworkStartup(networkType, networkLabel) {
 
     if (normalizedType === 'all') {
         title = 'Start all RAFT networks?';
-        text = 'This will sequentially run the Fabric 2 Standard, Fabric 2 Variant, Fabric 3 Standard, and Fabric 3 Variant startup scripts. Ensure Docker and the host environment are ready before continuing.';
+        text = 'This will run the Fabric 2 Standard, Fabric 2 Variant, Fabric 3 Standard, and Fabric 3 Variant startup scripts in parallel. Ensure Docker and the host environment are ready before continuing.';
     } else if (!normalizedType) {
         title = 'Start the Fabric networks?';
     }
@@ -1834,7 +1834,15 @@ function ensureNetworkOperationStream() {
     }
 
     try {
-        networkOperationEventSource = new EventSource(NETWORK_OPERATION_STREAM_ENDPOINT);
+        // Build SSE endpoint URL with clientOperationId for event filtering
+        // This ensures each operation only receives its own events
+        let streamUrl = NETWORK_OPERATION_STREAM_ENDPOINT;
+        if (activeNetworkOperation?.clientId) {
+            const params = new URLSearchParams({ clientOperationId: activeNetworkOperation.clientId });
+            streamUrl = `${NETWORK_OPERATION_STREAM_ENDPOINT}?${params.toString()}`;
+        }
+
+        networkOperationEventSource = new EventSource(streamUrl);
 
         networkOperationEventSource.addEventListener('message', event => {
             if (!event?.data) {
@@ -1864,6 +1872,13 @@ function ensureNetworkOperationStream() {
 }
 
 function setActiveNetworkOperation(clientId, operationType) {
+    // Close existing EventSource if we're starting a new operation
+    // This ensures each operation gets its own filtered event stream
+    if (networkOperationEventSource && activeNetworkOperation?.clientId !== clientId) {
+        networkOperationEventSource.close();
+        networkOperationEventSource = null;
+    }
+
     activeNetworkOperation = {
         clientId: typeof clientId === 'string' ? clientId : null,
         serverId: null,
@@ -5005,7 +5020,7 @@ async function handleNetworkStartupButtonClick(event) {
     button.innerHTML = '<span class="text-base animate-spin">⚡</span><span>Starting...</span>';
 
     const startupLoadingMessage = statusType === 'all'
-        ? 'Starting all RAFT networks sequentially (2S → 2V → 3S → 3V)...'
+        ? 'Starting all RAFT networks in parallel (2S, 2V, 3S, 3V)...'
         : `Running the startup command for ${networkLabel}...`;
     showNetworkOperationOverlay('startup', startupLoadingMessage);
     updateNetworkStartupStatus('loading', startupLoadingMessage, statusType);

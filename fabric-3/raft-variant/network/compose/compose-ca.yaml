@@ -11,7 +11,7 @@ networks:
 
 services:
 
-  ca_org1:
+  ca_org1_variant:
     image: hyperledger/fabric-ca:latest
     labels:
       service: hyperledger-fabric
@@ -32,7 +32,7 @@ services:
     networks:
       - test
 
-  ca_org2:
+  ca_org2_variant:
     image: hyperledger/fabric-ca:latest
     labels:
       service: hyperledger-fabric
@@ -53,7 +53,7 @@ services:
     networks:
       - test
 
-  ca_orderer:
+  ca_orderer_variant:
     image: hyperledger/fabric-ca:latest
     labels:
       service: hyperledger-fabric

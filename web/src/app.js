@@ -821,6 +821,35 @@ app.get('/api/check-network', async (req, res) => {
     }
 });
 
+app.get('/api/network-operations/stream', (req, res) => {
+    // Set headers for Server-Sent Events (SSE)
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('X-Accel-Buffering', 'no'); // Disable buffering in nginx
+
+    // Send initial comment to establish connection
+    res.write(': connected\n\n');
+
+    // Event handler for network operations
+    const eventHandler = (payload) => {
+        try {
+            const data = JSON.stringify(payload);
+            res.write(`data: ${data}\n\n`);
+        } catch (error) {
+            console.error('Error sending SSE event:', error);
+        }
+    };
+
+    // Register event listener
+    networkOperationEmitter.on('event', eventHandler);
+
+    // Handle client disconnect
+    req.on('close', () => {
+        networkOperationEmitter.off('event', eventHandler);
+    });
+});
+
 app.post('/api/start-network', async (req, res) => {
     const requestedAt = new Date().toISOString();
     const results = [];

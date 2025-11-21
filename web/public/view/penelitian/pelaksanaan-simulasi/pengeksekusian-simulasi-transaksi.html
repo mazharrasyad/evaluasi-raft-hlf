@@ -377,16 +377,20 @@
 
             // Adjust timestamp based on load category
             let timestamp;
+            let kategori_beban;
             if (category === 'light') {
                 // Distribute evenly throughout the day
                 timestamp = new Date(now.getTime() - Math.random() * 24 * 60 * 60 * 1000);
+                kategori_beban = 'ringan';
             } else if (category === 'medium') {
                 // Concentrate in working hours (8 AM - 4 PM)
                 const hoursOffset = 8 + Math.random() * 8;
                 timestamp = new Date(now.getTime() - (24 - hoursOffset) * 60 * 60 * 1000);
+                kategori_beban = 'sedang';
             } else {
                 // Burst in 2-4 hours
                 timestamp = new Date(now.getTime() - Math.random() * 4 * 60 * 60 * 1000);
+                kategori_beban = 'tinggi';
             }
 
             return {
@@ -397,7 +401,8 @@
                 reportedGroup: weightedRandom(DATA_REFERENCE.reportedGroups),
                 receivingOffice: DATA_REFERENCE.offices[Math.floor(Math.random() * DATA_REFERENCE.offices.length)],
                 description: `Laporan maladministrasi terkait ${weightedRandom(DATA_REFERENCE.substances).toLowerCase()}`,
-                status: DATA_REFERENCE.statuses[Math.floor(Math.random() * DATA_REFERENCE.statuses.length)]
+                status: DATA_REFERENCE.statuses[Math.floor(Math.random() * DATA_REFERENCE.statuses.length)],
+                kategori_beban: kategori_beban
             };
         }
 

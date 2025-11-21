@@ -631,6 +631,41 @@
 
             const networkResults = [];
 
+            // =================== START SIMULATION METRICS ===================
+            // Map selectedNetworkIds to actual network channel IDs for metrics
+            const networkIdMapping = {
+                'f2-standard': 'channel-standard',
+                'f2-variant': 'channel-variant',
+                'f3-standard': 'channel-fabric3-standard',
+                'f3-variant': 'channel-fabric3-variant'
+            };
+
+            const targetNetworks = selectedNetworkIds.map(id => networkIdMapping[id]);
+
+            let simulationId = null;
+            try {
+                const metricsStartResponse = await fetch('/api/metrics/simulation/start', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        loadCategory: currentLoadCategory,
+                        totalTransactions: generatedData.length * selectedNetworkIds.length,
+                        targetNetworks: targetNetworks
+                    })
+                });
+
+                const metricsStartResult = await metricsStartResponse.json();
+                if (metricsStartResult.success) {
+                    simulationId = metricsStartResult.simulationId;
+                    console.log(`✅ Started metrics collection: ${simulationId}`);
+                } else {
+                    console.warn('⚠️  Failed to start metrics collection:', metricsStartResult.error);
+                }
+            } catch (error) {
+                console.error('❌ Error starting metrics collection:', error);
+            }
+            // =================== END START SIMULATION METRICS ================
+
             // Reset status for all networks
             allNetworks.forEach(network => {
                 const statusEl = document.getElementById(`status-${network.id}`);
@@ -658,6 +693,7 @@
                 let errorMessages = [];
 
                 for (let i = 0; i < generatedData.length; i++) {
+                    const txSubmittedAt = new Date().toISOString();
                     try {
                         const response = await fetch(network.url, {
                             method: 'POST',
@@ -666,13 +702,54 @@
                         });
 
                         const result = await response.json();
+                        const txCompletedAt = new Date().toISOString();
 
                         if (response.ok && result.success) {
                             successCount++;
+
+                            // =================== RECORD TRANSACTION METRICS ===================
+                            if (simulationId) {
+                                try {
+                                    await fetch(`/api/metrics/simulation/${simulationId}/transaction`, {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({
+                                            txId: result.result?.recordId || generatedData[i].reportId,
+                                            networkId: networkIdMapping[network.id],
+                                            submittedAt: result.submittedAt || txSubmittedAt,
+                                            completedAt: result.completedAt || txCompletedAt,
+                                            success: true
+                                        })
+                                    });
+                                } catch (metricsError) {
+                                    console.error('Failed to record transaction metrics:', metricsError);
+                                }
+                            }
+                            // =================== END RECORD TRANSACTION METRICS ================
                         } else {
                             failCount++;
                             if (result.error && errorMessages.length < 3) {
                                 errorMessages.push(result.error);
+                            }
+
+                            // Record failed transaction in metrics
+                            if (simulationId) {
+                                try {
+                                    await fetch(`/api/metrics/simulation/${simulationId}/transaction`, {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({
+                                            txId: generatedData[i].reportId,
+                                            networkId: networkIdMapping[network.id],
+                                            submittedAt: txSubmittedAt,
+                                            completedAt: txCompletedAt,
+                                            success: false,
+                                            error: result.error
+                                        })
+                                    });
+                                } catch (metricsError) {
+                                    console.error('Failed to record failed transaction metrics:', metricsError);
+                                }
                             }
                         }
 
@@ -682,6 +759,29 @@
                         if (errorMessages.length < 3) {
                             errorMessages.push(error.message);
                         }
+
+                        const txCompletedAt = new Date().toISOString();
+
+                        // Record failed transaction in metrics
+                        if (simulationId) {
+                            try {
+                                await fetch(`/api/metrics/simulation/${simulationId}/transaction`, {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                        txId: generatedData[i].reportId,
+                                        networkId: networkIdMapping[network.id],
+                                        submittedAt: txSubmittedAt,
+                                        completedAt: txCompletedAt,
+                                        success: false,
+                                        error: error.message
+                                    })
+                                });
+                            } catch (metricsError) {
+                                console.error('Failed to record failed transaction metrics:', metricsError);
+                            }
+                        }
+
                         progressEl.textContent = `${i + 1}/${generatedData.length} (${failCount} gagal)`;
                     }
                 }
@@ -778,14 +878,75 @@
             }
             resultsHTML += '</div>';
 
+            // =================== COMPLETE SIMULATION METRICS ===================
+            let metricsResult = null;
+            if (simulationId) {
+                try {
+                    const metricsCompleteResponse = await fetch(`/api/metrics/simulation/${simulationId}/complete`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+
+                    const metricsCompleteResult = await metricsCompleteResponse.json();
+                    if (metricsCompleteResult.success) {
+                        metricsResult = metricsCompleteResult.metrics;
+                        console.log(`✅ Completed metrics collection: ${simulationId}`);
+                        console.log('Metrics:', metricsResult);
+
+                        // Add metrics summary to results
+                        resultsHTML += `
+                            <div class="mt-4 rounded-lg border border-primary/30 bg-primary/10 p-4">
+                                <p class="text-sm font-semibold text-primary mb-3">📊 Metrics Simulasi</p>
+                                <div class="grid grid-cols-2 gap-3 text-xs">
+                                    <div>
+                                        <span class="text-textdark/60">Throughput:</span>
+                                        <span class="ml-2 font-semibold text-textdark">${metricsResult.throughput.transactionsPerSecond.toFixed(2)} TPS</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-textdark/60">Avg Latency:</span>
+                                        <span class="ml-2 font-semibold text-textdark">${metricsResult.latency.averageLatencyMs.toFixed(2)} ms</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-textdark/60">Avg CPU:</span>
+                                        <span class="ml-2 font-semibold text-textdark">${metricsResult.resourceUsage.averageCPU.toFixed(2)}%</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-textdark/60">Avg Memory:</span>
+                                        <span class="ml-2 font-semibold text-textdark">${metricsResult.resourceUsage.averageMemory.toFixed(2)} MB</span>
+                                    </div>
+                                    <div class="col-span-2">
+                                        <span class="text-textdark/60">Simulation ID:</span>
+                                        <span class="ml-2 font-mono text-xs text-textdark">${simulationId}</span>
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <a href="/penelitian/pengolahan-data" class="text-xs text-primary hover:underline">
+                                        → Lihat detail metrics di halaman Pengolahan Data
+                                    </a>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        console.warn('⚠️  Failed to complete metrics collection:', metricsCompleteResult.error);
+                    }
+                } catch (error) {
+                    console.error('❌ Error completing metrics collection:', error);
+                }
+            }
+            // =================== END COMPLETE SIMULATION METRICS ================
+
             resultsContent.innerHTML = resultsHTML;
             document.getElementById('resultsSection').classList.remove('hidden');
 
             if (totalVerified > 0) {
+                const metricsInfo = metricsResult
+                    ? `<br><br>📊 Throughput: ${metricsResult.throughput.transactionsPerSecond.toFixed(2)} TPS<br>⏱️  Avg Latency: ${metricsResult.latency.averageLatencyMs.toFixed(2)} ms`
+                    : '';
+
                 Swal.fire({
                     icon: 'success',
                     title: 'Pengeksekusian Selesai',
-                    html: `${totalSent} transaksi terkirim<br>${totalVerified} transaksi terverifikasi di blockchain`,
+                    html: `${totalSent} transaksi terkirim<br>${totalVerified} transaksi terverifikasi di blockchain${metricsInfo}`,
                     background: '#0F172A',
                     color: '#E2E8F0',
                     confirmButtonColor: '#38BDF8'

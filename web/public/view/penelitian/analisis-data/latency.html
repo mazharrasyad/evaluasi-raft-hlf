@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluasi RAFT HLF — Latency</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#38BDF8',
+                        secondary: '#6366F1',
+                        accent: '#F59E0B',
+                        highlight: '#F97316',
+                        soft: '#050B16',
+                        surface: '#0F172A',
+                        surfaceMuted: '#16213F',
+                        border: '#1E293B',
+                        muted: '#94A3B8',
+                        textdark: '#E2E8F0'
+                    }
+                }
+            }
+        };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="/images/logo-ai-center.svg">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+
+        .component-link[data-active="true"] {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.28), rgba(56, 189, 248, 0.22));
+            color: #E2E8F0;
+            border-color: rgba(249, 115, 22, 0.45);
+            box-shadow: 0 12px 40px rgba(15, 23, 42, 0.45);
+        }
+
+        .component-link[data-active="true"] .component-link__index {
+            background-color: rgba(249, 115, 22, 0.35);
+            color: #E2E8F0;
+        }
+    </style>
+</head>
+<body class="bg-soft text-textdark">
+    <div data-component="header"></div>
+    <div class="relative min-h-screen overflow-hidden">
+        <div class="absolute inset-0 -z-10 h-full w-full">
+            <div class="absolute -left-1/3 top-0 h-[720px] w-[720px] rounded-full bg-gradient-to-br from-highlight/30 via-secondary/20 to-transparent opacity-70 blur-3xl"></div>
+            <div class="absolute -right-1/4 bottom-0 h-[620px] w-[620px] rounded-full bg-gradient-to-tr from-accent/35 via-secondary/25 to-primary/20 opacity-70 blur-3xl"></div>
+        </div>
+
+        <div class="flex min-h-screen flex-col lg:flex-row">
+            <div data-component="sidebar"></div>
+
+            <div class="flex-1">
+                <main class="mx-auto w-full max-w-6xl px-6 py-12">
+                    <div class="space-y-10">
+                        <!-- Header Section -->
+                        <section class="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-surface via-soft to-[#020817] p-10 shadow-2xl shadow-black/30">
+                            <div class="flex flex-col gap-6">
+                                <div class="inline-flex w-fit items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-primary/90">
+                                    Bab 4.5.2
+                                </div>
+                                <div class="space-y-5">
+                                    <h1 class="text-3xl font-semibold text-textdark md:text-4xl">Latency</h1>
+                                    <p class="text-sm text-textdark/70 md:text-base leading-relaxed">
+                                        Latency atau waktu tunda merupakan metrik yang mengukur waktu respons sistem dari saat transaksi disubmit hingga selesai diproses dan dikonfirmasi dalam blockchain. Metrik ini dihitung dalam milidetik (ms) dan menjadi indikator penting untuk mengevaluasi kecepatan respons sistem terhadap permintaan transaksi individual.
+                                    </p>
+                                    <p class="text-sm text-textdark/70 md:text-base leading-relaxed">
+                                        Analisis latency mencakup berbagai statistik seperti rata-rata, minimum, maksimum, serta persentil (P50, P95, P99) untuk memberikan gambaran komprehensif tentang distribusi waktu respons sistem. Persentil sangat penting karena menunjukkan konsistensi performa sistem, dimana P95 dan P99 mengindikasikan worst-case latency yang dialami oleh sebagian kecil transaksi.
+                                    </p>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Simulation Selector -->
+                        <section class="rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20 backdrop-blur-sm">
+                            <header class="flex flex-col gap-2 border-b border-white/10 pb-6">
+                                <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Data Simulasi</h2>
+                                <p class="text-sm text-textdark/70">Pilih data simulasi untuk menganalisis latency.</p>
+                            </header>
+
+                            <div class="mt-6 space-y-6">
+                                <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
+                                    <div class="flex flex-col gap-4 md:flex-row md:items-end">
+                                        <div class="flex-1">
+                                            <label for="simulationSelect" class="mb-2 block text-sm font-medium text-textdark/90">Pilih Simulasi</label>
+                                            <select id="simulationSelect" class="w-full rounded-lg border border-white/10 bg-surface px-4 py-3 text-textdark focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/50">
+                                                <option value="">-- Memuat data simulasi --</option>
+                                            </select>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            id="loadSimulationButton"
+                                            class="inline-flex items-center justify-center gap-2 rounded-lg bg-primary/90 px-6 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-primary/40 transition duration-200 hover:-translate-y-0.5 hover:bg-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                                        >
+                                            <span>Muat Data</span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div id="noDataMessage" class="rounded-2xl border border-yellow-500/30 bg-yellow-500/10 p-6">
+                                    <p class="text-sm text-yellow-200/80">
+                                        Belum ada data simulasi yang tersedia. Silakan jalankan simulasi terlebih dahulu di halaman <a href="/penelitian/pelaksanaan-simulasi/pengeksekusian-simulasi-transaksi" class="font-semibold text-yellow-400 underline">Pengeksekusian Simulasi Transaksi</a>.
+                                    </p>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Latency Summary -->
+                        <section id="latencySummary" class="hidden rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20">
+                            <h2 class="mb-6 text-2xl font-semibold text-textdark">Statistik Latency</h2>
+                            <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                                <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
+                                    <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-primary/70">Rata-rata</p>
+                                    <p id="averageLatency" class="text-3xl font-bold text-textdark">0</p>
+                                    <p class="mt-2 text-xs text-textdark/60">ms</p>
+                                </div>
+                                <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
+                                    <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-green-500/70">Minimum</p>
+                                    <p id="minLatency" class="text-3xl font-bold text-textdark">0</p>
+                                    <p class="mt-2 text-xs text-textdark/60">ms</p>
+                                </div>
+                                <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
+                                    <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-red-500/70">Maksimum</p>
+                                    <p id="maxLatency" class="text-3xl font-bold text-textdark">0</p>
+                                    <p class="mt-2 text-xs text-textdark/60">ms</p>
+                                </div>
+                                <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
+                                    <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-secondary/70">P50 (Median)</p>
+                                    <p id="p50Latency" class="text-3xl font-bold text-textdark">0</p>
+                                    <p class="mt-2 text-xs text-textdark/60">ms</p>
+                                </div>
+                                <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
+                                    <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-accent/70">P95</p>
+                                    <p id="p95Latency" class="text-3xl font-bold text-textdark">0</p>
+                                    <p class="mt-2 text-xs text-textdark/60">ms</p>
+                                </div>
+                                <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
+                                    <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-highlight/70">P99</p>
+                                    <p id="p99Latency" class="text-3xl font-bold text-textdark">0</p>
+                                    <p class="mt-2 text-xs text-textdark/60">ms</p>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Latency Distribution Chart -->
+                        <section id="latencyDistribution" class="hidden rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20">
+                            <h2 class="mb-6 text-2xl font-semibold text-textdark">Distribusi Latency</h2>
+                            <div class="rounded-2xl border border-white/10 bg-surfaceMuted/30 p-6">
+                                <canvas id="latencyDistributionChart" class="w-full" style="max-height: 400px;"></canvas>
+                            </div>
+                        </section>
+
+                        <!-- Latency Per Network -->
+                        <section id="latencyPerNetwork" class="hidden rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20">
+                            <h2 class="mb-6 text-2xl font-semibold text-textdark">Latency Per Network</h2>
+                            <div class="rounded-2xl border border-white/10 bg-surfaceMuted/30 p-6">
+                                <canvas id="latencyPerNetworkChart" class="w-full" style="max-height: 400px;"></canvas>
+                            </div>
+                        </section>
+
+                        <!-- Analysis -->
+                        <section id="latencyAnalysis" class="hidden rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20">
+                            <h2 class="mb-6 text-2xl font-semibold text-textdark">Analisis Latency</h2>
+                            <div class="space-y-4">
+                                <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
+                                    <h3 class="mb-3 text-lg font-semibold text-primary">Interpretasi Data</h3>
+                                    <div id="analysisContent" class="space-y-3 text-sm text-textdark/80">
+                                        <p>Analisis akan ditampilkan setelah data simulasi dimuat.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                    </div>
+                </main>
+
+                <div data-component="footer"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/layout.js" defer></script>
+    <script src="/js/navigation.js" defer></script>
+    <script>
+        let currentSimulation = null;
+        let distributionChart = null;
+        let networkChart = null;
+
+        // Load simulations list
+        async function loadSimulations() {
+            try {
+                const response = await fetch('/api/metrics/simulations');
+                const data = await response.json();
+
+                const select = document.getElementById('simulationSelect');
+                const noDataMsg = document.getElementById('noDataMessage');
+
+                if (data.success && data.simulations && data.simulations.length > 0) {
+                    select.innerHTML = '<option value="">-- Pilih simulasi --</option>';
+                    data.simulations.forEach(sim => {
+                        const option = document.createElement('option');
+                        option.value = sim.simulationId;
+                        const date = new Date(sim.startTime).toLocaleString('id-ID');
+                        const loadCat = sim.config?.loadCategory || 'unknown';
+                        option.textContent = `${sim.simulationId} - ${loadCat} (${date})`;
+                        select.appendChild(option);
+                    });
+                    noDataMsg.style.display = 'none';
+                } else {
+                    noDataMsg.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error loading simulations:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Gagal memuat daftar simulasi',
+                    background: '#0F172A',
+                    color: '#E2E8F0'
+                });
+            }
+        }
+
+        // Load simulation data
+        async function loadSimulationData(simulationId) {
+            try {
+                const response = await fetch(`/api/metrics/simulation/${simulationId}`);
+                const data = await response.json();
+
+                if (data.success && data.metrics) {
+                    currentSimulation = data.metrics;
+                    displayLatencyData(data.metrics);
+                } else {
+                    throw new Error('Data tidak valid');
+                }
+            } catch (error) {
+                console.error('Error loading simulation:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Gagal memuat data simulasi',
+                    background: '#0F172A',
+                    color: '#E2E8F0'
+                });
+            }
+        }
+
+        // Display latency data
+        function displayLatencyData(metrics) {
+            const latency = metrics.latency;
+
+            // Show sections
+            document.getElementById('latencySummary').classList.remove('hidden');
+            document.getElementById('latencyDistribution').classList.remove('hidden');
+            document.getElementById('latencyPerNetwork').classList.remove('hidden');
+            document.getElementById('latencyAnalysis').classList.remove('hidden');
+
+            // Update summary
+            document.getElementById('averageLatency').textContent = latency.averageLatencyMs.toFixed(2);
+            document.getElementById('minLatency').textContent = latency.minLatencyMs.toFixed(2);
+            document.getElementById('maxLatency').textContent = latency.maxLatencyMs.toFixed(2);
+            document.getElementById('p50Latency').textContent = latency.p50LatencyMs.toFixed(2);
+            document.getElementById('p95Latency').textContent = latency.p95LatencyMs.toFixed(2);
+            document.getElementById('p99Latency').textContent = latency.p99LatencyMs.toFixed(2);
+
+            // Update charts
+            displayLatencyDistributionChart(latency.transactions);
+            displayLatencyPerNetworkChart(latency.perNetworkLatency);
+
+            // Update analysis
+            displayAnalysis(latency, metrics.config);
+        }
+
+        // Display latency distribution chart (histogram)
+        function displayLatencyDistributionChart(transactions) {
+            const ctx = document.getElementById('latencyDistributionChart').getContext('2d');
+
+            if (distributionChart) {
+                distributionChart.destroy();
+            }
+
+            // Create histogram bins
+            const latencies = transactions.map(t => t.latencyMs).sort((a, b) => a - b);
+            const binCount = 20;
+            const min = Math.min(...latencies);
+            const max = Math.max(...latencies);
+            const binSize = (max - min) / binCount;
+
+            const bins = new Array(binCount).fill(0);
+            const labels = [];
+
+            for (let i = 0; i < binCount; i++) {
+                const binStart = min + i * binSize;
+                const binEnd = binStart + binSize;
+                labels.push(`${binStart.toFixed(0)}-${binEnd.toFixed(0)}`);
+            }
+
+            latencies.forEach(lat => {
+                const binIndex = Math.min(Math.floor((lat - min) / binSize), binCount - 1);
+                bins[binIndex]++;
+            });
+
+            distributionChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Frekuensi',
+                        data: bins,
+                        backgroundColor: 'rgba(56, 189, 248, 0.7)',
+                        borderColor: 'rgba(56, 189, 248, 1)',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Histogram Distribusi Latency (ms)',
+                            color: '#E2E8F0',
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                color: '#94A3B8'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            title: {
+                                display: true,
+                                text: 'Jumlah Transaksi',
+                                color: '#94A3B8'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: '#94A3B8',
+                                maxRotation: 45,
+                                minRotation: 45
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            title: {
+                                display: true,
+                                text: 'Latency Range (ms)',
+                                color: '#94A3B8'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Display latency per network chart
+        function displayLatencyPerNetworkChart(perNetworkLatency) {
+            const ctx = document.getElementById('latencyPerNetworkChart').getContext('2d');
+
+            if (networkChart) {
+                networkChart.destroy();
+            }
+
+            const labels = Object.keys(perNetworkLatency);
+            const data = Object.values(perNetworkLatency);
+
+            networkChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Latency Rata-rata (ms)',
+                        data: data,
+                        backgroundColor: [
+                            'rgba(56, 189, 248, 0.7)',
+                            'rgba(99, 102, 241, 0.7)',
+                            'rgba(245, 158, 11, 0.7)',
+                            'rgba(249, 115, 22, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(56, 189, 248, 1)',
+                            'rgba(99, 102, 241, 1)',
+                            'rgba(245, 158, 11, 1)',
+                            'rgba(249, 115, 22, 1)'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Perbandingan Latency Antar Network',
+                            color: '#E2E8F0',
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                color: '#94A3B8'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: '#94A3B8'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Display analysis
+        function displayAnalysis(latency, config) {
+            const loadCategory = config?.loadCategory || 'unknown';
+
+            let analysis = `
+                <p>
+                    <strong>Kategori Beban:</strong> ${loadCategory.toUpperCase()}<br>
+                    <strong>Jumlah Transaksi:</strong> ${latency.transactions.length.toLocaleString('id-ID')} transaksi
+                </p>
+                <p>
+                    Sistem menunjukkan latency rata-rata sebesar <strong>${latency.averageLatencyMs.toFixed(2)} ms</strong>
+                    dengan rentang dari ${latency.minLatencyMs.toFixed(2)} ms (minimum) hingga ${latency.maxLatencyMs.toFixed(2)} ms (maksimum).
+                    Variasi ini menunjukkan karakteristik respons sistem terhadap beban transaksi.
+                </p>
+                <p>
+                    Analisis persentil menunjukkan bahwa 50% transaksi (P50/median) diselesaikan dalam waktu
+                    <strong>${latency.p50LatencyMs.toFixed(2)} ms</strong>, sementara 95% transaksi (P95) diselesaikan dalam
+                    <strong>${latency.p95LatencyMs.toFixed(2)} ms</strong>, dan 99% transaksi (P99) diselesaikan dalam
+                    <strong>${latency.p99LatencyMs.toFixed(2)} ms</strong>.
+                </p>
+            `;
+
+            const p95ToAvgRatio = (latency.p95LatencyMs / latency.averageLatencyMs).toFixed(2);
+            const p99ToAvgRatio = (latency.p99LatencyMs / latency.averageLatencyMs).toFixed(2);
+
+            analysis += `
+                <p>
+                    Rasio P95 terhadap rata-rata adalah ${p95ToAvgRatio}x, dan P99 terhadap rata-rata adalah ${p99ToAvgRatio}x.
+                    ${p99ToAvgRatio > 3 ?
+                        'Rasio yang cukup tinggi ini mengindikasikan adanya tail latency yang signifikan, dimana sebagian kecil transaksi mengalami penundaan yang lebih lama.' :
+                        'Rasio ini menunjukkan distribusi latency yang relatif konsisten dengan tail latency yang terkendali.'}
+                </p>
+            `;
+
+            if (Object.keys(latency.perNetworkLatency).length > 1) {
+                const networks = Object.entries(latency.perNetworkLatency)
+                    .sort((a, b) => a[1] - b[1]);
+                const fastest = networks[0];
+                const slowest = networks[networks.length - 1];
+                const diff = ((slowest[1] - fastest[1]) / fastest[1] * 100).toFixed(1);
+
+                analysis += `
+                    <p>
+                        Perbandingan antar network menunjukkan bahwa <strong>${fastest[0]}</strong>
+                        memiliki latency terendah dengan ${fastest[1].toFixed(2)} ms, sementara
+                        <strong>${slowest[0]}</strong> memiliki latency tertinggi dengan ${slowest[1].toFixed(2)} ms.
+                        Perbedaan performa ini mencapai ${diff}%, yang menunjukkan variasi kecepatan respons antar konfigurasi network.
+                    </p>
+                `;
+            }
+
+            document.getElementById('analysisContent').innerHTML = analysis;
+        }
+
+        // Event listeners
+        document.getElementById('loadSimulationButton').addEventListener('click', () => {
+            const simulationId = document.getElementById('simulationSelect').value;
+            if (simulationId) {
+                loadSimulationData(simulationId);
+            } else {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Perhatian',
+                    text: 'Silakan pilih simulasi terlebih dahulu',
+                    background: '#0F172A',
+                    color: '#E2E8F0'
+                });
+            }
+        });
+
+        // Load simulations on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSimulations();
+        });
+    </script>
+</body>
+</html>

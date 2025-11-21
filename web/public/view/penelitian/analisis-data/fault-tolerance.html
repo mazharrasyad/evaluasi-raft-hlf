@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluasi RAFT HLF — Fault Tolerance</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#38BDF8',
+                        secondary: '#6366F1',
+                        accent: '#F59E0B',
+                        highlight: '#F97316',
+                        soft: '#050B16',
+                        surface: '#0F172A',
+                        surfaceMuted: '#16213F',
+                        border: '#1E293B',
+                        muted: '#94A3B8',
+                        textdark: '#E2E8F0'
+                    }
+                }
+            }
+        };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="/images/logo-ai-center.svg">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+
+        .component-link[data-active="true"] {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.28), rgba(56, 189, 248, 0.22));
+            color: #E2E8F0;
+            border-color: rgba(249, 115, 22, 0.45);
+            box-shadow: 0 12px 40px rgba(15, 23, 42, 0.45);
+        }
+
+        .component-link[data-active="true"] .component-link__index {
+            background-color: rgba(249, 115, 22, 0.35);
+            color: #E2E8F0;
+        }
+    </style>
+</head>
+<body class="bg-soft text-textdark">
+    <div data-component="header"></div>
+    <div class="relative min-h-screen overflow-hidden">
+        <div class="absolute inset-0 -z-10 h-full w-full">
+            <div class="absolute -left-1/3 top-0 h-[720px] w-[720px] rounded-full bg-gradient-to-br from-highlight/30 via-secondary/20 to-transparent opacity-70 blur-3xl"></div>
+            <div class="absolute -right-1/4 bottom-0 h-[620px] w-[620px] rounded-full bg-gradient-to-tr from-accent/35 via-secondary/25 to-primary/20 opacity-70 blur-3xl"></div>
+        </div>
+
+        <div class="flex min-h-screen flex-col lg:flex-row">
+            <div data-component="sidebar"></div>
+
+            <div class="flex-1">
+                <main class="mx-auto w-full max-w-6xl px-6 py-12">
+                    <div class="space-y-10">
+                        <!-- Header Section -->
+                        <section class="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-surface via-soft to-[#020817] p-10 shadow-2xl shadow-black/30">
+                            <div class="flex flex-col gap-6">
+                                <div class="inline-flex w-fit items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-primary/90">
+                                    Bab 4.5.4
+                                </div>
+                                <div class="space-y-5">
+                                    <h1 class="text-3xl font-semibold text-textdark md:text-4xl">Fault Tolerance</h1>
+                                    <p class="text-sm text-textdark/70 md:text-base leading-relaxed">
+                                        Fault tolerance merupakan kemampuan sistem untuk tetap beroperasi dengan benar meskipun terjadi kegagalan pada satu atau beberapa komponennya. Dalam konteks blockchain dengan algoritma konsensus RAFT, fault tolerance sangat penting karena sistem harus dapat mempertahankan konsistensi data dan melanjutkan operasi normal bahkan ketika beberapa node mengalami kegagalan.
+                                    </p>
+                                    <p class="text-sm text-textdark/70 md:text-base leading-relaxed">
+                                        Analisis fault tolerance mencakup pemantauan kejadian kegagalan node (node failures), waktu pemulihan (recovery time), dampak terhadap transaksi yang sedang berjalan, serta verifikasi konsistensi data setelah pemulihan. Metrik ini memberikan gambaran tentang robustness sistem dan kemampuannya dalam menangani skenario failure yang mungkin terjadi di lingkungan produksi.
+                                    </p>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Simulation Selector -->
+                        <section class="rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20 backdrop-blur-sm">
+                            <header class="flex flex-col gap-2 border-b border-white/10 pb-6">
+                                <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Data Simulasi</h2>
+                                <p class="text-sm text-textdark/70">Pilih data simulasi untuk menganalisis fault tolerance.</p>
+                            </header>
+
+                            <div class="mt-6 space-y-6">
+                                <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
+                                    <div class="flex flex-col gap-4 md:flex-row md:items-end">
+                                        <div class="flex-1">
+                                            <label for="simulationSelect" class="mb-2 block text-sm font-medium text-textdark/90">Pilih Simulasi</label>
+                                            <select id="simulationSelect" class="w-full rounded-lg border border-white/10 bg-surface px-4 py-3 text-textdark focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/50">
+                                                <option value="">-- Memuat data simulasi --</option>
+                                            </select>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            id="loadSimulationButton"
+                                            class="inline-flex items-center justify-center gap-2 rounded-lg bg-primary/90 px-6 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-primary/40 transition duration-200 hover:-translate-y-0.5 hover:bg-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                                        >
+                                            <span>Muat Data</span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div id="noDataMessage" class="rounded-2xl border border-yellow-500/30 bg-yellow-500/10 p-6">
+                                    <p class="text-sm text-yellow-200/80">
+                                        Belum ada data simulasi yang tersedia. Silakan jalankan simulasi terlebih dahulu di halaman <a href="/penelitian/pelaksanaan-simulasi/pengeksekusian-simulasi-transaksi" class="font-semibold text-yellow-400 underline">Pengeksekusian Simulasi Transaksi</a>.
+                                    </p>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Fault Tolerance Summary -->
+                        <section id="faultSummary" class="hidden rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20">
+                            <h2 class="mb-6 text-2xl font-semibold text-textdark">Ringkasan Fault Tolerance</h2>
+                            <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                                <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
+                                    <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-red-500/70">Node Failures</p>
+                                    <p id="totalFailures" class="text-3xl font-bold text-textdark">0</p>
+                                    <p class="mt-2 text-xs text-textdark/60">Kegagalan tercatat</p>
+                                </div>
+                                <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
+                                    <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-accent/70">Avg Recovery Time</p>
+                                    <p id="avgRecoveryTime" class="text-3xl font-bold text-textdark">0</p>
+                                    <p class="mt-2 text-xs text-textdark/60">ms</p>
+                                </div>
+                                <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
+                                    <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-highlight/70">Impacted Transactions</p>
+                                    <p id="impactedTransactions" class="text-3xl font-bold text-textdark">0</p>
+                                    <p class="mt-2 text-xs text-textdark/60">Transaksi terdampak</p>
+                                </div>
+                                <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
+                                    <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-green-500/70">Success Rate</p>
+                                    <p id="successRate" class="text-3xl font-bold text-textdark">0</p>
+                                    <p class="mt-2 text-xs text-textdark/60">% saat failure</p>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Node Failures Timeline -->
+                        <section id="failureTimeline" class="hidden rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20">
+                            <h2 class="mb-6 text-2xl font-semibold text-textdark">Timeline Node Failures</h2>
+                            <div id="failureList" class="space-y-4">
+                                <!-- Failures will be populated here -->
+                            </div>
+                        </section>
+
+                        <!-- Recovery Time Chart -->
+                        <section id="recoveryChart" class="hidden rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20">
+                            <h2 class="mb-6 text-2xl font-semibold text-textdark">Waktu Pemulihan Per Node</h2>
+                            <div class="rounded-2xl border border-white/10 bg-surfaceMuted/30 p-6">
+                                <canvas id="recoveryTimeChart" class="w-full" style="max-height: 400px;"></canvas>
+                            </div>
+                        </section>
+
+                        <!-- Data Consistency -->
+                        <section id="consistencySection" class="hidden rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20">
+                            <h2 class="mb-6 text-2xl font-semibold text-textdark">Pemeriksaan Konsistensi Data</h2>
+                            <div id="consistencyList" class="space-y-4">
+                                <!-- Consistency checks will be populated here -->
+                            </div>
+                        </section>
+
+                        <!-- Analysis -->
+                        <section id="faultAnalysis" class="hidden rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20">
+                            <h2 class="mb-6 text-2xl font-semibold text-textdark">Analisis Fault Tolerance</h2>
+                            <div class="space-y-4">
+                                <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
+                                    <h3 class="mb-3 text-lg font-semibold text-primary">Interpretasi Data</h3>
+                                    <div id="analysisContent" class="space-y-3 text-sm text-textdark/80">
+                                        <p>Analisis akan ditampilkan setelah data simulasi dimuat.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- No Failure Data Message -->
+                        <section id="noFailureMessage" class="hidden rounded-3xl border border-blue-500/30 bg-blue-500/10 p-8 shadow-2xl shadow-black/20">
+                            <div class="flex items-start gap-4">
+                                <div class="flex-shrink-0">
+                                    <svg class="h-6 w-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-semibold text-blue-200">Tidak Ada Data Fault Tolerance</h3>
+                                    <p class="mt-2 text-sm text-blue-200/80">
+                                        Simulasi ini tidak mencatat kejadian kegagalan node atau pemulihan sistem. Ini menunjukkan bahwa simulasi berjalan tanpa gangguan atau fault tolerance testing belum dilakukan.
+                                    </p>
+                                    <p class="mt-2 text-sm text-blue-200/80">
+                                        Untuk menguji fault tolerance, Anda dapat secara manual menghentikan beberapa node selama simulasi berjalan dan mengamati bagaimana sistem melakukan pemulihan.
+                                    </p>
+                                </div>
+                            </div>
+                        </section>
+
+                    </div>
+                </main>
+
+                <div data-component="footer"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/layout.js" defer></script>
+    <script src="/js/navigation.js" defer></script>
+    <script>
+        let currentSimulation = null;
+        let recoveryChart = null;
+
+        // Load simulations list
+        async function loadSimulations() {
+            try {
+                const response = await fetch('/api/metrics/simulations');
+                const data = await response.json();
+
+                const select = document.getElementById('simulationSelect');
+                const noDataMsg = document.getElementById('noDataMessage');
+
+                if (data.success && data.simulations && data.simulations.length > 0) {
+                    select.innerHTML = '<option value="">-- Pilih simulasi --</option>';
+                    data.simulations.forEach(sim => {
+                        const option = document.createElement('option');
+                        option.value = sim.simulationId;
+                        const date = new Date(sim.startTime).toLocaleString('id-ID');
+                        const loadCat = sim.config?.loadCategory || 'unknown';
+                        option.textContent = `${sim.simulationId} - ${loadCat} (${date})`;
+                        select.appendChild(option);
+                    });
+                    noDataMsg.style.display = 'none';
+                } else {
+                    noDataMsg.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error loading simulations:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Gagal memuat daftar simulasi',
+                    background: '#0F172A',
+                    color: '#E2E8F0'
+                });
+            }
+        }
+
+        // Load simulation data
+        async function loadSimulationData(simulationId) {
+            try {
+                const response = await fetch(`/api/metrics/simulation/${simulationId}`);
+                const data = await response.json();
+
+                if (data.success && data.metrics) {
+                    currentSimulation = data.metrics;
+                    displayFaultToleranceData(data.metrics);
+                } else {
+                    throw new Error('Data tidak valid');
+                }
+            } catch (error) {
+                console.error('Error loading simulation:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Gagal memuat data simulasi',
+                    background: '#0F172A',
+                    color: '#E2E8F0'
+                });
+            }
+        }
+
+        // Display fault tolerance data
+        function displayFaultToleranceData(metrics) {
+            const fault = metrics.faultTolerance;
+
+            // Check if there's any fault tolerance data
+            if (!fault.nodeFailures || fault.nodeFailures.length === 0) {
+                document.getElementById('noFailureMessage').classList.remove('hidden');
+                document.getElementById('faultSummary').classList.add('hidden');
+                document.getElementById('failureTimeline').classList.add('hidden');
+                document.getElementById('recoveryChart').classList.add('hidden');
+                document.getElementById('consistencySection').classList.add('hidden');
+                document.getElementById('faultAnalysis').classList.add('hidden');
+                return;
+            }
+
+            // Show sections
+            document.getElementById('faultSummary').classList.remove('hidden');
+            document.getElementById('failureTimeline').classList.remove('hidden');
+            document.getElementById('recoveryChart').classList.remove('hidden');
+            document.getElementById('consistencySection').classList.remove('hidden');
+            document.getElementById('faultAnalysis').classList.remove('hidden');
+            document.getElementById('noFailureMessage').classList.add('hidden');
+
+            // Update summary
+            document.getElementById('totalFailures').textContent = fault.nodeFailures.length;
+            document.getElementById('avgRecoveryTime').textContent = fault.averageRecoveryTimeMs.toFixed(2);
+            document.getElementById('impactedTransactions').textContent = fault.transactionsDuringFailure;
+            document.getElementById('successRate').textContent = fault.successRateDuringFailure.toFixed(1);
+
+            // Display timeline
+            displayFailureTimeline(fault.nodeFailures);
+
+            // Display recovery chart
+            displayRecoveryChart(fault.nodeFailures);
+
+            // Display consistency checks
+            displayConsistencyChecks(fault.dataConsistencyChecks);
+
+            // Display analysis
+            displayAnalysis(fault, metrics.config);
+        }
+
+        // Display failure timeline
+        function displayFailureTimeline(failures) {
+            const container = document.getElementById('failureList');
+            container.innerHTML = '';
+
+            failures.forEach((failure, index) => {
+                const failedAt = new Date(failure.failedAt).toLocaleString('id-ID');
+                const recoveredAt = failure.recoveredAt ? new Date(failure.recoveredAt).toLocaleString('id-ID') : 'Belum pulih';
+                const recoveryTime = failure.recoveryTimeMs ? `${(failure.recoveryTimeMs / 1000).toFixed(2)} detik` : 'N/A';
+
+                const item = document.createElement('div');
+                item.className = 'rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6';
+                item.innerHTML = `
+                    <div class="flex items-start gap-4">
+                        <div class="flex-shrink-0">
+                            <span class="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-red-500/20 text-lg font-bold text-red-400">
+                                ${index + 1}
+                            </span>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-lg font-semibold text-textdark">${failure.nodeId}</h3>
+                            <div class="mt-2 space-y-1 text-sm text-textdark/70">
+                                <p><strong>Gagal pada:</strong> ${failedAt}</p>
+                                <p><strong>Pulih pada:</strong> ${recoveredAt}</p>
+                                <p><strong>Waktu pemulihan:</strong> ${recoveryTime}</p>
+                                <p><strong>Transaksi terdampak:</strong> ${failure.impactedTransactions} transaksi</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        // Display recovery time chart
+        function displayRecoveryChart(failures) {
+            const ctx = document.getElementById('recoveryTimeChart').getContext('2d');
+
+            if (recoveryChart) {
+                recoveryChart.destroy();
+            }
+
+            const labels = failures.map(f => f.nodeId.split('.')[0]);
+            const data = failures.map(f => f.recoveryTimeMs / 1000); // Convert to seconds
+
+            recoveryChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Recovery Time (seconds)',
+                        data: data,
+                        backgroundColor: 'rgba(245, 158, 11, 0.7)',
+                        borderColor: 'rgba(245, 158, 11, 1)',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Waktu Pemulihan Node (detik)',
+                            color: '#E2E8F0',
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                color: '#94A3B8'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            title: {
+                                display: true,
+                                text: 'Seconds',
+                                color: '#94A3B8'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: '#94A3B8',
+                                maxRotation: 45,
+                                minRotation: 45
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Display consistency checks
+        function displayConsistencyChecks(checks) {
+            const container = document.getElementById('consistencyList');
+            container.innerHTML = '';
+
+            if (!checks || checks.length === 0) {
+                container.innerHTML = `
+                    <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
+                        <p class="text-sm text-textdark/70">Tidak ada pemeriksaan konsistensi data yang dicatat.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            checks.forEach((check, index) => {
+                const timestamp = new Date(check.timestamp).toLocaleString('id-ID');
+                const statusColor = check.consistent ? 'green' : 'red';
+                const statusText = check.consistent ? 'Konsisten' : 'Tidak Konsisten';
+
+                const item = document.createElement('div');
+                item.className = 'rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6';
+                item.innerHTML = `
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <h3 class="text-lg font-semibold text-textdark">Pemeriksaan #${index + 1}</h3>
+                            <div class="mt-2 space-y-1 text-sm text-textdark/70">
+                                <p><strong>Waktu:</strong> ${timestamp}</p>
+                                <p><strong>Deskripsi:</strong> ${check.description || 'N/A'}</p>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="inline-flex rounded-lg bg-${statusColor}-500/20 px-3 py-1 text-sm font-semibold text-${statusColor}-400">
+                                ${statusText}
+                            </span>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        // Display analysis
+        function displayAnalysis(fault, config) {
+            const loadCategory = config?.loadCategory || 'unknown';
+
+            let analysis = `
+                <p>
+                    <strong>Kategori Beban:</strong> ${loadCategory.toUpperCase()}<br>
+                    <strong>Total Node Failures:</strong> ${fault.nodeFailures.length} kejadian
+                </p>
+                <p>
+                    Selama simulasi, terjadi <strong>${fault.nodeFailures.length} kejadian kegagalan node</strong>
+                    dengan waktu pemulihan rata-rata <strong>${fault.averageRecoveryTimeMs.toFixed(2)} ms</strong>
+                    (${(fault.averageRecoveryTimeMs / 1000).toFixed(2)} detik). Kegagalan node berdampak pada
+                    <strong>${fault.transactionsDuringFailure} transaksi</strong>, namun sistem masih dapat mempertahankan
+                    success rate sebesar <strong>${fault.successRateDuringFailure.toFixed(1)}%</strong> selama periode failure.
+                </p>
+            `;
+
+            if (fault.successRateDuringFailure >= 95) {
+                analysis += `
+                    <p>
+                        Success rate yang tinggi (${fault.successRateDuringFailure.toFixed(1)}%) menunjukkan bahwa sistem memiliki
+                        <strong>fault tolerance yang sangat baik</strong>. Algoritma konsensus RAFT berhasil menangani kegagalan node
+                        dan tetap memproses transaksi dengan tingkat keberhasilan yang tinggi.
+                    </p>
+                `;
+            } else if (fault.successRateDuringFailure >= 80) {
+                analysis += `
+                    <p>
+                        Success rate sebesar ${fault.successRateDuringFailure.toFixed(1)}% menunjukkan bahwa sistem memiliki
+                        <strong>fault tolerance yang memadai</strong>, meskipun ada beberapa transaksi yang gagal selama periode failure.
+                        Ini adalah perilaku yang dapat diterima dalam sistem distributed dengan fault tolerance.
+                    </p>
+                `;
+            } else {
+                analysis += `
+                    <p>
+                        Success rate yang relatif rendah (${fault.successRateDuringFailure.toFixed(1)}%) menunjukkan bahwa
+                        kegagalan node memiliki <strong>dampak signifikan</strong> terhadap kemampuan sistem dalam memproses transaksi.
+                        Ini mungkin mengindikasikan bahwa sistem tidak memiliki redundancy yang cukup atau recovery mechanism perlu ditingkatkan.
+                    </p>
+                `;
+            }
+
+            // Recovery time analysis
+            const recoveryTimes = fault.nodeFailures.map(f => f.recoveryTimeMs);
+            const maxRecovery = Math.max(...recoveryTimes);
+            const minRecovery = Math.min(...recoveryTimes);
+
+            if (maxRecovery > fault.averageRecoveryTimeMs * 2) {
+                analysis += `
+                    <p>
+                        Terdapat variasi waktu pemulihan yang cukup besar, dari ${(minRecovery / 1000).toFixed(2)} detik hingga
+                        ${(maxRecovery / 1000).toFixed(2)} detik. Variasi ini mungkin disebabkan oleh perbedaan kondisi sistem
+                        atau kompleksitas pemulihan pada masing-masing node.
+                    </p>
+                `;
+            }
+
+            // Consistency check analysis
+            if (fault.dataConsistencyChecks && fault.dataConsistencyChecks.length > 0) {
+                const consistentChecks = fault.dataConsistencyChecks.filter(c => c.consistent).length;
+                const totalChecks = fault.dataConsistencyChecks.length;
+                const consistencyRate = (consistentChecks / totalChecks * 100).toFixed(1);
+
+                analysis += `
+                    <p>
+                        Dari ${totalChecks} pemeriksaan konsistensi data yang dilakukan, ${consistentChecks} menunjukkan hasil yang konsisten
+                        (${consistencyRate}%). ${consistencyRate == 100 ?
+                            'Ini menunjukkan bahwa sistem mempertahankan konsistensi data dengan sempurna meskipun terjadi kegagalan node.' :
+                            'Beberapa inkonsistensi mungkin terjadi selama proses pemulihan, namun ini adalah bagian normal dari recovery process.'}
+                    </p>
+                `;
+            }
+
+            document.getElementById('analysisContent').innerHTML = analysis;
+        }
+
+        // Event listeners
+        document.getElementById('loadSimulationButton').addEventListener('click', () => {
+            const simulationId = document.getElementById('simulationSelect').value;
+            if (simulationId) {
+                loadSimulationData(simulationId);
+            } else {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Perhatian',
+                    text: 'Silakan pilih simulasi terlebih dahulu',
+                    background: '#0F172A',
+                    color: '#E2E8F0'
+                });
+            }
+        });
+
+        // Load simulations on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSimulations();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluasi RAFT HLF — Resource Usage</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#38BDF8',
+                        secondary: '#6366F1',
+                        accent: '#F59E0B',
+                        highlight: '#F97316',
+                        soft: '#050B16',
+                        surface: '#0F172A',
+                        surfaceMuted: '#16213F',
+                        border: '#1E293B',
+                        muted: '#94A3B8',
+                        textdark: '#E2E8F0'
+                    }
+                }
+            }
+        };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="/images/logo-ai-center.svg">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+
+        .component-link[data-active="true"] {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.28), rgba(56, 189, 248, 0.22));
+            color: #E2E8F0;
+            border-color: rgba(249, 115, 22, 0.45);
+            box-shadow: 0 12px 40px rgba(15, 23, 42, 0.45);
+        }
+
+        .component-link[data-active="true"] .component-link__index {
+            background-color: rgba(249, 115, 22, 0.35);
+            color: #E2E8F0;
+        }
+    </style>
+</head>
+<body class="bg-soft text-textdark">
+    <div data-component="header"></div>
+    <div class="relative min-h-screen overflow-hidden">
+        <div class="absolute inset-0 -z-10 h-full w-full">
+            <div class="absolute -left-1/3 top-0 h-[720px] w-[720px] rounded-full bg-gradient-to-br from-highlight/30 via-secondary/20 to-transparent opacity-70 blur-3xl"></div>
+            <div class="absolute -right-1/4 bottom-0 h-[620px] w-[620px] rounded-full bg-gradient-to-tr from-accent/35 via-secondary/25 to-primary/20 opacity-70 blur-3xl"></div>
+        </div>
+
+        <div class="flex min-h-screen flex-col lg:flex-row">
+            <div data-component="sidebar"></div>
+
+            <div class="flex-1">
+                <main class="mx-auto w-full max-w-6xl px-6 py-12">
+                    <div class="space-y-10">
+                        <!-- Header Section -->
+                        <section class="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-surface via-soft to-[#020817] p-10 shadow-2xl shadow-black/30">
+                            <div class="flex flex-col gap-6">
+                                <div class="inline-flex w-fit items-center gap-2 rounded-full border border-secondary/40 bg-secondary/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-secondary/90">
+                                    Bab 4.5.3
+                                </div>
+                                <div class="space-y-5">
+                                    <h1 class="text-3xl font-semibold text-textdark md:text-4xl">Resource Usage</h1>
+                                    <p class="text-sm text-textdark/70 md:text-base leading-relaxed">
+                                        Resource usage merupakan metrik yang memantau penggunaan sumber daya komputasi selama simulasi berjalan, mencakup CPU (Central Processing Unit), memori (RAM), dan I/O (Input/Output) disk. Pemantauan resource usage penting untuk memahami efisiensi sistem dan kebutuhan infrastruktur yang diperlukan untuk menjalankan jaringan blockchain dengan performa optimal.
+                                    </p>
+                                    <p class="text-sm text-textdark/70 md:text-base leading-relaxed">
+                                        Data resource usage dikumpulkan secara periodik selama simulasi berjalan, dengan interval pengambilan setiap 5 detik. Monitoring dilakukan pada semua node dalam jaringan, termasuk orderer nodes dan peer nodes, untuk memberikan gambaran komprehensif tentang distribusi beban kerja dan utilisasi resource pada setiap komponen sistem.
+                                    </p>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Simulation Selector -->
+                        <section class="rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20 backdrop-blur-sm">
+                            <header class="flex flex-col gap-2 border-b border-white/10 pb-6">
+                                <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Data Simulasi</h2>
+                                <p class="text-sm text-textdark/70">Pilih data simulasi untuk menganalisis resource usage.</p>
+                            </header>
+
+                            <div class="mt-6 space-y-6">
+                                <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
+                                    <div class="flex flex-col gap-4 md:flex-row md:items-end">
+                                        <div class="flex-1">
+                                            <label for="simulationSelect" class="mb-2 block text-sm font-medium text-textdark/90">Pilih Simulasi</label>
+                                            <select id="simulationSelect" class="w-full rounded-lg border border-white/10 bg-surface px-4 py-3 text-textdark focus:border-secondary focus:outline-none focus:ring-2 focus:ring-secondary/50">
+                                                <option value="">-- Memuat data simulasi --</option>
+                                            </select>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            id="loadSimulationButton"
+                                            class="inline-flex items-center justify-center gap-2 rounded-lg bg-secondary/90 px-6 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-secondary/40 transition duration-200 hover:-translate-y-0.5 hover:bg-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary"
+                                        >
+                                            <span>Muat Data</span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div id="noDataMessage" class="rounded-2xl border border-yellow-500/30 bg-yellow-500/10 p-6">
+                                    <p class="text-sm text-yellow-200/80">
+                                        Belum ada data simulasi yang tersedia. Silakan jalankan simulasi terlebih dahulu di halaman <a href="/penelitian/pelaksanaan-simulasi/pengeksekusian-simulasi-transaksi" class="font-semibold text-yellow-400 underline">Pengeksekusian Simulasi Transaksi</a>.
+                                    </p>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Resource Summary -->
+                        <section id="resourceSummary" class="hidden rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20">
+                            <h2 class="mb-6 text-2xl font-semibold text-textdark">Ringkasan Resource Usage</h2>
+                            <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                                <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
+                                    <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-primary/70">CPU Rata-rata</p>
+                                    <p id="averageCPU" class="text-3xl font-bold text-textdark">0</p>
+                                    <p class="mt-2 text-xs text-textdark/60">%</p>
+                                </div>
+                                <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
+                                    <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-secondary/70">CPU Puncak</p>
+                                    <p id="peakCPU" class="text-3xl font-bold text-textdark">0</p>
+                                    <p class="mt-2 text-xs text-textdark/60">%</p>
+                                </div>
+                                <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
+                                    <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-accent/70">Memory Rata-rata</p>
+                                    <p id="averageMemory" class="text-3xl font-bold text-textdark">0</p>
+                                    <p class="mt-2 text-xs text-textdark/60">MB</p>
+                                </div>
+                                <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
+                                    <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-highlight/70">Memory Puncak</p>
+                                    <p id="peakMemory" class="text-3xl font-bold text-textdark">0</p>
+                                    <p class="mt-2 text-xs text-textdark/60">MB</p>
+                                </div>
+                                <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
+                                    <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-green-500/70">I/O Rata-rata</p>
+                                    <p id="averageIO" class="text-3xl font-bold text-textdark">0</p>
+                                    <p class="mt-2 text-xs text-textdark/60">MB/s</p>
+                                </div>
+                                <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
+                                    <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-blue-500/70">Total Snapshots</p>
+                                    <p id="totalSnapshots" class="text-3xl font-bold text-textdark">0</p>
+                                    <p class="mt-2 text-xs text-textdark/60">Pengukuran</p>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- CPU Usage Over Time -->
+                        <section id="cpuUsageChart" class="hidden rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20">
+                            <h2 class="mb-6 text-2xl font-semibold text-textdark">CPU Usage Over Time</h2>
+                            <div class="rounded-2xl border border-white/10 bg-surfaceMuted/30 p-6">
+                                <canvas id="cpuChart" class="w-full" style="max-height: 400px;"></canvas>
+                            </div>
+                        </section>
+
+                        <!-- Memory Usage Over Time -->
+                        <section id="memoryUsageChart" class="hidden rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20">
+                            <h2 class="mb-6 text-2xl font-semibold text-textdark">Memory Usage Over Time</h2>
+                            <div class="rounded-2xl border border-white/10 bg-surfaceMuted/30 p-6">
+                                <canvas id="memoryChart" class="w-full" style="max-height: 400px;"></canvas>
+                            </div>
+                        </section>
+
+                        <!-- I/O Usage Over Time -->
+                        <section id="ioUsageChart" class="hidden rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20">
+                            <h2 class="mb-6 text-2xl font-semibold text-textdark">I/O Usage Over Time</h2>
+                            <div class="rounded-2xl border border-white/10 bg-surfaceMuted/30 p-6">
+                                <canvas id="ioChart" class="w-full" style="max-height: 400px;"></canvas>
+                            </div>
+                        </section>
+
+                        <!-- Node Resource Comparison -->
+                        <section id="nodeResourceComparison" class="hidden rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20">
+                            <h2 class="mb-6 text-2xl font-semibold text-textdark">Perbandingan Resource Per Node</h2>
+                            <div class="rounded-2xl border border-white/10 bg-surfaceMuted/30 p-6">
+                                <canvas id="nodeComparisonChart" class="w-full" style="max-height: 400px;"></canvas>
+                            </div>
+                        </section>
+
+                        <!-- Analysis -->
+                        <section id="resourceAnalysis" class="hidden rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20">
+                            <h2 class="mb-6 text-2xl font-semibold text-textdark">Analisis Resource Usage</h2>
+                            <div class="space-y-4">
+                                <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
+                                    <h3 class="mb-3 text-lg font-semibold text-secondary">Interpretasi Data</h3>
+                                    <div id="analysisContent" class="space-y-3 text-sm text-textdark/80">
+                                        <p>Analisis akan ditampilkan setelah data simulasi dimuat.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                    </div>
+                </main>
+
+                <div data-component="footer"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/layout.js" defer></script>
+    <script src="/js/navigation.js" defer></script>
+    <script>
+        let currentSimulation = null;
+        let cpuChart = null;
+        let memoryChart = null;
+        let ioChart = null;
+        let nodeChart = null;
+
+        // Load simulations list
+        async function loadSimulations() {
+            try {
+                const response = await fetch('/api/metrics/simulations');
+                const data = await response.json();
+
+                const select = document.getElementById('simulationSelect');
+                const noDataMsg = document.getElementById('noDataMessage');
+
+                if (data.success && data.simulations && data.simulations.length > 0) {
+                    select.innerHTML = '<option value="">-- Pilih simulasi --</option>';
+                    data.simulations.forEach(sim => {
+                        const option = document.createElement('option');
+                        option.value = sim.simulationId;
+                        const date = new Date(sim.startTime).toLocaleString('id-ID');
+                        const loadCat = sim.config?.loadCategory || 'unknown';
+                        option.textContent = `${sim.simulationId} - ${loadCat} (${date})`;
+                        select.appendChild(option);
+                    });
+                    noDataMsg.style.display = 'none';
+                } else {
+                    noDataMsg.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error loading simulations:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Gagal memuat daftar simulasi',
+                    background: '#0F172A',
+                    color: '#E2E8F0'
+                });
+            }
+        }
+
+        // Load simulation data
+        async function loadSimulationData(simulationId) {
+            try {
+                const response = await fetch(`/api/metrics/simulation/${simulationId}`);
+                const data = await response.json();
+
+                if (data.success && data.metrics) {
+                    currentSimulation = data.metrics;
+                    displayResourceData(data.metrics);
+                } else {
+                    throw new Error('Data tidak valid');
+                }
+            } catch (error) {
+                console.error('Error loading simulation:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Gagal memuat data simulasi',
+                    background: '#0F172A',
+                    color: '#E2E8F0'
+                });
+            }
+        }
+
+        // Display resource data
+        function displayResourceData(metrics) {
+            const resource = metrics.resourceUsage;
+
+            // Show sections
+            document.getElementById('resourceSummary').classList.remove('hidden');
+            document.getElementById('cpuUsageChart').classList.remove('hidden');
+            document.getElementById('memoryUsageChart').classList.remove('hidden');
+            document.getElementById('ioUsageChart').classList.remove('hidden');
+            document.getElementById('nodeResourceComparison').classList.remove('hidden');
+            document.getElementById('resourceAnalysis').classList.remove('hidden');
+
+            // Update summary
+            document.getElementById('averageCPU').textContent = resource.averageCPU.toFixed(2);
+            document.getElementById('peakCPU').textContent = resource.peakCPU.toFixed(2);
+            document.getElementById('averageMemory').textContent = resource.averageMemory.toFixed(2);
+            document.getElementById('peakMemory').textContent = resource.peakMemory.toFixed(2);
+            document.getElementById('averageIO').textContent = resource.averageIO.toFixed(2);
+            document.getElementById('totalSnapshots').textContent = resource.snapshots.length;
+
+            // Update charts
+            displayCPUChart(resource.snapshots);
+            displayMemoryChart(resource.snapshots);
+            displayIOChart(resource.snapshots);
+            displayNodeComparisonChart(resource);
+
+            // Update analysis
+            displayAnalysis(resource, metrics.config);
+        }
+
+        // Display CPU usage chart
+        function displayCPUChart(snapshots) {
+            const ctx = document.getElementById('cpuChart').getContext('2d');
+
+            if (cpuChart) {
+                cpuChart.destroy();
+            }
+
+            const labels = snapshots.map((s, i) => `T${i}`);
+            const data = snapshots.map(s => s.cpuPercent);
+
+            cpuChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'CPU Usage (%)',
+                        data: data,
+                        borderColor: 'rgba(56, 189, 248, 1)',
+                        backgroundColor: 'rgba(56, 189, 248, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: {
+                                color: '#E2E8F0'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                color: '#94A3B8'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            title: {
+                                display: true,
+                                text: 'CPU Usage (%)',
+                                color: '#94A3B8'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: '#94A3B8',
+                                maxRotation: 0
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            title: {
+                                display: true,
+                                text: 'Time',
+                                color: '#94A3B8'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Display Memory usage chart
+        function displayMemoryChart(snapshots) {
+            const ctx = document.getElementById('memoryChart').getContext('2d');
+
+            if (memoryChart) {
+                memoryChart.destroy();
+            }
+
+            const labels = snapshots.map((s, i) => `T${i}`);
+            const data = snapshots.map(s => s.memoryMB);
+
+            memoryChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Memory Usage (MB)',
+                        data: data,
+                        borderColor: 'rgba(245, 158, 11, 1)',
+                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: {
+                                color: '#E2E8F0'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                color: '#94A3B8'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            title: {
+                                display: true,
+                                text: 'Memory (MB)',
+                                color: '#94A3B8'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: '#94A3B8',
+                                maxRotation: 0
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            title: {
+                                display: true,
+                                text: 'Time',
+                                color: '#94A3B8'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Display I/O usage chart
+        function displayIOChart(snapshots) {
+            const ctx = document.getElementById('ioChart').getContext('2d');
+
+            if (ioChart) {
+                ioChart.destroy();
+            }
+
+            const labels = snapshots.map((s, i) => `T${i}`);
+            const data = snapshots.map(s => s.ioMBps);
+
+            ioChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'I/O Usage (MB/s)',
+                        data: data,
+                        borderColor: 'rgba(34, 197, 94, 1)',
+                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: {
+                                color: '#E2E8F0'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                color: '#94A3B8'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            title: {
+                                display: true,
+                                text: 'I/O (MB/s)',
+                                color: '#94A3B8'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: '#94A3B8',
+                                maxRotation: 0
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            title: {
+                                display: true,
+                                text: 'Time',
+                                color: '#94A3B8'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Display node comparison chart
+        function displayNodeComparisonChart(resource) {
+            const ctx = document.getElementById('nodeComparisonChart').getContext('2d');
+
+            if (nodeChart) {
+                nodeChart.destroy();
+            }
+
+            // Aggregate node data
+            const nodeData = {};
+
+            resource.orderers.forEach(orderer => {
+                const name = orderer.containerName.split('.')[0];
+                if (!nodeData[name]) {
+                    nodeData[name] = { cpu: [], memory: [] };
+                }
+                nodeData[name].cpu.push(orderer.cpuPercent);
+                nodeData[name].memory.push(orderer.memoryMB);
+            });
+
+            resource.peers.forEach(peer => {
+                const name = peer.containerName.split('.')[0];
+                if (!nodeData[name]) {
+                    nodeData[name] = { cpu: [], memory: [] };
+                }
+                nodeData[name].cpu.push(peer.cpuPercent);
+                nodeData[name].memory.push(peer.memoryMB);
+            });
+
+            const labels = Object.keys(nodeData);
+            const avgCPU = labels.map(name => {
+                const cpuValues = nodeData[name].cpu;
+                return cpuValues.reduce((a, b) => a + b, 0) / cpuValues.length;
+            });
+            const avgMemory = labels.map(name => {
+                const memValues = nodeData[name].memory;
+                return memValues.reduce((a, b) => a + b, 0) / memValues.length;
+            });
+
+            nodeChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Avg CPU (%)',
+                            data: avgCPU,
+                            backgroundColor: 'rgba(56, 189, 248, 0.7)',
+                            borderColor: 'rgba(56, 189, 248, 1)',
+                            borderWidth: 2,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Avg Memory (MB)',
+                            data: avgMemory,
+                            backgroundColor: 'rgba(245, 158, 11, 0.7)',
+                            borderColor: 'rgba(245, 158, 11, 1)',
+                            borderWidth: 2,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: {
+                                color: '#E2E8F0'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            beginAtZero: true,
+                            ticks: {
+                                color: '#94A3B8'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            title: {
+                                display: true,
+                                text: 'CPU (%)',
+                                color: '#94A3B8'
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            beginAtZero: true,
+                            ticks: {
+                                color: '#94A3B8'
+                            },
+                            grid: {
+                                drawOnChartArea: false
+                            },
+                            title: {
+                                display: true,
+                                text: 'Memory (MB)',
+                                color: '#94A3B8'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: '#94A3B8',
+                                maxRotation: 45,
+                                minRotation: 45
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Display analysis
+        function displayAnalysis(resource, config) {
+            const loadCategory = config?.loadCategory || 'unknown';
+
+            let analysis = `
+                <p>
+                    <strong>Kategori Beban:</strong> ${loadCategory.toUpperCase()}<br>
+                    <strong>Total Snapshots:</strong> ${resource.snapshots.length} pengukuran
+                </p>
+                <p>
+                    Selama simulasi, sistem menggunakan CPU dengan rata-rata <strong>${resource.averageCPU.toFixed(2)}%</strong>
+                    dan mencapai puncak pada <strong>${resource.peakCPU.toFixed(2)}%</strong>. Penggunaan memori rata-rata adalah
+                    <strong>${resource.averageMemory.toFixed(2)} MB</strong> dengan puncak pada
+                    <strong>${resource.peakMemory.toFixed(2)} MB</strong>. I/O disk rata-rata mencapai
+                    <strong>${resource.averageIO.toFixed(2)} MB/s</strong>.
+                </p>
+            `;
+
+            const cpuUtilization = (resource.averageCPU / 100);
+            const cpuStatus = cpuUtilization < 0.5 ? 'rendah' : cpuUtilization < 0.8 ? 'sedang' : 'tinggi';
+
+            analysis += `
+                <p>
+                    Utilisasi CPU rata-rata sebesar ${resource.averageCPU.toFixed(2)}% menunjukkan beban kerja yang <strong>${cpuStatus}</strong>
+                    pada sistem. ${cpuStatus === 'rendah' ? 'Sistem masih memiliki kapasitas untuk menangani beban yang lebih besar.' :
+                    cpuStatus === 'sedang' ? 'Sistem beroperasi pada level yang optimal dengan utilisasi yang efisien.' :
+                    'Sistem beroperasi pada beban tinggi yang mendekati kapasitas maksimum.'}
+                </p>
+            `;
+
+            const peakCpuRatio = resource.peakCPU / resource.averageCPU;
+            if (peakCpuRatio > 1.5) {
+                analysis += `
+                    <p>
+                        Rasio CPU puncak terhadap rata-rata adalah ${peakCpuRatio.toFixed(2)}x, yang mengindikasikan adanya
+                        lonjakan beban kerja yang signifikan pada periode tertentu. Hal ini normal terjadi saat pemrosesan
+                        batch transaksi atau saat terjadi konsensus block.
+                    </p>
+                `;
+            }
+
+            document.getElementById('analysisContent').innerHTML = analysis;
+        }
+
+        // Event listeners
+        document.getElementById('loadSimulationButton').addEventListener('click', () => {
+            const simulationId = document.getElementById('simulationSelect').value;
+            if (simulationId) {
+                loadSimulationData(simulationId);
+            } else {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Perhatian',
+                    text: 'Silakan pilih simulasi terlebih dahulu',
+                    background: '#0F172A',
+                    color: '#E2E8F0'
+                });
+            }
+        });
+
+        // Load simulations on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSimulations();
+        });
+    </script>
+</body>
+</html>

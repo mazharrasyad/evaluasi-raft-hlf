@@ -11,6 +11,14 @@ import { randomUUID } from 'crypto';
 import { checkNetworkHealth, getAllBlocks, getAllCatatan, getBlocksWithSimulationData } from './network-check.js';
 import { loadFabricDescriptions } from './fabric-description.js';
 import { submitToNetworks, submitTransaction, queryRecordsFromNetwork, queryAllTransactionsFromBlocks } from './fabric-gateway.js';
+import {
+    SimulationMetrics,
+    saveMetrics,
+    readAllMetrics,
+    getMetricsBySimulationId,
+    ResourceMonitor,
+    collectResourceUsage
+} from './metrics-collector.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -27,6 +35,9 @@ const simulationsDataPath = path.resolve(dataRoot, 'simulations.jsonl');
 
 const networkOperationEmitter = new EventEmitter();
 networkOperationEmitter.setMaxListeners(0);
+
+// Storage for active simulation metrics and resource monitors
+const activeSimulations = new Map(); // simulationId -> { metrics, resourceMonitor }
 
 // Helper functions for JSONL data storage
 async function appendSimulationData(data) {
@@ -1544,6 +1555,272 @@ app.get('/api/list', (req, res) => {
         },
         categories: apiEndpoints
     });
+});
+
+// =============================================================================
+// SIMULATION METRICS API ENDPOINTS
+// =============================================================================
+
+/**
+ * POST /api/metrics/simulation/start
+ * Start a new simulation metrics collection
+ */
+app.post('/api/metrics/simulation/start', async (req, res) => {
+    const startedAt = new Date().toISOString();
+
+    try {
+        const { loadCategory, totalTransactions, targetNetworks } = req.body;
+
+        // Validate input
+        if (!loadCategory || !totalTransactions || !Array.isArray(targetNetworks)) {
+            return res.status(400).json({
+                startedAt,
+                success: false,
+                error: 'Missing required fields: loadCategory, totalTransactions, targetNetworks'
+            });
+        }
+
+        // Create new simulation metrics
+        const simulationId = randomUUID();
+        const metrics = new SimulationMetrics(simulationId, {
+            loadCategory,
+            totalTransactions,
+            targetNetworks
+        });
+
+        // Start resource monitoring
+        const resourceMonitor = new ResourceMonitor(metrics, targetNetworks, 5000);
+        await resourceMonitor.start();
+
+        // Store active simulation
+        activeSimulations.set(simulationId, {
+            metrics,
+            resourceMonitor
+        });
+
+        console.log(`🚀 Started simulation ${simulationId} with ${totalTransactions} transactions`);
+
+        res.json({
+            startedAt,
+            success: true,
+            simulationId,
+            config: metrics.config
+        });
+    } catch (error) {
+        console.error('Error starting simulation metrics:', error);
+        res.status(500).json({
+            startedAt,
+            success: false,
+            error: error instanceof Error ? error.message : String(error)
+        });
+    }
+});
+
+/**
+ * POST /api/metrics/simulation/:simulationId/transaction
+ * Record a transaction in the simulation
+ */
+app.post('/api/metrics/simulation/:simulationId/transaction', async (req, res) => {
+    const recordedAt = new Date().toISOString();
+    const { simulationId } = req.params;
+
+    try {
+        const simulation = activeSimulations.get(simulationId);
+
+        if (!simulation) {
+            return res.status(404).json({
+                recordedAt,
+                success: false,
+                error: `Simulation ${simulationId} not found or already completed`
+            });
+        }
+
+        const { txId, networkId, submittedAt, completedAt, success, error } = req.body;
+
+        // Record transaction
+        simulation.metrics.addTransaction({
+            txId,
+            networkId,
+            submittedAt,
+            completedAt,
+            success,
+            error
+        });
+
+        res.json({
+            recordedAt,
+            success: true,
+            simulationId,
+            totalTransactions: simulation.metrics.throughput.totalTransactions
+        });
+    } catch (error) {
+        console.error('Error recording transaction:', error);
+        res.status(500).json({
+            recordedAt,
+            success: false,
+            error: error instanceof Error ? error.message : String(error)
+        });
+    }
+});
+
+/**
+ * POST /api/metrics/simulation/:simulationId/complete
+ * Complete a simulation and save metrics
+ */
+app.post('/api/metrics/simulation/:simulationId/complete', async (req, res) => {
+    const completedAt = new Date().toISOString();
+    const { simulationId } = req.params;
+
+    try {
+        const simulation = activeSimulations.get(simulationId);
+
+        if (!simulation) {
+            return res.status(404).json({
+                completedAt,
+                success: false,
+                error: `Simulation ${simulationId} not found`
+            });
+        }
+
+        // Stop resource monitoring
+        simulation.resourceMonitor.stop();
+
+        // Collect final resource snapshot
+        const finalSnapshot = await collectResourceUsage(simulation.metrics.config.targetNetworks);
+        simulation.metrics.resourceUsage.snapshots.push(finalSnapshot);
+
+        // Complete metrics calculation
+        simulation.metrics.complete();
+
+        // Save metrics to file
+        await saveMetrics(simulation.metrics);
+
+        // Remove from active simulations
+        activeSimulations.delete(simulationId);
+
+        console.log(`✅ Completed simulation ${simulationId}`);
+
+        res.json({
+            completedAt,
+            success: true,
+            simulationId,
+            metrics: simulation.metrics.toJSON()
+        });
+    } catch (error) {
+        console.error('Error completing simulation:', error);
+        res.status(500).json({
+            completedAt,
+            success: false,
+            error: error instanceof Error ? error.message : String(error)
+        });
+    }
+});
+
+/**
+ * GET /api/metrics/simulation/:simulationId
+ * Get metrics for a specific simulation
+ */
+app.get('/api/metrics/simulation/:simulationId', async (req, res) => {
+    const fetchedAt = new Date().toISOString();
+    const { simulationId } = req.params;
+
+    try {
+        // Check if simulation is still active
+        const activeSimulation = activeSimulations.get(simulationId);
+        if (activeSimulation) {
+            // Return current metrics (not final)
+            activeSimulation.metrics.calculateMetrics();
+            return res.json({
+                fetchedAt,
+                success: true,
+                simulationId,
+                status: 'running',
+                metrics: activeSimulation.metrics.toJSON()
+            });
+        }
+
+        // Fetch from saved metrics
+        const metrics = await getMetricsBySimulationId(simulationId);
+
+        if (!metrics) {
+            return res.status(404).json({
+                fetchedAt,
+                success: false,
+                error: `Simulation ${simulationId} not found`
+            });
+        }
+
+        res.json({
+            fetchedAt,
+            success: true,
+            simulationId,
+            status: 'completed',
+            metrics
+        });
+    } catch (error) {
+        console.error('Error fetching simulation metrics:', error);
+        res.status(500).json({
+            fetchedAt,
+            success: false,
+            error: error instanceof Error ? error.message : String(error)
+        });
+    }
+});
+
+/**
+ * GET /api/metrics/simulations
+ * Get all simulation metrics
+ */
+app.get('/api/metrics/simulations', async (req, res) => {
+    const fetchedAt = new Date().toISOString();
+
+    try {
+        const allMetrics = await readAllMetrics();
+
+        res.json({
+            fetchedAt,
+            success: true,
+            count: allMetrics.length,
+            simulations: allMetrics
+        });
+    } catch (error) {
+        console.error('Error fetching all simulations:', error);
+        res.status(500).json({
+            fetchedAt,
+            success: false,
+            error: error instanceof Error ? error.message : String(error),
+            count: 0,
+            simulations: []
+        });
+    }
+});
+
+/**
+ * GET /api/metrics/resource-usage
+ * Get current resource usage snapshot
+ */
+app.get('/api/metrics/resource-usage', async (req, res) => {
+    const fetchedAt = new Date().toISOString();
+
+    try {
+        const { networks } = req.query;
+        const networkIds = networks ? networks.split(',') : [];
+
+        const snapshot = await collectResourceUsage(networkIds);
+
+        res.json({
+            fetchedAt,
+            success: true,
+            snapshot
+        });
+    } catch (error) {
+        console.error('Error fetching resource usage:', error);
+        res.status(500).json({
+            fetchedAt,
+            success: false,
+            error: error instanceof Error ? error.message : String(error)
+        });
+    }
 });
 
 app.get('*', (req, res) => {

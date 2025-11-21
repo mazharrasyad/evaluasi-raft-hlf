@@ -187,24 +187,21 @@
                                 <div class="space-y-5">
                                     <h1 class="text-3xl font-semibold text-textdark md:text-4xl">Penyimpanan Data Transaksi</h1>
                                     <p class="text-sm text-textdark/70 md:text-base leading-relaxed">
-                                        Halaman ini menampilkan data transaksi yang tersimpan pada masing-masing network blockchain. Data diambil dari state database setiap network menggunakan API GET pelaporan. Anda dapat melihat semua record yang telah disubmit ke network Fabric 2 RAFT Standard, Fabric 2 RAFT Variant, Fabric 3 RAFT Standard, dan Fabric 3 RAFT Variant.
+                                        Halaman ini menampilkan data transaksi yang tersimpan pada semua network blockchain dalam satu tabel gabungan. Data diambil dari state database setiap network menggunakan API GET pelaporan. Anda dapat melihat semua record yang telah disubmit ke network Fabric 2 RAFT Standard, Fabric 2 RAFT Variant, Fabric 3 RAFT Standard, dan Fabric 3 RAFT Variant, lengkap dengan informasi network dan kategori beban.
                                     </p>
                                 </div>
                             </div>
                         </section>
 
-                        <!-- Fabric 2 RAFT Standard -->
+                        <!-- Gabungan Semua Network -->
                         <section class="rounded-3xl border border-white/10 bg-surface/80 p-8 shadow-2xl shadow-black/20 backdrop-blur-sm">
                             <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                                 <div>
-                                    <div class="mb-2 flex items-center gap-3">
-                                        <h2 class="text-2xl font-semibold text-textdark">Fabric 2 RAFT Standard</h2>
-                                        <span class="network-badge badge-f2-standard">F2 Standard</span>
-                                    </div>
-                                    <p class="text-sm text-textdark/60">Network ID: channel-standard</p>
+                                    <h2 class="text-2xl font-semibold text-textdark mb-2">Data Transaksi Semua Network</h2>
+                                    <p class="text-sm text-textdark/60">Data gabungan dari F2 Standard, F2 Variant, F3 Standard, dan F3 Variant</p>
                                 </div>
                                 <button
-                                    onclick="loadNetworkData('f2-standard')"
+                                    onclick="loadAllNetworkData()"
                                     class="inline-flex items-center justify-center gap-2 rounded-lg bg-primary/90 px-6 py-2.5 text-sm font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-primary/40 transition duration-200 hover:-translate-y-0.5 hover:bg-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                                 >
                                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -214,140 +211,19 @@
                                 </button>
                             </div>
                             <div class="overflow-x-auto rounded-2xl border border-white/10 bg-surfaceMuted/50 p-4">
-                                <div id="loading-f2-standard" class="py-8 text-center text-textdark/60">
-                                    Klik "Refresh Data" untuk memuat data dari network...
+                                <div id="loading-all" class="py-8 text-center text-textdark/60">
+                                    Klik "Refresh Data" untuk memuat data dari semua network...
                                 </div>
-                                <table id="table-f2-standard" class="display hidden" style="width:100%">
+                                <table id="table-all" class="display hidden" style="width:100%">
                                     <thead>
                                         <tr>
+                                            <th>Network</th>
                                             <th>ID Laporan</th>
                                             <th>Substansi</th>
                                             <th>Grup Pelapor</th>
                                             <th>Grup Terlapor</th>
                                             <th>Kantor Penerima</th>
-                                            <th>Status</th>
-                                            <th>Tanggal Submit</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                            </div>
-                        </section>
-
-                        <!-- Fabric 2 RAFT Variant -->
-                        <section class="rounded-3xl border border-white/10 bg-surface/80 p-8 shadow-2xl shadow-black/20 backdrop-blur-sm">
-                            <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                                <div>
-                                    <div class="mb-2 flex items-center gap-3">
-                                        <h2 class="text-2xl font-semibold text-textdark">Fabric 2 RAFT Variant</h2>
-                                        <span class="network-badge badge-f2-variant">F2 Variant</span>
-                                    </div>
-                                    <p class="text-sm text-textdark/60">Network ID: channel-variant</p>
-                                </div>
-                                <button
-                                    onclick="loadNetworkData('f2-variant')"
-                                    class="inline-flex items-center justify-center gap-2 rounded-lg bg-primary/90 px-6 py-2.5 text-sm font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-primary/40 transition duration-200 hover:-translate-y-0.5 hover:bg-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-                                >
-                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                    </svg>
-                                    <span>Refresh Data</span>
-                                </button>
-                            </div>
-                            <div class="overflow-x-auto rounded-2xl border border-white/10 bg-surfaceMuted/50 p-4">
-                                <div id="loading-f2-variant" class="py-8 text-center text-textdark/60">
-                                    Klik "Refresh Data" untuk memuat data dari network...
-                                </div>
-                                <table id="table-f2-variant" class="display hidden" style="width:100%">
-                                    <thead>
-                                        <tr>
-                                            <th>ID Laporan</th>
-                                            <th>Substansi</th>
-                                            <th>Grup Pelapor</th>
-                                            <th>Grup Terlapor</th>
-                                            <th>Kantor Penerima</th>
-                                            <th>Status</th>
-                                            <th>Tanggal Submit</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                            </div>
-                        </section>
-
-                        <!-- Fabric 3 RAFT Standard -->
-                        <section class="rounded-3xl border border-white/10 bg-surface/80 p-8 shadow-2xl shadow-black/20 backdrop-blur-sm">
-                            <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                                <div>
-                                    <div class="mb-2 flex items-center gap-3">
-                                        <h2 class="text-2xl font-semibold text-textdark">Fabric 3 RAFT Standard</h2>
-                                        <span class="network-badge badge-f3-standard">F3 Standard</span>
-                                    </div>
-                                    <p class="text-sm text-textdark/60">Network ID: channel-fabric3-standard</p>
-                                </div>
-                                <button
-                                    onclick="loadNetworkData('f3-standard')"
-                                    class="inline-flex items-center justify-center gap-2 rounded-lg bg-primary/90 px-6 py-2.5 text-sm font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-primary/40 transition duration-200 hover:-translate-y-0.5 hover:bg-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-                                >
-                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                    </svg>
-                                    <span>Refresh Data</span>
-                                </button>
-                            </div>
-                            <div class="overflow-x-auto rounded-2xl border border-white/10 bg-surfaceMuted/50 p-4">
-                                <div id="loading-f3-standard" class="py-8 text-center text-textdark/60">
-                                    Klik "Refresh Data" untuk memuat data dari network...
-                                </div>
-                                <table id="table-f3-standard" class="display hidden" style="width:100%">
-                                    <thead>
-                                        <tr>
-                                            <th>ID Laporan</th>
-                                            <th>Substansi</th>
-                                            <th>Grup Pelapor</th>
-                                            <th>Grup Terlapor</th>
-                                            <th>Kantor Penerima</th>
-                                            <th>Status</th>
-                                            <th>Tanggal Submit</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                            </div>
-                        </section>
-
-                        <!-- Fabric 3 RAFT Variant -->
-                        <section class="rounded-3xl border border-white/10 bg-surface/80 p-8 shadow-2xl shadow-black/20 backdrop-blur-sm">
-                            <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                                <div>
-                                    <div class="mb-2 flex items-center gap-3">
-                                        <h2 class="text-2xl font-semibold text-textdark">Fabric 3 RAFT Variant</h2>
-                                        <span class="network-badge badge-f3-variant">F3 Variant</span>
-                                    </div>
-                                    <p class="text-sm text-textdark/60">Network ID: channel-fabric3-variant</p>
-                                </div>
-                                <button
-                                    onclick="loadNetworkData('f3-variant')"
-                                    class="inline-flex items-center justify-center gap-2 rounded-lg bg-primary/90 px-6 py-2.5 text-sm font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-primary/40 transition duration-200 hover:-translate-y-0.5 hover:bg-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-                                >
-                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                    </svg>
-                                    <span>Refresh Data</span>
-                                </button>
-                            </div>
-                            <div class="overflow-x-auto rounded-2xl border border-white/10 bg-surfaceMuted/50 p-4">
-                                <div id="loading-f3-variant" class="py-8 text-center text-textdark/60">
-                                    Klik "Refresh Data" untuk memuat data dari network...
-                                </div>
-                                <table id="table-f3-variant" class="display hidden" style="width:100%">
-                                    <thead>
-                                        <tr>
-                                            <th>ID Laporan</th>
-                                            <th>Substansi</th>
-                                            <th>Grup Pelapor</th>
-                                            <th>Grup Terlapor</th>
-                                            <th>Kantor Penerima</th>
+                                            <th>Kategori Beban</th>
                                             <th>Status</th>
                                             <th>Tanggal Submit</th>
                                         </tr>
@@ -371,69 +247,98 @@
         const networkConfig = {
             'f2-standard': {
                 apiUrl: '/api/fabric-2/raft-standard/pelaporan',
-                label: 'Fabric 2 RAFT Standard'
+                label: 'Fabric 2 RAFT Standard',
+                badgeClass: 'badge-f2-standard',
+                badgeText: 'F2 Standard'
             },
             'f2-variant': {
                 apiUrl: '/api/fabric-2/raft-variant/pelaporan',
-                label: 'Fabric 2 RAFT Variant'
+                label: 'Fabric 2 RAFT Variant',
+                badgeClass: 'badge-f2-variant',
+                badgeText: 'F2 Variant'
             },
             'f3-standard': {
                 apiUrl: '/api/fabric-3/raft-standard/pelaporan',
-                label: 'Fabric 3 RAFT Standard'
+                label: 'Fabric 3 RAFT Standard',
+                badgeClass: 'badge-f3-standard',
+                badgeText: 'F3 Standard'
             },
             'f3-variant': {
                 apiUrl: '/api/fabric-3/raft-variant/pelaporan',
-                label: 'Fabric 3 RAFT Variant'
+                label: 'Fabric 3 RAFT Variant',
+                badgeClass: 'badge-f3-variant',
+                badgeText: 'F3 Variant'
             }
         };
 
-        // Store DataTable instances
-        const tables = {};
+        // Store DataTable instance
+        let mainTable = null;
 
-        // Load data for a specific network
-        async function loadNetworkData(networkKey) {
-            const config = networkConfig[networkKey];
-            const loadingEl = document.getElementById(`loading-${networkKey}`);
-            const tableEl = document.getElementById(`table-${networkKey}`);
+        // Load data from all networks
+        async function loadAllNetworkData() {
+            const loadingEl = document.getElementById('loading-all');
+            const tableEl = document.getElementById('table-all');
 
             try {
                 // Show loading state
-                loadingEl.textContent = 'Memuat data...';
+                loadingEl.textContent = 'Memuat data dari semua network...';
                 loadingEl.classList.remove('hidden');
                 tableEl.classList.add('hidden');
 
-                // Fetch data from API
-                const response = await fetch(config.apiUrl);
-                const data = await response.json();
+                // Fetch data from all networks in parallel
+                const promises = Object.entries(networkConfig).map(async ([networkKey, config]) => {
+                    try {
+                        const response = await fetch(config.apiUrl);
+                        const data = await response.json();
 
-                if (!data.success) {
-                    throw new Error(data.error || 'Failed to fetch data');
-                }
+                        if (data.success && data.records) {
+                            return data.records.map(record => ({
+                                ...record,
+                                network: config.label,
+                                networkKey: networkKey,
+                                badgeClass: config.badgeClass,
+                                badgeText: config.badgeText
+                            }));
+                        }
+                        return [];
+                    } catch (error) {
+                        console.error(`Error fetching ${config.label}:`, error);
+                        return [];
+                    }
+                });
+
+                // Wait for all fetches to complete
+                const results = await Promise.all(promises);
+
+                // Flatten all results into one array
+                const allRecords = results.flat();
 
                 // Hide loading, show table
                 loadingEl.classList.add('hidden');
                 tableEl.classList.remove('hidden');
 
                 // Destroy existing DataTable if exists
-                if (tables[networkKey]) {
-                    tables[networkKey].destroy();
+                if (mainTable) {
+                    mainTable.destroy();
                 }
 
-                // Prepare data for DataTable
-                const tableData = (data.records || []).map(record => [
+                // Prepare data for DataTable with network badge HTML
+                const tableData = allRecords.map(record => [
+                    `<span class="network-badge ${record.badgeClass}">${record.badgeText}</span>`,
                     record.reportId || record.id || '-',
                     record.substance || '-',
                     record.reporterGroup || '-',
                     record.reportedGroup || '-',
                     record.receivingOffice || '-',
+                    record.expenseCategory || record.kategori_beban || '-',
                     record.status || '-',
                     record.submittedAt ? new Date(record.submittedAt).toLocaleString('id-ID') : '-'
                 ]);
 
                 // Initialize DataTable
-                tables[networkKey] = $(`#table-${networkKey}`).DataTable({
+                mainTable = $('#table-all').DataTable({
                     data: tableData,
-                    pageLength: 10,
+                    pageLength: 25,
                     lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Semua"]],
                     language: {
                         lengthMenu: "Tampilkan _MENU_ data per halaman",
@@ -449,32 +354,33 @@
                             previous: "Sebelumnya"
                         }
                     },
-                    order: [[6, 'desc']], // Sort by submit date descending
-                    destroy: true
+                    order: [[8, 'desc']], // Sort by submit date descending
+                    destroy: true,
+                    columnDefs: [
+                        { targets: 0, orderable: true } // Network column is sortable
+                    ]
                 });
 
-                // Update loading message with count
-                loadingEl.textContent = `Berhasil memuat ${data.count || 0} record dari ${config.label}`;
+                // Show success message with count
+                loadingEl.textContent = `Berhasil memuat ${allRecords.length} record dari semua network`;
                 loadingEl.classList.remove('hidden');
                 setTimeout(() => {
                     loadingEl.classList.add('hidden');
                 }, 3000);
 
             } catch (error) {
-                console.error(`Error loading data for ${networkKey}:`, error);
+                console.error('Error loading data from networks:', error);
                 loadingEl.textContent = `Error: ${error.message}`;
                 loadingEl.classList.remove('hidden');
                 tableEl.classList.add('hidden');
             }
         }
 
-        // Optional: Load all networks on page load
+        // Optional: Load all data on page load
         // Uncomment the following lines if you want to auto-load data
         /*
         document.addEventListener('DOMContentLoaded', () => {
-            Object.keys(networkConfig).forEach(networkKey => {
-                loadNetworkData(networkKey);
-            });
+            loadAllNetworkData();
         });
         */
     </script>

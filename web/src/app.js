@@ -742,6 +742,13 @@ const viewFiles = {
             pengumpulanValidasiLog: path.resolve(viewsRoot, 'penelitian/pengolahan-data/pengumpulan-validasi-log.html'),
             pengolahanNilaiRataRataGrafik: path.resolve(viewsRoot, 'penelitian/pengolahan-data/pengolahan-nilai-rata-rata-grafik.html'),
         },
+        dataAnalysis: path.resolve(viewsRoot, 'penelitian/analisis-data.html'),
+        dataAnalysisSubsections: {
+            throughput: path.resolve(viewsRoot, 'penelitian/analisis-data/throughput.html'),
+            latency: path.resolve(viewsRoot, 'penelitian/analisis-data/latency.html'),
+            resourceUsage: path.resolve(viewsRoot, 'penelitian/analisis-data/resource-usage.html'),
+            faultTolerance: path.resolve(viewsRoot, 'penelitian/analisis-data/fault-tolerance.html'),
+        },
     },
 };
 
@@ -801,6 +808,26 @@ app.get('/penelitian/pengolahan-data/pengumpulan-validasi-log', (req, res) => {
 
 app.get('/penelitian/pengolahan-data/pengolahan-nilai-rata-rata-grafik', (req, res) => {
     res.sendFile(viewFiles.research.dataProcessingSubsections.pengolahanNilaiRataRataGrafik);
+});
+
+app.get('/penelitian/analisis-data', (req, res) => {
+    res.sendFile(viewFiles.research.dataAnalysis);
+});
+
+app.get('/penelitian/analisis-data/throughput', (req, res) => {
+    res.sendFile(viewFiles.research.dataAnalysisSubsections.throughput);
+});
+
+app.get('/penelitian/analisis-data/latency', (req, res) => {
+    res.sendFile(viewFiles.research.dataAnalysisSubsections.latency);
+});
+
+app.get('/penelitian/analisis-data/resource-usage', (req, res) => {
+    res.sendFile(viewFiles.research.dataAnalysisSubsections.resourceUsage);
+});
+
+app.get('/penelitian/analisis-data/fault-tolerance', (req, res) => {
+    res.sendFile(viewFiles.research.dataAnalysisSubsections.faultTolerance);
 });
 
 app.get('/dashboard', (req, res) => {

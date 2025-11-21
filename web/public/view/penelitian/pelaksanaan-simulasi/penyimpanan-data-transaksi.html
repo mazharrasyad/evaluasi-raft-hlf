@@ -213,7 +213,7 @@
                                 <div class="space-y-5">
                                     <h1 class="text-3xl font-semibold text-textdark md:text-4xl">Penyimpanan Data Transaksi</h1>
                                     <p class="text-sm text-textdark/70 md:text-base leading-relaxed">
-                                        Halaman ini menampilkan data transaksi yang tersimpan pada semua network blockchain dalam satu tabel gabungan. Data diambil dari state database setiap network menggunakan API GET pelaporan. Anda dapat melihat semua record yang telah disubmit ke network Fabric 2 RAFT Standard, Fabric 2 RAFT Variant, Fabric 3 RAFT Standard, dan Fabric 3 RAFT Variant, lengkap dengan informasi network dan kategori beban.
+                                        Halaman ini menampilkan sampel data transaksi yang tersimpan pada semua network blockchain dalam satu tabel gabungan. Data diambil dari state database setiap network menggunakan API GET pelaporan. Untuk perbandingan, ditampilkan maksimal 4 data dengan network yang bergantian (F2 Standard, F2 Variant, F3 Standard, F3 Variant) agar semua network terlihat dan dapat dibandingkan.
                                     </p>
                                 </div>
                             </div>
@@ -224,7 +224,7 @@
                             <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                                 <div>
                                     <h2 class="text-2xl font-semibold text-textdark mb-2">Data Transaksi Semua Network</h2>
-                                    <p class="text-sm text-textdark/60">Data gabungan dari F2 Standard, F2 Variant, F3 Standard, dan F3 Variant</p>
+                                    <p class="text-sm text-textdark/60">Menampilkan maksimal 4 data dengan network bergantian untuk perbandingan</p>
                                 </div>
                                 <button
                                     onclick="loadAllNetworkData()"
@@ -362,6 +362,52 @@
                 // Flatten all results into one array
                 const allRecords = results.flat();
 
+                // Limit to maximum 4 records with alternating networks for comparison
+                const limitedRecords = [];
+                const maxRecords = 4;
+                const networkGroups = {};
+
+                // Group records by network
+                allRecords.forEach(record => {
+                    if (!networkGroups[record.networkKey]) {
+                        networkGroups[record.networkKey] = [];
+                    }
+                    networkGroups[record.networkKey].push(record);
+                });
+
+                // Get network keys
+                const networkKeys = Object.keys(networkGroups);
+                const networksCount = networkKeys.length;
+
+                if (networksCount > 0) {
+                    // Calculate how many records per network (round-robin distribution)
+                    let currentIndex = 0;
+
+                    // Alternate between networks until we reach 4 records
+                    while (limitedRecords.length < maxRecords && currentIndex < 100) { // max 100 iterations to prevent infinite loop
+                        const networkKey = networkKeys[currentIndex % networksCount];
+                        const networkRecords = networkGroups[networkKey];
+
+                        // Get the next record from this network
+                        const recordIndex = Math.floor(currentIndex / networksCount);
+                        if (recordIndex < networkRecords.length) {
+                            limitedRecords.push(networkRecords[recordIndex]);
+                        }
+
+                        currentIndex++;
+
+                        // If all networks are exhausted, break
+                        const allExhausted = networkKeys.every(key => {
+                            const idx = Math.floor(currentIndex / networksCount);
+                            return idx >= networkGroups[key].length;
+                        });
+                        if (allExhausted) break;
+                    }
+                }
+
+                // Use limitedRecords instead of allRecords
+                const displayRecords = limitedRecords.slice(0, maxRecords);
+
                 // Hide loading, show table
                 loadingEl.classList.add('hidden');
                 tableEl.classList.remove('hidden');
@@ -372,7 +418,7 @@
                 }
 
                 // Prepare data for DataTable with network badge HTML
-                const tableData = allRecords.map(record => {
+                const tableData = displayRecords.map(record => {
                     const expenseCategory = record.expenseCategory || record.kategori_beban || '-';
                     return [
                         `<span class="network-badge ${record.badgeClass}">${record.badgeText}</span>`,
@@ -390,8 +436,9 @@
                 // Initialize DataTable
                 mainTable = $('#table-all').DataTable({
                     data: tableData,
-                    pageLength: 25,
+                    pageLength: 10,
                     lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Semua"]],
+                    paging: false, // Disable pagination since we only show 4 records
                     language: {
                         lengthMenu: "Tampilkan _MENU_ data per halaman",
                         zeroRecords: "Tidak ada data ditemukan",
@@ -426,7 +473,7 @@
                 });
 
                 // Show success message with count
-                loadingEl.textContent = `Berhasil memuat ${allRecords.length} record dari semua network`;
+                loadingEl.textContent = `Menampilkan ${displayRecords.length} data dari ${allRecords.length} total record (maksimal 4 data dengan network bergantian)`;
                 loadingEl.classList.remove('hidden');
                 setTimeout(() => {
                     loadingEl.classList.add('hidden');

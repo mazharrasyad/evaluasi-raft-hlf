@@ -950,6 +950,9 @@
                     background: '#0F172A',
                     color: '#E2E8F0',
                     confirmButtonColor: '#38BDF8'
+                }).then(() => {
+                    // Redirect ke halaman analisis data setelah user menekan OK
+                    window.location.href = '/penelitian/analisis-data';
                 });
             } else if (totalSent > 0) {
                 Swal.fire({

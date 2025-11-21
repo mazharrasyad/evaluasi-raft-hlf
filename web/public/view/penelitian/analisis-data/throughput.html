@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluasi RAFT HLF — Throughput</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#38BDF8',
+                        secondary: '#6366F1',
+                        accent: '#F59E0B',
+                        highlight: '#F97316',
+                        soft: '#050B16',
+                        surface: '#0F172A',
+                        surfaceMuted: '#16213F',
+                        border: '#1E293B',
+                        muted: '#94A3B8',
+                        textdark: '#E2E8F0'
+                    }
+                }
+            }
+        };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="/images/logo-ai-center.svg">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+
+        .component-link[data-active="true"] {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.28), rgba(56, 189, 248, 0.22));
+            color: #E2E8F0;
+            border-color: rgba(249, 115, 22, 0.45);
+            box-shadow: 0 12px 40px rgba(15, 23, 42, 0.45);
+        }
+
+        .component-link[data-active="true"] .component-link__index {
+            background-color: rgba(249, 115, 22, 0.35);
+            color: #E2E8F0;
+        }
+    </style>
+</head>
+<body class="bg-soft text-textdark">
+    <div data-component="header"></div>
+    <div class="relative min-h-screen overflow-hidden">
+        <div class="absolute inset-0 -z-10 h-full w-full">
+            <div class="absolute -left-1/3 top-0 h-[720px] w-[720px] rounded-full bg-gradient-to-br from-highlight/30 via-secondary/20 to-transparent opacity-70 blur-3xl"></div>
+            <div class="absolute -right-1/4 bottom-0 h-[620px] w-[620px] rounded-full bg-gradient-to-tr from-accent/35 via-secondary/25 to-primary/20 opacity-70 blur-3xl"></div>
+        </div>
+
+        <div class="flex min-h-screen flex-col lg:flex-row">
+            <div data-component="sidebar"></div>
+
+            <div class="flex-1">
+                <main class="mx-auto w-full max-w-6xl px-6 py-12">
+                    <div class="space-y-10">
+                        <!-- Header Section -->
+                        <section class="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-surface via-soft to-[#020817] p-10 shadow-2xl shadow-black/30">
+                            <div class="flex flex-col gap-6">
+                                <div class="inline-flex w-fit items-center gap-2 rounded-full border border-secondary/40 bg-secondary/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-secondary/90">
+                                    Bab 4.5.1
+                                </div>
+                                <div class="space-y-5">
+                                    <h1 class="text-3xl font-semibold text-textdark md:text-4xl">Throughput</h1>
+                                    <p class="text-sm text-textdark/70 md:text-base leading-relaxed">
+                                        Throughput merupakan metrik kinerja yang mengukur kemampuan sistem blockchain dalam memproses transaksi per satuan waktu, yang diukur dalam Transaksi Per Detik (TPS - Transactions Per Second). Metrik ini menjadi indikator utama untuk mengevaluasi kapasitas pemrosesan sistem dan efisiensi algoritma konsensus dalam menangani beban transaksi.
+                                    </p>
+                                    <p class="text-sm text-textdark/70 md:text-base leading-relaxed">
+                                        Analisis throughput dilakukan dengan membandingkan performa empat konfigurasi jaringan: Fabric 2 RAFT Standard, Fabric 2 RAFT Variant, Fabric 3 RAFT Standard, dan Fabric 3 RAFT Variant. Pengujian dilakukan pada tiga kategori beban kerja (ringan, sedang, dan tinggi) untuk memahami karakteristik performa setiap varian dalam kondisi yang berbeda.
+                                    </p>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Simulation Selector -->
+                        <section class="rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20 backdrop-blur-sm">
+                            <header class="flex flex-col gap-2 border-b border-white/10 pb-6">
+                                <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Data Simulasi</h2>
+                                <p class="text-sm text-textdark/70">Pilih data simulasi untuk menganalisis throughput.</p>
+                            </header>
+
+                            <div class="mt-6 space-y-6">
+                                <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
+                                    <div class="flex flex-col gap-4 md:flex-row md:items-end">
+                                        <div class="flex-1">
+                                            <label for="simulationSelect" class="mb-2 block text-sm font-medium text-textdark/90">Pilih Simulasi</label>
+                                            <select id="simulationSelect" class="w-full rounded-lg border border-white/10 bg-surface px-4 py-3 text-textdark focus:border-secondary focus:outline-none focus:ring-2 focus:ring-secondary/50">
+                                                <option value="">-- Memuat data simulasi --</option>
+                                            </select>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            id="loadSimulationButton"
+                                            class="inline-flex items-center justify-center gap-2 rounded-lg bg-secondary/90 px-6 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-secondary/40 transition duration-200 hover:-translate-y-0.5 hover:bg-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary"
+                                        >
+                                            <span>Muat Data</span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div id="noDataMessage" class="rounded-2xl border border-yellow-500/30 bg-yellow-500/10 p-6">
+                                    <p class="text-sm text-yellow-200/80">
+                                        Belum ada data simulasi yang tersedia. Silakan jalankan simulasi terlebih dahulu di halaman <a href="/penelitian/pelaksanaan-simulasi/pengeksekusian-simulasi-transaksi" class="font-semibold text-yellow-400 underline">Pengeksekusian Simulasi Transaksi</a>.
+                                    </p>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Throughput Summary -->
+                        <section id="throughputSummary" class="hidden rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20">
+                            <h2 class="mb-6 text-2xl font-semibold text-textdark">Ringkasan Throughput</h2>
+                            <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                                <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
+                                    <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-primary/70">Total Transaksi</p>
+                                    <p id="totalTransactions" class="text-3xl font-bold text-textdark">0</p>
+                                    <p id="successRate" class="mt-2 text-xs text-textdark/60">0% berhasil</p>
+                                </div>
+                                <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
+                                    <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-secondary/70">TPS Rata-rata</p>
+                                    <p id="averageTPS" class="text-3xl font-bold text-textdark">0</p>
+                                    <p class="mt-2 text-xs text-textdark/60">Transaksi per detik</p>
+                                </div>
+                                <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
+                                    <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-accent/70">TPS Puncak</p>
+                                    <p id="peakTPS" class="text-3xl font-bold text-textdark">0</p>
+                                    <p class="mt-2 text-xs text-textdark/60">Throughput maksimum</p>
+                                </div>
+                                <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
+                                    <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-highlight/70">Durasi</p>
+                                    <p id="duration" class="text-3xl font-bold text-textdark">0</p>
+                                    <p class="mt-2 text-xs text-textdark/60">Detik</p>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- TPS Per Network -->
+                        <section id="tpsPerNetwork" class="hidden rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20">
+                            <h2 class="mb-6 text-2xl font-semibold text-textdark">TPS Per Network</h2>
+                            <div class="rounded-2xl border border-white/10 bg-surfaceMuted/30 p-6">
+                                <canvas id="tpsPerNetworkChart" class="w-full" style="max-height: 400px;"></canvas>
+                            </div>
+                        </section>
+
+                        <!-- Analysis -->
+                        <section id="throughputAnalysis" class="hidden rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20">
+                            <h2 class="mb-6 text-2xl font-semibold text-textdark">Analisis Throughput</h2>
+                            <div class="space-y-4">
+                                <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
+                                    <h3 class="mb-3 text-lg font-semibold text-primary">Interpretasi Data</h3>
+                                    <div id="analysisContent" class="space-y-3 text-sm text-textdark/80">
+                                        <p>Analisis akan ditampilkan setelah data simulasi dimuat.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                    </div>
+                </main>
+
+                <div data-component="footer"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/layout.js" defer></script>
+    <script src="/js/navigation.js" defer></script>
+    <script>
+        let currentSimulation = null;
+        let tpsChart = null;
+
+        // Load simulations list
+        async function loadSimulations() {
+            try {
+                const response = await fetch('/api/metrics/simulations');
+                const data = await response.json();
+
+                const select = document.getElementById('simulationSelect');
+                const noDataMsg = document.getElementById('noDataMessage');
+
+                if (data.success && data.simulations && data.simulations.length > 0) {
+                    select.innerHTML = '<option value="">-- Pilih simulasi --</option>';
+                    data.simulations.forEach(sim => {
+                        const option = document.createElement('option');
+                        option.value = sim.simulationId;
+                        const date = new Date(sim.startTime).toLocaleString('id-ID');
+                        const loadCat = sim.config?.loadCategory || 'unknown';
+                        option.textContent = `${sim.simulationId} - ${loadCat} (${date})`;
+                        select.appendChild(option);
+                    });
+                    noDataMsg.style.display = 'none';
+                } else {
+                    noDataMsg.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error loading simulations:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Gagal memuat daftar simulasi',
+                    background: '#0F172A',
+                    color: '#E2E8F0'
+                });
+            }
+        }
+
+        // Load simulation data
+        async function loadSimulationData(simulationId) {
+            try {
+                const response = await fetch(`/api/metrics/simulation/${simulationId}`);
+                const data = await response.json();
+
+                if (data.success && data.metrics) {
+                    currentSimulation = data.metrics;
+                    displayThroughputData(data.metrics);
+                } else {
+                    throw new Error('Data tidak valid');
+                }
+            } catch (error) {
+                console.error('Error loading simulation:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Gagal memuat data simulasi',
+                    background: '#0F172A',
+                    color: '#E2E8F0'
+                });
+            }
+        }
+
+        // Display throughput data
+        function displayThroughputData(metrics) {
+            const throughput = metrics.throughput;
+
+            // Show sections
+            document.getElementById('throughputSummary').classList.remove('hidden');
+            document.getElementById('tpsPerNetwork').classList.remove('hidden');
+            document.getElementById('throughputAnalysis').classList.remove('hidden');
+
+            // Update summary
+            document.getElementById('totalTransactions').textContent = throughput.totalTransactions.toLocaleString('id-ID');
+            const successRate = ((throughput.successfulTransactions / throughput.totalTransactions) * 100).toFixed(1);
+            document.getElementById('successRate').textContent = `${successRate}% berhasil`;
+            document.getElementById('averageTPS').textContent = throughput.averageTPS.toFixed(2);
+            document.getElementById('peakTPS').textContent = throughput.peakTPS.toFixed(2);
+            document.getElementById('duration').textContent = throughput.durationSeconds.toFixed(2);
+
+            // Update chart
+            displayTpsPerNetworkChart(throughput.perNetworkTPS);
+
+            // Update analysis
+            displayAnalysis(throughput, metrics.config);
+        }
+
+        // Display TPS per network chart
+        function displayTpsPerNetworkChart(perNetworkTPS) {
+            const ctx = document.getElementById('tpsPerNetworkChart').getContext('2d');
+
+            if (tpsChart) {
+                tpsChart.destroy();
+            }
+
+            const labels = Object.keys(perNetworkTPS);
+            const data = Object.values(perNetworkTPS);
+
+            tpsChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'TPS',
+                        data: data,
+                        backgroundColor: [
+                            'rgba(56, 189, 248, 0.7)',
+                            'rgba(99, 102, 241, 0.7)',
+                            'rgba(245, 158, 11, 0.7)',
+                            'rgba(249, 115, 22, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(56, 189, 248, 1)',
+                            'rgba(99, 102, 241, 1)',
+                            'rgba(245, 158, 11, 1)',
+                            'rgba(249, 115, 22, 1)'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Perbandingan TPS Antar Network',
+                            color: '#E2E8F0',
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                color: '#94A3B8'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: '#94A3B8'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Display analysis
+        function displayAnalysis(throughput, config) {
+            const loadCategory = config?.loadCategory || 'unknown';
+            const successRate = ((throughput.successfulTransactions / throughput.totalTransactions) * 100).toFixed(1);
+
+            let analysis = `
+                <p>
+                    <strong>Kategori Beban:</strong> ${loadCategory.toUpperCase()}<br>
+                    <strong>Total Transaksi:</strong> ${throughput.totalTransactions.toLocaleString('id-ID')} transaksi<br>
+                    <strong>Transaksi Berhasil:</strong> ${throughput.successfulTransactions.toLocaleString('id-ID')} (${successRate}%)<br>
+                    <strong>Transaksi Gagal:</strong> ${throughput.failedTransactions.toLocaleString('id-ID')}
+                </p>
+                <p>
+                    Sistem berhasil memproses transaksi dengan throughput rata-rata <strong>${throughput.averageTPS.toFixed(2)} TPS</strong>
+                    selama ${throughput.durationSeconds.toFixed(2)} detik. Throughput puncak mencapai <strong>${throughput.peakTPS.toFixed(2)} TPS</strong>,
+                    yang menunjukkan kemampuan maksimum sistem dalam memproses transaksi.
+                </p>
+            `;
+
+            if (Object.keys(throughput.perNetworkTPS).length > 1) {
+                const networks = Object.entries(throughput.perNetworkTPS)
+                    .sort((a, b) => b[1] - a[1]);
+                const fastest = networks[0];
+                const slowest = networks[networks.length - 1];
+                const diff = ((fastest[1] - slowest[1]) / slowest[1] * 100).toFixed(1);
+
+                analysis += `
+                    <p>
+                        Dari grafik perbandingan antar network, terlihat bahwa <strong>${fastest[0]}</strong>
+                        memiliki throughput tertinggi dengan ${fastest[1].toFixed(2)} TPS, sementara
+                        <strong>${slowest[0]}</strong> memiliki throughput terendah dengan ${slowest[1].toFixed(2)} TPS.
+                        Perbedaan performa ini mencapai ${diff}%, yang menunjukkan variasi efisiensi antar konfigurasi network.
+                    </p>
+                `;
+            }
+
+            document.getElementById('analysisContent').innerHTML = analysis;
+        }
+
+        // Event listeners
+        document.getElementById('loadSimulationButton').addEventListener('click', () => {
+            const simulationId = document.getElementById('simulationSelect').value;
+            if (simulationId) {
+                loadSimulationData(simulationId);
+            } else {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Perhatian',
+                    text: 'Silakan pilih simulasi terlebih dahulu',
+                    background: '#0F172A',
+                    color: '#E2E8F0'
+                });
+            }
+        });
+
+        // Load simulations on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSimulations();
+        });
+    </script>
+</body>
+</html>

@@ -88,20 +88,31 @@
 
                             <div class="mt-6 space-y-6">
                                 <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
-                                    <div class="flex flex-col gap-4 md:flex-row md:items-end">
+                                    <div class="flex flex-col gap-4">
                                         <div class="flex-1">
-                                            <label for="simulationSelect" class="mb-2 block text-sm font-medium text-textdark/90">Pilih Simulasi</label>
-                                            <select id="simulationSelect" class="w-full rounded-lg border border-white/10 bg-surface px-4 py-3 text-textdark focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/50">
-                                                <option value="">-- Memuat data simulasi --</option>
+                                            <label for="categoryFilter" class="mb-2 block text-sm font-medium text-textdark/90">Filter Kategori Beban</label>
+                                            <select id="categoryFilter" class="w-full rounded-lg border border-white/10 bg-surface px-4 py-3 text-textdark focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/50">
+                                                <option value="">Semua Kategori</option>
+                                                <option value="light">Ringan (Light)</option>
+                                                <option value="medium">Sedang (Medium)</option>
+                                                <option value="heavy">Tinggi (Heavy)</option>
                                             </select>
                                         </div>
-                                        <button
-                                            type="button"
-                                            id="loadSimulationButton"
-                                            class="inline-flex items-center justify-center gap-2 rounded-lg bg-primary/90 px-6 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-primary/40 transition duration-200 hover:-translate-y-0.5 hover:bg-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-                                        >
-                                            <span>Muat Data</span>
-                                        </button>
+                                        <div class="flex flex-col gap-4 md:flex-row md:items-end">
+                                            <div class="flex-1">
+                                                <label for="simulationSelect" class="mb-2 block text-sm font-medium text-textdark/90">Pilih Simulasi</label>
+                                                <select id="simulationSelect" class="w-full rounded-lg border border-white/10 bg-surface px-4 py-3 text-textdark focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/50">
+                                                    <option value="">-- Memuat data simulasi --</option>
+                                                </select>
+                                            </div>
+                                            <button
+                                                type="button"
+                                                id="loadSimulationButton"
+                                                class="inline-flex items-center justify-center gap-2 rounded-lg bg-primary/90 px-6 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-primary/40 transition duration-200 hover:-translate-y-0.5 hover:bg-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                                            >
+                                                <span>Muat Data</span>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -212,9 +223,12 @@
         let recoveryChart = null;
 
         // Load simulations list
-        async function loadSimulations() {
+        async function loadSimulations(category = '') {
             try {
-                const response = await fetch('/api/metrics/simulations');
+                const url = category
+                    ? `/api/metrics/simulations?category=${category}`
+                    : '/api/metrics/simulations';
+                const response = await fetch(url);
                 const data = await response.json();
 
                 const select = document.getElementById('simulationSelect');
@@ -222,17 +236,39 @@
 
                 if (data.success && data.simulations && data.simulations.length > 0) {
                     select.innerHTML = '<option value="">-- Pilih simulasi --</option>';
-                    data.simulations.forEach(sim => {
+
+                    // Sort by date (newest first)
+                    const sortedSims = data.simulations.sort((a, b) =>
+                        new Date(b.startTime) - new Date(a.startTime)
+                    );
+
+                    sortedSims.forEach(sim => {
                         const option = document.createElement('option');
                         option.value = sim.simulationId;
                         const date = new Date(sim.startTime).toLocaleString('id-ID');
                         const loadCat = sim.config?.loadCategory || 'unknown';
-                        option.textContent = `${sim.simulationId} - ${loadCat} (${date})`;
+                        const categoryMap = {
+                            'light': 'Ringan',
+                            'medium': 'Sedang',
+                            'heavy': 'Tinggi'
+                        };
+                        const categoryName = categoryMap[loadCat] || loadCat;
+                        option.textContent = `${categoryName} - ${date} (${sim.simulationId.substring(0, 8)})`;
                         select.appendChild(option);
                     });
                     noDataMsg.style.display = 'none';
                 } else {
+                    select.innerHTML = '<option value="">-- Tidak ada simulasi --</option>';
                     noDataMsg.style.display = 'block';
+                    if (category) {
+                        const categoryMap = {
+                            'light': 'Ringan',
+                            'medium': 'Sedang',
+                            'heavy': 'Tinggi'
+                        };
+                        const categoryName = categoryMap[category] || category;
+                        noDataMsg.querySelector('p').textContent = `Belum ada data simulasi untuk kategori ${categoryName}. Silakan jalankan simulasi terlebih dahulu.`;
+                    }
                 }
             } catch (error) {
                 console.error('Error loading simulations:', error);
@@ -536,6 +572,11 @@
         }
 
         // Event listeners
+        document.getElementById('categoryFilter').addEventListener('change', (e) => {
+            const category = e.target.value;
+            loadSimulations(category);
+        });
+
         document.getElementById('loadSimulationButton').addEventListener('click', () => {
             const simulationId = document.getElementById('simulationSelect').value;
             if (simulationId) {

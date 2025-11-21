@@ -1797,18 +1797,43 @@ app.get('/api/metrics/simulation/:simulationId', async (req, res) => {
 /**
  * GET /api/metrics/simulations
  * Get all simulation metrics
+ * Query params:
+ * - category: Filter by load category (light, medium, heavy, ringan, sedang, tinggi)
  */
 app.get('/api/metrics/simulations', async (req, res) => {
     const fetchedAt = new Date().toISOString();
 
     try {
-        const allMetrics = await readAllMetrics();
+        let allMetrics = await readAllMetrics();
+
+        // Filter by category if specified
+        const { category } = req.query;
+        if (category) {
+            const categoryLower = category.toLowerCase();
+            // Support both English and Indonesian category names
+            const categoryMap = {
+                'light': 'light',
+                'ringan': 'light',
+                'medium': 'medium',
+                'sedang': 'medium',
+                'heavy': 'heavy',
+                'tinggi': 'heavy'
+            };
+
+            const normalizedCategory = categoryMap[categoryLower];
+            if (normalizedCategory) {
+                allMetrics = allMetrics.filter(sim =>
+                    sim.config?.loadCategory === normalizedCategory
+                );
+            }
+        }
 
         res.json({
             fetchedAt,
             success: true,
             count: allMetrics.length,
-            simulations: allMetrics
+            simulations: allMetrics,
+            filteredBy: category || null
         });
     } catch (error) {
         console.error('Error fetching all simulations:', error);

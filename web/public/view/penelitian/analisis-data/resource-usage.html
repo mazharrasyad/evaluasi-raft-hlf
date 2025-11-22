@@ -79,35 +79,41 @@
                             </div>
                         </section>
 
-                        <!-- Simulation Selector -->
+                        <!-- Network & Category Selector -->
                         <section class="rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20 backdrop-blur-sm">
                             <header class="flex flex-col gap-2 border-b border-white/10 pb-6">
-                                <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Data Simulasi</h2>
-                                <p class="text-sm text-textdark/70">Pilih data simulasi untuk menganalisis resource usage.</p>
+                                <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Filter Data</h2>
+                                <p class="text-sm text-textdark/70">Pilih network dan kategori beban untuk menganalisis resource usage. Data dari semua simulasi akan digabungkan.</p>
                             </header>
 
                             <div class="mt-6 space-y-6">
                                 <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
                                     <div class="flex flex-col gap-4">
-                                        <div class="flex-1">
-                                            <label for="categoryFilter" class="mb-2 block text-sm font-medium text-textdark/90">Filter Kategori Beban</label>
-                                            <select id="categoryFilter" class="w-full rounded-lg border border-white/10 bg-surface px-4 py-3 text-textdark focus:border-secondary focus:outline-none focus:ring-2 focus:ring-secondary/50">
-                                                <option value="">Semua Kategori</option>
-                                                <option value="light">Ringan (Light)</option>
-                                                <option value="medium">Sedang (Medium)</option>
-                                                <option value="heavy">Tinggi (Heavy)</option>
-                                            </select>
-                                        </div>
-                                        <div class="flex flex-col gap-4 md:flex-row md:items-end">
-                                            <div class="flex-1">
-                                                <label for="simulationSelect" class="mb-2 block text-sm font-medium text-textdark/90">Pilih Simulasi</label>
-                                                <select id="simulationSelect" class="w-full rounded-lg border border-white/10 bg-surface px-4 py-3 text-textdark focus:border-secondary focus:outline-none focus:ring-2 focus:ring-secondary/50">
-                                                    <option value="">-- Memuat data simulasi --</option>
+                                        <div class="grid gap-4 md:grid-cols-2">
+                                            <div>
+                                                <label for="networkSelect" class="mb-2 block text-sm font-medium text-textdark/90">Pilih Network</label>
+                                                <select id="networkSelect" class="w-full rounded-lg border border-white/10 bg-surface px-4 py-3 text-textdark focus:border-secondary focus:outline-none focus:ring-2 focus:ring-secondary/50">
+                                                    <option value="">-- Semua Network --</option>
+                                                    <option value="channel-standard">Fabric 2 RAFT Standard</option>
+                                                    <option value="channel-variant">Fabric 2 RAFT Variant</option>
+                                                    <option value="channel-fabric3-standard">Fabric 3 RAFT Standard</option>
+                                                    <option value="channel-fabric3-variant">Fabric 3 RAFT Variant</option>
                                                 </select>
                                             </div>
+                                            <div>
+                                                <label for="categoryFilter" class="mb-2 block text-sm font-medium text-textdark/90">Filter Kategori Beban</label>
+                                                <select id="categoryFilter" class="w-full rounded-lg border border-white/10 bg-surface px-4 py-3 text-textdark focus:border-secondary focus:outline-none focus:ring-2 focus:ring-secondary/50">
+                                                    <option value="">Semua Kategori</option>
+                                                    <option value="light">Ringan (Light)</option>
+                                                    <option value="medium">Sedang (Medium)</option>
+                                                    <option value="heavy">Tinggi (Heavy)</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="flex justify-end">
                                             <button
                                                 type="button"
-                                                id="loadSimulationButton"
+                                                id="loadDataButton"
                                                 class="inline-flex items-center justify-center gap-2 rounded-lg bg-secondary/90 px-6 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-secondary/40 transition duration-200 hover:-translate-y-0.5 hover:bg-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary"
                                             >
                                                 <span>Muat Data</span>
@@ -116,9 +122,15 @@
                                     </div>
                                 </div>
 
-                                <div id="noDataMessage" class="rounded-2xl border border-yellow-500/30 bg-yellow-500/10 p-6">
+                                <div id="noDataMessage" class="hidden rounded-2xl border border-yellow-500/30 bg-yellow-500/10 p-6">
                                     <p class="text-sm text-yellow-200/80">
                                         Belum ada data simulasi yang tersedia. Silakan jalankan simulasi terlebih dahulu di halaman <a href="/penelitian/pelaksanaan-simulasi/pengeksekusian-simulasi-transaksi" class="font-semibold text-yellow-400 underline">Pengeksekusian Simulasi Transaksi</a>.
+                                    </p>
+                                </div>
+
+                                <div id="dataInfo" class="hidden rounded-2xl border border-secondary/30 bg-secondary/10 p-4">
+                                    <p class="text-sm text-secondary/90">
+                                        <span id="dataInfoText">Menampilkan data gabungan dari semua simulasi</span>
                                     </p>
                                 </div>
                             </div>
@@ -217,106 +229,185 @@
     <script src="/js/layout.js" defer></script>
     <script src="/js/navigation.js" defer></script>
     <script>
-        let currentSimulation = null;
+        let currentData = null;
         let cpuChart = null;
         let memoryChart = null;
         let ioChart = null;
         let nodeChart = null;
 
-        // Load simulations list
-        async function loadSimulations(category = '') {
+        const networkNames = {
+            'channel-standard': 'Fabric 2 RAFT Standard',
+            'channel-variant': 'Fabric 2 RAFT Variant',
+            'channel-fabric3-standard': 'Fabric 3 RAFT Standard',
+            'channel-fabric3-variant': 'Fabric 3 RAFT Variant'
+        };
+
+        const categoryNames = {
+            'light': 'Ringan',
+            'medium': 'Sedang',
+            'heavy': 'Tinggi',
+            'all': 'Semua'
+        };
+
+        // Load combined data
+        async function loadCombinedData() {
+            const network = document.getElementById('networkSelect').value;
+            const category = document.getElementById('categoryFilter').value;
+
             try {
-                const url = category
-                    ? `/api/metrics/simulations?category=${category}`
-                    : '/api/metrics/simulations';
+                let url = '/api/metrics/combined';
+                const params = new URLSearchParams();
+                if (network) params.append('network', network);
+                if (category) params.append('category', category);
+                if (params.toString()) url += '?' + params.toString();
+
                 const response = await fetch(url);
                 const data = await response.json();
 
-                const select = document.getElementById('simulationSelect');
                 const noDataMsg = document.getElementById('noDataMessage');
+                const dataInfo = document.getElementById('dataInfo');
 
-                if (data.success && data.simulations && data.simulations.length > 0) {
-                    select.innerHTML = '<option value="">-- Pilih simulasi --</option>';
+                if (data.success) {
+                    if (network) {
+                        // Single network view
+                        if (data.resourceUsage.snapshotCount > 0) {
+                            currentData = data;
+                            displaySingleNetworkData(data);
+                            noDataMsg.classList.add('hidden');
+                            dataInfo.classList.remove('hidden');
+                            const catName = categoryNames[category] || 'Semua';
+                            document.getElementById('dataInfoText').textContent =
+                                `Menampilkan data gabungan untuk ${data.networkName} (${data.simulationCount} simulasi, Kategori: ${catName})`;
+                        } else {
+                            noDataMsg.classList.remove('hidden');
+                            noDataMsg.querySelector('p').innerHTML =
+                                `Belum ada data untuk network <strong>${networkNames[network]}</strong>. Silakan jalankan simulasi terlebih dahulu.`;
+                            dataInfo.classList.add('hidden');
+                            hideSections();
+                        }
+                    } else {
+                        // All networks view - use aggregated resource data
+                        if (data.simulationCount > 0) {
+                            // Load first simulation's resource data as reference
+                            const simResponse = await fetch('/api/metrics/simulations' + (category ? `?category=${category}` : ''));
+                            const simData = await simResponse.json();
 
-                    // Sort by date (newest first)
-                    const sortedSims = data.simulations.sort((a, b) =>
-                        new Date(b.startTime) - new Date(a.startTime)
-                    );
-
-                    sortedSims.forEach(sim => {
-                        const option = document.createElement('option');
-                        option.value = sim.simulationId;
-                        const date = new Date(sim.startTime).toLocaleString('id-ID');
-                        const loadCat = sim.config?.loadCategory || 'unknown';
-                        const categoryMap = {
-                            'light': 'Ringan',
-                            'medium': 'Sedang',
-                            'heavy': 'Tinggi'
-                        };
-                        const categoryName = categoryMap[loadCat] || loadCat;
-                        option.textContent = `${categoryName} - ${date} (${sim.simulationId.substring(0, 8)})`;
-                        select.appendChild(option);
-                    });
-                    noDataMsg.style.display = 'none';
+                            if (simData.success && simData.simulations.length > 0) {
+                                // Aggregate resource usage from all simulations
+                                const aggregatedResource = aggregateResourceUsage(simData.simulations);
+                                currentData = { ...data, resourceUsage: aggregatedResource };
+                                displayComparisonData(currentData, simData.simulations);
+                                noDataMsg.classList.add('hidden');
+                                dataInfo.classList.remove('hidden');
+                                const catName = categoryNames[category] || 'Semua';
+                                document.getElementById('dataInfoText').textContent =
+                                    `Menampilkan data gabungan dari ${data.simulationCount} simulasi (Kategori: ${catName})`;
+                            } else {
+                                noDataMsg.classList.remove('hidden');
+                                dataInfo.classList.add('hidden');
+                                hideSections();
+                            }
+                        } else {
+                            noDataMsg.classList.remove('hidden');
+                            noDataMsg.querySelector('p').innerHTML =
+                                'Belum ada data simulasi yang tersedia. Silakan jalankan simulasi terlebih dahulu di halaman <a href="/penelitian/pelaksanaan-simulasi/pengeksekusian-simulasi-transaksi" class="font-semibold text-yellow-400 underline">Pengeksekusian Simulasi Transaksi</a>.';
+                            dataInfo.classList.add('hidden');
+                            hideSections();
+                        }
+                    }
                 } else {
-                    select.innerHTML = '<option value="">-- Tidak ada simulasi --</option>';
-                    noDataMsg.style.display = 'block';
-                    if (category) {
-                        const categoryMap = {
-                            'light': 'Ringan',
-                            'medium': 'Sedang',
-                            'heavy': 'Tinggi'
-                        };
-                        const categoryName = categoryMap[category] || category;
-                        noDataMsg.querySelector('p').textContent = `Belum ada data simulasi untuk kategori ${categoryName}. Silakan jalankan simulasi terlebih dahulu.`;
+                    throw new Error(data.error || 'Gagal memuat data');
+                }
+            } catch (error) {
+                console.error('Error loading combined data:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Gagal memuat data: ' + error.message,
+                    background: '#0F172A',
+                    color: '#E2E8F0'
+                });
+            }
+        }
+
+        function aggregateResourceUsage(simulations) {
+            const allSnapshots = [];
+            let totalCPU = 0;
+            let totalMemory = 0;
+            let totalIO = 0;
+            let cpuCount = 0;
+            let peakCPU = 0;
+            let peakMemory = 0;
+
+            simulations.forEach(sim => {
+                if (sim.resourceUsage) {
+                    if (sim.resourceUsage.averageCPU) {
+                        totalCPU += sim.resourceUsage.averageCPU;
+                        cpuCount++;
+                    }
+                    if (sim.resourceUsage.averageMemory) totalMemory += sim.resourceUsage.averageMemory;
+                    if (sim.resourceUsage.averageIO) totalIO += sim.resourceUsage.averageIO;
+                    if (sim.resourceUsage.peakCPU > peakCPU) peakCPU = sim.resourceUsage.peakCPU;
+                    if (sim.resourceUsage.peakMemory > peakMemory) peakMemory = sim.resourceUsage.peakMemory;
+                    if (sim.resourceUsage.snapshots) {
+                        allSnapshots.push(...sim.resourceUsage.snapshots);
                     }
                 }
-            } catch (error) {
-                console.error('Error loading simulations:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Gagal memuat daftar simulasi',
-                    background: '#0F172A',
-                    color: '#E2E8F0'
-                });
-            }
+            });
+
+            return {
+                snapshots: allSnapshots,
+                averageCPU: cpuCount > 0 ? totalCPU / cpuCount : 0,
+                averageMemory: cpuCount > 0 ? totalMemory / cpuCount : 0,
+                averageIO: cpuCount > 0 ? totalIO / cpuCount : 0,
+                peakCPU,
+                peakMemory
+            };
         }
 
-        // Load simulation data
-        async function loadSimulationData(simulationId) {
-            try {
-                const response = await fetch(`/api/metrics/simulation/${simulationId}`);
-                const data = await response.json();
-
-                if (data.success && data.metrics) {
-                    currentSimulation = data.metrics;
-                    displayResourceData(data.metrics);
-                } else {
-                    throw new Error('Data tidak valid');
-                }
-            } catch (error) {
-                console.error('Error loading simulation:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Gagal memuat data simulasi',
-                    background: '#0F172A',
-                    color: '#E2E8F0'
-                });
-            }
+        function hideSections() {
+            document.getElementById('resourceSummary').classList.add('hidden');
+            document.getElementById('cpuUsageChart').classList.add('hidden');
+            document.getElementById('memoryUsageChart').classList.add('hidden');
+            document.getElementById('ioUsageChart').classList.add('hidden');
+            document.getElementById('nodeResourceComparison').classList.add('hidden');
+            document.getElementById('resourceAnalysis').classList.add('hidden');
         }
 
-        // Display resource data
-        function displayResourceData(metrics) {
-            const resource = metrics.resourceUsage;
+        // Display single network data
+        function displaySingleNetworkData(data) {
+            const resource = data.resourceUsage;
+
+            // Show sections
+            document.getElementById('resourceSummary').classList.remove('hidden');
+            document.getElementById('cpuUsageChart').classList.add('hidden');
+            document.getElementById('memoryUsageChart').classList.add('hidden');
+            document.getElementById('ioUsageChart').classList.add('hidden');
+            document.getElementById('nodeResourceComparison').classList.add('hidden');
+            document.getElementById('resourceAnalysis').classList.remove('hidden');
+
+            // Update summary
+            document.getElementById('averageCPU').textContent = resource.averageCPU.toFixed(2);
+            document.getElementById('peakCPU').textContent = resource.peakCPU.toFixed(2);
+            document.getElementById('averageMemory').textContent = resource.averageMemory.toFixed(2);
+            document.getElementById('peakMemory').textContent = resource.peakMemory.toFixed(2);
+            document.getElementById('averageIO').textContent = '-';
+            document.getElementById('totalSnapshots').textContent = resource.snapshotCount;
+
+            // Update analysis
+            displaySingleNetworkAnalysis(data);
+        }
+
+        // Display comparison data (all networks)
+        function displayComparisonData(data, simulations) {
+            const resource = data.resourceUsage;
 
             // Show sections
             document.getElementById('resourceSummary').classList.remove('hidden');
             document.getElementById('cpuUsageChart').classList.remove('hidden');
             document.getElementById('memoryUsageChart').classList.remove('hidden');
             document.getElementById('ioUsageChart').classList.remove('hidden');
-            document.getElementById('nodeResourceComparison').classList.remove('hidden');
+            document.getElementById('nodeResourceComparison').classList.add('hidden');
             document.getElementById('resourceAnalysis').classList.remove('hidden');
 
             // Update summary
@@ -328,13 +419,67 @@
             document.getElementById('totalSnapshots').textContent = resource.snapshots.length;
 
             // Update charts
-            displayCPUChart(resource.snapshots);
-            displayMemoryChart(resource.snapshots);
-            displayIOChart(resource.snapshots);
-            displayNodeComparisonChart(resource);
+            if (resource.snapshots.length > 0) {
+                displayCPUChart(resource.snapshots);
+                displayMemoryChart(resource.snapshots);
+                displayIOChart(resource.snapshots);
+            }
 
             // Update analysis
-            displayAnalysis(resource, metrics.config);
+            displayComparisonAnalysis(data, resource);
+        }
+
+        // Display single network analysis
+        function displaySingleNetworkAnalysis(data) {
+            const resource = data.resourceUsage;
+
+            const analysis = `
+                <p>
+                    <strong>Network:</strong> ${data.networkName}<br>
+                    <strong>Kategori Beban:</strong> ${categoryNames[data.category] || data.category}<br>
+                    <strong>Jumlah Simulasi:</strong> ${data.simulationCount} simulasi
+                </p>
+                <p>
+                    Selama simulasi, sistem menggunakan CPU dengan rata-rata <strong>${resource.averageCPU.toFixed(2)}%</strong>
+                    dan mencapai puncak pada <strong>${resource.peakCPU.toFixed(2)}%</strong>. Penggunaan memori rata-rata adalah
+                    <strong>${resource.averageMemory.toFixed(2)} MB</strong> dengan puncak pada
+                    <strong>${resource.peakMemory.toFixed(2)} MB</strong>.
+                </p>
+            `;
+
+            document.getElementById('analysisContent').innerHTML = analysis;
+        }
+
+        // Display comparison analysis
+        function displayComparisonAnalysis(data, resource) {
+            let analysis = `
+                <p>
+                    <strong>Kategori Beban:</strong> ${categoryNames[data.category] || data.category}<br>
+                    <strong>Jumlah Simulasi:</strong> ${data.simulationCount} simulasi<br>
+                    <strong>Total Snapshots:</strong> ${resource.snapshots.length} pengukuran
+                </p>
+                <p>
+                    Selama semua simulasi yang digabungkan, sistem menggunakan CPU dengan rata-rata <strong>${resource.averageCPU.toFixed(2)}%</strong>
+                    dan mencapai puncak pada <strong>${resource.peakCPU.toFixed(2)}%</strong>. Penggunaan memori rata-rata adalah
+                    <strong>${resource.averageMemory.toFixed(2)} MB</strong> dengan puncak pada
+                    <strong>${resource.peakMemory.toFixed(2)} MB</strong>. I/O disk rata-rata mencapai
+                    <strong>${resource.averageIO.toFixed(2)} MB/s</strong>.
+                </p>
+            `;
+
+            const cpuUtilization = (resource.averageCPU / 100);
+            const cpuStatus = cpuUtilization < 0.5 ? 'rendah' : cpuUtilization < 0.8 ? 'sedang' : 'tinggi';
+
+            analysis += `
+                <p>
+                    Utilisasi CPU rata-rata sebesar ${resource.averageCPU.toFixed(2)}% menunjukkan beban kerja yang <strong>${cpuStatus}</strong>
+                    pada sistem. ${cpuStatus === 'rendah' ? 'Sistem masih memiliki kapasitas untuk menangani beban yang lebih besar.' :
+                    cpuStatus === 'sedang' ? 'Sistem beroperasi pada level yang optimal dengan utilisasi yang efisien.' :
+                    'Sistem beroperasi pada beban tinggi yang mendekati kapasitas maksimum.'}
+                </p>
+            `;
+
+            document.getElementById('analysisContent').innerHTML = analysis;
         }
 
         // Display CPU usage chart
@@ -670,74 +815,14 @@
             });
         }
 
-        // Display analysis
-        function displayAnalysis(resource, config) {
-            const loadCategory = config?.loadCategory || 'unknown';
-
-            let analysis = `
-                <p>
-                    <strong>Kategori Beban:</strong> ${loadCategory.toUpperCase()}<br>
-                    <strong>Total Snapshots:</strong> ${resource.snapshots.length} pengukuran
-                </p>
-                <p>
-                    Selama simulasi, sistem menggunakan CPU dengan rata-rata <strong>${resource.averageCPU.toFixed(2)}%</strong>
-                    dan mencapai puncak pada <strong>${resource.peakCPU.toFixed(2)}%</strong>. Penggunaan memori rata-rata adalah
-                    <strong>${resource.averageMemory.toFixed(2)} MB</strong> dengan puncak pada
-                    <strong>${resource.peakMemory.toFixed(2)} MB</strong>. I/O disk rata-rata mencapai
-                    <strong>${resource.averageIO.toFixed(2)} MB/s</strong>.
-                </p>
-            `;
-
-            const cpuUtilization = (resource.averageCPU / 100);
-            const cpuStatus = cpuUtilization < 0.5 ? 'rendah' : cpuUtilization < 0.8 ? 'sedang' : 'tinggi';
-
-            analysis += `
-                <p>
-                    Utilisasi CPU rata-rata sebesar ${resource.averageCPU.toFixed(2)}% menunjukkan beban kerja yang <strong>${cpuStatus}</strong>
-                    pada sistem. ${cpuStatus === 'rendah' ? 'Sistem masih memiliki kapasitas untuk menangani beban yang lebih besar.' :
-                    cpuStatus === 'sedang' ? 'Sistem beroperasi pada level yang optimal dengan utilisasi yang efisien.' :
-                    'Sistem beroperasi pada beban tinggi yang mendekati kapasitas maksimum.'}
-                </p>
-            `;
-
-            const peakCpuRatio = resource.peakCPU / resource.averageCPU;
-            if (peakCpuRatio > 1.5) {
-                analysis += `
-                    <p>
-                        Rasio CPU puncak terhadap rata-rata adalah ${peakCpuRatio.toFixed(2)}x, yang mengindikasikan adanya
-                        lonjakan beban kerja yang signifikan pada periode tertentu. Hal ini normal terjadi saat pemrosesan
-                        batch transaksi atau saat terjadi konsensus block.
-                    </p>
-                `;
-            }
-
-            document.getElementById('analysisContent').innerHTML = analysis;
-        }
-
         // Event listeners
-        document.getElementById('categoryFilter').addEventListener('change', (e) => {
-            const category = e.target.value;
-            loadSimulations(category);
+        document.getElementById('loadDataButton').addEventListener('click', () => {
+            loadCombinedData();
         });
 
-        document.getElementById('loadSimulationButton').addEventListener('click', () => {
-            const simulationId = document.getElementById('simulationSelect').value;
-            if (simulationId) {
-                loadSimulationData(simulationId);
-            } else {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Perhatian',
-                    text: 'Silakan pilih simulasi terlebih dahulu',
-                    background: '#0F172A',
-                    color: '#E2E8F0'
-                });
-            }
-        });
-
-        // Load simulations on page load
+        // Load data on page load
         document.addEventListener('DOMContentLoaded', () => {
-            loadSimulations();
+            loadCombinedData();
         });
     </script>
 </body>

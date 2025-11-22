@@ -79,35 +79,41 @@
                             </div>
                         </section>
 
-                        <!-- Simulation Selector -->
+                        <!-- Network & Category Selector -->
                         <section class="rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20 backdrop-blur-sm">
                             <header class="flex flex-col gap-2 border-b border-white/10 pb-6">
-                                <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Data Simulasi</h2>
-                                <p class="text-sm text-textdark/70">Pilih data simulasi untuk menganalisis fault tolerance.</p>
+                                <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Filter Data</h2>
+                                <p class="text-sm text-textdark/70">Pilih network dan kategori beban untuk menganalisis fault tolerance. Data dari semua simulasi akan digabungkan.</p>
                             </header>
 
                             <div class="mt-6 space-y-6">
                                 <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
                                     <div class="flex flex-col gap-4">
-                                        <div class="flex-1">
-                                            <label for="categoryFilter" class="mb-2 block text-sm font-medium text-textdark/90">Filter Kategori Beban</label>
-                                            <select id="categoryFilter" class="w-full rounded-lg border border-white/10 bg-surface px-4 py-3 text-textdark focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/50">
-                                                <option value="">Semua Kategori</option>
-                                                <option value="light">Ringan (Light)</option>
-                                                <option value="medium">Sedang (Medium)</option>
-                                                <option value="heavy">Tinggi (Heavy)</option>
-                                            </select>
-                                        </div>
-                                        <div class="flex flex-col gap-4 md:flex-row md:items-end">
-                                            <div class="flex-1">
-                                                <label for="simulationSelect" class="mb-2 block text-sm font-medium text-textdark/90">Pilih Simulasi</label>
-                                                <select id="simulationSelect" class="w-full rounded-lg border border-white/10 bg-surface px-4 py-3 text-textdark focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/50">
-                                                    <option value="">-- Memuat data simulasi --</option>
+                                        <div class="grid gap-4 md:grid-cols-2">
+                                            <div>
+                                                <label for="networkSelect" class="mb-2 block text-sm font-medium text-textdark/90">Pilih Network</label>
+                                                <select id="networkSelect" class="w-full rounded-lg border border-white/10 bg-surface px-4 py-3 text-textdark focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/50">
+                                                    <option value="">-- Semua Network --</option>
+                                                    <option value="channel-standard">Fabric 2 RAFT Standard</option>
+                                                    <option value="channel-variant">Fabric 2 RAFT Variant</option>
+                                                    <option value="channel-fabric3-standard">Fabric 3 RAFT Standard</option>
+                                                    <option value="channel-fabric3-variant">Fabric 3 RAFT Variant</option>
                                                 </select>
                                             </div>
+                                            <div>
+                                                <label for="categoryFilter" class="mb-2 block text-sm font-medium text-textdark/90">Filter Kategori Beban</label>
+                                                <select id="categoryFilter" class="w-full rounded-lg border border-white/10 bg-surface px-4 py-3 text-textdark focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/50">
+                                                    <option value="">Semua Kategori</option>
+                                                    <option value="light">Ringan (Light)</option>
+                                                    <option value="medium">Sedang (Medium)</option>
+                                                    <option value="heavy">Tinggi (Heavy)</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="flex justify-end">
                                             <button
                                                 type="button"
-                                                id="loadSimulationButton"
+                                                id="loadDataButton"
                                                 class="inline-flex items-center justify-center gap-2 rounded-lg bg-primary/90 px-6 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-primary/40 transition duration-200 hover:-translate-y-0.5 hover:bg-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                                             >
                                                 <span>Muat Data</span>
@@ -116,9 +122,15 @@
                                     </div>
                                 </div>
 
-                                <div id="noDataMessage" class="rounded-2xl border border-yellow-500/30 bg-yellow-500/10 p-6">
+                                <div id="noDataMessage" class="hidden rounded-2xl border border-yellow-500/30 bg-yellow-500/10 p-6">
                                     <p class="text-sm text-yellow-200/80">
                                         Belum ada data simulasi yang tersedia. Silakan jalankan simulasi terlebih dahulu di halaman <a href="/penelitian/pelaksanaan-simulasi/pengeksekusian-simulasi-transaksi" class="font-semibold text-yellow-400 underline">Pengeksekusian Simulasi Transaksi</a>.
+                                    </p>
+                                </div>
+
+                                <div id="dataInfo" class="hidden rounded-2xl border border-primary/30 bg-primary/10 p-4">
+                                    <p class="text-sm text-primary/90">
+                                        <span id="dataInfoText">Menampilkan data gabungan dari semua simulasi</span>
                                     </p>
                                 </div>
                             </div>
@@ -219,96 +231,129 @@
     <script src="/js/layout.js" defer></script>
     <script src="/js/navigation.js" defer></script>
     <script>
-        let currentSimulation = null;
+        let currentData = null;
         let recoveryChart = null;
 
-        // Load simulations list
-        async function loadSimulations(category = '') {
+        const networkNames = {
+            'channel-standard': 'Fabric 2 RAFT Standard',
+            'channel-variant': 'Fabric 2 RAFT Variant',
+            'channel-fabric3-standard': 'Fabric 3 RAFT Standard',
+            'channel-fabric3-variant': 'Fabric 3 RAFT Variant'
+        };
+
+        const categoryNames = {
+            'light': 'Ringan',
+            'medium': 'Sedang',
+            'heavy': 'Tinggi',
+            'all': 'Semua'
+        };
+
+        // Load combined data
+        async function loadCombinedData() {
+            const network = document.getElementById('networkSelect').value;
+            const category = document.getElementById('categoryFilter').value;
+
             try {
-                const url = category
-                    ? `/api/metrics/simulations?category=${category}`
-                    : '/api/metrics/simulations';
+                // For fault tolerance, we need to load from simulations API since fault data is per simulation
+                let url = '/api/metrics/simulations';
+                if (category) url += `?category=${category}`;
+
                 const response = await fetch(url);
                 const data = await response.json();
 
-                const select = document.getElementById('simulationSelect');
                 const noDataMsg = document.getElementById('noDataMessage');
+                const dataInfo = document.getElementById('dataInfo');
 
                 if (data.success && data.simulations && data.simulations.length > 0) {
-                    select.innerHTML = '<option value="">-- Pilih simulasi --</option>';
+                    // Aggregate fault tolerance data from all simulations
+                    const aggregatedFault = aggregateFaultData(data.simulations);
+                    currentData = {
+                        simulationCount: data.simulations.length,
+                        category: category || 'all',
+                        network: network,
+                        networkName: networkNames[network] || 'Semua Network',
+                        faultTolerance: aggregatedFault
+                    };
 
-                    // Sort by date (newest first)
-                    const sortedSims = data.simulations.sort((a, b) =>
-                        new Date(b.startTime) - new Date(a.startTime)
-                    );
-
-                    sortedSims.forEach(sim => {
-                        const option = document.createElement('option');
-                        option.value = sim.simulationId;
-                        const date = new Date(sim.startTime).toLocaleString('id-ID');
-                        const loadCat = sim.config?.loadCategory || 'unknown';
-                        const categoryMap = {
-                            'light': 'Ringan',
-                            'medium': 'Sedang',
-                            'heavy': 'Tinggi'
-                        };
-                        const categoryName = categoryMap[loadCat] || loadCat;
-                        option.textContent = `${categoryName} - ${date} (${sim.simulationId.substring(0, 8)})`;
-                        select.appendChild(option);
-                    });
-                    noDataMsg.style.display = 'none';
+                    displayFaultToleranceData(currentData);
+                    noDataMsg.classList.add('hidden');
+                    dataInfo.classList.remove('hidden');
+                    const catName = categoryNames[category] || 'Semua';
+                    const netName = network ? networkNames[network] : 'Semua Network';
+                    document.getElementById('dataInfoText').textContent =
+                        `Menampilkan data gabungan untuk ${netName} (${data.simulations.length} simulasi, Kategori: ${catName})`;
                 } else {
-                    select.innerHTML = '<option value="">-- Tidak ada simulasi --</option>';
-                    noDataMsg.style.display = 'block';
-                    if (category) {
-                        const categoryMap = {
-                            'light': 'Ringan',
-                            'medium': 'Sedang',
-                            'heavy': 'Tinggi'
-                        };
-                        const categoryName = categoryMap[category] || category;
-                        noDataMsg.querySelector('p').textContent = `Belum ada data simulasi untuk kategori ${categoryName}. Silakan jalankan simulasi terlebih dahulu.`;
-                    }
+                    noDataMsg.classList.remove('hidden');
+                    noDataMsg.querySelector('p').innerHTML =
+                        'Belum ada data simulasi yang tersedia. Silakan jalankan simulasi terlebih dahulu di halaman <a href="/penelitian/pelaksanaan-simulasi/pengeksekusian-simulasi-transaksi" class="font-semibold text-yellow-400 underline">Pengeksekusian Simulasi Transaksi</a>.';
+                    dataInfo.classList.add('hidden');
+                    hideSections();
                 }
             } catch (error) {
-                console.error('Error loading simulations:', error);
+                console.error('Error loading combined data:', error);
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: 'Gagal memuat daftar simulasi',
+                    text: 'Gagal memuat data: ' + error.message,
                     background: '#0F172A',
                     color: '#E2E8F0'
                 });
             }
         }
 
-        // Load simulation data
-        async function loadSimulationData(simulationId) {
-            try {
-                const response = await fetch(`/api/metrics/simulation/${simulationId}`);
-                const data = await response.json();
+        function aggregateFaultData(simulations) {
+            const allNodeFailures = [];
+            const allConsistencyChecks = [];
+            let totalRecoveryTime = 0;
+            let recoveryCount = 0;
+            let totalTransactionsDuringFailure = 0;
+            let totalSuccessRateDuringFailure = 0;
+            let failureSimCount = 0;
 
-                if (data.success && data.metrics) {
-                    currentSimulation = data.metrics;
-                    displayFaultToleranceData(data.metrics);
-                } else {
-                    throw new Error('Data tidak valid');
+            simulations.forEach(sim => {
+                if (sim.faultTolerance) {
+                    const ft = sim.faultTolerance;
+                    if (ft.nodeFailures && ft.nodeFailures.length > 0) {
+                        allNodeFailures.push(...ft.nodeFailures);
+                        failureSimCount++;
+                    }
+                    if (ft.dataConsistencyChecks) {
+                        allConsistencyChecks.push(...ft.dataConsistencyChecks);
+                    }
+                    if (ft.averageRecoveryTimeMs) {
+                        totalRecoveryTime += ft.averageRecoveryTimeMs;
+                        recoveryCount++;
+                    }
+                    if (ft.transactionsDuringFailure) {
+                        totalTransactionsDuringFailure += ft.transactionsDuringFailure;
+                    }
+                    if (ft.successRateDuringFailure) {
+                        totalSuccessRateDuringFailure += ft.successRateDuringFailure;
+                    }
                 }
-            } catch (error) {
-                console.error('Error loading simulation:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Gagal memuat data simulasi',
-                    background: '#0F172A',
-                    color: '#E2E8F0'
-                });
-            }
+            });
+
+            return {
+                nodeFailures: allNodeFailures,
+                dataConsistencyChecks: allConsistencyChecks,
+                averageRecoveryTimeMs: recoveryCount > 0 ? totalRecoveryTime / recoveryCount : 0,
+                transactionsDuringFailure: totalTransactionsDuringFailure,
+                successRateDuringFailure: failureSimCount > 0 ? totalSuccessRateDuringFailure / failureSimCount : 0
+            };
+        }
+
+        function hideSections() {
+            document.getElementById('faultSummary').classList.add('hidden');
+            document.getElementById('failureTimeline').classList.add('hidden');
+            document.getElementById('recoveryChart').classList.add('hidden');
+            document.getElementById('consistencySection').classList.add('hidden');
+            document.getElementById('faultAnalysis').classList.add('hidden');
+            document.getElementById('noFailureMessage').classList.add('hidden');
         }
 
         // Display fault tolerance data
-        function displayFaultToleranceData(metrics) {
-            const fault = metrics.faultTolerance;
+        function displayFaultToleranceData(data) {
+            const fault = data.faultTolerance;
 
             // Check if there's any fault tolerance data
             if (!fault.nodeFailures || fault.nodeFailures.length === 0) {
@@ -345,7 +390,7 @@
             displayConsistencyChecks(fault.dataConsistencyChecks);
 
             // Display analysis
-            displayAnalysis(fault, metrics.config);
+            displayAnalysis(fault, data);
         }
 
         // Display failure timeline
@@ -494,16 +539,18 @@
         }
 
         // Display analysis
-        function displayAnalysis(fault, config) {
-            const loadCategory = config?.loadCategory || 'unknown';
+        function displayAnalysis(fault, data) {
+            const catName = categoryNames[data.category] || data.category;
 
             let analysis = `
                 <p>
-                    <strong>Kategori Beban:</strong> ${loadCategory.toUpperCase()}<br>
+                    <strong>Kategori Beban:</strong> ${catName}<br>
+                    <strong>Network:</strong> ${data.networkName}<br>
+                    <strong>Jumlah Simulasi:</strong> ${data.simulationCount} simulasi<br>
                     <strong>Total Node Failures:</strong> ${fault.nodeFailures.length} kejadian
                 </p>
                 <p>
-                    Selama simulasi, terjadi <strong>${fault.nodeFailures.length} kejadian kegagalan node</strong>
+                    Selama semua simulasi yang digabungkan, terjadi <strong>${fault.nodeFailures.length} kejadian kegagalan node</strong>
                     dengan waktu pemulihan rata-rata <strong>${fault.averageRecoveryTimeMs.toFixed(2)} ms</strong>
                     (${(fault.averageRecoveryTimeMs / 1000).toFixed(2)} detik). Kegagalan node berdampak pada
                     <strong>${fault.transactionsDuringFailure} transaksi</strong>, namun sistem masih dapat mempertahankan
@@ -527,7 +574,7 @@
                         Ini adalah perilaku yang dapat diterima dalam sistem distributed dengan fault tolerance.
                     </p>
                 `;
-            } else {
+            } else if (fault.successRateDuringFailure > 0) {
                 analysis += `
                     <p>
                         Success rate yang relatif rendah (${fault.successRateDuringFailure.toFixed(1)}%) menunjukkan bahwa
@@ -538,18 +585,22 @@
             }
 
             // Recovery time analysis
-            const recoveryTimes = fault.nodeFailures.map(f => f.recoveryTimeMs);
-            const maxRecovery = Math.max(...recoveryTimes);
-            const minRecovery = Math.min(...recoveryTimes);
+            if (fault.nodeFailures.length > 0) {
+                const recoveryTimes = fault.nodeFailures.map(f => f.recoveryTimeMs || 0).filter(t => t > 0);
+                if (recoveryTimes.length > 0) {
+                    const maxRecovery = Math.max(...recoveryTimes);
+                    const minRecovery = Math.min(...recoveryTimes);
 
-            if (maxRecovery > fault.averageRecoveryTimeMs * 2) {
-                analysis += `
-                    <p>
-                        Terdapat variasi waktu pemulihan yang cukup besar, dari ${(minRecovery / 1000).toFixed(2)} detik hingga
-                        ${(maxRecovery / 1000).toFixed(2)} detik. Variasi ini mungkin disebabkan oleh perbedaan kondisi sistem
-                        atau kompleksitas pemulihan pada masing-masing node.
-                    </p>
-                `;
+                    if (maxRecovery > fault.averageRecoveryTimeMs * 2) {
+                        analysis += `
+                            <p>
+                                Terdapat variasi waktu pemulihan yang cukup besar, dari ${(minRecovery / 1000).toFixed(2)} detik hingga
+                                ${(maxRecovery / 1000).toFixed(2)} detik. Variasi ini mungkin disebabkan oleh perbedaan kondisi sistem
+                                atau kompleksitas pemulihan pada masing-masing node.
+                            </p>
+                        `;
+                    }
+                }
             }
 
             // Consistency check analysis
@@ -572,29 +623,13 @@
         }
 
         // Event listeners
-        document.getElementById('categoryFilter').addEventListener('change', (e) => {
-            const category = e.target.value;
-            loadSimulations(category);
+        document.getElementById('loadDataButton').addEventListener('click', () => {
+            loadCombinedData();
         });
 
-        document.getElementById('loadSimulationButton').addEventListener('click', () => {
-            const simulationId = document.getElementById('simulationSelect').value;
-            if (simulationId) {
-                loadSimulationData(simulationId);
-            } else {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Perhatian',
-                    text: 'Silakan pilih simulasi terlebih dahulu',
-                    background: '#0F172A',
-                    color: '#E2E8F0'
-                });
-            }
-        });
-
-        // Load simulations on page load
+        // Load data on page load
         document.addEventListener('DOMContentLoaded', () => {
-            loadSimulations();
+            loadCombinedData();
         });
     </script>
 </body>

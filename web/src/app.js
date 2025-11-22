@@ -1848,6 +1848,240 @@ app.get('/api/metrics/simulations', async (req, res) => {
 });
 
 /**
+ * GET /api/metrics/combined
+ * Get combined metrics data across all simulations for a specific network
+ * Query params:
+ * - network: Network ID (channel-standard, channel-variant, channel-fabric3-standard, channel-fabric3-variant)
+ * - category: Filter by load category (light, medium, heavy)
+ */
+app.get('/api/metrics/combined', async (req, res) => {
+    const fetchedAt = new Date().toISOString();
+
+    try {
+        const { network, category } = req.query;
+
+        let allMetrics = await readAllMetrics();
+
+        // Filter by category if specified
+        if (category) {
+            const categoryLower = category.toLowerCase();
+            const categoryMap = {
+                'light': 'light',
+                'ringan': 'light',
+                'medium': 'medium',
+                'sedang': 'medium',
+                'heavy': 'heavy',
+                'tinggi': 'heavy'
+            };
+            const normalizedCategory = categoryMap[categoryLower];
+            if (normalizedCategory) {
+                allMetrics = allMetrics.filter(sim =>
+                    sim.config?.loadCategory === normalizedCategory
+                );
+            }
+        }
+
+        // Network name mapping for display
+        const networkNames = {
+            'channel-standard': 'Fabric 2 RAFT Standard',
+            'channel-variant': 'Fabric 2 RAFT Variant',
+            'channel-fabric3-standard': 'Fabric 3 RAFT Standard',
+            'channel-fabric3-variant': 'Fabric 3 RAFT Variant'
+        };
+
+        // If network is specified, filter and aggregate data for that network
+        if (network) {
+            // Collect all transactions for this network
+            const transactions = [];
+            const resourceSnapshots = [];
+            let totalTransactions = 0;
+            let successfulTransactions = 0;
+            let failedTransactions = 0;
+
+            allMetrics.forEach(sim => {
+                // Filter transactions by network
+                if (sim.latency && sim.latency.transactions) {
+                    const networkTxs = sim.latency.transactions.filter(tx => tx.networkId === network);
+                    transactions.push(...networkTxs);
+
+                    networkTxs.forEach(tx => {
+                        totalTransactions++;
+                        if (tx.success) {
+                            successfulTransactions++;
+                        } else {
+                            failedTransactions++;
+                        }
+                    });
+                }
+
+                // Collect resource snapshots
+                if (sim.resourceUsage && sim.resourceUsage.snapshots) {
+                    resourceSnapshots.push(...sim.resourceUsage.snapshots);
+                }
+            });
+
+            // Calculate combined metrics
+            let averageLatencyMs = 0;
+            let minLatencyMs = 0;
+            let maxLatencyMs = 0;
+            let p50LatencyMs = 0;
+            let p95LatencyMs = 0;
+            let p99LatencyMs = 0;
+            let transactionsPerSecond = 0;
+            let durationSeconds = 0;
+
+            if (transactions.length > 0) {
+                const successfulTxs = transactions.filter(tx => tx.success);
+                const latencies = successfulTxs.map(tx => tx.latencyMs).sort((a, b) => a - b);
+
+                if (latencies.length > 0) {
+                    averageLatencyMs = latencies.reduce((sum, lat) => sum + lat, 0) / latencies.length;
+                    minLatencyMs = latencies[0];
+                    maxLatencyMs = latencies[latencies.length - 1];
+
+                    const p50Index = Math.floor(latencies.length * 0.50);
+                    const p95Index = Math.floor(latencies.length * 0.95);
+                    const p99Index = Math.floor(latencies.length * 0.99);
+
+                    p50LatencyMs = latencies[p50Index] || 0;
+                    p95LatencyMs = latencies[p95Index] || 0;
+                    p99LatencyMs = latencies[p99Index] || 0;
+                }
+
+                // Calculate TPS
+                const timestamps = transactions.map(tx => ({
+                    submitted: new Date(tx.submittedAt).getTime(),
+                    completed: new Date(tx.completedAt).getTime()
+                }));
+                const startTime = Math.min(...timestamps.map(t => t.submitted));
+                const endTime = Math.max(...timestamps.map(t => t.completed));
+                durationSeconds = (endTime - startTime) / 1000;
+
+                if (durationSeconds > 0) {
+                    transactionsPerSecond = totalTransactions / durationSeconds;
+                }
+            }
+
+            // Calculate average resource usage
+            let averageCPU = 0;
+            let averageMemory = 0;
+            let peakCPU = 0;
+            let peakMemory = 0;
+
+            if (resourceSnapshots.length > 0) {
+                const cpuValues = resourceSnapshots.map(s => s.cpuPercent).filter(v => v !== undefined);
+                const memValues = resourceSnapshots.map(s => s.memoryMB).filter(v => v !== undefined);
+
+                if (cpuValues.length > 0) {
+                    averageCPU = cpuValues.reduce((sum, v) => sum + v, 0) / cpuValues.length;
+                    peakCPU = Math.max(...cpuValues);
+                }
+                if (memValues.length > 0) {
+                    averageMemory = memValues.reduce((sum, v) => sum + v, 0) / memValues.length;
+                    peakMemory = Math.max(...memValues);
+                }
+            }
+
+            res.json({
+                fetchedAt,
+                success: true,
+                network,
+                networkName: networkNames[network] || network,
+                category: category || 'all',
+                simulationCount: allMetrics.length,
+                throughput: {
+                    totalTransactions,
+                    successfulTransactions,
+                    failedTransactions,
+                    transactionsPerSecond,
+                    durationSeconds
+                },
+                latency: {
+                    transactionCount: transactions.length,
+                    averageLatencyMs,
+                    minLatencyMs,
+                    maxLatencyMs,
+                    p50LatencyMs,
+                    p95LatencyMs,
+                    p99LatencyMs
+                },
+                resourceUsage: {
+                    snapshotCount: resourceSnapshots.length,
+                    averageCPU,
+                    averageMemory,
+                    peakCPU,
+                    peakMemory
+                },
+                transactions: transactions.slice(0, 100) // Return first 100 transactions for detail view
+            });
+        } else {
+            // Return summary for all networks
+            const networkSummary = {};
+            const availableNetworks = ['channel-standard', 'channel-variant', 'channel-fabric3-standard', 'channel-fabric3-variant'];
+
+            availableNetworks.forEach(netId => {
+                networkSummary[netId] = {
+                    networkId: netId,
+                    networkName: networkNames[netId],
+                    totalTransactions: 0,
+                    successfulTransactions: 0,
+                    averageLatencyMs: 0,
+                    transactionsPerSecond: 0
+                };
+            });
+
+            allMetrics.forEach(sim => {
+                if (sim.latency && sim.latency.transactions) {
+                    sim.latency.transactions.forEach(tx => {
+                        if (networkSummary[tx.networkId]) {
+                            networkSummary[tx.networkId].totalTransactions++;
+                            if (tx.success) {
+                                networkSummary[tx.networkId].successfulTransactions++;
+                            }
+                        }
+                    });
+                }
+
+                // Add per-network latency and TPS
+                if (sim.latency && sim.latency.perNetworkLatency) {
+                    Object.entries(sim.latency.perNetworkLatency).forEach(([netId, avgLat]) => {
+                        if (networkSummary[netId]) {
+                            // Simple averaging across simulations
+                            networkSummary[netId].averageLatencyMs =
+                                (networkSummary[netId].averageLatencyMs + avgLat) / 2 || avgLat;
+                        }
+                    });
+                }
+
+                if (sim.throughput && sim.throughput.perNetworkTPS) {
+                    Object.entries(sim.throughput.perNetworkTPS).forEach(([netId, tps]) => {
+                        if (networkSummary[netId]) {
+                            networkSummary[netId].transactionsPerSecond =
+                                (networkSummary[netId].transactionsPerSecond + tps) / 2 || tps;
+                        }
+                    });
+                }
+            });
+
+            res.json({
+                fetchedAt,
+                success: true,
+                category: category || 'all',
+                simulationCount: allMetrics.length,
+                networks: Object.values(networkSummary).filter(n => n.totalTransactions > 0)
+            });
+        }
+    } catch (error) {
+        console.error('Error fetching combined metrics:', error);
+        res.status(500).json({
+            fetchedAt,
+            success: false,
+            error: error instanceof Error ? error.message : String(error)
+        });
+    }
+});
+
+/**
  * GET /api/metrics/resource-usage
  * Get current resource usage snapshot
  */

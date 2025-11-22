@@ -79,35 +79,41 @@
                             </div>
                         </section>
 
-                        <!-- Simulation Selector -->
+                        <!-- Network & Category Selector -->
                         <section class="rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20 backdrop-blur-sm">
                             <header class="flex flex-col gap-2 border-b border-white/10 pb-6">
-                                <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Data Simulasi</h2>
-                                <p class="text-sm text-textdark/70">Pilih data simulasi untuk menganalisis latency.</p>
+                                <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Filter Data</h2>
+                                <p class="text-sm text-textdark/70">Pilih network dan kategori beban untuk menganalisis latency. Data dari semua simulasi akan digabungkan.</p>
                             </header>
 
                             <div class="mt-6 space-y-6">
                                 <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
                                     <div class="flex flex-col gap-4">
-                                        <div class="flex-1">
-                                            <label for="categoryFilter" class="mb-2 block text-sm font-medium text-textdark/90">Filter Kategori Beban</label>
-                                            <select id="categoryFilter" class="w-full rounded-lg border border-white/10 bg-surface px-4 py-3 text-textdark focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/50">
-                                                <option value="">Semua Kategori</option>
-                                                <option value="light">Ringan (Light)</option>
-                                                <option value="medium">Sedang (Medium)</option>
-                                                <option value="heavy">Tinggi (Heavy)</option>
-                                            </select>
-                                        </div>
-                                        <div class="flex flex-col gap-4 md:flex-row md:items-end">
-                                            <div class="flex-1">
-                                                <label for="simulationSelect" class="mb-2 block text-sm font-medium text-textdark/90">Pilih Simulasi</label>
-                                                <select id="simulationSelect" class="w-full rounded-lg border border-white/10 bg-surface px-4 py-3 text-textdark focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/50">
-                                                    <option value="">-- Memuat data simulasi --</option>
+                                        <div class="grid gap-4 md:grid-cols-2">
+                                            <div>
+                                                <label for="networkSelect" class="mb-2 block text-sm font-medium text-textdark/90">Pilih Network</label>
+                                                <select id="networkSelect" class="w-full rounded-lg border border-white/10 bg-surface px-4 py-3 text-textdark focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/50">
+                                                    <option value="">-- Semua Network (Perbandingan) --</option>
+                                                    <option value="channel-standard">Fabric 2 RAFT Standard</option>
+                                                    <option value="channel-variant">Fabric 2 RAFT Variant</option>
+                                                    <option value="channel-fabric3-standard">Fabric 3 RAFT Standard</option>
+                                                    <option value="channel-fabric3-variant">Fabric 3 RAFT Variant</option>
                                                 </select>
                                             </div>
+                                            <div>
+                                                <label for="categoryFilter" class="mb-2 block text-sm font-medium text-textdark/90">Filter Kategori Beban</label>
+                                                <select id="categoryFilter" class="w-full rounded-lg border border-white/10 bg-surface px-4 py-3 text-textdark focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/50">
+                                                    <option value="">Semua Kategori</option>
+                                                    <option value="light">Ringan (Light)</option>
+                                                    <option value="medium">Sedang (Medium)</option>
+                                                    <option value="heavy">Tinggi (Heavy)</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="flex justify-end">
                                             <button
                                                 type="button"
-                                                id="loadSimulationButton"
+                                                id="loadDataButton"
                                                 class="inline-flex items-center justify-center gap-2 rounded-lg bg-primary/90 px-6 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-primary/40 transition duration-200 hover:-translate-y-0.5 hover:bg-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                                             >
                                                 <span>Muat Data</span>
@@ -116,9 +122,15 @@
                                     </div>
                                 </div>
 
-                                <div id="noDataMessage" class="rounded-2xl border border-yellow-500/30 bg-yellow-500/10 p-6">
+                                <div id="noDataMessage" class="hidden rounded-2xl border border-yellow-500/30 bg-yellow-500/10 p-6">
                                     <p class="text-sm text-yellow-200/80">
                                         Belum ada data simulasi yang tersedia. Silakan jalankan simulasi terlebih dahulu di halaman <a href="/penelitian/pelaksanaan-simulasi/pengeksekusian-simulasi-transaksi" class="font-semibold text-yellow-400 underline">Pengeksekusian Simulasi Transaksi</a>.
+                                    </p>
+                                </div>
+
+                                <div id="dataInfo" class="hidden rounded-2xl border border-primary/30 bg-primary/10 p-4">
+                                    <p class="text-sm text-primary/90">
+                                        <span id="dataInfoText">Menampilkan data gabungan dari semua simulasi</span>
                                     </p>
                                 </div>
                             </div>
@@ -201,102 +213,108 @@
     <script src="/js/layout.js" defer></script>
     <script src="/js/navigation.js" defer></script>
     <script>
-        let currentSimulation = null;
+        let currentData = null;
         let distributionChart = null;
         let networkChart = null;
 
-        // Load simulations list
-        async function loadSimulations(category = '') {
+        const networkNames = {
+            'channel-standard': 'Fabric 2 RAFT Standard',
+            'channel-variant': 'Fabric 2 RAFT Variant',
+            'channel-fabric3-standard': 'Fabric 3 RAFT Standard',
+            'channel-fabric3-variant': 'Fabric 3 RAFT Variant'
+        };
+
+        const categoryNames = {
+            'light': 'Ringan',
+            'medium': 'Sedang',
+            'heavy': 'Tinggi',
+            'all': 'Semua'
+        };
+
+        // Load combined data
+        async function loadCombinedData() {
+            const network = document.getElementById('networkSelect').value;
+            const category = document.getElementById('categoryFilter').value;
+
             try {
-                const url = category
-                    ? `/api/metrics/simulations?category=${category}`
-                    : '/api/metrics/simulations';
+                let url = '/api/metrics/combined';
+                const params = new URLSearchParams();
+                if (network) params.append('network', network);
+                if (category) params.append('category', category);
+                if (params.toString()) url += '?' + params.toString();
+
                 const response = await fetch(url);
                 const data = await response.json();
 
-                const select = document.getElementById('simulationSelect');
                 const noDataMsg = document.getElementById('noDataMessage');
+                const dataInfo = document.getElementById('dataInfo');
 
-                if (data.success && data.simulations && data.simulations.length > 0) {
-                    select.innerHTML = '<option value="">-- Pilih simulasi --</option>';
-
-                    // Sort by date (newest first)
-                    const sortedSims = data.simulations.sort((a, b) =>
-                        new Date(b.startTime) - new Date(a.startTime)
-                    );
-
-                    sortedSims.forEach(sim => {
-                        const option = document.createElement('option');
-                        option.value = sim.simulationId;
-                        const date = new Date(sim.startTime).toLocaleString('id-ID');
-                        const loadCat = sim.config?.loadCategory || 'unknown';
-                        const categoryMap = {
-                            'light': 'Ringan',
-                            'medium': 'Sedang',
-                            'heavy': 'Tinggi'
-                        };
-                        const categoryName = categoryMap[loadCat] || loadCat;
-                        option.textContent = `${categoryName} - ${date} (${sim.simulationId.substring(0, 8)})`;
-                        select.appendChild(option);
-                    });
-                    noDataMsg.style.display = 'none';
-                } else {
-                    select.innerHTML = '<option value="">-- Tidak ada simulasi --</option>';
-                    noDataMsg.style.display = 'block';
-                    if (category) {
-                        const categoryMap = {
-                            'light': 'Ringan',
-                            'medium': 'Sedang',
-                            'heavy': 'Tinggi'
-                        };
-                        const categoryName = categoryMap[category] || category;
-                        noDataMsg.querySelector('p').textContent = `Belum ada data simulasi untuk kategori ${categoryName}. Silakan jalankan simulasi terlebih dahulu.`;
+                if (data.success) {
+                    if (network) {
+                        // Single network view
+                        if (data.latency.transactionCount > 0) {
+                            currentData = data;
+                            displaySingleNetworkData(data);
+                            noDataMsg.classList.add('hidden');
+                            dataInfo.classList.remove('hidden');
+                            const catName = categoryNames[category] || 'Semua';
+                            document.getElementById('dataInfoText').textContent =
+                                `Menampilkan data gabungan untuk ${data.networkName} (${data.simulationCount} simulasi, Kategori: ${catName})`;
+                        } else {
+                            noDataMsg.classList.remove('hidden');
+                            noDataMsg.querySelector('p').innerHTML =
+                                `Belum ada data untuk network <strong>${networkNames[network]}</strong>. Silakan jalankan simulasi terlebih dahulu.`;
+                            dataInfo.classList.add('hidden');
+                            hideSections();
+                        }
+                    } else {
+                        // All networks comparison view
+                        if (data.networks && data.networks.length > 0) {
+                            currentData = data;
+                            displayComparisonData(data);
+                            noDataMsg.classList.add('hidden');
+                            dataInfo.classList.remove('hidden');
+                            const catName = categoryNames[category] || 'Semua';
+                            document.getElementById('dataInfoText').textContent =
+                                `Menampilkan perbandingan semua network (${data.simulationCount} simulasi, Kategori: ${catName})`;
+                        } else {
+                            noDataMsg.classList.remove('hidden');
+                            noDataMsg.querySelector('p').innerHTML =
+                                'Belum ada data simulasi yang tersedia. Silakan jalankan simulasi terlebih dahulu di halaman <a href="/penelitian/pelaksanaan-simulasi/pengeksekusian-simulasi-transaksi" class="font-semibold text-yellow-400 underline">Pengeksekusian Simulasi Transaksi</a>.';
+                            dataInfo.classList.add('hidden');
+                            hideSections();
+                        }
                     }
-                }
-            } catch (error) {
-                console.error('Error loading simulations:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Gagal memuat daftar simulasi',
-                    background: '#0F172A',
-                    color: '#E2E8F0'
-                });
-            }
-        }
-
-        // Load simulation data
-        async function loadSimulationData(simulationId) {
-            try {
-                const response = await fetch(`/api/metrics/simulation/${simulationId}`);
-                const data = await response.json();
-
-                if (data.success && data.metrics) {
-                    currentSimulation = data.metrics;
-                    displayLatencyData(data.metrics);
                 } else {
-                    throw new Error('Data tidak valid');
+                    throw new Error(data.error || 'Gagal memuat data');
                 }
             } catch (error) {
-                console.error('Error loading simulation:', error);
+                console.error('Error loading combined data:', error);
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: 'Gagal memuat data simulasi',
+                    text: 'Gagal memuat data: ' + error.message,
                     background: '#0F172A',
                     color: '#E2E8F0'
                 });
             }
         }
 
-        // Display latency data
-        function displayLatencyData(metrics) {
-            const latency = metrics.latency;
+        function hideSections() {
+            document.getElementById('latencySummary').classList.add('hidden');
+            document.getElementById('latencyDistribution').classList.add('hidden');
+            document.getElementById('latencyPerNetwork').classList.add('hidden');
+            document.getElementById('latencyAnalysis').classList.add('hidden');
+        }
+
+        // Display single network data
+        function displaySingleNetworkData(data) {
+            const latency = data.latency;
 
             // Show sections
             document.getElementById('latencySummary').classList.remove('hidden');
-            document.getElementById('latencyDistribution').classList.remove('hidden');
-            document.getElementById('latencyPerNetwork').classList.remove('hidden');
+            document.getElementById('latencyDistribution').classList.add('hidden'); // Hide distribution for single network
+            document.getElementById('latencyPerNetwork').classList.add('hidden');
             document.getElementById('latencyAnalysis').classList.remove('hidden');
 
             // Update summary
@@ -307,117 +325,60 @@
             document.getElementById('p95Latency').textContent = latency.p95LatencyMs.toFixed(2);
             document.getElementById('p99Latency').textContent = latency.p99LatencyMs.toFixed(2);
 
-            // Update charts
-            displayLatencyDistributionChart(latency.transactions);
-            displayLatencyPerNetworkChart(latency.perNetworkLatency);
-
             // Update analysis
-            displayAnalysis(latency, metrics.config);
+            displaySingleNetworkAnalysis(data);
         }
 
-        // Display latency distribution chart (histogram)
-        function displayLatencyDistributionChart(transactions) {
-            const ctx = document.getElementById('latencyDistributionChart').getContext('2d');
+        // Display comparison data (all networks)
+        function displayComparisonData(data) {
+            // Show sections
+            document.getElementById('latencySummary').classList.remove('hidden');
+            document.getElementById('latencyDistribution').classList.add('hidden');
+            document.getElementById('latencyPerNetwork').classList.remove('hidden');
+            document.getElementById('latencyAnalysis').classList.remove('hidden');
 
-            if (distributionChart) {
-                distributionChart.destroy();
-            }
+            // Calculate averages
+            let totalLatency = 0;
+            let minLat = Infinity;
+            let maxLat = 0;
+            let count = 0;
 
-            // Create histogram bins
-            const latencies = transactions.map(t => t.latencyMs).sort((a, b) => a - b);
-            const binCount = 20;
-            const min = Math.min(...latencies);
-            const max = Math.max(...latencies);
-            const binSize = (max - min) / binCount;
-
-            const bins = new Array(binCount).fill(0);
-            const labels = [];
-
-            for (let i = 0; i < binCount; i++) {
-                const binStart = min + i * binSize;
-                const binEnd = binStart + binSize;
-                labels.push(`${binStart.toFixed(0)}-${binEnd.toFixed(0)}`);
-            }
-
-            latencies.forEach(lat => {
-                const binIndex = Math.min(Math.floor((lat - min) / binSize), binCount - 1);
-                bins[binIndex]++;
-            });
-
-            distributionChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Frekuensi',
-                        data: bins,
-                        backgroundColor: 'rgba(56, 189, 248, 0.7)',
-                        borderColor: 'rgba(56, 189, 248, 1)',
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        title: {
-                            display: true,
-                            text: 'Histogram Distribusi Latency (ms)',
-                            color: '#E2E8F0',
-                            font: {
-                                size: 16,
-                                weight: 'bold'
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                color: '#94A3B8'
-                            },
-                            grid: {
-                                color: 'rgba(255, 255, 255, 0.1)'
-                            },
-                            title: {
-                                display: true,
-                                text: 'Jumlah Transaksi',
-                                color: '#94A3B8'
-                            }
-                        },
-                        x: {
-                            ticks: {
-                                color: '#94A3B8',
-                                maxRotation: 45,
-                                minRotation: 45
-                            },
-                            grid: {
-                                color: 'rgba(255, 255, 255, 0.1)'
-                            },
-                            title: {
-                                display: true,
-                                text: 'Latency Range (ms)',
-                                color: '#94A3B8'
-                            }
-                        }
-                    }
+            data.networks.forEach(net => {
+                if (net.averageLatencyMs > 0) {
+                    totalLatency += net.averageLatencyMs;
+                    if (net.averageLatencyMs < minLat) minLat = net.averageLatencyMs;
+                    if (net.averageLatencyMs > maxLat) maxLat = net.averageLatencyMs;
+                    count++;
                 }
             });
+
+            const avgLatency = count > 0 ? totalLatency / count : 0;
+
+            // Update summary
+            document.getElementById('averageLatency').textContent = avgLatency.toFixed(2);
+            document.getElementById('minLatency').textContent = minLat === Infinity ? '0.00' : minLat.toFixed(2);
+            document.getElementById('maxLatency').textContent = maxLat.toFixed(2);
+            document.getElementById('p50Latency').textContent = '-';
+            document.getElementById('p95Latency').textContent = '-';
+            document.getElementById('p99Latency').textContent = '-';
+
+            // Update chart
+            displayComparisonChart(data.networks);
+
+            // Update analysis
+            displayComparisonAnalysis(data);
         }
 
-        // Display latency per network chart
-        function displayLatencyPerNetworkChart(perNetworkLatency) {
+        // Display comparison chart
+        function displayComparisonChart(networks) {
             const ctx = document.getElementById('latencyPerNetworkChart').getContext('2d');
 
             if (networkChart) {
                 networkChart.destroy();
             }
 
-            const labels = Object.keys(perNetworkLatency);
-            const data = Object.values(perNetworkLatency);
+            const labels = networks.map(n => n.networkName);
+            const latencyData = networks.map(n => n.averageLatencyMs);
 
             networkChart = new Chart(ctx, {
                 type: 'bar',
@@ -425,7 +386,7 @@
                     labels: labels,
                     datasets: [{
                         label: 'Latency Rata-rata (ms)',
-                        data: data,
+                        data: latencyData,
                         backgroundColor: [
                             'rgba(56, 189, 248, 0.7)',
                             'rgba(99, 102, 241, 0.7)',
@@ -450,7 +411,7 @@
                         },
                         title: {
                             display: true,
-                            text: 'Perbandingan Latency Antar Network',
+                            text: 'Perbandingan Latency Antar Network (Data Gabungan)',
                             color: '#E2E8F0',
                             font: {
                                 size: 16,
@@ -461,6 +422,11 @@
                     scales: {
                         y: {
                             beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Latency (ms)',
+                                color: '#94A3B8'
+                            },
                             ticks: {
                                 color: '#94A3B8'
                             },
@@ -481,53 +447,40 @@
             });
         }
 
-        // Display analysis
-        function displayAnalysis(latency, config) {
-            const loadCategory = config?.loadCategory || 'unknown';
+        // Display single network analysis
+        function displaySingleNetworkAnalysis(data) {
+            const latency = data.latency;
 
             let analysis = `
                 <p>
-                    <strong>Kategori Beban:</strong> ${loadCategory.toUpperCase()}<br>
-                    <strong>Jumlah Transaksi:</strong> ${latency.transactions.length.toLocaleString('id-ID')} transaksi
+                    <strong>Network:</strong> ${data.networkName}<br>
+                    <strong>Kategori Beban:</strong> ${categoryNames[data.category] || data.category}<br>
+                    <strong>Jumlah Simulasi:</strong> ${data.simulationCount} simulasi<br>
+                    <strong>Jumlah Transaksi:</strong> ${latency.transactionCount.toLocaleString('id-ID')} transaksi
                 </p>
                 <p>
-                    Sistem menunjukkan latency rata-rata sebesar <strong>${latency.averageLatencyMs.toFixed(2)} ms</strong>
-                    dengan rentang dari ${latency.minLatencyMs.toFixed(2)} ms (minimum) hingga ${latency.maxLatencyMs.toFixed(2)} ms (maksimum).
-                    Variasi ini menunjukkan karakteristik respons sistem terhadap beban transaksi.
+                    Network <strong>${data.networkName}</strong> menunjukkan latency rata-rata sebesar
+                    <strong>${latency.averageLatencyMs.toFixed(2)} ms</strong> dengan rentang dari
+                    ${latency.minLatencyMs.toFixed(2)} ms (minimum) hingga ${latency.maxLatencyMs.toFixed(2)} ms (maksimum).
                 </p>
                 <p>
                     Analisis persentil menunjukkan bahwa 50% transaksi (P50/median) diselesaikan dalam waktu
-                    <strong>${latency.p50LatencyMs.toFixed(2)} ms</strong>, sementara 95% transaksi (P95) diselesaikan dalam
-                    <strong>${latency.p95LatencyMs.toFixed(2)} ms</strong>, dan 99% transaksi (P99) diselesaikan dalam
+                    <strong>${latency.p50LatencyMs.toFixed(2)} ms</strong>, 95% transaksi (P95) dalam
+                    <strong>${latency.p95LatencyMs.toFixed(2)} ms</strong>, dan 99% transaksi (P99) dalam
                     <strong>${latency.p99LatencyMs.toFixed(2)} ms</strong>.
                 </p>
             `;
 
-            const p95ToAvgRatio = (latency.p95LatencyMs / latency.averageLatencyMs).toFixed(2);
-            const p99ToAvgRatio = (latency.p99LatencyMs / latency.averageLatencyMs).toFixed(2);
-
-            analysis += `
-                <p>
-                    Rasio P95 terhadap rata-rata adalah ${p95ToAvgRatio}x, dan P99 terhadap rata-rata adalah ${p99ToAvgRatio}x.
-                    ${p99ToAvgRatio > 3 ?
-                        'Rasio yang cukup tinggi ini mengindikasikan adanya tail latency yang signifikan, dimana sebagian kecil transaksi mengalami penundaan yang lebih lama.' :
-                        'Rasio ini menunjukkan distribusi latency yang relatif konsisten dengan tail latency yang terkendali.'}
-                </p>
-            `;
-
-            if (Object.keys(latency.perNetworkLatency).length > 1) {
-                const networks = Object.entries(latency.perNetworkLatency)
-                    .sort((a, b) => a[1] - b[1]);
-                const fastest = networks[0];
-                const slowest = networks[networks.length - 1];
-                const diff = ((slowest[1] - fastest[1]) / fastest[1] * 100).toFixed(1);
+            if (latency.averageLatencyMs > 0) {
+                const p95ToAvgRatio = (latency.p95LatencyMs / latency.averageLatencyMs).toFixed(2);
+                const p99ToAvgRatio = (latency.p99LatencyMs / latency.averageLatencyMs).toFixed(2);
 
                 analysis += `
                     <p>
-                        Perbandingan antar network menunjukkan bahwa <strong>${fastest[0]}</strong>
-                        memiliki latency terendah dengan ${fastest[1].toFixed(2)} ms, sementara
-                        <strong>${slowest[0]}</strong> memiliki latency tertinggi dengan ${slowest[1].toFixed(2)} ms.
-                        Perbedaan performa ini mencapai ${diff}%, yang menunjukkan variasi kecepatan respons antar konfigurasi network.
+                        Rasio P95 terhadap rata-rata adalah ${p95ToAvgRatio}x, dan P99 terhadap rata-rata adalah ${p99ToAvgRatio}x.
+                        ${p99ToAvgRatio > 3 ?
+                            'Rasio yang cukup tinggi ini mengindikasikan adanya tail latency yang signifikan.' :
+                            'Rasio ini menunjukkan distribusi latency yang relatif konsisten.'}
                     </p>
                 `;
             }
@@ -535,30 +488,68 @@
             document.getElementById('analysisContent').innerHTML = analysis;
         }
 
-        // Event listeners
-        document.getElementById('categoryFilter').addEventListener('change', (e) => {
-            const category = e.target.value;
-            loadSimulations(category);
-        });
+        // Display comparison analysis
+        function displayComparisonAnalysis(data) {
+            const networks = data.networks;
 
-        document.getElementById('loadSimulationButton').addEventListener('click', () => {
-            const simulationId = document.getElementById('simulationSelect').value;
-            if (simulationId) {
-                loadSimulationData(simulationId);
-            } else {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Perhatian',
-                    text: 'Silakan pilih simulasi terlebih dahulu',
-                    background: '#0F172A',
-                    color: '#E2E8F0'
-                });
+            if (networks.length === 0) {
+                document.getElementById('analysisContent').innerHTML = '<p>Tidak ada data untuk dianalisis.</p>';
+                return;
             }
+
+            // Sort by latency (lowest first = best)
+            const sorted = [...networks].filter(n => n.averageLatencyMs > 0).sort((a, b) => a.averageLatencyMs - b.averageLatencyMs);
+
+            if (sorted.length === 0) {
+                document.getElementById('analysisContent').innerHTML = '<p>Tidak ada data latency yang tersedia.</p>';
+                return;
+            }
+
+            const fastest = sorted[0];
+            const slowest = sorted[sorted.length - 1];
+
+            let totalTx = 0;
+            networks.forEach(n => totalTx += n.totalTransactions);
+
+            let analysis = `
+                <p>
+                    <strong>Kategori Beban:</strong> ${categoryNames[data.category] || data.category}<br>
+                    <strong>Jumlah Simulasi:</strong> ${data.simulationCount} simulasi<br>
+                    <strong>Total Transaksi (Semua Network):</strong> ${totalTx.toLocaleString('id-ID')} transaksi
+                </p>
+            `;
+
+            if (sorted.length > 1) {
+                const diff = ((slowest.averageLatencyMs - fastest.averageLatencyMs) / fastest.averageLatencyMs * 100).toFixed(1);
+
+                analysis += `
+                    <p>
+                        Dari grafik perbandingan antar network, terlihat bahwa <strong>${fastest.networkName}</strong>
+                        memiliki latency terendah dengan ${fastest.averageLatencyMs.toFixed(2)} ms, sementara
+                        <strong>${slowest.networkName}</strong> memiliki latency tertinggi dengan ${slowest.averageLatencyMs.toFixed(2)} ms.
+                        Perbedaan performa ini mencapai ${diff}%.
+                    </p>
+                `;
+
+                // Ranking
+                analysis += '<p><strong>Ranking Performa (Latency Terendah):</strong></p><ol class="list-decimal list-inside space-y-1">';
+                sorted.forEach((net, idx) => {
+                    analysis += `<li>${net.networkName}: ${net.averageLatencyMs.toFixed(2)} ms (${net.totalTransactions.toLocaleString('id-ID')} transaksi)</li>`;
+                });
+                analysis += '</ol>';
+            }
+
+            document.getElementById('analysisContent').innerHTML = analysis;
+        }
+
+        // Event listeners
+        document.getElementById('loadDataButton').addEventListener('click', () => {
+            loadCombinedData();
         });
 
-        // Load simulations on page load
+        // Load data on page load
         document.addEventListener('DOMContentLoaded', () => {
-            loadSimulations();
+            loadCombinedData();
         });
     </script>
 </body>

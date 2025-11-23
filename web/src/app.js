@@ -1081,7 +1081,6 @@ const viewFiles = {
         dataAnalysis: path.resolve(viewsRoot, 'penelitian/analisis-data.html'),
         dataAnalysisSubsections: {
             throughput: path.resolve(viewsRoot, 'penelitian/analisis-data/throughput.html'),
-            throughputPerData: path.resolve(viewsRoot, 'penelitian/analisis-data/throughput-per-data.html'),
             latency: path.resolve(viewsRoot, 'penelitian/analisis-data/latency.html'),
             resourceUsage: path.resolve(viewsRoot, 'penelitian/analisis-data/resource-usage.html'),
             faultTolerance: path.resolve(viewsRoot, 'penelitian/analisis-data/fault-tolerance.html'),
@@ -1153,10 +1152,6 @@ app.get('/penelitian/analisis-data', (req, res) => {
 
 app.get('/penelitian/analisis-data/throughput', (req, res) => {
     res.sendFile(viewFiles.research.dataAnalysisSubsections.throughput);
-});
-
-app.get('/penelitian/analisis-data/throughput-per-data', (req, res) => {
-    res.sendFile(viewFiles.research.dataAnalysisSubsections.throughputPerData);
 });
 
 app.get('/penelitian/analisis-data/latency', (req, res) => {

@@ -11,14 +11,6 @@ import { randomUUID } from 'crypto';
 import { checkNetworkHealth, getAllBlocks, getAllCatatan, getBlocksWithSimulationData } from './network-check.js';
 import { loadFabricDescriptions } from './fabric-description.js';
 import { submitToNetworks, submitTransaction, queryRecordsFromNetwork, queryAllTransactionsFromBlocks } from './fabric-gateway.js';
-import {
-    SimulationMetrics,
-    saveMetrics,
-    readAllMetrics,
-    getMetricsBySimulationId,
-    ResourceMonitor,
-    collectResourceUsage
-} from './metrics-collector.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -35,9 +27,6 @@ const simulationsDataPath = path.resolve(dataRoot, 'simulations.jsonl');
 
 const networkOperationEmitter = new EventEmitter();
 networkOperationEmitter.setMaxListeners(0);
-
-// Storage for active simulation metrics and resource monitors
-const activeSimulations = new Map(); // simulationId -> { metrics, resourceMonitor }
 
 // Helper functions for JSONL data storage
 async function appendSimulationData(data) {
@@ -74,6 +63,313 @@ async function clearSimulationData() {
         console.error('Failed to clear simulation data:', error);
         throw error;
     }
+}
+
+// =============================================================================
+// METRICS HELPER FUNCTIONS
+// =============================================================================
+
+// Container patterns for each network
+const CONTAINER_PATTERNS = {
+    'channel-standard': {
+        orderers: ['orderer.fabric2.standard.com', 'orderer2.fabric2.standard.com', 'orderer3.fabric2.standard.com'],
+        peers: ['peer0.org1.fabric2.standard.com', 'peer0.org2.fabric2.standard.com']
+    },
+    'channel-variant': {
+        orderers: ['orderer.fabric2.variant.com', 'orderer2.fabric2.variant.com', 'orderer3.fabric2.variant.com', 'orderer4.fabric2.variant.com', 'orderer5.fabric2.variant.com'],
+        peers: ['peer0.org1.fabric2.variant.com', 'peer0.org2.fabric2.variant.com']
+    },
+    'channel-fabric3-standard': {
+        orderers: ['orderer.fabric3.standard', 'orderer2.fabric3.standard', 'orderer3.fabric3.standard'],
+        peers: ['peer0.org1.fabric3.standard', 'peer0.org2.fabric3.standard']
+    },
+    'channel-fabric3-variant': {
+        orderers: ['orderer.fabric3.variant', 'orderer2.fabric3.variant', 'orderer3.fabric3.variant', 'orderer4.fabric3.variant', 'orderer5.fabric3.variant'],
+        peers: ['peer0.org1.fabric3.variant', 'peer0.org2.fabric3.variant']
+    }
+};
+
+/**
+ * Collect Docker container stats for a specific container
+ */
+async function collectDockerStats(containerName) {
+    try {
+        const { stdout } = await execFileAsync('docker', [
+            'stats',
+            '--no-stream',
+            '--format',
+            '{"container":"{{.Container}}","name":"{{.Name}}","cpu":"{{.CPUPerc}}","memory":"{{.MemUsage}}","netIO":"{{.NetIO}}","blockIO":"{{.BlockIO}}"}',
+            containerName
+        ]);
+
+        const stats = JSON.parse(stdout.trim());
+
+        // Parse CPU percentage
+        const cpuPercent = parseFloat(stats.cpu.replace('%', '')) || 0;
+
+        // Parse memory usage (format: "123.4MiB / 1.952GiB")
+        const memMatch = stats.memory.match(/([0-9.]+)([A-Za-z]+)/);
+        let memoryMB = 0;
+        if (memMatch) {
+            const value = parseFloat(memMatch[1]);
+            const unit = memMatch[2].toLowerCase();
+            if (unit.startsWith('g')) {
+                memoryMB = value * 1024;
+            } else if (unit.startsWith('m')) {
+                memoryMB = value;
+            } else if (unit.startsWith('k')) {
+                memoryMB = value / 1024;
+            }
+        }
+
+        // Parse block I/O (format: "1.23MB / 4.56MB")
+        const ioMatch = stats.blockIO.match(/([0-9.]+)([A-Za-z]+)\s*\/\s*([0-9.]+)([A-Za-z]+)/);
+        let ioMBps = 0;
+        if (ioMatch) {
+            const readValue = parseFloat(ioMatch[1]);
+            const readUnit = ioMatch[2].toLowerCase();
+            const writeValue = parseFloat(ioMatch[3]);
+            const writeUnit = ioMatch[4].toLowerCase();
+
+            let readMB = 0, writeMB = 0;
+            if (readUnit.startsWith('g')) readMB = readValue * 1024;
+            else if (readUnit.startsWith('m')) readMB = readValue;
+            else if (readUnit.startsWith('k')) readMB = readValue / 1024;
+
+            if (writeUnit.startsWith('g')) writeMB = writeValue * 1024;
+            else if (writeUnit.startsWith('m')) writeMB = writeValue;
+            else if (writeUnit.startsWith('k')) writeMB = writeValue / 1024;
+
+            ioMBps = readMB + writeMB;
+        }
+
+        return {
+            containerName,
+            cpuPercent,
+            memoryMB,
+            ioMBps,
+            timestamp: new Date().toISOString(),
+            raw: stats
+        };
+    } catch (error) {
+        return null;
+    }
+}
+
+/**
+ * Collect resource usage for blockchain containers of a specific network
+ */
+async function collectResourceUsage(networkId) {
+    const pattern = CONTAINER_PATTERNS[networkId];
+    if (!pattern) {
+        return {
+            timestamp: new Date().toISOString(),
+            orderers: [],
+            peers: [],
+            cpuPercent: 0,
+            memoryMB: 0,
+            ioMBps: 0
+        };
+    }
+
+    const snapshot = {
+        timestamp: new Date().toISOString(),
+        orderers: [],
+        peers: [],
+        cpuPercent: 0,
+        memoryMB: 0,
+        ioMBps: 0
+    };
+
+    // Collect stats for all containers
+    const allContainers = [...pattern.orderers, ...pattern.peers];
+    const statsPromises = allContainers.map(containerName => collectDockerStats(containerName));
+    const results = await Promise.all(statsPromises);
+
+    let totalCPU = 0;
+    let totalMemory = 0;
+    let totalIO = 0;
+    let count = 0;
+
+    results.forEach(stat => {
+        if (stat) {
+            if (stat.containerName.includes('orderer')) {
+                snapshot.orderers.push(stat);
+            } else if (stat.containerName.includes('peer')) {
+                snapshot.peers.push(stat);
+            }
+
+            totalCPU += stat.cpuPercent;
+            totalMemory += stat.memoryMB;
+            totalIO += stat.ioMBps;
+            count++;
+        }
+    });
+
+    if (count > 0) {
+        snapshot.cpuPercent = totalCPU / count;
+        snapshot.memoryMB = totalMemory;
+        snapshot.ioMBps = totalIO;
+    }
+
+    return snapshot;
+}
+
+/**
+ * Calculate metrics from records
+ * Metrics include: throughput, latency, resource usage, fault tolerance
+ */
+function calculateMetricsFromRecords(records, resourceSnapshot = null) {
+    const metrics = {
+        throughput: {
+            totalTransactions: 0,
+            successfulTransactions: 0,
+            failedTransactions: 0,
+            transactionsPerSecond: 0,
+            durationSeconds: 0,
+            startTimestamp: null,
+            endTimestamp: null
+        },
+        latency: {
+            averageLatencyMs: 0,
+            minLatencyMs: 0,
+            maxLatencyMs: 0,
+            p50LatencyMs: 0,
+            p95LatencyMs: 0,
+            p99LatencyMs: 0,
+            transactionLatencies: []
+        },
+        resourceUsage: {
+            averageCPU: 0,
+            averageMemory: 0,
+            peakCPU: 0,
+            peakMemory: 0,
+            totalIO: 0,
+            ordererCount: 0,
+            peerCount: 0
+        },
+        faultTolerance: {
+            successRate: 0,
+            failureCount: 0,
+            nodeFailures: [],
+            recoveryTimeMs: 0
+        }
+    };
+
+    if (!records || records.length === 0) {
+        return metrics;
+    }
+
+    // Calculate throughput and latency from records
+    const latencies = [];
+    let startTime = null;
+    let endTime = null;
+
+    records.forEach(record => {
+        metrics.throughput.totalTransactions++;
+
+        // Check if transaction was successful (records in blockchain are successful)
+        const isSuccess = record.success !== false;
+        if (isSuccess) {
+            metrics.throughput.successfulTransactions++;
+        } else {
+            metrics.throughput.failedTransactions++;
+        }
+
+        // Calculate latency if submittedAt and completedAt are available
+        const submittedAt = record.submittedAt || record.networkMetadata?.submittedAt;
+        const completedAt = record.completedAt || record.networkMetadata?.completedAt || record.blockchainMetadata?.blockTimestamp;
+
+        if (submittedAt && completedAt) {
+            const submitTime = new Date(submittedAt).getTime();
+            const completeTime = new Date(completedAt).getTime();
+            const latencyMs = completeTime - submitTime;
+
+            if (latencyMs >= 0) {
+                latencies.push({
+                    recordId: record.reportId || record.id,
+                    latencyMs,
+                    submittedAt,
+                    completedAt
+                });
+            }
+
+            // Track start and end times
+            if (!startTime || submitTime < startTime) {
+                startTime = submitTime;
+                metrics.throughput.startTimestamp = submittedAt;
+            }
+            if (!endTime || completeTime > endTime) {
+                endTime = completeTime;
+                metrics.throughput.endTimestamp = completedAt;
+            }
+        }
+    });
+
+    // Calculate throughput TPS
+    if (startTime && endTime) {
+        metrics.throughput.durationSeconds = (endTime - startTime) / 1000;
+        if (metrics.throughput.durationSeconds > 0) {
+            metrics.throughput.transactionsPerSecond =
+                metrics.throughput.totalTransactions / metrics.throughput.durationSeconds;
+        }
+    }
+
+    // Calculate latency statistics
+    if (latencies.length > 0) {
+        const sortedLatencies = latencies.map(l => l.latencyMs).sort((a, b) => a - b);
+
+        metrics.latency.averageLatencyMs =
+            sortedLatencies.reduce((sum, lat) => sum + lat, 0) / sortedLatencies.length;
+        metrics.latency.minLatencyMs = sortedLatencies[0];
+        metrics.latency.maxLatencyMs = sortedLatencies[sortedLatencies.length - 1];
+
+        // Calculate percentiles
+        const p50Index = Math.floor(sortedLatencies.length * 0.50);
+        const p95Index = Math.floor(sortedLatencies.length * 0.95);
+        const p99Index = Math.floor(sortedLatencies.length * 0.99);
+
+        metrics.latency.p50LatencyMs = sortedLatencies[p50Index] || 0;
+        metrics.latency.p95LatencyMs = sortedLatencies[p95Index] || 0;
+        metrics.latency.p99LatencyMs = sortedLatencies[p99Index] || 0;
+
+        // Include transaction latencies for detailed analysis
+        metrics.latency.transactionLatencies = latencies;
+    }
+
+    // Calculate resource usage from snapshot
+    if (resourceSnapshot) {
+        const ordererCPUs = resourceSnapshot.orderers.map(o => o.cpuPercent).filter(v => v !== undefined);
+        const ordererMems = resourceSnapshot.orderers.map(o => o.memoryMB).filter(v => v !== undefined);
+        const peerCPUs = resourceSnapshot.peers.map(p => p.cpuPercent).filter(v => v !== undefined);
+        const peerMems = resourceSnapshot.peers.map(p => p.memoryMB).filter(v => v !== undefined);
+
+        const allCPUs = [...ordererCPUs, ...peerCPUs];
+        const allMems = [...ordererMems, ...peerMems];
+
+        if (allCPUs.length > 0) {
+            metrics.resourceUsage.averageCPU = allCPUs.reduce((sum, v) => sum + v, 0) / allCPUs.length;
+            metrics.resourceUsage.peakCPU = Math.max(...allCPUs);
+        }
+        if (allMems.length > 0) {
+            metrics.resourceUsage.averageMemory = allMems.reduce((sum, v) => sum + v, 0) / allMems.length;
+            metrics.resourceUsage.peakMemory = Math.max(...allMems);
+        }
+
+        metrics.resourceUsage.totalIO = resourceSnapshot.ioMBps || 0;
+        metrics.resourceUsage.ordererCount = resourceSnapshot.orderers.length;
+        metrics.resourceUsage.peerCount = resourceSnapshot.peers.length;
+        metrics.resourceUsage.snapshot = resourceSnapshot;
+    }
+
+    // Calculate fault tolerance metrics
+    metrics.faultTolerance.successRate =
+        metrics.throughput.totalTransactions > 0
+            ? (metrics.throughput.successfulTransactions / metrics.throughput.totalTransactions) * 100
+            : 0;
+    metrics.faultTolerance.failureCount = metrics.throughput.failedTransactions;
+
+    return metrics;
 }
 
 function broadcastNetworkOperationEvent(event) {
@@ -1216,14 +1512,29 @@ app.get('/api/fabric-2/raft-standard/pelaporan', async (req, res) => {
         // Mengambil data dari state database
         const result = await queryRecordsFromNetwork(networkId);
 
+        // Collect resource usage dari Docker containers
+        const resourceSnapshot = await collectResourceUsage(networkId);
+
+        // Calculate metrics dari records
+        const metrics = calculateMetricsFromRecords(result.records, resourceSnapshot);
+
+        const completedAt = new Date().toISOString();
+
         res.json({
             fetchedAt,
-            completedAt: new Date().toISOString(),
+            completedAt,
             success: result.success,
             networkId,
             label: 'Fabric 2 RAFT Standard',
             count: result.count,
-            records: result.records
+            records: result.records,
+            // Data metrics untuk analisis
+            metrics: {
+                throughput: metrics.throughput,
+                latency: metrics.latency,
+                resourceUsage: metrics.resourceUsage,
+                faultTolerance: metrics.faultTolerance
+            }
         });
     } catch (error) {
         console.error('Error querying from Fabric 2 RAFT Standard:', error);
@@ -1235,6 +1546,7 @@ app.get('/api/fabric-2/raft-standard/pelaporan', async (req, res) => {
             error: error instanceof Error ? error.message : String(error),
             count: 0,
             records: [],
+            metrics: null
         });
     }
 });
@@ -1291,14 +1603,29 @@ app.get('/api/fabric-2/raft-variant/pelaporan', async (req, res) => {
         // Mengambil data dari state database
         const result = await queryRecordsFromNetwork(networkId);
 
+        // Collect resource usage dari Docker containers
+        const resourceSnapshot = await collectResourceUsage(networkId);
+
+        // Calculate metrics dari records
+        const metrics = calculateMetricsFromRecords(result.records, resourceSnapshot);
+
+        const completedAt = new Date().toISOString();
+
         res.json({
             fetchedAt,
-            completedAt: new Date().toISOString(),
+            completedAt,
             success: result.success,
             networkId,
             label: 'Fabric 2 RAFT Variant',
             count: result.count,
-            records: result.records
+            records: result.records,
+            // Data metrics untuk analisis
+            metrics: {
+                throughput: metrics.throughput,
+                latency: metrics.latency,
+                resourceUsage: metrics.resourceUsage,
+                faultTolerance: metrics.faultTolerance
+            }
         });
     } catch (error) {
         console.error('Error querying from Fabric 2 RAFT Variant:', error);
@@ -1310,6 +1637,7 @@ app.get('/api/fabric-2/raft-variant/pelaporan', async (req, res) => {
             error: error instanceof Error ? error.message : String(error),
             count: 0,
             records: [],
+            metrics: null
         });
     }
 });
@@ -1366,14 +1694,29 @@ app.get('/api/fabric-3/raft-standard/pelaporan', async (req, res) => {
         // Mengambil data dari state database
         const result = await queryRecordsFromNetwork(networkId);
 
+        // Collect resource usage dari Docker containers
+        const resourceSnapshot = await collectResourceUsage(networkId);
+
+        // Calculate metrics dari records
+        const metrics = calculateMetricsFromRecords(result.records, resourceSnapshot);
+
+        const completedAt = new Date().toISOString();
+
         res.json({
             fetchedAt,
-            completedAt: new Date().toISOString(),
+            completedAt,
             success: result.success,
             networkId,
             label: 'Fabric 3 RAFT Standard',
             count: result.count,
-            records: result.records
+            records: result.records,
+            // Data metrics untuk analisis
+            metrics: {
+                throughput: metrics.throughput,
+                latency: metrics.latency,
+                resourceUsage: metrics.resourceUsage,
+                faultTolerance: metrics.faultTolerance
+            }
         });
     } catch (error) {
         console.error('Error querying from Fabric 3 RAFT Standard:', error);
@@ -1385,6 +1728,7 @@ app.get('/api/fabric-3/raft-standard/pelaporan', async (req, res) => {
             error: error instanceof Error ? error.message : String(error),
             count: 0,
             records: [],
+            metrics: null
         });
     }
 });
@@ -1441,14 +1785,29 @@ app.get('/api/fabric-3/raft-variant/pelaporan', async (req, res) => {
         // Mengambil data dari state database
         const result = await queryRecordsFromNetwork(networkId);
 
+        // Collect resource usage dari Docker containers
+        const resourceSnapshot = await collectResourceUsage(networkId);
+
+        // Calculate metrics dari records
+        const metrics = calculateMetricsFromRecords(result.records, resourceSnapshot);
+
+        const completedAt = new Date().toISOString();
+
         res.json({
             fetchedAt,
-            completedAt: new Date().toISOString(),
+            completedAt,
             success: result.success,
             networkId,
             label: 'Fabric 3 RAFT Variant',
             count: result.count,
-            records: result.records
+            records: result.records,
+            // Data metrics untuk analisis
+            metrics: {
+                throughput: metrics.throughput,
+                latency: metrics.latency,
+                resourceUsage: metrics.resourceUsage,
+                faultTolerance: metrics.faultTolerance
+            }
         });
     } catch (error) {
         console.error('Error querying from Fabric 3 RAFT Variant:', error);
@@ -1460,6 +1819,7 @@ app.get('/api/fabric-3/raft-variant/pelaporan', async (req, res) => {
             error: error instanceof Error ? error.message : String(error),
             count: 0,
             records: [],
+            metrics: null
         });
     }
 });
@@ -1582,531 +1942,6 @@ app.get('/api/list', (req, res) => {
         },
         categories: apiEndpoints
     });
-});
-
-// =============================================================================
-// SIMULATION METRICS API ENDPOINTS
-// =============================================================================
-
-/**
- * POST /api/metrics/simulation/start
- * Start a new simulation metrics collection
- */
-app.post('/api/metrics/simulation/start', async (req, res) => {
-    const startedAt = new Date().toISOString();
-
-    try {
-        const { loadCategory, totalTransactions, targetNetworks } = req.body;
-
-        // Validate input
-        if (!loadCategory || !totalTransactions || !Array.isArray(targetNetworks)) {
-            return res.status(400).json({
-                startedAt,
-                success: false,
-                error: 'Missing required fields: loadCategory, totalTransactions, targetNetworks'
-            });
-        }
-
-        // Create new simulation metrics
-        const simulationId = randomUUID();
-        const metrics = new SimulationMetrics(simulationId, {
-            loadCategory,
-            totalTransactions,
-            targetNetworks
-        });
-
-        // Start resource monitoring
-        const resourceMonitor = new ResourceMonitor(metrics, targetNetworks, 5000);
-        await resourceMonitor.start();
-
-        // Store active simulation
-        activeSimulations.set(simulationId, {
-            metrics,
-            resourceMonitor
-        });
-
-        console.log(`🚀 Started simulation ${simulationId} with ${totalTransactions} transactions`);
-
-        res.json({
-            startedAt,
-            success: true,
-            simulationId,
-            config: metrics.config
-        });
-    } catch (error) {
-        console.error('Error starting simulation metrics:', error);
-        res.status(500).json({
-            startedAt,
-            success: false,
-            error: error instanceof Error ? error.message : String(error)
-        });
-    }
-});
-
-/**
- * POST /api/metrics/simulation/:simulationId/transaction
- * Record a transaction in the simulation
- */
-app.post('/api/metrics/simulation/:simulationId/transaction', async (req, res) => {
-    const recordedAt = new Date().toISOString();
-    const { simulationId } = req.params;
-
-    try {
-        const simulation = activeSimulations.get(simulationId);
-
-        if (!simulation) {
-            return res.status(404).json({
-                recordedAt,
-                success: false,
-                error: `Simulation ${simulationId} not found or already completed`
-            });
-        }
-
-        const { txId, networkId, submittedAt, completedAt, success, error } = req.body;
-
-        // Record transaction
-        simulation.metrics.addTransaction({
-            txId,
-            networkId,
-            submittedAt,
-            completedAt,
-            success,
-            error
-        });
-
-        res.json({
-            recordedAt,
-            success: true,
-            simulationId,
-            totalTransactions: simulation.metrics.throughput.totalTransactions
-        });
-    } catch (error) {
-        console.error('Error recording transaction:', error);
-        res.status(500).json({
-            recordedAt,
-            success: false,
-            error: error instanceof Error ? error.message : String(error)
-        });
-    }
-});
-
-/**
- * POST /api/metrics/simulation/:simulationId/complete
- * Complete a simulation and save metrics
- */
-app.post('/api/metrics/simulation/:simulationId/complete', async (req, res) => {
-    const completedAt = new Date().toISOString();
-    const { simulationId } = req.params;
-
-    try {
-        const simulation = activeSimulations.get(simulationId);
-
-        if (!simulation) {
-            return res.status(404).json({
-                completedAt,
-                success: false,
-                error: `Simulation ${simulationId} not found`
-            });
-        }
-
-        // Stop resource monitoring
-        simulation.resourceMonitor.stop();
-
-        // Collect final resource snapshot
-        const finalSnapshot = await collectResourceUsage(simulation.metrics.config.targetNetworks);
-        simulation.metrics.resourceUsage.snapshots.push(finalSnapshot);
-
-        // Complete metrics calculation
-        simulation.metrics.complete();
-
-        // Save metrics to file
-        await saveMetrics(simulation.metrics);
-
-        // Remove from active simulations
-        activeSimulations.delete(simulationId);
-
-        console.log(`✅ Completed simulation ${simulationId}`);
-
-        res.json({
-            completedAt,
-            success: true,
-            simulationId,
-            metrics: simulation.metrics.toJSON()
-        });
-    } catch (error) {
-        console.error('Error completing simulation:', error);
-        res.status(500).json({
-            completedAt,
-            success: false,
-            error: error instanceof Error ? error.message : String(error)
-        });
-    }
-});
-
-/**
- * GET /api/metrics/simulation/:simulationId
- * Get metrics for a specific simulation
- */
-app.get('/api/metrics/simulation/:simulationId', async (req, res) => {
-    const fetchedAt = new Date().toISOString();
-    const { simulationId } = req.params;
-
-    try {
-        // Check if simulation is still active
-        const activeSimulation = activeSimulations.get(simulationId);
-        if (activeSimulation) {
-            // Return current metrics (not final)
-            activeSimulation.metrics.calculateMetrics();
-            return res.json({
-                fetchedAt,
-                success: true,
-                simulationId,
-                status: 'running',
-                metrics: activeSimulation.metrics.toJSON()
-            });
-        }
-
-        // Fetch from saved metrics
-        const metrics = await getMetricsBySimulationId(simulationId);
-
-        if (!metrics) {
-            return res.status(404).json({
-                fetchedAt,
-                success: false,
-                error: `Simulation ${simulationId} not found`
-            });
-        }
-
-        res.json({
-            fetchedAt,
-            success: true,
-            simulationId,
-            status: 'completed',
-            metrics
-        });
-    } catch (error) {
-        console.error('Error fetching simulation metrics:', error);
-        res.status(500).json({
-            fetchedAt,
-            success: false,
-            error: error instanceof Error ? error.message : String(error)
-        });
-    }
-});
-
-/**
- * GET /api/metrics/simulations
- * Get all simulation metrics
- * Query params:
- * - category: Filter by load category (light, medium, heavy, ringan, sedang, tinggi)
- */
-app.get('/api/metrics/simulations', async (req, res) => {
-    const fetchedAt = new Date().toISOString();
-
-    try {
-        let allMetrics = await readAllMetrics();
-
-        // Filter by category if specified
-        const { category } = req.query;
-        if (category) {
-            const categoryLower = category.toLowerCase();
-            // Support both English and Indonesian category names
-            const categoryMap = {
-                'light': 'light',
-                'ringan': 'light',
-                'medium': 'medium',
-                'sedang': 'medium',
-                'heavy': 'heavy',
-                'tinggi': 'heavy'
-            };
-
-            const normalizedCategory = categoryMap[categoryLower];
-            if (normalizedCategory) {
-                allMetrics = allMetrics.filter(sim =>
-                    sim.config?.loadCategory === normalizedCategory
-                );
-            }
-        }
-
-        res.json({
-            fetchedAt,
-            success: true,
-            count: allMetrics.length,
-            simulations: allMetrics,
-            filteredBy: category || null
-        });
-    } catch (error) {
-        console.error('Error fetching all simulations:', error);
-        res.status(500).json({
-            fetchedAt,
-            success: false,
-            error: error instanceof Error ? error.message : String(error),
-            count: 0,
-            simulations: []
-        });
-    }
-});
-
-/**
- * GET /api/metrics/combined
- * Get combined metrics data across all simulations for a specific network
- * Query params:
- * - network: Network ID (channel-standard, channel-variant, channel-fabric3-standard, channel-fabric3-variant)
- * - category: Filter by load category (light, medium, heavy)
- */
-app.get('/api/metrics/combined', async (req, res) => {
-    const fetchedAt = new Date().toISOString();
-
-    try {
-        const { network, category } = req.query;
-
-        let allMetrics = await readAllMetrics();
-
-        // Filter by category if specified
-        if (category) {
-            const categoryLower = category.toLowerCase();
-            const categoryMap = {
-                'light': 'light',
-                'ringan': 'light',
-                'medium': 'medium',
-                'sedang': 'medium',
-                'heavy': 'heavy',
-                'tinggi': 'heavy'
-            };
-            const normalizedCategory = categoryMap[categoryLower];
-            if (normalizedCategory) {
-                allMetrics = allMetrics.filter(sim =>
-                    sim.config?.loadCategory === normalizedCategory
-                );
-            }
-        }
-
-        // Network name mapping for display
-        const networkNames = {
-            'channel-standard': 'Fabric 2 RAFT Standard',
-            'channel-variant': 'Fabric 2 RAFT Variant',
-            'channel-fabric3-standard': 'Fabric 3 RAFT Standard',
-            'channel-fabric3-variant': 'Fabric 3 RAFT Variant'
-        };
-
-        // If network is specified, filter and aggregate data for that network
-        if (network) {
-            // Collect all transactions for this network
-            const transactions = [];
-            const resourceSnapshots = [];
-            let totalTransactions = 0;
-            let successfulTransactions = 0;
-            let failedTransactions = 0;
-
-            allMetrics.forEach(sim => {
-                // Filter transactions by network
-                if (sim.latency && sim.latency.transactions) {
-                    const networkTxs = sim.latency.transactions.filter(tx => tx.networkId === network);
-                    transactions.push(...networkTxs);
-
-                    networkTxs.forEach(tx => {
-                        totalTransactions++;
-                        if (tx.success) {
-                            successfulTransactions++;
-                        } else {
-                            failedTransactions++;
-                        }
-                    });
-                }
-
-                // Collect resource snapshots
-                if (sim.resourceUsage && sim.resourceUsage.snapshots) {
-                    resourceSnapshots.push(...sim.resourceUsage.snapshots);
-                }
-            });
-
-            // Calculate combined metrics
-            let averageLatencyMs = 0;
-            let minLatencyMs = 0;
-            let maxLatencyMs = 0;
-            let p50LatencyMs = 0;
-            let p95LatencyMs = 0;
-            let p99LatencyMs = 0;
-            let transactionsPerSecond = 0;
-            let durationSeconds = 0;
-
-            if (transactions.length > 0) {
-                const successfulTxs = transactions.filter(tx => tx.success);
-                const latencies = successfulTxs.map(tx => tx.latencyMs).sort((a, b) => a - b);
-
-                if (latencies.length > 0) {
-                    averageLatencyMs = latencies.reduce((sum, lat) => sum + lat, 0) / latencies.length;
-                    minLatencyMs = latencies[0];
-                    maxLatencyMs = latencies[latencies.length - 1];
-
-                    const p50Index = Math.floor(latencies.length * 0.50);
-                    const p95Index = Math.floor(latencies.length * 0.95);
-                    const p99Index = Math.floor(latencies.length * 0.99);
-
-                    p50LatencyMs = latencies[p50Index] || 0;
-                    p95LatencyMs = latencies[p95Index] || 0;
-                    p99LatencyMs = latencies[p99Index] || 0;
-                }
-
-                // Calculate TPS
-                const timestamps = transactions.map(tx => ({
-                    submitted: new Date(tx.submittedAt).getTime(),
-                    completed: new Date(tx.completedAt).getTime()
-                }));
-                const startTime = Math.min(...timestamps.map(t => t.submitted));
-                const endTime = Math.max(...timestamps.map(t => t.completed));
-                durationSeconds = (endTime - startTime) / 1000;
-
-                if (durationSeconds > 0) {
-                    transactionsPerSecond = totalTransactions / durationSeconds;
-                }
-            }
-
-            // Calculate average resource usage
-            let averageCPU = 0;
-            let averageMemory = 0;
-            let peakCPU = 0;
-            let peakMemory = 0;
-
-            if (resourceSnapshots.length > 0) {
-                const cpuValues = resourceSnapshots.map(s => s.cpuPercent).filter(v => v !== undefined);
-                const memValues = resourceSnapshots.map(s => s.memoryMB).filter(v => v !== undefined);
-
-                if (cpuValues.length > 0) {
-                    averageCPU = cpuValues.reduce((sum, v) => sum + v, 0) / cpuValues.length;
-                    peakCPU = Math.max(...cpuValues);
-                }
-                if (memValues.length > 0) {
-                    averageMemory = memValues.reduce((sum, v) => sum + v, 0) / memValues.length;
-                    peakMemory = Math.max(...memValues);
-                }
-            }
-
-            res.json({
-                fetchedAt,
-                success: true,
-                network,
-                networkName: networkNames[network] || network,
-                category: category || 'all',
-                simulationCount: allMetrics.length,
-                throughput: {
-                    totalTransactions,
-                    successfulTransactions,
-                    failedTransactions,
-                    transactionsPerSecond,
-                    durationSeconds
-                },
-                latency: {
-                    transactionCount: transactions.length,
-                    averageLatencyMs,
-                    minLatencyMs,
-                    maxLatencyMs,
-                    p50LatencyMs,
-                    p95LatencyMs,
-                    p99LatencyMs
-                },
-                resourceUsage: {
-                    snapshotCount: resourceSnapshots.length,
-                    averageCPU,
-                    averageMemory,
-                    peakCPU,
-                    peakMemory
-                },
-                transactions: transactions.slice(0, 100) // Return first 100 transactions for detail view
-            });
-        } else {
-            // Return summary for all networks
-            const networkSummary = {};
-            const availableNetworks = ['channel-standard', 'channel-variant', 'channel-fabric3-standard', 'channel-fabric3-variant'];
-
-            availableNetworks.forEach(netId => {
-                networkSummary[netId] = {
-                    networkId: netId,
-                    networkName: networkNames[netId],
-                    totalTransactions: 0,
-                    successfulTransactions: 0,
-                    averageLatencyMs: 0,
-                    transactionsPerSecond: 0
-                };
-            });
-
-            allMetrics.forEach(sim => {
-                if (sim.latency && sim.latency.transactions) {
-                    sim.latency.transactions.forEach(tx => {
-                        if (networkSummary[tx.networkId]) {
-                            networkSummary[tx.networkId].totalTransactions++;
-                            if (tx.success) {
-                                networkSummary[tx.networkId].successfulTransactions++;
-                            }
-                        }
-                    });
-                }
-
-                // Add per-network latency and TPS
-                if (sim.latency && sim.latency.perNetworkLatency) {
-                    Object.entries(sim.latency.perNetworkLatency).forEach(([netId, avgLat]) => {
-                        if (networkSummary[netId]) {
-                            // Simple averaging across simulations
-                            networkSummary[netId].averageLatencyMs =
-                                (networkSummary[netId].averageLatencyMs + avgLat) / 2 || avgLat;
-                        }
-                    });
-                }
-
-                if (sim.throughput && sim.throughput.perNetworkTPS) {
-                    Object.entries(sim.throughput.perNetworkTPS).forEach(([netId, tps]) => {
-                        if (networkSummary[netId]) {
-                            networkSummary[netId].transactionsPerSecond =
-                                (networkSummary[netId].transactionsPerSecond + tps) / 2 || tps;
-                        }
-                    });
-                }
-            });
-
-            res.json({
-                fetchedAt,
-                success: true,
-                category: category || 'all',
-                simulationCount: allMetrics.length,
-                networks: Object.values(networkSummary).filter(n => n.totalTransactions > 0)
-            });
-        }
-    } catch (error) {
-        console.error('Error fetching combined metrics:', error);
-        res.status(500).json({
-            fetchedAt,
-            success: false,
-            error: error instanceof Error ? error.message : String(error)
-        });
-    }
-});
-
-/**
- * GET /api/metrics/resource-usage
- * Get current resource usage snapshot
- */
-app.get('/api/metrics/resource-usage', async (req, res) => {
-    const fetchedAt = new Date().toISOString();
-
-    try {
-        const { networks } = req.query;
-        const networkIds = networks ? networks.split(',') : [];
-
-        const snapshot = await collectResourceUsage(networkIds);
-
-        res.json({
-            fetchedAt,
-            success: true,
-            snapshot
-        });
-    } catch (error) {
-        console.error('Error fetching resource usage:', error);
-        res.status(500).json({
-            fetchedAt,
-            success: false,
-            error: error instanceof Error ? error.message : String(error)
-        });
-    }
 });
 
 app.get('*', (req, res) => {

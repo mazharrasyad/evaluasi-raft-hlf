@@ -24,6 +24,10 @@ const EXEC_MAX_BUFFER = 20 * 1024 * 1024;
 
 const dataRoot = path.resolve(__dirname, '../data');
 const simulationsDataPath = path.resolve(dataRoot, 'simulations.jsonl');
+const throughputDataPath = path.resolve(dataRoot, 'throughput-metrics.jsonl');
+
+// In-memory storage untuk simulasi yang sedang berjalan
+const activeSimulations = new Map();
 
 const networkOperationEmitter = new EventEmitter();
 networkOperationEmitter.setMaxListeners(0);
@@ -61,6 +65,42 @@ async function clearSimulationData() {
         await fs.writeFile(simulationsDataPath, '', 'utf8');
     } catch (error) {
         console.error('Failed to clear simulation data:', error);
+        throw error;
+    }
+}
+
+// Helper functions untuk throughput metrics storage
+async function appendThroughputData(data) {
+    try {
+        await fs.mkdir(dataRoot, { recursive: true });
+        const jsonLine = JSON.stringify(data) + '\n';
+        await fs.appendFile(throughputDataPath, jsonLine, 'utf8');
+    } catch (error) {
+        console.error('Failed to append throughput data:', error);
+        throw error;
+    }
+}
+
+async function readThroughputData() {
+    try {
+        const fileContent = await fs.readFile(throughputDataPath, 'utf8');
+        const lines = fileContent.trim().split('\n').filter(Boolean);
+        return lines.map(line => JSON.parse(line));
+    } catch (error) {
+        if (error.code === 'ENOENT') {
+            return [];
+        }
+        console.error('Failed to read throughput data:', error);
+        throw error;
+    }
+}
+
+async function clearThroughputData() {
+    try {
+        await fs.mkdir(dataRoot, { recursive: true });
+        await fs.writeFile(throughputDataPath, '', 'utf8');
+    } catch (error) {
+        console.error('Failed to clear throughput data:', error);
         throw error;
     }
 }
@@ -1041,6 +1081,7 @@ const viewFiles = {
         dataAnalysis: path.resolve(viewsRoot, 'penelitian/analisis-data.html'),
         dataAnalysisSubsections: {
             throughput: path.resolve(viewsRoot, 'penelitian/analisis-data/throughput.html'),
+            throughputPerData: path.resolve(viewsRoot, 'penelitian/analisis-data/throughput-per-data.html'),
             latency: path.resolve(viewsRoot, 'penelitian/analisis-data/latency.html'),
             resourceUsage: path.resolve(viewsRoot, 'penelitian/analisis-data/resource-usage.html'),
             faultTolerance: path.resolve(viewsRoot, 'penelitian/analisis-data/fault-tolerance.html'),
@@ -1112,6 +1153,10 @@ app.get('/penelitian/analisis-data', (req, res) => {
 
 app.get('/penelitian/analisis-data/throughput', (req, res) => {
     res.sendFile(viewFiles.research.dataAnalysisSubsections.throughput);
+});
+
+app.get('/penelitian/analisis-data/throughput-per-data', (req, res) => {
+    res.sendFile(viewFiles.research.dataAnalysisSubsections.throughputPerData);
 });
 
 app.get('/penelitian/analisis-data/latency', (req, res) => {
@@ -1820,6 +1865,439 @@ app.get('/api/fabric-3/raft-variant/pelaporan', async (req, res) => {
             count: 0,
             records: [],
             metrics: null
+        });
+    }
+});
+
+// ============================================================================
+// METRICS API ENDPOINTS - Untuk pengukuran throughput per data
+// ============================================================================
+
+// POST /api/metrics/simulation/start - Memulai simulasi baru
+app.post('/api/metrics/simulation/start', async (req, res) => {
+    const startedAt = new Date().toISOString();
+
+    try {
+        const { loadCategory, totalTransactions, targetNetworks } = req.body;
+
+        // Generate unique simulation ID
+        const simulationId = `sim-${Date.now()}-${randomUUID().slice(0, 8)}`;
+
+        // Create simulation record
+        const simulation = {
+            simulationId,
+            startedAt,
+            loadCategory: loadCategory || 'unknown',
+            totalTransactions: totalTransactions || 0,
+            targetNetworks: targetNetworks || [],
+            status: 'running',
+            transactions: [],
+            completedAt: null,
+            metrics: null
+        };
+
+        // Store in memory
+        activeSimulations.set(simulationId, simulation);
+
+        res.json({
+            success: true,
+            simulationId,
+            startedAt,
+            message: 'Simulation started successfully'
+        });
+    } catch (error) {
+        console.error('Error starting simulation:', error);
+        res.status(500).json({
+            success: false,
+            error: error instanceof Error ? error.message : String(error)
+        });
+    }
+});
+
+// POST /api/metrics/simulation/:simulationId/transaction - Mencatat transaksi
+app.post('/api/metrics/simulation/:simulationId/transaction', async (req, res) => {
+    const { simulationId } = req.params;
+    const recordedAt = new Date().toISOString();
+
+    try {
+        const simulation = activeSimulations.get(simulationId);
+
+        if (!simulation) {
+            return res.status(404).json({
+                success: false,
+                error: 'Simulation not found'
+            });
+        }
+
+        const { txId, networkId, submittedAt, completedAt, success, error: txError } = req.body;
+
+        // Calculate latency
+        const submitTime = new Date(submittedAt).getTime();
+        const completeTime = new Date(completedAt).getTime();
+        const latencyMs = completeTime - submitTime;
+
+        // Calculate time from simulation start
+        const simulationStartTime = new Date(simulation.startedAt).getTime();
+        const timeFromStartMs = submitTime - simulationStartTime;
+        const timeFromStartSeconds = timeFromStartMs / 1000;
+
+        // Transaction record
+        const transactionRecord = {
+            index: simulation.transactions.length + 1,
+            txId,
+            networkId,
+            submittedAt,
+            completedAt,
+            latencyMs,
+            timeFromStartMs,
+            timeFromStartSeconds,
+            success: success !== false,
+            error: txError || null,
+            recordedAt
+        };
+
+        // Add to simulation
+        simulation.transactions.push(transactionRecord);
+
+        res.json({
+            success: true,
+            simulationId,
+            transactionIndex: transactionRecord.index,
+            latencyMs,
+            timeFromStartSeconds
+        });
+    } catch (error) {
+        console.error('Error recording transaction:', error);
+        res.status(500).json({
+            success: false,
+            error: error instanceof Error ? error.message : String(error)
+        });
+    }
+});
+
+// POST /api/metrics/simulation/:simulationId/complete - Menyelesaikan simulasi
+app.post('/api/metrics/simulation/:simulationId/complete', async (req, res) => {
+    const { simulationId } = req.params;
+    const completedAt = new Date().toISOString();
+
+    try {
+        const simulation = activeSimulations.get(simulationId);
+
+        if (!simulation) {
+            return res.status(404).json({
+                success: false,
+                error: 'Simulation not found'
+            });
+        }
+
+        // Update simulation status
+        simulation.status = 'completed';
+        simulation.completedAt = completedAt;
+
+        // Calculate metrics per network
+        const networkMetrics = {};
+        const transactions = simulation.transactions;
+
+        // Group transactions by network
+        transactions.forEach(tx => {
+            if (!networkMetrics[tx.networkId]) {
+                networkMetrics[tx.networkId] = {
+                    networkId: tx.networkId,
+                    transactions: [],
+                    totalTransactions: 0,
+                    successfulTransactions: 0,
+                    failedTransactions: 0,
+                    latencies: [],
+                    throughputPerData: []
+                };
+            }
+
+            const nm = networkMetrics[tx.networkId];
+            nm.transactions.push(tx);
+            nm.totalTransactions++;
+
+            if (tx.success) {
+                nm.successfulTransactions++;
+            } else {
+                nm.failedTransactions++;
+            }
+
+            if (tx.latencyMs >= 0) {
+                nm.latencies.push(tx.latencyMs);
+            }
+
+            // Throughput per data: waktu (detik) dari awal simulasi sampai transaksi selesai
+            nm.throughputPerData.push({
+                index: tx.index,
+                txId: tx.txId,
+                timeFromStartSeconds: tx.timeFromStartSeconds,
+                latencyMs: tx.latencyMs,
+                success: tx.success
+            });
+        });
+
+        // Calculate overall metrics for each network
+        Object.values(networkMetrics).forEach(nm => {
+            // Sort throughputPerData by index
+            nm.throughputPerData.sort((a, b) => a.index - b.index);
+
+            // Calculate latency stats
+            if (nm.latencies.length > 0) {
+                const sorted = [...nm.latencies].sort((a, b) => a - b);
+                nm.averageLatencyMs = sorted.reduce((a, b) => a + b, 0) / sorted.length;
+                nm.minLatencyMs = sorted[0];
+                nm.maxLatencyMs = sorted[sorted.length - 1];
+                nm.p50LatencyMs = sorted[Math.floor(sorted.length * 0.50)] || 0;
+                nm.p95LatencyMs = sorted[Math.floor(sorted.length * 0.95)] || 0;
+                nm.p99LatencyMs = sorted[Math.floor(sorted.length * 0.99)] || 0;
+            }
+
+            // Calculate TPS
+            if (nm.transactions.length > 0) {
+                const startTime = Math.min(...nm.transactions.map(t => new Date(t.submittedAt).getTime()));
+                const endTime = Math.max(...nm.transactions.map(t => new Date(t.completedAt).getTime()));
+                nm.durationSeconds = (endTime - startTime) / 1000;
+                nm.transactionsPerSecond = nm.durationSeconds > 0
+                    ? nm.totalTransactions / nm.durationSeconds
+                    : 0;
+            }
+
+            // Cleanup large data
+            delete nm.latencies;
+            delete nm.transactions;
+        });
+
+        // Overall simulation metrics
+        const allLatencies = transactions.map(t => t.latencyMs).filter(l => l >= 0);
+        const sortedLatencies = [...allLatencies].sort((a, b) => a - b);
+
+        simulation.metrics = {
+            throughput: {
+                totalTransactions: transactions.length,
+                successfulTransactions: transactions.filter(t => t.success).length,
+                failedTransactions: transactions.filter(t => !t.success).length,
+                transactionsPerSecond: 0,
+                durationSeconds: 0
+            },
+            latency: {
+                averageLatencyMs: sortedLatencies.length > 0
+                    ? sortedLatencies.reduce((a, b) => a + b, 0) / sortedLatencies.length
+                    : 0,
+                minLatencyMs: sortedLatencies[0] || 0,
+                maxLatencyMs: sortedLatencies[sortedLatencies.length - 1] || 0,
+                p50LatencyMs: sortedLatencies[Math.floor(sortedLatencies.length * 0.50)] || 0,
+                p95LatencyMs: sortedLatencies[Math.floor(sortedLatencies.length * 0.95)] || 0,
+                p99LatencyMs: sortedLatencies[Math.floor(sortedLatencies.length * 0.99)] || 0
+            },
+            resourceUsage: {
+                averageCPU: 0,
+                averageMemory: 0,
+                totalIO: 0
+            },
+            networkMetrics
+        };
+
+        // Calculate overall TPS
+        if (transactions.length > 0) {
+            const startTime = Math.min(...transactions.map(t => new Date(t.submittedAt).getTime()));
+            const endTime = Math.max(...transactions.map(t => new Date(t.completedAt).getTime()));
+            simulation.metrics.throughput.durationSeconds = (endTime - startTime) / 1000;
+            simulation.metrics.throughput.transactionsPerSecond =
+                simulation.metrics.throughput.durationSeconds > 0
+                    ? transactions.length / simulation.metrics.throughput.durationSeconds
+                    : 0;
+        }
+
+        // Save to file storage
+        const throughputRecord = {
+            simulationId: simulation.simulationId,
+            startedAt: simulation.startedAt,
+            completedAt: simulation.completedAt,
+            loadCategory: simulation.loadCategory,
+            targetNetworks: simulation.targetNetworks,
+            metrics: simulation.metrics,
+            throughputPerData: Object.fromEntries(
+                Object.entries(networkMetrics).map(([networkId, nm]) => [
+                    networkId,
+                    nm.throughputPerData
+                ])
+            )
+        };
+
+        await appendThroughputData(throughputRecord);
+
+        // Remove from active simulations after some time
+        setTimeout(() => {
+            activeSimulations.delete(simulationId);
+        }, 60000); // Keep for 1 minute for potential queries
+
+        res.json({
+            success: true,
+            simulationId,
+            completedAt,
+            metrics: simulation.metrics,
+            message: 'Simulation completed and metrics saved'
+        });
+    } catch (error) {
+        console.error('Error completing simulation:', error);
+        res.status(500).json({
+            success: false,
+            error: error instanceof Error ? error.message : String(error)
+        });
+    }
+});
+
+// GET /api/metrics/simulation/:simulationId - Mengambil data simulasi
+app.get('/api/metrics/simulation/:simulationId', async (req, res) => {
+    const { simulationId } = req.params;
+
+    try {
+        // Check active simulations first
+        const activeSimulation = activeSimulations.get(simulationId);
+        if (activeSimulation) {
+            return res.json({
+                success: true,
+                simulation: activeSimulation,
+                source: 'active'
+            });
+        }
+
+        // Check file storage
+        const allData = await readThroughputData();
+        const simulation = allData.find(s => s.simulationId === simulationId);
+
+        if (simulation) {
+            return res.json({
+                success: true,
+                simulation,
+                source: 'stored'
+            });
+        }
+
+        res.status(404).json({
+            success: false,
+            error: 'Simulation not found'
+        });
+    } catch (error) {
+        console.error('Error getting simulation:', error);
+        res.status(500).json({
+            success: false,
+            error: error instanceof Error ? error.message : String(error)
+        });
+    }
+});
+
+// GET /api/metrics/simulations - Mengambil semua data simulasi
+app.get('/api/metrics/simulations', async (req, res) => {
+    try {
+        const allData = await readThroughputData();
+
+        // Optional filters
+        const { loadCategory, networkId, limit } = req.query;
+
+        let filtered = allData;
+
+        if (loadCategory) {
+            filtered = filtered.filter(s => s.loadCategory === loadCategory);
+        }
+
+        if (networkId) {
+            filtered = filtered.filter(s =>
+                s.targetNetworks && s.targetNetworks.includes(networkId)
+            );
+        }
+
+        // Sort by date descending
+        filtered.sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt));
+
+        // Apply limit
+        if (limit && !isNaN(parseInt(limit))) {
+            filtered = filtered.slice(0, parseInt(limit));
+        }
+
+        res.json({
+            success: true,
+            count: filtered.length,
+            simulations: filtered
+        });
+    } catch (error) {
+        console.error('Error getting simulations:', error);
+        res.status(500).json({
+            success: false,
+            error: error instanceof Error ? error.message : String(error)
+        });
+    }
+});
+
+// GET /api/metrics/throughput-per-data - Mengambil data throughput per data untuk grafik
+app.get('/api/metrics/throughput-per-data', async (req, res) => {
+    try {
+        const allData = await readThroughputData();
+
+        // Optional filters
+        const { loadCategory, networkId } = req.query;
+
+        let filtered = allData;
+
+        if (loadCategory) {
+            filtered = filtered.filter(s => s.loadCategory === loadCategory);
+        }
+
+        // Build throughput per data per network
+        const networkThroughput = {};
+
+        filtered.forEach(simulation => {
+            if (simulation.throughputPerData) {
+                Object.entries(simulation.throughputPerData).forEach(([netId, dataPoints]) => {
+                    // Filter by networkId if specified
+                    if (networkId && netId !== networkId) return;
+
+                    if (!networkThroughput[netId]) {
+                        networkThroughput[netId] = {
+                            networkId: netId,
+                            simulations: []
+                        };
+                    }
+
+                    networkThroughput[netId].simulations.push({
+                        simulationId: simulation.simulationId,
+                        loadCategory: simulation.loadCategory,
+                        startedAt: simulation.startedAt,
+                        completedAt: simulation.completedAt,
+                        dataPoints
+                    });
+                });
+            }
+        });
+
+        res.json({
+            success: true,
+            networks: Object.values(networkThroughput)
+        });
+    } catch (error) {
+        console.error('Error getting throughput per data:', error);
+        res.status(500).json({
+            success: false,
+            error: error instanceof Error ? error.message : String(error)
+        });
+    }
+});
+
+// DELETE /api/metrics/clear - Menghapus semua data metrics (untuk reset)
+app.delete('/api/metrics/clear', async (req, res) => {
+    try {
+        await clearThroughputData();
+        activeSimulations.clear();
+
+        res.json({
+            success: true,
+            message: 'All metrics data cleared'
+        });
+    } catch (error) {
+        console.error('Error clearing metrics:', error);
+        res.status(500).json({
+            success: false,
+            error: error instanceof Error ? error.message : String(error)
         });
     }
 });

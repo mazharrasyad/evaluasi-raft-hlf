@@ -79,6 +79,258 @@
                             </div>
                         </section>
 
+                        <!-- Parameter yang Mempengaruhi Throughput -->
+                        <section class="rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20 backdrop-blur-sm">
+                            <header class="flex flex-col gap-2 border-b border-white/10 pb-6">
+                                <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Parameter yang Mempengaruhi Throughput</h2>
+                                <p class="text-sm text-textdark/70">Berikut adalah parameter dan data dari simulasi transaksi yang mempengaruhi nilai throughput pada sistem blockchain.</p>
+                            </header>
+
+                            <div class="mt-6 space-y-6">
+                                <!-- Rumus Perhitungan TPS -->
+                                <div class="rounded-2xl border border-primary/30 bg-primary/10 p-6">
+                                    <h3 class="mb-3 text-lg font-semibold text-primary">Rumus Perhitungan Throughput</h3>
+                                    <div class="rounded-lg border border-white/10 bg-surface/70 p-4 text-center">
+                                        <p class="text-xl font-mono font-bold text-textdark">
+                                            TPS = Total Transaksi / Durasi (detik)
+                                        </p>
+                                    </div>
+                                    <p class="mt-3 text-sm text-textdark/70">
+                                        Dimana <strong>Total Transaksi</strong> adalah jumlah transaksi yang berhasil diproses, dan <strong>Durasi</strong> adalah selisih waktu antara transaksi pertama dikirim (<code class="text-primary/80">submittedAt</code>) hingga transaksi terakhir selesai (<code class="text-primary/80">completedAt</code>).
+                                    </p>
+                                </div>
+
+                                <!-- Parameter Utama -->
+                                <div class="grid gap-6 md:grid-cols-2">
+                                    <!-- Kategori Beban -->
+                                    <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
+                                        <div class="mb-4 flex items-center gap-3">
+                                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/20">
+                                                <svg class="h-5 w-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                                                </svg>
+                                            </div>
+                                            <h3 class="text-lg font-semibold text-textdark">Kategori Beban</h3>
+                                        </div>
+                                        <p class="mb-4 text-sm text-textdark/70">
+                                            Kategori beban menentukan jumlah transaksi dan target TPS yang diharapkan:
+                                        </p>
+                                        <div class="space-y-3">
+                                            <div class="flex items-center justify-between rounded-lg bg-green-500/10 px-4 py-3 border border-green-500/20">
+                                                <div>
+                                                    <span class="text-sm font-semibold text-green-400">Ringan (Light)</span>
+                                                    <p class="text-xs text-textdark/60">100-500 transaksi</p>
+                                                </div>
+                                                <span class="text-xs font-mono text-green-400/80">10-20 TPS</span>
+                                            </div>
+                                            <div class="flex items-center justify-between rounded-lg bg-yellow-500/10 px-4 py-3 border border-yellow-500/20">
+                                                <div>
+                                                    <span class="text-sm font-semibold text-yellow-400">Sedang (Medium)</span>
+                                                    <p class="text-xs text-textdark/60">1.000-3.000 transaksi</p>
+                                                </div>
+                                                <span class="text-xs font-mono text-yellow-400/80">50-100 TPS</span>
+                                            </div>
+                                            <div class="flex items-center justify-between rounded-lg bg-red-500/10 px-4 py-3 border border-red-500/20">
+                                                <div>
+                                                    <span class="text-sm font-semibold text-red-400">Tinggi (Heavy)</span>
+                                                    <p class="text-xs text-textdark/60">5.000-10.000 transaksi</p>
+                                                </div>
+                                                <span class="text-xs font-mono text-red-400/80">200-500 TPS</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Distribusi Timestamp -->
+                                    <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
+                                        <div class="mb-4 flex items-center gap-3">
+                                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary/20">
+                                                <svg class="h-5 w-5 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                </svg>
+                                            </div>
+                                            <h3 class="text-lg font-semibold text-textdark">Distribusi Timestamp</h3>
+                                        </div>
+                                        <p class="mb-4 text-sm text-textdark/70">
+                                            Pola distribusi waktu pengiriman transaksi mempengaruhi beban jaringan:
+                                        </p>
+                                        <div class="space-y-3">
+                                            <div class="rounded-lg bg-surface/50 px-4 py-3 border border-white/10">
+                                                <span class="text-sm font-semibold text-green-400">Beban Ringan</span>
+                                                <p class="text-xs text-textdark/60 mt-1">Transaksi terdistribusi merata sepanjang 24 jam</p>
+                                            </div>
+                                            <div class="rounded-lg bg-surface/50 px-4 py-3 border border-white/10">
+                                                <span class="text-sm font-semibold text-yellow-400">Beban Sedang</span>
+                                                <p class="text-xs text-textdark/60 mt-1">Terkonsentrasi pada jam kerja (08:00 - 16:00)</p>
+                                            </div>
+                                            <div class="rounded-lg bg-surface/50 px-4 py-3 border border-white/10">
+                                                <span class="text-sm font-semibold text-red-400">Beban Tinggi</span>
+                                                <p class="text-xs text-textdark/60 mt-1">Burst mode dalam rentang 2-4 jam (simulasi peak load)</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Faktor yang Mempengaruhi TPS -->
+                                <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
+                                    <h3 class="mb-4 text-lg font-semibold text-textdark">Faktor-faktor yang Mempengaruhi Nilai TPS</h3>
+                                    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                                        <!-- Jumlah Transaksi -->
+                                        <div class="rounded-xl border border-white/10 bg-surface/50 p-4">
+                                            <div class="mb-2 flex items-center gap-2">
+                                                <span class="flex h-6 w-6 items-center justify-center rounded-full bg-primary/20 text-xs font-bold text-primary">1</span>
+                                                <span class="text-sm font-semibold text-textdark">Jumlah Transaksi</span>
+                                            </div>
+                                            <p class="text-xs text-textdark/60">
+                                                Semakin banyak transaksi yang dikirim dalam satu simulasi, semakin akurat pengukuran throughput karena variasi data lebih representatif.
+                                            </p>
+                                        </div>
+
+                                        <!-- Network Configuration -->
+                                        <div class="rounded-xl border border-white/10 bg-surface/50 p-4">
+                                            <div class="mb-2 flex items-center gap-2">
+                                                <span class="flex h-6 w-6 items-center justify-center rounded-full bg-primary/20 text-xs font-bold text-primary">2</span>
+                                                <span class="text-sm font-semibold text-textdark">Konfigurasi Network</span>
+                                            </div>
+                                            <p class="text-xs text-textdark/60">
+                                                Fabric 2 vs Fabric 3 dan RAFT Standard vs Variant memiliki karakteristik konsensus yang berbeda, mempengaruhi kecepatan validasi transaksi.
+                                            </p>
+                                        </div>
+
+                                        <!-- Block Size -->
+                                        <div class="rounded-xl border border-white/10 bg-surface/50 p-4">
+                                            <div class="mb-2 flex items-center gap-2">
+                                                <span class="flex h-6 w-6 items-center justify-center rounded-full bg-primary/20 text-xs font-bold text-primary">3</span>
+                                                <span class="text-sm font-semibold text-textdark">Ukuran Block</span>
+                                            </div>
+                                            <p class="text-xs text-textdark/60">
+                                                Konfigurasi block size pada orderer menentukan berapa banyak transaksi yang dapat dikemas dalam satu block sebelum di-commit.
+                                            </p>
+                                        </div>
+
+                                        <!-- Network Latency -->
+                                        <div class="rounded-xl border border-white/10 bg-surface/50 p-4">
+                                            <div class="mb-2 flex items-center gap-2">
+                                                <span class="flex h-6 w-6 items-center justify-center rounded-full bg-secondary/20 text-xs font-bold text-secondary">4</span>
+                                                <span class="text-sm font-semibold text-textdark">Latency Jaringan</span>
+                                            </div>
+                                            <p class="text-xs text-textdark/60">
+                                                Waktu yang dibutuhkan untuk mengirim transaksi dari client ke peer dan orderer. Latency tinggi menurunkan TPS efektif.
+                                            </p>
+                                        </div>
+
+                                        <!-- Endorsement Policy -->
+                                        <div class="rounded-xl border border-white/10 bg-surface/50 p-4">
+                                            <div class="mb-2 flex items-center gap-2">
+                                                <span class="flex h-6 w-6 items-center justify-center rounded-full bg-secondary/20 text-xs font-bold text-secondary">5</span>
+                                                <span class="text-sm font-semibold text-textdark">Endorsement Policy</span>
+                                            </div>
+                                            <p class="text-xs text-textdark/60">
+                                                Kebijakan yang menentukan berapa peer yang harus meng-endorse transaksi. Semakin banyak peer, semakin lambat namun lebih aman.
+                                            </p>
+                                        </div>
+
+                                        <!-- Resource Availability -->
+                                        <div class="rounded-xl border border-white/10 bg-surface/50 p-4">
+                                            <div class="mb-2 flex items-center gap-2">
+                                                <span class="flex h-6 w-6 items-center justify-center rounded-full bg-secondary/20 text-xs font-bold text-secondary">6</span>
+                                                <span class="text-sm font-semibold text-textdark">Resource Server</span>
+                                            </div>
+                                            <p class="text-xs text-textdark/60">
+                                                CPU, memory, dan I/O pada node peer dan orderer. Resource yang cukup memungkinkan pemrosesan transaksi lebih cepat.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Data Simulasi -->
+                                <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
+                                    <h3 class="mb-4 text-lg font-semibold text-textdark">Struktur Data Simulasi Transaksi</h3>
+                                    <p class="mb-4 text-sm text-textdark/70">
+                                        Setiap transaksi yang dikirim ke blockchain memiliki struktur data berikut yang mempengaruhi ukuran payload dan waktu pemrosesan:
+                                    </p>
+                                    <div class="grid gap-4 md:grid-cols-2">
+                                        <div class="rounded-xl border border-white/10 bg-surface/50 p-4">
+                                            <h4 class="mb-3 text-sm font-semibold text-primary">Field Data Transaksi</h4>
+                                            <ul class="space-y-2 text-xs text-textdark/70">
+                                                <li class="flex items-start gap-2">
+                                                    <span class="text-primary">•</span>
+                                                    <span><code class="text-primary/80">reportId</code> - ID unik laporan (RPT-YYYY-XXXXX)</span>
+                                                </li>
+                                                <li class="flex items-start gap-2">
+                                                    <span class="text-primary">•</span>
+                                                    <span><code class="text-primary/80">timestamp</code> - Waktu pembuatan laporan (ISO 8601)</span>
+                                                </li>
+                                                <li class="flex items-start gap-2">
+                                                    <span class="text-primary">•</span>
+                                                    <span><code class="text-primary/80">substance</code> - Kategori substansi laporan</span>
+                                                </li>
+                                                <li class="flex items-start gap-2">
+                                                    <span class="text-primary">•</span>
+                                                    <span><code class="text-primary/80">reporterGroup</code> - Kelompok pelapor</span>
+                                                </li>
+                                                <li class="flex items-start gap-2">
+                                                    <span class="text-primary">•</span>
+                                                    <span><code class="text-primary/80">reportedGroup</code> - Kelompok terlapor</span>
+                                                </li>
+                                                <li class="flex items-start gap-2">
+                                                    <span class="text-primary">•</span>
+                                                    <span><code class="text-primary/80">receivingOffice</code> - Kantor penerima</span>
+                                                </li>
+                                                <li class="flex items-start gap-2">
+                                                    <span class="text-primary">•</span>
+                                                    <span><code class="text-primary/80">status</code> - Status laporan</span>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <div class="rounded-xl border border-white/10 bg-surface/50 p-4">
+                                            <h4 class="mb-3 text-sm font-semibold text-secondary">Timestamp Pengukuran</h4>
+                                            <ul class="space-y-2 text-xs text-textdark/70">
+                                                <li class="flex items-start gap-2">
+                                                    <span class="text-secondary">•</span>
+                                                    <span><code class="text-secondary/80">submittedAt</code> - Waktu transaksi dikirim ke blockchain</span>
+                                                </li>
+                                                <li class="flex items-start gap-2">
+                                                    <span class="text-secondary">•</span>
+                                                    <span><code class="text-secondary/80">completedAt</code> - Waktu transaksi selesai di-commit</span>
+                                                </li>
+                                            </ul>
+                                            <div class="mt-4 rounded-lg bg-secondary/10 p-3 border border-secondary/20">
+                                                <p class="text-xs text-textdark/70">
+                                                    <strong class="text-secondary">Latency per Transaksi:</strong><br>
+                                                    <code class="text-secondary/80">latencyMs = completedAt - submittedAt</code>
+                                                </p>
+                                            </div>
+                                            <div class="mt-3 rounded-lg bg-accent/10 p-3 border border-accent/20">
+                                                <p class="text-xs text-textdark/70">
+                                                    <strong class="text-accent">Throughput Per Data:</strong><br>
+                                                    <code class="text-accent/80">timeFromStart = submittedAt - simulationStart</code>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Catatan -->
+                                <div class="rounded-2xl border border-highlight/30 bg-highlight/10 p-6">
+                                    <h3 class="mb-3 text-lg font-semibold text-highlight">Catatan Penting</h3>
+                                    <ul class="space-y-2 text-sm text-textdark/80">
+                                        <li class="flex items-start gap-2">
+                                            <span class="text-highlight">1.</span>
+                                            <span>Throughput yang terukur adalah <strong>effective throughput</strong>, yaitu transaksi yang berhasil di-commit ke blockchain, bukan jumlah transaksi yang dikirim.</span>
+                                        </li>
+                                        <li class="flex items-start gap-2">
+                                            <span class="text-highlight">2.</span>
+                                            <span>Data throughput per data (grafik di bawah) menunjukkan waktu kumulatif setiap transaksi dari awal simulasi, berguna untuk mengidentifikasi bottleneck dan variasi performa.</span>
+                                        </li>
+                                        <li class="flex items-start gap-2">
+                                            <span class="text-highlight">3.</span>
+                                            <span>Untuk perbandingan yang fair, jalankan simulasi dengan parameter yang sama (jumlah transaksi dan kategori beban) pada semua network yang dibandingkan.</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </section>
+
                         <!-- Network & Category Selector -->
                         <section class="rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20 backdrop-blur-sm">
                             <header class="flex flex-col gap-2 border-b border-white/10 pb-6">

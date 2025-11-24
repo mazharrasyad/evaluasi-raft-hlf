@@ -188,6 +188,152 @@
             color: rgb(248, 113, 113);
             border: 1px solid rgba(239, 68, 68, 0.3);
         }
+
+        /* Clickable row */
+        table.dataTable tbody tr {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        table.dataTable tbody tr:hover {
+            background: rgba(56, 189, 248, 0.15);
+            transform: translateX(2px);
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.5rem;
+            max-width: 900px;
+            width: 95%;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: scale(0.9) translateY(20px);
+            transition: all 0.3s ease;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: scale(1) translateY(0);
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-close {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 0.5rem;
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: rgb(248, 113, 113);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background: rgba(239, 68, 68, 0.3);
+            transform: scale(1.1);
+        }
+
+        .param-card {
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .param-card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .param-card-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .param-card-title {
+            font-weight: 600;
+            font-size: 1rem;
+            color: #E2E8F0;
+        }
+
+        .param-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+
+        @media (max-width: 640px) {
+            .param-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .param-item {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+        }
+
+        .param-label {
+            font-size: 0.75rem;
+            color: rgba(226, 232, 240, 0.6);
+            margin-bottom: 0.25rem;
+        }
+
+        .param-value {
+            font-size: 0.875rem;
+            color: #E2E8F0;
+            font-weight: 500;
+        }
+
+        .icon-throughput { background: rgba(34, 197, 94, 0.2); color: rgb(74, 222, 128); }
+        .icon-latency { background: rgba(59, 130, 246, 0.2); color: rgb(96, 165, 250); }
+        .icon-resource { background: rgba(245, 158, 11, 0.2); color: rgb(251, 191, 36); }
+        .icon-fault { background: rgba(168, 85, 247, 0.2); color: rgb(192, 132, 252); }
     </style>
 </head>
 <body class="bg-soft text-textdark">
@@ -266,6 +412,144 @@
         </div>
     </div>
 
+    <!-- Detail Modal -->
+    <div id="detail-modal" class="modal-overlay" onclick="closeModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <div>
+                    <h3 class="text-xl font-semibold text-textdark" id="modal-title">Detail Parameter Transaksi</h3>
+                    <p class="text-sm text-textdark/60 mt-1" id="modal-subtitle">-</p>
+                </div>
+                <button class="modal-close" onclick="closeModal()">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Throughput Card -->
+                <div class="param-card">
+                    <div class="param-card-header">
+                        <div class="param-card-icon icon-throughput">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                            </svg>
+                        </div>
+                        <span class="param-card-title">Data Throughput</span>
+                    </div>
+                    <div class="param-grid" id="throughput-params">
+                        <div class="param-item">
+                            <div class="param-label">Submitted At</div>
+                            <div class="param-value" id="tp-submitted">-</div>
+                        </div>
+                        <div class="param-item">
+                            <div class="param-label">Completed At</div>
+                            <div class="param-value" id="tp-completed">-</div>
+                        </div>
+                        <div class="param-item">
+                            <div class="param-label">Total Transactions</div>
+                            <div class="param-value" id="tp-total">-</div>
+                        </div>
+                        <div class="param-item">
+                            <div class="param-label">Processing Time (ms)</div>
+                            <div class="param-value" id="tp-processing">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Latency Card -->
+                <div class="param-card">
+                    <div class="param-card-header">
+                        <div class="param-card-icon icon-latency">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <span class="param-card-title">Data Latency</span>
+                    </div>
+                    <div class="param-grid" id="latency-params">
+                        <div class="param-item">
+                            <div class="param-label">Total Latency (ms)</div>
+                            <div class="param-value" id="lat-total">-</div>
+                        </div>
+                        <div class="param-item">
+                            <div class="param-label">Endorsement Latency (ms)</div>
+                            <div class="param-value" id="lat-endorsement">-</div>
+                        </div>
+                        <div class="param-item">
+                            <div class="param-label">Ordering Latency (ms)</div>
+                            <div class="param-value" id="lat-ordering">-</div>
+                        </div>
+                        <div class="param-item">
+                            <div class="param-label">Commit Latency (ms)</div>
+                            <div class="param-value" id="lat-commit">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resource Usage Card -->
+                <div class="param-card">
+                    <div class="param-card-header">
+                        <div class="param-card-icon icon-resource">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                            </svg>
+                        </div>
+                        <span class="param-card-title">Data Resource Usage</span>
+                    </div>
+                    <div class="param-grid" id="resource-params">
+                        <div class="param-item">
+                            <div class="param-label">CPU Usage (%)</div>
+                            <div class="param-value" id="res-cpu">-</div>
+                        </div>
+                        <div class="param-item">
+                            <div class="param-label">Memory Usage (MB)</div>
+                            <div class="param-value" id="res-memory">-</div>
+                        </div>
+                        <div class="param-item">
+                            <div class="param-label">Network I/O (KB)</div>
+                            <div class="param-value" id="res-network">-</div>
+                        </div>
+                        <div class="param-item">
+                            <div class="param-label">Disk I/O (KB)</div>
+                            <div class="param-value" id="res-disk">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fault Tolerance Card -->
+                <div class="param-card">
+                    <div class="param-card-header">
+                        <div class="param-card-icon icon-fault">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                            </svg>
+                        </div>
+                        <span class="param-card-title">Data Fault Tolerance</span>
+                    </div>
+                    <div class="param-grid" id="fault-params">
+                        <div class="param-item">
+                            <div class="param-label">Total Nodes</div>
+                            <div class="param-value" id="ft-nodes">-</div>
+                        </div>
+                        <div class="param-item">
+                            <div class="param-label">Max Tolerable Failures</div>
+                            <div class="param-value" id="ft-max-failures">-</div>
+                        </div>
+                        <div class="param-item">
+                            <div class="param-label">Active Nodes</div>
+                            <div class="param-value" id="ft-active">-</div>
+                        </div>
+                        <div class="param-item">
+                            <div class="param-label">Recovery Time (ms)</div>
+                            <div class="param-value" id="ft-recovery">-</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="/js/layout.js" defer></script>
     <script src="/js/navigation.js" defer></script>
     <script>
@@ -299,6 +583,9 @@
 
         // Store DataTable instance
         let mainTable = null;
+
+        // Store all records for modal display
+        let allRecordsData = [];
 
         // Function to generate expense category badge
         function getExpenseCategoryBadge(category) {
@@ -362,6 +649,9 @@
                 // Flatten all results into one array
                 const allRecords = results.flat();
 
+                // Store records globally for modal access
+                allRecordsData = allRecords;
+
                 // Hide loading, show table
                 loadingEl.classList.add('hidden');
                 tableEl.classList.remove('hidden');
@@ -372,24 +662,27 @@
                 }
 
                 // Prepare data for DataTable with network badge HTML
-                const tableData = allRecords.map(record => {
+                const tableData = allRecords.map((record, index) => {
                     const expenseCategory = record.expenseCategory || record.kategori_beban || '-';
-                    return [
-                        `<span class="network-badge ${record.badgeClass}">${record.badgeText}</span>`,
-                        record.reportId || record.id || '-',
-                        record.substance || '-',
-                        record.reporterGroup || '-',
-                        record.reportedGroup || '-',
-                        record.receivingOffice || '-',
-                        getExpenseCategoryBadge(expenseCategory),
-                        record.status || '-',
-                        record.submittedAt ? new Date(record.submittedAt).toLocaleString('id-ID') : '-'
-                    ];
+                    return {
+                        index: index, // Store index for row click
+                        data: [
+                            `<span class="network-badge ${record.badgeClass}">${record.badgeText}</span>`,
+                            record.reportId || record.id || '-',
+                            record.substance || '-',
+                            record.reporterGroup || '-',
+                            record.reportedGroup || '-',
+                            record.receivingOffice || '-',
+                            getExpenseCategoryBadge(expenseCategory),
+                            record.status || '-',
+                            record.submittedAt ? new Date(record.submittedAt).toLocaleString('id-ID') : '-'
+                        ]
+                    };
                 });
 
                 // Initialize DataTable
                 mainTable = $('#table-all').DataTable({
-                    data: tableData,
+                    data: tableData.map(item => item.data),
                     pageLength: 4,
                     lengthMenu: [[4, 10, 25, 50, -1], [4, 10, 25, 50, "Semua"]],
                     language: {
@@ -422,7 +715,19 @@
                                 $(td).html(cellData);
                             }
                         } // Expense category renders HTML badge
-                    ]
+                    ],
+                    createdRow: function(row, data, dataIndex) {
+                        // Store original index in row for click handler
+                        $(row).attr('data-record-index', tableData[dataIndex].index);
+                    }
+                });
+
+                // Add click handler for rows
+                $('#table-all tbody').off('click', 'tr').on('click', 'tr', function() {
+                    const recordIndex = $(this).attr('data-record-index');
+                    if (recordIndex !== undefined) {
+                        showRecordDetail(parseInt(recordIndex));
+                    }
                 });
 
                 // Show success message with count
@@ -447,6 +752,86 @@
             loadAllNetworkData();
         });
         */
+
+        // Show record detail in modal
+        function showRecordDetail(index) {
+            const record = allRecordsData[index];
+            if (!record) return;
+
+            const modal = document.getElementById('detail-modal');
+
+            // Update modal title and subtitle
+            document.getElementById('modal-title').textContent = `Detail Parameter Transaksi`;
+            document.getElementById('modal-subtitle').textContent = `${record.network} - ${record.reportId || record.id || 'N/A'}`;
+
+            // Helper function to format value
+            const formatValue = (value, suffix = '') => {
+                if (value === undefined || value === null || value === '') return '-';
+                if (typeof value === 'number') {
+                    return value.toLocaleString('id-ID') + (suffix ? ` ${suffix}` : '');
+                }
+                return value + (suffix ? ` ${suffix}` : '');
+            };
+
+            // Helper function to format datetime
+            const formatDateTime = (dateStr) => {
+                if (!dateStr) return '-';
+                try {
+                    return new Date(dateStr).toLocaleString('id-ID');
+                } catch {
+                    return dateStr;
+                }
+            };
+
+            // Get throughput data
+            const throughput = record.data_throughput || record.networkMetadata || {};
+            document.getElementById('tp-submitted').textContent = formatDateTime(throughput.submittedAt || record.submittedAt);
+            document.getElementById('tp-completed').textContent = formatDateTime(throughput.completedAt || record.completedAt);
+            document.getElementById('tp-total').textContent = formatValue(throughput.totalTransactions || 1);
+            document.getElementById('tp-processing').textContent = formatValue(throughput.processingTime || throughput.duration);
+
+            // Get latency data
+            const latency = record.data_latency || {};
+            document.getElementById('lat-total').textContent = formatValue(latency.totalLatency || latency.total);
+            document.getElementById('lat-endorsement').textContent = formatValue(latency.endorsementLatency || latency.endorsement);
+            document.getElementById('lat-ordering').textContent = formatValue(latency.orderingLatency || latency.ordering);
+            document.getElementById('lat-commit').textContent = formatValue(latency.commitLatency || latency.commit);
+
+            // Get resource usage data
+            const resource = record.data_resource_usage || {};
+            document.getElementById('res-cpu').textContent = formatValue(resource.cpuUsage || resource.cpu);
+            document.getElementById('res-memory').textContent = formatValue(resource.memoryUsage || resource.memory);
+            document.getElementById('res-network').textContent = formatValue(resource.networkIO || resource.network);
+            document.getElementById('res-disk').textContent = formatValue(resource.diskIO || resource.disk);
+
+            // Get fault tolerance data
+            const fault = record.data_fault_tolerance || {};
+            document.getElementById('ft-nodes').textContent = formatValue(fault.totalNodes || fault.nodes);
+            document.getElementById('ft-max-failures').textContent = formatValue(fault.maxTolerableFailures || fault.maxFailures);
+            document.getElementById('ft-active').textContent = formatValue(fault.activeNodes || fault.active);
+            document.getElementById('ft-recovery').textContent = formatValue(fault.recoveryTime || fault.recovery);
+
+            // Show modal
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Close modal
+        function closeModal(event) {
+            // If event exists and target is not the overlay, don't close
+            if (event && event.target !== event.currentTarget) return;
+
+            const modal = document.getElementById('detail-modal');
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
     </script>
 </body>
 </html>

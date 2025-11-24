@@ -293,7 +293,8 @@ function calculateMetricsFromRecords(records, resourceSnapshot = null) {
             failureCount: 0,
             nodeFailures: [],
             recoveryTimeMs: 0
-        }
+        },
+        throughputPerData: []
     };
 
     if (!records || records.length === 0) {
@@ -304,8 +305,9 @@ function calculateMetricsFromRecords(records, resourceSnapshot = null) {
     const latencies = [];
     let startTime = null;
     let endTime = null;
+    const throughputDataPoints = [];
 
-    records.forEach(record => {
+    records.forEach((record, index) => {
         metrics.throughput.totalTransactions++;
 
         // Check if transaction was successful (records in blockchain are successful)
@@ -343,6 +345,18 @@ function calculateMetricsFromRecords(records, resourceSnapshot = null) {
                 endTime = completeTime;
                 metrics.throughput.endTimestamp = completedAt;
             }
+
+            // Collect data point for throughput per data
+            throughputDataPoints.push({
+                index: index + 1,
+                recordId: record.reportId || record.id,
+                submittedAt,
+                completedAt,
+                submitTime,
+                completeTime,
+                latencyMs: latencyMs >= 0 ? latencyMs : 0,
+                success: isSuccess
+            });
         }
     });
 
@@ -408,6 +422,21 @@ function calculateMetricsFromRecords(records, resourceSnapshot = null) {
             ? (metrics.throughput.successfulTransactions / metrics.throughput.totalTransactions) * 100
             : 0;
     metrics.faultTolerance.failureCount = metrics.throughput.failedTransactions;
+
+    // Calculate throughput per data with timeFromStartSeconds
+    if (startTime && throughputDataPoints.length > 0) {
+        // Sort by submitTime untuk urutan yang benar
+        throughputDataPoints.sort((a, b) => a.submitTime - b.submitTime);
+
+        // Calculate timeFromStartSeconds untuk setiap data point
+        metrics.throughputPerData = throughputDataPoints.map((dp, idx) => ({
+            index: idx + 1,
+            recordId: dp.recordId,
+            timeFromStartSeconds: (dp.submitTime - startTime) / 1000,
+            latencyMs: dp.latencyMs,
+            success: dp.success
+        }));
+    }
 
     return metrics;
 }

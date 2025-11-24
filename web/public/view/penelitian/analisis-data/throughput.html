@@ -175,31 +175,12 @@
                         <section id="throughputPerDataSection" class="hidden rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20">
                             <header class="flex flex-col gap-2 border-b border-white/10 pb-6 mb-6">
                                 <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Throughput Per Data</h2>
-                                <p class="text-sm text-textdark/70">Grafik menampilkan waktu (detik) yang dibutuhkan untuk setiap transaksi dari awal simulasi. Sumbu X adalah indeks transaksi, sumbu Y adalah waktu dalam detik.</p>
+                                <p class="text-sm text-textdark/70">Grafik menampilkan waktu (detik) yang dibutuhkan untuk setiap transaksi dari awal simulasi. Sumbu X adalah indeks transaksi, sumbu Y adalah waktu dalam detik. Data diambil langsung dari blockchain.</p>
                             </header>
 
-                            <!-- Simulation Selector -->
-                            <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6 mb-6">
-                                <div class="flex flex-col gap-4 md:flex-row md:items-end">
-                                    <div class="flex-1">
-                                        <label for="simulationSelect" class="mb-2 block text-sm font-medium text-textdark/90">Pilih Simulasi</label>
-                                        <select id="simulationSelect" class="w-full rounded-lg border border-white/10 bg-surface px-4 py-3 text-textdark focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/50">
-                                            <option value="">-- Pilih Simulasi --</option>
-                                        </select>
-                                    </div>
-                                    <button
-                                        type="button"
-                                        id="loadSimulationButton"
-                                        class="inline-flex items-center justify-center gap-2 rounded-lg bg-accent/90 px-6 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-accent/40 transition duration-200 hover:-translate-y-0.5 hover:bg-accent"
-                                    >
-                                        <span>Muat Grafik</span>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div id="noSimulationMessage" class="hidden rounded-2xl border border-yellow-500/30 bg-yellow-500/10 p-6 mb-6">
+                            <div id="noThroughputDataMessage" class="hidden rounded-2xl border border-yellow-500/30 bg-yellow-500/10 p-6 mb-6">
                                 <p class="text-sm text-yellow-200/80">
-                                    Belum ada data simulasi throughput per data. Data ini akan tersedia setelah menjalankan simulasi transaksi.
+                                    Belum ada data throughput per data. Data ini akan tersedia setelah menjalankan simulasi transaksi.
                                 </p>
                             </div>
 
@@ -310,7 +291,8 @@
                             networkId: data.networkId,
                             simulationCount: data.count,
                             category: category || 'all',
-                            throughput: data.metrics.throughput
+                            throughput: data.metrics.throughput,
+                            throughputPerData: data.metrics.throughputPerData || []
                         };
 
                         currentData = transformedData;
@@ -333,15 +315,17 @@
                     const fetchPromises = networkIds.map(id => fetchNetworkData(id));
                     const results = await Promise.all(fetchPromises);
 
-                    // Build networks array dari hasil fetch
+                    // Build networks array dan throughputPerData dari hasil fetch
                     const networks = [];
+                    const throughputPerDataByNetwork = {};
                     let totalRecords = 0;
 
                     results.forEach((data, index) => {
                         if (data && data.success && data.metrics) {
                             const throughput = data.metrics.throughput;
+                            const netId = networkIds[index];
                             networks.push({
-                                networkId: networkIds[index],
+                                networkId: netId,
                                 networkName: data.label,
                                 totalTransactions: throughput.totalTransactions,
                                 successfulTransactions: throughput.successfulTransactions,
@@ -350,6 +334,11 @@
                                 durationSeconds: throughput.durationSeconds
                             });
                             totalRecords += data.count;
+
+                            // Collect throughputPerData untuk setiap network
+                            if (data.metrics.throughputPerData && data.metrics.throughputPerData.length > 0) {
+                                throughputPerDataByNetwork[netId] = data.metrics.throughputPerData;
+                            }
                         }
                     });
 
@@ -358,7 +347,8 @@
                             success: true,
                             simulationCount: totalRecords,
                             category: category || 'all',
-                            networks: networks
+                            networks: networks,
+                            throughputPerDataByNetwork: throughputPerDataByNetwork
                         };
 
                         currentData = transformedData;
@@ -377,8 +367,6 @@
                     }
                 }
 
-                // Load simulations list for throughput per data
-                await loadSimulationsList();
             } catch (error) {
                 console.error('Error loading combined data:', error);
                 Swal.fire({
@@ -420,6 +408,13 @@
 
             // Update analysis
             displaySingleNetworkAnalysis(data);
+
+            // Reset and load throughput per data
+            allThroughputPerData = {};
+            if (data.throughputPerData && data.throughputPerData.length > 0) {
+                displayThroughputPerDataFromAPI(data.throughputPerData, data.networkId, data.networkName);
+            }
+            renderThroughputPerDataChart();
         }
 
         // Display comparison data (all networks)
@@ -458,6 +453,18 @@
 
             // Update analysis
             displayComparisonAnalysis(data);
+
+            // Reset and load throughput per data for all networks
+            allThroughputPerData = {};
+            if (data.throughputPerDataByNetwork) {
+                Object.entries(data.throughputPerDataByNetwork).forEach(([networkId, tpd]) => {
+                    if (tpd && tpd.length > 0) {
+                        const networkName = networkNames[networkId] || networkId;
+                        displayThroughputPerDataFromAPI(tpd, networkId, networkName);
+                    }
+                });
+            }
+            renderThroughputPerDataChart();
         }
 
         // Display comparison chart
@@ -624,120 +631,61 @@
 
         // =================== THROUGHPUT PER DATA FUNCTIONS ===================
 
-        // Load simulations list
-        async function loadSimulationsList() {
-            try {
-                const category = document.getElementById('categoryFilter').value;
-                let url = '/api/metrics/simulations';
-                if (category) {
-                    url += `?loadCategory=${category}`;
-                }
+        // Store throughput per data from all networks
+        let allThroughputPerData = {};
 
-                const response = await fetch(url);
-                const data = await response.json();
-
-                const select = document.getElementById('simulationSelect');
-                select.innerHTML = '<option value="">-- Pilih Simulasi --</option>';
-
-                if (data.success && data.simulations.length > 0) {
-                    data.simulations.forEach(sim => {
-                        const date = new Date(sim.completedAt).toLocaleString('id-ID');
-                        const catName = categoryNames[sim.loadCategory] || sim.loadCategory;
-                        const totalTx = sim.metrics?.throughput?.totalTransactions || 0;
-                        const option = document.createElement('option');
-                        option.value = sim.simulationId;
-                        option.textContent = `${date} - ${catName} (${totalTx} tx)`;
-                        select.appendChild(option);
-                    });
-
-                    document.getElementById('noSimulationMessage').classList.add('hidden');
-                } else {
-                    document.getElementById('noSimulationMessage').classList.remove('hidden');
-                }
-            } catch (error) {
-                console.error('Error loading simulations:', error);
-                document.getElementById('noSimulationMessage').classList.remove('hidden');
-            }
+        // Display throughput per data chart from API pelaporan data
+        function displayThroughputPerDataFromAPI(throughputPerData, networkId, networkName) {
+            // Store data for this network
+            allThroughputPerData[networkId] = {
+                networkName,
+                dataPoints: throughputPerData
+            };
         }
 
-        // Load simulation data for throughput per data chart
-        async function loadSimulationData() {
-            const simulationId = document.getElementById('simulationSelect').value;
-
-            if (!simulationId) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Pilih Simulasi',
-                    text: 'Silakan pilih simulasi terlebih dahulu',
-                    background: '#0F172A',
-                    color: '#E2E8F0',
-                    confirmButtonColor: '#F59E0B'
-                });
-                return;
-            }
-
-            try {
-                const response = await fetch(`/api/metrics/simulation/${simulationId}`);
-                const data = await response.json();
-
-                if (data.success && data.simulation) {
-                    displayThroughputPerDataChart(data.simulation);
-                    displayNetworkDetails(data.simulation);
-                    document.getElementById('throughputPerDataChart').classList.remove('hidden');
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Data Tidak Ditemukan',
-                        text: 'Simulasi tidak ditemukan',
-                        background: '#0F172A',
-                        color: '#E2E8F0',
-                        confirmButtonColor: '#F59E0B'
-                    });
-                }
-            } catch (error) {
-                console.error('Error loading simulation data:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Gagal memuat data simulasi: ' + error.message,
-                    background: '#0F172A',
-                    color: '#E2E8F0',
-                    confirmButtonColor: '#F59E0B'
-                });
-            }
-        }
-
-        // Display throughput per data chart
-        function displayThroughputPerDataChart(simulation) {
+        // Render combined throughput per data chart
+        function renderThroughputPerDataChart() {
             const ctx = document.getElementById('perDataChart').getContext('2d');
+            const noDataMsg = document.getElementById('noThroughputDataMessage');
+            const chartContainer = document.getElementById('throughputPerDataChart');
 
             if (perDataChart) {
                 perDataChart.destroy();
             }
 
             const datasets = [];
-            const throughputPerData = simulation.throughputPerData || {};
+            let hasData = false;
 
-            Object.entries(throughputPerData).forEach(([networkId, dataPoints]) => {
-                if (dataPoints && dataPoints.length > 0) {
+            Object.entries(allThroughputPerData).forEach(([networkId, data]) => {
+                if (data.dataPoints && data.dataPoints.length > 0) {
+                    hasData = true;
                     const colors = networkColors[networkId] || { bg: 'rgba(148, 163, 184, 0.7)', border: 'rgba(148, 163, 184, 1)' };
 
                     datasets.push({
-                        label: networkNames[networkId] || networkId,
-                        data: dataPoints.map(dp => ({
+                        label: data.networkName || networkNames[networkId] || networkId,
+                        data: data.dataPoints.map(dp => ({
                             x: dp.index,
                             y: dp.timeFromStartSeconds
                         })),
                         borderColor: colors.border,
                         backgroundColor: colors.bg,
                         borderWidth: 2,
-                        pointRadius: dataPoints.length > 100 ? 1 : 3,
+                        pointRadius: data.dataPoints.length > 100 ? 1 : 3,
                         pointHoverRadius: 5,
                         fill: false,
                         tension: 0.1
                     });
                 }
             });
+
+            if (!hasData) {
+                noDataMsg.classList.remove('hidden');
+                chartContainer.classList.add('hidden');
+                return;
+            }
+
+            noDataMsg.classList.add('hidden');
+            chartContainer.classList.remove('hidden');
 
             perDataChart = new Chart(ctx, {
                 type: 'line',
@@ -796,55 +744,70 @@
                     }
                 }
             });
+
+            // Display network details
+            displayNetworkDetailsFromData();
         }
 
-        // Display network details
-        function displayNetworkDetails(simulation) {
+        // Display network details from collected data
+        function displayNetworkDetailsFromData() {
             const container = document.getElementById('networkDetailsContent');
             container.innerHTML = '';
 
-            const networkMetrics = simulation.metrics?.networkMetrics || {};
+            Object.entries(allThroughputPerData).forEach(([networkId, data]) => {
+                if (data.dataPoints && data.dataPoints.length > 0) {
+                    const colors = networkColors[networkId] || { border: 'rgba(148, 163, 184, 1)' };
+                    const totalTx = data.dataPoints.length;
+                    const successTx = data.dataPoints.filter(dp => dp.success !== false).length;
+                    const latencies = data.dataPoints.map(dp => dp.latencyMs).filter(l => l >= 0);
+                    const avgLatency = latencies.length > 0 ? latencies.reduce((a, b) => a + b, 0) / latencies.length : 0;
+                    const sortedLatencies = [...latencies].sort((a, b) => a - b);
+                    const p95Latency = sortedLatencies[Math.floor(sortedLatencies.length * 0.95)] || 0;
 
-            Object.entries(networkMetrics).forEach(([networkId, metrics]) => {
-                const colors = networkColors[networkId] || { border: 'rgba(148, 163, 184, 1)' };
-                const card = document.createElement('div');
-                card.className = 'rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6';
-                card.innerHTML = `
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="w-3 h-3 rounded-full" style="background-color: ${colors.border}"></div>
-                        <h3 class="text-lg font-semibold text-textdark">${networkNames[networkId] || networkId}</h3>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4 text-sm">
-                        <div>
-                            <p class="text-textdark/60">Total Transaksi</p>
-                            <p class="font-semibold text-textdark">${metrics.totalTransactions?.toLocaleString('id-ID') || 0}</p>
+                    // Calculate duration and TPS
+                    const times = data.dataPoints.map(dp => dp.timeFromStartSeconds);
+                    const duration = times.length > 0 ? Math.max(...times) : 0;
+                    const tps = duration > 0 ? totalTx / duration : 0;
+
+                    const card = document.createElement('div');
+                    card.className = 'rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6';
+                    card.innerHTML = `
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-3 h-3 rounded-full" style="background-color: ${colors.border}"></div>
+                            <h3 class="text-lg font-semibold text-textdark">${data.networkName || networkNames[networkId] || networkId}</h3>
                         </div>
-                        <div>
-                            <p class="text-textdark/60">TPS</p>
-                            <p class="font-semibold text-textdark">${metrics.transactionsPerSecond?.toFixed(2) || 0}</p>
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <p class="text-textdark/60">Total Transaksi</p>
+                                <p class="font-semibold text-textdark">${totalTx.toLocaleString('id-ID')}</p>
+                            </div>
+                            <div>
+                                <p class="text-textdark/60">TPS</p>
+                                <p class="font-semibold text-textdark">${tps.toFixed(2)}</p>
+                            </div>
+                            <div>
+                                <p class="text-textdark/60">Durasi</p>
+                                <p class="font-semibold text-textdark">${duration.toFixed(2)} detik</p>
+                            </div>
+                            <div>
+                                <p class="text-textdark/60">Success Rate</p>
+                                <p class="font-semibold text-textdark">${totalTx > 0 ? ((successTx / totalTx) * 100).toFixed(1) : 0}%</p>
+                            </div>
+                            <div>
+                                <p class="text-textdark/60">Avg Latency</p>
+                                <p class="font-semibold text-textdark">${avgLatency.toFixed(2)} ms</p>
+                            </div>
+                            <div>
+                                <p class="text-textdark/60">P95 Latency</p>
+                                <p class="font-semibold text-textdark">${p95Latency.toFixed(2)} ms</p>
+                            </div>
                         </div>
-                        <div>
-                            <p class="text-textdark/60">Durasi</p>
-                            <p class="font-semibold text-textdark">${metrics.durationSeconds?.toFixed(2) || 0} detik</p>
-                        </div>
-                        <div>
-                            <p class="text-textdark/60">Success Rate</p>
-                            <p class="font-semibold text-textdark">${metrics.totalTransactions > 0 ? ((metrics.successfulTransactions / metrics.totalTransactions) * 100).toFixed(1) : 0}%</p>
-                        </div>
-                        <div>
-                            <p class="text-textdark/60">Avg Latency</p>
-                            <p class="font-semibold text-textdark">${metrics.averageLatencyMs?.toFixed(2) || 0} ms</p>
-                        </div>
-                        <div>
-                            <p class="text-textdark/60">P95 Latency</p>
-                            <p class="font-semibold text-textdark">${metrics.p95LatencyMs?.toFixed(2) || 0} ms</p>
-                        </div>
-                    </div>
-                `;
-                container.appendChild(card);
+                    `;
+                    container.appendChild(card);
+                }
             });
 
-            if (Object.keys(networkMetrics).length === 0) {
+            if (Object.keys(allThroughputPerData).length === 0) {
                 container.innerHTML = '<p class="text-sm text-textdark/60 col-span-2">Tidak ada data network tersedia.</p>';
             }
         }
@@ -852,10 +815,6 @@
         // Event listeners
         document.getElementById('loadDataButton').addEventListener('click', () => {
             loadCombinedData();
-        });
-
-        document.getElementById('loadSimulationButton').addEventListener('click', () => {
-            loadSimulationData();
         });
 
         // Load data on page load

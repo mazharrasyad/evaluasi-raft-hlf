@@ -1597,13 +1597,11 @@ app.get('/api/fabric-2/raft-standard/pelaporan', async (req, res) => {
             label: 'Fabric 2 RAFT Standard',
             count: result.count,
             records: result.records,
-            // Data metrics untuk analisis
-            metrics: {
-                throughput: metrics.throughput,
-                latency: metrics.latency,
-                resourceUsage: metrics.resourceUsage,
-                faultTolerance: metrics.faultTolerance
-            }
+            // Data metrics terpisah untuk kemudahan analisis
+            data_throughput: metrics.throughput,
+            data_latency: metrics.latency,
+            data_resource_usage: metrics.resourceUsage,
+            data_fault_tolerance: metrics.faultTolerance
         });
     } catch (error) {
         console.error('Error querying from Fabric 2 RAFT Standard:', error);
@@ -1615,7 +1613,10 @@ app.get('/api/fabric-2/raft-standard/pelaporan', async (req, res) => {
             error: error instanceof Error ? error.message : String(error),
             count: 0,
             records: [],
-            metrics: null
+            data_throughput: null,
+            data_latency: null,
+            data_resource_usage: null,
+            data_fault_tolerance: null
         });
     }
 });
@@ -1688,13 +1689,11 @@ app.get('/api/fabric-2/raft-variant/pelaporan', async (req, res) => {
             label: 'Fabric 2 RAFT Variant',
             count: result.count,
             records: result.records,
-            // Data metrics untuk analisis
-            metrics: {
-                throughput: metrics.throughput,
-                latency: metrics.latency,
-                resourceUsage: metrics.resourceUsage,
-                faultTolerance: metrics.faultTolerance
-            }
+            // Data metrics terpisah untuk kemudahan analisis
+            data_throughput: metrics.throughput,
+            data_latency: metrics.latency,
+            data_resource_usage: metrics.resourceUsage,
+            data_fault_tolerance: metrics.faultTolerance
         });
     } catch (error) {
         console.error('Error querying from Fabric 2 RAFT Variant:', error);
@@ -1706,7 +1705,10 @@ app.get('/api/fabric-2/raft-variant/pelaporan', async (req, res) => {
             error: error instanceof Error ? error.message : String(error),
             count: 0,
             records: [],
-            metrics: null
+            data_throughput: null,
+            data_latency: null,
+            data_resource_usage: null,
+            data_fault_tolerance: null
         });
     }
 });
@@ -1779,13 +1781,11 @@ app.get('/api/fabric-3/raft-standard/pelaporan', async (req, res) => {
             label: 'Fabric 3 RAFT Standard',
             count: result.count,
             records: result.records,
-            // Data metrics untuk analisis
-            metrics: {
-                throughput: metrics.throughput,
-                latency: metrics.latency,
-                resourceUsage: metrics.resourceUsage,
-                faultTolerance: metrics.faultTolerance
-            }
+            // Data metrics terpisah untuk kemudahan analisis
+            data_throughput: metrics.throughput,
+            data_latency: metrics.latency,
+            data_resource_usage: metrics.resourceUsage,
+            data_fault_tolerance: metrics.faultTolerance
         });
     } catch (error) {
         console.error('Error querying from Fabric 3 RAFT Standard:', error);
@@ -1797,7 +1797,10 @@ app.get('/api/fabric-3/raft-standard/pelaporan', async (req, res) => {
             error: error instanceof Error ? error.message : String(error),
             count: 0,
             records: [],
-            metrics: null
+            data_throughput: null,
+            data_latency: null,
+            data_resource_usage: null,
+            data_fault_tolerance: null
         });
     }
 });
@@ -1870,13 +1873,11 @@ app.get('/api/fabric-3/raft-variant/pelaporan', async (req, res) => {
             label: 'Fabric 3 RAFT Variant',
             count: result.count,
             records: result.records,
-            // Data metrics untuk analisis
-            metrics: {
-                throughput: metrics.throughput,
-                latency: metrics.latency,
-                resourceUsage: metrics.resourceUsage,
-                faultTolerance: metrics.faultTolerance
-            }
+            // Data metrics terpisah untuk kemudahan analisis
+            data_throughput: metrics.throughput,
+            data_latency: metrics.latency,
+            data_resource_usage: metrics.resourceUsage,
+            data_fault_tolerance: metrics.faultTolerance
         });
     } catch (error) {
         console.error('Error querying from Fabric 3 RAFT Variant:', error);
@@ -1888,7 +1889,10 @@ app.get('/api/fabric-3/raft-variant/pelaporan', async (req, res) => {
             error: error instanceof Error ? error.message : String(error),
             count: 0,
             records: [],
-            metrics: null
+            data_throughput: null,
+            data_latency: null,
+            data_resource_usage: null,
+            data_fault_tolerance: null
         });
     }
 });

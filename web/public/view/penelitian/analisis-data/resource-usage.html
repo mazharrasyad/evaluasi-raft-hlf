@@ -79,6 +79,173 @@
                             </div>
                         </section>
 
+                        <!-- Parameter yang Mempengaruhi Resource Usage -->
+                        <section class="rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20 backdrop-blur-sm">
+                            <header class="flex flex-col gap-2 border-b border-white/10 pb-6">
+                                <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Parameter yang Mempengaruhi Resource Usage</h2>
+                                <p class="text-sm text-textdark/70">Berikut adalah parameter dan metrik yang digunakan untuk memantau penggunaan resource pada sistem blockchain.</p>
+                            </header>
+
+                            <div class="mt-6 space-y-6">
+                                <!-- Metrik Resource -->
+                                <div class="grid gap-6 md:grid-cols-3">
+                                    <!-- CPU -->
+                                    <div class="rounded-2xl border border-primary/30 bg-primary/10 p-6">
+                                        <div class="mb-4 flex items-center gap-3">
+                                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20">
+                                                <svg class="h-5 w-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>
+                                                </svg>
+                                            </div>
+                                            <h3 class="text-lg font-semibold text-primary">CPU Usage</h3>
+                                        </div>
+                                        <p class="text-sm text-textdark/70 mb-3">Persentase penggunaan CPU oleh proses blockchain.</p>
+                                        <div class="space-y-2">
+                                            <div class="flex justify-between text-xs">
+                                                <span class="text-textdark/60">Average CPU</span>
+                                                <span class="text-primary">Rata-rata %</span>
+                                            </div>
+                                            <div class="flex justify-between text-xs">
+                                                <span class="text-textdark/60">Peak CPU</span>
+                                                <span class="text-primary">Maksimum %</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Memory -->
+                                    <div class="rounded-2xl border border-accent/30 bg-accent/10 p-6">
+                                        <div class="mb-4 flex items-center gap-3">
+                                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/20">
+                                                <svg class="h-5 w-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                                                </svg>
+                                            </div>
+                                            <h3 class="text-lg font-semibold text-accent">Memory Usage</h3>
+                                        </div>
+                                        <p class="text-sm text-textdark/70 mb-3">Penggunaan RAM oleh container blockchain.</p>
+                                        <div class="space-y-2">
+                                            <div class="flex justify-between text-xs">
+                                                <span class="text-textdark/60">Average Memory</span>
+                                                <span class="text-accent">Rata-rata MB</span>
+                                            </div>
+                                            <div class="flex justify-between text-xs">
+                                                <span class="text-textdark/60">Peak Memory</span>
+                                                <span class="text-accent">Maksimum MB</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- I/O -->
+                                    <div class="rounded-2xl border border-green-500/30 bg-green-500/10 p-6">
+                                        <div class="mb-4 flex items-center gap-3">
+                                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-green-500/20">
+                                                <svg class="h-5 w-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/>
+                                                </svg>
+                                            </div>
+                                            <h3 class="text-lg font-semibold text-green-400">I/O Disk</h3>
+                                        </div>
+                                        <p class="text-sm text-textdark/70 mb-3">Kecepatan baca/tulis ke storage.</p>
+                                        <div class="space-y-2">
+                                            <div class="flex justify-between text-xs">
+                                                <span class="text-textdark/60">Average I/O</span>
+                                                <span class="text-green-400">MB/s</span>
+                                            </div>
+                                            <div class="flex justify-between text-xs">
+                                                <span class="text-textdark/60">Total I/O</span>
+                                                <span class="text-green-400">MB</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Node Types -->
+                                <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
+                                    <h3 class="mb-4 text-lg font-semibold text-textdark">Komponen yang Dimonitor</h3>
+                                    <div class="grid gap-4 md:grid-cols-2">
+                                        <div class="rounded-xl border border-white/10 bg-surface/50 p-4">
+                                            <div class="mb-2 flex items-center gap-2">
+                                                <span class="flex h-6 w-6 items-center justify-center rounded-full bg-secondary/20 text-xs font-bold text-secondary">O</span>
+                                                <span class="text-sm font-semibold text-textdark">Orderer Nodes</span>
+                                            </div>
+                                            <p class="text-xs text-textdark/60">Node yang bertanggung jawab untuk ordering transaksi dan konsensus RAFT. Biasanya 3-5 node untuk fault tolerance.</p>
+                                        </div>
+                                        <div class="rounded-xl border border-white/10 bg-surface/50 p-4">
+                                            <div class="mb-2 flex items-center gap-2">
+                                                <span class="flex h-6 w-6 items-center justify-center rounded-full bg-highlight/20 text-xs font-bold text-highlight">P</span>
+                                                <span class="text-sm font-semibold text-textdark">Peer Nodes</span>
+                                            </div>
+                                            <p class="text-xs text-textdark/60">Node yang menyimpan ledger dan menjalankan chaincode. Melakukan endorsement dan commit transaksi.</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Faktor yang Mempengaruhi -->
+                                <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
+                                    <h3 class="mb-4 text-lg font-semibold text-textdark">Faktor-faktor yang Mempengaruhi Resource Usage</h3>
+                                    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                                        <div class="rounded-xl border border-white/10 bg-surface/50 p-4">
+                                            <div class="mb-2 flex items-center gap-2">
+                                                <span class="flex h-6 w-6 items-center justify-center rounded-full bg-primary/20 text-xs font-bold text-primary">1</span>
+                                                <span class="text-sm font-semibold text-textdark">Transaction Volume</span>
+                                            </div>
+                                            <p class="text-xs text-textdark/60">Jumlah transaksi per detik mempengaruhi beban CPU dan I/O secara langsung.</p>
+                                        </div>
+                                        <div class="rounded-xl border border-white/10 bg-surface/50 p-4">
+                                            <div class="mb-2 flex items-center gap-2">
+                                                <span class="flex h-6 w-6 items-center justify-center rounded-full bg-primary/20 text-xs font-bold text-primary">2</span>
+                                                <span class="text-sm font-semibold text-textdark">Payload Size</span>
+                                            </div>
+                                            <p class="text-xs text-textdark/60">Ukuran data transaksi mempengaruhi penggunaan memory dan bandwidth.</p>
+                                        </div>
+                                        <div class="rounded-xl border border-white/10 bg-surface/50 p-4">
+                                            <div class="mb-2 flex items-center gap-2">
+                                                <span class="flex h-6 w-6 items-center justify-center rounded-full bg-primary/20 text-xs font-bold text-primary">3</span>
+                                                <span class="text-sm font-semibold text-textdark">Block Size</span>
+                                            </div>
+                                            <p class="text-xs text-textdark/60">Konfigurasi block size mempengaruhi pola I/O dan memory usage.</p>
+                                        </div>
+                                        <div class="rounded-xl border border-white/10 bg-surface/50 p-4">
+                                            <div class="mb-2 flex items-center gap-2">
+                                                <span class="flex h-6 w-6 items-center justify-center rounded-full bg-secondary/20 text-xs font-bold text-secondary">4</span>
+                                                <span class="text-sm font-semibold text-textdark">State Database</span>
+                                            </div>
+                                            <p class="text-xs text-textdark/60">Ukuran world state dan index mempengaruhi query performance.</p>
+                                        </div>
+                                        <div class="rounded-xl border border-white/10 bg-surface/50 p-4">
+                                            <div class="mb-2 flex items-center gap-2">
+                                                <span class="flex h-6 w-6 items-center justify-center rounded-full bg-secondary/20 text-xs font-bold text-secondary">5</span>
+                                                <span class="text-sm font-semibold text-textdark">Chaincode Complexity</span>
+                                            </div>
+                                            <p class="text-xs text-textdark/60">Kompleksitas smart contract mempengaruhi CPU saat eksekusi.</p>
+                                        </div>
+                                        <div class="rounded-xl border border-white/10 bg-surface/50 p-4">
+                                            <div class="mb-2 flex items-center gap-2">
+                                                <span class="flex h-6 w-6 items-center justify-center rounded-full bg-secondary/20 text-xs font-bold text-secondary">6</span>
+                                                <span class="text-sm font-semibold text-textdark">Network Topology</span>
+                                            </div>
+                                            <p class="text-xs text-textdark/60">Jumlah node dan konfigurasi endorsement policy.</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Catatan -->
+                                <div class="rounded-2xl border border-highlight/30 bg-highlight/10 p-6">
+                                    <h3 class="mb-3 text-lg font-semibold text-highlight">Catatan Penting</h3>
+                                    <ul class="space-y-2 text-sm text-textdark/80">
+                                        <li class="flex items-start gap-2">
+                                            <span class="text-highlight">1.</span>
+                                            <span>Monitoring dilakukan menggunakan Docker stats API dengan interval pengambilan setiap 5 detik.</span>
+                                        </li>
+                                        <li class="flex items-start gap-2">
+                                            <span class="text-highlight">2.</span>
+                                            <span>Peak usage penting untuk capacity planning - pastikan sistem memiliki headroom yang cukup.</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </section>
+
                         <!-- Network & Category Selector -->
                         <section class="rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20 backdrop-blur-sm">
                             <header class="flex flex-col gap-2 border-b border-white/10 pb-6">
@@ -285,8 +452,8 @@
                     // Single network view - fetch dari satu endpoint
                     const data = await fetchNetworkData(network);
 
-                    if (data && data.success && data.metrics && data.metrics.resourceUsage) {
-                        const resource = data.metrics.resourceUsage;
+                    if (data && data.success && data.data_resource_usage) {
+                        const resource = data.data_resource_usage;
                         const hasData = resource.ordererCount > 0 || resource.peerCount > 0;
 
                         if (hasData) {
@@ -385,8 +552,8 @@
             const snapshots = [];
 
             results.forEach((data, index) => {
-                if (data && data.success && data.metrics && data.metrics.resourceUsage) {
-                    const resource = data.metrics.resourceUsage;
+                if (data && data.success && data.data_resource_usage) {
+                    const resource = data.data_resource_usage;
 
                     if (resource.averageCPU > 0 || resource.averageMemory > 0) {
                         totalCPU += resource.averageCPU;

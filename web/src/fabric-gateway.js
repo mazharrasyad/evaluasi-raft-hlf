@@ -308,6 +308,24 @@ export async function submitTransaction(networkId, record, metadata = {}) {
         console.log(`   Record ID: ${recordId}`);
         console.log(`   Completed at: ${completedAt}`);
 
+        // Update record dengan completedAt untuk perhitungan throughput
+        // Ini penting agar data_throughput bisa menghitung TPS dengan akurat
+        const finalData = {
+            ...comprehensiveData,
+            completedAt: completedAt,
+            networkMetadata: {
+                ...comprehensiveData.networkMetadata,
+                submittedAt: comprehensiveData.submittedAt,
+                completedAt: completedAt,
+            }
+        };
+
+        await contract.submitTransaction(
+            'CreateOrUpdateCatatan',
+            recordId,
+            JSON.stringify(finalData)
+        );
+
         // Validate the data was saved by reading it back
         console.log(`🔍 [${config.label}] Validating data was saved correctly...`);
         try {

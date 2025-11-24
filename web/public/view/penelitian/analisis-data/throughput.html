@@ -498,7 +498,7 @@
                     // Single network view - fetch dari satu endpoint
                     const data = await fetchNetworkData(network);
 
-                    if (data && data.success && data.metrics && data.metrics.throughput.totalTransactions > 0) {
+                    if (data && data.success && data.data_throughput && data.data_throughput.totalTransactions > 0) {
                         // Transform data untuk format yang diharapkan
                         const transformedData = {
                             success: true,
@@ -506,7 +506,7 @@
                             networkId: data.networkId,
                             simulationCount: data.count,
                             category: category || 'all',
-                            throughput: data.metrics.throughput
+                            throughput: data.data_throughput
                         };
 
                         currentData = transformedData;
@@ -534,8 +534,8 @@
                     let totalRecords = 0;
 
                     results.forEach((data, index) => {
-                        if (data && data.success && data.metrics) {
-                            const throughput = data.metrics.throughput;
+                        if (data && data.success && data.data_throughput) {
+                            const throughput = data.data_throughput;
                             const netId = networkIds[index];
                             networks.push({
                                 networkId: netId,

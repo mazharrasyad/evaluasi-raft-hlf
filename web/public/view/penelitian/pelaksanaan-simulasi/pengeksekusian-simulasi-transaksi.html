@@ -369,8 +369,8 @@
             return items[0].name;
         }
 
-        // Generate single report
-        function generateReport(index, category) {
+        // Generate single report dengan data untuk 4 parameter analisis
+        function generateReport(index, category, totalCount) {
             const now = new Date();
             const year = now.getFullYear();
             const reportId = `RPT-${year}-${String(index).padStart(5, '0')}`;
@@ -378,20 +378,34 @@
             // Adjust timestamp based on load category
             let timestamp;
             let kategori_beban;
+            let expectedLatencyRange;
+            let expectedTpsRange;
+
             if (category === 'light') {
                 // Distribute evenly throughout the day
                 timestamp = new Date(now.getTime() - Math.random() * 24 * 60 * 60 * 1000);
                 kategori_beban = 'ringan';
+                expectedLatencyRange = { min: 50, max: 200 };
+                expectedTpsRange = { min: 10, max: 20 };
             } else if (category === 'medium') {
                 // Concentrate in working hours (8 AM - 4 PM)
                 const hoursOffset = 8 + Math.random() * 8;
                 timestamp = new Date(now.getTime() - (24 - hoursOffset) * 60 * 60 * 1000);
                 kategori_beban = 'sedang';
+                expectedLatencyRange = { min: 100, max: 500 };
+                expectedTpsRange = { min: 50, max: 100 };
             } else {
                 // Burst in 2-4 hours
                 timestamp = new Date(now.getTime() - Math.random() * 4 * 60 * 60 * 1000);
                 kategori_beban = 'tinggi';
+                expectedLatencyRange = { min: 200, max: 1000 };
+                expectedTpsRange = { min: 200, max: 500 };
             }
+
+            // Generate simulation metrics untuk setiap transaksi
+            const simulatedLatencyMs = Math.floor(
+                expectedLatencyRange.min + Math.random() * (expectedLatencyRange.max - expectedLatencyRange.min)
+            );
 
             return {
                 reportId,
@@ -402,7 +416,15 @@
                 receivingOffice: DATA_REFERENCE.offices[Math.floor(Math.random() * DATA_REFERENCE.offices.length)],
                 description: `Laporan maladministrasi terkait ${weightedRandom(DATA_REFERENCE.substances).toLowerCase()}`,
                 status: DATA_REFERENCE.statuses[Math.floor(Math.random() * DATA_REFERENCE.statuses.length)],
-                kategori_beban: kategori_beban
+                kategori_beban: kategori_beban,
+                // Data untuk perhitungan metrics (akan diupdate saat submit)
+                simulation_metadata: {
+                    index: index,
+                    totalTransactions: totalCount,
+                    loadCategory: category,
+                    expectedLatencyMs: simulatedLatencyMs,
+                    expectedTpsRange: expectedTpsRange
+                }
             };
         }
 
@@ -448,10 +470,10 @@
                 return;
             }
 
-            // Generate data
+            // Generate data dengan totalCount untuk metadata
             generatedData = [];
             for (let i = 1; i <= count; i++) {
-                generatedData.push(generateReport(i, currentLoadCategory));
+                generatedData.push(generateReport(i, currentLoadCategory, count));
             }
 
             // Update preview
@@ -695,10 +717,16 @@
                 for (let i = 0; i < generatedData.length; i++) {
                     const txSubmittedAt = new Date().toISOString();
                     try {
+                        // Tambahkan submittedAt ke data yang dikirim untuk perhitungan throughput
+                        const dataToSend = {
+                            ...generatedData[i],
+                            submittedAt: txSubmittedAt
+                        };
+
                         const response = await fetch(network.url, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(generatedData[i])
+                            body: JSON.stringify(dataToSend)
                         });
 
                         const result = await response.json();

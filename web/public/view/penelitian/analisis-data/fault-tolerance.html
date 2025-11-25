@@ -984,21 +984,125 @@
 
             const labels = Array.from({ length: maxTransactions }, (_, i) => i + 1);
 
+            // Prepare data for bar chart
+            const barDatasets = [];
+            const networkLabels = [];
+
+            Object.keys(networkConfigs).forEach(netId => {
+                const config = networkConfigs[netId];
+                const records = allNetworkRecords[netId] || [];
+
+                if (records.length > 0) {
+                    networkLabels.push(config.label);
+
+                    const statusValues = records.map((record, index) => {
+                        let success = 1;
+                        if (record.data_fault_tolerance !== null && record.data_fault_tolerance !== undefined) {
+                            success = record.data_fault_tolerance.recoverySuccessful ? 1 : 0;
+                        } else if (record.status === 'failed' || record.status === 'error') {
+                            success = 0;
+                        }
+                        return success;
+                    });
+
+                    const successCount = statusValues.filter(v => v === 1).length;
+                    const failCount = statusValues.filter(v => v === 0).length;
+
+                    barDatasets.push({
+                        network: config.label,
+                        success: successCount,
+                        fail: failCount,
+                        color: config.color
+                    });
+                }
+            });
+
             perTransactionChart = new Chart(ctx, {
-                type: 'scatter',
-                data: { datasets: datasets.map(ds => ({ ...ds, showLine: false })) },
+                type: 'bar',
+                data: {
+                    labels: networkLabels,
+                    datasets: [
+                        {
+                            label: 'Sukses',
+                            data: barDatasets.map(d => d.success),
+                            backgroundColor: 'rgba(34, 197, 94, 0.7)',
+                            borderColor: 'rgba(34, 197, 94, 1)',
+                            borderWidth: 2
+                        },
+                        {
+                            label: 'Gagal',
+                            data: barDatasets.map(d => d.fail),
+                            backgroundColor: 'rgba(239, 68, 68, 0.7)',
+                            borderColor: 'rgba(239, 68, 68, 1)',
+                            borderWidth: 2
+                        }
+                    ]
+                },
                 options: {
                     responsive: true,
                     maintainAspectRatio: true,
-                    interaction: { mode: 'point', intersect: true },
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
                     plugins: {
-                        legend: { display: true, position: 'top', labels: { color: '#E2E8F0', usePointStyle: true } },
-                        title: { display: true, text: 'Pola Fault Tolerance Per Network (1=Sukses, 0=Gagal)', color: '#E2E8F0', font: { size: 16, weight: 'bold' } },
-                        tooltip: { callbacks: { label: function(context) { return `${context.dataset.label}: Tx#${context.parsed.x} - ${context.parsed.y === 1 ? 'Sukses' : 'Gagal'}`; } } }
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                color: '#E2E8F0',
+                                usePointStyle: true
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Perbandingan Status Transaksi Per Network',
+                            color: '#E2E8F0',
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const total = barDatasets[context.dataIndex].success + barDatasets[context.dataIndex].fail;
+                                    const percentage = ((context.parsed.y / total) * 100).toFixed(1);
+                                    return `${context.dataset.label}: ${context.parsed.y} (${percentage}%)`;
+                                }
+                            }
+                        }
                     },
                     scales: {
-                        x: { min: 0, title: { display: true, text: 'Nomor Transaksi', color: '#94A3B8' }, ticks: { color: '#94A3B8', maxTicksLimit: 20 }, grid: { color: 'rgba(255, 255, 255, 0.1)' } },
-                        y: { min: -0.1, max: 1.1, title: { display: true, text: 'Status (1=Sukses, 0=Gagal)', color: '#94A3B8' }, ticks: { color: '#94A3B8', stepSize: 1, callback: function(value) { return value === 1 ? 'Sukses' : value === 0 ? 'Gagal' : ''; } }, grid: { color: 'rgba(255, 255, 255, 0.1)' } }
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Network',
+                                color: '#94A3B8'
+                            },
+                            ticks: {
+                                color: '#94A3B8'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Jumlah Transaksi',
+                                color: '#94A3B8'
+                            },
+                            ticks: {
+                                color: '#94A3B8',
+                                stepSize: 1,
+                                precision: 0
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        }
                     }
                 }
             });

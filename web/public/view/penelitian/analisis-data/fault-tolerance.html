@@ -1086,20 +1086,24 @@
                     document.getElementById(config.rateId).textContent = '-';
                 }
 
-                const labels = Array.from({ length: records.length }, (_, i) => i + 1);
-
-                // Create chart - using bar chart for better fault distribution visualization
+                // Create chart - bar chart with status on X-axis and count on Y-axis
                 const ctx = document.getElementById(config.chartId).getContext('2d');
                 individualCharts[netId] = new Chart(ctx, {
                     type: 'bar',
                     data: {
-                        labels: labels,
+                        labels: ['Gagal', 'Sukses'],
                         datasets: [{
-                            label: 'Status',
-                            data: statusValues.map(v => v.y),
-                            backgroundColor: statusValues.map(v => v.y === 1 ? config.color : 'rgba(239, 68, 68, 0.7)'),
-                            borderColor: statusValues.map(v => v.y === 1 ? config.color : 'rgba(239, 68, 68, 1)'),
-                            borderWidth: 1
+                            label: 'Jumlah Transaksi',
+                            data: [failCount, successCount],
+                            backgroundColor: [
+                                'rgba(239, 68, 68, 0.7)',
+                                config.color
+                            ],
+                            borderColor: [
+                                'rgba(239, 68, 68, 1)',
+                                config.color
+                            ],
+                            borderWidth: 2
                         }]
                     },
                     options: {
@@ -1119,26 +1123,23 @@
                             tooltip: {
                                 callbacks: {
                                     label: function(context) {
-                                        return `Transaksi #${context.label}: ${context.parsed.y === 1 ? 'Sukses' : 'Gagal'}`;
+                                        return `${context.label}: ${context.parsed.y} transaksi`;
                                     }
                                 }
                             }
                         },
                         scales: {
                             y: {
-                                min: 0,
-                                max: 1,
+                                beginAtZero: true,
                                 title: {
                                     display: true,
-                                    text: 'Status',
+                                    text: 'Jumlah Transaksi',
                                     color: '#94A3B8'
                                 },
                                 ticks: {
                                     color: '#94A3B8',
                                     stepSize: 1,
-                                    callback: function(value) {
-                                        return value === 1 ? 'Sukses' : value === 0 ? 'Gagal' : '';
-                                    }
+                                    precision: 0
                                 },
                                 grid: {
                                     color: 'rgba(255, 255, 255, 0.1)'
@@ -1147,13 +1148,11 @@
                             x: {
                                 title: {
                                     display: true,
-                                    text: 'Nomor Transaksi',
+                                    text: 'Status Transaksi',
                                     color: '#94A3B8'
                                 },
                                 ticks: {
-                                    color: '#94A3B8',
-                                    maxTicksLimit: 20,
-                                    display: statusValues.length <= 50
+                                    color: '#94A3B8'
                                 },
                                 grid: {
                                     color: 'rgba(255, 255, 255, 0.1)'

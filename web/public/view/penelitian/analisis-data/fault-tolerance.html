@@ -939,13 +939,20 @@
                     };
 
                     records.forEach((record) => {
-                        // Cek apakah record memiliki data fault tolerance
+                        let faultType = null;
+
+                        // Try different data structures
                         if (record.fault_scenario && record.fault_scenario !== null && record.fault_scenario !== '') {
-                            // Gunakan fault_scenario langsung dari record
-                            const faultType = record.fault_scenario;
-                            if (faultType && counts.hasOwnProperty(faultType)) {
-                                counts[faultType]++;
-                            }
+                            faultType = record.fault_scenario;
+                        } else if (record.data_fault_tolerance && record.data_fault_tolerance.faultType) {
+                            faultType = record.data_fault_tolerance.faultType;
+                        } else if (record.faultType) {
+                            faultType = record.faultType;
+                        }
+
+                        // Count if valid fault type
+                        if (faultType && counts.hasOwnProperty(faultType)) {
+                            counts[faultType]++;
                         }
                     });
 
@@ -1102,13 +1109,21 @@
                 let totalFaults = 0;
 
                 records.forEach((record) => {
-                    // Cek apakah record memiliki fault_scenario
+                    let faultType = null;
+
+                    // Try different data structures
                     if (record.fault_scenario && record.fault_scenario !== null && record.fault_scenario !== '') {
-                        const faultType = record.fault_scenario;
-                        if (faultType && counts.hasOwnProperty(faultType)) {
-                            counts[faultType]++;
-                            totalFaults++;
-                        }
+                        faultType = record.fault_scenario;
+                    } else if (record.data_fault_tolerance && record.data_fault_tolerance.faultType) {
+                        faultType = record.data_fault_tolerance.faultType;
+                    } else if (record.faultType) {
+                        faultType = record.faultType;
+                    }
+
+                    // Count if valid fault type
+                    if (faultType && counts.hasOwnProperty(faultType)) {
+                        counts[faultType]++;
+                        totalFaults++;
                     }
                 });
 

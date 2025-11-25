@@ -1338,13 +1338,36 @@
                     individualCharts[netId].destroy();
                 }
 
-                // Extract CPU usage from each record's data_resource_usage (NEW structure)
+                // Extract CPU usage from each record - check multiple possible structures
                 const cpuValues = records.map((record, index) => {
                     let cpu = 0;
 
-                    // NEW: Extract from record.data_resource_usage
-                    if (record.data_resource_usage && record.data_resource_usage.cpuUsagePercent !== undefined) {
-                        cpu = record.data_resource_usage.cpuUsagePercent;
+                    // Try different data structures
+                    if (record.data_resource_usage) {
+                        // Structure 1: data_resource_usage.cpuUsagePercent
+                        if (record.data_resource_usage.cpuUsagePercent !== undefined) {
+                            cpu = record.data_resource_usage.cpuUsagePercent;
+                        }
+                        // Structure 2: data_resource_usage.averageCPU
+                        else if (record.data_resource_usage.averageCPU !== undefined) {
+                            cpu = record.data_resource_usage.averageCPU;
+                        }
+                        // Structure 3: data_resource_usage.cpu
+                        else if (record.data_resource_usage.cpu !== undefined) {
+                            cpu = record.data_resource_usage.cpu;
+                        }
+                        // Structure 4: data_resource_usage is the value itself
+                        else if (typeof record.data_resource_usage === 'number') {
+                            cpu = record.data_resource_usage;
+                        }
+                    }
+                    // Direct fields
+                    else if (record.cpuUsagePercent !== undefined) {
+                        cpu = record.cpuUsagePercent;
+                    } else if (record.cpu !== undefined) {
+                        cpu = record.cpu;
+                    } else if (record.averageCPU !== undefined) {
+                        cpu = record.averageCPU;
                     }
 
                     return Math.max(0, cpu);

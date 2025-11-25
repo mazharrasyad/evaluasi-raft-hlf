@@ -1170,16 +1170,36 @@
                     individualCharts[netId].destroy();
                 }
 
-                // Extract processing time from each record's data_throughput (NEW structure)
+                // Extract processing time from each record - check multiple possible structures
                 const latencies = records.map((record, index) => {
                     let processingTime = 0;
 
-                    // NEW: Extract from record.data_throughput
-                    if (record.data_throughput && record.data_throughput.processingTimeMs !== undefined) {
-                        processingTime = record.data_throughput.processingTimeMs;
-                    } else if (record.data_latency && record.data_latency.totalLatency !== undefined) {
-                        // Fallback to latency if throughput not available
-                        processingTime = record.data_latency.totalLatency;
+                    // Try different data structures
+                    if (record.data_throughput) {
+                        // Structure 1: data_throughput.processingTimeMs
+                        if (record.data_throughput.processingTimeMs !== undefined) {
+                            processingTime = record.data_throughput.processingTimeMs;
+                        }
+                        // Structure 2: data_throughput is the value itself
+                        else if (typeof record.data_throughput === 'number') {
+                            processingTime = record.data_throughput;
+                        }
+                    }
+                    // Fallback to latency data
+                    else if (record.data_latency) {
+                        if (record.data_latency.totalLatency !== undefined) {
+                            processingTime = record.data_latency.totalLatency;
+                        } else if (typeof record.data_latency === 'number') {
+                            processingTime = record.data_latency;
+                        }
+                    }
+                    // Direct fields
+                    else if (record.processingTime !== undefined) {
+                        processingTime = record.processingTime;
+                    } else if (record.latency !== undefined) {
+                        processingTime = record.latency;
+                    } else if (record.latencyMs !== undefined) {
+                        processingTime = record.latencyMs;
                     }
 
                     return Math.max(0, processingTime);

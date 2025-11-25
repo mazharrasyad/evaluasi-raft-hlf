@@ -1050,13 +1050,28 @@
                     individualCharts[netId].destroy();
                 }
 
-                // Extract latency from each record's data_latency (NEW structure)
+                // Extract latency from each record - check multiple possible structures
                 const latencies = records.map((record, index) => {
                     let latency = 0;
 
-                    // NEW: Extract from record.data_latency
-                    if (record.data_latency && record.data_latency.totalLatency !== undefined) {
-                        latency = record.data_latency.totalLatency;
+                    // Try different data structures
+                    if (record.data_latency) {
+                        // Structure 1: data_latency.totalLatency
+                        if (record.data_latency.totalLatency !== undefined) {
+                            latency = record.data_latency.totalLatency;
+                        }
+                        // Structure 2: data_latency is the value itself
+                        else if (typeof record.data_latency === 'number') {
+                            latency = record.data_latency;
+                        }
+                    }
+                    // Structure 3: Direct latency field
+                    else if (record.latency !== undefined) {
+                        latency = record.latency;
+                    }
+                    // Structure 4: latencyMs field
+                    else if (record.latencyMs !== undefined) {
+                        latency = record.latencyMs;
                     }
 
                     return Math.max(0, latency);

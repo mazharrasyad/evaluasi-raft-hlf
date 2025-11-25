@@ -447,7 +447,7 @@
             const performanceAnalysisHTML = `
                 <p class="font-semibold text-textdark">Analisis Performa Sistem RAFT pada Hyperledger Fabric:</p>
                 <p>
-                    Berdasarkan data simulasi yang telah dilakukan pada ${simulations.length} skenario berbeda, konsensus RAFT menunjukkan performa yang ${avgThroughput > 50 ? 'sangat baik' : 'stabil'}
+                    Berdasarkan data yang telah dikumpulkan dari ${networkCount} network berbeda dengan total ${totalTransactions.toLocaleString()} transaksi, konsensus RAFT menunjukkan performa yang ${avgThroughput > 50 ? 'sangat baik' : 'stabil'}
                     dengan throughput rata-rata <strong>${avgThroughput.toFixed(2)} TPS</strong>. Latency yang tercatat pada <strong>${avgLatency.toFixed(2)} ms</strong>
                     ${avgLatency < 300 ? 'sangat kompetitif dan suitable untuk aplikasi yang memerlukan fast finality' : 'masih dalam batas wajar untuk aplikasi blockchain enterprise'}.
                 </p>

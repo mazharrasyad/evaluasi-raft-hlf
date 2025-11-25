@@ -312,51 +312,6 @@
                             </div>
                         </section>
 
-                        <!-- Export Section -->
-                        <section id="exportSection" class="hidden rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20 backdrop-blur-sm">
-                            <header class="mb-6">
-                                <h2 class="text-lg font-semibold text-textdark">Export Data</h2>
-                                <p class="text-sm text-textdark/70">Download ringkasan hasil dalam berbagai format</p>
-                            </header>
-
-                            <div class="flex flex-wrap gap-3">
-                                <button
-                                    type="button"
-                                    id="exportPDFButton"
-                                    class="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-surfaceMuted px-4 py-2 text-sm font-semibold text-textdark transition hover:bg-surface disabled:opacity-50 disabled:cursor-not-allowed"
-                                    disabled
-                                >
-                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                                    </svg>
-                                    <span>Export PDF</span>
-                                </button>
-
-                                <button
-                                    type="button"
-                                    id="exportCSVButton"
-                                    class="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-surfaceMuted px-4 py-2 text-sm font-semibold text-textdark transition hover:bg-surface disabled:opacity-50 disabled:cursor-not-allowed"
-                                    disabled
-                                >
-                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                    </svg>
-                                    <span>Export CSV</span>
-                                </button>
-
-                                <button
-                                    type="button"
-                                    id="exportJSONButton"
-                                    class="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-surfaceMuted px-4 py-2 text-sm font-semibold text-textdark transition hover:bg-surface disabled:opacity-50 disabled:cursor-not-allowed"
-                                    disabled
-                                >
-                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/>
-                                    </svg>
-                                    <span>Export JSON</span>
-                                </button>
-                            </div>
-                        </section>
                     </div>
                 </main>
 
@@ -502,14 +457,6 @@
 
             // Display load category breakdown
             displayLoadCategoryBreakdown(networkResults);
-
-            // Show export section
-            document.getElementById('exportSection').classList.remove('hidden');
-
-            // Enable export buttons
-            document.getElementById('exportPDFButton').disabled = false;
-            document.getElementById('exportCSVButton').disabled = false;
-            document.getElementById('exportJSONButton').disabled = false;
         }
 
         function displayNetworkComparison(networkResults) {
@@ -781,51 +728,6 @@
 
             document.getElementById('loadCategoryBreakdown').classList.remove('hidden');
         }
-
-        // Export functions
-        document.getElementById('exportPDFButton').addEventListener('click', () => {
-            Swal.fire({
-                icon: 'info',
-                title: 'Fitur Export PDF',
-                text: 'Fitur export PDF akan segera tersedia',
-                background: '#0F172A',
-                color: '#E2E8F0',
-                confirmButtonColor: '#38BDF8'
-            });
-        });
-
-        document.getElementById('exportCSVButton').addEventListener('click', () => {
-            if (!simulationData) return;
-
-            let csv = 'Simulation ID,Load Category,Total Transactions,Success Count,TPS,Avg Latency (ms),Avg CPU (%),Avg Memory (MB)\n';
-
-            simulationData.forEach(sim => {
-                csv += `${sim.simulationId},${sim.loadCategory},${sim.totalTransactions},${sim.successCount},`;
-                csv += `${sim.metrics?.throughput?.transactionsPerSecond || 0},`;
-                csv += `${sim.metrics?.latency?.averageLatencyMs || 0},`;
-                csv += `${sim.metrics?.resourceUsage?.averageCPU || 0},`;
-                csv += `${sim.metrics?.resourceUsage?.averageMemory || 0}\n`;
-            });
-
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `simulation-results-${new Date().toISOString().split('T')[0]}.csv`;
-            a.click();
-        });
-
-        document.getElementById('exportJSONButton').addEventListener('click', () => {
-            if (!simulationData) return;
-
-            const json = JSON.stringify(simulationData, null, 2);
-            const blob = new Blob([json], { type: 'application/json' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `simulation-results-${new Date().toISOString().split('T')[0]}.json`;
-            a.click();
-        });
     </script>
 </body>
 </html>

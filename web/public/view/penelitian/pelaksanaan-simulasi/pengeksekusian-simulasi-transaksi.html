@@ -940,7 +940,8 @@
                     const progressPercentage = ((i + 1) / generatedData.length) * 100;
 
                     // Update progress dengan detail transaksi yang sedang diproses
-                    progressEl.textContent = `Memproses Tx #${i + 1}/${generatedData.length}: ${txId}`;
+                    const remaining = generatedData.length - (i + 1);
+                    progressEl.textContent = `Memproses ${i + 1}/${generatedData.length} (Sisa: ${remaining}) - ${txId}`;
                     updateProgressBar(network.id, progressPercentage);
 
                     try {
@@ -963,7 +964,8 @@
                             successCount++;
 
                             // Update progress dengan status sukses
-                            progressEl.textContent = `✓ Tx #${i + 1} sukses | Total: ${successCount}/${i + 1}`;
+                            const remainingAfterSuccess = generatedData.length - (i + 1);
+                            progressEl.textContent = `✓ ${i + 1}/${generatedData.length} (Sisa: ${remainingAfterSuccess}) | Sukses: ${successCount}`;
 
                             // =================== RECORD TRANSACTION METRICS ===================
                             if (simulationId) {
@@ -991,7 +993,8 @@
                             }
 
                             // Update progress dengan status gagal
-                            progressEl.textContent = `✗ Tx #${i + 1} gagal | Sukses: ${successCount}, Gagal: ${failCount}`;
+                            const remainingAfterFail = generatedData.length - (i + 1);
+                            progressEl.textContent = `✗ ${i + 1}/${generatedData.length} (Sisa: ${remainingAfterFail}) | Sukses: ${successCount}, Gagal: ${failCount}`;
 
                             // Record failed transaction in metrics
                             if (simulationId) {
@@ -1020,7 +1023,8 @@
                         }
 
                         // Update progress dengan status error
-                        progressEl.textContent = `✗ Tx #${i + 1} error | Sukses: ${successCount}, Gagal: ${failCount}`;
+                        const remainingAfterError = generatedData.length - (i + 1);
+                        progressEl.textContent = `✗ ${i + 1}/${generatedData.length} (Sisa: ${remainingAfterError}) | Sukses: ${successCount}, Gagal: ${failCount}`;
 
                         const txCompletedAt = new Date().toISOString();
 

@@ -256,26 +256,14 @@
                             <div class="mt-6 space-y-6">
                                 <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
                                     <div class="flex flex-col gap-4">
-                                        <div class="grid gap-4 md:grid-cols-2">
-                                            <div>
-                                                <label for="networkSelect" class="mb-2 block text-sm font-medium text-textdark/90">Pilih Network</label>
-                                                <select id="networkSelect" class="w-full rounded-lg border border-white/10 bg-surface px-4 py-3 text-textdark focus:border-secondary focus:outline-none focus:ring-2 focus:ring-secondary/50">
-                                                    <option value="">-- Semua Network --</option>
-                                                    <option value="channel-standard">Fabric 2 RAFT Standard</option>
-                                                    <option value="channel-variant">Fabric 2 RAFT Variant</option>
-                                                    <option value="channel-fabric3-standard">Fabric 3 RAFT Standard</option>
-                                                    <option value="channel-fabric3-variant">Fabric 3 RAFT Variant</option>
-                                                </select>
-                                            </div>
-                                            <div>
-                                                <label for="categoryFilter" class="mb-2 block text-sm font-medium text-textdark/90">Filter Kategori Beban</label>
-                                                <select id="categoryFilter" class="w-full rounded-lg border border-white/10 bg-surface px-4 py-3 text-textdark focus:border-secondary focus:outline-none focus:ring-2 focus:ring-secondary/50">
-                                                    <option value="">Semua Kategori</option>
-                                                    <option value="light">Ringan (Light)</option>
-                                                    <option value="medium">Sedang (Medium)</option>
-                                                    <option value="heavy">Tinggi (Heavy)</option>
-                                                </select>
-                                            </div>
+                                        <div>
+                                            <label for="categoryFilter" class="mb-2 block text-sm font-medium text-textdark/90">Filter Kategori Beban</label>
+                                            <select id="categoryFilter" class="w-full rounded-lg border border-white/10 bg-surface px-4 py-3 text-textdark focus:border-secondary focus:outline-none focus:ring-2 focus:ring-secondary/50">
+                                                <option value="">Semua Kategori</option>
+                                                <option value="ringan">Beban Ringan</option>
+                                                <option value="sedang">Beban Sedang</option>
+                                                <option value="tinggi">Beban Tinggi</option>
+                                            </select>
                                         </div>
                                         <div class="flex justify-end">
                                             <button
@@ -591,98 +579,64 @@
 
         // Load combined data dari API GET pelaporan
         async function loadCombinedData() {
-            const network = document.getElementById('networkSelect').value;
             const category = document.getElementById('categoryFilter').value;
 
             const noDataMsg = document.getElementById('noDataMessage');
             const dataInfo = document.getElementById('dataInfo');
 
             try {
-                if (network) {
-                    // Single network view - fetch dari satu endpoint
-                    const data = await fetchNetworkData(network);
+                // All networks comparison view - fetch dari semua endpoints
+                const networkIds = Object.keys(networkEndpoints);
+                const fetchPromises = networkIds.map(id => fetchNetworkData(id));
+                const results = await Promise.all(fetchPromises);
 
-                    if (data && data.success && data.data_resource_usage) {
-                        const resource = data.data_resource_usage;
-                        const hasData = resource.ordererCount > 0 || resource.peerCount > 0;
+                let totalRecords = 0;
+                allNetworkRecords = {};
 
-                        if (hasData) {
-                            // Transform data untuk format yang diharapkan
-                            const transformedData = {
-                                success: true,
-                                networkName: data.label,
-                                networkId: data.networkId,
-                                simulationCount: data.count,
-                                category: category || 'all',
-                                resourceUsage: {
-                                    ...resource,
-                                    snapshotCount: 1
-                                }
-                            };
+                // Filter and collect records per network
+                results.forEach((data, index) => {
+                    if (data && data.success) {
+                        const netId = networkIds[index];
 
-                            currentData = transformedData;
-                            displaySingleNetworkData(transformedData);
-                            noDataMsg.classList.add('hidden');
-                            dataInfo.classList.remove('hidden');
-                            const catName = categoryNames[category] || 'Semua';
-                            document.getElementById('dataInfoText').textContent =
-                                `Menampilkan data untuk ${data.label} (${data.count} record, Kategori: ${catName})`;
-                        } else {
-                            noDataMsg.classList.remove('hidden');
-                            noDataMsg.querySelector('p').innerHTML =
-                                `Belum ada data resource untuk network <strong>${networkNames[network]}</strong>. Pastikan Docker containers sedang berjalan.`;
-                            dataInfo.classList.add('hidden');
-                            hideSections();
+                        // Filter records berdasarkan kategori_beban
+                        let filteredRecords = data.records || [];
+                        if (category && category !== '') {
+                            filteredRecords = filteredRecords.filter(record =>
+                                record.kategori_beban === category
+                            );
                         }
-                    } else {
-                        noDataMsg.classList.remove('hidden');
-                        noDataMsg.querySelector('p').innerHTML =
-                            `Belum ada data untuk network <strong>${networkNames[network]}</strong>. Silakan jalankan simulasi terlebih dahulu.`;
-                        dataInfo.classList.add('hidden');
-                        hideSections();
+
+                        totalRecords += filteredRecords.length;
+                        if (filteredRecords.length > 0) {
+                            allNetworkRecords[netId] = filteredRecords;
+                        }
                     }
+                });
+
+                // Aggregate resource usage dari filtered records
+                const aggregatedResource = aggregateResourceUsageFromFilteredRecords(allNetworkRecords);
+
+                if (aggregatedResource.snapshotCount > 0) {
+                    const transformedData = {
+                        success: true,
+                        simulationCount: totalRecords,
+                        category: category || 'all',
+                        resourceUsage: aggregatedResource
+                    };
+
+                    currentData = transformedData;
+                    displayComparisonData(transformedData, []);
+                    noDataMsg.classList.add('hidden');
+                    dataInfo.classList.remove('hidden');
+                    const catName = categoryNames[category] || 'Semua';
+                    document.getElementById('dataInfoText').textContent =
+                        `Menampilkan data gabungan dari semua network (${totalRecords} total record, Kategori: ${catName})`;
                 } else {
-                    // All networks comparison view - fetch dari semua endpoints
-                    const networkIds = Object.keys(networkEndpoints);
-                    const fetchPromises = networkIds.map(id => fetchNetworkData(id));
-                    const results = await Promise.all(fetchPromises);
-
-                    // Aggregate resource usage dari semua networks
-                    const aggregatedResource = aggregateResourceUsageFromResults(results, networkIds);
-                    let totalRecords = 0;
-                    allNetworkRecords = {};
-
-                    results.forEach((data, index) => {
-                        if (data && data.success) {
-                            totalRecords += data.count;
-                            if (data.records && data.records.length > 0) {
-                                allNetworkRecords[networkIds[index]] = data.records;
-                            }
-                        }
-                    });
-
-                    if (aggregatedResource.snapshotCount > 0) {
-                        const transformedData = {
-                            success: true,
-                            simulationCount: totalRecords,
-                            category: category || 'all',
-                            resourceUsage: aggregatedResource
-                        };
-
-                        currentData = transformedData;
-                        displayComparisonData(transformedData, []);
-                        noDataMsg.classList.add('hidden');
-                        dataInfo.classList.remove('hidden');
-                        const catName = categoryNames[category] || 'Semua';
-                        document.getElementById('dataInfoText').textContent =
-                            `Menampilkan data gabungan dari semua network (${totalRecords} total record, Kategori: ${catName})`;
-                    } else {
-                        noDataMsg.classList.remove('hidden');
-                        noDataMsg.querySelector('p').innerHTML =
-                            'Belum ada data simulasi yang tersedia. Silakan jalankan simulasi terlebih dahulu di halaman <a href="/penelitian/pelaksanaan-simulasi/pengeksekusian-simulasi-transaksi" class="font-semibold text-yellow-400 underline">Pengeksekusian Simulasi Transaksi</a>.';
-                        dataInfo.classList.add('hidden');
-                        hideSections();
-                    }
+                    noDataMsg.classList.remove('hidden');
+                    noDataMsg.querySelector('p').innerHTML =
+                        'Belum ada data simulasi yang tersedia. Silakan jalankan simulasi terlebih dahulu di halaman <a href="/penelitian/pelaksanaan-simulasi/pengeksekusian-simulasi-transaksi" class="font-semibold text-yellow-400 underline">Pengeksekusian Simulasi Transaksi</a>.';
+                    dataInfo.classList.add('hidden');
+                    hideSections();
                 }
             } catch (error) {
                 console.error('Error loading combined data:', error);
@@ -696,42 +650,37 @@
             }
         }
 
-        function aggregateResourceUsageFromResults(results, networkIds) {
+        function aggregateResourceUsageFromFilteredRecords(allNetworkRecords) {
             let totalCPU = 0;
             let totalMemory = 0;
             let totalIO = 0;
             let count = 0;
             let peakCPU = 0;
             let peakMemory = 0;
-            const snapshots = [];
 
-            results.forEach((data, index) => {
-                if (data && data.success && data.data_resource_usage) {
-                    const resource = data.data_resource_usage;
-
-                    if (resource.averageCPU > 0 || resource.averageMemory > 0) {
-                        totalCPU += resource.averageCPU;
-                        totalMemory += resource.averageMemory;
-                        totalIO += resource.totalIO || 0;
-                        count++;
-
-                        if (resource.peakCPU > peakCPU) peakCPU = resource.peakCPU;
-                        if (resource.peakMemory > peakMemory) peakMemory = resource.peakMemory;
-
-                        // Create snapshot from current data
-                        if (resource.snapshot) {
-                            snapshots.push({
-                                ...resource.snapshot,
-                                networkId: networkIds[index],
-                                networkName: data.label
-                            });
+            Object.keys(allNetworkRecords).forEach(netId => {
+                const records = allNetworkRecords[netId];
+                records.forEach(record => {
+                    if (record.data_resource_usage) {
+                        const resource = record.data_resource_usage;
+                        if (resource.cpuUsagePercent !== undefined) {
+                            totalCPU += resource.cpuUsagePercent;
+                            if (resource.cpuUsagePercent > peakCPU) peakCPU = resource.cpuUsagePercent;
                         }
+                        if (resource.memoryUsageMB !== undefined) {
+                            totalMemory += resource.memoryUsageMB;
+                            if (resource.memoryUsageMB > peakMemory) peakMemory = resource.memoryUsageMB;
+                        }
+                        if (resource.diskIOps !== undefined) {
+                            totalIO += resource.diskIOps;
+                        }
+                        count++;
                     }
-                }
+                });
             });
 
             return {
-                snapshots: snapshots,
+                snapshots: [],
                 snapshotCount: count,
                 averageCPU: count > 0 ? totalCPU / count : 0,
                 averageMemory: count > 0 ? totalMemory / count : 0,

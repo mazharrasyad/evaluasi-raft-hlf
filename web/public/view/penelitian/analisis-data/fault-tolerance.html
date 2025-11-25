@@ -252,26 +252,14 @@
                             <div class="mt-6 space-y-6">
                                 <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
                                     <div class="flex flex-col gap-4">
-                                        <div class="grid gap-4 md:grid-cols-2">
-                                            <div>
-                                                <label for="networkSelect" class="mb-2 block text-sm font-medium text-textdark/90">Pilih Network</label>
-                                                <select id="networkSelect" class="w-full rounded-lg border border-white/10 bg-surface px-4 py-3 text-textdark focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/50">
-                                                    <option value="">-- Semua Network --</option>
-                                                    <option value="channel-standard">Fabric 2 RAFT Standard</option>
-                                                    <option value="channel-variant">Fabric 2 RAFT Variant</option>
-                                                    <option value="channel-fabric3-standard">Fabric 3 RAFT Standard</option>
-                                                    <option value="channel-fabric3-variant">Fabric 3 RAFT Variant</option>
-                                                </select>
-                                            </div>
-                                            <div>
-                                                <label for="categoryFilter" class="mb-2 block text-sm font-medium text-textdark/90">Filter Kategori Beban</label>
-                                                <select id="categoryFilter" class="w-full rounded-lg border border-white/10 bg-surface px-4 py-3 text-textdark focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/50">
-                                                    <option value="">Semua Kategori</option>
-                                                    <option value="light">Ringan (Light)</option>
-                                                    <option value="medium">Sedang (Medium)</option>
-                                                    <option value="heavy">Tinggi (Heavy)</option>
-                                                </select>
-                                            </div>
+                                        <div>
+                                            <label for="categoryFilter" class="mb-2 block text-sm font-medium text-textdark/90">Filter Kategori Beban</label>
+                                            <select id="categoryFilter" class="w-full rounded-lg border border-white/10 bg-surface px-4 py-3 text-textdark focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/50">
+                                                <option value="">Semua Kategori</option>
+                                                <option value="ringan">Beban Ringan</option>
+                                                <option value="sedang">Beban Sedang</option>
+                                                <option value="tinggi">Beban Tinggi</option>
+                                            </select>
                                         </div>
                                         <div class="flex justify-end">
                                             <button
@@ -560,81 +548,64 @@
 
         // Load combined data dari API GET pelaporan
         async function loadCombinedData() {
-            const network = document.getElementById('networkSelect').value;
             const category = document.getElementById('categoryFilter').value;
 
             const noDataMsg = document.getElementById('noDataMessage');
             const dataInfo = document.getElementById('dataInfo');
 
             try {
-                if (network) {
-                    // Single network view - fetch dari satu endpoint
-                    const data = await fetchNetworkData(network);
+                // All networks comparison view - fetch dari semua endpoints
+                const networkIds = Object.keys(networkEndpoints);
+                const fetchPromises = networkIds.map(id => fetchNetworkData(id));
+                const results = await Promise.all(fetchPromises);
 
-                    if (data && data.success && data.data_fault_tolerance) {
-                        currentData = {
-                            simulationCount: data.count,
-                            category: category || 'all',
-                            network: network,
-                            networkName: data.label,
-                            faultTolerance: data.data_fault_tolerance
-                        };
+                let totalRecords = 0;
+                allNetworkRecords = {};
 
-                        displayFaultToleranceData(currentData);
-                        noDataMsg.classList.add('hidden');
-                        dataInfo.classList.remove('hidden');
-                        const catName = categoryNames[category] || 'Semua';
-                        document.getElementById('dataInfoText').textContent =
-                            `Menampilkan data untuk ${data.label} (${data.count} record, Kategori: ${catName})`;
-                    } else {
-                        noDataMsg.classList.remove('hidden');
-                        noDataMsg.querySelector('p').innerHTML =
-                            `Belum ada data untuk network <strong>${networkNames[network]}</strong>. Silakan jalankan simulasi terlebih dahulu.`;
-                        dataInfo.classList.add('hidden');
-                        hideSections();
-                    }
-                } else {
-                    // All networks comparison view - fetch dari semua endpoints
-                    const networkIds = Object.keys(networkEndpoints);
-                    const fetchPromises = networkIds.map(id => fetchNetworkData(id));
-                    const results = await Promise.all(fetchPromises);
+                // Filter and collect records per network
+                results.forEach((data, index) => {
+                    if (data && data.success) {
+                        const netId = networkIds[index];
 
-                    // Aggregate fault tolerance data dari semua networks
-                    const aggregatedFault = aggregateFaultDataFromResults(results);
-                    let totalRecords = 0;
-                    allNetworkRecords = {};
-
-                    results.forEach((data, index) => {
-                        if (data && data.success) {
-                            totalRecords += data.count;
-                            if (data.records && data.records.length > 0) {
-                                allNetworkRecords[networkIds[index]] = data.records;
-                            }
+                        // Filter records berdasarkan kategori_beban
+                        let filteredRecords = data.records || [];
+                        if (category && category !== '') {
+                            filteredRecords = filteredRecords.filter(record =>
+                                record.kategori_beban === category
+                            );
                         }
-                    });
 
-                    if (totalRecords > 0) {
-                        currentData = {
-                            simulationCount: totalRecords,
-                            category: category || 'all',
-                            network: null,
-                            networkName: 'Semua Network',
-                            faultTolerance: aggregatedFault
-                        };
-
-                        displayFaultToleranceData(currentData);
-                        noDataMsg.classList.add('hidden');
-                        dataInfo.classList.remove('hidden');
-                        const catName = categoryNames[category] || 'Semua';
-                        document.getElementById('dataInfoText').textContent =
-                            `Menampilkan data gabungan dari semua network (${totalRecords} total record, Kategori: ${catName})`;
-                    } else {
-                        noDataMsg.classList.remove('hidden');
-                        noDataMsg.querySelector('p').innerHTML =
-                            'Belum ada data simulasi yang tersedia. Silakan jalankan simulasi terlebih dahulu di halaman <a href="/penelitian/pelaksanaan-simulasi/pengeksekusian-simulasi-transaksi" class="font-semibold text-yellow-400 underline">Pengeksekusian Simulasi Transaksi</a>.';
-                        dataInfo.classList.add('hidden');
-                        hideSections();
+                        totalRecords += filteredRecords.length;
+                        if (filteredRecords.length > 0) {
+                            allNetworkRecords[netId] = filteredRecords;
+                        }
                     }
+                });
+
+                // Aggregate fault tolerance data dari filtered records
+                const aggregatedFault = aggregateFaultDataFromFilteredRecords(allNetworkRecords);
+
+                if (totalRecords > 0) {
+                    currentData = {
+                        simulationCount: totalRecords,
+                        category: category || 'all',
+                        network: null,
+                        networkName: 'Semua Network',
+                        faultTolerance: aggregatedFault
+                    };
+
+                    displayFaultToleranceData(currentData);
+                    noDataMsg.classList.add('hidden');
+                    dataInfo.classList.remove('hidden');
+                    const catName = categoryNames[category] || 'Semua';
+                    document.getElementById('dataInfoText').textContent =
+                        `Menampilkan data gabungan dari semua network (${totalRecords} total record, Kategori: ${catName})`;
+                } else {
+                    noDataMsg.classList.remove('hidden');
+                    noDataMsg.querySelector('p').innerHTML =
+                        'Belum ada data simulasi yang tersedia. Silakan jalankan simulasi terlebih dahulu di halaman <a href="/penelitian/pelaksanaan-simulasi/pengeksekusian-simulasi-transaksi" class="font-semibold text-yellow-400 underline">Pengeksekusian Simulasi Transaksi</a>.';
+                    dataInfo.classList.add('hidden');
+                    hideSections();
                 }
             } catch (error) {
                 console.error('Error loading combined data:', error);
@@ -648,27 +619,46 @@
             }
         }
 
-        function aggregateFaultDataFromResults(results) {
-            let totalSuccessRate = 0;
+        function aggregateFaultDataFromFilteredRecords(allNetworkRecords) {
+            let totalSuccessCount = 0;
             let totalFailureCount = 0;
-            let count = 0;
+            let totalRecords = 0;
+            const nodeFailures = [];
+            const recoveryTimes = [];
 
-            results.forEach((data) => {
-                if (data && data.success && data.data_fault_tolerance) {
-                    const ft = data.data_fault_tolerance;
-                    totalSuccessRate += ft.successRate || 0;
-                    totalFailureCount += ft.failureCount || 0;
-                    count++;
-                }
+            Object.keys(allNetworkRecords).forEach(netId => {
+                const records = allNetworkRecords[netId];
+                records.forEach(record => {
+                    totalRecords++;
+
+                    if (record.status === 'failed' || (record.data_fault_tolerance && record.data_fault_tolerance.failureType)) {
+                        totalFailureCount++;
+
+                        // Collect fault data jika ada
+                        if (record.data_fault_tolerance) {
+                            nodeFailures.push(record.data_fault_tolerance);
+
+                            if (record.data_fault_tolerance.recoveryTimeMs !== undefined) {
+                                recoveryTimes.push(record.data_fault_tolerance.recoveryTimeMs);
+                            }
+                        }
+                    } else {
+                        totalSuccessCount++;
+                    }
+                });
             });
 
+            const avgRecoveryTime = recoveryTimes.length > 0
+                ? recoveryTimes.reduce((sum, t) => sum + t, 0) / recoveryTimes.length
+                : 0;
+
             return {
-                nodeFailures: [], // No specific node failure data from aggregated API
+                nodeFailures: nodeFailures,
                 dataConsistencyChecks: [],
-                averageRecoveryTimeMs: 0,
+                averageRecoveryTimeMs: avgRecoveryTime,
                 transactionsDuringFailure: totalFailureCount,
-                successRateDuringFailure: count > 0 ? totalSuccessRate / count : 0,
-                successRate: count > 0 ? totalSuccessRate / count : 0,
+                successRateDuringFailure: totalRecords > 0 ? (totalSuccessCount / totalRecords) * 100 : 0,
+                successRate: totalRecords > 0 ? (totalSuccessCount / totalRecords) * 100 : 0,
                 failureCount: totalFailureCount
             };
         }

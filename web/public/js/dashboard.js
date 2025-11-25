@@ -6211,7 +6211,7 @@ async function handleRestartAllNetworks() {
         // Step 1: Stop all networks
         updateRestartAllStatus('loading', 'Menghentikan semua network...');
 
-        const shutdownResponse = await fetch('/api/stop-network', {
+        const shutdownResponse = await fetch('/api/shutdown-network', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',

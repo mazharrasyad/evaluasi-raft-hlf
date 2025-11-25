@@ -484,6 +484,23 @@
                 expectedLatencyRange.min + Math.random() * (expectedLatencyRange.max - expectedLatencyRange.min)
             );
 
+            // Simulate timing untuk throughput calculation
+            const submittedAt = timestamp.toISOString();
+            const completedAt = new Date(timestamp.getTime() + simulatedLatencyMs).toISOString();
+
+            // Generate resource usage metrics
+            const cpuUsage = category === 'light'
+                ? 10 + Math.random() * 20  // 10-30%
+                : category === 'medium'
+                ? 25 + Math.random() * 30  // 25-55%
+                : 50 + Math.random() * 35; // 50-85%
+
+            const memoryUsage = category === 'light'
+                ? 500 + Math.random() * 500  // 500-1000 MB
+                : category === 'medium'
+                ? 1000 + Math.random() * 1000 // 1000-2000 MB
+                : 2000 + Math.random() * 1500; // 2000-3500 MB
+
             return {
                 reportId,
                 timestamp: timestamp.toISOString(),
@@ -494,13 +511,40 @@
                 description: `Laporan maladministrasi terkait ${weightedRandom(DATA_REFERENCE.substances).toLowerCase()}`,
                 status: DATA_REFERENCE.statuses[Math.floor(Math.random() * DATA_REFERENCE.statuses.length)],
                 kategori_beban: kategori_beban,
-                // Data untuk perhitungan metrics (akan diupdate saat submit)
+
+                // Data throughput - timing information
+                data_throughput: {
+                    submittedAt: submittedAt,
+                    completedAt: completedAt,
+                    processingTimeMs: simulatedLatencyMs,
+                    expectedTps: expectedTpsRange.min + Math.random() * (expectedTpsRange.max - expectedTpsRange.min)
+                },
+
+                // Data latency - response time metrics
+                data_latency: {
+                    totalLatency: simulatedLatencyMs,
+                    endorsementLatency: Math.floor(simulatedLatencyMs * (0.3 + Math.random() * 0.2)), // 30-50%
+                    orderingLatency: Math.floor(simulatedLatencyMs * (0.2 + Math.random() * 0.15)), // 20-35%
+                    commitLatency: Math.floor(simulatedLatencyMs * (0.15 + Math.random() * 0.15)) // 15-30%
+                },
+
+                // Data resource usage - system resource consumption
+                data_resource_usage: {
+                    cpuUsagePercent: parseFloat(cpuUsage.toFixed(2)),
+                    memoryUsageMB: parseFloat(memoryUsage.toFixed(2)),
+                    diskIOps: Math.floor(50 + Math.random() * 200),
+                    networkBandwidthKbps: Math.floor(100 + Math.random() * 500)
+                },
+
+                // Data fault tolerance - initially null for normal transactions
+                data_fault_tolerance: null,
+
+                // Simulation metadata
                 simulation_metadata: {
                     index: index,
                     totalTransactions: totalCount,
                     loadCategory: category,
-                    expectedLatencyMs: simulatedLatencyMs,
-                    expectedTpsRange: expectedTpsRange
+                    transactionType: 'normal'
                 }
             };
         }
@@ -1246,47 +1290,100 @@
             // Generate related transaction that was affected (for cascade)
             const relatedTxId = isCascadeFailure ? `RPT-${year}-${String(Math.floor(Math.random() * totalCount) + 1).padStart(5, '0')}` : null;
 
+            // Generate timing for fault transaction
+            const failureLatencyMs = Math.floor(simulatedLatencyMs * (2 + Math.random() * 3)); // 2-5x normal latency for failures
+            const submittedAt = failureTimestamp.toISOString();
+            const completedAt = new Date(failureTimestamp.getTime() + failureLatencyMs).toISOString();
+
+            // Generate higher resource usage during fault
+            const cpuUsage = category === 'light'
+                ? 40 + Math.random() * 30  // 40-70%
+                : category === 'medium'
+                ? 60 + Math.random() * 25  // 60-85%
+                : 75 + Math.random() * 20; // 75-95%
+
+            const memoryUsage = category === 'light'
+                ? 1500 + Math.random() * 1000  // 1500-2500 MB
+                : category === 'medium'
+                ? 2500 + Math.random() * 1000  // 2500-3500 MB
+                : 3000 + Math.random() * 1000; // 3000-4000 MB
+
             return {
-                faultId,
+                reportId: faultId, // Use faultId as reportId for consistency
                 timestamp: failureTimestamp.toISOString(),
-                failureType: scenarioKey,
-                failureTypeName: scenario.name,
-                severity: scenario.severity,
-                errorCode,
-                errorMessage: generateErrorMessage(scenarioKey, errorCode, affectedComponent),
-                affectedComponent,
-                networkId: ['f2-standard', 'f2-variant', 'f3-standard', 'f3-variant'][Math.floor(Math.random() * 4)],
+                substance: weightedRandom(DATA_REFERENCE.substances),
+                reporterGroup: weightedRandom(DATA_REFERENCE.reporterGroups),
+                reportedGroup: weightedRandom(DATA_REFERENCE.reportedGroups),
+                receivingOffice: DATA_REFERENCE.offices[Math.floor(Math.random() * DATA_REFERENCE.offices.length)],
+                description: `Fault: ${scenario.name} - ${generateErrorMessage(scenarioKey, errorCode, affectedComponent)}`,
+                status: 'failed', // Fault transactions have failed status
                 kategori_beban: category === 'light' ? 'ringan' : (category === 'medium' ? 'sedang' : 'tinggi'),
-                metrics: {
-                    latencyAtFailureMs: Math.floor(simulatedLatencyMs),
-                    recoveryTimeMs,
+
+                // Data throughput - timing information (failed transaction)
+                data_throughput: {
+                    submittedAt: submittedAt,
+                    completedAt: completedAt,
+                    processingTimeMs: failureLatencyMs,
+                    expectedTps: 0, // Failed transactions don't contribute to TPS
+                    failed: true
+                },
+
+                // Data latency - response time metrics (higher due to failure)
+                data_latency: {
+                    totalLatency: failureLatencyMs,
+                    endorsementLatency: Math.floor(failureLatencyMs * (0.4 + Math.random() * 0.2)), // 40-60% (higher than normal)
+                    orderingLatency: Math.floor(failureLatencyMs * (0.2 + Math.random() * 0.15)), // 20-35%
+                    commitLatency: null, // Not committed due to failure
+                    failureDetectionLatency: Math.floor(failureLatencyMs * 0.1) // Time to detect failure
+                },
+
+                // Data resource usage - system resource consumption (higher during fault)
+                data_resource_usage: {
+                    cpuUsagePercent: parseFloat(cpuUsage.toFixed(2)),
+                    memoryUsageMB: parseFloat(memoryUsage.toFixed(2)),
+                    diskIOps: Math.floor(100 + Math.random() * 300),
+                    networkBandwidthKbps: Math.floor(200 + Math.random() * 600)
+                },
+
+                // Data fault tolerance - detailed fault information
+                data_fault_tolerance: {
+                    failureType: scenarioKey,
+                    failureTypeName: scenario.name,
+                    severity: scenario.severity,
+                    errorCode: errorCode,
+                    errorMessage: generateErrorMessage(scenarioKey, errorCode, affectedComponent),
+                    affectedComponent: affectedComponent,
+                    recoveryTimeMs: recoveryTimeMs,
                     expectedFailureRate: parseFloat(expectedFailureRate.toFixed(4)),
                     retryCount: Math.floor(Math.random() * 5),
-                    queueDepthAtFailure: Math.floor(Math.random() * (category === 'heavy' ? 500 : (category === 'medium' ? 200 : 50)))
+                    queueDepthAtFailure: Math.floor(Math.random() * (category === 'heavy' ? 500 : (category === 'medium' ? 200 : 50))),
+                    cascadeInfo: {
+                        isCascadeFailure,
+                        relatedTransactionId: relatedTxId,
+                        cascadeDepth: isCascadeFailure ? Math.floor(Math.random() * 3) + 1 : 0
+                    },
+                    raftMetrics: scenarioKey === 'consensus_failure' ? {
+                        currentTerm: Math.floor(Math.random() * 100) + 1,
+                        leaderElectionTimeMs: Math.floor(500 + Math.random() * 2000),
+                        logIndex: Math.floor(Math.random() * 10000),
+                        commitIndex: Math.floor(Math.random() * 10000),
+                        followersBehind: Math.floor(Math.random() * 3)
+                    } : null,
+                    resourceMetrics: scenarioKey === 'resource_exhaustion' ? {
+                        cpuUsagePercent: 85 + Math.random() * 15,
+                        memoryUsageMB: 3500 + Math.random() * 500,
+                        diskUsagePercent: 90 + Math.random() * 10,
+                        activeConnections: 900 + Math.floor(Math.random() * 100),
+                        goroutineCount: 5000 + Math.floor(Math.random() * 2000)
+                    } : null
                 },
-                cascadeInfo: {
-                    isCascadeFailure,
-                    relatedTransactionId: relatedTxId,
-                    cascadeDepth: isCascadeFailure ? Math.floor(Math.random() * 3) + 1 : 0
-                },
-                raftMetrics: scenarioKey === 'consensus_failure' ? {
-                    currentTerm: Math.floor(Math.random() * 100) + 1,
-                    leaderElectionTimeMs: Math.floor(500 + Math.random() * 2000),
-                    logIndex: Math.floor(Math.random() * 10000),
-                    commitIndex: Math.floor(Math.random() * 10000),
-                    followersBehind: Math.floor(Math.random() * 3)
-                } : null,
-                resourceMetrics: scenarioKey === 'resource_exhaustion' ? {
-                    cpuUsagePercent: 85 + Math.random() * 15,
-                    memoryUsageMB: 3500 + Math.random() * 500,
-                    diskUsagePercent: 90 + Math.random() * 10,
-                    activeConnections: 900 + Math.floor(Math.random() * 100),
-                    goroutineCount: 5000 + Math.floor(Math.random() * 2000)
-                } : null,
+
+                // Simulation metadata
                 simulation_metadata: {
                     index,
-                    totalFaultTransactions: totalCount,
+                    totalTransactions: totalCount,
                     loadCategory: category,
+                    transactionType: 'fault',
                     generatedAt: new Date().toISOString()
                 }
             };

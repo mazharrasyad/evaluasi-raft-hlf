@@ -50,6 +50,10 @@
         /* DataTables Custom Styling */
         .dataTables_wrapper {
             color: #E2E8F0;
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            overflow-x: auto;
         }
 
         .dataTables_wrapper .dataTables_length,
@@ -81,6 +85,8 @@
             border-collapse: collapse !important;
             width: 100% !important;
             background: transparent;
+            table-layout: auto;
+            max-width: 100%;
         }
 
         table.dataTable thead th {
@@ -334,6 +340,23 @@
         .icon-latency { background: rgba(59, 130, 246, 0.2); color: rgb(96, 165, 250); }
         .icon-resource { background: rgba(245, 158, 11, 0.2); color: rgb(251, 191, 36); }
         .icon-fault { background: rgba(168, 85, 247, 0.2); color: rgb(192, 132, 252); }
+
+        /* Fix untuk mencegah tabel menutupi sidebar */
+        .flex-1 {
+            min-width: 0;
+            overflow-x: hidden;
+        }
+
+        main {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Ensure sidebar stays on top when needed */
+        [data-component="sidebar"] {
+            position: relative;
+            z-index: 10;
+        }
     </style>
 </head>
 <body class="bg-soft text-textdark">
@@ -382,26 +405,28 @@
                                     <span>Refresh Data</span>
                                 </button>
                             </div>
-                            <div class="overflow-x-auto rounded-2xl border border-white/10 bg-surfaceMuted/50 p-4">
+                            <div class="w-full overflow-x-auto rounded-2xl border border-white/10 bg-surfaceMuted/50 p-4">
                                 <div id="loading-all" class="py-8 text-center text-textdark/60">
                                     Klik "Refresh Data" untuk memuat data dari semua network...
                                 </div>
-                                <table id="table-all" class="display hidden" style="width:100%">
-                                    <thead>
-                                        <tr>
-                                            <th>Network</th>
-                                            <th>ID Laporan</th>
-                                            <th>Substansi</th>
-                                            <th>Grup Pelapor</th>
-                                            <th>Grup Terlapor</th>
-                                            <th>Kantor Penerima</th>
-                                            <th>Kategori Beban</th>
-                                            <th>Status</th>
-                                            <th>Tanggal Submit</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
+                                <div class="w-full max-w-full">
+                                    <table id="table-all" class="display hidden" style="width:100%">
+                                        <thead>
+                                            <tr>
+                                                <th>Network</th>
+                                                <th>ID Laporan</th>
+                                                <th>Substansi</th>
+                                                <th>Grup Pelapor</th>
+                                                <th>Grup Terlapor</th>
+                                                <th>Kantor Penerima</th>
+                                                <th>Kategori Beban</th>
+                                                <th>Status</th>
+                                                <th>Tanggal Submit</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
                             </div>
                         </section>
                     </div>
@@ -701,6 +726,8 @@
                     },
                     order: [[8, 'desc']], // Sort by submit date descending
                     destroy: true,
+                    scrollX: true,
+                    autoWidth: false,
                     columnDefs: [
                         {
                             targets: 0,

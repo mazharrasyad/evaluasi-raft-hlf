@@ -673,30 +673,28 @@
                 // Throughput
                 const tps = data.data_throughput?.transactionsPerSecond || 0;
                 metrics.throughput[networkKey] = tps;
-                document.getElementById(`throughput${networkKey.charAt(0).toUpperCase() + networkKey.slice(1)}`).textContent = `${tps.toFixed(2)} TPS`;
 
                 // Latency
                 const avgLatency = data.data_latency?.averageLatency || 0;
                 metrics.latency[networkKey] = avgLatency;
-                document.getElementById(`latency${networkKey.charAt(0).toUpperCase() + networkKey.slice(1)}`).textContent = `${avgLatency.toFixed(2)} ms`;
 
                 // CPU
                 const avgCPU = data.data_resource_usage?.averageCPU || 0;
                 metrics.cpu[networkKey] = avgCPU;
-                document.getElementById(`cpu${networkKey.charAt(0).toUpperCase() + networkKey.slice(1)}`).textContent = `${avgCPU.toFixed(2)}%`;
 
                 // Memory
                 const avgMemory = data.data_resource_usage?.averageMemoryMB || 0;
                 metrics.memory[networkKey] = avgMemory;
-                document.getElementById(`memory${networkKey.charAt(0).toUpperCase() + networkKey.slice(1)}`).textContent = `${avgMemory.toFixed(2)} MB`;
 
                 // Success Rate for Fault Tolerance
                 const totalTx = data.count || data.records.length;
                 const successTx = data.records.filter(r => r.status !== 'failed').length;
                 const successRate = totalTx > 0 ? (successTx / totalTx * 100).toFixed(2) : 0;
                 metrics.successRate[networkKey] = successRate;
-                document.getElementById(`faultTolerance${networkKey.charAt(0).toUpperCase() + networkKey.slice(1)}`).textContent = `${successRate}%`;
             });
+
+            // Update UI elements
+            updateMetricElements(metrics);
 
             // Generate analysis text
             generateThroughputAnalysis(metrics.throughput);
@@ -705,6 +703,49 @@
             generateFaultToleranceAnalysis(metrics.successRate);
 
             document.getElementById('analysisSummary').classList.remove('hidden');
+        }
+
+        function updateMetricElements(metrics) {
+            const elementMapping = {
+                'f2std': { suffix: 'F2Std' },
+                'f2var': { suffix: 'F2Var' },
+                'f3std': { suffix: 'F3Std' },
+                'f3var': { suffix: 'F3Var' }
+            };
+
+            Object.keys(elementMapping).forEach(networkKey => {
+                const suffix = elementMapping[networkKey].suffix;
+
+                // Update Throughput
+                const throughputEl = document.getElementById(`throughput${suffix}`);
+                if (throughputEl && metrics.throughput[networkKey] !== undefined) {
+                    throughputEl.textContent = `${metrics.throughput[networkKey].toFixed(2)} TPS`;
+                }
+
+                // Update Latency
+                const latencyEl = document.getElementById(`latency${suffix}`);
+                if (latencyEl && metrics.latency[networkKey] !== undefined) {
+                    latencyEl.textContent = `${metrics.latency[networkKey].toFixed(2)} ms`;
+                }
+
+                // Update CPU
+                const cpuEl = document.getElementById(`cpu${suffix}`);
+                if (cpuEl && metrics.cpu[networkKey] !== undefined) {
+                    cpuEl.textContent = `${metrics.cpu[networkKey].toFixed(2)}%`;
+                }
+
+                // Update Memory
+                const memoryEl = document.getElementById(`memory${suffix}`);
+                if (memoryEl && metrics.memory[networkKey] !== undefined) {
+                    memoryEl.textContent = `${metrics.memory[networkKey].toFixed(2)} MB`;
+                }
+
+                // Update Fault Tolerance
+                const faultToleranceEl = document.getElementById(`faultTolerance${suffix}`);
+                if (faultToleranceEl && metrics.successRate[networkKey] !== undefined) {
+                    faultToleranceEl.textContent = `${metrics.successRate[networkKey]}%`;
+                }
+            });
         }
 
         function generateThroughputAnalysis(throughputData) {

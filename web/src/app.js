@@ -1114,6 +1114,11 @@ const viewFiles = {
             resourceUsage: path.resolve(viewsRoot, 'penelitian/analisis-data/resource-usage.html'),
             faultTolerance: path.resolve(viewsRoot, 'penelitian/analisis-data/fault-tolerance.html'),
         },
+        evaluasiHasil: path.resolve(viewsRoot, 'penelitian/evaluasi-hasil/index.html'),
+        evaluasiHasilSubsections: {
+            ringkasanHasil: path.resolve(viewsRoot, 'penelitian/evaluasi-hasil/ringkasan-hasil.html'),
+            implikasiPenelitian: path.resolve(viewsRoot, 'penelitian/evaluasi-hasil/implikasi-penelitian.html'),
+        },
     },
 };
 
@@ -1193,6 +1198,18 @@ app.get('/penelitian/analisis-data/resource-usage', (req, res) => {
 
 app.get('/penelitian/analisis-data/fault-tolerance', (req, res) => {
     res.sendFile(viewFiles.research.dataAnalysisSubsections.faultTolerance);
+});
+
+app.get('/penelitian/evaluasi-hasil', (req, res) => {
+    res.sendFile(viewFiles.research.evaluasiHasil);
+});
+
+app.get('/penelitian/evaluasi-hasil/ringkasan-hasil', (req, res) => {
+    res.sendFile(viewFiles.research.evaluasiHasilSubsections.ringkasanHasil);
+});
+
+app.get('/penelitian/evaluasi-hasil/implikasi-penelitian', (req, res) => {
+    res.sendFile(viewFiles.research.evaluasiHasilSubsections.implikasiPenelitian);
 });
 
 app.get('/dashboard', (req, res) => {

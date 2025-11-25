@@ -806,22 +806,23 @@
                 recoveryChart.destroy();
             }
 
-            const labels = failures.map(f => f.nodeId.split('.')[0]);
-            const data = failures.map(f => f.recoveryTimeMs / 1000); // Convert to seconds
+            const labels = failures.map(f => f.recoveryTimeMs / 1000); // Recovery time in seconds
+            const data = failures.map((f, index) => index + 1); // Node failure order
 
             recoveryChart = new Chart(ctx, {
-                type: 'bar',
+                type: 'horizontalBar',
                 data: {
-                    labels: labels,
+                    labels: failures.map(f => f.nodeId.split('.')[0]),
                     datasets: [{
                         label: 'Recovery Time (seconds)',
-                        data: data,
+                        data: labels,
                         backgroundColor: 'rgba(245, 158, 11, 0.7)',
                         borderColor: 'rgba(245, 158, 11, 1)',
                         borderWidth: 2
                     }]
                 },
                 options: {
+                    indexAxis: 'y',
                     responsive: true,
                     maintainAspectRatio: true,
                     plugins: {
@@ -839,7 +840,7 @@
                         }
                     },
                     scales: {
-                        y: {
+                        x: {
                             beginAtZero: true,
                             ticks: {
                                 color: '#94A3B8'
@@ -849,18 +850,21 @@
                             },
                             title: {
                                 display: true,
-                                text: 'Seconds',
+                                text: 'Waktu Pemulihan (detik)',
                                 color: '#94A3B8'
                             }
                         },
-                        x: {
+                        y: {
                             ticks: {
-                                color: '#94A3B8',
-                                maxRotation: 45,
-                                minRotation: 45
+                                color: '#94A3B8'
                             },
                             grid: {
                                 color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            title: {
+                                display: true,
+                                text: 'Node ID',
+                                color: '#94A3B8'
                             }
                         }
                     }
@@ -981,20 +985,20 @@
             const labels = Array.from({ length: maxTransactions }, (_, i) => i + 1);
 
             perTransactionChart = new Chart(ctx, {
-                type: 'line',
-                data: { labels: labels, datasets: datasets },
+                type: 'scatter',
+                data: { datasets: datasets.map(ds => ({ ...ds, showLine: false })) },
                 options: {
                     responsive: true,
                     maintainAspectRatio: true,
-                    interaction: { mode: 'index', intersect: false },
+                    interaction: { mode: 'point', intersect: true },
                     plugins: {
                         legend: { display: true, position: 'top', labels: { color: '#E2E8F0', usePointStyle: true } },
-                        title: { display: true, text: 'Status Transaksi Per Network (1=Sukses, 0=Gagal)', color: '#E2E8F0', font: { size: 16, weight: 'bold' } },
-                        tooltip: { callbacks: { label: function(context) { return `${context.dataset.label}: ${context.parsed.y === 1 ? 'Sukses' : 'Gagal'}`; } } }
+                        title: { display: true, text: 'Pola Fault Tolerance Per Network (1=Sukses, 0=Gagal)', color: '#E2E8F0', font: { size: 16, weight: 'bold' } },
+                        tooltip: { callbacks: { label: function(context) { return `${context.dataset.label}: Tx#${context.parsed.x} - ${context.parsed.y === 1 ? 'Sukses' : 'Gagal'}`; } } }
                     },
                     scales: {
-                        y: { min: -0.1, max: 1.1, title: { display: true, text: 'Status (1=Sukses, 0=Gagal)', color: '#94A3B8' }, ticks: { color: '#94A3B8', stepSize: 1, callback: function(value) { return value === 1 ? 'Sukses' : value === 0 ? 'Gagal' : ''; } }, grid: { color: 'rgba(255, 255, 255, 0.1)' } },
-                        x: { title: { display: true, text: 'Nomor Transaksi', color: '#94A3B8' }, ticks: { color: '#94A3B8', maxTicksLimit: 20 }, grid: { color: 'rgba(255, 255, 255, 0.1)' } }
+                        x: { min: 0, title: { display: true, text: 'Nomor Transaksi', color: '#94A3B8' }, ticks: { color: '#94A3B8', maxTicksLimit: 20 }, grid: { color: 'rgba(255, 255, 255, 0.1)' } },
+                        y: { min: -0.1, max: 1.1, title: { display: true, text: 'Status (1=Sukses, 0=Gagal)', color: '#94A3B8' }, ticks: { color: '#94A3B8', stepSize: 1, callback: function(value) { return value === 1 ? 'Sukses' : value === 0 ? 'Gagal' : ''; } }, grid: { color: 'rgba(255, 255, 255, 0.1)' } }
                     }
                 }
             });
@@ -1084,23 +1088,18 @@
 
                 const labels = Array.from({ length: records.length }, (_, i) => i + 1);
 
-                // Create chart
+                // Create chart - using bar chart for better fault distribution visualization
                 const ctx = document.getElementById(config.chartId).getContext('2d');
                 individualCharts[netId] = new Chart(ctx, {
-                    type: 'line',
+                    type: 'bar',
                     data: {
                         labels: labels,
                         datasets: [{
                             label: 'Status',
-                            data: statusValues,
-                            borderColor: config.color,
-                            backgroundColor: config.bgColor,
-                            borderWidth: 2,
-                            pointRadius: statusValues.length > 50 ? 1 : 3,
-                            pointHoverRadius: 5,
-                            tension: 0,
-                            stepped: true,
-                            fill: false
+                            data: statusValues.map(v => v.y),
+                            backgroundColor: statusValues.map(v => v.y === 1 ? config.color : 'rgba(239, 68, 68, 0.7)'),
+                            borderColor: statusValues.map(v => v.y === 1 ? config.color : 'rgba(239, 68, 68, 1)'),
+                            borderWidth: 1
                         }]
                     },
                     options: {
@@ -1120,15 +1119,15 @@
                             tooltip: {
                                 callbacks: {
                                     label: function(context) {
-                                        return `Status: ${context.parsed.y === 1 ? 'Sukses' : 'Gagal'}`;
+                                        return `Transaksi #${context.label}: ${context.parsed.y === 1 ? 'Sukses' : 'Gagal'}`;
                                     }
                                 }
                             }
                         },
                         scales: {
                             y: {
-                                min: -0.1,
-                                max: 1.1,
+                                min: 0,
+                                max: 1,
                                 title: {
                                     display: true,
                                     text: 'Status',
@@ -1153,7 +1152,8 @@
                                 },
                                 ticks: {
                                     color: '#94A3B8',
-                                    maxTicksLimit: 20
+                                    maxTicksLimit: 20,
+                                    display: statusValues.length <= 50
                                 },
                                 grid: {
                                     color: 'rgba(255, 255, 255, 0.1)'

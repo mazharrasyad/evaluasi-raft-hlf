@@ -1053,26 +1053,30 @@
                     individualCharts[netId].destroy();
                 }
 
-                // Extract fault status from each record's data_fault_tolerance (NEW structure)
-                const statusValues = records.map((record, index) => {
-                    let success = 1; // Default to success
+                // Calculate success and fail counts directly from records
+                let successCount = 0;
+                let failCount = 0;
 
-                    // NEW: Check if record.data_fault_tolerance exists (not null means fault occurred)
+                records.forEach((record) => {
+                    let isSuccess = true; // Default to success
+
+                    // Check if record.data_fault_tolerance exists (not null means fault occurred)
                     if (record.data_fault_tolerance !== null && record.data_fault_tolerance !== undefined) {
                         // Fault tolerance object exists - this was a fault transaction
                         // Check if it eventually succeeded despite the fault
-                        success = record.data_fault_tolerance.recoverySuccessful ? 1 : 0;
+                        isSuccess = record.data_fault_tolerance.recoverySuccessful ? true : false;
                     } else if (record.status === 'failed' || record.status === 'error') {
                         // Status indicates failure
-                        success = 0;
+                        isSuccess = false;
                     }
 
-                    return { x: index + 1, y: success };
+                    if (isSuccess) {
+                        successCount++;
+                    } else {
+                        failCount++;
+                    }
                 });
 
-                // Calculate statistics
-                const successCount = statusValues.filter(v => v.y === 1).length;
-                const failCount = statusValues.filter(v => v.y === 0).length;
                 const rate = records.length > 0 ? ((successCount / records.length) * 100).toFixed(1) : 0;
 
                 // Update stats display

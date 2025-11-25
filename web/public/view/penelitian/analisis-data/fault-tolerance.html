@@ -405,10 +405,10 @@
 
                         <!-- Individual Network Charts -->
                         <section id="individualChartsSection" class="hidden rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20">
-                            <h2 class="mb-6 text-2xl font-semibold text-textdark">Detail Per Transaksi - Masing-masing Network</h2>
-                            <p class="mb-6 text-sm text-textdark/70">Grafik berikut menampilkan status transaksi (1=Sukses, 0=Gagal) untuk masing-masing network secara terpisah.</p>
+                            <h2 class="mb-6 text-2xl font-semibold text-textdark">Detail Tipe Fault Tolerance - Masing-masing Network</h2>
+                            <p class="mb-6 text-sm text-textdark/70">Grafik berikut menampilkan distribusi tipe skenario fault tolerance untuk masing-masing network secara terpisah.</p>
 
-                            <div class="grid gap-6">
+                            <div class="grid gap-6 md:grid-cols-2">
                                 <!-- F2 Standard Chart -->
                                 <div class="rounded-2xl border border-primary/30 bg-surfaceMuted/30 p-6">
                                     <div class="flex items-center gap-3 mb-4">
@@ -418,19 +418,9 @@
                                     <div class="mb-4">
                                         <canvas id="f2StandardIndividualChart" class="w-full" style="max-height: 300px;"></canvas>
                                     </div>
-                                    <div class="grid grid-cols-3 gap-2 text-center">
-                                        <div class="rounded-lg bg-primary/10 p-2">
-                                            <p class="text-xs text-textdark/60">Success</p>
-                                            <p id="f2StandardSuccess" class="text-sm font-bold text-primary">-</p>
-                                        </div>
-                                        <div class="rounded-lg bg-primary/10 p-2">
-                                            <p class="text-xs text-textdark/60">Failed</p>
-                                            <p id="f2StandardFail" class="text-sm font-bold text-primary">-</p>
-                                        </div>
-                                        <div class="rounded-lg bg-primary/10 p-2">
-                                            <p class="text-xs text-textdark/60">Rate</p>
-                                            <p id="f2StandardRate" class="text-sm font-bold text-primary">-</p>
-                                        </div>
+                                    <div class="rounded-lg bg-primary/10 p-3 text-center">
+                                        <p class="text-xs text-textdark/60 mb-1">Total Kejadian Fault</p>
+                                        <p id="f2StandardTotal" class="text-xl font-bold text-primary">-</p>
                                     </div>
                                 </div>
 
@@ -443,19 +433,9 @@
                                     <div class="mb-4">
                                         <canvas id="f2VariantIndividualChart" class="w-full" style="max-height: 300px;"></canvas>
                                     </div>
-                                    <div class="grid grid-cols-3 gap-2 text-center">
-                                        <div class="rounded-lg bg-secondary/10 p-2">
-                                            <p class="text-xs text-textdark/60">Success</p>
-                                            <p id="f2VariantSuccess" class="text-sm font-bold text-secondary">-</p>
-                                        </div>
-                                        <div class="rounded-lg bg-secondary/10 p-2">
-                                            <p class="text-xs text-textdark/60">Failed</p>
-                                            <p id="f2VariantFail" class="text-sm font-bold text-secondary">-</p>
-                                        </div>
-                                        <div class="rounded-lg bg-secondary/10 p-2">
-                                            <p class="text-xs text-textdark/60">Rate</p>
-                                            <p id="f2VariantRate" class="text-sm font-bold text-secondary">-</p>
-                                        </div>
+                                    <div class="rounded-lg bg-secondary/10 p-3 text-center">
+                                        <p class="text-xs text-textdark/60 mb-1">Total Kejadian Fault</p>
+                                        <p id="f2VariantTotal" class="text-xl font-bold text-secondary">-</p>
                                     </div>
                                 </div>
 
@@ -468,19 +448,9 @@
                                     <div class="mb-4">
                                         <canvas id="f3StandardIndividualChart" class="w-full" style="max-height: 300px;"></canvas>
                                     </div>
-                                    <div class="grid grid-cols-3 gap-2 text-center">
-                                        <div class="rounded-lg bg-accent/10 p-2">
-                                            <p class="text-xs text-textdark/60">Success</p>
-                                            <p id="f3StandardSuccess" class="text-sm font-bold text-accent">-</p>
-                                        </div>
-                                        <div class="rounded-lg bg-accent/10 p-2">
-                                            <p class="text-xs text-textdark/60">Failed</p>
-                                            <p id="f3StandardFail" class="text-sm font-bold text-accent">-</p>
-                                        </div>
-                                        <div class="rounded-lg bg-accent/10 p-2">
-                                            <p class="text-xs text-textdark/60">Rate</p>
-                                            <p id="f3StandardRate" class="text-sm font-bold text-accent">-</p>
-                                        </div>
+                                    <div class="rounded-lg bg-accent/10 p-3 text-center">
+                                        <p class="text-xs text-textdark/60 mb-1">Total Kejadian Fault</p>
+                                        <p id="f3StandardTotal" class="text-xl font-bold text-accent">-</p>
                                     </div>
                                 </div>
 
@@ -493,19 +463,9 @@
                                     <div class="mb-4">
                                         <canvas id="f3VariantIndividualChart" class="w-full" style="max-height: 300px;"></canvas>
                                     </div>
-                                    <div class="grid grid-cols-3 gap-2 text-center">
-                                        <div class="rounded-lg bg-highlight/10 p-2">
-                                            <p class="text-xs text-textdark/60">Success</p>
-                                            <p id="f3VariantSuccess" class="text-sm font-bold text-highlight">-</p>
-                                        </div>
-                                        <div class="rounded-lg bg-highlight/10 p-2">
-                                            <p class="text-xs text-textdark/60">Failed</p>
-                                            <p id="f3VariantFail" class="text-sm font-bold text-highlight">-</p>
-                                        </div>
-                                        <div class="rounded-lg bg-highlight/10 p-2">
-                                            <p class="text-xs text-textdark/60">Rate</p>
-                                            <p id="f3VariantRate" class="text-sm font-bold text-highlight">-</p>
-                                        </div>
+                                    <div class="rounded-lg bg-highlight/10 p-3 text-center">
+                                        <p class="text-xs text-textdark/60 mb-1">Total Kejadian Fault</p>
+                                        <p id="f3VariantTotal" class="text-xl font-bold text-highlight">-</p>
                                     </div>
                                 </div>
                             </div>
@@ -1088,40 +1048,34 @@
             const networkConfigs = {
                 'channel-standard': {
                     chartId: 'f2StandardIndividualChart',
-                    successId: 'f2StandardSuccess',
-                    failId: 'f2StandardFail',
-                    rateId: 'f2StandardRate',
-                    label: 'Fabric 2 RAFT Standard',
-                    color: 'rgba(56, 189, 248, 1)',
-                    bgColor: 'rgba(56, 189, 248, 0.3)'
+                    totalId: 'f2StandardTotal',
+                    label: 'Fabric 2 RAFT Standard'
                 },
                 'channel-variant': {
                     chartId: 'f2VariantIndividualChart',
-                    successId: 'f2VariantSuccess',
-                    failId: 'f2VariantFail',
-                    rateId: 'f2VariantRate',
-                    label: 'Fabric 2 RAFT Variant',
-                    color: 'rgba(99, 102, 241, 1)',
-                    bgColor: 'rgba(99, 102, 241, 0.3)'
+                    totalId: 'f2VariantTotal',
+                    label: 'Fabric 2 RAFT Variant'
                 },
                 'channel-fabric3-standard': {
                     chartId: 'f3StandardIndividualChart',
-                    successId: 'f3StandardSuccess',
-                    failId: 'f3StandardFail',
-                    rateId: 'f3StandardRate',
-                    label: 'Fabric 3 RAFT Standard',
-                    color: 'rgba(245, 158, 11, 1)',
-                    bgColor: 'rgba(245, 158, 11, 0.3)'
+                    totalId: 'f3StandardTotal',
+                    label: 'Fabric 3 RAFT Standard'
                 },
                 'channel-fabric3-variant': {
                     chartId: 'f3VariantIndividualChart',
-                    successId: 'f3VariantSuccess',
-                    failId: 'f3VariantFail',
-                    rateId: 'f3VariantRate',
-                    label: 'Fabric 3 RAFT Variant',
-                    color: 'rgba(249, 115, 22, 1)',
-                    bgColor: 'rgba(249, 115, 22, 0.3)'
+                    totalId: 'f3VariantTotal',
+                    label: 'Fabric 3 RAFT Variant'
                 }
+            };
+
+            // Definisi tipe fault tolerance dengan warna
+            const faultTypes = {
+                'node_failure': { label: 'Node Failure', color: 'rgba(239, 68, 68, 0.7)', borderColor: 'rgba(239, 68, 68, 1)' },
+                'network_partition': { label: 'Network Partition', color: 'rgba(249, 115, 22, 0.7)', borderColor: 'rgba(249, 115, 22, 1)' },
+                'timeout': { label: 'Timeout', color: 'rgba(234, 179, 8, 0.7)', borderColor: 'rgba(234, 179, 8, 1)' },
+                'invalid_transaction': { label: 'Invalid Transaction', color: 'rgba(168, 85, 247, 0.7)', borderColor: 'rgba(168, 85, 247, 1)' },
+                'consensus_failure': { label: 'Consensus Failure', color: 'rgba(236, 72, 153, 0.7)', borderColor: 'rgba(236, 72, 153, 1)' },
+                'resource_exhaustion': { label: 'Resource Exhaustion', color: 'rgba(59, 130, 246, 0.7)', borderColor: 'rgba(59, 130, 246, 1)' }
             };
 
             Object.keys(networkConfigs).forEach(netId => {
@@ -1133,60 +1087,57 @@
                     individualCharts[netId].destroy();
                 }
 
-                // Calculate success and fail counts directly from records
-                let successCount = 0;
-                let failCount = 0;
+                // Count fault types
+                const counts = {
+                    node_failure: 0,
+                    network_partition: 0,
+                    timeout: 0,
+                    invalid_transaction: 0,
+                    consensus_failure: 0,
+                    resource_exhaustion: 0
+                };
+
+                let totalFaults = 0;
 
                 records.forEach((record) => {
-                    let isSuccess = true; // Default to success
-
-                    // Check if record.data_fault_tolerance exists (not null means fault occurred)
                     if (record.data_fault_tolerance !== null && record.data_fault_tolerance !== undefined) {
-                        // Fault tolerance object exists - this was a fault transaction
-                        // Check if it eventually succeeded despite the fault
-                        isSuccess = record.data_fault_tolerance.recoverySuccessful ? true : false;
-                    } else if (record.status === 'failed' || record.status === 'error') {
-                        // Status indicates failure
-                        isSuccess = false;
-                    }
-
-                    if (isSuccess) {
-                        successCount++;
-                    } else {
-                        failCount++;
+                        const faultType = record.data_fault_tolerance.failureScenario || record.data_fault_tolerance.scenario;
+                        if (faultType && counts.hasOwnProperty(faultType)) {
+                            counts[faultType]++;
+                            totalFaults++;
+                        }
                     }
                 });
 
-                const rate = records.length > 0 ? ((successCount / records.length) * 100).toFixed(1) : 0;
+                // Update total display
+                document.getElementById(config.totalId).textContent = totalFaults;
 
-                // Update stats display
-                if (records.length > 0) {
-                    document.getElementById(config.successId).textContent = successCount;
-                    document.getElementById(config.failId).textContent = failCount;
-                    document.getElementById(config.rateId).textContent = `${rate}%`;
-                } else {
-                    document.getElementById(config.successId).textContent = '-';
-                    document.getElementById(config.failId).textContent = '-';
-                    document.getElementById(config.rateId).textContent = '-';
-                }
+                // Prepare data for chart
+                const labels = [];
+                const data = [];
+                const backgroundColors = [];
+                const borderColors = [];
 
-                // Create chart - bar chart with status on X-axis and count on Y-axis
+                Object.keys(faultTypes).forEach(type => {
+                    if (counts[type] > 0) {
+                        labels.push(faultTypes[type].label);
+                        data.push(counts[type]);
+                        backgroundColors.push(faultTypes[type].color);
+                        borderColors.push(faultTypes[type].borderColor);
+                    }
+                });
+
+                // Create chart - bar chart with fault types
                 const ctx = document.getElementById(config.chartId).getContext('2d');
                 individualCharts[netId] = new Chart(ctx, {
                     type: 'bar',
                     data: {
-                        labels: ['Gagal', 'Sukses'],
+                        labels: labels.length > 0 ? labels : ['Tidak ada data'],
                         datasets: [{
-                            label: 'Jumlah Transaksi',
-                            data: [failCount, successCount],
-                            backgroundColor: [
-                                'rgba(239, 68, 68, 0.7)',
-                                config.color
-                            ],
-                            borderColor: [
-                                'rgba(239, 68, 68, 1)',
-                                config.color
-                            ],
+                            label: 'Jumlah Kejadian',
+                            data: data.length > 0 ? data : [0],
+                            backgroundColor: backgroundColors.length > 0 ? backgroundColors : ['rgba(100, 100, 100, 0.3)'],
+                            borderColor: borderColors.length > 0 ? borderColors : ['rgba(100, 100, 100, 1)'],
                             borderWidth: 2
                         }]
                     },
@@ -1207,7 +1158,9 @@
                             tooltip: {
                                 callbacks: {
                                     label: function(context) {
-                                        return `${context.label}: ${context.parsed.y} transaksi`;
+                                        const total = data.reduce((a, b) => a + b, 0);
+                                        const percentage = total > 0 ? ((context.parsed.y / total) * 100).toFixed(1) : 0;
+                                        return `${context.label}: ${context.parsed.y} kejadian (${percentage}%)`;
                                     }
                                 }
                             }
@@ -1217,7 +1170,7 @@
                                 beginAtZero: true,
                                 title: {
                                     display: true,
-                                    text: 'Jumlah Transaksi',
+                                    text: 'Jumlah Kejadian',
                                     color: '#94A3B8'
                                 },
                                 ticks: {
@@ -1232,11 +1185,13 @@
                             x: {
                                 title: {
                                     display: true,
-                                    text: 'Status Transaksi',
+                                    text: 'Tipe Fault Tolerance',
                                     color: '#94A3B8'
                                 },
                                 ticks: {
-                                    color: '#94A3B8'
+                                    color: '#94A3B8',
+                                    maxRotation: 45,
+                                    minRotation: 45
                                 },
                                 grid: {
                                     color: 'rgba(255, 255, 255, 0.1)'

@@ -323,7 +323,10 @@
                                                 <span class="text-xs font-semibold text-textdark">Fabric 2 Standard</span>
                                                 <span id="status-f2-standard" class="h-2 w-2 rounded-full bg-muted"></span>
                                             </div>
-                                            <p id="progress-f2-standard" class="text-xs text-textdark/60">Menunggu...</p>
+                                            <p id="progress-f2-standard" class="text-xs text-textdark/60 mb-2">Menunggu...</p>
+                                            <div class="h-1.5 w-full rounded-full bg-surface overflow-hidden">
+                                                <div id="progressbar-f2-standard" class="h-full bg-primary transition-all duration-300" style="width: 0%"></div>
+                                            </div>
                                         </div>
 
                                         <!-- Fabric 2 Variant -->
@@ -332,7 +335,10 @@
                                                 <span class="text-xs font-semibold text-textdark">Fabric 2 Variant</span>
                                                 <span id="status-f2-variant" class="h-2 w-2 rounded-full bg-muted"></span>
                                             </div>
-                                            <p id="progress-f2-variant" class="text-xs text-textdark/60">Menunggu...</p>
+                                            <p id="progress-f2-variant" class="text-xs text-textdark/60 mb-2">Menunggu...</p>
+                                            <div class="h-1.5 w-full rounded-full bg-surface overflow-hidden">
+                                                <div id="progressbar-f2-variant" class="h-full bg-primary transition-all duration-300" style="width: 0%"></div>
+                                            </div>
                                         </div>
 
                                         <!-- Fabric 3 Standard -->
@@ -341,7 +347,10 @@
                                                 <span class="text-xs font-semibold text-textdark">Fabric 3 Standard</span>
                                                 <span id="status-f3-standard" class="h-2 w-2 rounded-full bg-muted"></span>
                                             </div>
-                                            <p id="progress-f3-standard" class="text-xs text-textdark/60">Menunggu...</p>
+                                            <p id="progress-f3-standard" class="text-xs text-textdark/60 mb-2">Menunggu...</p>
+                                            <div class="h-1.5 w-full rounded-full bg-surface overflow-hidden">
+                                                <div id="progressbar-f3-standard" class="h-full bg-primary transition-all duration-300" style="width: 0%"></div>
+                                            </div>
                                         </div>
 
                                         <!-- Fabric 3 Variant -->
@@ -350,7 +359,10 @@
                                                 <span class="text-xs font-semibold text-textdark">Fabric 3 Variant</span>
                                                 <span id="status-f3-variant" class="h-2 w-2 rounded-full bg-muted"></span>
                                             </div>
-                                            <p id="progress-f3-variant" class="text-xs text-textdark/60">Menunggu...</p>
+                                            <p id="progress-f3-variant" class="text-xs text-textdark/60 mb-2">Menunggu...</p>
+                                            <div class="h-1.5 w-full rounded-full bg-surface overflow-hidden">
+                                                <div id="progressbar-f3-variant" class="h-full bg-primary transition-all duration-300" style="width: 0%"></div>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -872,17 +884,39 @@
             }
             // =================== END START SIMULATION METRICS ================
 
+            // Function to update progress bar
+            function updateProgressBar(networkId, percentage, status = 'processing') {
+                const progressBarEl = document.getElementById(`progressbar-${networkId}`);
+                if (progressBarEl) {
+                    progressBarEl.style.width = `${percentage}%`;
+
+                    // Update color based on status
+                    if (status === 'success') {
+                        progressBarEl.className = 'h-full bg-emerald-500 transition-all duration-300';
+                    } else if (status === 'error') {
+                        progressBarEl.className = 'h-full bg-red-500 transition-all duration-300';
+                    } else if (status === 'warning') {
+                        progressBarEl.className = 'h-full bg-yellow-500 transition-all duration-300';
+                    } else {
+                        progressBarEl.className = 'h-full bg-primary transition-all duration-300';
+                    }
+                }
+            }
+
             // Reset status for all networks
             allNetworks.forEach(network => {
                 const statusEl = document.getElementById(`status-${network.id}`);
                 const progressEl = document.getElementById(`progress-${network.id}`);
+                const progressBarEl = document.getElementById(`progressbar-${network.id}`);
 
                 if (selectedNetworkIds.includes(network.id)) {
                     statusEl.className = 'h-2 w-2 rounded-full bg-muted';
                     progressEl.textContent = 'Menunggu...';
+                    if (progressBarEl) progressBarEl.style.width = '0%';
                 } else {
                     statusEl.className = 'h-2 w-2 rounded-full bg-muted';
                     progressEl.textContent = 'Tidak dipilih';
+                    if (progressBarEl) progressBarEl.style.width = '0%';
                 }
             });
 
@@ -900,6 +934,15 @@
 
                 for (let i = 0; i < generatedData.length; i++) {
                     const txSubmittedAt = new Date().toISOString();
+                    const txId = generatedData[i].reportId;
+
+                    // Calculate progress percentage
+                    const progressPercentage = ((i + 1) / generatedData.length) * 100;
+
+                    // Update progress dengan detail transaksi yang sedang diproses
+                    progressEl.textContent = `Memproses Tx #${i + 1}/${generatedData.length}: ${txId}`;
+                    updateProgressBar(network.id, progressPercentage);
+
                     try {
                         // Tambahkan submittedAt ke data yang dikirim untuk perhitungan throughput
                         const dataToSend = {
@@ -918,6 +961,9 @@
 
                         if (response.ok && result.success) {
                             successCount++;
+
+                            // Update progress dengan status sukses
+                            progressEl.textContent = `✓ Tx #${i + 1} sukses | Total: ${successCount}/${i + 1}`;
 
                             // =================== RECORD TRANSACTION METRICS ===================
                             if (simulationId) {
@@ -944,6 +990,9 @@
                                 errorMessages.push(result.error);
                             }
 
+                            // Update progress dengan status gagal
+                            progressEl.textContent = `✗ Tx #${i + 1} gagal | Sukses: ${successCount}, Gagal: ${failCount}`;
+
                             // Record failed transaction in metrics
                             if (simulationId) {
                                 try {
@@ -964,13 +1013,14 @@
                                 }
                             }
                         }
-
-                        progressEl.textContent = `${i + 1}/${generatedData.length} (${successCount} sukses)`;
                     } catch (error) {
                         failCount++;
                         if (errorMessages.length < 3) {
                             errorMessages.push(error.message);
                         }
+
+                        // Update progress dengan status error
+                        progressEl.textContent = `✗ Tx #${i + 1} error | Sukses: ${successCount}, Gagal: ${failCount}`;
 
                         const txCompletedAt = new Date().toISOString();
 
@@ -993,14 +1043,18 @@
                                 console.error('Failed to record failed transaction metrics:', metricsError);
                             }
                         }
+                    }
 
-                        progressEl.textContent = `${i + 1}/${generatedData.length} (${failCount} gagal)`;
+                    // Small delay untuk memberi waktu UI update (opsional, bisa dihapus untuk performa lebih cepat)
+                    if ((i + 1) % 10 === 0) {
+                        await new Promise(resolve => setTimeout(resolve, 10));
                     }
                 }
 
                 // Verify data after submission
                 if (successCount > 0) {
                     progressEl.textContent = 'Memverifikasi...';
+                    updateProgressBar(network.id, 100, 'warning');
                     await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds for blockchain to process
 
                     const verification = await verifyDataInNetwork(network);
@@ -1015,13 +1069,16 @@
 
                     if (verification.success && verification.count > 0) {
                         statusEl.className = 'h-2 w-2 rounded-full bg-emerald-500';
-                        progressEl.textContent = `${successCount} terkirim, ${verification.count} terverifikasi`;
+                        progressEl.textContent = `✓ Selesai: ${successCount} terkirim, ${verification.count} terverifikasi`;
+                        updateProgressBar(network.id, 100, 'success');
                     } else if (failCount === 0 && verification.count === 0) {
                         statusEl.className = 'h-2 w-2 rounded-full bg-yellow-500';
                         progressEl.textContent = `${successCount} terkirim, menunggu verifikasi`;
+                        updateProgressBar(network.id, 100, 'warning');
                     } else {
-                        statusEl.className = 'h-2 w-2 rounded-full bg-red-500';
+                        statusEl.className = 'h-2 w-2 rounded-full bg-yellow-500';
                         progressEl.textContent = `${successCount} terkirim, ${failCount} gagal`;
+                        updateProgressBar(network.id, 100, 'warning');
                     }
                 } else {
                     networkResults.push({
@@ -1033,7 +1090,8 @@
                     });
 
                     statusEl.className = 'h-2 w-2 rounded-full bg-red-500';
-                    progressEl.textContent = `Semua gagal dikirim`;
+                    progressEl.textContent = `✗ Semua gagal dikirim`;
+                    updateProgressBar(network.id, 100, 'error');
                 }
             }
 

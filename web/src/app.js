@@ -306,35 +306,60 @@ function calculateMetricsFromRecords(records, resourceSnapshot = null) {
     let startTime = null;
     let endTime = null;
     const throughputDataPoints = [];
+    const cpuUsages = [];
+    const memoryUsages = [];
+    const failureRecords = [];
 
     records.forEach((record, index) => {
         metrics.throughput.totalTransactions++;
 
         // Check if transaction was successful (records in blockchain are successful)
-        const isSuccess = record.success !== false;
+        const isSuccess = record.success !== false && record.status !== 'failed';
         if (isSuccess) {
             metrics.throughput.successfulTransactions++;
         } else {
             metrics.throughput.failedTransactions++;
         }
 
-        // Calculate latency if submittedAt and completedAt are available
-        const submittedAt = record.submittedAt || record.networkMetadata?.submittedAt;
-        const completedAt = record.completedAt || record.networkMetadata?.completedAt || record.blockchainMetadata?.blockTimestamp;
+        // PRIORITIZE: Extract latency from record.data_latency if available
+        let latencyMs = 0;
+        let submittedAt = null;
+        let completedAt = null;
 
-        if (submittedAt && completedAt) {
-            const submitTime = new Date(submittedAt).getTime();
-            const completeTime = new Date(completedAt).getTime();
-            const latencyMs = completeTime - submitTime;
+        if (record.data_latency && record.data_latency.totalLatency !== undefined) {
+            // Use pre-calculated latency from simulation data
+            latencyMs = record.data_latency.totalLatency;
 
-            if (latencyMs >= 0) {
-                latencies.push({
-                    recordId: record.reportId || record.id,
-                    latencyMs,
-                    submittedAt,
-                    completedAt
-                });
+            // Get timing from data_throughput if available
+            if (record.data_throughput) {
+                submittedAt = record.data_throughput.submittedAt || record.submittedAt || record.timestamp;
+                completedAt = record.data_throughput.completedAt || record.completedAt;
+            } else {
+                submittedAt = record.submittedAt || record.timestamp;
+                completedAt = record.completedAt;
             }
+        } else {
+            // Fallback: Calculate latency from submittedAt and completedAt
+            submittedAt = record.submittedAt || record.networkMetadata?.submittedAt || record.timestamp;
+            completedAt = record.completedAt || record.networkMetadata?.completedAt || record.blockchainMetadata?.blockTimestamp;
+
+            if (submittedAt && completedAt) {
+                const submitTime = new Date(submittedAt).getTime();
+                const completeTime = new Date(completedAt).getTime();
+                latencyMs = completeTime - submitTime;
+            }
+        }
+
+        if (latencyMs >= 0 && submittedAt) {
+            const submitTime = new Date(submittedAt).getTime();
+            const completeTime = completedAt ? new Date(completedAt).getTime() : submitTime + latencyMs;
+
+            latencies.push({
+                recordId: record.reportId || record.id,
+                latencyMs,
+                submittedAt,
+                completedAt: completedAt || new Date(completeTime).toISOString()
+            });
 
             // Track start and end times
             if (!startTime || submitTime < startTime) {
@@ -343,7 +368,7 @@ function calculateMetricsFromRecords(records, resourceSnapshot = null) {
             }
             if (!endTime || completeTime > endTime) {
                 endTime = completeTime;
-                metrics.throughput.endTimestamp = completedAt;
+                metrics.throughput.endTimestamp = completedAt || new Date(completeTime).toISOString();
             }
 
             // Collect data point for throughput per data
@@ -351,11 +376,33 @@ function calculateMetricsFromRecords(records, resourceSnapshot = null) {
                 index: index + 1,
                 recordId: record.reportId || record.id,
                 submittedAt,
-                completedAt,
+                completedAt: completedAt || new Date(completeTime).toISOString(),
                 submitTime,
                 completeTime,
                 latencyMs: latencyMs >= 0 ? latencyMs : 0,
                 success: isSuccess
+            });
+        }
+
+        // Extract resource usage from record.data_resource_usage if available
+        if (record.data_resource_usage) {
+            if (record.data_resource_usage.cpuUsagePercent !== undefined) {
+                cpuUsages.push(record.data_resource_usage.cpuUsagePercent);
+            }
+            if (record.data_resource_usage.memoryUsageMB !== undefined) {
+                memoryUsages.push(record.data_resource_usage.memoryUsageMB);
+            }
+        }
+
+        // Extract fault tolerance data from record.data_fault_tolerance if available
+        if (record.data_fault_tolerance && record.data_fault_tolerance.failureType) {
+            failureRecords.push({
+                recordId: record.reportId || record.id,
+                failureType: record.data_fault_tolerance.failureType,
+                severity: record.data_fault_tolerance.severity,
+                errorCode: record.data_fault_tolerance.errorCode,
+                recoveryTimeMs: record.data_fault_tolerance.recoveryTimeMs,
+                affectedComponent: record.data_fault_tolerance.affectedComponent
             });
         }
     });
@@ -391,8 +438,18 @@ function calculateMetricsFromRecords(records, resourceSnapshot = null) {
         metrics.latency.transactionLatencies = latencies;
     }
 
-    // Calculate resource usage from snapshot
-    if (resourceSnapshot) {
+    // Calculate resource usage from records first, then fallback to snapshot
+    if (cpuUsages.length > 0) {
+        metrics.resourceUsage.averageCPU = cpuUsages.reduce((sum, v) => sum + v, 0) / cpuUsages.length;
+        metrics.resourceUsage.peakCPU = Math.max(...cpuUsages);
+    }
+    if (memoryUsages.length > 0) {
+        metrics.resourceUsage.averageMemory = memoryUsages.reduce((sum, v) => sum + v, 0) / memoryUsages.length;
+        metrics.resourceUsage.peakMemory = Math.max(...memoryUsages);
+    }
+
+    // If no resource data from records, use snapshot
+    if (resourceSnapshot && (cpuUsages.length === 0 || memoryUsages.length === 0)) {
         const ordererCPUs = resourceSnapshot.orderers.map(o => o.cpuPercent).filter(v => v !== undefined);
         const ordererMems = resourceSnapshot.orderers.map(o => o.memoryMB).filter(v => v !== undefined);
         const peerCPUs = resourceSnapshot.peers.map(p => p.cpuPercent).filter(v => v !== undefined);
@@ -401,11 +458,11 @@ function calculateMetricsFromRecords(records, resourceSnapshot = null) {
         const allCPUs = [...ordererCPUs, ...peerCPUs];
         const allMems = [...ordererMems, ...peerMems];
 
-        if (allCPUs.length > 0) {
+        if (cpuUsages.length === 0 && allCPUs.length > 0) {
             metrics.resourceUsage.averageCPU = allCPUs.reduce((sum, v) => sum + v, 0) / allCPUs.length;
             metrics.resourceUsage.peakCPU = Math.max(...allCPUs);
         }
-        if (allMems.length > 0) {
+        if (memoryUsages.length === 0 && allMems.length > 0) {
             metrics.resourceUsage.averageMemory = allMems.reduce((sum, v) => sum + v, 0) / allMems.length;
             metrics.resourceUsage.peakMemory = Math.max(...allMems);
         }
@@ -422,6 +479,18 @@ function calculateMetricsFromRecords(records, resourceSnapshot = null) {
             ? (metrics.throughput.successfulTransactions / metrics.throughput.totalTransactions) * 100
             : 0;
     metrics.faultTolerance.failureCount = metrics.throughput.failedTransactions;
+    metrics.faultTolerance.nodeFailures = failureRecords;
+
+    // Calculate average recovery time from fault records
+    if (failureRecords.length > 0) {
+        const recoveryTimes = failureRecords
+            .map(f => f.recoveryTimeMs)
+            .filter(t => t !== undefined && t > 0);
+        if (recoveryTimes.length > 0) {
+            metrics.faultTolerance.recoveryTimeMs =
+                recoveryTimes.reduce((sum, t) => sum + t, 0) / recoveryTimes.length;
+        }
+    }
 
     // Calculate throughput per data with timeFromStartSeconds
     if (startTime && throughputDataPoints.length > 0) {

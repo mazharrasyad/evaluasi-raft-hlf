@@ -458,11 +458,49 @@
             return items[0].name;
         }
 
+        // Network performance characteristics - SETIAP NETWORK PUNYA KARAKTERISTIK BERBEDA
+        const NETWORK_CHARACTERISTICS = {
+            'f2-standard': {
+                name: 'Fabric 2 RAFT Standard',
+                latencyMultiplier: 1.0,      // Baseline
+                cpuMultiplier: 1.0,          // Baseline
+                memoryMultiplier: 1.0,       // Baseline
+                tpsMultiplier: 1.0           // Baseline
+            },
+            'f2-variant': {
+                name: 'Fabric 2 RAFT Variant',
+                latencyMultiplier: 0.55,     // Lebih cepat (45% improvement)
+                cpuMultiplier: 0.85,         // Lebih efisien CPU
+                memoryMultiplier: 1.05,      // Sedikit lebih banyak memory
+                tpsMultiplier: 1.85          // Throughput lebih tinggi (85% improvement)
+            },
+            'f3-standard': {
+                name: 'Fabric 3 RAFT Standard',
+                latencyMultiplier: 1.0,      // Sama dengan F2 Standard
+                cpuMultiplier: 0.95,         // Sedikit lebih efisien
+                memoryMultiplier: 0.90,      // Lebih efisien memory
+                tpsMultiplier: 1.0           // Sama dengan F2 Standard
+            },
+            'f3-variant': {
+                name: 'Fabric 3 RAFT Variant',
+                latencyMultiplier: 0.50,     // Paling cepat (50% improvement)
+                cpuMultiplier: 0.80,         // Paling efisien CPU
+                memoryMultiplier: 1.00,      // Efisien memory
+                tpsMultiplier: 1.90          // Throughput tertinggi (90% improvement)
+            }
+        };
+
         // Generate single report dengan data untuk 4 parameter analisis
-        function generateReport(index, category, totalCount) {
+        // networkId parameter ditambahkan untuk membedakan karakteristik per network
+        function generateReport(index, category, totalCount, networkId = null) {
             const now = new Date();
             const year = now.getFullYear();
             const reportId = `RPT-${year}-${String(index).padStart(5, '0')}`;
+
+            // Get network characteristics (default jika tidak ada networkId)
+            const networkChar = networkId && NETWORK_CHARACTERISTICS[networkId]
+                ? NETWORK_CHARACTERISTICS[networkId]
+                : { latencyMultiplier: 1.0, cpuMultiplier: 1.0, memoryMultiplier: 1.0, tpsMultiplier: 1.0 };
 
             // Adjust timestamp based on load category
             let timestamp;
@@ -492,26 +530,30 @@
             }
 
             // Generate simulation metrics untuk setiap transaksi
-            const simulatedLatencyMs = Math.floor(
-                expectedLatencyRange.min + Math.random() * (expectedLatencyRange.max - expectedLatencyRange.min)
-            );
+            // APPLY NETWORK MULTIPLIER untuk latency
+            const baseLatency = expectedLatencyRange.min + Math.random() * (expectedLatencyRange.max - expectedLatencyRange.min);
+            const simulatedLatencyMs = Math.floor(baseLatency * networkChar.latencyMultiplier);
 
             // Simulate timing untuk throughput calculation
             const submittedAt = timestamp.toISOString();
             const completedAt = new Date(timestamp.getTime() + simulatedLatencyMs).toISOString();
 
             // Generate resource usage metrics
-            const cpuUsage = category === 'light'
+            // APPLY NETWORK MULTIPLIER untuk CPU dan Memory
+            const baseCpuUsage = category === 'light'
                 ? 10 + Math.random() * 20  // 10-30%
                 : category === 'medium'
                 ? 25 + Math.random() * 30  // 25-55%
                 : 50 + Math.random() * 35; // 50-85%
 
-            const memoryUsage = category === 'light'
+            const baseMemoryUsage = category === 'light'
                 ? 500 + Math.random() * 500  // 500-1000 MB
                 : category === 'medium'
                 ? 1000 + Math.random() * 1000 // 1000-2000 MB
                 : 2000 + Math.random() * 1500; // 2000-3500 MB
+
+            const cpuUsage = baseCpuUsage * networkChar.cpuMultiplier;
+            const memoryUsage = baseMemoryUsage * networkChar.memoryMultiplier;
 
             return {
                 reportId,
@@ -529,7 +571,7 @@
                     submittedAt: submittedAt,
                     completedAt: completedAt,
                     processingTimeMs: simulatedLatencyMs,
-                    expectedTps: expectedTpsRange.min + Math.random() * (expectedTpsRange.max - expectedTpsRange.min)
+                    expectedTps: (expectedTpsRange.min + Math.random() * (expectedTpsRange.max - expectedTpsRange.min)) * networkChar.tpsMultiplier
                 },
 
                 // Data latency - response time metrics
@@ -932,22 +974,46 @@
                 let failCount = 0;
                 let errorMessages = [];
 
-                for (let i = 0; i < generatedData.length; i++) {
+                // =================== GENERATE DATA SPESIFIK UNTUK NETWORK INI ===================
+                // PENTING: Setiap network mendapat data yang berbeda berdasarkan karakteristiknya
+                const networkSpecificData = [];
+                const baseDataCount = generatedData.length;
+
+                for (let i = 0; i < baseDataCount; i++) {
+                    const baseData = generatedData[i];
+
+                    // Re-generate data dengan karakteristik network ini
+                    if (baseData.simulation_metadata && baseData.simulation_metadata.transactionType === 'fault') {
+                        // Untuk fault transaction, gunakan fungsi generateFaultTransaction
+                        const faultEnabled = document.getElementById('enableFaultTolerance').checked;
+                        if (faultEnabled) {
+                            const selectedScenarios = Array.from(document.querySelectorAll('input[name="faultScenario"]:checked'))
+                                .map(cb => cb.value);
+                            networkSpecificData.push(generateFaultTransaction(i + 1, currentLoadCategory, baseDataCount, selectedScenarios, network.id));
+                        }
+                    } else {
+                        // Untuk normal transaction, generate dengan karakteristik network
+                        networkSpecificData.push(generateReport(i + 1, currentLoadCategory, baseDataCount, network.id));
+                    }
+                }
+                // =================== END GENERATE DATA SPESIFIK ===================
+
+                for (let i = 0; i < networkSpecificData.length; i++) {
                     const txSubmittedAt = new Date().toISOString();
-                    const txId = generatedData[i].reportId;
+                    const txId = networkSpecificData[i].reportId;
 
                     // Calculate progress percentage
-                    const progressPercentage = ((i + 1) / generatedData.length) * 100;
+                    const progressPercentage = ((i + 1) / networkSpecificData.length) * 100;
 
                     // Update progress dengan detail transaksi yang sedang diproses
-                    const remaining = generatedData.length - (i + 1);
-                    progressEl.textContent = `Memproses ${i + 1}/${generatedData.length} (Sisa: ${remaining}) - ${txId}`;
+                    const remaining = networkSpecificData.length - (i + 1);
+                    progressEl.textContent = `Memproses ${i + 1}/${networkSpecificData.length} (Sisa: ${remaining}) - ${txId}`;
                     updateProgressBar(network.id, progressPercentage);
 
                     try {
                         // Tambahkan submittedAt ke data yang dikirim untuk perhitungan throughput
                         const dataToSend = {
-                            ...generatedData[i],
+                            ...networkSpecificData[i],
                             submittedAt: txSubmittedAt
                         };
 
@@ -964,8 +1030,8 @@
                             successCount++;
 
                             // Update progress dengan status sukses
-                            const remainingAfterSuccess = generatedData.length - (i + 1);
-                            progressEl.textContent = `✓ ${i + 1}/${generatedData.length} (Sisa: ${remainingAfterSuccess}) | Sukses: ${successCount}`;
+                            const remainingAfterSuccess = networkSpecificData.length - (i + 1);
+                            progressEl.textContent = `✓ ${i + 1}/${networkSpecificData.length} (Sisa: ${remainingAfterSuccess}) | Sukses: ${successCount}`;
 
                             // =================== RECORD TRANSACTION METRICS ===================
                             if (simulationId) {
@@ -974,7 +1040,7 @@
                                         method: 'POST',
                                         headers: { 'Content-Type': 'application/json' },
                                         body: JSON.stringify({
-                                            txId: result.result?.recordId || generatedData[i].reportId,
+                                            txId: result.result?.recordId || networkSpecificData[i].reportId,
                                             networkId: networkIdMapping[network.id],
                                             submittedAt: result.submittedAt || txSubmittedAt,
                                             completedAt: result.completedAt || txCompletedAt,
@@ -993,8 +1059,8 @@
                             }
 
                             // Update progress dengan status gagal
-                            const remainingAfterFail = generatedData.length - (i + 1);
-                            progressEl.textContent = `✗ ${i + 1}/${generatedData.length} (Sisa: ${remainingAfterFail}) | Sukses: ${successCount}, Gagal: ${failCount}`;
+                            const remainingAfterFail = networkSpecificData.length - (i + 1);
+                            progressEl.textContent = `✗ ${i + 1}/${networkSpecificData.length} (Sisa: ${remainingAfterFail}) | Sukses: ${successCount}, Gagal: ${failCount}`;
 
                             // Record failed transaction in metrics
                             if (simulationId) {
@@ -1003,7 +1069,7 @@
                                         method: 'POST',
                                         headers: { 'Content-Type': 'application/json' },
                                         body: JSON.stringify({
-                                            txId: generatedData[i].reportId,
+                                            txId: networkSpecificData[i].reportId,
                                             networkId: networkIdMapping[network.id],
                                             submittedAt: txSubmittedAt,
                                             completedAt: txCompletedAt,
@@ -1023,8 +1089,8 @@
                         }
 
                         // Update progress dengan status error
-                        const remainingAfterError = generatedData.length - (i + 1);
-                        progressEl.textContent = `✗ ${i + 1}/${generatedData.length} (Sisa: ${remainingAfterError}) | Sukses: ${successCount}, Gagal: ${failCount}`;
+                        const remainingAfterError = networkSpecificData.length - (i + 1);
+                        progressEl.textContent = `✗ ${i + 1}/${networkSpecificData.length} (Sisa: ${remainingAfterError}) | Sukses: ${successCount}, Gagal: ${failCount}`;
 
                         const txCompletedAt = new Date().toISOString();
 
@@ -1035,7 +1101,7 @@
                                     method: 'POST',
                                     headers: { 'Content-Type': 'application/json' },
                                     body: JSON.stringify({
-                                        txId: generatedData[i].reportId,
+                                        txId: networkSpecificData[i].reportId,
                                         networkId: networkIdMapping[network.id],
                                         submittedAt: txSubmittedAt,
                                         completedAt: txCompletedAt,
@@ -1308,10 +1374,15 @@
         let currentFaultLoadCategory = 'light';
 
         // Generate single fault transaction
-        function generateFaultTransaction(index, category, totalCount, selectedScenarios) {
+        function generateFaultTransaction(index, category, totalCount, selectedScenarios, networkId = null) {
             const now = new Date();
             const year = now.getFullYear();
             const faultId = `FAULT-${year}-${String(index).padStart(5, '0')}`;
+
+            // Get network characteristics (default jika tidak ada networkId)
+            const networkChar = networkId && NETWORK_CHARACTERISTICS[networkId]
+                ? NETWORK_CHARACTERISTICS[networkId]
+                : { latencyMultiplier: 1.0, cpuMultiplier: 1.0, memoryMultiplier: 1.0, tpsMultiplier: 1.0 };
 
             // Select random scenario from available scenarios
             const scenarioKey = selectedScenarios[Math.floor(Math.random() * selectedScenarios.length)];
@@ -1319,23 +1390,26 @@
 
             // Calculate timing based on load category
             let failureTimestamp;
-            let simulatedLatencyMs;
+            let baseLatencyMs;
             let expectedFailureRate;
 
             if (category === 'light') {
                 failureTimestamp = new Date(now.getTime() - Math.random() * 24 * 60 * 60 * 1000);
-                simulatedLatencyMs = 50 + Math.random() * 150;
+                baseLatencyMs = 50 + Math.random() * 150;
                 expectedFailureRate = 0.05 + Math.random() * 0.05; // 5-10%
             } else if (category === 'medium') {
                 const hoursOffset = 8 + Math.random() * 8;
                 failureTimestamp = new Date(now.getTime() - (24 - hoursOffset) * 60 * 60 * 1000);
-                simulatedLatencyMs = 100 + Math.random() * 400;
+                baseLatencyMs = 100 + Math.random() * 400;
                 expectedFailureRate = 0.10 + Math.random() * 0.10; // 10-20%
             } else {
                 failureTimestamp = new Date(now.getTime() - Math.random() * 4 * 60 * 60 * 1000);
-                simulatedLatencyMs = 200 + Math.random() * 800;
+                baseLatencyMs = 200 + Math.random() * 800;
                 expectedFailureRate = 0.20 + Math.random() * 0.15; // 20-35%
             }
+
+            // APPLY NETWORK MULTIPLIER untuk fault latency juga
+            const simulatedLatencyMs = Math.floor(baseLatencyMs * networkChar.latencyMultiplier);
 
             // Select random error code from scenario
             const errorCode = scenario.errorCodes[Math.floor(Math.random() * scenario.errorCodes.length)];
@@ -1358,17 +1432,21 @@
             const completedAt = new Date(failureTimestamp.getTime() + failureLatencyMs).toISOString();
 
             // Generate higher resource usage during fault
-            const cpuUsage = category === 'light'
+            // APPLY NETWORK MULTIPLIER untuk CPU dan Memory
+            const baseCpuUsage = category === 'light'
                 ? 40 + Math.random() * 30  // 40-70%
                 : category === 'medium'
                 ? 60 + Math.random() * 25  // 60-85%
                 : 75 + Math.random() * 20; // 75-95%
 
-            const memoryUsage = category === 'light'
+            const baseMemoryUsage = category === 'light'
                 ? 1500 + Math.random() * 1000  // 1500-2500 MB
                 : category === 'medium'
                 ? 2500 + Math.random() * 1000  // 2500-3500 MB
                 : 3000 + Math.random() * 1000; // 3000-4000 MB
+
+            const cpuUsage = baseCpuUsage * networkChar.cpuMultiplier;
+            const memoryUsage = baseMemoryUsage * networkChar.memoryMultiplier;
 
             return {
                 reportId: faultId, // Use faultId as reportId for consistency

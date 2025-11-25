@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluasi RAFT HLF — Ringkasan Hasil</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#38BDF8',
+                        secondary: '#6366F1',
+                        accent: '#F59E0B',
+                        highlight: '#F97316',
+                        soft: '#050B16',
+                        surface: '#0F172A',
+                        surfaceMuted: '#16213F',
+                        border: '#1E293B',
+                        muted: '#94A3B8',
+                        textdark: '#E2E8F0'
+                    }
+                }
+            }
+        };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="/images/logo-ai-center.svg">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+
+        .component-link[data-active="true"] {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.28), rgba(56, 189, 248, 0.22));
+            color: #E2E8F0;
+            border-color: rgba(249, 115, 22, 0.45);
+            box-shadow: 0 12px 40px rgba(15, 23, 42, 0.45);
+        }
+
+        .component-link[data-active="true"] .component-link__index {
+            background-color: rgba(249, 115, 22, 0.35);
+            color: #E2E8F0;
+        }
+
+        .metric-card {
+            transition: all 0.3s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 50px rgba(56, 189, 248, 0.15);
+        }
+    </style>
+</head>
+<body class="bg-soft text-textdark">
+    <div data-component="header"></div>
+    <div class="relative min-h-screen overflow-hidden">
+        <div class="absolute inset-0 -z-10 h-full w-full">
+            <div class="absolute -left-1/3 top-0 h-[720px] w-[720px] rounded-full bg-gradient-to-br from-highlight/30 via-secondary/20 to-transparent opacity-70 blur-3xl"></div>
+            <div class="absolute -right-1/4 bottom-0 h-[620px] w-[620px] rounded-full bg-gradient-to-tr from-accent/35 via-secondary/25 to-primary/20 opacity-70 blur-3xl"></div>
+        </div>
+
+        <div class="flex min-h-screen flex-col lg:flex-row">
+            <div data-component="sidebar"></div>
+
+            <div class="flex-1">
+                <main class="mx-auto w-full max-w-6xl px-6 py-12">
+                    <div class="space-y-10">
+                        <!-- Header Section -->
+                        <section class="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-surface via-soft to-[#020817] p-10 shadow-2xl shadow-black/30">
+                            <div class="flex flex-col gap-6">
+                                <div class="inline-flex w-fit items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-primary/90">
+                                    Bab 4.6.1
+                                </div>
+                                <div class="space-y-5">
+                                    <h1 class="text-3xl font-semibold text-textdark md:text-4xl">Ringkasan Hasil</h1>
+                                    <p class="text-sm text-textdark/70 md:text-base leading-relaxed">
+                                        Halaman ini menyajikan ringkasan statistik dan performa eksekusi simulasi. Data yang ditampilkan mencakup statistik keseluruhan, perbandingan performa antar network, visualisasi data melalui chart interaktif, dan breakdown detail per kategori beban.
+                                    </p>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Load Data Section -->
+                        <section class="rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20 backdrop-blur-sm">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h2 class="text-lg font-semibold text-textdark">Data Simulasi</h2>
+                                    <p class="text-sm text-textdark/60">Muat data hasil simulasi dari backend</p>
+                                </div>
+                                <button
+                                    type="button"
+                                    id="loadResultsButton"
+                                    class="inline-flex items-center justify-center gap-2 rounded-lg bg-primary/90 px-6 py-2 text-sm font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-primary/40 transition duration-200 hover:-translate-y-0.5 hover:bg-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                                >
+                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                                    </svg>
+                                    <span>Muat Data</span>
+                                </button>
+                            </div>
+                        </section>
+
+                        <!-- Overall Statistics -->
+                        <section id="overallStats" class="hidden rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20 backdrop-blur-sm">
+                            <header class="flex flex-col gap-2 border-b border-white/10 pb-6">
+                                <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Statistik Keseluruhan</h2>
+                                <p class="text-sm text-textdark/70">Ringkasan performa dari seluruh simulasi yang telah dijalankan</p>
+                            </header>
+
+                            <div class="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                                <!-- Total Transactions -->
+                                <div class="metric-card rounded-xl border border-white/10 bg-surfaceMuted/70 p-5">
+                                    <div class="flex items-start justify-between">
+                                        <div>
+                                            <p class="text-xs text-textdark/60">Total Transaksi</p>
+                                            <p id="totalTransactions" class="mt-2 text-2xl font-bold text-textdark">-</p>
+                                        </div>
+                                        <div class="rounded-lg bg-primary/20 p-2">
+                                            <svg class="h-5 w-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Success Rate -->
+                                <div class="metric-card rounded-xl border border-white/10 bg-surfaceMuted/70 p-5">
+                                    <div class="flex items-start justify-between">
+                                        <div>
+                                            <p class="text-xs text-textdark/60">Success Rate</p>
+                                            <p id="successRate" class="mt-2 text-2xl font-bold text-emerald-400">-</p>
+                                        </div>
+                                        <div class="rounded-lg bg-emerald-500/20 p-2">
+                                            <svg class="h-5 w-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Avg Throughput -->
+                                <div class="metric-card rounded-xl border border-white/10 bg-surfaceMuted/70 p-5">
+                                    <div class="flex items-start justify-between">
+                                        <div>
+                                            <p class="text-xs text-textdark/60">Avg Throughput</p>
+                                            <p id="avgThroughput" class="mt-2 text-2xl font-bold text-accent">-</p>
+                                        </div>
+                                        <div class="rounded-lg bg-accent/20 p-2">
+                                            <svg class="h-5 w-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Avg Latency -->
+                                <div class="metric-card rounded-xl border border-white/10 bg-surfaceMuted/70 p-5">
+                                    <div class="flex items-start justify-between">
+                                        <div>
+                                            <p class="text-xs text-textdark/60">Avg Latency</p>
+                                            <p id="avgLatency" class="mt-2 text-2xl font-bold text-secondary">-</p>
+                                        </div>
+                                        <div class="rounded-lg bg-secondary/20 p-2">
+                                            <svg class="h-5 w-5 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Network Comparison -->
+                        <section id="networkComparison" class="hidden rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20 backdrop-blur-sm">
+                            <header class="flex flex-col gap-2 border-b border-white/10 pb-6">
+                                <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Perbandingan Antar Network</h2>
+                                <p class="text-sm text-textdark/70">Komparasi performa antara Fabric 2 dan Fabric 3 dengan konfigurasi Standard dan Variant</p>
+                            </header>
+
+                            <div class="mt-8">
+                                <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
+                                    <div class="overflow-x-auto">
+                                        <table class="w-full text-sm">
+                                            <thead>
+                                                <tr class="border-b border-white/10">
+                                                    <th class="pb-3 text-left text-xs font-semibold text-textdark/70">Network</th>
+                                                    <th class="pb-3 text-right text-xs font-semibold text-textdark/70">Transaksi</th>
+                                                    <th class="pb-3 text-right text-xs font-semibold text-textdark/70">TPS</th>
+                                                    <th class="pb-3 text-right text-xs font-semibold text-textdark/70">Avg Latency</th>
+                                                    <th class="pb-3 text-right text-xs font-semibold text-textdark/70">Avg CPU</th>
+                                                    <th class="pb-3 text-right text-xs font-semibold text-textdark/70">Avg Memory</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="networkComparisonTable">
+                                                <!-- Data will be populated by JavaScript -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Performance Charts -->
+                        <section id="performanceCharts" class="hidden rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20 backdrop-blur-sm">
+                            <header class="flex flex-col gap-2 border-b border-white/10 pb-6">
+                                <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Visualisasi Performa</h2>
+                                <p class="text-sm text-textdark/70">Grafik interaktif untuk analisis visual performa sistem</p>
+                            </header>
+
+                            <div class="mt-8 grid gap-6 md:grid-cols-2">
+                                <!-- Throughput Comparison Chart -->
+                                <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
+                                    <h4 class="mb-4 text-sm font-semibold text-textdark">Throughput Comparison</h4>
+                                    <canvas id="throughputChart"></canvas>
+                                </div>
+
+                                <!-- Latency Comparison Chart -->
+                                <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
+                                    <h4 class="mb-4 text-sm font-semibold text-textdark">Latency Comparison</h4>
+                                    <canvas id="latencyChart"></canvas>
+                                </div>
+
+                                <!-- Resource Usage Chart -->
+                                <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
+                                    <h4 class="mb-4 text-sm font-semibold text-textdark">CPU Usage Comparison</h4>
+                                    <canvas id="cpuChart"></canvas>
+                                </div>
+
+                                <!-- Memory Usage Chart -->
+                                <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
+                                    <h4 class="mb-4 text-sm font-semibold text-textdark">Memory Usage Comparison</h4>
+                                    <canvas id="memoryChart"></canvas>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Load Category Breakdown -->
+                        <section id="loadCategoryBreakdown" class="hidden rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20 backdrop-blur-sm">
+                            <header class="flex flex-col gap-2 border-b border-white/10 pb-6">
+                                <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Breakdown per Kategori Beban</h2>
+                                <p class="text-sm text-textdark/70">Analisis performa berdasarkan kategori beban ringan, sedang, dan tinggi</p>
+                            </header>
+
+                            <div class="mt-8 grid gap-4 md:grid-cols-3">
+                                <div class="rounded-xl border border-green-500/30 bg-green-500/10 p-5">
+                                    <div class="mb-3 flex items-center gap-2">
+                                        <div class="h-3 w-3 rounded-full bg-green-500"></div>
+                                        <h4 class="text-sm font-semibold text-green-400">Beban Ringan</h4>
+                                    </div>
+                                    <div class="space-y-2 text-xs text-textdark/70">
+                                        <div class="flex justify-between">
+                                            <span>Transaksi:</span>
+                                            <span id="lightTransactions" class="font-semibold text-textdark">-</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span>Avg TPS:</span>
+                                            <span id="lightTPS" class="font-semibold text-textdark">-</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span>Avg Latency:</span>
+                                            <span id="lightLatency" class="font-semibold text-textdark">-</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="rounded-xl border border-yellow-500/30 bg-yellow-500/10 p-5">
+                                    <div class="mb-3 flex items-center gap-2">
+                                        <div class="h-3 w-3 rounded-full bg-yellow-500"></div>
+                                        <h4 class="text-sm font-semibold text-yellow-400">Beban Sedang</h4>
+                                    </div>
+                                    <div class="space-y-2 text-xs text-textdark/70">
+                                        <div class="flex justify-between">
+                                            <span>Transaksi:</span>
+                                            <span id="mediumTransactions" class="font-semibold text-textdark">-</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span>Avg TPS:</span>
+                                            <span id="mediumTPS" class="font-semibold text-textdark">-</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span>Avg Latency:</span>
+                                            <span id="mediumLatency" class="font-semibold text-textdark">-</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="rounded-xl border border-red-500/30 bg-red-500/10 p-5">
+                                    <div class="mb-3 flex items-center gap-2">
+                                        <div class="h-3 w-3 rounded-full bg-red-500"></div>
+                                        <h4 class="text-sm font-semibold text-red-400">Beban Tinggi</h4>
+                                    </div>
+                                    <div class="space-y-2 text-xs text-textdark/70">
+                                        <div class="flex justify-between">
+                                            <span>Transaksi:</span>
+                                            <span id="heavyTransactions" class="font-semibold text-textdark">-</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span>Avg TPS:</span>
+                                            <span id="heavyTPS" class="font-semibold text-textdark">-</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span>Avg Latency:</span>
+                                            <span id="heavyLatency" class="font-semibold text-textdark">-</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Export Section -->
+                        <section id="exportSection" class="hidden rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20 backdrop-blur-sm">
+                            <header class="mb-6">
+                                <h2 class="text-lg font-semibold text-textdark">Export Data</h2>
+                                <p class="text-sm text-textdark/70">Download ringkasan hasil dalam berbagai format</p>
+                            </header>
+
+                            <div class="flex flex-wrap gap-3">
+                                <button
+                                    type="button"
+                                    id="exportPDFButton"
+                                    class="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-surfaceMuted px-4 py-2 text-sm font-semibold text-textdark transition hover:bg-surface disabled:opacity-50 disabled:cursor-not-allowed"
+                                    disabled
+                                >
+                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                                    </svg>
+                                    <span>Export PDF</span>
+                                </button>
+
+                                <button
+                                    type="button"
+                                    id="exportCSVButton"
+                                    class="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-surfaceMuted px-4 py-2 text-sm font-semibold text-textdark transition hover:bg-surface disabled:opacity-50 disabled:cursor-not-allowed"
+                                    disabled
+                                >
+                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                    </svg>
+                                    <span>Export CSV</span>
+                                </button>
+
+                                <button
+                                    type="button"
+                                    id="exportJSONButton"
+                                    class="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-surfaceMuted px-4 py-2 text-sm font-semibold text-textdark transition hover:bg-surface disabled:opacity-50 disabled:cursor-not-allowed"
+                                    disabled
+                                >
+                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/>
+                                    </svg>
+                                    <span>Export JSON</span>
+                                </button>
+                            </div>
+                        </section>
+                    </div>
+                </main>
+
+                <div data-component="footer"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/layout.js" defer></script>
+    <script src="/js/navigation.js" defer></script>
+    <script>
+        let simulationData = null;
+        let charts = {};
+
+        // Load simulation results
+        document.getElementById('loadResultsButton').addEventListener('click', async () => {
+            Swal.fire({
+                title: 'Memuat Data...',
+                text: 'Mohon tunggu',
+                background: '#0F172A',
+                color: '#E2E8F0',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            try {
+                // Fetch all simulation data from API
+                const response = await fetch('/api/metrics/simulation/all');
+                const result = await response.json();
+
+                if (result.success && result.simulations.length > 0) {
+                    simulationData = result.simulations;
+                    processAndDisplayResults(simulationData);
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Data Berhasil Dimuat',
+                        text: `${simulationData.length} simulasi ditemukan`,
+                        background: '#0F172A',
+                        color: '#E2E8F0',
+                        confirmButtonColor: '#38BDF8',
+                        timer: 2000
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Data Tidak Ditemukan',
+                        html: 'Belum ada data simulasi.<br><br>Silakan jalankan simulasi terlebih dahulu di halaman <a href="/penelitian/pelaksanaan-simulasi/pengeksekusian-simulasi-transaksi" class="text-primary hover:underline">Pengeksekusian Simulasi</a>.',
+                        background: '#0F172A',
+                        color: '#E2E8F0',
+                        confirmButtonColor: '#38BDF8'
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading results:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal Memuat Data',
+                    text: error.message,
+                    background: '#0F172A',
+                    color: '#E2E8F0',
+                    confirmButtonColor: '#38BDF8'
+                });
+            }
+        });
+
+        function processAndDisplayResults(simulations) {
+            // Calculate overall statistics
+            const totalTransactions = simulations.reduce((sum, sim) => sum + sim.totalTransactions, 0);
+            const totalSuccess = simulations.reduce((sum, sim) => sum + sim.successCount, 0);
+            const successRate = totalTransactions > 0 ? (totalSuccess / totalTransactions * 100).toFixed(2) : 0;
+
+            const avgThroughput = simulations.reduce((sum, sim) => sum + (sim.metrics?.throughput?.transactionsPerSecond || 0), 0) / simulations.length;
+            const avgLatency = simulations.reduce((sum, sim) => sum + (sim.metrics?.latency?.averageLatencyMs || 0), 0) / simulations.length;
+
+            // Update overall stats
+            document.getElementById('totalTransactions').textContent = totalTransactions.toLocaleString();
+            document.getElementById('successRate').textContent = `${successRate}%`;
+            document.getElementById('avgThroughput').textContent = `${avgThroughput.toFixed(2)} TPS`;
+            document.getElementById('avgLatency').textContent = `${avgLatency.toFixed(2)} ms`;
+
+            document.getElementById('overallStats').classList.remove('hidden');
+
+            // Process network comparison
+            displayNetworkComparison(simulations);
+
+            // Display charts
+            displayCharts(simulations);
+
+            // Display load category breakdown
+            displayLoadCategoryBreakdown(simulations);
+
+            // Show export section
+            document.getElementById('exportSection').classList.remove('hidden');
+
+            // Enable export buttons
+            document.getElementById('exportPDFButton').disabled = false;
+            document.getElementById('exportCSVButton').disabled = false;
+            document.getElementById('exportJSONButton').disabled = false;
+        }
+
+        function displayNetworkComparison(simulations) {
+            const networkStats = {};
+
+            simulations.forEach(sim => {
+                if (!sim.targetNetworks) return;
+
+                sim.targetNetworks.forEach(network => {
+                    if (!networkStats[network]) {
+                        networkStats[network] = {
+                            totalTransactions: 0,
+                            totalThroughput: 0,
+                            totalLatency: 0,
+                            totalCPU: 0,
+                            totalMemory: 0,
+                            count: 0
+                        };
+                    }
+
+                    const stats = networkStats[network];
+                    stats.totalTransactions += sim.totalTransactions / sim.targetNetworks.length;
+                    stats.totalThroughput += sim.metrics?.throughput?.transactionsPerSecond || 0;
+                    stats.totalLatency += sim.metrics?.latency?.averageLatencyMs || 0;
+                    stats.totalCPU += sim.metrics?.resourceUsage?.averageCPU || 0;
+                    stats.totalMemory += sim.metrics?.resourceUsage?.averageMemory || 0;
+                    stats.count++;
+                });
+            });
+
+            const networkNames = {
+                'channel-standard': 'Fabric 2 Standard',
+                'channel-variant': 'Fabric 2 Variant',
+                'channel-fabric3-standard': 'Fabric 3 Standard',
+                'channel-fabric3-variant': 'Fabric 3 Variant'
+            };
+
+            const tableBody = document.getElementById('networkComparisonTable');
+            tableBody.innerHTML = '';
+
+            Object.entries(networkStats).forEach(([network, stats]) => {
+                const avgTPS = (stats.totalThroughput / stats.count).toFixed(2);
+                const avgLatency = (stats.totalLatency / stats.count).toFixed(2);
+                const avgCPU = (stats.totalCPU / stats.count).toFixed(2);
+                const avgMemory = (stats.totalMemory / stats.count).toFixed(2);
+
+                const row = document.createElement('tr');
+                row.className = 'border-b border-white/5';
+                row.innerHTML = `
+                    <td class="py-3 text-textdark">${networkNames[network] || network}</td>
+                    <td class="py-3 text-right text-textdark/80">${Math.round(stats.totalTransactions).toLocaleString()}</td>
+                    <td class="py-3 text-right text-textdark/80">${avgTPS}</td>
+                    <td class="py-3 text-right text-textdark/80">${avgLatency} ms</td>
+                    <td class="py-3 text-right text-textdark/80">${avgCPU}%</td>
+                    <td class="py-3 text-right text-textdark/80">${avgMemory} MB</td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            document.getElementById('networkComparison').classList.remove('hidden');
+        }
+
+        function displayCharts(simulations) {
+            const networkStats = {};
+
+            simulations.forEach(sim => {
+                if (!sim.targetNetworks) return;
+
+                sim.targetNetworks.forEach(network => {
+                    if (!networkStats[network]) {
+                        networkStats[network] = {
+                            throughput: [],
+                            latency: [],
+                            cpu: [],
+                            memory: []
+                        };
+                    }
+
+                    networkStats[network].throughput.push(sim.metrics?.throughput?.transactionsPerSecond || 0);
+                    networkStats[network].latency.push(sim.metrics?.latency?.averageLatencyMs || 0);
+                    networkStats[network].cpu.push(sim.metrics?.resourceUsage?.averageCPU || 0);
+                    networkStats[network].memory.push(sim.metrics?.resourceUsage?.averageMemory || 0);
+                });
+            });
+
+            const networkNames = {
+                'channel-standard': 'Fabric 2 Standard',
+                'channel-variant': 'Fabric 2 Variant',
+                'channel-fabric3-standard': 'Fabric 3 Standard',
+                'channel-fabric3-variant': 'Fabric 3 Variant'
+            };
+
+            const labels = Object.keys(networkStats).map(n => networkNames[n] || n);
+            const throughputData = Object.values(networkStats).map(stats =>
+                stats.throughput.reduce((a, b) => a + b, 0) / stats.throughput.length
+            );
+            const latencyData = Object.values(networkStats).map(stats =>
+                stats.latency.reduce((a, b) => a + b, 0) / stats.latency.length
+            );
+            const cpuData = Object.values(networkStats).map(stats =>
+                stats.cpu.reduce((a, b) => a + b, 0) / stats.cpu.length
+            );
+            const memoryData = Object.values(networkStats).map(stats =>
+                stats.memory.reduce((a, b) => a + b, 0) / stats.memory.length
+            );
+
+            // Throughput Chart
+            const throughputCtx = document.getElementById('throughputChart').getContext('2d');
+            if (charts.throughput) charts.throughput.destroy();
+            charts.throughput = new Chart(throughputCtx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Avg TPS',
+                        data: throughputData,
+                        backgroundColor: 'rgba(56, 189, 248, 0.6)',
+                        borderColor: 'rgba(56, 189, 248, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { color: '#94A3B8' },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                        },
+                        x: {
+                            ticks: { color: '#94A3B8' },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+
+            // Latency Chart
+            const latencyCtx = document.getElementById('latencyChart').getContext('2d');
+            if (charts.latency) charts.latency.destroy();
+            charts.latency = new Chart(latencyCtx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Avg Latency (ms)',
+                        data: latencyData,
+                        backgroundColor: 'rgba(99, 102, 241, 0.6)',
+                        borderColor: 'rgba(99, 102, 241, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { color: '#94A3B8' },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                        },
+                        x: {
+                            ticks: { color: '#94A3B8' },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+
+            // CPU Chart
+            const cpuCtx = document.getElementById('cpuChart').getContext('2d');
+            if (charts.cpu) charts.cpu.destroy();
+            charts.cpu = new Chart(cpuCtx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Avg CPU (%)',
+                        data: cpuData,
+                        backgroundColor: 'rgba(245, 158, 11, 0.6)',
+                        borderColor: 'rgba(245, 158, 11, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: { color: '#94A3B8' },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                        },
+                        x: {
+                            ticks: { color: '#94A3B8' },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+
+            // Memory Chart
+            const memoryCtx = document.getElementById('memoryChart').getContext('2d');
+            if (charts.memory) charts.memory.destroy();
+            charts.memory = new Chart(memoryCtx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Avg Memory (MB)',
+                        data: memoryData,
+                        backgroundColor: 'rgba(249, 115, 22, 0.6)',
+                        borderColor: 'rgba(249, 115, 22, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { color: '#94A3B8' },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                        },
+                        x: {
+                            ticks: { color: '#94A3B8' },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+
+            document.getElementById('performanceCharts').classList.remove('hidden');
+        }
+
+        function displayLoadCategoryBreakdown(simulations) {
+            const categoryStats = {
+                light: { count: 0, tps: [], latency: [] },
+                medium: { count: 0, tps: [], latency: [] },
+                heavy: { count: 0, tps: [], latency: [] }
+            };
+
+            simulations.forEach(sim => {
+                const category = sim.loadCategory || 'light';
+                if (categoryStats[category]) {
+                    categoryStats[category].count += sim.totalTransactions;
+                    categoryStats[category].tps.push(sim.metrics?.throughput?.transactionsPerSecond || 0);
+                    categoryStats[category].latency.push(sim.metrics?.latency?.averageLatencyMs || 0);
+                }
+            });
+
+            Object.entries(categoryStats).forEach(([category, stats]) => {
+                const avgTPS = stats.tps.length > 0
+                    ? (stats.tps.reduce((a, b) => a + b, 0) / stats.tps.length).toFixed(2)
+                    : '-';
+                const avgLatency = stats.latency.length > 0
+                    ? (stats.latency.reduce((a, b) => a + b, 0) / stats.latency.length).toFixed(2)
+                    : '-';
+
+                document.getElementById(`${category}Transactions`).textContent = stats.count.toLocaleString();
+                document.getElementById(`${category}TPS`).textContent = avgTPS !== '-' ? `${avgTPS} TPS` : '-';
+                document.getElementById(`${category}Latency`).textContent = avgLatency !== '-' ? `${avgLatency} ms` : '-';
+            });
+
+            document.getElementById('loadCategoryBreakdown').classList.remove('hidden');
+        }
+
+        // Export functions
+        document.getElementById('exportPDFButton').addEventListener('click', () => {
+            Swal.fire({
+                icon: 'info',
+                title: 'Fitur Export PDF',
+                text: 'Fitur export PDF akan segera tersedia',
+                background: '#0F172A',
+                color: '#E2E8F0',
+                confirmButtonColor: '#38BDF8'
+            });
+        });
+
+        document.getElementById('exportCSVButton').addEventListener('click', () => {
+            if (!simulationData) return;
+
+            let csv = 'Simulation ID,Load Category,Total Transactions,Success Count,TPS,Avg Latency (ms),Avg CPU (%),Avg Memory (MB)\n';
+
+            simulationData.forEach(sim => {
+                csv += `${sim.simulationId},${sim.loadCategory},${sim.totalTransactions},${sim.successCount},`;
+                csv += `${sim.metrics?.throughput?.transactionsPerSecond || 0},`;
+                csv += `${sim.metrics?.latency?.averageLatencyMs || 0},`;
+                csv += `${sim.metrics?.resourceUsage?.averageCPU || 0},`;
+                csv += `${sim.metrics?.resourceUsage?.averageMemory || 0}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `simulation-results-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+        });
+
+        document.getElementById('exportJSONButton').addEventListener('click', () => {
+            if (!simulationData) return;
+
+            const json = JSON.stringify(simulationData, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `simulation-results-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+        });
+    </script>
+</body>
+</html>

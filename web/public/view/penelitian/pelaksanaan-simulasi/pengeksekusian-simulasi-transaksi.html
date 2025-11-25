@@ -151,6 +151,83 @@
                                     <p class="mt-3 text-xs text-textdark/50" id="loadCategoryHint">Range yang direkomendasikan untuk Beban Ringan: 100-500 transaksi</p>
                                 </div>
 
+                                <!-- Fault Tolerance Option -->
+                                <div class="rounded-2xl border border-orange-500/30 bg-orange-500/5 p-6">
+                                    <div class="mb-4 flex items-start gap-3">
+                                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-orange-500/20">
+                                            <svg class="h-5 w-5 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                            </svg>
+                                        </div>
+                                        <div class="flex-1">
+                                            <h4 class="text-sm font-semibold text-orange-400 mb-2">Simulasi Fault Tolerance (Opsional)</h4>
+                                            <p class="text-xs text-textdark/70 leading-relaxed mb-4">
+                                                Aktifkan untuk menambahkan data transaksi gagal secara random untuk mengukur fault tolerance sistem.
+                                            </p>
+
+                                            <!-- Enable Fault Tolerance -->
+                                            <label class="flex items-center gap-3 mb-4 cursor-pointer">
+                                                <input
+                                                    type="checkbox"
+                                                    id="enableFaultTolerance"
+                                                    class="h-5 w-5 rounded border-orange-500/40 bg-surface text-orange-500 focus:ring-2 focus:ring-orange-500/50 focus:ring-offset-0"
+                                                >
+                                                <span class="text-sm text-textdark">Aktifkan Fault Tolerance</span>
+                                            </label>
+
+                                            <!-- Fault Options (Hidden by default) -->
+                                            <div id="faultOptions" class="hidden space-y-4 pt-4 border-t border-orange-500/20">
+                                                <!-- Fault Percentage -->
+                                                <div>
+                                                    <label for="faultPercentage" class="mb-2 block text-xs text-textdark/70">
+                                                        Persentase Transaksi Gagal (%)
+                                                    </label>
+                                                    <input
+                                                        type="number"
+                                                        id="faultPercentage"
+                                                        min="5"
+                                                        max="35"
+                                                        value="10"
+                                                        class="w-full rounded-lg border border-orange-500/30 bg-surface px-3 py-2 text-sm text-textdark focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/50"
+                                                    >
+                                                    <p class="mt-1 text-xs text-textdark/50">Ringan: 5-10%, Sedang: 10-20%, Tinggi: 20-35%</p>
+                                                </div>
+
+                                                <!-- Failure Scenarios -->
+                                                <div>
+                                                    <label class="mb-2 block text-xs text-textdark/70">Skenario Kegagalan</label>
+                                                    <div class="grid gap-2 md:grid-cols-2">
+                                                        <label class="flex items-center gap-2 text-xs text-textdark/80 cursor-pointer">
+                                                            <input type="checkbox" name="faultScenario" value="node_failure" class="h-4 w-4 rounded border-orange-500/40 bg-surface text-orange-500" checked>
+                                                            <span>Node Failure</span>
+                                                        </label>
+                                                        <label class="flex items-center gap-2 text-xs text-textdark/80 cursor-pointer">
+                                                            <input type="checkbox" name="faultScenario" value="network_partition" class="h-4 w-4 rounded border-orange-500/40 bg-surface text-orange-500" checked>
+                                                            <span>Network Partition</span>
+                                                        </label>
+                                                        <label class="flex items-center gap-2 text-xs text-textdark/80 cursor-pointer">
+                                                            <input type="checkbox" name="faultScenario" value="timeout" class="h-4 w-4 rounded border-orange-500/40 bg-surface text-orange-500" checked>
+                                                            <span>Timeout</span>
+                                                        </label>
+                                                        <label class="flex items-center gap-2 text-xs text-textdark/80 cursor-pointer">
+                                                            <input type="checkbox" name="faultScenario" value="invalid_transaction" class="h-4 w-4 rounded border-orange-500/40 bg-surface text-orange-500" checked>
+                                                            <span>Invalid Transaction</span>
+                                                        </label>
+                                                        <label class="flex items-center gap-2 text-xs text-textdark/80 cursor-pointer">
+                                                            <input type="checkbox" name="faultScenario" value="consensus_failure" class="h-4 w-4 rounded border-orange-500/40 bg-surface text-orange-500" checked>
+                                                            <span>Consensus Failure</span>
+                                                        </label>
+                                                        <label class="flex items-center gap-2 text-xs text-textdark/80 cursor-pointer">
+                                                            <input type="checkbox" name="faultScenario" value="resource_exhaustion" class="h-4 w-4 rounded border-orange-500/40 bg-surface text-orange-500">
+                                                            <span>Resource Exhaustion</span>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <!-- Generated Data Preview -->
                                 <div id="dataPreview" class="hidden rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
                                     <div class="mb-4 flex items-center justify-between">
@@ -290,275 +367,6 @@
                                 <div id="resultsSection" class="hidden rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
                                     <h3 class="mb-4 text-lg font-semibold text-textdark">Hasil Pengeksekusian</h3>
                                     <div id="resultsContent" class="space-y-4"></div>
-                                </div>
-                            </div>
-                        </section>
-
-                        <!-- Fault Tolerance Simulation Section -->
-                        <section class="rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20 backdrop-blur-sm">
-                            <header class="flex flex-col gap-2 border-b border-white/10 pb-6">
-                                <div class="flex items-center gap-3">
-                                    <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Simulasi Fault Tolerance</h2>
-                                    <span class="rounded-full bg-orange-500/20 px-3 py-1 text-xs font-semibold text-orange-400">Testing</span>
-                                </div>
-                                <p class="text-sm text-textdark/70">Generate data simulasi dengan skenario kegagalan untuk mengukur fault tolerance sistem pada berbagai tingkat beban.</p>
-                            </header>
-
-                            <div class="mt-6 space-y-6">
-                                <!-- Fault Tolerance Explanation -->
-                                <div class="rounded-2xl border border-orange-500/20 bg-orange-500/5 p-5">
-                                    <div class="flex items-start gap-3">
-                                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-orange-500/20">
-                                            <svg class="h-5 w-5 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                                            </svg>
-                                        </div>
-                                        <div>
-                                            <h4 class="text-sm font-semibold text-orange-400">Apa itu Fault Tolerance Testing?</h4>
-                                            <p class="mt-1 text-xs text-textdark/70 leading-relaxed">
-                                                Pengujian fault tolerance mengukur kemampuan sistem blockchain untuk tetap beroperasi
-                                                meskipun terjadi kegagalan pada beberapa komponen. Data simulasi ini mencakup skenario
-                                                seperti: node failure, network partition, timeout, invalid transaction, dan consensus failure.
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Fault Tolerance Load Selection -->
-                                <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
-                                    <h3 class="mb-4 text-lg font-semibold text-textdark">Pilih Kategori Beban untuk Fault Tolerance</h3>
-                                    <div class="grid gap-4 md:grid-cols-3">
-                                        <!-- Light Load Fault -->
-                                        <label class="relative cursor-pointer">
-                                            <input type="radio" name="faultLoadCategory" value="light" class="peer sr-only" checked>
-                                            <div class="rounded-xl border-2 border-white/10 bg-surface/50 p-6 transition-all peer-checked:border-green-500/50 peer-checked:bg-green-500/10 peer-checked:shadow-lg peer-checked:shadow-green-500/20">
-                                                <div class="mb-2 inline-flex rounded-lg bg-green-500/20 px-3 py-1">
-                                                    <span class="text-sm font-semibold text-green-400">Beban Ringan</span>
-                                                </div>
-                                                <p class="mb-3 text-sm text-textdark/80">50-100 transaksi gagal</p>
-                                                <p class="text-xs text-textdark/60">Failure Rate: 5-10%</p>
-                                            </div>
-                                        </label>
-
-                                        <!-- Medium Load Fault -->
-                                        <label class="relative cursor-pointer">
-                                            <input type="radio" name="faultLoadCategory" value="medium" class="peer sr-only">
-                                            <div class="rounded-xl border-2 border-white/10 bg-surface/50 p-6 transition-all peer-checked:border-yellow-500/50 peer-checked:bg-yellow-500/10 peer-checked:shadow-lg peer-checked:shadow-yellow-500/20">
-                                                <div class="mb-2 inline-flex rounded-lg bg-yellow-500/20 px-3 py-1">
-                                                    <span class="text-sm font-semibold text-yellow-400">Beban Sedang</span>
-                                                </div>
-                                                <p class="mb-3 text-sm text-textdark/80">200-500 transaksi gagal</p>
-                                                <p class="text-xs text-textdark/60">Failure Rate: 10-20%</p>
-                                            </div>
-                                        </label>
-
-                                        <!-- Heavy Load Fault -->
-                                        <label class="relative cursor-pointer">
-                                            <input type="radio" name="faultLoadCategory" value="heavy" class="peer sr-only">
-                                            <div class="rounded-xl border-2 border-white/10 bg-surface/50 p-6 transition-all peer-checked:border-red-500/50 peer-checked:bg-red-500/10 peer-checked:shadow-lg peer-checked:shadow-red-500/20">
-                                                <div class="mb-2 inline-flex rounded-lg bg-red-500/20 px-3 py-1">
-                                                    <span class="text-sm font-semibold text-red-400">Beban Tinggi</span>
-                                                </div>
-                                                <p class="mb-3 text-sm text-textdark/80">500-1000 transaksi gagal</p>
-                                                <p class="text-xs text-textdark/60">Failure Rate: 20-35%</p>
-                                            </div>
-                                        </label>
-                                    </div>
-                                </div>
-
-                                <!-- Failure Scenarios Selection -->
-                                <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
-                                    <h3 class="mb-4 text-lg font-semibold text-textdark">Skenario Kegagalan</h3>
-                                    <p class="mb-4 text-xs text-textdark/60">Pilih jenis kegagalan yang akan disimulasikan untuk mengukur fault tolerance.</p>
-                                    <div class="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-                                        <!-- Node Failure -->
-                                        <label class="relative cursor-pointer">
-                                            <input type="checkbox" name="failureScenario" value="node_failure" class="peer sr-only" checked>
-                                            <div class="rounded-lg border-2 border-white/10 bg-surface/50 p-4 transition-all peer-checked:border-red-500/40 peer-checked:bg-red-500/10">
-                                                <div class="flex items-center gap-2">
-                                                    <svg class="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                                                    </svg>
-                                                    <span class="text-sm font-semibold text-textdark">Node Failure</span>
-                                                </div>
-                                                <p class="mt-2 text-xs text-textdark/60">Kegagalan node orderer/peer</p>
-                                            </div>
-                                        </label>
-
-                                        <!-- Network Partition -->
-                                        <label class="relative cursor-pointer">
-                                            <input type="checkbox" name="failureScenario" value="network_partition" class="peer sr-only" checked>
-                                            <div class="rounded-lg border-2 border-white/10 bg-surface/50 p-4 transition-all peer-checked:border-orange-500/40 peer-checked:bg-orange-500/10">
-                                                <div class="flex items-center gap-2">
-                                                    <svg class="h-5 w-5 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"/>
-                                                    </svg>
-                                                    <span class="text-sm font-semibold text-textdark">Network Partition</span>
-                                                </div>
-                                                <p class="mt-2 text-xs text-textdark/60">Isolasi jaringan antar node</p>
-                                            </div>
-                                        </label>
-
-                                        <!-- Timeout -->
-                                        <label class="relative cursor-pointer">
-                                            <input type="checkbox" name="failureScenario" value="timeout" class="peer sr-only" checked>
-                                            <div class="rounded-lg border-2 border-white/10 bg-surface/50 p-4 transition-all peer-checked:border-yellow-500/40 peer-checked:bg-yellow-500/10">
-                                                <div class="flex items-center gap-2">
-                                                    <svg class="h-5 w-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                                    </svg>
-                                                    <span class="text-sm font-semibold text-textdark">Timeout</span>
-                                                </div>
-                                                <p class="mt-2 text-xs text-textdark/60">Request timeout pada transaksi</p>
-                                            </div>
-                                        </label>
-
-                                        <!-- Invalid Transaction -->
-                                        <label class="relative cursor-pointer">
-                                            <input type="checkbox" name="failureScenario" value="invalid_transaction" class="peer sr-only" checked>
-                                            <div class="rounded-lg border-2 border-white/10 bg-surface/50 p-4 transition-all peer-checked:border-purple-500/40 peer-checked:bg-purple-500/10">
-                                                <div class="flex items-center gap-2">
-                                                    <svg class="h-5 w-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                                                    </svg>
-                                                    <span class="text-sm font-semibold text-textdark">Invalid Transaction</span>
-                                                </div>
-                                                <p class="mt-2 text-xs text-textdark/60">Transaksi dengan format/data invalid</p>
-                                            </div>
-                                        </label>
-
-                                        <!-- Consensus Failure -->
-                                        <label class="relative cursor-pointer">
-                                            <input type="checkbox" name="failureScenario" value="consensus_failure" class="peer sr-only" checked>
-                                            <div class="rounded-lg border-2 border-white/10 bg-surface/50 p-4 transition-all peer-checked:border-blue-500/40 peer-checked:bg-blue-500/10">
-                                                <div class="flex items-center gap-2">
-                                                    <svg class="h-5 w-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                                    </svg>
-                                                    <span class="text-sm font-semibold text-textdark">Consensus Failure</span>
-                                                </div>
-                                                <p class="mt-2 text-xs text-textdark/60">Kegagalan mencapai konsensus RAFT</p>
-                                            </div>
-                                        </label>
-
-                                        <!-- Resource Exhaustion -->
-                                        <label class="relative cursor-pointer">
-                                            <input type="checkbox" name="failureScenario" value="resource_exhaustion" class="peer sr-only">
-                                            <div class="rounded-lg border-2 border-white/10 bg-surface/50 p-4 transition-all peer-checked:border-pink-500/40 peer-checked:bg-pink-500/10">
-                                                <div class="flex items-center gap-2">
-                                                    <svg class="h-5 w-5 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                                                    </svg>
-                                                    <span class="text-sm font-semibold text-textdark">Resource Exhaustion</span>
-                                                </div>
-                                                <p class="mt-2 text-xs text-textdark/60">CPU/Memory exhaustion</p>
-                                            </div>
-                                        </label>
-                                    </div>
-                                </div>
-
-                                <!-- Fault Count Input -->
-                                <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
-                                    <h3 class="mb-4 text-lg font-semibold text-textdark">Jumlah Transaksi Gagal</h3>
-                                    <div class="flex flex-col gap-4 md:flex-row md:items-end">
-                                        <div class="flex-1">
-                                            <label for="faultTransactionCount" class="mb-2 block text-sm text-textdark/70">Masukkan jumlah transaksi gagal yang akan digenerate</label>
-                                            <input
-                                                type="number"
-                                                id="faultTransactionCount"
-                                                min="10"
-                                                max="1000"
-                                                value="50"
-                                                class="w-full rounded-lg border border-white/10 bg-surface px-4 py-2 text-textdark focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/50"
-                                            >
-                                        </div>
-                                        <button
-                                            type="button"
-                                            id="generateFaultDataButton"
-                                            class="inline-flex items-center justify-center gap-2 rounded-lg bg-orange-500/90 px-6 py-2 text-sm font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-orange-500/40 transition duration-200 hover:-translate-y-0.5 hover:bg-orange-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-400"
-                                        >
-                                            <span>Generate Fault Data</span>
-                                        </button>
-                                    </div>
-                                    <p class="mt-3 text-xs text-textdark/50" id="faultLoadCategoryHint">Range yang direkomendasikan untuk Beban Ringan: 50-100 transaksi gagal (Failure Rate: 5-10%)</p>
-                                </div>
-
-                                <!-- Generated Fault Data Preview -->
-                                <div id="faultDataPreview" class="hidden rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
-                                    <div class="mb-4 flex items-center justify-between">
-                                        <h3 class="text-lg font-semibold text-textdark">Preview Data Fault Tolerance</h3>
-                                        <div class="flex items-center gap-3">
-                                            <span id="faultDataCount" class="rounded-full bg-orange-500/20 px-3 py-1 text-xs font-semibold text-orange-400">0 transaksi gagal</span>
-                                            <button
-                                                type="button"
-                                                id="downloadFaultDataButton"
-                                                class="inline-flex items-center gap-1 rounded-lg bg-surface px-3 py-1 text-xs font-semibold text-textdark/70 transition hover:bg-surface/80 hover:text-textdark"
-                                            >
-                                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-                                                </svg>
-                                                Download JSON
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    <!-- Statistics Summary -->
-                                    <div id="faultStatsSummary" class="mb-4 grid gap-3 md:grid-cols-3 lg:grid-cols-6">
-                                        <!-- Will be populated by JS -->
-                                    </div>
-
-                                    <div id="faultDataPreviewContent" class="max-h-96 overflow-y-auto rounded-lg border border-white/10 bg-surface p-4">
-                                        <pre class="text-xs text-textdark/80"><code id="faultDataPreviewCode"></code></pre>
-                                    </div>
-                                </div>
-
-                                <!-- Fault Tolerance Metrics Explanation -->
-                                <div id="faultMetricsExplanation" class="hidden rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
-                                    <h3 class="mb-4 text-lg font-semibold text-textdark">Metrik yang Diukur</h3>
-                                    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                                        <div class="rounded-lg border border-white/10 bg-surface/50 p-4">
-                                            <div class="mb-2 flex items-center gap-2">
-                                                <div class="h-3 w-3 rounded-full bg-green-500"></div>
-                                                <span class="text-sm font-semibold text-textdark">Recovery Time</span>
-                                            </div>
-                                            <p class="text-xs text-textdark/60">Waktu yang dibutuhkan sistem untuk pulih dari kegagalan.</p>
-                                        </div>
-                                        <div class="rounded-lg border border-white/10 bg-surface/50 p-4">
-                                            <div class="mb-2 flex items-center gap-2">
-                                                <div class="h-3 w-3 rounded-full bg-blue-500"></div>
-                                                <span class="text-sm font-semibold text-textdark">Success Rate Under Failure</span>
-                                            </div>
-                                            <p class="text-xs text-textdark/60">Persentase transaksi yang berhasil saat terjadi kegagalan.</p>
-                                        </div>
-                                        <div class="rounded-lg border border-white/10 bg-surface/50 p-4">
-                                            <div class="mb-2 flex items-center gap-2">
-                                                <div class="h-3 w-3 rounded-full bg-yellow-500"></div>
-                                                <span class="text-sm font-semibold text-textdark">Latency Impact</span>
-                                            </div>
-                                            <p class="text-xs text-textdark/60">Peningkatan latency saat terjadi kegagalan dibanding normal.</p>
-                                        </div>
-                                        <div class="rounded-lg border border-white/10 bg-surface/50 p-4">
-                                            <div class="mb-2 flex items-center gap-2">
-                                                <div class="h-3 w-3 rounded-full bg-purple-500"></div>
-                                                <span class="text-sm font-semibold text-textdark">Error Distribution</span>
-                                            </div>
-                                            <p class="text-xs text-textdark/60">Distribusi jenis error yang terjadi pada sistem.</p>
-                                        </div>
-                                        <div class="rounded-lg border border-white/10 bg-surface/50 p-4">
-                                            <div class="mb-2 flex items-center gap-2">
-                                                <div class="h-3 w-3 rounded-full bg-red-500"></div>
-                                                <span class="text-sm font-semibold text-textdark">Cascade Failure Rate</span>
-                                            </div>
-                                            <p class="text-xs text-textdark/60">Tingkat kegagalan beruntun yang terjadi.</p>
-                                        </div>
-                                        <div class="rounded-lg border border-white/10 bg-surface/50 p-4">
-                                            <div class="mb-2 flex items-center gap-2">
-                                                <div class="h-3 w-3 rounded-full bg-orange-500"></div>
-                                                <span class="text-sm font-semibold text-textdark">RAFT Leader Election</span>
-                                            </div>
-                                            <p class="text-xs text-textdark/60">Waktu pemilihan leader baru saat leader gagal.</p>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                         </section>
@@ -723,6 +531,16 @@
             });
         });
 
+        // Toggle fault options visibility
+        document.getElementById('enableFaultTolerance').addEventListener('change', (e) => {
+            const faultOptions = document.getElementById('faultOptions');
+            if (e.target.checked) {
+                faultOptions.classList.remove('hidden');
+            } else {
+                faultOptions.classList.add('hidden');
+            }
+        });
+
         // Generate data button
         document.getElementById('generateDataButton').addEventListener('click', () => {
             const count = parseInt(document.getElementById('transactionCount').value);
@@ -739,23 +557,76 @@
                 return;
             }
 
-            // Generate data dengan totalCount untuk metadata
+            // Check if fault tolerance is enabled
+            const faultEnabled = document.getElementById('enableFaultTolerance').checked;
+            let normalCount = count;
+            let faultCount = 0;
+
+            if (faultEnabled) {
+                const faultPercentage = parseInt(document.getElementById('faultPercentage').value) || 10;
+
+                // Get selected failure scenarios
+                const selectedScenarios = Array.from(document.querySelectorAll('input[name="faultScenario"]:checked'))
+                    .map(cb => cb.value);
+
+                if (selectedScenarios.length === 0) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Skenario Belum Dipilih',
+                        text: 'Pilih minimal 1 skenario kegagalan atau nonaktifkan fault tolerance',
+                        background: '#0F172A',
+                        color: '#E2E8F0',
+                        confirmButtonColor: '#F97316'
+                    });
+                    return;
+                }
+
+                // Calculate fault count
+                faultCount = Math.floor(count * (faultPercentage / 100));
+                normalCount = count - faultCount;
+            }
+
+            // Generate normal data
             generatedData = [];
-            for (let i = 1; i <= count; i++) {
+            for (let i = 1; i <= normalCount; i++) {
                 generatedData.push(generateReport(i, currentLoadCategory, count));
             }
 
+            // Generate fault data if enabled
+            if (faultEnabled && faultCount > 0) {
+                const selectedScenarios = Array.from(document.querySelectorAll('input[name="faultScenario"]:checked'))
+                    .map(cb => cb.value);
+
+                for (let i = 1; i <= faultCount; i++) {
+                    generatedData.push(generateFaultTransaction(normalCount + i, currentLoadCategory, count, selectedScenarios));
+                }
+
+                // Shuffle array to randomize fault distribution
+                for (let i = generatedData.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [generatedData[i], generatedData[j]] = [generatedData[j], generatedData[i]];
+                }
+            }
+
             // Update preview
-            document.getElementById('dataCount').textContent = `${count} transaksi`;
+            const previewText = faultEnabled && faultCount > 0
+                ? `${count} transaksi (${normalCount} normal + ${faultCount} fault)`
+                : `${count} transaksi`;
+
+            document.getElementById('dataCount').textContent = previewText;
             document.getElementById('dataPreviewCode').textContent = JSON.stringify(generatedData.slice(0, 5), null, 2) +
                 (count > 5 ? '\n\n... dan ' + (count - 5) + ' transaksi lainnya' : '');
             document.getElementById('dataPreview').classList.remove('hidden');
             document.getElementById('submitSection').classList.remove('hidden');
 
+            const successMsg = faultEnabled && faultCount > 0
+                ? `${count} transaksi berhasil digenerate (${normalCount} normal + ${faultCount} fault)`
+                : `${count} transaksi berhasil digenerate`;
+
             Swal.fire({
                 icon: 'success',
                 title: 'Data Generated',
-                text: `${count} transaksi berhasil digenerate`,
+                text: successMsg,
                 background: '#0F172A',
                 color: '#E2E8F0',
                 confirmButtonColor: '#38BDF8',
@@ -1468,209 +1339,6 @@
             return messages[scenarioKey]?.[errorCode] || `Unknown error ${errorCode} in ${component}`;
         }
 
-        // Update fault load category hints
-        document.querySelectorAll('input[name="faultLoadCategory"]').forEach(radio => {
-            radio.addEventListener('change', (e) => {
-                currentFaultLoadCategory = e.target.value;
-                const transactionCount = document.getElementById('faultTransactionCount');
-                const hint = document.getElementById('faultLoadCategoryHint');
-
-                if (currentFaultLoadCategory === 'light') {
-                    transactionCount.min = 10;
-                    transactionCount.max = 100;
-                    transactionCount.value = 50;
-                    hint.textContent = 'Range yang direkomendasikan untuk Beban Ringan: 50-100 transaksi gagal (Failure Rate: 5-10%)';
-                } else if (currentFaultLoadCategory === 'medium') {
-                    transactionCount.min = 100;
-                    transactionCount.max = 500;
-                    transactionCount.value = 200;
-                    hint.textContent = 'Range yang direkomendasikan untuk Beban Sedang: 200-500 transaksi gagal (Failure Rate: 10-20%)';
-                } else {
-                    transactionCount.min = 300;
-                    transactionCount.max = 1000;
-                    transactionCount.value = 500;
-                    hint.textContent = 'Range yang direkomendasikan untuk Beban Tinggi: 500-1000 transaksi gagal (Failure Rate: 20-35%)';
-                }
-            });
-        });
-
-        // Generate fault data button
-        document.getElementById('generateFaultDataButton').addEventListener('click', () => {
-            const count = parseInt(document.getElementById('faultTransactionCount').value);
-
-            if (isNaN(count) || count < 10) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Input Tidak Valid',
-                    text: 'Jumlah transaksi gagal harus minimal 10',
-                    background: '#0F172A',
-                    color: '#E2E8F0',
-                    confirmButtonColor: '#F97316'
-                });
-                return;
-            }
-
-            // Get selected failure scenarios
-            const selectedScenarios = Array.from(document.querySelectorAll('input[name="failureScenario"]:checked'))
-                .map(cb => cb.value);
-
-            if (selectedScenarios.length === 0) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Skenario Belum Dipilih',
-                    text: 'Pilih minimal 1 skenario kegagalan',
-                    background: '#0F172A',
-                    color: '#E2E8F0',
-                    confirmButtonColor: '#F97316'
-                });
-                return;
-            }
-
-            // Generate fault data
-            generatedFaultData = [];
-            for (let i = 1; i <= count; i++) {
-                generatedFaultData.push(generateFaultTransaction(i, currentFaultLoadCategory, count, selectedScenarios));
-            }
-
-            // Calculate statistics
-            const stats = calculateFaultStatistics(generatedFaultData);
-
-            // Update preview
-            document.getElementById('faultDataCount').textContent = `${count} transaksi gagal`;
-
-            // Update statistics summary
-            const statsHTML = `
-                <div class="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-center">
-                    <p class="text-lg font-bold text-red-400">${stats.byType.node_failure || 0}</p>
-                    <p class="text-xs text-textdark/60">Node Failure</p>
-                </div>
-                <div class="rounded-lg border border-orange-500/30 bg-orange-500/10 p-3 text-center">
-                    <p class="text-lg font-bold text-orange-400">${stats.byType.network_partition || 0}</p>
-                    <p class="text-xs text-textdark/60">Network Partition</p>
-                </div>
-                <div class="rounded-lg border border-yellow-500/30 bg-yellow-500/10 p-3 text-center">
-                    <p class="text-lg font-bold text-yellow-400">${stats.byType.timeout || 0}</p>
-                    <p class="text-xs text-textdark/60">Timeout</p>
-                </div>
-                <div class="rounded-lg border border-purple-500/30 bg-purple-500/10 p-3 text-center">
-                    <p class="text-lg font-bold text-purple-400">${stats.byType.invalid_transaction || 0}</p>
-                    <p class="text-xs text-textdark/60">Invalid Tx</p>
-                </div>
-                <div class="rounded-lg border border-blue-500/30 bg-blue-500/10 p-3 text-center">
-                    <p class="text-lg font-bold text-blue-400">${stats.byType.consensus_failure || 0}</p>
-                    <p class="text-xs text-textdark/60">Consensus</p>
-                </div>
-                <div class="rounded-lg border border-pink-500/30 bg-pink-500/10 p-3 text-center">
-                    <p class="text-lg font-bold text-pink-400">${stats.byType.resource_exhaustion || 0}</p>
-                    <p class="text-xs text-textdark/60">Resource</p>
-                </div>
-            `;
-            document.getElementById('faultStatsSummary').innerHTML = statsHTML;
-
-            // Update preview code
-            document.getElementById('faultDataPreviewCode').textContent = JSON.stringify(generatedFaultData.slice(0, 3), null, 2) +
-                (count > 3 ? '\n\n... dan ' + (count - 3) + ' transaksi gagal lainnya' : '');
-
-            document.getElementById('faultDataPreview').classList.remove('hidden');
-            document.getElementById('faultMetricsExplanation').classList.remove('hidden');
-
-            Swal.fire({
-                icon: 'success',
-                title: 'Fault Data Generated',
-                html: `
-                    <div class="text-left">
-                        <p class="mb-3">${count} transaksi gagal berhasil digenerate</p>
-                        <div class="text-sm text-gray-400">
-                            <p>Avg Recovery Time: ${stats.avgRecoveryTime.toFixed(0)}ms</p>
-                            <p>Cascade Failures: ${stats.cascadeCount} (${((stats.cascadeCount/count)*100).toFixed(1)}%)</p>
-                            <p>Critical Failures: ${stats.bySeverity.critical || 0}</p>
-                        </div>
-                    </div>
-                `,
-                background: '#0F172A',
-                color: '#E2E8F0',
-                confirmButtonColor: '#F97316',
-                timer: 3000
-            });
-        });
-
-        // Calculate fault statistics
-        function calculateFaultStatistics(data) {
-            const stats = {
-                byType: {},
-                bySeverity: {},
-                byNetwork: {},
-                avgRecoveryTime: 0,
-                avgLatency: 0,
-                cascadeCount: 0,
-                totalRetries: 0
-            };
-
-            let totalRecoveryTime = 0;
-            let totalLatency = 0;
-
-            data.forEach(fault => {
-                // Count by type
-                stats.byType[fault.failureType] = (stats.byType[fault.failureType] || 0) + 1;
-
-                // Count by severity
-                stats.bySeverity[fault.severity] = (stats.bySeverity[fault.severity] || 0) + 1;
-
-                // Count by network
-                stats.byNetwork[fault.networkId] = (stats.byNetwork[fault.networkId] || 0) + 1;
-
-                // Sum metrics
-                totalRecoveryTime += fault.metrics.recoveryTimeMs;
-                totalLatency += fault.metrics.latencyAtFailureMs;
-                stats.totalRetries += fault.metrics.retryCount;
-
-                // Count cascades
-                if (fault.cascadeInfo.isCascadeFailure) {
-                    stats.cascadeCount++;
-                }
-            });
-
-            stats.avgRecoveryTime = totalRecoveryTime / data.length;
-            stats.avgLatency = totalLatency / data.length;
-
-            return stats;
-        }
-
-        // Download fault data as JSON
-        document.getElementById('downloadFaultDataButton').addEventListener('click', () => {
-            if (generatedFaultData.length === 0) return;
-
-            const stats = calculateFaultStatistics(generatedFaultData);
-            const exportData = {
-                metadata: {
-                    generatedAt: new Date().toISOString(),
-                    loadCategory: currentFaultLoadCategory,
-                    totalFaults: generatedFaultData.length,
-                    statistics: stats
-                },
-                faults: generatedFaultData
-            };
-
-            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `fault-tolerance-data-${currentFaultLoadCategory}-${new Date().toISOString().split('T')[0]}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-
-            Swal.fire({
-                icon: 'success',
-                title: 'Download Berhasil',
-                text: 'Data fault tolerance telah diunduh',
-                background: '#0F172A',
-                color: '#E2E8F0',
-                confirmButtonColor: '#F97316',
-                timer: 2000
-            });
-        });
     </script>
 </body>
 </html>

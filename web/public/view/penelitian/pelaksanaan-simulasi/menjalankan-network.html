@@ -296,24 +296,75 @@
                                         </div>
                                         <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-highlight/20 text-highlight">🔄</span>
                                     </header>
-                                    <div class="flex items-center gap-4">
-                                        <button
-                                            type="button"
-                                            id="restartAllNetworksButton"
-                                            class="inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-highlight to-accent px-6 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-highlight/40 transition duration-200 hover:-translate-y-0.5 hover:shadow-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-highlight"
-                                        >
-                                            <span>🔄</span>
-                                            <span>Restart All Networks</span>
-                                        </button>
-                                        <p
-                                            id="restartAllNetworksStatus"
-                                            class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 py-2 text-xs font-medium text-textdark/80"
-                                            role="status"
-                                            aria-live="polite"
-                                        >
-                                            <span id="restartAllIndicator" class="h-2 w-2 rounded-full bg-secondary"></span>
-                                            <span id="restartAllMessage">Siap untuk restart</span>
-                                        </p>
+                                    <div class="flex flex-col gap-4">
+                                        <div class="flex items-center gap-4">
+                                            <button
+                                                type="button"
+                                                id="restartAllNetworksButton"
+                                                class="inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-highlight to-accent px-6 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-highlight/40 transition duration-200 hover:-translate-y-0.5 hover:shadow-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-highlight"
+                                            >
+                                                <span>🔄</span>
+                                                <span>Restart All Networks</span>
+                                            </button>
+                                            <p
+                                                id="restartAllNetworksStatus"
+                                                class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 py-2 text-xs font-medium text-textdark/80"
+                                                role="status"
+                                                aria-live="polite"
+                                            >
+                                                <span id="restartAllIndicator" class="h-2 w-2 rounded-full bg-secondary"></span>
+                                                <span id="restartAllMessage">Siap untuk restart</span>
+                                            </p>
+                                        </div>
+
+                                        <!-- Progress Steps -->
+                                        <div id="restartProgressContainer" class="hidden space-y-3">
+                                            <div class="rounded-xl border border-white/10 bg-surface/50 p-4">
+                                                <div class="space-y-3">
+                                                    <!-- Step 1: Shutdown -->
+                                                    <div class="flex items-center gap-3">
+                                                        <div id="restartStep1Icon" class="flex h-8 w-8 items-center justify-center rounded-full bg-secondary/20 text-secondary">
+                                                            <span class="text-sm">1</span>
+                                                        </div>
+                                                        <div class="flex-1">
+                                                            <p id="restartStep1Text" class="text-xs font-medium text-textdark/70">Menghentikan semua network</p>
+                                                            <div class="mt-1 h-1.5 w-full rounded-full bg-surface overflow-hidden">
+                                                                <div id="restartStep1Progress" class="h-full w-0 bg-accent transition-all duration-500"></div>
+                                                            </div>
+                                                        </div>
+                                                        <span id="restartStep1Status" class="text-xs text-textdark/50">⏸</span>
+                                                    </div>
+
+                                                    <!-- Step 2: Wait -->
+                                                    <div class="flex items-center gap-3">
+                                                        <div id="restartStep2Icon" class="flex h-8 w-8 items-center justify-center rounded-full bg-secondary/20 text-secondary">
+                                                            <span class="text-sm">2</span>
+                                                        </div>
+                                                        <div class="flex-1">
+                                                            <p id="restartStep2Text" class="text-xs font-medium text-textdark/70">Menunggu proses shutdown selesai</p>
+                                                            <div class="mt-1 h-1.5 w-full rounded-full bg-surface overflow-hidden">
+                                                                <div id="restartStep2Progress" class="h-full w-0 bg-accent transition-all duration-500"></div>
+                                                            </div>
+                                                        </div>
+                                                        <span id="restartStep2Status" class="text-xs text-textdark/50">⏸</span>
+                                                    </div>
+
+                                                    <!-- Step 3: Startup -->
+                                                    <div class="flex items-center gap-3">
+                                                        <div id="restartStep3Icon" class="flex h-8 w-8 items-center justify-center rounded-full bg-secondary/20 text-secondary">
+                                                            <span class="text-sm">3</span>
+                                                        </div>
+                                                        <div class="flex-1">
+                                                            <p id="restartStep3Text" class="text-xs font-medium text-textdark/70">Menjalankan semua network</p>
+                                                            <div class="mt-1 h-1.5 w-full rounded-full bg-surface overflow-hidden">
+                                                                <div id="restartStep3Progress" class="h-full w-0 bg-accent transition-all duration-500"></div>
+                                                            </div>
+                                                        </div>
+                                                        <span id="restartStep3Status" class="text-xs text-textdark/50">⏸</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 

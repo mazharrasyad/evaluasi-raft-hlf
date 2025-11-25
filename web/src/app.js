@@ -1094,7 +1094,7 @@ const viewFiles = {
         overview: path.resolve(viewsRoot, 'penelitian/gambaran-umum.html'),
         environmentSetup: path.resolve(viewsRoot, 'penelitian/pembangunan-lingkungan-uji.html'),
         experimentDesign: path.resolve(viewsRoot, 'penelitian/rancangan-eksperimen.html'),
-        simulationExecution: path.resolve(viewsRoot, 'penelitian/pelaksanaan-simulasi.html'),
+        simulationExecution: path.resolve(viewsRoot, 'penelitian/pelaksanaan-simulasi/index.html'),
         simulationSubsections: {
             menjalankanNetwork: path.resolve(viewsRoot, 'penelitian/pelaksanaan-simulasi/menjalankan-network.html'),
             pembuatanDataSimulasi: path.resolve(viewsRoot, 'penelitian/pelaksanaan-simulasi/pembuatan-data-simulasi.html'),
@@ -1107,7 +1107,7 @@ const viewFiles = {
             pengumpulanValidasiLog: path.resolve(viewsRoot, 'penelitian/pengolahan-data/pengumpulan-validasi-log.html'),
             pengolahanNilaiRataRataGrafik: path.resolve(viewsRoot, 'penelitian/pengolahan-data/pengolahan-nilai-rata-rata-grafik.html'),
         },
-        dataAnalysis: path.resolve(viewsRoot, 'penelitian/analisis-data.html'),
+        dataAnalysis: path.resolve(viewsRoot, 'penelitian/analisis-data/index.html'),
         dataAnalysisSubsections: {
             throughput: path.resolve(viewsRoot, 'penelitian/analisis-data/throughput.html'),
             latency: path.resolve(viewsRoot, 'penelitian/analisis-data/latency.html'),

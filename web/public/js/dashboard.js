@@ -6146,6 +6146,29 @@ const restartAllNetworksButton = document.getElementById('restartAllNetworksButt
 const restartAllNetworksStatus = document.getElementById('restartAllNetworksStatus');
 const restartAllIndicator = document.getElementById('restartAllIndicator');
 const restartAllMessage = document.getElementById('restartAllMessage');
+const restartProgressContainer = document.getElementById('restartProgressContainer');
+
+// Progress step elements
+const restartStepElements = {
+    step1: {
+        icon: document.getElementById('restartStep1Icon'),
+        text: document.getElementById('restartStep1Text'),
+        progress: document.getElementById('restartStep1Progress'),
+        status: document.getElementById('restartStep1Status')
+    },
+    step2: {
+        icon: document.getElementById('restartStep2Icon'),
+        text: document.getElementById('restartStep2Text'),
+        progress: document.getElementById('restartStep2Progress'),
+        status: document.getElementById('restartStep2Status')
+    },
+    step3: {
+        icon: document.getElementById('restartStep3Icon'),
+        text: document.getElementById('restartStep3Text'),
+        progress: document.getElementById('restartStep3Progress'),
+        status: document.getElementById('restartStep3Status')
+    }
+};
 
 function updateRestartAllStatus(status, message) {
     if (!restartAllIndicator || !restartAllMessage) return;
@@ -6170,6 +6193,87 @@ function updateRestartAllStatus(status, message) {
     }
 
     restartAllMessage.textContent = message;
+}
+
+function showRestartProgress() {
+    if (restartProgressContainer) {
+        restartProgressContainer.classList.remove('hidden');
+    }
+}
+
+function hideRestartProgress() {
+    if (restartProgressContainer) {
+        restartProgressContainer.classList.add('hidden');
+    }
+}
+
+function resetRestartSteps() {
+    Object.values(restartStepElements).forEach(step => {
+        if (step.icon) {
+            step.icon.className = 'flex h-8 w-8 items-center justify-center rounded-full bg-secondary/20 text-secondary';
+        }
+        if (step.progress) {
+            step.progress.style.width = '0%';
+            step.progress.className = 'h-full w-0 bg-accent transition-all duration-500';
+        }
+        if (step.status) {
+            step.status.textContent = '⏸';
+        }
+    });
+}
+
+function updateRestartStep(stepNumber, state, progressPercent = 0) {
+    const step = restartStepElements[`step${stepNumber}`];
+    if (!step) return;
+
+    // Update icon
+    if (step.icon) {
+        step.icon.className = 'flex h-8 w-8 items-center justify-center rounded-full ';
+        switch(state) {
+            case 'pending':
+                step.icon.className += 'bg-secondary/20 text-secondary';
+                break;
+            case 'loading':
+                step.icon.className += 'bg-accent/30 text-accent animate-pulse';
+                break;
+            case 'success':
+                step.icon.className += 'bg-emerald-400/30 text-emerald-400';
+                break;
+            case 'error':
+                step.icon.className += 'bg-rose-400/30 text-rose-400';
+                break;
+        }
+    }
+
+    // Update progress bar
+    if (step.progress) {
+        step.progress.style.width = `${progressPercent}%`;
+        if (state === 'success') {
+            step.progress.className = 'h-full bg-emerald-400 transition-all duration-500';
+        } else if (state === 'error') {
+            step.progress.className = 'h-full bg-rose-400 transition-all duration-500';
+        } else if (state === 'loading') {
+            step.progress.className = 'h-full bg-accent transition-all duration-500';
+        }
+    }
+
+    // Update status icon
+    if (step.status) {
+        switch(state) {
+            case 'pending':
+                step.status.textContent = '⏸';
+                break;
+            case 'loading':
+                step.status.textContent = '⏳';
+                break;
+            case 'success':
+                step.status.textContent = '✓';
+                break;
+            case 'error':
+                step.status.textContent = '✗';
+                break;
+        }
+    }
 }
 
 async function handleRestartAllNetworks() {
@@ -6207,9 +6311,14 @@ async function handleRestartAllNetworks() {
     restartAllNetworksButton.classList.add('cursor-not-allowed', 'opacity-60');
     restartAllNetworksButton.innerHTML = '<span class="text-base animate-spin">🔄</span><span>Restarting...</span>';
 
+    // Show progress container and reset steps
+    showRestartProgress();
+    resetRestartSteps();
+
     try {
         // Step 1: Stop all networks
         updateRestartAllStatus('loading', 'Menghentikan semua network...');
+        updateRestartStep(1, 'loading', 10);
 
         const shutdownResponse = await fetch('/api/shutdown-network', {
             method: 'POST',
@@ -6221,18 +6330,30 @@ async function handleRestartAllNetworks() {
         });
 
         if (!shutdownResponse.ok) {
+            updateRestartStep(1, 'error', 0);
             throw new Error('Gagal menghentikan network');
         }
 
         const shutdownData = await shutdownResponse.json();
         console.log('Shutdown result:', shutdownData);
 
-        // Wait a bit for shutdown to complete
-        updateRestartAllStatus('loading', 'Menunggu proses shutdown selesai...');
-        await new Promise(resolve => setTimeout(resolve, 3000));
+        updateRestartStep(1, 'success', 100);
 
-        // Step 2: Start all networks
+        // Step 2: Wait a bit for shutdown to complete
+        updateRestartAllStatus('loading', 'Menunggu proses shutdown selesai...');
+        updateRestartStep(2, 'loading', 20);
+
+        // Simulate progress during wait
+        for (let i = 20; i <= 100; i += 20) {
+            await new Promise(resolve => setTimeout(resolve, 600));
+            updateRestartStep(2, 'loading', i);
+        }
+
+        updateRestartStep(2, 'success', 100);
+
+        // Step 3: Start all networks
         updateRestartAllStatus('loading', 'Menjalankan semua network...');
+        updateRestartStep(3, 'loading', 10);
 
         const startupResponse = await fetch('/api/start-network', {
             method: 'POST',
@@ -6244,11 +6365,14 @@ async function handleRestartAllNetworks() {
         });
 
         if (!startupResponse.ok) {
+            updateRestartStep(3, 'error', 0);
             throw new Error('Gagal menjalankan network');
         }
 
         const startupData = await startupResponse.json();
         console.log('Startup result:', startupData);
+
+        updateRestartStep(3, 'success', 100);
 
         // Success
         updateRestartAllStatus('success', 'Semua network berhasil di-restart!');
@@ -6282,6 +6406,11 @@ async function handleRestartAllNetworks() {
         restartAllNetworksButton.disabled = false;
         restartAllNetworksButton.classList.remove('cursor-not-allowed', 'opacity-60');
         restartAllNetworksButton.innerHTML = originalContent;
+
+        // Hide progress after a delay to let user see final state
+        setTimeout(() => {
+            hideRestartProgress();
+        }, 5000);
     }
 }
 

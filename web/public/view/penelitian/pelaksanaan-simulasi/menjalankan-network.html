@@ -86,6 +86,37 @@
                                     <p class="text-xs text-textdark/50">Pastikan Docker dan semua dependensi telah terinstal sebelum menjalankan network.</p>
                                 </div>
 
+                                <!-- Restart All Networks -->
+                                <div class="rounded-2xl border border-highlight/30 bg-gradient-to-br from-highlight/10 via-accent/5 to-transparent p-6">
+                                    <header class="mb-4 flex items-center justify-between">
+                                        <div>
+                                            <p class="text-xs uppercase tracking-[0.3em] text-highlight">Quick Action</p>
+                                            <h3 class="text-lg font-semibold text-textdark">Restart All Networks</h3>
+                                            <p class="mt-1 text-xs text-textdark/60">Stop semua network kemudian start kembali secara bersamaan</p>
+                                        </div>
+                                        <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-highlight/20 text-highlight">🔄</span>
+                                    </header>
+                                    <div class="flex items-center gap-4">
+                                        <button
+                                            type="button"
+                                            id="restartAllNetworksButton"
+                                            class="inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-highlight to-accent px-6 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-highlight/40 transition duration-200 hover:-translate-y-0.5 hover:shadow-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-highlight"
+                                        >
+                                            <span>🔄</span>
+                                            <span>Restart All Networks</span>
+                                        </button>
+                                        <p
+                                            id="restartAllNetworksStatus"
+                                            class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 py-2 text-xs font-medium text-textdark/80"
+                                            role="status"
+                                            aria-live="polite"
+                                        >
+                                            <span id="restartAllIndicator" class="h-2 w-2 rounded-full bg-secondary"></span>
+                                            <span id="restartAllMessage">Siap untuk restart</span>
+                                        </p>
+                                    </div>
+                                </div>
+
                                 <!-- Start Network - 4 Columns -->
                                 <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
                                     <header class="mb-4 flex items-center justify-between">

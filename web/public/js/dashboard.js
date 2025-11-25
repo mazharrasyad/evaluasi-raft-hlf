@@ -6141,6 +6141,154 @@ if (simulationModalOverlay) {
 
 document.addEventListener('keydown', handleModalKeyDown);
 
+// Restart All Networks functionality
+const restartAllNetworksButton = document.getElementById('restartAllNetworksButton');
+const restartAllNetworksStatus = document.getElementById('restartAllNetworksStatus');
+const restartAllIndicator = document.getElementById('restartAllIndicator');
+const restartAllMessage = document.getElementById('restartAllMessage');
+
+function updateRestartAllStatus(status, message) {
+    if (!restartAllIndicator || !restartAllMessage) return;
+
+    // Remove all status classes
+    restartAllIndicator.classList.remove('bg-secondary', 'bg-accent', 'bg-emerald-400', 'bg-rose-400', 'animate-pulse');
+
+    // Add appropriate class based on status
+    switch(status) {
+        case 'idle':
+            restartAllIndicator.classList.add('bg-secondary');
+            break;
+        case 'loading':
+            restartAllIndicator.classList.add('bg-accent', 'animate-pulse');
+            break;
+        case 'success':
+            restartAllIndicator.classList.add('bg-emerald-400');
+            break;
+        case 'error':
+            restartAllIndicator.classList.add('bg-rose-400');
+            break;
+    }
+
+    restartAllMessage.textContent = message;
+}
+
+async function handleRestartAllNetworks() {
+    if (!restartAllNetworksButton) return;
+
+    // Confirm action
+    const confirmed = await Swal.fire({
+        title: 'Restart Semua Network?',
+        html: `
+            <p class="text-sm text-textdark/80 mb-2">Operasi ini akan:</p>
+            <ol class="text-left text-sm text-textdark/70 space-y-1 list-decimal list-inside">
+                <li>Menghentikan semua 4 network (F2 Standard, F2 Variant, F3 Standard, F3 Variant)</li>
+                <li>Menunggu proses shutdown selesai</li>
+                <li>Menjalankan kembali semua 4 network</li>
+            </ol>
+            <p class="text-xs text-yellow-400 mt-4">Proses ini mungkin memakan waktu beberapa menit.</p>
+        `,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Ya, Restart Semua',
+        cancelButtonText: 'Batal',
+        background: '#0F172A',
+        color: '#E2E8F0',
+        confirmButtonColor: '#F97316',
+        cancelButtonColor: '#64748B'
+    });
+
+    if (!confirmed.isConfirmed) {
+        updateRestartAllStatus('idle', 'Restart dibatalkan');
+        return;
+    }
+
+    const originalContent = restartAllNetworksButton.innerHTML;
+    restartAllNetworksButton.disabled = true;
+    restartAllNetworksButton.classList.add('cursor-not-allowed', 'opacity-60');
+    restartAllNetworksButton.innerHTML = '<span class="text-base animate-spin">🔄</span><span>Restarting...</span>';
+
+    try {
+        // Step 1: Stop all networks
+        updateRestartAllStatus('loading', 'Menghentikan semua network...');
+
+        const shutdownResponse = await fetch('/api/stop-network', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({})  // Empty body = stop all networks
+        });
+
+        if (!shutdownResponse.ok) {
+            throw new Error('Gagal menghentikan network');
+        }
+
+        const shutdownData = await shutdownResponse.json();
+        console.log('Shutdown result:', shutdownData);
+
+        // Wait a bit for shutdown to complete
+        updateRestartAllStatus('loading', 'Menunggu proses shutdown selesai...');
+        await new Promise(resolve => setTimeout(resolve, 3000));
+
+        // Step 2: Start all networks
+        updateRestartAllStatus('loading', 'Menjalankan semua network...');
+
+        const startupResponse = await fetch('/api/start-network', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({})  // Empty body = start all networks
+        });
+
+        if (!startupResponse.ok) {
+            throw new Error('Gagal menjalankan network');
+        }
+
+        const startupData = await startupResponse.json();
+        console.log('Startup result:', startupData);
+
+        // Success
+        updateRestartAllStatus('success', 'Semua network berhasil di-restart!');
+
+        await Swal.fire({
+            title: 'Restart Berhasil!',
+            html: `
+                <p class="text-sm text-textdark/80">Semua 4 network telah berhasil di-restart.</p>
+                <p class="text-xs text-textdark/60 mt-2">Silakan periksa status network untuk memastikan semuanya berjalan dengan baik.</p>
+            `,
+            icon: 'success',
+            background: '#0F172A',
+            color: '#E2E8F0',
+            confirmButtonColor: '#10B981'
+        });
+
+    } catch (error) {
+        console.error('Error restarting networks:', error);
+        updateRestartAllStatus('error', 'Gagal melakukan restart: ' + error.message);
+
+        await Swal.fire({
+            title: 'Restart Gagal',
+            text: error.message || 'Terjadi kesalahan saat melakukan restart network.',
+            icon: 'error',
+            background: '#0F172A',
+            color: '#E2E8F0',
+            confirmButtonColor: '#EF4444'
+        });
+    } finally {
+        // Restore button
+        restartAllNetworksButton.disabled = false;
+        restartAllNetworksButton.classList.remove('cursor-not-allowed', 'opacity-60');
+        restartAllNetworksButton.innerHTML = originalContent;
+    }
+}
+
+if (restartAllNetworksButton) {
+    restartAllNetworksButton.addEventListener('click', handleRestartAllNetworks);
+}
+
 async function initialize() {
     // Load simulation data from API (blockchain networks)
     simulationData = await loadSimulationDataFromAPI();

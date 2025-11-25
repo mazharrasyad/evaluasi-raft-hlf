@@ -408,7 +408,7 @@
                             <h2 class="mb-6 text-2xl font-semibold text-textdark">Detail Tipe Fault Tolerance - Masing-masing Network</h2>
                             <p class="mb-6 text-sm text-textdark/70">Grafik berikut menampilkan distribusi tipe skenario fault tolerance untuk masing-masing network secara terpisah.</p>
 
-                            <div class="grid gap-6 md:grid-cols-2">
+                            <div class="grid gap-6 grid-cols-1">
                                 <!-- F2 Standard Chart -->
                                 <div class="rounded-2xl border border-primary/30 bg-surfaceMuted/30 p-6">
                                     <div class="flex items-center gap-3 mb-4">
@@ -939,8 +939,10 @@
                     };
 
                     records.forEach((record) => {
-                        if (record.data_fault_tolerance !== null && record.data_fault_tolerance !== undefined) {
-                            const faultType = record.data_fault_tolerance.failureScenario || record.data_fault_tolerance.scenario;
+                        // Cek apakah record memiliki data fault tolerance
+                        if (record.fault_scenario && record.fault_scenario !== null && record.fault_scenario !== '') {
+                            // Gunakan fault_scenario langsung dari record
+                            const faultType = record.fault_scenario;
                             if (faultType && counts.hasOwnProperty(faultType)) {
                                 counts[faultType]++;
                             }
@@ -1100,8 +1102,9 @@
                 let totalFaults = 0;
 
                 records.forEach((record) => {
-                    if (record.data_fault_tolerance !== null && record.data_fault_tolerance !== undefined) {
-                        const faultType = record.data_fault_tolerance.failureScenario || record.data_fault_tolerance.scenario;
+                    // Cek apakah record memiliki fault_scenario
+                    if (record.fault_scenario && record.fault_scenario !== null && record.fault_scenario !== '') {
+                        const faultType = record.fault_scenario;
                         if (faultType && counts.hasOwnProperty(faultType)) {
                             counts[faultType]++;
                             totalFaults++;

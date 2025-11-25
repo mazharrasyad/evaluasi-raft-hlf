@@ -370,6 +370,114 @@
                             </div>
                         </section>
 
+                        <!-- Individual Network Charts -->
+                        <section id="individualChartsSection" class="hidden rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20">
+                            <h2 class="mb-6 text-2xl font-semibold text-textdark">Detail Per Transaksi - Masing-masing Network</h2>
+                            <p class="mb-6 text-sm text-textdark/70">Grafik berikut menampilkan detail latency setiap transaksi untuk masing-masing network secara terpisah.</p>
+
+                            <div class="grid gap-6 lg:grid-cols-2">
+                                <!-- F2 Standard Chart -->
+                                <div class="rounded-2xl border border-primary/30 bg-surfaceMuted/30 p-6">
+                                    <div class="flex items-center gap-3 mb-4">
+                                        <div class="w-4 h-4 rounded-full bg-primary"></div>
+                                        <h3 class="text-lg font-semibold text-primary">Fabric 2 RAFT Standard</h3>
+                                    </div>
+                                    <div class="mb-4">
+                                        <canvas id="f2StandardIndividualChart" class="w-full" style="max-height: 300px;"></canvas>
+                                    </div>
+                                    <div class="grid grid-cols-3 gap-2 text-center">
+                                        <div class="rounded-lg bg-primary/10 p-2">
+                                            <p class="text-xs text-textdark/60">Avg Latency</p>
+                                            <p id="f2StandardAvg" class="text-sm font-bold text-primary">-</p>
+                                        </div>
+                                        <div class="rounded-lg bg-primary/10 p-2">
+                                            <p class="text-xs text-textdark/60">Min</p>
+                                            <p id="f2StandardMin" class="text-sm font-bold text-primary">-</p>
+                                        </div>
+                                        <div class="rounded-lg bg-primary/10 p-2">
+                                            <p class="text-xs text-textdark/60">Max</p>
+                                            <p id="f2StandardMax" class="text-sm font-bold text-primary">-</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- F2 Variant Chart -->
+                                <div class="rounded-2xl border border-secondary/30 bg-surfaceMuted/30 p-6">
+                                    <div class="flex items-center gap-3 mb-4">
+                                        <div class="w-4 h-4 rounded-full bg-secondary"></div>
+                                        <h3 class="text-lg font-semibold text-secondary">Fabric 2 RAFT Variant</h3>
+                                    </div>
+                                    <div class="mb-4">
+                                        <canvas id="f2VariantIndividualChart" class="w-full" style="max-height: 300px;"></canvas>
+                                    </div>
+                                    <div class="grid grid-cols-3 gap-2 text-center">
+                                        <div class="rounded-lg bg-secondary/10 p-2">
+                                            <p class="text-xs text-textdark/60">Avg Latency</p>
+                                            <p id="f2VariantAvg" class="text-sm font-bold text-secondary">-</p>
+                                        </div>
+                                        <div class="rounded-lg bg-secondary/10 p-2">
+                                            <p class="text-xs text-textdark/60">Min</p>
+                                            <p id="f2VariantMin" class="text-sm font-bold text-secondary">-</p>
+                                        </div>
+                                        <div class="rounded-lg bg-secondary/10 p-2">
+                                            <p class="text-xs text-textdark/60">Max</p>
+                                            <p id="f2VariantMax" class="text-sm font-bold text-secondary">-</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- F3 Standard Chart -->
+                                <div class="rounded-2xl border border-accent/30 bg-surfaceMuted/30 p-6">
+                                    <div class="flex items-center gap-3 mb-4">
+                                        <div class="w-4 h-4 rounded-full bg-accent"></div>
+                                        <h3 class="text-lg font-semibold text-accent">Fabric 3 RAFT Standard</h3>
+                                    </div>
+                                    <div class="mb-4">
+                                        <canvas id="f3StandardIndividualChart" class="w-full" style="max-height: 300px;"></canvas>
+                                    </div>
+                                    <div class="grid grid-cols-3 gap-2 text-center">
+                                        <div class="rounded-lg bg-accent/10 p-2">
+                                            <p class="text-xs text-textdark/60">Avg Latency</p>
+                                            <p id="f3StandardAvg" class="text-sm font-bold text-accent">-</p>
+                                        </div>
+                                        <div class="rounded-lg bg-accent/10 p-2">
+                                            <p class="text-xs text-textdark/60">Min</p>
+                                            <p id="f3StandardMin" class="text-sm font-bold text-accent">-</p>
+                                        </div>
+                                        <div class="rounded-lg bg-accent/10 p-2">
+                                            <p class="text-xs text-textdark/60">Max</p>
+                                            <p id="f3StandardMax" class="text-sm font-bold text-accent">-</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- F3 Variant Chart -->
+                                <div class="rounded-2xl border border-highlight/30 bg-surfaceMuted/30 p-6">
+                                    <div class="flex items-center gap-3 mb-4">
+                                        <div class="w-4 h-4 rounded-full bg-highlight"></div>
+                                        <h3 class="text-lg font-semibold text-highlight">Fabric 3 RAFT Variant</h3>
+                                    </div>
+                                    <div class="mb-4">
+                                        <canvas id="f3VariantIndividualChart" class="w-full" style="max-height: 300px;"></canvas>
+                                    </div>
+                                    <div class="grid grid-cols-3 gap-2 text-center">
+                                        <div class="rounded-lg bg-highlight/10 p-2">
+                                            <p class="text-xs text-textdark/60">Avg Latency</p>
+                                            <p id="f3VariantAvg" class="text-sm font-bold text-highlight">-</p>
+                                        </div>
+                                        <div class="rounded-lg bg-highlight/10 p-2">
+                                            <p class="text-xs text-textdark/60">Min</p>
+                                            <p id="f3VariantMin" class="text-sm font-bold text-highlight">-</p>
+                                        </div>
+                                        <div class="rounded-lg bg-highlight/10 p-2">
+                                            <p class="text-xs text-textdark/60">Max</p>
+                                            <p id="f3VariantMax" class="text-sm font-bold text-highlight">-</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
                         <!-- Analysis -->
                         <section id="latencyAnalysis" class="hidden rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20">
                             <h2 class="mb-6 text-2xl font-semibold text-textdark">Analisis Latency</h2>
@@ -399,6 +507,7 @@
         let networkChart = null;
         let perTransactionChart = null;
         let allNetworkRecords = {};
+        let individualCharts = {};
 
         const networkNames = {
             'channel-standard': 'Fabric 2 RAFT Standard',
@@ -556,6 +665,7 @@
             document.getElementById('latencyDistribution').classList.add('hidden');
             document.getElementById('latencyPerNetwork').classList.add('hidden');
             document.getElementById('perTransactionSection').classList.add('hidden');
+            document.getElementById('individualChartsSection').classList.add('hidden');
             document.getElementById('latencyAnalysis').classList.add('hidden');
         }
 
@@ -588,6 +698,7 @@
             document.getElementById('latencyDistribution').classList.add('hidden');
             document.getElementById('latencyPerNetwork').classList.remove('hidden');
             document.getElementById('perTransactionSection').classList.remove('hidden');
+            document.getElementById('individualChartsSection').classList.remove('hidden');
             document.getElementById('latencyAnalysis').classList.remove('hidden');
 
             // Calculate averages
@@ -620,6 +731,9 @@
 
             // Update per-transaction chart
             displayPerTransactionChart();
+
+            // Update individual network charts
+            displayIndividualNetworkCharts();
 
             // Update analysis
             displayComparisonAnalysis(data);
@@ -888,6 +1002,141 @@
             }
 
             document.getElementById('analysisContent').innerHTML = analysis;
+        }
+
+        // Display individual network charts
+        function displayIndividualNetworkCharts() {
+            const networkConfigs = {
+                'channel-standard': {
+                    chartId: 'f2StandardIndividualChart',
+                    avgId: 'f2StandardAvg',
+                    minId: 'f2StandardMin',
+                    maxId: 'f2StandardMax',
+                    label: 'Fabric 2 RAFT Standard',
+                    color: 'rgba(56, 189, 248, 1)',
+                    bgColor: 'rgba(56, 189, 248, 0.3)'
+                },
+                'channel-variant': {
+                    chartId: 'f2VariantIndividualChart',
+                    avgId: 'f2VariantAvg',
+                    minId: 'f2VariantMin',
+                    maxId: 'f2VariantMax',
+                    label: 'Fabric 2 RAFT Variant',
+                    color: 'rgba(99, 102, 241, 1)',
+                    bgColor: 'rgba(99, 102, 241, 0.3)'
+                },
+                'channel-fabric3-standard': {
+                    chartId: 'f3StandardIndividualChart',
+                    avgId: 'f3StandardAvg',
+                    minId: 'f3StandardMin',
+                    maxId: 'f3StandardMax',
+                    label: 'Fabric 3 RAFT Standard',
+                    color: 'rgba(245, 158, 11, 1)',
+                    bgColor: 'rgba(245, 158, 11, 0.3)'
+                },
+                'channel-fabric3-variant': {
+                    chartId: 'f3VariantIndividualChart',
+                    avgId: 'f3VariantAvg',
+                    minId: 'f3VariantMin',
+                    maxId: 'f3VariantMax',
+                    label: 'Fabric 3 RAFT Variant',
+                    color: 'rgba(249, 115, 22, 1)',
+                    bgColor: 'rgba(249, 115, 22, 0.3)'
+                }
+            };
+
+            Object.keys(networkConfigs).forEach(netId => {
+                const config = networkConfigs[netId];
+                const records = allNetworkRecords[netId] || [];
+                const ctx = document.getElementById(config.chartId).getContext('2d');
+
+                if (individualCharts[netId]) {
+                    individualCharts[netId].destroy();
+                }
+
+                const latencies = records.map((record, index) => {
+                    let latency = 0;
+                    if (record.latencyMs !== undefined) {
+                        latency = record.latencyMs;
+                    } else if (record.data_latency && record.data_latency.totalLatency) {
+                        latency = record.data_latency.totalLatency;
+                    } else if (record.networkMetadata) {
+                        const submitted = new Date(record.networkMetadata.submittedAt || record.submittedAt).getTime();
+                        const completed = new Date(record.networkMetadata.completedAt || record.completedAt).getTime();
+                        latency = completed - submitted;
+                    } else if (record.submittedAt && record.completedAt) {
+                        latency = new Date(record.completedAt).getTime() - new Date(record.submittedAt).getTime();
+                    }
+                    return Math.max(0, latency);
+                });
+
+                const validLatencies = latencies.filter(l => l > 0);
+                if (validLatencies.length > 0) {
+                    const avg = validLatencies.reduce((a, b) => a + b, 0) / validLatencies.length;
+                    const min = Math.min(...validLatencies);
+                    const max = Math.max(...validLatencies);
+                    document.getElementById(config.avgId).textContent = `${avg.toFixed(0)} ms`;
+                    document.getElementById(config.minId).textContent = `${min} ms`;
+                    document.getElementById(config.maxId).textContent = `${max} ms`;
+                } else {
+                    document.getElementById(config.avgId).textContent = '-';
+                    document.getElementById(config.minId).textContent = '-';
+                    document.getElementById(config.maxId).textContent = '-';
+                }
+
+                const labels = Array.from({ length: latencies.length }, (_, i) => i + 1);
+
+                individualCharts[netId] = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Latency (ms)',
+                            data: latencies,
+                            borderColor: config.color,
+                            backgroundColor: config.bgColor,
+                            borderWidth: 2,
+                            pointRadius: latencies.length > 50 ? 0 : 2,
+                            pointHoverRadius: 4,
+                            tension: 0.1,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: { display: false },
+                            title: {
+                                display: true,
+                                text: `Latency Per Transaksi - ${config.label}`,
+                                color: '#E2E8F0',
+                                font: { size: 12, weight: 'bold' }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return `Transaksi #${context.label}: ${context.parsed.y.toFixed(0)} ms`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: { display: true, text: 'Latency (ms)', color: '#94A3B8', font: { size: 10 } },
+                                ticks: { color: '#94A3B8', font: { size: 9 } },
+                                grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                            },
+                            x: {
+                                title: { display: true, text: 'Nomor Transaksi', color: '#94A3B8', font: { size: 10 } },
+                                ticks: { color: '#94A3B8', font: { size: 9 }, maxTicksLimit: 10 },
+                                grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                            }
+                        }
+                    }
+                });
+            });
         }
 
         // Event listeners

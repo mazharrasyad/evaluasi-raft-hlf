@@ -6,7 +6,6 @@
     <title>Evaluasi RAFT HLF — Ringkasan Hasil</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -79,7 +78,7 @@
                                 <div class="space-y-5">
                                     <h1 class="text-3xl font-semibold text-textdark md:text-4xl">Ringkasan Hasil</h1>
                                     <p class="text-sm text-textdark/70 md:text-base leading-relaxed">
-                                        Halaman ini menyajikan ringkasan statistik dan performa eksekusi simulasi. Data yang ditampilkan mencakup statistik keseluruhan, perbandingan performa antar network, visualisasi data melalui chart interaktif, dan breakdown detail per kategori beban.
+                                        Halaman ini menyajikan ringkasan hasil evaluasi performa berdasarkan empat parameter utama analisis data: <strong>Throughput</strong> yang mengukur kemampuan sistem dalam memproses transaksi per detik, <strong>Latency</strong> yang mengukur waktu respons sistem, <strong>Resource Usage</strong> yang memantau penggunaan CPU dan memori, serta <strong>Fault Tolerance</strong> yang mengevaluasi ketahanan sistem terhadap kegagalan node. Data disajikan dalam bentuk angka dan penjelasan untuk memudahkan interpretasi hasil simulasi.
                                     </p>
                                 </div>
                             </div>
@@ -205,36 +204,186 @@
                             </div>
                         </section>
 
-                        <!-- Performance Charts -->
-                        <section id="performanceCharts" class="hidden rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20 backdrop-blur-sm">
+                        <!-- Analysis Summary per Parameter -->
+                        <section id="analysisSummary" class="hidden rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20 backdrop-blur-sm">
                             <header class="flex flex-col gap-2 border-b border-white/10 pb-6">
-                                <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Visualisasi Performa</h2>
-                                <p class="text-sm text-textdark/70">Grafik interaktif untuk analisis visual performa sistem</p>
+                                <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Analisis Berdasarkan Parameter</h2>
+                                <p class="text-sm text-textdark/70">Ringkasan dan penjelasan hasil dari empat parameter utama analisis data</p>
                             </header>
 
-                            <div class="mt-8 grid gap-6">
-                                <!-- Throughput Comparison Chart -->
+                            <div class="mt-8 space-y-6">
+                                <!-- Throughput Analysis -->
                                 <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
-                                    <h4 class="mb-4 text-sm font-semibold text-textdark">Throughput Comparison</h4>
-                                    <canvas id="throughputChart"></canvas>
+                                    <div class="flex items-start gap-4">
+                                        <div class="rounded-lg bg-accent/20 p-3 mt-1">
+                                            <svg class="h-6 w-6 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                                            </svg>
+                                        </div>
+                                        <div class="flex-1">
+                                            <h4 class="text-lg font-semibold text-textdark mb-3">Throughput (TPS)</h4>
+                                            <div class="grid gap-3 md:grid-cols-4 mb-4">
+                                                <div class="rounded-lg border border-white/10 bg-soft/50 p-3">
+                                                    <p class="text-xs text-textdark/60 mb-1">Fabric 2 Standard</p>
+                                                    <p id="throughputF2Std" class="text-xl font-bold text-accent">-</p>
+                                                </div>
+                                                <div class="rounded-lg border border-white/10 bg-soft/50 p-3">
+                                                    <p class="text-xs text-textdark/60 mb-1">Fabric 2 Variant</p>
+                                                    <p id="throughputF2Var" class="text-xl font-bold text-accent">-</p>
+                                                </div>
+                                                <div class="rounded-lg border border-white/10 bg-soft/50 p-3">
+                                                    <p class="text-xs text-textdark/60 mb-1">Fabric 3 Standard</p>
+                                                    <p id="throughputF3Std" class="text-xl font-bold text-accent">-</p>
+                                                </div>
+                                                <div class="rounded-lg border border-white/10 bg-soft/50 p-3">
+                                                    <p class="text-xs text-textdark/60 mb-1">Fabric 3 Variant</p>
+                                                    <p id="throughputF3Var" class="text-xl font-bold text-accent">-</p>
+                                                </div>
+                                            </div>
+                                            <div class="rounded-lg border border-accent/20 bg-accent/5 p-4">
+                                                <p class="text-sm text-textdark/80 leading-relaxed" id="throughputAnalysis">
+                                                    Throughput mengukur kemampuan sistem dalam memproses jumlah transaksi per detik. Data akan dianalisis untuk menunjukkan perbandingan performa antar network dan menentukan konfigurasi mana yang memberikan throughput optimal dalam berbagai kondisi beban kerja.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
 
-                                <!-- Latency Comparison Chart -->
+                                <!-- Latency Analysis -->
                                 <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
-                                    <h4 class="mb-4 text-sm font-semibold text-textdark">Latency Comparison</h4>
-                                    <canvas id="latencyChart"></canvas>
+                                    <div class="flex items-start gap-4">
+                                        <div class="rounded-lg bg-secondary/20 p-3 mt-1">
+                                            <svg class="h-6 w-6 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                            </svg>
+                                        </div>
+                                        <div class="flex-1">
+                                            <h4 class="text-lg font-semibold text-textdark mb-3">Latency (ms)</h4>
+                                            <div class="grid gap-3 md:grid-cols-4 mb-4">
+                                                <div class="rounded-lg border border-white/10 bg-soft/50 p-3">
+                                                    <p class="text-xs text-textdark/60 mb-1">Fabric 2 Standard</p>
+                                                    <p id="latencyF2Std" class="text-xl font-bold text-secondary">-</p>
+                                                </div>
+                                                <div class="rounded-lg border border-white/10 bg-soft/50 p-3">
+                                                    <p class="text-xs text-textdark/60 mb-1">Fabric 2 Variant</p>
+                                                    <p id="latencyF2Var" class="text-xl font-bold text-secondary">-</p>
+                                                </div>
+                                                <div class="rounded-lg border border-white/10 bg-soft/50 p-3">
+                                                    <p class="text-xs text-textdark/60 mb-1">Fabric 3 Standard</p>
+                                                    <p id="latencyF3Std" class="text-xl font-bold text-secondary">-</p>
+                                                </div>
+                                                <div class="rounded-lg border border-white/10 bg-soft/50 p-3">
+                                                    <p class="text-xs text-textdark/60 mb-1">Fabric 3 Variant</p>
+                                                    <p id="latencyF3Var" class="text-xl font-bold text-secondary">-</p>
+                                                </div>
+                                            </div>
+                                            <div class="rounded-lg border border-secondary/20 bg-secondary/5 p-4">
+                                                <p class="text-sm text-textdark/80 leading-relaxed" id="latencyAnalysis">
+                                                    Latency mengukur waktu respons sistem dari saat transaksi disubmit hingga selesai diproses. Analisis akan menunjukkan kecepatan respons masing-masing konfigurasi dan mengidentifikasi faktor yang mempengaruhi waktu pemrosesan transaksi.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
 
-                                <!-- Resource Usage Chart -->
+                                <!-- Resource Usage Analysis -->
                                 <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
-                                    <h4 class="mb-4 text-sm font-semibold text-textdark">CPU Usage Comparison</h4>
-                                    <canvas id="cpuChart"></canvas>
+                                    <div class="flex items-start gap-4">
+                                        <div class="rounded-lg bg-highlight/20 p-3 mt-1">
+                                            <svg class="h-6 w-6 text-highlight" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>
+                                            </svg>
+                                        </div>
+                                        <div class="flex-1">
+                                            <h4 class="text-lg font-semibold text-textdark mb-3">Resource Usage</h4>
+                                            <div class="grid gap-3 md:grid-cols-2 mb-4">
+                                                <div>
+                                                    <p class="text-xs text-textdark/60 mb-2 font-semibold">CPU Usage (%)</p>
+                                                    <div class="grid grid-cols-2 gap-2">
+                                                        <div class="rounded-lg border border-white/10 bg-soft/50 p-3">
+                                                            <p class="text-[10px] text-textdark/60 mb-1">F2 Standard</p>
+                                                            <p id="cpuF2Std" class="text-lg font-bold text-highlight">-</p>
+                                                        </div>
+                                                        <div class="rounded-lg border border-white/10 bg-soft/50 p-3">
+                                                            <p class="text-[10px] text-textdark/60 mb-1">F2 Variant</p>
+                                                            <p id="cpuF2Var" class="text-lg font-bold text-highlight">-</p>
+                                                        </div>
+                                                        <div class="rounded-lg border border-white/10 bg-soft/50 p-3">
+                                                            <p class="text-[10px] text-textdark/60 mb-1">F3 Standard</p>
+                                                            <p id="cpuF3Std" class="text-lg font-bold text-highlight">-</p>
+                                                        </div>
+                                                        <div class="rounded-lg border border-white/10 bg-soft/50 p-3">
+                                                            <p class="text-[10px] text-textdark/60 mb-1">F3 Variant</p>
+                                                            <p id="cpuF3Var" class="text-lg font-bold text-highlight">-</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <p class="text-xs text-textdark/60 mb-2 font-semibold">Memory Usage (MB)</p>
+                                                    <div class="grid grid-cols-2 gap-2">
+                                                        <div class="rounded-lg border border-white/10 bg-soft/50 p-3">
+                                                            <p class="text-[10px] text-textdark/60 mb-1">F2 Standard</p>
+                                                            <p id="memoryF2Std" class="text-lg font-bold text-highlight">-</p>
+                                                        </div>
+                                                        <div class="rounded-lg border border-white/10 bg-soft/50 p-3">
+                                                            <p class="text-[10px] text-textdark/60 mb-1">F2 Variant</p>
+                                                            <p id="memoryF2Var" class="text-lg font-bold text-highlight">-</p>
+                                                        </div>
+                                                        <div class="rounded-lg border border-white/10 bg-soft/50 p-3">
+                                                            <p class="text-[10px] text-textdark/60 mb-1">F3 Standard</p>
+                                                            <p id="memoryF3Std" class="text-lg font-bold text-highlight">-</p>
+                                                        </div>
+                                                        <div class="rounded-lg border border-white/10 bg-soft/50 p-3">
+                                                            <p class="text-[10px] text-textdark/60 mb-1">F3 Variant</p>
+                                                            <p id="memoryF3Var" class="text-lg font-bold text-highlight">-</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="rounded-lg border border-highlight/20 bg-highlight/5 p-4">
+                                                <p class="text-sm text-textdark/80 leading-relaxed" id="resourceAnalysis">
+                                                    Resource Usage memantau penggunaan CPU dan memori pada setiap node dalam jaringan. Analisis ini menunjukkan efisiensi penggunaan sumber daya komputasi dan membantu mengidentifikasi konfigurasi yang paling optimal dalam hal konsumsi resource.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
 
-                                <!-- Memory Usage Chart -->
+                                <!-- Fault Tolerance Analysis -->
                                 <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
-                                    <h4 class="mb-4 text-sm font-semibold text-textdark">Memory Usage Comparison</h4>
-                                    <canvas id="memoryChart"></canvas>
+                                    <div class="flex items-start gap-4">
+                                        <div class="rounded-lg bg-emerald-500/20 p-3 mt-1">
+                                            <svg class="h-6 w-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                                            </svg>
+                                        </div>
+                                        <div class="flex-1">
+                                            <h4 class="text-lg font-semibold text-textdark mb-3">Fault Tolerance</h4>
+                                            <div class="grid gap-3 md:grid-cols-4 mb-4">
+                                                <div class="rounded-lg border border-white/10 bg-soft/50 p-3">
+                                                    <p class="text-xs text-textdark/60 mb-1">Fabric 2 Standard</p>
+                                                    <p id="faultToleranceF2Std" class="text-xl font-bold text-emerald-400">-</p>
+                                                </div>
+                                                <div class="rounded-lg border border-white/10 bg-soft/50 p-3">
+                                                    <p class="text-xs text-textdark/60 mb-1">Fabric 2 Variant</p>
+                                                    <p id="faultToleranceF2Var" class="text-xl font-bold text-emerald-400">-</p>
+                                                </div>
+                                                <div class="rounded-lg border border-white/10 bg-soft/50 p-3">
+                                                    <p class="text-xs text-textdark/60 mb-1">Fabric 3 Standard</p>
+                                                    <p id="faultToleranceF3Std" class="text-xl font-bold text-emerald-400">-</p>
+                                                </div>
+                                                <div class="rounded-lg border border-white/10 bg-soft/50 p-3">
+                                                    <p class="text-xs text-textdark/60 mb-1">Fabric 3 Variant</p>
+                                                    <p id="faultToleranceF3Var" class="text-xl font-bold text-emerald-400">-</p>
+                                                </div>
+                                            </div>
+                                            <div class="rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-4">
+                                                <p class="text-sm text-textdark/80 leading-relaxed" id="faultToleranceAnalysis">
+                                                    Fault Tolerance mengevaluasi ketahanan sistem terhadap kegagalan node dan kemampuan pemulihan jaringan. Analisis mencakup success rate transaksi dan kemampuan sistem untuk tetap beroperasi dalam kondisi failure, menunjukkan tingkat robustness masing-masing konfigurasi.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </section>
@@ -324,7 +473,6 @@
     <script src="/js/navigation.js" defer></script>
     <script>
         let simulationData = null;
-        let charts = {};
 
         // API endpoints untuk masing-masing network
         const networkEndpoints = {
@@ -452,8 +600,8 @@
             // Process network comparison
             displayNetworkComparison(networkResults);
 
-            // Display charts
-            displayCharts(networkResults);
+            // Display analysis summary per parameter
+            displayAnalysisSummary(networkResults);
 
             // Display load category breakdown
             displayLoadCategoryBreakdown(networkResults);
@@ -498,175 +646,154 @@
             document.getElementById('networkComparison').classList.remove('hidden');
         }
 
-        function displayCharts(networkResults) {
-            const networkNames = {
-                'channel-standard': 'Fabric 2 Standard',
-                'channel-variant': 'Fabric 2 Variant',
-                'channel-fabric3-standard': 'Fabric 3 Standard',
-                'channel-fabric3-variant': 'Fabric 3 Variant'
+        function displayAnalysisSummary(networkResults) {
+            const networkMapping = {
+                'channel-standard': 'f2std',
+                'channel-variant': 'f2var',
+                'channel-fabric3-standard': 'f3std',
+                'channel-fabric3-variant': 'f3var'
             };
 
-            const labels = [];
-            const throughputData = [];
-            const latencyData = [];
-            const cpuData = [];
-            const memoryData = [];
+            const metrics = {
+                throughput: {},
+                latency: {},
+                cpu: {},
+                memory: {},
+                successRate: {}
+            };
 
+            // Collect data per network
             networkResults.forEach(result => {
                 const networkId = result.networkId;
+                const networkKey = networkMapping[networkId];
                 const data = result.data;
 
-                if (!data || !data.records) return;
+                if (!data || !data.records || !networkKey) return;
 
-                labels.push(networkNames[networkId] || data.label || networkId);
-                throughputData.push(data.data_throughput?.transactionsPerSecond || 0);
-                latencyData.push(data.data_latency?.averageLatency || 0);
-                cpuData.push(data.data_resource_usage?.averageCPU || 0);
-                memoryData.push(data.data_resource_usage?.averageMemoryMB || 0);
+                // Throughput
+                const tps = data.data_throughput?.transactionsPerSecond || 0;
+                metrics.throughput[networkKey] = tps;
+                document.getElementById(`throughput${networkKey.charAt(0).toUpperCase() + networkKey.slice(1)}`).textContent = `${tps.toFixed(2)} TPS`;
+
+                // Latency
+                const avgLatency = data.data_latency?.averageLatency || 0;
+                metrics.latency[networkKey] = avgLatency;
+                document.getElementById(`latency${networkKey.charAt(0).toUpperCase() + networkKey.slice(1)}`).textContent = `${avgLatency.toFixed(2)} ms`;
+
+                // CPU
+                const avgCPU = data.data_resource_usage?.averageCPU || 0;
+                metrics.cpu[networkKey] = avgCPU;
+                document.getElementById(`cpu${networkKey.charAt(0).toUpperCase() + networkKey.slice(1)}`).textContent = `${avgCPU.toFixed(2)}%`;
+
+                // Memory
+                const avgMemory = data.data_resource_usage?.averageMemoryMB || 0;
+                metrics.memory[networkKey] = avgMemory;
+                document.getElementById(`memory${networkKey.charAt(0).toUpperCase() + networkKey.slice(1)}`).textContent = `${avgMemory.toFixed(2)} MB`;
+
+                // Success Rate for Fault Tolerance
+                const totalTx = data.count || data.records.length;
+                const successTx = data.records.filter(r => r.status !== 'failed').length;
+                const successRate = totalTx > 0 ? (successTx / totalTx * 100).toFixed(2) : 0;
+                metrics.successRate[networkKey] = successRate;
+                document.getElementById(`faultTolerance${networkKey.charAt(0).toUpperCase() + networkKey.slice(1)}`).textContent = `${successRate}%`;
             });
 
-            // Throughput Chart
-            const throughputCtx = document.getElementById('throughputChart').getContext('2d');
-            if (charts.throughput) charts.throughput.destroy();
-            charts.throughput = new Chart(throughputCtx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Avg TPS',
-                        data: throughputData,
-                        backgroundColor: 'rgba(56, 189, 248, 0.6)',
-                        borderColor: 'rgba(56, 189, 248, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    plugins: {
-                        legend: { display: false }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: { color: '#94A3B8' },
-                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
-                        },
-                        x: {
-                            ticks: { color: '#94A3B8' },
-                            grid: { display: false }
-                        }
-                    }
-                }
-            });
+            // Generate analysis text
+            generateThroughputAnalysis(metrics.throughput);
+            generateLatencyAnalysis(metrics.latency);
+            generateResourceAnalysis(metrics.cpu, metrics.memory);
+            generateFaultToleranceAnalysis(metrics.successRate);
 
-            // Latency Chart
-            const latencyCtx = document.getElementById('latencyChart').getContext('2d');
-            if (charts.latency) charts.latency.destroy();
-            charts.latency = new Chart(latencyCtx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Avg Latency (ms)',
-                        data: latencyData,
-                        backgroundColor: 'rgba(99, 102, 241, 0.6)',
-                        borderColor: 'rgba(99, 102, 241, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    plugins: {
-                        legend: { display: false }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: { color: '#94A3B8' },
-                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
-                        },
-                        x: {
-                            ticks: { color: '#94A3B8' },
-                            grid: { display: false }
-                        }
-                    }
-                }
-            });
+            document.getElementById('analysisSummary').classList.remove('hidden');
+        }
 
-            // CPU Chart
-            const cpuCtx = document.getElementById('cpuChart').getContext('2d');
-            if (charts.cpu) charts.cpu.destroy();
-            charts.cpu = new Chart(cpuCtx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Avg CPU (%)',
-                        data: cpuData,
-                        backgroundColor: 'rgba(245, 158, 11, 0.6)',
-                        borderColor: 'rgba(245, 158, 11, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    plugins: {
-                        legend: { display: false }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: 100,
-                            ticks: { color: '#94A3B8' },
-                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
-                        },
-                        x: {
-                            ticks: { color: '#94A3B8' },
-                            grid: { display: false }
-                        }
-                    }
-                }
-            });
+        function generateThroughputAnalysis(throughputData) {
+            const values = Object.values(throughputData);
+            if (values.length === 0) return;
 
-            // Memory Chart
-            const memoryCtx = document.getElementById('memoryChart').getContext('2d');
-            if (charts.memory) charts.memory.destroy();
-            charts.memory = new Chart(memoryCtx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Avg Memory (MB)',
-                        data: memoryData,
-                        backgroundColor: 'rgba(249, 115, 22, 0.6)',
-                        borderColor: 'rgba(249, 115, 22, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    plugins: {
-                        legend: { display: false }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: { color: '#94A3B8' },
-                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
-                        },
-                        x: {
-                            ticks: { color: '#94A3B8' },
-                            grid: { display: false }
-                        }
-                    }
-                }
-            });
+            const max = Math.max(...values);
+            const min = Math.min(...values);
+            const avg = values.reduce((a, b) => a + b, 0) / values.length;
 
-            document.getElementById('performanceCharts').classList.remove('hidden');
+            const bestNetwork = Object.keys(throughputData).find(key => throughputData[key] === max);
+            const networkLabels = {
+                f2std: 'Fabric 2 Standard',
+                f2var: 'Fabric 2 Variant',
+                f3std: 'Fabric 3 Standard',
+                f3var: 'Fabric 3 Variant'
+            };
+
+            const analysis = `Hasil analisis throughput menunjukkan bahwa ${networkLabels[bestNetwork]} mencapai performa tertinggi dengan ${max.toFixed(2)} TPS. Rata-rata throughput keseluruhan adalah ${avg.toFixed(2)} TPS dengan rentang ${min.toFixed(2)} - ${max.toFixed(2)} TPS. Perbedaan throughput antar konfigurasi menunjukkan pengaruh optimisasi algoritma konsensus RAFT terhadap kemampuan pemrosesan transaksi. Konfigurasi dengan throughput lebih tinggi mengindikasikan efisiensi yang lebih baik dalam pengelolaan pipeline transaksi dan proses konsensus.`;
+
+            document.getElementById('throughputAnalysis').textContent = analysis;
+        }
+
+        function generateLatencyAnalysis(latencyData) {
+            const values = Object.values(latencyData);
+            if (values.length === 0) return;
+
+            const max = Math.max(...values);
+            const min = Math.min(...values);
+            const avg = values.reduce((a, b) => a + b, 0) / values.length;
+
+            const bestNetwork = Object.keys(latencyData).find(key => latencyData[key] === min);
+            const networkLabels = {
+                f2std: 'Fabric 2 Standard',
+                f2var: 'Fabric 2 Variant',
+                f3std: 'Fabric 3 Standard',
+                f3var: 'Fabric 3 Variant'
+            };
+
+            const analysis = `Analisis latency menunjukkan bahwa ${networkLabels[bestNetwork]} memiliki waktu respons tercepat dengan rata-rata ${min.toFixed(2)} ms. Rata-rata latency keseluruhan adalah ${avg.toFixed(2)} ms dengan rentang ${min.toFixed(2)} - ${max.toFixed(2)} ms. Latency yang lebih rendah mengindikasikan efisiensi dalam proses proposal, endorsement, dan commit transaksi. Perbedaan latency antar konfigurasi dapat disebabkan oleh variasi dalam mekanisme heartbeat, timeout configuration, dan strategi replikasi log pada algoritma RAFT.`;
+
+            document.getElementById('latencyAnalysis').textContent = analysis;
+        }
+
+        function generateResourceAnalysis(cpuData, memoryData) {
+            const cpuValues = Object.values(cpuData);
+            const memValues = Object.values(memoryData);
+            if (cpuValues.length === 0) return;
+
+            const avgCPU = cpuValues.reduce((a, b) => a + b, 0) / cpuValues.length;
+            const avgMem = memValues.reduce((a, b) => a + b, 0) / memValues.length;
+
+            const minCPU = Math.min(...cpuValues);
+            const maxCPU = Math.max(...cpuValues);
+            const minMem = Math.min(...memValues);
+            const maxMem = Math.max(...memValues);
+
+            const mostEfficientCPU = Object.keys(cpuData).find(key => cpuData[key] === minCPU);
+            const networkLabels = {
+                f2std: 'Fabric 2 Standard',
+                f2var: 'Fabric 2 Variant',
+                f3std: 'Fabric 3 Standard',
+                f3var: 'Fabric 3 Variant'
+            };
+
+            const analysis = `Resource usage analysis menunjukkan penggunaan CPU rata-rata ${avgCPU.toFixed(2)}% (rentang ${minCPU.toFixed(2)}% - ${maxCPU.toFixed(2)}%) dan memori rata-rata ${avgMem.toFixed(2)} MB (rentang ${minMem.toFixed(2)} - ${maxMem.toFixed(2)} MB). ${networkLabels[mostEfficientCPU]} menunjukkan efisiensi CPU tertinggi. Penggunaan resource yang lebih rendah dengan throughput tinggi mengindikasikan optimisasi yang baik dalam pengelolaan komputasi dan memori. Analisis ini membantu mengidentifikasi trade-off antara performa dan konsumsi resource untuk menentukan konfigurasi yang paling cost-effective.`;
+
+            document.getElementById('resourceAnalysis').textContent = analysis;
+        }
+
+        function generateFaultToleranceAnalysis(successRateData) {
+            const values = Object.values(successRateData).map(v => parseFloat(v));
+            if (values.length === 0) return;
+
+            const max = Math.max(...values);
+            const min = Math.min(...values);
+            const avg = values.reduce((a, b) => a + b, 0) / values.length;
+
+            const bestNetwork = Object.keys(successRateData).find(key => parseFloat(successRateData[key]) === max);
+            const networkLabels = {
+                f2std: 'Fabric 2 Standard',
+                f2var: 'Fabric 2 Variant',
+                f3std: 'Fabric 3 Standard',
+                f3var: 'Fabric 3 Variant'
+            };
+
+            const analysis = `Fault tolerance evaluation menunjukkan ${networkLabels[bestNetwork]} memiliki success rate tertinggi sebesar ${max.toFixed(2)}%. Rata-rata success rate keseluruhan adalah ${avg.toFixed(2)}% dengan rentang ${min.toFixed(2)}% - ${max.toFixed(2)}%. Success rate tinggi mengindikasikan robustness sistem dalam menghadapi berbagai kondisi termasuk network latency, node failures, dan konkurensi transaksi. Algoritma konsensus RAFT dengan mekanisme leader election dan log replication yang baik akan menghasilkan success rate yang lebih konsisten bahkan dalam kondisi beban tinggi.`;
+
+            document.getElementById('faultToleranceAnalysis').textContent = analysis;
         }
 
         function displayLoadCategoryBreakdown(networkResults) {

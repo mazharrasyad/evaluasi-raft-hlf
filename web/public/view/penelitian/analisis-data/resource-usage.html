@@ -841,13 +841,15 @@
                     maxTransactions = records.length;
                 }
 
+                // Extract CPU usage from each record's data_resource_usage (NEW structure)
                 const cpuValues = records.map((record, index) => {
                     let cpu = 0;
-                    if (record.data_resource_usage && record.data_resource_usage.cpuUsage !== undefined) {
-                        cpu = record.data_resource_usage.cpuUsage;
-                    } else if (record.data_resource_usage && record.data_resource_usage.cpu !== undefined) {
-                        cpu = record.data_resource_usage.cpu;
+
+                    // NEW: Extract from record.data_resource_usage
+                    if (record.data_resource_usage && record.data_resource_usage.cpuUsagePercent !== undefined) {
+                        cpu = record.data_resource_usage.cpuUsagePercent;
                     }
+
                     return { x: index + 1, y: Math.max(0, cpu) };
                 });
 
@@ -1336,13 +1338,15 @@
                     individualCharts[netId].destroy();
                 }
 
+                // Extract CPU usage from each record's data_resource_usage (NEW structure)
                 const cpuValues = records.map((record, index) => {
                     let cpu = 0;
-                    if (record.data_resource_usage && record.data_resource_usage.cpuUsage !== undefined) {
-                        cpu = record.data_resource_usage.cpuUsage;
-                    } else if (record.data_resource_usage && record.data_resource_usage.cpu !== undefined) {
-                        cpu = record.data_resource_usage.cpu;
+
+                    // NEW: Extract from record.data_resource_usage
+                    if (record.data_resource_usage && record.data_resource_usage.cpuUsagePercent !== undefined) {
+                        cpu = record.data_resource_usage.cpuUsagePercent;
                     }
+
                     return Math.max(0, cpu);
                 });
 

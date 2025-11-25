@@ -843,19 +843,15 @@
                     maxTransactions = records.length;
                 }
 
+                // Extract latency from each record's data_latency (NEW structure)
                 const latencies = records.map((record, index) => {
                     let latency = 0;
-                    if (record.latencyMs !== undefined) {
-                        latency = record.latencyMs;
-                    } else if (record.data_latency && record.data_latency.totalLatency) {
+
+                    // NEW: Extract from record.data_latency
+                    if (record.data_latency && record.data_latency.totalLatency !== undefined) {
                         latency = record.data_latency.totalLatency;
-                    } else if (record.networkMetadata) {
-                        const submitted = new Date(record.networkMetadata.submittedAt || record.submittedAt).getTime();
-                        const completed = new Date(record.networkMetadata.completedAt || record.completedAt).getTime();
-                        latency = completed - submitted;
-                    } else if (record.submittedAt && record.completedAt) {
-                        latency = new Date(record.completedAt).getTime() - new Date(record.submittedAt).getTime();
                     }
+
                     return { x: index + 1, y: Math.max(0, latency) };
                 });
 
@@ -1054,19 +1050,15 @@
                     individualCharts[netId].destroy();
                 }
 
+                // Extract latency from each record's data_latency (NEW structure)
                 const latencies = records.map((record, index) => {
                     let latency = 0;
-                    if (record.latencyMs !== undefined) {
-                        latency = record.latencyMs;
-                    } else if (record.data_latency && record.data_latency.totalLatency) {
+
+                    // NEW: Extract from record.data_latency
+                    if (record.data_latency && record.data_latency.totalLatency !== undefined) {
                         latency = record.data_latency.totalLatency;
-                    } else if (record.networkMetadata) {
-                        const submitted = new Date(record.networkMetadata.submittedAt || record.submittedAt).getTime();
-                        const completed = new Date(record.networkMetadata.completedAt || record.completedAt).getTime();
-                        latency = completed - submitted;
-                    } else if (record.submittedAt && record.completedAt) {
-                        latency = new Date(record.completedAt).getTime() - new Date(record.submittedAt).getTime();
                     }
+
                     return Math.max(0, latency);
                 });
 

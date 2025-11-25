@@ -936,13 +936,20 @@
                     maxTransactions = records.length;
                 }
 
+                // Extract fault status from each record's data_fault_tolerance (NEW structure)
                 const statusValues = records.map((record, index) => {
-                    let success = 1;
-                    if (record.data_fault_tolerance && record.data_fault_tolerance.success !== undefined) {
-                        success = record.data_fault_tolerance.success ? 1 : 0;
+                    let success = 1; // Default to success
+
+                    // NEW: Check if record.data_fault_tolerance exists (not null means fault occurred)
+                    if (record.data_fault_tolerance !== null && record.data_fault_tolerance !== undefined) {
+                        // Fault tolerance object exists - this was a fault transaction
+                        // Check if it eventually succeeded despite the fault
+                        success = record.data_fault_tolerance.recoverySuccessful ? 1 : 0;
                     } else if (record.status === 'failed' || record.status === 'error') {
+                        // Status indicates failure
                         success = 0;
                     }
+
                     return { x: index + 1, y: success };
                 });
 
@@ -1042,14 +1049,20 @@
                     individualCharts[netId].destroy();
                 }
 
-                // Extract transaction status data
+                // Extract fault status from each record's data_fault_tolerance (NEW structure)
                 const statusValues = records.map((record, index) => {
                     let success = 1; // Default to success
-                    if (record.data_fault_tolerance && record.data_fault_tolerance.success !== undefined) {
-                        success = record.data_fault_tolerance.success ? 1 : 0;
+
+                    // NEW: Check if record.data_fault_tolerance exists (not null means fault occurred)
+                    if (record.data_fault_tolerance !== null && record.data_fault_tolerance !== undefined) {
+                        // Fault tolerance object exists - this was a fault transaction
+                        // Check if it eventually succeeded despite the fault
+                        success = record.data_fault_tolerance.recoverySuccessful ? 1 : 0;
                     } else if (record.status === 'failed' || record.status === 'error') {
+                        // Status indicates failure
                         success = 0;
                     }
+
                     return { x: index + 1, y: success };
                 });
 

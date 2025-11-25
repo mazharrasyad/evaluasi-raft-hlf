@@ -923,19 +923,19 @@
                     maxTransactions = records.length;
                 }
 
-                // Extract latency from each record
+                // Extract processing time from each record's data_throughput (NEW structure)
                 const latencies = records.map((record, index) => {
-                    let latency = 0;
-                    if (record.data_throughput && record.data_throughput.processingTime) {
-                        latency = record.data_throughput.processingTime;
-                    } else if (record.networkMetadata) {
-                        const submitted = new Date(record.networkMetadata.submittedAt || record.submittedAt).getTime();
-                        const completed = new Date(record.networkMetadata.completedAt || record.completedAt).getTime();
-                        latency = completed - submitted;
-                    } else if (record.submittedAt && record.completedAt) {
-                        latency = new Date(record.completedAt).getTime() - new Date(record.submittedAt).getTime();
+                    let processingTime = 0;
+
+                    // NEW: Extract from record.data_throughput
+                    if (record.data_throughput && record.data_throughput.processingTimeMs !== undefined) {
+                        processingTime = record.data_throughput.processingTimeMs;
+                    } else if (record.data_latency && record.data_latency.totalLatency !== undefined) {
+                        // Fallback to latency if throughput not available
+                        processingTime = record.data_latency.totalLatency;
                     }
-                    return { x: index + 1, y: Math.max(0, latency) };
+
+                    return { x: index + 1, y: Math.max(0, processingTime) };
                 });
 
                 // Calculate stats
@@ -1170,19 +1170,19 @@
                     individualCharts[netId].destroy();
                 }
 
-                // Extract latency data
+                // Extract processing time from each record's data_throughput (NEW structure)
                 const latencies = records.map((record, index) => {
-                    let latency = 0;
-                    if (record.data_throughput && record.data_throughput.processingTime) {
-                        latency = record.data_throughput.processingTime;
-                    } else if (record.networkMetadata) {
-                        const submitted = new Date(record.networkMetadata.submittedAt || record.submittedAt).getTime();
-                        const completed = new Date(record.networkMetadata.completedAt || record.completedAt).getTime();
-                        latency = completed - submitted;
-                    } else if (record.submittedAt && record.completedAt) {
-                        latency = new Date(record.completedAt).getTime() - new Date(record.submittedAt).getTime();
+                    let processingTime = 0;
+
+                    // NEW: Extract from record.data_throughput
+                    if (record.data_throughput && record.data_throughput.processingTimeMs !== undefined) {
+                        processingTime = record.data_throughput.processingTimeMs;
+                    } else if (record.data_latency && record.data_latency.totalLatency !== undefined) {
+                        // Fallback to latency if throughput not available
+                        processingTime = record.data_latency.totalLatency;
                     }
-                    return Math.max(0, latency);
+
+                    return Math.max(0, processingTime);
                 });
 
                 // Calculate stats

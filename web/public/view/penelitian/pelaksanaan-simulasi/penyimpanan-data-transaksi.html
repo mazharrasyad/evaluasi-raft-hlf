@@ -783,33 +783,40 @@
                 }
             };
 
-            // Get throughput data
-            const throughput = record.data_throughput || record.networkMetadata || {};
+            // Get throughput data from record.data_throughput (NEW structure)
+            const throughput = record.data_throughput || {};
             document.getElementById('tp-submitted').textContent = formatDateTime(throughput.submittedAt || record.submittedAt);
             document.getElementById('tp-completed').textContent = formatDateTime(throughput.completedAt || record.completedAt);
-            document.getElementById('tp-total').textContent = formatValue(throughput.totalTransactions || 1);
-            document.getElementById('tp-processing').textContent = formatValue(throughput.processingTime || throughput.duration);
+            document.getElementById('tp-total').textContent = formatValue(1); // Each record represents 1 transaction
+            document.getElementById('tp-processing').textContent = formatValue(throughput.processingTimeMs);
 
-            // Get latency data
+            // Get latency data from record.data_latency (NEW structure)
             const latency = record.data_latency || {};
-            document.getElementById('lat-total').textContent = formatValue(latency.totalLatency || latency.total);
-            document.getElementById('lat-endorsement').textContent = formatValue(latency.endorsementLatency || latency.endorsement);
-            document.getElementById('lat-ordering').textContent = formatValue(latency.orderingLatency || latency.ordering);
-            document.getElementById('lat-commit').textContent = formatValue(latency.commitLatency || latency.commit);
+            document.getElementById('lat-total').textContent = formatValue(latency.totalLatency);
+            document.getElementById('lat-endorsement').textContent = formatValue(latency.endorsementLatency);
+            document.getElementById('lat-ordering').textContent = formatValue(latency.orderingLatency);
+            document.getElementById('lat-commit').textContent = formatValue(latency.commitLatency);
 
-            // Get resource usage data
+            // Get resource usage data from record.data_resource_usage (NEW structure)
             const resource = record.data_resource_usage || {};
-            document.getElementById('res-cpu').textContent = formatValue(resource.cpuUsage || resource.cpu);
-            document.getElementById('res-memory').textContent = formatValue(resource.memoryUsage || resource.memory);
-            document.getElementById('res-network').textContent = formatValue(resource.networkIO || resource.network);
-            document.getElementById('res-disk').textContent = formatValue(resource.diskIO || resource.disk);
+            document.getElementById('res-cpu').textContent = formatValue(resource.cpuUsagePercent, '%');
+            document.getElementById('res-memory').textContent = formatValue(resource.memoryUsageMB, 'MB');
+            document.getElementById('res-network').textContent = formatValue(resource.networkBandwidthKbps, 'Kbps');
+            document.getElementById('res-disk').textContent = formatValue(resource.diskIOps, 'ops');
 
-            // Get fault tolerance data
+            // Get fault tolerance data from record.data_fault_tolerance (NEW structure - can be null)
             const fault = record.data_fault_tolerance || {};
-            document.getElementById('ft-nodes').textContent = formatValue(fault.totalNodes || fault.nodes);
-            document.getElementById('ft-max-failures').textContent = formatValue(fault.maxTolerableFailures || fault.maxFailures);
-            document.getElementById('ft-active').textContent = formatValue(fault.activeNodes || fault.active);
-            document.getElementById('ft-recovery').textContent = formatValue(fault.recoveryTime || fault.recovery);
+            if (record.data_fault_tolerance === null) {
+                document.getElementById('ft-nodes').textContent = 'N/A (No Fault)';
+                document.getElementById('ft-max-failures').textContent = 'N/A';
+                document.getElementById('ft-active').textContent = 'N/A';
+                document.getElementById('ft-recovery').textContent = 'N/A';
+            } else {
+                document.getElementById('ft-nodes').textContent = formatValue(fault.totalNodes);
+                document.getElementById('ft-max-failures').textContent = formatValue(fault.maxTolerableFailures);
+                document.getElementById('ft-active').textContent = formatValue(fault.activeNodes);
+                document.getElementById('ft-recovery').textContent = formatValue(fault.recoveryTimeMs, 'ms');
+            }
 
             // Show modal
             modal.classList.add('active');

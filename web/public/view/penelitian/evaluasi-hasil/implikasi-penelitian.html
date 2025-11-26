@@ -349,40 +349,72 @@
         });
 
         function generateImplications(networkResults) {
-            // Calculate metrics for analysis dari semua network
-            let totalThroughput = 0;
-            let totalLatency = 0;
-            let totalCPU = 0;
-            let totalMemory = 0;
+            // Calculate metrics for analysis dari semua network - hitung dari detail records
+            let allThroughputValues = [];
+            let allLatencyValues = [];
+            let allCPUValues = [];
+            let allMemoryValues = [];
             let totalTransactions = 0;
             let totalSuccess = 0;
-            let networkCount = 0;
 
             networkResults.forEach(result => {
                 const data = result.data;
                 if (!data || !data.records) return;
 
-                // Ambil metrics dari data
-                if (data.data_throughput) {
-                    totalThroughput += data.data_throughput.transactionsPerSecond || 0;
-                }
-                if (data.data_latency) {
-                    totalLatency += data.data_latency.averageLatency || 0;
-                }
-                if (data.data_resource_usage) {
-                    totalCPU += data.data_resource_usage.averageCPU || 0;
-                    totalMemory += data.data_resource_usage.averageMemoryMB || 0;
-                }
+                const records = data.records;
+                totalTransactions += records.length;
 
-                totalTransactions += data.count || data.records.length;
-                totalSuccess += data.records.filter(r => r.status !== 'failed').length;
-                networkCount++;
+                // Hitung transaksi sukses
+                const successRecords = records.filter(r => r.status === 'success' || r.status === 'completed' || !r.status || r.status !== 'failed');
+                totalSuccess += successRecords.length;
+
+                // Kumpulkan semua nilai throughput dari detail records
+                const throughputValues = records
+                    .filter(r => r.data_throughput && r.data_throughput.transactionsPerSecond)
+                    .map(r => r.data_throughput.transactionsPerSecond);
+                allThroughputValues.push(...throughputValues);
+
+                // Kumpulkan semua nilai latency dari detail records
+                const latencyValues = records
+                    .filter(r => r.data_latency && r.data_latency.totalLatency)
+                    .map(r => r.data_latency.totalLatency);
+                allLatencyValues.push(...latencyValues);
+
+                // Kumpulkan semua nilai CPU dari detail records
+                const cpuValues = records
+                    .filter(r => r.data_resource_usage && r.data_resource_usage.cpu_orderer1 !== undefined)
+                    .map(r => {
+                        const cpuSum = (r.data_resource_usage.cpu_orderer1 || 0) +
+                                      (r.data_resource_usage.cpu_orderer2 || 0) +
+                                      (r.data_resource_usage.cpu_orderer3 || 0);
+                        return cpuSum / 3;
+                    });
+                allCPUValues.push(...cpuValues);
+
+                // Kumpulkan semua nilai Memory dari detail records
+                const memoryValues = records
+                    .filter(r => r.data_resource_usage && r.data_resource_usage.memory_orderer1 !== undefined)
+                    .map(r => {
+                        const memSum = (parseFloat(r.data_resource_usage.memory_orderer1) || 0) +
+                                      (parseFloat(r.data_resource_usage.memory_orderer2) || 0) +
+                                      (parseFloat(r.data_resource_usage.memory_orderer3) || 0);
+                        return memSum / 3;
+                    });
+                allMemoryValues.push(...memoryValues);
             });
 
-            const avgThroughput = networkCount > 0 ? totalThroughput / networkCount : 0;
-            const avgLatency = networkCount > 0 ? totalLatency / networkCount : 0;
-            const avgCPU = networkCount > 0 ? totalCPU / networkCount : 0;
-            const avgMemory = networkCount > 0 ? totalMemory / networkCount : 0;
+            const avgThroughput = allThroughputValues.length > 0
+                ? allThroughputValues.reduce((a, b) => a + b, 0) / allThroughputValues.length
+                : 0;
+            const avgLatency = allLatencyValues.length > 0
+                ? allLatencyValues.reduce((a, b) => a + b, 0) / allLatencyValues.length
+                : 0;
+            const avgCPU = allCPUValues.length > 0
+                ? allCPUValues.reduce((a, b) => a + b, 0) / allCPUValues.length
+                : 0;
+            const avgMemory = allMemoryValues.length > 0
+                ? allMemoryValues.reduce((a, b) => a + b, 0) / allMemoryValues.length
+                : 0;
             const successRate = totalTransactions > 0 ? (totalSuccess / totalTransactions * 100).toFixed(2) : 0;
 
             // Key Findings

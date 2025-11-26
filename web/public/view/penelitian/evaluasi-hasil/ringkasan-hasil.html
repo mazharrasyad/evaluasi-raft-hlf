@@ -560,34 +560,43 @@
         });
 
         function processAndDisplayResults(networkResults) {
-            // Calculate overall statistics dari semua network
+            // Calculate overall statistics dari semua network - hitung dari detail records
             let totalTransactions = 0;
             let totalSuccess = 0;
-            let totalThroughput = 0;
-            let totalLatency = 0;
-            let networkCount = 0;
+            let allThroughputValues = [];
+            let allLatencyValues = [];
 
             networkResults.forEach(result => {
                 const data = result.data;
                 if (data && data.records) {
-                    totalTransactions += data.count || data.records.length;
-                    // Hitung transaksi sukses (bukan failed)
-                    totalSuccess += data.records.filter(r => r.status !== 'failed').length;
+                    const records = data.records;
+                    totalTransactions += records.length;
 
-                    // Ambil metrics dari data_throughput, data_latency
-                    if (data.data_throughput) {
-                        totalThroughput += data.data_throughput.transactionsPerSecond || 0;
-                    }
-                    if (data.data_latency) {
-                        totalLatency += data.data_latency.averageLatency || 0;
-                    }
-                    networkCount++;
+                    // Hitung transaksi sukses (status bukan 'failed')
+                    const successRecords = records.filter(r => r.status === 'success' || r.status === 'completed' || !r.status || r.status !== 'failed');
+                    totalSuccess += successRecords.length;
+
+                    // Kumpulkan semua nilai throughput dari detail records
+                    const throughputValues = records
+                        .filter(r => r.data_throughput && r.data_throughput.transactionsPerSecond)
+                        .map(r => r.data_throughput.transactionsPerSecond);
+                    allThroughputValues.push(...throughputValues);
+
+                    // Kumpulkan semua nilai latency dari detail records
+                    const latencyValues = records
+                        .filter(r => r.data_latency && r.data_latency.totalLatency)
+                        .map(r => r.data_latency.totalLatency);
+                    allLatencyValues.push(...latencyValues);
                 }
             });
 
             const successRate = totalTransactions > 0 ? (totalSuccess / totalTransactions * 100).toFixed(2) : 0;
-            const avgThroughput = networkCount > 0 ? (totalThroughput / networkCount).toFixed(2) : 0;
-            const avgLatency = networkCount > 0 ? (totalLatency / networkCount).toFixed(2) : 0;
+            const avgThroughput = allThroughputValues.length > 0
+                ? (allThroughputValues.reduce((a, b) => a + b, 0) / allThroughputValues.length).toFixed(2)
+                : 0;
+            const avgLatency = allLatencyValues.length > 0
+                ? (allLatencyValues.reduce((a, b) => a + b, 0) / allLatencyValues.length).toFixed(2)
+                : 0;
 
             // Update overall stats
             document.getElementById('totalTransactions').textContent = totalTransactions.toLocaleString();
@@ -624,11 +633,50 @@
 
                 if (!data || !data.records) return;
 
-                const totalTx = data.count || data.records.length;
-                const avgTPS = data.data_throughput?.transactionsPerSecond || 0;
-                const avgLatency = data.data_latency?.averageLatency || 0;
-                const avgCPU = data.data_resource_usage?.averageCPU || 0;
-                const avgMemory = data.data_resource_usage?.averageMemoryMB || 0;
+                const records = data.records;
+                const totalTx = records.length;
+
+                // Hitung TPS dari detail records
+                const throughputValues = records
+                    .filter(r => r.data_throughput && r.data_throughput.transactionsPerSecond)
+                    .map(r => r.data_throughput.transactionsPerSecond);
+                const avgTPS = throughputValues.length > 0
+                    ? throughputValues.reduce((a, b) => a + b, 0) / throughputValues.length
+                    : 0;
+
+                // Hitung Latency dari detail records
+                const latencyValues = records
+                    .filter(r => r.data_latency && r.data_latency.totalLatency)
+                    .map(r => r.data_latency.totalLatency);
+                const avgLatency = latencyValues.length > 0
+                    ? latencyValues.reduce((a, b) => a + b, 0) / latencyValues.length
+                    : 0;
+
+                // Hitung CPU dari detail records
+                const cpuValues = records
+                    .filter(r => r.data_resource_usage && r.data_resource_usage.cpu_orderer1 !== undefined)
+                    .map(r => {
+                        const cpuSum = (r.data_resource_usage.cpu_orderer1 || 0) +
+                                      (r.data_resource_usage.cpu_orderer2 || 0) +
+                                      (r.data_resource_usage.cpu_orderer3 || 0);
+                        return cpuSum / 3;
+                    });
+                const avgCPU = cpuValues.length > 0
+                    ? cpuValues.reduce((a, b) => a + b, 0) / cpuValues.length
+                    : 0;
+
+                // Hitung Memory dari detail records
+                const memoryValues = records
+                    .filter(r => r.data_resource_usage && r.data_resource_usage.memory_orderer1 !== undefined)
+                    .map(r => {
+                        const memSum = (parseFloat(r.data_resource_usage.memory_orderer1) || 0) +
+                                      (parseFloat(r.data_resource_usage.memory_orderer2) || 0) +
+                                      (parseFloat(r.data_resource_usage.memory_orderer3) || 0);
+                        return memSum / 3;
+                    });
+                const avgMemory = memoryValues.length > 0
+                    ? memoryValues.reduce((a, b) => a + b, 0) / memoryValues.length
+                    : 0;
 
                 const row = document.createElement('tr');
                 row.className = 'border-b border-white/5';
@@ -662,7 +710,7 @@
                 successRate: {}
             };
 
-            // Collect data per network
+            // Collect data per network - hitung dari detail records
             networkResults.forEach(result => {
                 const networkId = result.networkId;
                 const networkKey = networkMapping[networkId];
@@ -670,26 +718,60 @@
 
                 if (!data || !data.records || !networkKey) return;
 
-                // Throughput
-                const tps = data.data_throughput?.transactionsPerSecond || 0;
-                metrics.throughput[networkKey] = tps;
+                const records = data.records;
+                const totalRecords = records.length;
 
-                // Latency
-                const avgLatency = data.data_latency?.averageLatency || 0;
+                // Calculate Throughput - hitung dari detail transaksi
+                const throughputValues = records
+                    .filter(r => r.data_throughput && r.data_throughput.transactionsPerSecond)
+                    .map(r => r.data_throughput.transactionsPerSecond);
+                const avgTPS = throughputValues.length > 0
+                    ? throughputValues.reduce((a, b) => a + b, 0) / throughputValues.length
+                    : 0;
+                metrics.throughput[networkKey] = avgTPS;
+
+                // Calculate Latency - hitung dari detail transaksi
+                const latencyValues = records
+                    .filter(r => r.data_latency && r.data_latency.totalLatency)
+                    .map(r => r.data_latency.totalLatency);
+                const avgLatency = latencyValues.length > 0
+                    ? latencyValues.reduce((a, b) => a + b, 0) / latencyValues.length
+                    : 0;
                 metrics.latency[networkKey] = avgLatency;
 
-                // CPU
-                const avgCPU = data.data_resource_usage?.averageCPU || 0;
+                // Calculate CPU - hitung dari detail resource usage
+                const cpuValues = records
+                    .filter(r => r.data_resource_usage && r.data_resource_usage.cpu_orderer1 !== undefined)
+                    .map(r => {
+                        // Hitung rata-rata CPU dari semua orderer
+                        const cpuSum = (r.data_resource_usage.cpu_orderer1 || 0) +
+                                      (r.data_resource_usage.cpu_orderer2 || 0) +
+                                      (r.data_resource_usage.cpu_orderer3 || 0);
+                        return cpuSum / 3;
+                    });
+                const avgCPU = cpuValues.length > 0
+                    ? cpuValues.reduce((a, b) => a + b, 0) / cpuValues.length
+                    : 0;
                 metrics.cpu[networkKey] = avgCPU;
 
-                // Memory
-                const avgMemory = data.data_resource_usage?.averageMemoryMB || 0;
+                // Calculate Memory - hitung dari detail resource usage
+                const memoryValues = records
+                    .filter(r => r.data_resource_usage && r.data_resource_usage.memory_orderer1 !== undefined)
+                    .map(r => {
+                        // Hitung rata-rata Memory dari semua orderer (convert ke MB)
+                        const memSum = (parseFloat(r.data_resource_usage.memory_orderer1) || 0) +
+                                      (parseFloat(r.data_resource_usage.memory_orderer2) || 0) +
+                                      (parseFloat(r.data_resource_usage.memory_orderer3) || 0);
+                        return memSum / 3;
+                    });
+                const avgMemory = memoryValues.length > 0
+                    ? memoryValues.reduce((a, b) => a + b, 0) / memoryValues.length
+                    : 0;
                 metrics.memory[networkKey] = avgMemory;
 
-                // Success Rate for Fault Tolerance
-                const totalTx = data.count || data.records.length;
-                const successTx = data.records.filter(r => r.status !== 'failed').length;
-                const successRate = totalTx > 0 ? (successTx / totalTx * 100).toFixed(2) : 0;
+                // Calculate Success Rate - hitung dari detail status transaksi
+                const successRecords = records.filter(r => r.status === 'success' || r.status === 'completed' || !r.status || r.status !== 'failed');
+                const successRate = totalRecords > 0 ? (successRecords.length / totalRecords * 100).toFixed(2) : 0;
                 metrics.successRate[networkKey] = successRate;
             });
 

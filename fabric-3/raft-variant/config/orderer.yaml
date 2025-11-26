@@ -426,3 +426,50 @@ Consensus:
     # SnapDir specifies the location at which snapshots for etcd/raft are
     # stored. Each channel will have its own subdir named after channel ID.
     SnapDir: /var/hyperledger/production/orderer/etcdraft/snapshot
+
+################################################################################
+#
+#   SmartBFT Configuration
+#
+#   - This section contains config options for SmartBFT consensus plugin.
+#
+################################################################################
+SmartBFT:
+    # RequestBatchMaxCount is the maximum number of requests in a batch
+    RequestBatchMaxCount: 100
+
+    # RequestBatchMaxInterval is the maximum time interval for creating a batch
+    RequestBatchMaxInterval: 50ms
+
+    # RequestForwardTimeout is the timeout for forwarding a request to the leader
+    RequestForwardTimeout: 2s
+
+    # RequestComplainTimeout is the timeout for complaining about a request
+    RequestComplainTimeout: 20s
+
+    # RequestAutoRemoveTimeout is the timeout for automatically removing a request
+    RequestAutoRemoveTimeout: 3m0s
+
+    # ViewChangeResendInterval is the interval for resending view change messages
+    ViewChangeResendInterval: 5s
+
+    # ViewChangeTimeout is the timeout for view change
+    ViewChangeTimeout: 20s
+
+    # LeaderHeartbeatTimeout is the timeout for leader heartbeat
+    LeaderHeartbeatTimeout: 1m0s
+
+    # CollectTimeout is the timeout for collecting messages
+    CollectTimeout: 1s
+
+    # RequestBatchMaxBytes is the maximum size in bytes of a request batch (10MB)
+    RequestBatchMaxBytes: 10485760
+
+    # IncomingMessageBufferSize is the size of the incoming message buffer
+    IncomingMessageBufferSize: 200
+
+    # RequestPoolSize is the size of the request pool
+    RequestPoolSize: 100000
+
+    # LeaderHeartbeatCount is the number of heartbeats per leader
+    LeaderHeartbeatCount: 10

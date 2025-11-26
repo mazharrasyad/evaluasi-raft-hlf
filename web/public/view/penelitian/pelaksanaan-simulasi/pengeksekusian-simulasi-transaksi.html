@@ -244,6 +244,67 @@
                                     <h3 class="mb-4 text-lg font-semibold text-textdark">Kirim ke Blockchain Networks</h3>
                                     <p class="mb-4 text-sm text-textdark/70">Pilih network yang akan menerima data simulasi untuk pengujian performa.</p>
 
+                                    <!-- Concurrency Control -->
+                                    <div class="mb-6 rounded-2xl border border-primary/30 bg-primary/5 p-5">
+                                        <div class="mb-4 flex items-start gap-3">
+                                            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/20">
+                                                <svg class="h-5 w-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                                                </svg>
+                                            </div>
+                                            <div class="flex-1">
+                                                <h4 class="text-sm font-semibold text-primary mb-2">Concurrent Transactions (Simulasi Beban Bersamaan)</h4>
+                                                <p class="text-xs text-textdark/70 leading-relaxed mb-4">
+                                                    Atur jumlah transaksi yang dikirim secara bersamaan untuk mensimulasikan beban real-world yang lebih realistis.
+                                                </p>
+
+                                                <div class="space-y-4">
+                                                    <!-- Concurrency Level -->
+                                                    <div>
+                                                        <label for="concurrencyLevel" class="mb-2 block text-xs text-textdark/70">
+                                                            Concurrency Level (Transaksi Bersamaan)
+                                                        </label>
+                                                        <div class="flex items-center gap-3">
+                                                            <input
+                                                                type="range"
+                                                                id="concurrencyLevel"
+                                                                min="1"
+                                                                max="50"
+                                                                value="10"
+                                                                class="flex-1 h-2 bg-surface rounded-lg appearance-none cursor-pointer"
+                                                                style="accent-color: #38BDF8"
+                                                            >
+                                                            <span id="concurrencyValue" class="inline-flex items-center justify-center min-w-[60px] rounded-lg bg-primary/20 px-3 py-1 text-sm font-semibold text-primary">10</span>
+                                                        </div>
+                                                        <div class="mt-2 grid grid-cols-3 gap-2 text-xs text-textdark/60">
+                                                            <div><span class="text-green-400">1-5:</span> Ringan</div>
+                                                            <div><span class="text-yellow-400">6-20:</span> Sedang</div>
+                                                            <div><span class="text-red-400">21-50:</span> Tinggi</div>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Quick Presets -->
+                                                    <div>
+                                                        <label class="mb-2 block text-xs text-textdark/70">Quick Presets</label>
+                                                        <div class="grid grid-cols-4 gap-2">
+                                                            <button type="button" class="concurrency-preset rounded bg-surface/80 px-3 py-1.5 text-xs font-medium text-textdark hover:bg-primary/20 hover:text-primary transition" data-value="5">5</button>
+                                                            <button type="button" class="concurrency-preset rounded bg-surface/80 px-3 py-1.5 text-xs font-medium text-textdark hover:bg-primary/20 hover:text-primary transition" data-value="10">10</button>
+                                                            <button type="button" class="concurrency-preset rounded bg-surface/80 px-3 py-1.5 text-xs font-medium text-textdark hover:bg-primary/20 hover:text-primary transition" data-value="20">20</button>
+                                                            <button type="button" class="concurrency-preset rounded bg-surface/80 px-3 py-1.5 text-xs font-medium text-textdark hover:bg-primary/20 hover:text-primary transition" data-value="50">50</button>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Info -->
+                                                    <div class="rounded-lg border border-primary/20 bg-primary/5 p-3">
+                                                        <p class="text-xs text-textdark/70">
+                                                            <span class="font-semibold text-primary">💡 Tips:</span> Concurrency lebih tinggi = proses lebih cepat, tapi akan membebani network lebih berat (bagus untuk stress testing).
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
                                     <!-- Network Selection -->
                                     <div class="mb-6 rounded-2xl border border-white/10 bg-surface/50 p-5">
                                         <div class="mb-4 flex items-center justify-between">
@@ -366,13 +427,28 @@
                                         </div>
                                     </div>
 
-                                    <button
-                                        type="button"
-                                        id="submitToNetworksButton"
-                                        class="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-500/90 px-6 py-2 text-sm font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-emerald-500/40 transition duration-200 hover:-translate-y-0.5 hover:bg-emerald-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed"
-                                    >
-                                        <span id="submitButtonText">Submit ke Network Terpilih</span>
-                                    </button>
+                                    <div class="flex gap-3">
+                                        <button
+                                            type="button"
+                                            id="submitToNetworksButton"
+                                            class="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-500/90 px-6 py-2 text-sm font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-emerald-500/40 transition duration-200 hover:-translate-y-0.5 hover:bg-emerald-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                            <span id="submitButtonText">Submit ke Network Terpilih</span>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            id="pauseResumeButton"
+                                            class="hidden inline-flex items-center justify-center gap-2 rounded-lg bg-yellow-500/90 px-6 py-2 text-sm font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-yellow-500/40 transition duration-200 hover:-translate-y-0.5 hover:bg-yellow-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                            <svg id="pauseIcon" class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                            </svg>
+                                            <svg id="resumeIcon" class="hidden h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/>
+                                            </svg>
+                                            <span id="pauseResumeButtonText">Pause</span>
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <!-- Results Summary -->
@@ -442,6 +518,53 @@
 
         let generatedData = [];
         let currentLoadCategory = 'light';
+
+        // Pause/Resume state
+        let isPaused = false;
+        let shouldStop = false;
+        let pauseResolve = null;
+
+        // Function to wait while paused
+        function waitIfPaused() {
+            if (isPaused) {
+                return new Promise(resolve => {
+                    pauseResolve = resolve;
+                });
+            }
+            return Promise.resolve();
+        }
+
+        // Function to toggle pause/resume
+        function togglePauseResume() {
+            const pauseButton = document.getElementById('pauseResumeButton');
+            const pauseIcon = document.getElementById('pauseIcon');
+            const resumeIcon = document.getElementById('resumeIcon');
+            const buttonText = document.getElementById('pauseResumeButtonText');
+
+            isPaused = !isPaused;
+
+            if (isPaused) {
+                // Switch to Resume mode
+                pauseIcon.classList.add('hidden');
+                resumeIcon.classList.remove('hidden');
+                buttonText.textContent = 'Resume';
+                pauseButton.classList.remove('bg-yellow-500/90', 'hover:bg-yellow-500', 'shadow-yellow-500/40');
+                pauseButton.classList.add('bg-green-500/90', 'hover:bg-green-500', 'shadow-green-500/40');
+            } else {
+                // Switch to Pause mode
+                pauseIcon.classList.remove('hidden');
+                resumeIcon.classList.add('hidden');
+                buttonText.textContent = 'Pause';
+                pauseButton.classList.remove('bg-green-500/90', 'hover:bg-green-500', 'shadow-green-500/40');
+                pauseButton.classList.add('bg-yellow-500/90', 'hover:bg-yellow-500', 'shadow-yellow-500/40');
+
+                // Resume the process
+                if (pauseResolve) {
+                    pauseResolve();
+                    pauseResolve = null;
+                }
+            }
+        }
 
         // Weighted random selection
         function weightedRandom(items) {
@@ -774,6 +897,26 @@
         // Initialize button text
         updateSubmitButtonText();
 
+        // Pause/Resume button listener
+        document.getElementById('pauseResumeButton').addEventListener('click', togglePauseResume);
+
+        // Concurrency level slider
+        const concurrencySlider = document.getElementById('concurrencyLevel');
+        const concurrencyValue = document.getElementById('concurrencyValue');
+
+        concurrencySlider.addEventListener('input', (e) => {
+            concurrencyValue.textContent = e.target.value;
+        });
+
+        // Concurrency preset buttons
+        document.querySelectorAll('.concurrency-preset').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const value = e.target.getAttribute('data-value');
+                concurrencySlider.value = value;
+                concurrencyValue.textContent = value;
+            });
+        });
+
         // Check network health before submit
         async function checkNetworkHealth() {
             try {
@@ -886,8 +1029,26 @@
             // Filter to only selected networks
             const networks = allNetworks.filter(network => selectedNetworkIds.includes(network.id));
 
+            // Reset pause state
+            isPaused = false;
+            shouldStop = false;
+            pauseResolve = null;
+
+            // Show pause button and disable submit button
             document.getElementById('submitToNetworksButton').disabled = true;
+            document.getElementById('pauseResumeButton').classList.remove('hidden');
             document.getElementById('resultsSection').classList.add('hidden');
+
+            // Reset pause button to initial state
+            const pauseButton = document.getElementById('pauseResumeButton');
+            const pauseIcon = document.getElementById('pauseIcon');
+            const resumeIcon = document.getElementById('resumeIcon');
+            const buttonText = document.getElementById('pauseResumeButtonText');
+            pauseIcon.classList.remove('hidden');
+            resumeIcon.classList.add('hidden');
+            buttonText.textContent = 'Pause';
+            pauseButton.classList.remove('bg-green-500/90', 'hover:bg-green-500', 'shadow-green-500/40');
+            pauseButton.classList.add('bg-yellow-500/90', 'hover:bg-yellow-500', 'shadow-yellow-500/40');
 
             const networkResults = [];
 
@@ -998,40 +1159,87 @@
                 }
                 // =================== END GENERATE DATA SPESIFIK ===================
 
-                for (let i = 0; i < networkSpecificData.length; i++) {
-                    const txSubmittedAt = new Date().toISOString();
-                    const txId = networkSpecificData[i].reportId;
+                // Get concurrency level
+                const concurrencyLevel = parseInt(document.getElementById('concurrencyLevel').value) || 10;
 
-                    // Calculate progress percentage
-                    const progressPercentage = ((i + 1) / networkSpecificData.length) * 100;
+                // Process transactions in batches with concurrency
+                let processedCount = 0;
 
-                    // Update progress dengan detail transaksi yang sedang diproses
-                    const remaining = networkSpecificData.length - (i + 1);
-                    progressEl.textContent = `Memproses ${i + 1}/${networkSpecificData.length} (Sisa: ${remaining}) - ${txId}`;
-                    updateProgressBar(network.id, progressPercentage);
+                for (let batchStart = 0; batchStart < networkSpecificData.length; batchStart += concurrencyLevel) {
+                    // Wait if paused (check at batch level)
+                    await waitIfPaused();
 
-                    try {
-                        // Tambahkan submittedAt ke data yang dikirim untuk perhitungan throughput
-                        const dataToSend = {
-                            ...networkSpecificData[i],
-                            submittedAt: txSubmittedAt
-                        };
+                    const batchEnd = Math.min(batchStart + concurrencyLevel, networkSpecificData.length);
+                    const batch = networkSpecificData.slice(batchStart, batchEnd);
 
-                        const response = await fetch(network.url, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(dataToSend)
-                        });
+                    // Update progress - processing batch
+                    const batchSize = batch.length;
+                    progressEl.textContent = `Memproses batch ${Math.floor(batchStart / concurrencyLevel) + 1} (${batchSize} transaksi bersamaan) | Total: ${processedCount}/${networkSpecificData.length}`;
 
-                        const result = await response.json();
-                        const txCompletedAt = new Date().toISOString();
+                    // Process batch concurrently with Promise.all
+                    const batchPromises = batch.map(async (txData, batchIndex) => {
+                        const actualIndex = batchStart + batchIndex;
+                        const txSubmittedAt = new Date().toISOString();
+                        const txId = txData.reportId;
 
-                        if (response.ok && result.success) {
+                        try {
+                            // Tambahkan submittedAt ke data yang dikirim untuk perhitungan throughput
+                            const dataToSend = {
+                                ...txData,
+                                submittedAt: txSubmittedAt
+                            };
+
+                            const response = await fetch(network.url, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(dataToSend)
+                            });
+
+                            const result = await response.json();
+                            const txCompletedAt = new Date().toISOString();
+
+                            return {
+                                success: response.ok && result.success,
+                                result,
+                                txId,
+                                txData,
+                                txSubmittedAt,
+                                txCompletedAt,
+                                actualIndex
+                            };
+                        } catch (error) {
+                            return {
+                                success: false,
+                                error,
+                                txId,
+                                txData,
+                                txSubmittedAt,
+                                txCompletedAt: new Date().toISOString(),
+                                actualIndex
+                            };
+                        }
+                    });
+
+                    // Wait for all transactions in batch to complete
+                    const batchResults = await Promise.all(batchPromises);
+
+                    // Process batch results
+                    for (const batchResult of batchResults) {
+                        processedCount++;
+
+                        // Calculate progress percentage
+                        const progressPercentage = (processedCount / networkSpecificData.length) * 100;
+                        updateProgressBar(network.id, progressPercentage);
+
+                        const { success, result, error, txId, txData, txSubmittedAt, txCompletedAt, actualIndex } = batchResult;
+
+                        if (success) {
                             successCount++;
 
                             // Update progress dengan status sukses
-                            const remainingAfterSuccess = networkSpecificData.length - (i + 1);
-                            progressEl.textContent = `✓ ${i + 1}/${networkSpecificData.length} (Sisa: ${remainingAfterSuccess}) | Sukses: ${successCount}`;
+                            const remainingAfterSuccess = networkSpecificData.length - processedCount;
+                            const pauseStatusSuccess = isPaused ? ' [PAUSED]' : '';
+                            progressEl.textContent = `✓ ${processedCount}/${networkSpecificData.length} (Sisa: ${remainingAfterSuccess}) | Sukses: ${successCount} | Concurrency: ${concurrencyLevel}${pauseStatusSuccess}`;
 
                             // =================== RECORD TRANSACTION METRICS ===================
                             if (simulationId) {
@@ -1040,7 +1248,7 @@
                                         method: 'POST',
                                         headers: { 'Content-Type': 'application/json' },
                                         body: JSON.stringify({
-                                            txId: result.result?.recordId || networkSpecificData[i].reportId,
+                                            txId: result.result?.recordId || txId,
                                             networkId: networkIdMapping[network.id],
                                             submittedAt: result.submittedAt || txSubmittedAt,
                                             completedAt: result.completedAt || txCompletedAt,
@@ -1054,13 +1262,15 @@
                             // =================== END RECORD TRANSACTION METRICS ================
                         } else {
                             failCount++;
-                            if (result.error && errorMessages.length < 3) {
-                                errorMessages.push(result.error);
+                            const errorMsg = error?.message || result?.error || 'Unknown error';
+                            if (errorMessages.length < 3) {
+                                errorMessages.push(errorMsg);
                             }
 
                             // Update progress dengan status gagal
-                            const remainingAfterFail = networkSpecificData.length - (i + 1);
-                            progressEl.textContent = `✗ ${i + 1}/${networkSpecificData.length} (Sisa: ${remainingAfterFail}) | Sukses: ${successCount}, Gagal: ${failCount}`;
+                            const remainingAfterFail = networkSpecificData.length - processedCount;
+                            const pauseStatusFail = isPaused ? ' [PAUSED]' : '';
+                            progressEl.textContent = `✗ ${processedCount}/${networkSpecificData.length} (Sisa: ${remainingAfterFail}) | Sukses: ${successCount}, Gagal: ${failCount} | Concurrency: ${concurrencyLevel}${pauseStatusFail}`;
 
                             // Record failed transaction in metrics
                             if (simulationId) {
@@ -1069,12 +1279,12 @@
                                         method: 'POST',
                                         headers: { 'Content-Type': 'application/json' },
                                         body: JSON.stringify({
-                                            txId: networkSpecificData[i].reportId,
+                                            txId: txId,
                                             networkId: networkIdMapping[network.id],
                                             submittedAt: txSubmittedAt,
                                             completedAt: txCompletedAt,
                                             success: false,
-                                            error: result.error
+                                            error: errorMsg
                                         })
                                     });
                                 } catch (metricsError) {
@@ -1082,43 +1292,10 @@
                                 }
                             }
                         }
-                    } catch (error) {
-                        failCount++;
-                        if (errorMessages.length < 3) {
-                            errorMessages.push(error.message);
-                        }
-
-                        // Update progress dengan status error
-                        const remainingAfterError = networkSpecificData.length - (i + 1);
-                        progressEl.textContent = `✗ ${i + 1}/${networkSpecificData.length} (Sisa: ${remainingAfterError}) | Sukses: ${successCount}, Gagal: ${failCount}`;
-
-                        const txCompletedAt = new Date().toISOString();
-
-                        // Record failed transaction in metrics
-                        if (simulationId) {
-                            try {
-                                await fetch(`/api/metrics/simulation/${simulationId}/transaction`, {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({
-                                        txId: networkSpecificData[i].reportId,
-                                        networkId: networkIdMapping[network.id],
-                                        submittedAt: txSubmittedAt,
-                                        completedAt: txCompletedAt,
-                                        success: false,
-                                        error: error.message
-                                    })
-                                });
-                            } catch (metricsError) {
-                                console.error('Failed to record failed transaction metrics:', metricsError);
-                            }
-                        }
                     }
 
-                    // Small delay untuk memberi waktu UI update (opsional, bisa dihapus untuk performa lebih cepat)
-                    if ((i + 1) % 10 === 0) {
-                        await new Promise(resolve => setTimeout(resolve, 10));
-                    }
+                    // Small delay between batches untuk memberi waktu UI update
+                    await new Promise(resolve => setTimeout(resolve, 10));
                 }
 
                 // Verify data after submission
@@ -1165,7 +1342,9 @@
                 }
             }
 
+            // Hide pause button and enable submit button
             document.getElementById('submitToNetworksButton').disabled = false;
+            document.getElementById('pauseResumeButton').classList.add('hidden');
 
             // Show detailed results
             const resultsContent = document.getElementById('resultsContent');

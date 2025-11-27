@@ -630,6 +630,17 @@
             const noDataMsg = document.getElementById('noDataMessage');
             const dataInfo = document.getElementById('dataInfo');
 
+            // Show loading indicator
+            Swal.fire({
+                title: 'Memuat Data...',
+                html: 'Sedang mengambil data throughput dari semua network',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
             try {
                 // All networks comparison view - fetch dari semua endpoints
                 const networkIds = Object.keys(networkEndpoints);
@@ -708,12 +719,32 @@
                     const catName = categoryNames[category] || 'Semua';
                     document.getElementById('dataInfoText').textContent =
                         `Menampilkan perbandingan semua network (${totalRecords} total record, Kategori: ${catName})`;
+
+                    // Close loading and show success
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Data Berhasil Dimuat',
+                        text: `Menampilkan ${totalRecords} record dari semua network`,
+                        timer: 1500,
+                        showConfirmButton: false,
+                        background: '#0F172A',
+                        color: '#E2E8F0'
+                    });
                 } else {
                     noDataMsg.classList.remove('hidden');
                     noDataMsg.querySelector('p').innerHTML =
                         'Belum ada data simulasi yang tersedia. Silakan jalankan simulasi terlebih dahulu di halaman <a href="/penelitian/pelaksanaan-simulasi/pengeksekusian-simulasi-transaksi" class="font-semibold text-yellow-400 underline">Pengeksekusian Simulasi Transaksi</a>.';
                     dataInfo.classList.add('hidden');
                     hideSections();
+
+                    // Close loading and show info
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Tidak Ada Data',
+                        text: 'Belum ada data simulasi yang tersedia',
+                        background: '#0F172A',
+                        color: '#E2E8F0'
+                    });
                 }
 
             } catch (error) {

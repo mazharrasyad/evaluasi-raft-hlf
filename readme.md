@@ -69,12 +69,12 @@ Paket ini mereplikasi alur standar dokumentasi Hyperledger Fabric untuk pengujia
 
 Paket ini menjadi dasar untuk memahami perubahan Fabric 3 tanpa meninggalkan pola kerja versi sebelumnya.
 
-### Fabric 3 RAFT Variant
+### Fabric 3 RAFT Variant (dengan SmartBFT)
 - **Fokus**: memungkinkan dua jaringan v3 berjalan bersamaan dengan memisahkan nama proyek Docker (`COMPOSE_PROJECT_NAME=raftvariant`) dan pemetaan port host.
 - **Parameter default**: `network.config` menggunakan channel `fabric3-channel-variant` dengan konfigurasi chaincode identik terhadap varian standar, sehingga perbedaan utama berada pada orkestrasi dan topologi.
 - **Tuning orderer terkini**: konfigurasi RAFT mengikuti pola optimasi Fabric 2 untuk beban laporan tinggi — `BatchTimeout=1s`, `MaxMessageCount=50`, `PreferredMaxBytes=4MB`, `AbsoluteMaxBytes=20MB` diselaraskan pada `config/configtx.yaml` dan `network/configtx/configtx.yaml`.
 - **Port & penamaan**: dokumentasi `fabric-3/raft-variant/README.md` merinci penyesuaian port (mis. orderer 8255→8055, peer Org1 7353→7153) serta suffix jaringan `.fabric3.variant` agar tidak bertabrakan dengan paket `raft-standard`.
-- **Eksperimen lanjutan**: tetap mendukung opsi BFT dan CCAAS sehingga Anda dapat membandingkan perilaku RAFT terhadap baseline dengan cepat.
+- **Eksperimen lanjutan dengan SmartBFT**: tetap mendukung opsi BFT (SmartBFT) dan CCAAS sehingga Anda dapat membandingkan perilaku RAFT terhadap baseline dengan cepat, serta melakukan perbandingan dengan mekanisme konsensus SmartBFT untuk evaluasi yang lebih komprehensif.
 
 ## Cara Menggunakan
 1. Pilih paket yang ingin diuji (`fabric-2` atau `fabric-3`, `raft-standard` atau `raft-variant`) lalu muat lingkungan:

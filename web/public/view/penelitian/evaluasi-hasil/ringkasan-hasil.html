@@ -576,11 +576,25 @@
                     const successRecords = records.filter(r => r.status === 'success' || r.status === 'completed' || !r.status || r.status !== 'failed');
                     totalSuccess += successRecords.length;
 
-                    // Kumpulkan semua nilai throughput dari detail records
-                    const throughputValues = records
-                        .filter(r => r.data_throughput && r.data_throughput.transactionsPerSecond)
-                        .map(r => r.data_throughput.transactionsPerSecond);
-                    allThroughputValues.push(...throughputValues);
+                    // Hitung throughput untuk network ini
+                    let startTime = null;
+                    let endTime = null;
+
+                    records.forEach(record => {
+                        if (record.data_throughput) {
+                            const submitTime = new Date(record.data_throughput.submittedAt || record.submittedAt).getTime();
+                            const completeTime = new Date(record.data_throughput.completedAt || record.completedAt).getTime();
+
+                            if (!startTime || submitTime < startTime) startTime = submitTime;
+                            if (!endTime || completeTime > endTime) endTime = completeTime;
+                        }
+                    });
+
+                    const durationSeconds = startTime && endTime ? (endTime - startTime) / 1000 : 0;
+                    const tps = durationSeconds > 0 ? records.length / durationSeconds : 0;
+                    if (tps > 0) {
+                        allThroughputValues.push(tps);
+                    }
 
                     // Kumpulkan semua nilai latency dari detail records
                     const latencyValues = records
@@ -636,13 +650,22 @@
                 const records = data.records;
                 const totalTx = records.length;
 
-                // Hitung TPS dari detail records
-                const throughputValues = records
-                    .filter(r => r.data_throughput && r.data_throughput.transactionsPerSecond)
-                    .map(r => r.data_throughput.transactionsPerSecond);
-                const avgTPS = throughputValues.length > 0
-                    ? throughputValues.reduce((a, b) => a + b, 0) / throughputValues.length
-                    : 0;
+                // Hitung TPS dari total transaksi dan durasi
+                let startTime = null;
+                let endTime = null;
+
+                records.forEach(record => {
+                    if (record.data_throughput) {
+                        const submitTime = new Date(record.data_throughput.submittedAt || record.submittedAt).getTime();
+                        const completeTime = new Date(record.data_throughput.completedAt || record.completedAt).getTime();
+
+                        if (!startTime || submitTime < startTime) startTime = submitTime;
+                        if (!endTime || completeTime > endTime) endTime = completeTime;
+                    }
+                });
+
+                const durationSeconds = startTime && endTime ? (endTime - startTime) / 1000 : 0;
+                const avgTPS = durationSeconds > 0 ? records.length / durationSeconds : 0;
 
                 // Hitung Latency dari detail records
                 const latencyValues = records
@@ -654,26 +677,16 @@
 
                 // Hitung CPU dari detail records
                 const cpuValues = records
-                    .filter(r => r.data_resource_usage && r.data_resource_usage.cpu_orderer1 !== undefined)
-                    .map(r => {
-                        const cpuSum = (r.data_resource_usage.cpu_orderer1 || 0) +
-                                      (r.data_resource_usage.cpu_orderer2 || 0) +
-                                      (r.data_resource_usage.cpu_orderer3 || 0);
-                        return cpuSum / 3;
-                    });
+                    .filter(r => r.data_resource_usage && r.data_resource_usage.cpuUsagePercent !== undefined)
+                    .map(r => r.data_resource_usage.cpuUsagePercent);
                 const avgCPU = cpuValues.length > 0
                     ? cpuValues.reduce((a, b) => a + b, 0) / cpuValues.length
                     : 0;
 
                 // Hitung Memory dari detail records
                 const memoryValues = records
-                    .filter(r => r.data_resource_usage && r.data_resource_usage.memory_orderer1 !== undefined)
-                    .map(r => {
-                        const memSum = (parseFloat(r.data_resource_usage.memory_orderer1) || 0) +
-                                      (parseFloat(r.data_resource_usage.memory_orderer2) || 0) +
-                                      (parseFloat(r.data_resource_usage.memory_orderer3) || 0);
-                        return memSum / 3;
-                    });
+                    .filter(r => r.data_resource_usage && r.data_resource_usage.memoryUsageMB !== undefined)
+                    .map(r => r.data_resource_usage.memoryUsageMB);
                 const avgMemory = memoryValues.length > 0
                     ? memoryValues.reduce((a, b) => a + b, 0) / memoryValues.length
                     : 0;
@@ -721,13 +734,23 @@
                 const records = data.records;
                 const totalRecords = records.length;
 
-                // Calculate Throughput - hitung dari detail transaksi
-                const throughputValues = records
-                    .filter(r => r.data_throughput && r.data_throughput.transactionsPerSecond)
-                    .map(r => r.data_throughput.transactionsPerSecond);
-                const avgTPS = throughputValues.length > 0
-                    ? throughputValues.reduce((a, b) => a + b, 0) / throughputValues.length
-                    : 0;
+                // Calculate Throughput - hitung berdasarkan total transaksi dan durasi
+                // Kumpulkan semua timestamp untuk menghitung durasi
+                let startTime = null;
+                let endTime = null;
+
+                records.forEach(record => {
+                    if (record.data_throughput) {
+                        const submitTime = new Date(record.data_throughput.submittedAt || record.submittedAt).getTime();
+                        const completeTime = new Date(record.data_throughput.completedAt || record.completedAt).getTime();
+
+                        if (!startTime || submitTime < startTime) startTime = submitTime;
+                        if (!endTime || completeTime > endTime) endTime = completeTime;
+                    }
+                });
+
+                const durationSeconds = startTime && endTime ? (endTime - startTime) / 1000 : 0;
+                const avgTPS = durationSeconds > 0 ? records.length / durationSeconds : 0;
                 metrics.throughput[networkKey] = avgTPS;
 
                 // Calculate Latency - hitung dari detail transaksi
@@ -741,14 +764,8 @@
 
                 // Calculate CPU - hitung dari detail resource usage
                 const cpuValues = records
-                    .filter(r => r.data_resource_usage && r.data_resource_usage.cpu_orderer1 !== undefined)
-                    .map(r => {
-                        // Hitung rata-rata CPU dari semua orderer
-                        const cpuSum = (r.data_resource_usage.cpu_orderer1 || 0) +
-                                      (r.data_resource_usage.cpu_orderer2 || 0) +
-                                      (r.data_resource_usage.cpu_orderer3 || 0);
-                        return cpuSum / 3;
-                    });
+                    .filter(r => r.data_resource_usage && r.data_resource_usage.cpuUsagePercent !== undefined)
+                    .map(r => r.data_resource_usage.cpuUsagePercent);
                 const avgCPU = cpuValues.length > 0
                     ? cpuValues.reduce((a, b) => a + b, 0) / cpuValues.length
                     : 0;
@@ -756,14 +773,8 @@
 
                 // Calculate Memory - hitung dari detail resource usage
                 const memoryValues = records
-                    .filter(r => r.data_resource_usage && r.data_resource_usage.memory_orderer1 !== undefined)
-                    .map(r => {
-                        // Hitung rata-rata Memory dari semua orderer (convert ke MB)
-                        const memSum = (parseFloat(r.data_resource_usage.memory_orderer1) || 0) +
-                                      (parseFloat(r.data_resource_usage.memory_orderer2) || 0) +
-                                      (parseFloat(r.data_resource_usage.memory_orderer3) || 0);
-                        return memSum / 3;
-                    });
+                    .filter(r => r.data_resource_usage && r.data_resource_usage.memoryUsageMB !== undefined)
+                    .map(r => r.data_resource_usage.memoryUsageMB);
                 const avgMemory = memoryValues.length > 0
                     ? memoryValues.reduce((a, b) => a + b, 0) / memoryValues.length
                     : 0;

@@ -11,7 +11,9 @@
       "Bash(findstr:*)",
       "Bash(dir:*)",
       "Bash(netstat:*)",
-      "Bash(where:*)"
+      "Bash(where:*)",
+      "Bash(npm start)",
+      "Bash(timeout:*)"
     ],
     "deny": [],
     "ask": []

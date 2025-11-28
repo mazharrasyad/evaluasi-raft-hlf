@@ -671,19 +671,35 @@
                             let endTime = null;
 
                             filteredRecords.forEach(record => {
-                                if (record.data_throughput) {
-                                    const submitTime = new Date(record.data_throughput.submittedAt || record.submittedAt).getTime();
-                                    const completeTime = new Date(record.data_throughput.completedAt || record.completedAt).getTime();
+                                // Ambil submittedAt dan completedAt dari berbagai lokasi yang mungkin
+                                let submitTime, completeTime;
 
-                                    if (!startTime || submitTime < startTime) startTime = submitTime;
-                                    if (!endTime || completeTime > endTime) endTime = completeTime;
+                                // Coba ambil dari berbagai struktur data
+                                const submittedAtValue = record.submittedAt ||
+                                                        record.networkMetadata?.submittedAt ||
+                                                        record.data_throughput?.submittedAt ||
+                                                        record.timestamp;
 
-                                    if (record.data_latency && record.data_latency.totalLatency !== undefined) {
-                                        latencies.push(record.data_latency.totalLatency);
+                                const completedAtValue = record.completedAt ||
+                                                        record.networkMetadata?.completedAt ||
+                                                        record.data_throughput?.completedAt;
+
+                                if (submittedAtValue && completedAtValue) {
+                                    submitTime = new Date(submittedAtValue).getTime();
+                                    completeTime = new Date(completedAtValue).getTime();
+
+                                    if (!isNaN(submitTime) && !isNaN(completeTime)) {
+                                        if (!startTime || submitTime < startTime) startTime = submitTime;
+                                        if (!endTime || completeTime > endTime) endTime = completeTime;
                                     }
+                                }
+
+                                if (record.data_latency && record.data_latency.totalLatency !== undefined) {
+                                    latencies.push(record.data_latency.totalLatency);
                                 }
                             });
 
+                            // Konversi dari milidetik ke detik dengan pembagian 1000
                             const durationSeconds = startTime && endTime ? (endTime - startTime) / 1000 : 0;
                             const tps = durationSeconds > 0 ? filteredRecords.length / durationSeconds : 0;
 

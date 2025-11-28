@@ -688,30 +688,49 @@
             let count = 0;
             let peakCPU = 0;
             let peakMemory = 0;
+            let snapshots = [];
 
             Object.keys(allNetworkRecords).forEach(netId => {
                 const records = allNetworkRecords[netId];
-                records.forEach(record => {
+                records.forEach((record, index) => {
                     if (record.data_resource_usage) {
                         const resource = record.data_resource_usage;
+
+                        let cpuValue = 0;
+                        let memoryValue = 0;
+                        let ioValue = 0;
+
                         if (resource.cpuUsagePercent !== undefined) {
-                            totalCPU += resource.cpuUsagePercent;
-                            if (resource.cpuUsagePercent > peakCPU) peakCPU = resource.cpuUsagePercent;
+                            cpuValue = resource.cpuUsagePercent;
+                            totalCPU += cpuValue;
+                            if (cpuValue > peakCPU) peakCPU = cpuValue;
                         }
                         if (resource.memoryUsageMB !== undefined) {
-                            totalMemory += resource.memoryUsageMB;
-                            if (resource.memoryUsageMB > peakMemory) peakMemory = resource.memoryUsageMB;
+                            memoryValue = resource.memoryUsageMB;
+                            totalMemory += memoryValue;
+                            if (memoryValue > peakMemory) peakMemory = memoryValue;
                         }
                         if (resource.diskIOps !== undefined) {
-                            totalIO += resource.diskIOps;
+                            ioValue = resource.diskIOps;
+                            totalIO += ioValue;
                         }
+
+                        // Add snapshot data for charts
+                        snapshots.push({
+                            cpuPercent: cpuValue,
+                            memoryMB: memoryValue,
+                            ioMBps: ioValue,
+                            networkId: netId,
+                            recordIndex: index
+                        });
+
                         count++;
                     }
                 });
             });
 
             return {
-                snapshots: [],
+                snapshots: snapshots,
                 snapshotCount: count,
                 averageCPU: count > 0 ? totalCPU / count : 0,
                 averageMemory: count > 0 ? totalMemory / count : 0,

@@ -560,7 +560,7 @@
         });
 
         function processAndDisplayResults(networkResults) {
-            // Calculate overall statistics dari semua network - hitung dari detail records
+            // Calculate overall statistics dari semua network
             let totalTransactions = 0;
             let totalSuccess = 0;
             let allThroughputValues = [];
@@ -576,31 +576,15 @@
                     const successRecords = records.filter(r => r.status === 'success' || r.status === 'completed' || !r.status || r.status !== 'failed');
                     totalSuccess += successRecords.length;
 
-                    // Hitung throughput untuk network ini
-                    let startTime = null;
-                    let endTime = null;
-
-                    records.forEach(record => {
-                        if (record.data_throughput) {
-                            const submitTime = new Date(record.data_throughput.submittedAt || record.submittedAt).getTime();
-                            const completeTime = new Date(record.data_throughput.completedAt || record.completedAt).getTime();
-
-                            if (!startTime || submitTime < startTime) startTime = submitTime;
-                            if (!endTime || completeTime > endTime) endTime = completeTime;
-                        }
-                    });
-
-                    const durationSeconds = startTime && endTime ? (endTime - startTime) / 1000 : 0;
-                    const tps = durationSeconds > 0 ? records.length / durationSeconds : 0;
-                    if (tps > 0) {
-                        allThroughputValues.push(tps);
+                    // Ambil throughput dari data yang sudah dihitung
+                    if (data.data_throughput && data.data_throughput.transactionsPerSecond) {
+                        allThroughputValues.push(data.data_throughput.transactionsPerSecond);
                     }
 
-                    // Kumpulkan semua nilai latency dari detail records
-                    const latencyValues = records
-                        .filter(r => r.data_latency && r.data_latency.totalLatency)
-                        .map(r => r.data_latency.totalLatency);
-                    allLatencyValues.push(...latencyValues);
+                    // Ambil latency dari data yang sudah dihitung
+                    if (data.data_latency && data.data_latency.averageLatencyMs) {
+                        allLatencyValues.push(data.data_latency.averageLatencyMs);
+                    }
                 }
             });
 
@@ -650,45 +634,24 @@
                 const records = data.records;
                 const totalTx = records.length;
 
-                // Hitung TPS dari total transaksi dan durasi
-                let startTime = null;
-                let endTime = null;
-
-                records.forEach(record => {
-                    if (record.data_throughput) {
-                        const submitTime = new Date(record.data_throughput.submittedAt || record.submittedAt).getTime();
-                        const completeTime = new Date(record.data_throughput.completedAt || record.completedAt).getTime();
-
-                        if (!startTime || submitTime < startTime) startTime = submitTime;
-                        if (!endTime || completeTime > endTime) endTime = completeTime;
-                    }
-                });
-
-                const durationSeconds = startTime && endTime ? (endTime - startTime) / 1000 : 0;
-                const avgTPS = durationSeconds > 0 ? records.length / durationSeconds : 0;
-
-                // Hitung Latency dari detail records
-                const latencyValues = records
-                    .filter(r => r.data_latency && r.data_latency.totalLatency)
-                    .map(r => r.data_latency.totalLatency);
-                const avgLatency = latencyValues.length > 0
-                    ? latencyValues.reduce((a, b) => a + b, 0) / latencyValues.length
+                // Hitung TPS dari data_throughput yang sudah dihitung
+                const avgTPS = data.data_throughput && data.data_throughput.transactionsPerSecond
+                    ? data.data_throughput.transactionsPerSecond
                     : 0;
 
-                // Hitung CPU dari detail records
-                const cpuValues = records
-                    .filter(r => r.data_resource_usage && r.data_resource_usage.cpuUsagePercent !== undefined)
-                    .map(r => r.data_resource_usage.cpuUsagePercent);
-                const avgCPU = cpuValues.length > 0
-                    ? cpuValues.reduce((a, b) => a + b, 0) / cpuValues.length
+                // Ambil Latency dari data_latency yang sudah dihitung
+                const avgLatency = data.data_latency && data.data_latency.averageLatencyMs
+                    ? data.data_latency.averageLatencyMs
                     : 0;
 
-                // Hitung Memory dari detail records
-                const memoryValues = records
-                    .filter(r => r.data_resource_usage && r.data_resource_usage.memoryUsageMB !== undefined)
-                    .map(r => r.data_resource_usage.memoryUsageMB);
-                const avgMemory = memoryValues.length > 0
-                    ? memoryValues.reduce((a, b) => a + b, 0) / memoryValues.length
+                // Ambil CPU dari data_resource_usage yang sudah dihitung
+                const avgCPU = data.data_resource_usage && data.data_resource_usage.averageCPU
+                    ? data.data_resource_usage.averageCPU
+                    : 0;
+
+                // Ambil Memory dari data_resource_usage yang sudah dihitung
+                const avgMemory = data.data_resource_usage && data.data_resource_usage.averageMemory
+                    ? data.data_resource_usage.averageMemory
                     : 0;
 
                 const row = document.createElement('tr');
@@ -723,7 +686,7 @@
                 successRate: {}
             };
 
-            // Collect data per network - hitung dari detail records
+            // Collect data per network dari data yang sudah dihitung
             networkResults.forEach(result => {
                 const networkId = result.networkId;
                 const networkKey = networkMapping[networkId];
@@ -734,53 +697,27 @@
                 const records = data.records;
                 const totalRecords = records.length;
 
-                // Calculate Throughput - hitung berdasarkan total transaksi dan durasi
-                // Kumpulkan semua timestamp untuk menghitung durasi
-                let startTime = null;
-                let endTime = null;
-
-                records.forEach(record => {
-                    if (record.data_throughput) {
-                        const submitTime = new Date(record.data_throughput.submittedAt || record.submittedAt).getTime();
-                        const completeTime = new Date(record.data_throughput.completedAt || record.completedAt).getTime();
-
-                        if (!startTime || submitTime < startTime) startTime = submitTime;
-                        if (!endTime || completeTime > endTime) endTime = completeTime;
-                    }
-                });
-
-                const durationSeconds = startTime && endTime ? (endTime - startTime) / 1000 : 0;
-                const avgTPS = durationSeconds > 0 ? records.length / durationSeconds : 0;
-                metrics.throughput[networkKey] = avgTPS;
-
-                // Calculate Latency - hitung dari detail transaksi
-                const latencyValues = records
-                    .filter(r => r.data_latency && r.data_latency.totalLatency)
-                    .map(r => r.data_latency.totalLatency);
-                const avgLatency = latencyValues.length > 0
-                    ? latencyValues.reduce((a, b) => a + b, 0) / latencyValues.length
+                // Ambil Throughput dari data yang sudah dihitung
+                metrics.throughput[networkKey] = data.data_throughput && data.data_throughput.transactionsPerSecond
+                    ? data.data_throughput.transactionsPerSecond
                     : 0;
-                metrics.latency[networkKey] = avgLatency;
 
-                // Calculate CPU - hitung dari detail resource usage
-                const cpuValues = records
-                    .filter(r => r.data_resource_usage && r.data_resource_usage.cpuUsagePercent !== undefined)
-                    .map(r => r.data_resource_usage.cpuUsagePercent);
-                const avgCPU = cpuValues.length > 0
-                    ? cpuValues.reduce((a, b) => a + b, 0) / cpuValues.length
+                // Ambil Latency dari data yang sudah dihitung
+                metrics.latency[networkKey] = data.data_latency && data.data_latency.averageLatencyMs
+                    ? data.data_latency.averageLatencyMs
                     : 0;
-                metrics.cpu[networkKey] = avgCPU;
 
-                // Calculate Memory - hitung dari detail resource usage
-                const memoryValues = records
-                    .filter(r => r.data_resource_usage && r.data_resource_usage.memoryUsageMB !== undefined)
-                    .map(r => r.data_resource_usage.memoryUsageMB);
-                const avgMemory = memoryValues.length > 0
-                    ? memoryValues.reduce((a, b) => a + b, 0) / memoryValues.length
+                // Ambil CPU dari data yang sudah dihitung
+                metrics.cpu[networkKey] = data.data_resource_usage && data.data_resource_usage.averageCPU
+                    ? data.data_resource_usage.averageCPU
                     : 0;
-                metrics.memory[networkKey] = avgMemory;
 
-                // Calculate Success Rate - hitung dari detail status transaksi
+                // Ambil Memory dari data yang sudah dihitung
+                metrics.memory[networkKey] = data.data_resource_usage && data.data_resource_usage.averageMemory
+                    ? data.data_resource_usage.averageMemory
+                    : 0;
+
+                // Calculate Success Rate dari detail status transaksi
                 const successRecords = records.filter(r => r.status === 'success' || r.status === 'completed' || !r.status || r.status !== 'failed');
                 const successRate = totalRecords > 0 ? (successRecords.length / totalRecords * 100).toFixed(2) : 0;
                 metrics.successRate[networkKey] = successRate;

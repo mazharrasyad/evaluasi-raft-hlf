@@ -708,30 +708,48 @@
             document.getElementById('individualChartsSection').classList.remove('hidden');
             document.getElementById('latencyAnalysis').classList.remove('hidden');
 
-            // Calculate averages
-            let totalLatency = 0;
-            let minLat = Infinity;
-            let maxLat = 0;
-            let count = 0;
+            // Collect all latencies from all network records
+            const allLatencies = [];
 
-            data.networks.forEach(net => {
-                if (net.averageLatencyMs > 0) {
-                    totalLatency += net.averageLatencyMs;
-                    if (net.averageLatencyMs < minLat) minLat = net.averageLatencyMs;
-                    if (net.averageLatencyMs > maxLat) maxLat = net.averageLatencyMs;
-                    count++;
-                }
+            Object.keys(allNetworkRecords).forEach(netId => {
+                const records = allNetworkRecords[netId] || [];
+                records.forEach(record => {
+                    if (record.data_latency && record.data_latency.totalLatency !== undefined) {
+                        allLatencies.push(record.data_latency.totalLatency);
+                    }
+                });
             });
 
-            const avgLatency = count > 0 ? totalLatency / count : 0;
+            // Calculate statistics from all detail data
+            let avgLatency = 0;
+            let minLat = 0;
+            let maxLat = 0;
+            let p50 = 0;
+            let p95 = 0;
+            let p99 = 0;
+
+            if (allLatencies.length > 0) {
+                const sorted = [...allLatencies].sort((a, b) => a - b);
+                avgLatency = allLatencies.reduce((sum, lat) => sum + lat, 0) / allLatencies.length;
+                minLat = sorted[0];
+                maxLat = sorted[sorted.length - 1];
+
+                const p50Index = Math.floor(sorted.length * 0.50);
+                const p95Index = Math.floor(sorted.length * 0.95);
+                const p99Index = Math.floor(sorted.length * 0.99);
+
+                p50 = sorted[p50Index] || 0;
+                p95 = sorted[p95Index] || 0;
+                p99 = sorted[p99Index] || 0;
+            }
 
             // Update summary
             document.getElementById('averageLatency').textContent = avgLatency.toFixed(2);
-            document.getElementById('minLatency').textContent = minLat === Infinity ? '0.00' : minLat.toFixed(2);
+            document.getElementById('minLatency').textContent = minLat.toFixed(2);
             document.getElementById('maxLatency').textContent = maxLat.toFixed(2);
-            document.getElementById('p50Latency').textContent = '-';
-            document.getElementById('p95Latency').textContent = '-';
-            document.getElementById('p99Latency').textContent = '-';
+            document.getElementById('p50Latency').textContent = p50.toFixed(2);
+            document.getElementById('p95Latency').textContent = p95.toFixed(2);
+            document.getElementById('p99Latency').textContent = p99.toFixed(2);
 
             // Update chart
             displayComparisonChart(data.networks);

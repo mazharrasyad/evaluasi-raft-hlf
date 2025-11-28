@@ -368,25 +368,25 @@
 
                         <!-- Throughput Summary -->
                         <section id="throughputSummary" class="hidden rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20">
-                            <h2 class="mb-6 text-2xl font-semibold text-textdark">Ringkasan Throughput</h2>
+                            <h2 class="mb-6 text-2xl font-semibold text-textdark">Ringkasan Throughput (Rata-rata)</h2>
                             <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                                 <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
-                                    <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-primary/70">Total Transaksi</p>
+                                    <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-primary/70">Rata-rata Transaksi</p>
                                     <p id="totalTransactions" class="text-3xl font-bold text-textdark">0</p>
                                     <p id="successRate" class="mt-2 text-xs text-textdark/60">0% berhasil</p>
                                 </div>
                                 <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
                                     <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-secondary/70">TPS Rata-rata</p>
                                     <p id="averageTPS" class="text-3xl font-bold text-textdark">0</p>
-                                    <p class="mt-2 text-xs text-textdark/60">Transaksi per detik</p>
+                                    <p class="mt-2 text-xs text-textdark/60">Rata-rata antar network</p>
                                 </div>
                                 <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
-                                    <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-accent/70">TPS Puncak</p>
+                                    <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-accent/70">TPS Tertinggi</p>
                                     <p id="peakTPS" class="text-3xl font-bold text-textdark">0</p>
-                                    <p class="mt-2 text-xs text-textdark/60">Throughput maksimum</p>
+                                    <p class="mt-2 text-xs text-textdark/60">TPS tertinggi dari network</p>
                                 </div>
                                 <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6">
-                                    <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-highlight/70">Durasi</p>
+                                    <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-highlight/70">Durasi Rata-rata</p>
                                     <p id="duration" class="text-3xl font-bold text-textdark">0</p>
                                     <p class="mt-2 text-xs text-textdark/60">Detik</p>
                                 </div>
@@ -799,28 +799,35 @@
             document.getElementById('individualChartsSection').classList.remove('hidden');
             document.getElementById('throughputAnalysis').classList.remove('hidden');
 
-            // Calculate totals
-            let totalTx = 0;
-            let successTx = 0;
+            // Calculate averages from networks (not totals)
             let totalTPS = 0;
             let maxTPS = 0;
+            let totalDuration = 0;
+            let totalSuccessRate = 0;
+            const validNetworks = data.networks.filter(net => net.totalTransactions > 0);
 
-            data.networks.forEach(net => {
-                totalTx += net.totalTransactions;
-                successTx += net.successfulTransactions;
+            validNetworks.forEach(net => {
                 totalTPS += net.transactionsPerSecond;
                 if (net.transactionsPerSecond > maxTPS) maxTPS = net.transactionsPerSecond;
+                totalDuration += net.durationSeconds;
+                const netSuccessRate = net.totalTransactions > 0 ?
+                    ((net.successfulTransactions / net.totalTransactions) * 100) : 0;
+                totalSuccessRate += netSuccessRate;
             });
 
-            const avgTPS = data.networks.length > 0 ? totalTPS / data.networks.length : 0;
+            // Calculate averages
+            const networkCount = validNetworks.length > 0 ? validNetworks.length : 1;
+            const avgTPS = totalTPS / networkCount;
+            const avgDuration = totalDuration / networkCount;
+            const avgSuccessRate = totalSuccessRate / networkCount;
+            const avgTransactions = validNetworks.reduce((sum, net) => sum + net.totalTransactions, 0) / networkCount;
 
-            // Update summary
-            document.getElementById('totalTransactions').textContent = totalTx.toLocaleString('id-ID');
-            const successRate = totalTx > 0 ? ((successTx / totalTx) * 100).toFixed(1) : '0';
-            document.getElementById('successRate').textContent = `${successRate}% berhasil`;
+            // Update summary with averages
+            document.getElementById('totalTransactions').textContent = Math.round(avgTransactions).toLocaleString('id-ID');
+            document.getElementById('successRate').textContent = `${avgSuccessRate.toFixed(1)}% berhasil`;
             document.getElementById('averageTPS').textContent = avgTPS.toFixed(2);
             document.getElementById('peakTPS').textContent = maxTPS.toFixed(2);
-            document.getElementById('duration').textContent = '-';
+            document.getElementById('duration').textContent = avgDuration.toFixed(2);
 
             // Update chart
             displayComparisonChart(data.networks);
@@ -1093,20 +1100,24 @@
             const fastest = sorted[0];
             const slowest = sorted[sorted.length - 1];
 
-            let totalTx = 0;
-            let successTx = 0;
-            networks.forEach(n => {
-                totalTx += n.totalTransactions;
-                successTx += n.successfulTransactions;
+            // Calculate averages
+            const validNetworks = networks.filter(net => net.totalTransactions > 0);
+            const networkCount = validNetworks.length > 0 ? validNetworks.length : 1;
+            const avgTransactions = validNetworks.reduce((sum, net) => sum + net.totalTransactions, 0) / networkCount;
+            let totalSuccessRate = 0;
+            validNetworks.forEach(net => {
+                const netSuccessRate = net.totalTransactions > 0 ?
+                    ((net.successfulTransactions / net.totalTransactions) * 100) : 0;
+                totalSuccessRate += netSuccessRate;
             });
-            const successRate = totalTx > 0 ? ((successTx / totalTx) * 100).toFixed(1) : '0';
+            const avgSuccessRate = totalSuccessRate / networkCount;
 
             let analysis = `
                 <p>
                     <strong>Kategori Beban:</strong> ${categoryNames[data.category] || data.category}<br>
-                    <strong>Jumlah Simulasi:</strong> ${data.simulationCount} simulasi<br>
-                    <strong>Total Transaksi (Semua Network):</strong> ${totalTx.toLocaleString('id-ID')} transaksi<br>
-                    <strong>Success Rate:</strong> ${successRate}%
+                    <strong>Jumlah Network:</strong> ${validNetworks.length} network<br>
+                    <strong>Rata-rata Transaksi per Network:</strong> ${Math.round(avgTransactions).toLocaleString('id-ID')} transaksi<br>
+                    <strong>Rata-rata Success Rate:</strong> ${avgSuccessRate.toFixed(1)}%
                 </p>
             `;
 

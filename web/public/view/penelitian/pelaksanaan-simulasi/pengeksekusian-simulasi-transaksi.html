@@ -688,6 +688,7 @@
                 description: `Laporan maladministrasi terkait ${weightedRandom(DATA_REFERENCE.substances).toLowerCase()}`,
                 status: DATA_REFERENCE.statuses[Math.floor(Math.random() * DATA_REFERENCE.statuses.length)],
                 kategori_beban: kategori_beban,
+                fault_scenario: null, // Normal transactions don't have fault scenarios
 
                 // Data throughput - timing information
                 data_throughput: {
@@ -1637,6 +1638,7 @@
                 description: `Fault: ${scenario.name} - ${generateErrorMessage(scenarioKey, errorCode, affectedComponent)}`,
                 status: 'failed', // Fault transactions have failed status
                 kategori_beban: category === 'light' ? 'ringan' : (category === 'medium' ? 'sedang' : 'tinggi'),
+                fault_scenario: scenarioKey, // Add fault_scenario field for fault tolerance analysis
 
                 // Data throughput - timing information (failed transaction)
                 data_throughput: {

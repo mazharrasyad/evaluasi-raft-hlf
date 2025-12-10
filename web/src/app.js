@@ -1159,6 +1159,7 @@ const viewsRoot = path.resolve(staticRoot, 'view');
 const viewFiles = {
     home: path.resolve(viewsRoot, 'home.html'),
     listApi: path.resolve(viewsRoot, 'list-api.html'),
+    presentation: path.resolve(viewsRoot, 'presentasi.html'),
     research: {
         overview: path.resolve(viewsRoot, 'penelitian/gambaran-umum.html'),
         environmentSetup: path.resolve(viewsRoot, 'penelitian/pembangunan-lingkungan-uji.html'),
@@ -1200,6 +1201,10 @@ app.get('/', (req, res) => {
 
 app.get('/list-api', (req, res) => {
     res.sendFile(viewFiles.listApi);
+});
+
+app.get('/presentasi', (req, res) => {
+    res.sendFile(viewFiles.presentation);
 });
 
 app.get('/penelitian/gambaran-umum', (req, res) => {

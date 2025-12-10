@@ -271,6 +271,13 @@
             'channel-fabric3-variant': '/api/fabric-3/raft-variant/pelaporan'
         };
 
+        const networkDisplayNames = {
+            'channel-standard': 'Fabric 2 RAFT Standard',
+            'channel-variant': 'Fabric 2 RAFT Variant',
+            'channel-fabric3-standard': 'Fabric 3 RAFT Standard',
+            'channel-fabric3-variant': 'Fabric 3 RAFT Variant'
+        };
+
         // Load data
         document.getElementById('loadDataButton').addEventListener('click', async () => {
             Swal.fire({
@@ -309,17 +316,18 @@
 
                 const results = await Promise.all(fetchPromises);
 
-                // Filter hasil yang berhasil
-                const successResults = results.filter(r => r.success && r.data.records && r.data.records.length > 0);
+                const networkSummaries = results
+                    .map(result => transformNetworkPayload(result.networkId, result.data))
+                    .filter(Boolean);
 
-                if (successResults.length > 0) {
-                    simulationData = successResults;
+                if (networkSummaries.length > 0) {
+                    simulationData = networkSummaries;
                     generateImplications(simulationData);
 
                     Swal.fire({
                         icon: 'success',
                         title: 'Data Berhasil Dimuat',
-                        text: `Analisis berdasarkan ${successResults.length} network`,
+                        text: `Analisis berdasarkan ${networkSummaries.length} network`,
                         background: '#0F172A',
                         color: '#E2E8F0',
                         confirmButtonColor: '#6366F1',
@@ -348,74 +356,20 @@
             }
         });
 
-        function generateImplications(networkResults) {
-            // Calculate metrics for analysis dari semua network - hitung dari detail records
-            let allThroughputValues = [];
-            let allLatencyValues = [];
-            let allCPUValues = [];
-            let allMemoryValues = [];
-            let totalTransactions = 0;
-            let totalSuccess = 0;
+        function generateImplications(networkSummaries) {
+            if (!Array.isArray(networkSummaries) || networkSummaries.length === 0) {
+                return;
+            }
 
-            networkResults.forEach(result => {
-                const data = result.data;
-                if (!data || !data.records) return;
-
-                const records = data.records;
-                totalTransactions += records.length;
-
-                // Hitung transaksi sukses
-                const successRecords = records.filter(r => r.status === 'success' || r.status === 'completed' || !r.status || r.status !== 'failed');
-                totalSuccess += successRecords.length;
-
-                // Kumpulkan semua nilai throughput dari detail records
-                const throughputValues = records
-                    .filter(r => r.data_throughput && r.data_throughput.transactionsPerSecond)
-                    .map(r => r.data_throughput.transactionsPerSecond);
-                allThroughputValues.push(...throughputValues);
-
-                // Kumpulkan semua nilai latency dari detail records
-                const latencyValues = records
-                    .filter(r => r.data_latency && r.data_latency.totalLatency)
-                    .map(r => r.data_latency.totalLatency);
-                allLatencyValues.push(...latencyValues);
-
-                // Kumpulkan semua nilai CPU dari detail records
-                const cpuValues = records
-                    .filter(r => r.data_resource_usage && r.data_resource_usage.cpu_orderer1 !== undefined)
-                    .map(r => {
-                        const cpuSum = (r.data_resource_usage.cpu_orderer1 || 0) +
-                                      (r.data_resource_usage.cpu_orderer2 || 0) +
-                                      (r.data_resource_usage.cpu_orderer3 || 0);
-                        return cpuSum / 3;
-                    });
-                allCPUValues.push(...cpuValues);
-
-                // Kumpulkan semua nilai Memory dari detail records
-                const memoryValues = records
-                    .filter(r => r.data_resource_usage && r.data_resource_usage.memory_orderer1 !== undefined)
-                    .map(r => {
-                        const memSum = (parseFloat(r.data_resource_usage.memory_orderer1) || 0) +
-                                      (parseFloat(r.data_resource_usage.memory_orderer2) || 0) +
-                                      (parseFloat(r.data_resource_usage.memory_orderer3) || 0);
-                        return memSum / 3;
-                    });
-                allMemoryValues.push(...memoryValues);
-            });
-
-            const avgThroughput = allThroughputValues.length > 0
-                ? allThroughputValues.reduce((a, b) => a + b, 0) / allThroughputValues.length
-                : 0;
-            const avgLatency = allLatencyValues.length > 0
-                ? allLatencyValues.reduce((a, b) => a + b, 0) / allLatencyValues.length
-                : 0;
-            const avgCPU = allCPUValues.length > 0
-                ? allCPUValues.reduce((a, b) => a + b, 0) / allCPUValues.length
-                : 0;
-            const avgMemory = allMemoryValues.length > 0
-                ? allMemoryValues.reduce((a, b) => a + b, 0) / allMemoryValues.length
-                : 0;
-            const successRate = totalTransactions > 0 ? (totalSuccess / totalTransactions * 100).toFixed(2) : 0;
+            const aggregate = aggregateNetworkMetrics(networkSummaries);
+            const avgThroughput = Number.isFinite(aggregate.avgThroughput) ? aggregate.avgThroughput : 0;
+            const avgLatency = Number.isFinite(aggregate.avgLatency) ? aggregate.avgLatency : 0;
+            const avgCPU = Number.isFinite(aggregate.avgCPU) ? aggregate.avgCPU : 0;
+            const avgMemory = Number.isFinite(aggregate.avgMemory) ? aggregate.avgMemory : 0;
+            const successRate = Number.isFinite(aggregate.successRate) ? aggregate.successRate : 0;
+            const totalTransactions = aggregate.totalTransactions || 0;
+            const networkCount = aggregate.networkCount || 0;
+            const formattedTransactions = totalTransactions.toLocaleString('id-ID');
 
             // Key Findings
             const keyFindingsHTML = `
@@ -467,7 +421,7 @@
                         Reliability & Success Rate
                     </h4>
                     <p class="text-xs text-textdark/70">
-                        Success rate mencapai <strong class="text-textdark">${successRate}%</strong> dari ${totalTransactions.toLocaleString()} transaksi,
+                        Success rate mencapai <strong class="text-textdark">${successRate.toFixed(2)}%</strong> dari ${formattedTransactions} transaksi,
                         ${successRate > 95 ? 'menunjukkan reliability yang excellent. Konsensus RAFT terbukti robust dalam menjaga consistency dan availability.' : 'yang menunjukkan sistem memiliki resilience yang baik terhadap transient failures.'}
                     </p>
                 </div>
@@ -476,11 +430,10 @@
             document.getElementById('keyFindings').classList.remove('hidden');
 
             // Performance Analysis
-            const networkCount = networkResults.length;
             const performanceAnalysisHTML = `
                 <p class="font-semibold text-textdark">Analisis Performa Sistem RAFT pada Hyperledger Fabric:</p>
                 <p>
-                    Berdasarkan data yang telah dikumpulkan dari ${networkCount} network berbeda dengan total ${totalTransactions.toLocaleString()} transaksi, konsensus RAFT menunjukkan performa yang ${avgThroughput > 50 ? 'sangat baik' : 'stabil'}
+                    Berdasarkan data yang telah dikumpulkan dari ${networkCount} network berbeda dengan total ${formattedTransactions} transaksi, konsensus RAFT menunjukkan performa yang ${avgThroughput > 50 ? 'sangat baik' : 'stabil'}
                     dengan throughput rata-rata <strong>${avgThroughput.toFixed(2)} TPS</strong>. Latency yang tercatat pada <strong>${avgLatency.toFixed(2)} ms</strong>
                     ${avgLatency < 300 ? 'sangat kompetitif dan suitable untuk aplikasi yang memerlukan fast finality' : 'masih dalam batas wajar untuk aplikasi blockchain enterprise'}.
                 </p>
@@ -575,6 +528,9 @@
             document.getElementById('scalabilityInsights').classList.remove('hidden');
 
             // Recommendations
+            const plannedCPU = avgCPU > 0 ? Math.ceil(avgCPU * 1.5) : 0;
+            const plannedMemory = avgMemory > 0 ? Math.ceil(avgMemory * 1.5) : 0;
+
             const recommendationsHTML = `
                 <div class="rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-4">
                     <h4 class="mb-2 flex items-center gap-2 text-sm font-semibold text-emerald-400">
@@ -602,8 +558,8 @@
                         Alokasikan resource yang adequate dengan headroom untuk traffic spikes.
                     </p>
                     <ul class="text-xs text-textdark/60 space-y-1 ml-4">
-                        <li>• CPU: Minimal ${Math.ceil(avgCPU * 1.5)}% per node dengan burst capability up to 100%</li>
-                        <li>• Memory: Minimal ${Math.ceil(avgMemory * 1.5)}MB per node untuk accommodate ledger growth</li>
+                        <li>• CPU: Minimal ${plannedCPU}% per node dengan burst capability up to 100%</li>
+                        <li>• Memory: Minimal ${plannedMemory}MB per node untuk accommodate ledger growth</li>
                         <li>• Disk: Fast SSD storage with IOPS > 3000 untuk optimal log replication</li>
                         <li>• Network: Low-latency interconnect (< 10ms) between orderer nodes untuk minimize consensus overhead</li>
                         <li>• Implement horizontal pod autoscaling untuk handle dynamic workloads</li>
@@ -663,6 +619,252 @@
             `;
             document.getElementById('recommendationsContent').innerHTML = recommendationsHTML;
             document.getElementById('recommendations').classList.remove('hidden');
+        }
+
+        function transformNetworkPayload(networkId, payload) {
+            if (!payload || !payload.success || !Array.isArray(payload.records) || payload.records.length === 0) {
+                return null;
+            }
+
+            const records = payload.records;
+            const throughput = computeThroughputStats(records);
+            const latency = computeLatencyStats(records);
+            const resource = computeResourceUsageStats(records);
+            const fault = computeFaultToleranceStats(records);
+
+            return {
+                networkId,
+                label: payload.label || networkDisplayNames[networkId] || networkId,
+                records,
+                throughput,
+                latency,
+                resource,
+                fault
+            };
+        }
+
+        function computeThroughputStats(records = []) {
+            const safeRecords = Array.isArray(records) ? records : [];
+            let earliest = null;
+            let latest = null;
+            let successCount = 0;
+            let failureCount = 0;
+
+            safeRecords.forEach(record => {
+                const status = typeof record?.status === 'string' ? record.status.toLowerCase() : '';
+                const hasFailure = status === 'failed';
+                if (hasFailure) {
+                    failureCount++;
+                } else {
+                    successCount++;
+                }
+
+                const { submitTime, completeTime } = resolveRecordTimestamps(record);
+                if (submitTime !== null && (earliest === null || submitTime < earliest)) {
+                    earliest = submitTime;
+                }
+                if (completeTime !== null && (latest === null || completeTime > latest)) {
+                    latest = completeTime;
+                }
+            });
+
+            const durationSeconds = earliest !== null && latest !== null && latest > earliest
+                ? (latest - earliest) / 1000
+                : 0;
+
+            const transactionsPerSecond = durationSeconds > 0
+                ? safeRecords.length / durationSeconds
+                : 0;
+
+            return {
+                hasData: safeRecords.length > 0,
+                totalTransactions: safeRecords.length,
+                successfulTransactions: successCount,
+                failedTransactions: failureCount,
+                durationSeconds,
+                transactionsPerSecond
+            };
+        }
+
+        function resolveRecordTimestamps(record) {
+            const submittedAtCandidates = [
+                record?.submittedAt,
+                record?.networkMetadata?.submittedAt,
+                record?.data_throughput?.submittedAt,
+                record?.timestamp
+            ];
+            const completedAtCandidates = [
+                record?.completedAt,
+                record?.networkMetadata?.completedAt,
+                record?.data_throughput?.completedAt,
+                record?.blockchainMetadata?.blockTimestamp
+            ];
+
+            return {
+                submitTime: findFirstValidTimestamp(submittedAtCandidates),
+                completeTime: findFirstValidTimestamp(completedAtCandidates)
+            };
+        }
+
+        function findFirstValidTimestamp(candidates) {
+            for (const value of candidates) {
+                if (!value) continue;
+                const time = typeof value === 'number' ? value : Date.parse(value);
+                if (Number.isFinite(time)) {
+                    return time;
+                }
+            }
+            return null;
+        }
+
+        function computeLatencyStats(records = []) {
+            const latencies = (Array.isArray(records) ? records : [])
+                .map(record => {
+                    if (record?.data_latency && typeof record.data_latency.totalLatency === 'number') {
+                        return record.data_latency.totalLatency;
+                    }
+                    return null;
+                })
+                .filter(value => typeof value === 'number' && Number.isFinite(value) && value >= 0);
+
+            if (latencies.length === 0) {
+                return {
+                    hasData: false,
+                    averageLatencyMs: 0,
+                    minLatencyMs: 0,
+                    maxLatencyMs: 0,
+                    p50LatencyMs: 0,
+                    p95LatencyMs: 0,
+                    p99LatencyMs: 0,
+                    values: []
+                };
+            }
+
+            const sorted = [...latencies].sort((a, b) => a - b);
+            const average = latencies.reduce((sum, value) => sum + value, 0) / latencies.length;
+
+            return {
+                hasData: true,
+                averageLatencyMs: average,
+                minLatencyMs: sorted[0],
+                maxLatencyMs: sorted[sorted.length - 1],
+                p50LatencyMs: getPercentile(sorted, 0.5),
+                p95LatencyMs: getPercentile(sorted, 0.95),
+                p99LatencyMs: getPercentile(sorted, 0.99),
+                values: latencies
+            };
+        }
+
+        function getPercentile(sortedValues, percentile) {
+            if (!sortedValues.length) return 0;
+            const index = Math.min(sortedValues.length - 1, Math.floor(sortedValues.length * percentile));
+            return sortedValues[index];
+        }
+
+        function computeResourceUsageStats(records = []) {
+            let totalCPU = 0;
+            let totalMemory = 0;
+            let cpuCount = 0;
+            let memoryCount = 0;
+
+            (Array.isArray(records) ? records : []).forEach(record => {
+                if (!record?.data_resource_usage) return;
+
+                const cpuValue = record.data_resource_usage.cpuUsagePercent;
+                if (Number.isFinite(cpuValue)) {
+                    totalCPU += cpuValue;
+                    cpuCount++;
+                }
+
+                const memoryValue = record.data_resource_usage.memoryUsageMB;
+                if (Number.isFinite(memoryValue)) {
+                    totalMemory += memoryValue;
+                    memoryCount++;
+                }
+            });
+
+            return {
+                hasData: cpuCount > 0 || memoryCount > 0,
+                averageCPU: cpuCount > 0 ? totalCPU / cpuCount : null,
+                averageMemory: memoryCount > 0 ? totalMemory / memoryCount : null
+            };
+        }
+
+        function computeFaultToleranceStats(records = []) {
+            let successCount = 0;
+            let failureCount = 0;
+
+            (Array.isArray(records) ? records : []).forEach(record => {
+                const status = typeof record?.status === 'string' ? record.status.toLowerCase() : '';
+                const hasFault = status === 'failed' || Boolean(record?.data_fault_tolerance?.failureType);
+
+                if (hasFault) {
+                    failureCount++;
+                } else {
+                    successCount++;
+                }
+            });
+
+            const total = successCount + failureCount;
+            const successRate = total > 0 ? (successCount / total) * 100 : null;
+
+            return {
+                hasData: total > 0,
+                successRate,
+                successCount,
+                failureCount
+            };
+        }
+
+        function aggregateNetworkMetrics(networkSummaries = []) {
+            const throughputValues = [];
+            const latencyValues = [];
+            const cpuValues = [];
+            const memoryValues = [];
+            let totalTransactions = 0;
+            let totalSuccess = 0;
+
+            networkSummaries.forEach(net => {
+                if (!net) return;
+
+                if (net.throughput) {
+                    if (Number.isFinite(net.throughput.transactionsPerSecond) && net.throughput.transactionsPerSecond > 0) {
+                        throughputValues.push(net.throughput.transactionsPerSecond);
+                    }
+                    if (Number.isFinite(net.throughput.totalTransactions)) {
+                        totalTransactions += net.throughput.totalTransactions;
+                        totalSuccess += net.throughput.successfulTransactions || 0;
+                    }
+                }
+
+                if (net.latency && net.latency.hasData && Number.isFinite(net.latency.averageLatencyMs) && net.latency.averageLatencyMs > 0) {
+                    latencyValues.push(net.latency.averageLatencyMs);
+                }
+
+                if (net.resource && net.resource.hasData) {
+                    if (Number.isFinite(net.resource.averageCPU) && net.resource.averageCPU > 0) {
+                        cpuValues.push(net.resource.averageCPU);
+                    }
+                    if (Number.isFinite(net.resource.averageMemory) && net.resource.averageMemory > 0) {
+                        memoryValues.push(net.resource.averageMemory);
+                    }
+                }
+            });
+
+            const average = (values) => values.length > 0
+                ? values.reduce((sum, value) => sum + value, 0) / values.length
+                : 0;
+
+            return {
+                networkCount: networkSummaries.length,
+                totalTransactions,
+                totalSuccess,
+                avgThroughput: average(throughputValues),
+                avgLatency: average(latencyValues),
+                avgCPU: average(cpuValues),
+                avgMemory: average(memoryValues),
+                successRate: totalTransactions > 0 ? (totalSuccess / totalTransactions) * 100 : 0
+            };
         }
     </script>
 </body>

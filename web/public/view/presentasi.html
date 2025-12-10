@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluasi RAFT HLF — Presentasi Bab 4</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#38BDF8',
+                        secondary: '#6366F1',
+                        accent: '#F59E0B',
+                        highlight: '#F97316',
+                        soft: '#050B16',
+                        surface: '#0F172A',
+                        surfaceMuted: '#16213F',
+                        border: '#1E293B',
+                        muted: '#94A3B8',
+                        textdark: '#E2E8F0'
+                    }
+                }
+            }
+        };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="/images/logo-ai-center.svg">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+
+        .component-link[data-active="true"] {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.28), rgba(56, 189, 248, 0.22));
+            color: #E2E8F0;
+            border-color: rgba(249, 115, 22, 0.45);
+            box-shadow: 0 12px 40px rgba(15, 23, 42, 0.45);
+        }
+
+        .component-link[data-active="true"] .component-link__index {
+            background-color: rgba(249, 115, 22, 0.35);
+            color: #E2E8F0;
+        }
+
+        .presentation-card {
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 1.25rem;
+            padding: 1.5rem;
+            background: rgba(15, 23, 42, 0.75);
+            box-shadow: 0 18px 45px rgba(2, 8, 23, 0.6);
+            transition: transform 220ms ease, border-color 220ms ease, background 220ms ease;
+        }
+
+        .presentation-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(56, 189, 248, 0.45);
+            background: rgba(15, 23, 42, 0.88);
+        }
+
+        .card-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.25rem 0.85rem;
+            border-radius: 9999px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #E2E8F0;
+            background: rgba(59, 130, 246, 0.15);
+        }
+
+        .card-body ul {
+            list-style: disc;
+            padding-left: 1.1rem;
+            margin-top: 0.75rem;
+        }
+
+        .card-body li {
+            font-size: 0.9rem;
+            color: rgba(226, 232, 240, 0.75);
+        }
+    </style>
+</head>
+<body class="bg-soft text-textdark">
+    <div data-component="header"></div>
+    <div class="relative min-h-screen overflow-hidden">
+        <div class="absolute inset-0 -z-10 h-full w-full">
+            <div class="absolute -left-1/3 top-0 h-[720px] w-[720px] rounded-full bg-gradient-to-br from-highlight/30 via-secondary/20 to-transparent opacity-70 blur-3xl"></div>
+            <div class="absolute -right-1/4 bottom-0 h-[620px] w-[620px] rounded-full bg-gradient-to-tr from-accent/35 via-secondary/25 to-primary/20 opacity-70 blur-3xl"></div>
+        </div>
+
+        <div class="flex min-h-screen flex-col lg:flex-row">
+            <div data-component="sidebar"></div>
+
+            <div class="flex-1">
+                <main class="mx-auto w-full max-w-6xl px-6 py-12">
+                    <div class="space-y-12">
+                        <section class="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-surface via-soft to-[#020817] px-10 py-12 shadow-2xl shadow-black/30">
+                            <div class="flex flex-col gap-6">
+                                <div class="inline-flex w-fit items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-primary/90">
+                                    Presentasi Bab 4
+                                </div>
+                                <div class="space-y-4">
+                                    <h1 class="text-3xl font-semibold text-textdark md:text-4xl">Ringkasan Kilat Penelitian</h1>
+                                    <p class="text-sm text-textdark/70 md:text-base leading-relaxed">
+                                        Satu kartu untuk setiap halaman penting di Bab 4. Gunakan daftar ini sebagai deck presentasi cepat: setiap entri langsung menyebut tujuan, fokus, dan highlight teknis yang perlu diingat saat memaparkan hasil evaluasi RAFT pada Hyperledger Fabric.
+                                    </p>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="space-y-8">
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-[0.3em] text-primary/70">Riset Inti</p>
+                                <h2 class="text-2xl font-semibold text-textdark">Bab 4.1 – 4.3</h2>
+                            </div>
+                            <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                                <article class="presentation-card">
+                                    <div class="flex items-center justify-between gap-4">
+                                        <span class="card-badge">4.1</span>
+                                        <h3 class="text-lg font-semibold text-textdark">Gambaran Umum Penelitian</h3>
+                                    </div>
+                                    <div class="card-body mt-4 space-y-3 text-sm text-textdark/70">
+                                        <p>Menetapkan konteks evaluasi RAFT untuk kasus pelaporan maladministrasi nasional.</p>
+                                        <ul class="space-y-2">
+                                            <li>Volume 10.846 aduan 2024 dipakai sebagai dasar skenario beban transaksi.</li>
+                                            <li>Fabric 2 & 3 dengan RAFT CFT jadi fokus perbandingan throughput, latency, resource, dan ketahanan.</li>
+                                        </ul>
+                                    </div>
+                                </article>
+
+                                <article class="presentation-card">
+                                    <div class="flex items-center justify-between gap-4">
+                                        <span class="card-badge">4.2</span>
+                                        <h3 class="text-lg font-semibold text-textdark">Rancangan Eksperimen</h3>
+                                    </div>
+                                    <div class="card-body mt-4 space-y-3 text-sm text-textdark/70">
+                                        <p>Framework komparatif untuk RAFT standar vs varian.</p>
+                                        <ul class="space-y-2">
+                                            <li>Empat konfigurasi (Fabric v2/v3 × standar/varian) diuji pada tiga level beban.</li>
+                                            <li>Pengulangan dan fault-injection (leader failover) memastikan hasil signifikan secara statistik.</li>
+                                        </ul>
+                                    </div>
+                                </article>
+
+                                <article class="presentation-card">
+                                    <div class="flex items-center justify-between gap-4">
+                                        <span class="card-badge">4.3</span>
+                                        <h3 class="text-lg font-semibold text-textdark">Pembangunan Lingkungan Uji</h3>
+                                    </div>
+                                    <div class="card-body mt-4 space-y-3 text-sm text-textdark/70">
+                                        <p>Testbed simetris untuk Fabric 2 dan 3.</p>
+                                        <ul class="space-y-2">
+                                            <li>Struktur folder identik (bin, chaincode, config, env, network) memudahkan replikasi eksperimen.</li>
+                                            <li>Parameter RAFT dibedakan (BatchTimeout 2s→1s, MaxMessageCount 10→50, opsi SmartBFT) guna mengejar throughput tinggi.</li>
+                                        </ul>
+                                    </div>
+                                </article>
+                            </div>
+                        </section>
+
+                        <section class="space-y-8">
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-[0.3em] text-secondary/70">Pelaksanaan Simulasi</p>
+                                <h2 class="text-2xl font-semibold text-textdark">Bab 4.4</h2>
+                            </div>
+                            <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                                <article class="presentation-card">
+                                    <div class="flex items-center justify-between gap-4">
+                                        <span class="card-badge">4.4</span>
+                                        <h3 class="text-lg font-semibold text-textdark">Pipeline Simulasi</h3>
+                                    </div>
+                                    <div class="card-body mt-4 space-y-3 text-sm text-textdark/70">
+                                        <p>Ikhtisar langkah pembuatan channel, deployment chaincode, injeksi data, dan pengambilan hasil.</p>
+                                        <ul class="space-y-2">
+                                            <li>Setiap tahap dibakukan agar perbandingan antar konfigurasi bersifat apple-to-apple.</li>
+                                            <li>Fabric v3 varian menambahkan opsi SmartBFT sebagai pembanding RAFT.</li>
+                                        </ul>
+                                    </div>
+                                </article>
+
+                                <article class="presentation-card">
+                                    <div class="flex items-center justify-between gap-4">
+                                        <span class="card-badge">4.4.1</span>
+                                        <h3 class="text-lg font-semibold text-textdark">Pembuatan Network</h3>
+                                    </div>
+                                    <div class="card-body mt-4 space-y-3 text-sm text-textdark/70">
+                                        <p>Dashboard operasional untuk Fabric 2 & 3 (standar dan varian).</p>
+                                        <ul class="space-y-2">
+                                            <li>Start, stop, restart massal, dan health check memakai SSE status feed.</li>
+                                            <li>Menjamin channel & chaincode siap sebelum skenario simulasi dijalankan.</li>
+                                        </ul>
+                                    </div>
+                                </article>
+
+                                <article class="presentation-card">
+                                    <div class="flex items-center justify-between gap-4">
+                                        <span class="card-badge">4.4.2</span>
+                                        <h3 class="text-lg font-semibold text-textdark">Perancangan Data Simulasi</h3>
+                                    </div>
+                                    <div class="card-body mt-4 space-y-3 text-sm text-textdark/70">
+                                        <p>Dataset sintetis berbasis statistik 10.837 laporan 2024.</p>
+                                        <ul class="space-y-2">
+                                            <li>Tiga kategori beban: 100–500, 1k–3k, 5k–10k transaksi dengan target 10–500 TPS.</li>
+                                            <li>Memuat distribusi substansi, kelompok pelapor/terlapor, kantor, dan periode pelaporan.</li>
+                                        </ul>
+                                    </div>
+                                </article>
+
+                                <article class="presentation-card">
+                                    <div class="flex items-center justify-between gap-4">
+                                        <span class="card-badge">4.4.3</span>
+                                        <h3 class="text-lg font-semibold text-textdark">Pengeksekusian Simulasi</h3>
+                                    </div>
+                                    <div class="card-body mt-4 space-y-3 text-sm text-textdark/70">
+                                        <p>Generator transaksi yang dapat memilih load, network, dan concurrency.</p>
+                                        <ul class="space-y-2">
+                                            <li>Merekam submittedAt & completedAt untuk setiap tx agar TPS/latency otomatis dihitung.</li>
+                                            <li>Fault tolerance optional: node failure, network partition, timeout, invalid tx, dsb.</li>
+                                        </ul>
+                                    </div>
+                                </article>
+
+                                <article class="presentation-card">
+                                    <div class="flex items-center justify-between gap-4">
+                                        <span class="card-badge">4.4.4</span>
+                                        <h3 class="text-lg font-semibold text-textdark">Penyimpanan Data</h3>
+                                    </div>
+                                    <div class="card-body mt-4 space-y-3 text-sm text-textdark/70">
+                                        <p>Viewer gabungan untuk ledger empat network.</p>
+                                        <ul class="space-y-2">
+                                            <li>Mengonsumsi API GET pelaporan per network dan menampilkannya via DataTables.</li>
+                                            <li>Memudahkan audit hasil simulasi dan validasi payload yang tersimpan.</li>
+                                        </ul>
+                                    </div>
+                                </article>
+                            </div>
+                        </section>
+
+                        <section class="space-y-8">
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-[0.3em] text-accent/80">Analisis Data</p>
+                                <h2 class="text-2xl font-semibold text-textdark">Bab 4.5</h2>
+                            </div>
+                            <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                                <article class="presentation-card">
+                                    <div class="flex items-center justify-between gap-4">
+                                        <span class="card-badge">4.5</span>
+                                        <h3 class="text-lg font-semibold text-textdark">Kerangka Analisis</h3>
+                                    </div>
+                                    <div class="card-body mt-4 space-y-3 text-sm text-textdark/70">
+                                        <p>Semua hasil simulasi diringkas ke empat KPI.</p>
+                                        <ul class="space-y-2">
+                                            <li>Throughput, latency, resource usage, dan fault tolerance dijadikan panel analitik.</li>
+                                            <li>Memudahkan komparasi RAFT standar vs varian dan opsi SmartBFT di Fabric 3.</li>
+                                        </ul>
+                                    </div>
+                                </article>
+
+                                <article class="presentation-card">
+                                    <div class="flex items-center justify-between gap-4">
+                                        <span class="card-badge">4.5.1</span>
+                                        <h3 class="text-lg font-semibold text-textdark">Throughput</h3>
+                                    </div>
+                                    <div class="card-body mt-4 space-y-3 text-sm text-textdark/70">
+                                        <p>Menghitung TPS = total transaksi / durasi.</p>
+                                        <ul class="space-y-2">
+                                            <li>Ringkasan per network + grafik throughput per data dengan filter kategori beban.</li>
+                                            <li>Menyoroti percepatan atau bottleneck saat konfigurasi batch diubah.</li>
+                                        </ul>
+                                    </div>
+                                </article>
+
+                                <article class="presentation-card">
+                                    <div class="flex items-center justify-between gap-4">
+                                        <span class="card-badge">4.5.2</span>
+                                        <h3 class="text-lg font-semibold text-textdark">Latency</h3>
+                                    </div>
+                                    <div class="card-body mt-4 space-y-3 text-sm text-textdark/70">
+                                        <p>Distribusi waktu respons dari submittedAt ke completedAt.</p>
+                                        <ul class="space-y-2">
+                                            <li>Menampilkan average, min, max, P50, P95, P99 untuk melihat konsistensi.</li>
+                                            <li>Menjelaskan faktor latency: network, endorsement, ordering, block batching, commit.</li>
+                                        </ul>
+                                    </div>
+                                </article>
+
+                                <article class="presentation-card">
+                                    <div class="flex items-center justify-between gap-4">
+                                        <span class="card-badge">4.5.3</span>
+                                        <h3 class="text-lg font-semibold text-textdark">Resource Usage</h3>
+                                    </div>
+                                    <div class="card-body mt-4 space-y-3 text-sm text-textdark/70">
+                                        <p>Monitoring CPU, memory, dan IO dari container docker.</p>
+                                        <ul class="space-y-2">
+                                            <li>Snapshot orderer & peer tiap network untuk mengukur efisiensi konfigurasi.</li>
+                                            <li>Mengaitkan konsumsi resource dengan hasil throughput/latency.</li>
+                                        </ul>
+                                    </div>
+                                </article>
+
+                                <article class="presentation-card">
+                                    <div class="flex items-center justify-between gap-4">
+                                        <span class="card-badge">4.5.4</span>
+                                        <h3 class="text-lg font-semibold text-textdark">Fault Tolerance</h3>
+                                    </div>
+                                    <div class="card-body mt-4 space-y-3 text-sm text-textdark/70">
+                                        <p>Menilai ketahanan RAFT saat terjadi gangguan.</p>
+                                        <ul class="space-y-2">
+                                            <li>Mencatat success rate, failure count, node failure detail, dan recovery time.</li>
+                                            <li>Menunjukkan dampak penghentian orderer leader saat load berjalan.</li>
+                                        </ul>
+                                    </div>
+                                </article>
+                            </div>
+                        </section>
+
+                        <section class="space-y-8">
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-[0.3em] text-highlight/80">Evaluasi Hasil</p>
+                                <h2 class="text-2xl font-semibold text-textdark">Bab 4.6</h2>
+                            </div>
+                            <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                                <article class="presentation-card">
+                                    <div class="flex items-center justify-between gap-4">
+                                        <span class="card-badge">4.6</span>
+                                        <h3 class="text-lg font-semibold text-textdark">Struktur Evaluasi</h3>
+                                    </div>
+                                    <div class="card-body mt-4 space-y-3 text-sm text-textdark/70">
+                                        <p>Pembuka untuk dua halaman akhir.</p>
+                                        <ul class="space-y-2">
+                                            <li>Mengarahkan pembaca ke Ringkasan Hasil (4.6.1) dan Implikasi Penelitian (4.6.2).</li>
+                                            <li>Menekankan bahwa data terbaru harus dimuat dari hasil simulasi sebelum dianalisis.</li>
+                                        </ul>
+                                    </div>
+                                </article>
+
+                                <article class="presentation-card">
+                                    <div class="flex items-center justify-between gap-4">
+                                        <span class="card-badge">4.6.1</span>
+                                        <h3 class="text-lg font-semibold text-textdark">Ringkasan Hasil</h3>
+                                    </div>
+                                    <div class="card-body mt-4 space-y-3 text-sm text-textdark/70">
+                                        <p>Panel statistik menyeluruh.</p>
+                                        <ul class="space-y-2">
+                                            <li>Tombol “Muat Data” → statistik global, tabel perbandingan network, breakdown kategori beban.</li>
+                                            <li>Menyajikan nilai TPS, latency, CPU, mem untuk langsung disisipkan ke slide.</li>
+                                        </ul>
+                                    </div>
+                                </article>
+
+                                <article class="presentation-card">
+                                    <div class="flex items-center justify-between gap-4">
+                                        <span class="card-badge">4.6.2</span>
+                                        <h3 class="text-lg font-semibold text-textdark">Implikasi Penelitian</h3>
+                                    </div>
+                                    <div class="card-body mt-4 space-y-3 text-sm text-textdark/70">
+                                        <p>Menutup paparan dengan insight strategis.</p>
+                                        <ul class="space-y-2">
+                                            <li>Merangkum temuan utama, analisis performa, insight skalabilitas, dan rekomendasi produksi.</li>
+                                            <li>Menawarkan arah penelitian lanjutan: adaptive batching, hybrid consensus, auto-scaling, ML tuning.</li>
+                                        </ul>
+                                    </div>
+                                </article>
+                            </div>
+                        </section>
+                    </div>
+                </main>
+
+                <div data-component="footer"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/layout.js" defer></script>
+    <script src="/js/navigation.js" defer></script>
+</body>
+</html>

@@ -472,9 +472,8 @@
     <script src="/js/layout.js" defer></script>
     <script src="/js/navigation.js" defer></script>
     <script>
-        let simulationData = null;
+        let processedNetworks = [];
 
-        // API endpoints untuk masing-masing network
         const networkEndpoints = {
             'channel-standard': '/api/fabric-2/raft-standard/pelaporan',
             'channel-variant': '/api/fabric-2/raft-variant/pelaporan',
@@ -482,7 +481,20 @@
             'channel-fabric3-variant': '/api/fabric-3/raft-variant/pelaporan'
         };
 
-        // Load simulation results
+        const networkDisplayNames = {
+            'channel-standard': 'Fabric 2 Standard',
+            'channel-variant': 'Fabric 2 Variant',
+            'channel-fabric3-standard': 'Fabric 3 Standard',
+            'channel-fabric3-variant': 'Fabric 3 Variant'
+        };
+
+        const networkKeyMapping = {
+            'channel-standard': 'f2std',
+            'channel-variant': 'f2var',
+            'channel-fabric3-standard': 'f3std',
+            'channel-fabric3-variant': 'f3var'
+        };
+
         document.getElementById('loadResultsButton').addEventListener('click', async () => {
             Swal.fire({
                 title: 'Memuat Data...',
@@ -496,47 +508,26 @@
             });
 
             try {
-                // Fetch data dari semua network endpoints
                 const networkIds = Object.keys(networkEndpoints);
                 const fetchPromises = networkIds.map(async (networkId) => {
                     const url = networkEndpoints[networkId];
                     try {
                         const response = await fetch(url);
                         const data = await response.json();
-                        return {
-                            networkId,
-                            success: data.success,
-                            data: data
-                        };
+                        return { networkId, data };
                     } catch (error) {
                         console.error(`Error fetching from ${networkId}:`, error);
-                        return {
-                            networkId,
-                            success: false,
-                            error: error.message
-                        };
+                        return { networkId, data: null };
                     }
                 });
 
-                const results = await Promise.all(fetchPromises);
+                const responses = await Promise.all(fetchPromises);
+                const networks = responses
+                    .map(({ networkId, data }) => transformNetworkPayload(networkId, data))
+                    .filter(Boolean);
 
-                // Filter hasil yang berhasil
-                const successResults = results.filter(r => r.success && r.data.records && r.data.records.length > 0);
-
-                if (successResults.length > 0) {
-                    simulationData = successResults;
-                    processAndDisplayResults(simulationData);
-
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Data Berhasil Dimuat',
-                        text: `${successResults.length} network berhasil dimuat`,
-                        background: '#0F172A',
-                        color: '#E2E8F0',
-                        confirmButtonColor: '#38BDF8',
-                        timer: 2000
-                    });
-                } else {
+                if (networks.length === 0) {
+                    hideSections();
                     Swal.fire({
                         icon: 'warning',
                         title: 'Data Tidak Ditemukan',
@@ -545,9 +536,24 @@
                         color: '#E2E8F0',
                         confirmButtonColor: '#38BDF8'
                     });
+                    return;
                 }
+
+                processedNetworks = networks;
+                displayAllSections(processedNetworks);
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Data Berhasil Dimuat',
+                    text: `${networks.length} network berhasil dimuat`,
+                    background: '#0F172A',
+                    color: '#E2E8F0',
+                    confirmButtonColor: '#38BDF8',
+                    timer: 2000
+                });
             } catch (error) {
                 console.error('Error loading results:', error);
+                hideSections();
                 Swal.fire({
                     icon: 'error',
                     title: 'Gagal Memuat Data',
@@ -559,110 +565,90 @@
             }
         });
 
-        function processAndDisplayResults(networkResults) {
-            // Calculate overall statistics dari semua network
-            let totalTransactions = 0;
-            let totalSuccess = 0;
-            let allThroughputValues = [];
-            let allLatencyValues = [];
+        function transformNetworkPayload(networkId, payload) {
+            if (!payload || !payload.success || !Array.isArray(payload.records) || payload.records.length === 0) {
+                return null;
+            }
 
-            networkResults.forEach(result => {
-                const data = result.data;
-                if (data && data.records) {
-                    const records = data.records;
-                    totalTransactions += records.length;
+            const records = payload.records;
+            const throughput = computeThroughputStats(records);
+            const latency = computeLatencyStats(records);
+            const resource = computeResourceUsageStats(records);
+            const fault = computeFaultToleranceStats(records);
 
-                    // Hitung transaksi sukses (status bukan 'failed')
-                    const successRecords = records.filter(r => r.status === 'success' || r.status === 'completed' || !r.status || r.status !== 'failed');
-                    totalSuccess += successRecords.length;
-
-                    // Ambil throughput dari data yang sudah dihitung
-                    if (data.data_throughput && data.data_throughput.transactionsPerSecond) {
-                        allThroughputValues.push(data.data_throughput.transactionsPerSecond);
-                    }
-
-                    // Ambil latency dari data yang sudah dihitung
-                    if (data.data_latency && data.data_latency.averageLatencyMs) {
-                        allLatencyValues.push(data.data_latency.averageLatencyMs);
-                    }
-                }
-            });
-
-            const successRate = totalTransactions > 0 ? (totalSuccess / totalTransactions * 100).toFixed(2) : 0;
-            const avgThroughput = allThroughputValues.length > 0
-                ? (allThroughputValues.reduce((a, b) => a + b, 0) / allThroughputValues.length).toFixed(2)
-                : 0;
-            const avgLatency = allLatencyValues.length > 0
-                ? (allLatencyValues.reduce((a, b) => a + b, 0) / allLatencyValues.length).toFixed(2)
-                : 0;
-
-            // Update overall stats
-            document.getElementById('totalTransactions').textContent = totalTransactions.toLocaleString();
-            document.getElementById('successRate').textContent = `${successRate}%`;
-            document.getElementById('avgThroughput').textContent = `${avgThroughput} TPS`;
-            document.getElementById('avgLatency').textContent = `${avgLatency} ms`;
-
-            document.getElementById('overallStats').classList.remove('hidden');
-
-            // Process network comparison
-            displayNetworkComparison(networkResults);
-
-            // Display analysis summary per parameter
-            displayAnalysisSummary(networkResults);
-
-            // Display load category breakdown
-            displayLoadCategoryBreakdown(networkResults);
+            return {
+                networkId,
+                label: payload.label || networkDisplayNames[networkId] || networkId,
+                records,
+                throughput,
+                latency,
+                resource,
+                fault
+            };
         }
 
-        function displayNetworkComparison(networkResults) {
-            const networkNames = {
-                'channel-standard': 'Fabric 2 Standard',
-                'channel-variant': 'Fabric 2 Variant',
-                'channel-fabric3-standard': 'Fabric 3 Standard',
-                'channel-fabric3-variant': 'Fabric 3 Variant'
-            };
+        function hideSections() {
+            document.getElementById('overallStats').classList.add('hidden');
+            document.getElementById('networkComparison').classList.add('hidden');
+            document.getElementById('analysisSummary').classList.add('hidden');
+            document.getElementById('loadCategoryBreakdown').classList.add('hidden');
+        }
 
+        function displayAllSections(networkSummaries) {
+            updateOverallStats(networkSummaries);
+            displayNetworkComparison(networkSummaries);
+            displayAnalysisSummary(networkSummaries);
+            displayLoadCategoryBreakdown(networkSummaries);
+        }
+
+        function updateOverallStats(networkSummaries) {
+            const totalTransactions = networkSummaries.reduce((sum, net) => sum + net.throughput.totalTransactions, 0);
+            const totalSuccess = networkSummaries.reduce((sum, net) => sum + net.throughput.successfulTransactions, 0);
+            const successRate = totalTransactions > 0 ? (totalSuccess / totalTransactions) * 100 : 0;
+
+            const throughputValues = networkSummaries
+                .map(net => net.throughput.transactionsPerSecond)
+                .filter(value => Number.isFinite(value) && value > 0);
+            const avgThroughput = throughputValues.length > 0
+                ? throughputValues.reduce((sum, value) => sum + value, 0) / throughputValues.length
+                : 0;
+
+            const latencyValues = [];
+            networkSummaries.forEach(net => {
+                if (net.latency.hasData) {
+                    latencyValues.push(...net.latency.values);
+                }
+            });
+            const avgLatency = latencyValues.length > 0
+                ? latencyValues.reduce((sum, value) => sum + value, 0) / latencyValues.length
+                : 0;
+
+            document.getElementById('totalTransactions').textContent = totalTransactions.toLocaleString();
+            document.getElementById('successRate').textContent = `${successRate.toFixed(2)}%`;
+            document.getElementById('avgThroughput').textContent = throughputValues.length > 0 ? `${avgThroughput.toFixed(2)} TPS` : '-';
+            document.getElementById('avgLatency').textContent = latencyValues.length > 0 ? `${avgLatency.toFixed(2)} ms` : '-';
+
+            document.getElementById('overallStats').classList.remove('hidden');
+        }
+
+        function displayNetworkComparison(networkSummaries) {
             const tableBody = document.getElementById('networkComparisonTable');
             tableBody.innerHTML = '';
 
-            networkResults.forEach(result => {
-                const networkId = result.networkId;
-                const data = result.data;
-
-                if (!data || !data.records) return;
-
-                const records = data.records;
-                const totalTx = records.length;
-
-                // Hitung TPS dari data_throughput yang sudah dihitung
-                const avgTPS = data.data_throughput && data.data_throughput.transactionsPerSecond
-                    ? data.data_throughput.transactionsPerSecond
-                    : 0;
-
-                // Ambil Latency dari data_latency yang sudah dihitung
-                const avgLatency = data.data_latency && data.data_latency.averageLatencyMs
-                    ? data.data_latency.averageLatencyMs
-                    : 0;
-
-                // Ambil CPU dari data_resource_usage yang sudah dihitung
-                const avgCPU = data.data_resource_usage && data.data_resource_usage.averageCPU
-                    ? data.data_resource_usage.averageCPU
-                    : 0;
-
-                // Ambil Memory dari data_resource_usage yang sudah dihitung
-                const avgMemory = data.data_resource_usage && data.data_resource_usage.averageMemory
-                    ? data.data_resource_usage.averageMemory
-                    : 0;
+            networkSummaries.forEach(net => {
+                if (net.throughput.totalTransactions === 0) {
+                    return;
+                }
 
                 const row = document.createElement('tr');
                 row.className = 'border-b border-white/5';
                 row.innerHTML = `
-                    <td class="py-3 text-textdark">${networkNames[networkId] || data.label || networkId}</td>
-                    <td class="py-3 text-right text-textdark/80">${totalTx.toLocaleString()}</td>
-                    <td class="py-3 text-right text-textdark/80">${avgTPS.toFixed(2)}</td>
-                    <td class="py-3 text-right text-textdark/80">${avgLatency.toFixed(2)} ms</td>
-                    <td class="py-3 text-right text-textdark/80">${avgCPU.toFixed(2)}%</td>
-                    <td class="py-3 text-right text-textdark/80">${avgMemory.toFixed(2)} MB</td>
+                    <td class="py-3 text-textdark">${net.label}</td>
+                    <td class="py-3 text-right text-textdark/80">${net.throughput.totalTransactions.toLocaleString()}</td>
+                    <td class="py-3 text-right text-textdark/80">${formatNumber(net.throughput.transactionsPerSecond)} TPS</td>
+                    <td class="py-3 text-right text-textdark/80">${formatNumber(net.latency.averageLatencyMs)} ms</td>
+                    <td class="py-3 text-right text-textdark/80">${formatNumber(net.resource.averageCPU)}%</td>
+                    <td class="py-3 text-right text-textdark/80">${formatNumber(net.resource.averageMemory)} MB</td>
                 `;
                 tableBody.appendChild(row);
             });
@@ -670,14 +656,11 @@
             document.getElementById('networkComparison').classList.remove('hidden');
         }
 
-        function displayAnalysisSummary(networkResults) {
-            const networkMapping = {
-                'channel-standard': 'f2std',
-                'channel-variant': 'f2var',
-                'channel-fabric3-standard': 'f3std',
-                'channel-fabric3-variant': 'f3var'
-            };
+        function formatNumber(value, digits = 2) {
+            return Number.isFinite(value) ? value.toFixed(digits) : '-';
+        }
 
+        function displayAnalysisSummary(networkSummaries) {
             const metrics = {
                 throughput: {},
                 latency: {},
@@ -686,47 +669,18 @@
                 successRate: {}
             };
 
-            // Collect data per network dari data yang sudah dihitung
-            networkResults.forEach(result => {
-                const networkId = result.networkId;
-                const networkKey = networkMapping[networkId];
-                const data = result.data;
+            networkSummaries.forEach(net => {
+                const key = networkKeyMapping[net.networkId];
+                if (!key) return;
 
-                if (!data || !data.records || !networkKey) return;
-
-                const records = data.records;
-                const totalRecords = records.length;
-
-                // Ambil Throughput dari data yang sudah dihitung
-                metrics.throughput[networkKey] = data.data_throughput && data.data_throughput.transactionsPerSecond
-                    ? data.data_throughput.transactionsPerSecond
-                    : 0;
-
-                // Ambil Latency dari data yang sudah dihitung
-                metrics.latency[networkKey] = data.data_latency && data.data_latency.averageLatencyMs
-                    ? data.data_latency.averageLatencyMs
-                    : 0;
-
-                // Ambil CPU dari data yang sudah dihitung
-                metrics.cpu[networkKey] = data.data_resource_usage && data.data_resource_usage.averageCPU
-                    ? data.data_resource_usage.averageCPU
-                    : 0;
-
-                // Ambil Memory dari data yang sudah dihitung
-                metrics.memory[networkKey] = data.data_resource_usage && data.data_resource_usage.averageMemory
-                    ? data.data_resource_usage.averageMemory
-                    : 0;
-
-                // Calculate Success Rate dari detail status transaksi
-                const successRecords = records.filter(r => r.status === 'success' || r.status === 'completed' || !r.status || r.status !== 'failed');
-                const successRate = totalRecords > 0 ? (successRecords.length / totalRecords * 100).toFixed(2) : 0;
-                metrics.successRate[networkKey] = successRate;
+                metrics.throughput[key] = Number.isFinite(net.throughput.transactionsPerSecond) ? net.throughput.transactionsPerSecond : null;
+                metrics.latency[key] = net.latency.hasData ? net.latency.averageLatencyMs : null;
+                metrics.cpu[key] = net.resource.hasData ? net.resource.averageCPU : null;
+                metrics.memory[key] = net.resource.hasData ? net.resource.averageMemory : null;
+                metrics.successRate[key] = net.fault.hasData ? net.fault.successRate : null;
             });
 
-            // Update UI elements
             updateMetricElements(metrics);
-
-            // Generate analysis text
             generateThroughputAnalysis(metrics.throughput);
             generateLatencyAnalysis(metrics.latency);
             generateResourceAnalysis(metrics.cpu, metrics.memory);
@@ -746,47 +700,47 @@
             Object.keys(elementMapping).forEach(networkKey => {
                 const suffix = elementMapping[networkKey].suffix;
 
-                // Update Throughput
                 const throughputEl = document.getElementById(`throughput${suffix}`);
-                if (throughputEl && metrics.throughput[networkKey] !== undefined) {
-                    throughputEl.textContent = `${metrics.throughput[networkKey].toFixed(2)} TPS`;
+                if (throughputEl) {
+                    const value = metrics.throughput[networkKey];
+                    throughputEl.textContent = Number.isFinite(value) ? `${value.toFixed(2)} TPS` : '-';
                 }
 
-                // Update Latency
                 const latencyEl = document.getElementById(`latency${suffix}`);
-                if (latencyEl && metrics.latency[networkKey] !== undefined) {
-                    latencyEl.textContent = `${metrics.latency[networkKey].toFixed(2)} ms`;
+                if (latencyEl) {
+                    const value = metrics.latency[networkKey];
+                    latencyEl.textContent = Number.isFinite(value) ? `${value.toFixed(2)} ms` : '-';
                 }
 
-                // Update CPU
                 const cpuEl = document.getElementById(`cpu${suffix}`);
-                if (cpuEl && metrics.cpu[networkKey] !== undefined) {
-                    cpuEl.textContent = `${metrics.cpu[networkKey].toFixed(2)}%`;
+                if (cpuEl) {
+                    const value = metrics.cpu[networkKey];
+                    cpuEl.textContent = Number.isFinite(value) ? `${value.toFixed(2)}%` : '-';
                 }
 
-                // Update Memory
                 const memoryEl = document.getElementById(`memory${suffix}`);
-                if (memoryEl && metrics.memory[networkKey] !== undefined) {
-                    memoryEl.textContent = `${metrics.memory[networkKey].toFixed(2)} MB`;
+                if (memoryEl) {
+                    const value = metrics.memory[networkKey];
+                    memoryEl.textContent = Number.isFinite(value) ? `${value.toFixed(2)} MB` : '-';
                 }
 
-                // Update Fault Tolerance
                 const faultToleranceEl = document.getElementById(`faultTolerance${suffix}`);
-                if (faultToleranceEl && metrics.successRate[networkKey] !== undefined) {
-                    faultToleranceEl.textContent = `${metrics.successRate[networkKey]}%`;
+                if (faultToleranceEl) {
+                    const value = metrics.successRate[networkKey];
+                    faultToleranceEl.textContent = Number.isFinite(value) ? `${value.toFixed(2)}%` : '-';
                 }
             });
         }
 
         function generateThroughputAnalysis(throughputData) {
-            const values = Object.values(throughputData);
+            const values = Object.values(throughputData)
+                .filter(value => Number.isFinite(value));
             if (values.length === 0) return;
 
             const max = Math.max(...values);
             const min = Math.min(...values);
             const avg = values.reduce((a, b) => a + b, 0) / values.length;
 
-            const bestNetwork = Object.keys(throughputData).find(key => throughputData[key] === max);
             const networkLabels = {
                 f2std: 'Fabric 2 Standard',
                 f2var: 'Fabric 2 Variant',
@@ -794,20 +748,22 @@
                 f3var: 'Fabric 3 Variant'
             };
 
-            const analysis = `Hasil analisis throughput menunjukkan bahwa ${networkLabels[bestNetwork]} mencapai performa tertinggi dengan ${max.toFixed(2)} TPS. Rata-rata throughput keseluruhan adalah ${avg.toFixed(2)} TPS dengan rentang ${min.toFixed(2)} - ${max.toFixed(2)} TPS. Perbedaan throughput antar konfigurasi menunjukkan pengaruh optimisasi algoritma konsensus RAFT terhadap kemampuan pemrosesan transaksi. Konfigurasi dengan throughput lebih tinggi mengindikasikan efisiensi yang lebih baik dalam pengelolaan pipeline transaksi dan proses konsensus.`;
+            const bestNetwork = Object.keys(throughputData).find(key => throughputData[key] === max);
+
+            const analysis = `Hasil analisis throughput menunjukkan bahwa ${networkLabels[bestNetwork] || 'salah satu network'} mencapai performa tertinggi dengan ${max.toFixed(2)} TPS. Rata-rata throughput keseluruhan adalah ${avg.toFixed(2)} TPS dengan rentang ${min.toFixed(2)} - ${max.toFixed(2)} TPS. Perbedaan throughput antar konfigurasi menunjukkan pengaruh optimisasi algoritma konsensus RAFT terhadap kemampuan pemrosesan transaksi. Konfigurasi dengan throughput lebih tinggi mengindikasikan efisiensi yang lebih baik dalam pengelolaan pipeline transaksi dan proses konsensus.`;
 
             document.getElementById('throughputAnalysis').textContent = analysis;
         }
 
         function generateLatencyAnalysis(latencyData) {
-            const values = Object.values(latencyData);
+            const values = Object.values(latencyData)
+                .filter(value => Number.isFinite(value));
             if (values.length === 0) return;
 
             const max = Math.max(...values);
             const min = Math.min(...values);
             const avg = values.reduce((a, b) => a + b, 0) / values.length;
 
-            const bestNetwork = Object.keys(latencyData).find(key => latencyData[key] === min);
             const networkLabels = {
                 f2std: 'Fabric 2 Standard',
                 f2var: 'Fabric 2 Variant',
@@ -815,25 +771,26 @@
                 f3var: 'Fabric 3 Variant'
             };
 
-            const analysis = `Analisis latency menunjukkan bahwa ${networkLabels[bestNetwork]} memiliki waktu respons tercepat dengan rata-rata ${min.toFixed(2)} ms. Rata-rata latency keseluruhan adalah ${avg.toFixed(2)} ms dengan rentang ${min.toFixed(2)} - ${max.toFixed(2)} ms. Latency yang lebih rendah mengindikasikan efisiensi dalam proses proposal, endorsement, dan commit transaksi. Perbedaan latency antar konfigurasi dapat disebabkan oleh variasi dalam mekanisme heartbeat, timeout configuration, dan strategi replikasi log pada algoritma RAFT.`;
+            const bestNetwork = Object.keys(latencyData).find(key => latencyData[key] === min);
+
+            const analysis = `Analisis latency menunjukkan bahwa ${networkLabels[bestNetwork] || 'salah satu network'} memiliki waktu respons tercepat dengan rata-rata ${min.toFixed(2)} ms. Rata-rata latency keseluruhan adalah ${avg.toFixed(2)} ms dengan rentang ${min.toFixed(2)} - ${max.toFixed(2)} ms. Latency yang lebih rendah mengindikasikan efisiensi dalam proses proposal, endorsement, dan commit transaksi. Perbedaan latency antar konfigurasi dapat disebabkan oleh variasi dalam mekanisme heartbeat, timeout configuration, dan strategi replikasi log pada algoritma RAFT.`;
 
             document.getElementById('latencyAnalysis').textContent = analysis;
         }
 
         function generateResourceAnalysis(cpuData, memoryData) {
-            const cpuValues = Object.values(cpuData);
-            const memValues = Object.values(memoryData);
-            if (cpuValues.length === 0) return;
+            const cpuValues = Object.values(cpuData).filter(value => Number.isFinite(value));
+            const memValues = Object.values(memoryData).filter(value => Number.isFinite(value));
+            if (cpuValues.length === 0 && memValues.length === 0) return;
 
-            const avgCPU = cpuValues.reduce((a, b) => a + b, 0) / cpuValues.length;
-            const avgMem = memValues.reduce((a, b) => a + b, 0) / memValues.length;
+            const avgCPU = cpuValues.length > 0 ? cpuValues.reduce((a, b) => a + b, 0) / cpuValues.length : 0;
+            const avgMem = memValues.length > 0 ? memValues.reduce((a, b) => a + b, 0) / memValues.length : 0;
 
-            const minCPU = Math.min(...cpuValues);
-            const maxCPU = Math.max(...cpuValues);
-            const minMem = Math.min(...memValues);
-            const maxMem = Math.max(...memValues);
+            const minCPU = cpuValues.length > 0 ? Math.min(...cpuValues) : 0;
+            const maxCPU = cpuValues.length > 0 ? Math.max(...cpuValues) : 0;
+            const minMem = memValues.length > 0 ? Math.min(...memValues) : 0;
+            const maxMem = memValues.length > 0 ? Math.max(...memValues) : 0;
 
-            const mostEfficientCPU = Object.keys(cpuData).find(key => cpuData[key] === minCPU);
             const networkLabels = {
                 f2std: 'Fabric 2 Standard',
                 f2var: 'Fabric 2 Variant',
@@ -841,20 +798,25 @@
                 f3var: 'Fabric 3 Variant'
             };
 
-            const analysis = `Resource usage analysis menunjukkan penggunaan CPU rata-rata ${avgCPU.toFixed(2)}% (rentang ${minCPU.toFixed(2)}% - ${maxCPU.toFixed(2)}%) dan memori rata-rata ${avgMem.toFixed(2)} MB (rentang ${minMem.toFixed(2)} - ${maxMem.toFixed(2)} MB). ${networkLabels[mostEfficientCPU]} menunjukkan efisiensi CPU tertinggi. Penggunaan resource yang lebih rendah dengan throughput tinggi mengindikasikan optimisasi yang baik dalam pengelolaan komputasi dan memori. Analisis ini membantu mengidentifikasi trade-off antara performa dan konsumsi resource untuk menentukan konfigurasi yang paling cost-effective.`;
+            const mostEfficientCPUKey = cpuValues.length > 0
+                ? Object.keys(cpuData).find(key => cpuData[key] === minCPU)
+                : null;
+
+            const analysis = `Resource usage analysis menunjukkan penggunaan CPU rata-rata ${avgCPU.toFixed(2)}% (rentang ${minCPU.toFixed(2)}% - ${maxCPU.toFixed(2)}%) dan memori rata-rata ${avgMem.toFixed(2)} MB (rentang ${minMem.toFixed(2)} - ${maxMem.toFixed(2)} MB). ${networkLabels[mostEfficientCPUKey] || 'Salah satu konfigurasi'} menunjukkan efisiensi CPU tertinggi. Penggunaan resource yang lebih rendah dengan throughput tinggi mengindikasikan optimisasi yang baik dalam pengelolaan komputasi dan memori. Analisis ini membantu mengidentifikasi trade-off antara performa dan konsumsi resource untuk menentukan konfigurasi yang paling cost-effective.`;
 
             document.getElementById('resourceAnalysis').textContent = analysis;
         }
 
         function generateFaultToleranceAnalysis(successRateData) {
-            const values = Object.values(successRateData).map(v => parseFloat(v));
+            const values = Object.values(successRateData)
+                .map(value => Number.isFinite(value) ? value : null)
+                .filter(value => value !== null);
             if (values.length === 0) return;
 
             const max = Math.max(...values);
             const min = Math.min(...values);
             const avg = values.reduce((a, b) => a + b, 0) / values.length;
 
-            const bestNetwork = Object.keys(successRateData).find(key => parseFloat(successRateData[key]) === max);
             const networkLabels = {
                 f2std: 'Fabric 2 Standard',
                 f2var: 'Fabric 2 Variant',
@@ -862,69 +824,229 @@
                 f3var: 'Fabric 3 Variant'
             };
 
-            const analysis = `Fault tolerance evaluation menunjukkan ${networkLabels[bestNetwork]} memiliki success rate tertinggi sebesar ${max.toFixed(2)}%. Rata-rata success rate keseluruhan adalah ${avg.toFixed(2)}% dengan rentang ${min.toFixed(2)}% - ${max.toFixed(2)}%. Success rate tinggi mengindikasikan robustness sistem dalam menghadapi berbagai kondisi termasuk network latency, node failures, dan konkurensi transaksi. Algoritma konsensus RAFT dengan mekanisme leader election dan log replication yang baik akan menghasilkan success rate yang lebih konsisten bahkan dalam kondisi beban tinggi.`;
+            const bestNetwork = Object.keys(successRateData).find(key => successRateData[key] === max);
+
+            const analysis = `Fault tolerance evaluation menunjukkan ${networkLabels[bestNetwork] || 'salah satu network'} memiliki success rate tertinggi sebesar ${max.toFixed(2)}%. Rata-rata success rate keseluruhan adalah ${avg.toFixed(2)}% dengan rentang ${min.toFixed(2)}% - ${max.toFixed(2)}%. Success rate tinggi mengindikasikan robustness sistem dalam menghadapi berbagai kondisi termasuk network latency, node failures, dan konkurensi transaksi. Algoritma konsensus RAFT dengan mekanisme leader election dan log replication yang baik akan menghasilkan success rate yang lebih konsisten bahkan dalam kondisi beban tinggi.`;
 
             document.getElementById('faultToleranceAnalysis').textContent = analysis;
         }
 
-        function displayLoadCategoryBreakdown(networkResults) {
-            const categoryStats = {
-                light: { count: 0, tps: [], latency: [] },
-                medium: { count: 0, tps: [], latency: [] },
-                heavy: { count: 0, tps: [], latency: [] }
-            };
+        function displayLoadCategoryBreakdown(networkSummaries) {
+            if (!networkSummaries || networkSummaries.length === 0) {
+                document.getElementById('loadCategoryBreakdown').classList.add('hidden');
+                return;
+            }
 
-            // Mapping kategori_beban ke kategori yang digunakan
             const categoryMapping = {
                 'ringan': 'light',
                 'sedang': 'medium',
                 'tinggi': 'heavy'
             };
 
-            networkResults.forEach(result => {
-                const data = result.data;
-                if (!data || !data.records) return;
+            const categoryRecords = {
+                light: [],
+                medium: [],
+                heavy: []
+            };
 
-                // Group records by kategori_beban
-                data.records.forEach(record => {
-                    const kategori = categoryMapping[record.kategori_beban] || 'light';
-
-                    if (categoryStats[kategori]) {
-                        categoryStats[kategori].count++;
-
-                        // Ambil latency dari record
-                        if (record.data_latency && record.data_latency.totalLatency) {
-                            categoryStats[kategori].latency.push(record.data_latency.totalLatency);
-                        }
-                    }
+            networkSummaries.forEach(net => {
+                net.records.forEach(record => {
+                    const categoryKey = categoryMapping[record.kategori_beban] || 'light';
+                    categoryRecords[categoryKey].push(record);
                 });
-
-                // Untuk TPS, ambil dari data_throughput per network
-                if (data.data_throughput && data.data_throughput.transactionsPerSecond) {
-                    // Distribusikan TPS ke semua kategori yang ada di network ini
-                    const networkCategories = [...new Set(data.records.map(r => categoryMapping[r.kategori_beban] || 'light'))];
-                    networkCategories.forEach(cat => {
-                        if (categoryStats[cat]) {
-                            categoryStats[cat].tps.push(data.data_throughput.transactionsPerSecond);
-                        }
-                    });
-                }
             });
 
-            Object.entries(categoryStats).forEach(([category, stats]) => {
-                const avgTPS = stats.tps.length > 0
-                    ? (stats.tps.reduce((a, b) => a + b, 0) / stats.tps.length).toFixed(2)
-                    : '-';
-                const avgLatency = stats.latency.length > 0
-                    ? (stats.latency.reduce((a, b) => a + b, 0) / stats.latency.length).toFixed(2)
-                    : '-';
+            Object.entries(categoryRecords).forEach(([category, records]) => {
+                const throughput = computeThroughputStats(records);
+                const latency = computeLatencyStats(records);
 
-                document.getElementById(`${category}Transactions`).textContent = stats.count.toLocaleString();
-                document.getElementById(`${category}TPS`).textContent = avgTPS !== '-' ? `${avgTPS} TPS` : '-';
-                document.getElementById(`${category}Latency`).textContent = avgLatency !== '-' ? `${avgLatency} ms` : '-';
+                const transactionsEl = document.getElementById(`${category}Transactions`);
+                const tpsEl = document.getElementById(`${category}TPS`);
+                const latencyEl = document.getElementById(`${category}Latency`);
+
+                transactionsEl.textContent = records.length ? records.length.toLocaleString() : '0';
+                tpsEl.textContent = throughput.hasData && Number.isFinite(throughput.transactionsPerSecond)
+                    ? `${throughput.transactionsPerSecond.toFixed(2)} TPS`
+                    : '-';
+                latencyEl.textContent = latency.hasData
+                    ? `${latency.averageLatencyMs.toFixed(2)} ms`
+                    : '-';
             });
 
             document.getElementById('loadCategoryBreakdown').classList.remove('hidden');
+        }
+
+        function computeThroughputStats(records = []) {
+            const safeRecords = Array.isArray(records) ? records : [];
+            let earliest = null;
+            let latest = null;
+            let successCount = 0;
+            let failureCount = 0;
+
+            safeRecords.forEach(record => {
+                const status = typeof record?.status === 'string' ? record.status.toLowerCase() : '';
+                const hasFailure = status === 'failed';
+                if (hasFailure) {
+                    failureCount++;
+                } else {
+                    successCount++;
+                }
+
+                const { submitTime, completeTime } = resolveRecordTimestamps(record);
+                if (submitTime !== null && (earliest === null || submitTime < earliest)) {
+                    earliest = submitTime;
+                }
+                if (completeTime !== null && (latest === null || completeTime > latest)) {
+                    latest = completeTime;
+                }
+            });
+
+            const durationSeconds = earliest !== null && latest !== null && latest > earliest
+                ? (latest - earliest) / 1000
+                : 0;
+
+            const transactionsPerSecond = durationSeconds > 0
+                ? safeRecords.length / durationSeconds
+                : 0;
+
+            return {
+                hasData: safeRecords.length > 0,
+                totalTransactions: safeRecords.length,
+                successfulTransactions: successCount,
+                failedTransactions: failureCount,
+                durationSeconds,
+                transactionsPerSecond
+            };
+        }
+
+        function resolveRecordTimestamps(record) {
+            const submittedAtCandidates = [
+                record?.submittedAt,
+                record?.networkMetadata?.submittedAt,
+                record?.data_throughput?.submittedAt,
+                record?.timestamp
+            ];
+            const completedAtCandidates = [
+                record?.completedAt,
+                record?.networkMetadata?.completedAt,
+                record?.data_throughput?.completedAt,
+                record?.blockchainMetadata?.blockTimestamp
+            ];
+
+            return {
+                submitTime: findFirstValidTimestamp(submittedAtCandidates),
+                completeTime: findFirstValidTimestamp(completedAtCandidates)
+            };
+        }
+
+        function findFirstValidTimestamp(candidates) {
+            for (const value of candidates) {
+                if (!value) continue;
+                const time = typeof value === 'number' ? value : Date.parse(value);
+                if (Number.isFinite(time)) {
+                    return time;
+                }
+            }
+            return null;
+        }
+
+        function computeLatencyStats(records = []) {
+            const latencies = (Array.isArray(records) ? records : [])
+                .map(record => {
+                    if (record?.data_latency && typeof record.data_latency.totalLatency === 'number') {
+                        return record.data_latency.totalLatency;
+                    }
+                    return null;
+                })
+                .filter(value => typeof value === 'number' && Number.isFinite(value) && value >= 0);
+
+            if (latencies.length === 0) {
+                return {
+                    hasData: false,
+                    averageLatencyMs: 0,
+                    minLatencyMs: 0,
+                    maxLatencyMs: 0,
+                    p50LatencyMs: 0,
+                    p95LatencyMs: 0,
+                    p99LatencyMs: 0,
+                    values: []
+                };
+            }
+
+            const sorted = [...latencies].sort((a, b) => a - b);
+            const average = latencies.reduce((sum, value) => sum + value, 0) / latencies.length;
+
+            return {
+                hasData: true,
+                averageLatencyMs: average,
+                minLatencyMs: sorted[0],
+                maxLatencyMs: sorted[sorted.length - 1],
+                p50LatencyMs: getPercentile(sorted, 0.5),
+                p95LatencyMs: getPercentile(sorted, 0.95),
+                p99LatencyMs: getPercentile(sorted, 0.99),
+                values: latencies
+            };
+        }
+
+        function getPercentile(sortedValues, percentile) {
+            if (!sortedValues.length) return 0;
+            const index = Math.min(sortedValues.length - 1, Math.floor(sortedValues.length * percentile));
+            return sortedValues[index];
+        }
+
+        function computeResourceUsageStats(records = []) {
+            let totalCPU = 0;
+            let totalMemory = 0;
+            let cpuCount = 0;
+            let memoryCount = 0;
+
+            (Array.isArray(records) ? records : []).forEach(record => {
+                if (!record?.data_resource_usage) return;
+
+                const cpuValue = record.data_resource_usage.cpuUsagePercent;
+                if (Number.isFinite(cpuValue)) {
+                    totalCPU += cpuValue;
+                    cpuCount++;
+                }
+
+                const memoryValue = record.data_resource_usage.memoryUsageMB;
+                if (Number.isFinite(memoryValue)) {
+                    totalMemory += memoryValue;
+                    memoryCount++;
+                }
+            });
+
+            return {
+                hasData: cpuCount > 0 || memoryCount > 0,
+                averageCPU: cpuCount > 0 ? totalCPU / cpuCount : null,
+                averageMemory: memoryCount > 0 ? totalMemory / memoryCount : null
+            };
+        }
+
+        function computeFaultToleranceStats(records = []) {
+            let successCount = 0;
+            let failureCount = 0;
+
+            (Array.isArray(records) ? records : []).forEach(record => {
+                const status = typeof record?.status === 'string' ? record.status.toLowerCase() : '';
+                const hasFault = status === 'failed' || Boolean(record?.data_fault_tolerance?.failureType);
+
+                if (hasFault) {
+                    failureCount++;
+                } else {
+                    successCount++;
+                }
+            });
+
+            const total = successCount + failureCount;
+            const successRate = total > 0 ? (successCount / total) * 100 : null;
+
+            return {
+                hasData: total > 0,
+                successRate,
+                successCount,
+                failureCount
+            };
         }
     </script>
 </body>

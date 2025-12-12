@@ -312,26 +312,26 @@
                                                         <text x="125" y="660" text-anchor="middle" fill="#BAE6FD" font-size="11">Input</text>
                                                     </g>
 
-                                                    <!-- Arrows RAFT Phase (siku-siku) -->
-                                                    <path d="M250,110 L300,110 L300,100 L350,100" stroke="#38BDF8" stroke-width="2" fill="none" marker-end="url(#arrowRaft)"/>
-                                                    <path d="M250,110 L500,110 L500,100 L550,100" stroke="#38BDF8" stroke-width="2" fill="none" marker-end="url(#arrowRaft)"/>
-                                                    <path d="M250,110 L700,110 L700,100 L750,100" stroke="#38BDF8" stroke-width="2" fill="none" marker-end="url(#arrowRaft)"/>
-                                                    <text x="500" y="85" text-anchor="middle" fill="#38BDF8" font-size="12">RAFT: Log Replication</text>
+                                                    <!-- Arrows RAFT Phase (siku-siku, jalur atas tidak melewati kotak) -->
+                                                    <path d="M250,50 L250,30 L350,30 L350,50" stroke="#38BDF8" stroke-width="2" fill="none" marker-end="url(#arrowRaft)"/>
+                                                    <path d="M250,50 L250,30 L550,30 L550,50" stroke="#38BDF8" stroke-width="2" fill="none" marker-end="url(#arrowRaft)"/>
+                                                    <path d="M250,50 L250,30 L750,30 L750,50" stroke="#38BDF8" stroke-width="2" fill="none" marker-end="url(#arrowRaft)"/>
+                                                    <text x="500" y="20" text-anchor="middle" fill="#38BDF8" font-size="12">RAFT: Log Replication</text>
 
-                                                    <!-- Arrows BFT Phase (siku-siku) -->
-                                                    <path d="M250,310 L300,310 L300,300 L350,300" stroke="#10B981" stroke-width="2" fill="none" marker-end="url(#arrowBFT)"/>
-                                                    <path d="M250,310 L500,310 L500,300 L550,300" stroke="#10B981" stroke-width="2" fill="none" marker-end="url(#arrowBFT)"/>
-                                                    <path d="M250,310 L700,310 L700,300 L750,300" stroke="#10B981" stroke-width="2" fill="none" marker-end="url(#arrowBFT)"/>
-                                                    <text x="500" y="285" text-anchor="middle" fill="#10B981" font-size="12">SmartBFT: Proposal & Validation</text>
+                                                    <!-- Arrows BFT Phase (siku-siku, jalur bawah tidak melewati kotak) -->
+                                                    <path d="M250,370 L250,390 L350,390 L350,370" stroke="#10B981" stroke-width="2" fill="none" marker-end="url(#arrowBFT)"/>
+                                                    <path d="M250,370 L250,390 L550,390 L550,370" stroke="#10B981" stroke-width="2" fill="none" marker-end="url(#arrowBFT)"/>
+                                                    <path d="M250,370 L250,390 L750,390 L750,370" stroke="#10B981" stroke-width="2" fill="none" marker-end="url(#arrowBFT)"/>
+                                                    <text x="500" y="410" text-anchor="middle" fill="#10B981" font-size="12">SmartBFT: Proposal & Validation</text>
 
-                                                    <!-- Arrows to Commit (lurus vertikal) -->
-                                                    <path d="M425,350 L425,450 L475,450" stroke="#6366F1" stroke-width="2" fill="none" marker-end="url(#arrowRaft)"/>
-                                                    <path d="M625,350 L625,450 L550,450" stroke="#6366F1" stroke-width="2" fill="none" marker-end="url(#arrowRaft)"/>
-                                                    <path d="M825,350 L825,450 L625,450" stroke="#6366F1" stroke-width="2" fill="none" marker-end="url(#arrowRaft)"/>
+                                                    <!-- Arrows to Commit (siku-siku, tidak melewati kotak) -->
+                                                    <path d="M425,350 L425,430 L475,430 L475,450" stroke="#6366F1" stroke-width="2" fill="none" marker-end="url(#arrowRaft)"/>
+                                                    <path d="M625,350 L625,430 L550,430 L550,450" stroke="#6366F1" stroke-width="2" fill="none" marker-end="url(#arrowRaft)"/>
+                                                    <path d="M825,350 L825,430 L625,430 L625,450" stroke="#6366F1" stroke-width="2" fill="none" marker-end="url(#arrowRaft)"/>
 
-                                                    <!-- Transaction to Leader (lurus vertikal) -->
-                                                    <path d="M125,600 L125,170" stroke="#38BDF8" stroke-width="2" fill="none" marker-end="url(#arrowRaft)" stroke-dasharray="3,3"/>
-                                                    <text x="30" y="385" fill="#38BDF8" font-size="11">Transaction</text>
+                                                    <!-- Transaction to SmartBFT (siku-siku, tidak melewati kotak, melalui kiri) -->
+                                                    <path d="M50,600 L50,550 L30,550 L30,310 L50,310 L250,310" stroke="#38BDF8" stroke-width="2" fill="none" marker-end="url(#arrowRaft)" stroke-dasharray="3,3"/>
+                                                    <text x="20" y="575" fill="#38BDF8" font-size="11">Transaction</text>
                                                 </svg>
                                             </div>
                                         </div>
@@ -559,31 +559,31 @@
                                                         <text x="125" y="710" text-anchor="middle" fill="#BAE6FD" font-size="11">Batch Input</text>
                                                     </g>
 
-                                                    <!-- Arrows - Batch Queue to Leader (siku-siku) -->
-                                                    <path d="M230,100 L265,100 L265,110 L300,110" stroke="#F59E0B" stroke-width="2" fill="none" marker-end="url(#arrowRaftV3)"/>
+                                                    <!-- Arrows - Batch Queue to Leader (siku-siku, tidak melewati kotak) -->
+                                                    <path d="M230,100 L280,100 L280,110 L300,110" stroke="#F59E0B" stroke-width="2" fill="none" marker-end="url(#arrowRaftV3)"/>
                                                     <text x="265" y="95" fill="#FCD34D" font-size="11">Batch Ready</text>
 
-                                                    <!-- Leader to Followers - Batch Replication (siku-siku) -->
-                                                    <path d="M500,110 L550,110 L550,100 L600,100" stroke="#38BDF8" stroke-width="2" fill="none" marker-end="url(#arrowRaftV3)"/>
-                                                    <path d="M500,110 L750,110 L750,100 L800,100" stroke="#38BDF8" stroke-width="2" fill="none" marker-end="url(#arrowRaftV3)"/>
-                                                    <text x="650" y="85" text-anchor="middle" fill="#38BDF8" font-size="12">Parallel Batch Replication</text>
+                                                    <!-- Leader to Followers - Batch Replication (siku-siku, jalur atas tidak melewati kotak) -->
+                                                    <path d="M500,50 L500,30 L600,30 L600,50" stroke="#38BDF8" stroke-width="2" fill="none" marker-end="url(#arrowRaftV3)"/>
+                                                    <path d="M500,50 L500,30 L800,30 L800,50" stroke="#38BDF8" stroke-width="2" fill="none" marker-end="url(#arrowRaftV3)"/>
+                                                    <text x="650" y="20" text-anchor="middle" fill="#38BDF8" font-size="12">Parallel Batch Replication</text>
 
-                                                    <!-- SmartBFT to Validators (siku-siku) -->
-                                                    <path d="M500,310 L550,310 L550,300 L600,300" stroke="#10B981" stroke-width="2" fill="none" marker-end="url(#arrowBFTV3)"/>
-                                                    <path d="M500,310 L750,310 L750,300 L800,300" stroke="#10B981" stroke-width="2" fill="none" marker-end="url(#arrowBFTV3)"/>
-                                                    <text x="650" y="285" text-anchor="middle" fill="#10B981" font-size="12">Parallel Proposal & Validation</text>
+                                                    <!-- SmartBFT to Validators (siku-siku, jalur bawah tidak melewati kotak) -->
+                                                    <path d="M500,370 L500,390 L600,390 L600,370" stroke="#10B981" stroke-width="2" fill="none" marker-end="url(#arrowBFTV3)"/>
+                                                    <path d="M500,370 L500,390 L800,390 L800,370" stroke="#10B981" stroke-width="2" fill="none" marker-end="url(#arrowBFTV3)"/>
+                                                    <text x="650" y="410" text-anchor="middle" fill="#10B981" font-size="12">Parallel Proposal & Validation</text>
 
-                                                    <!-- Validators to Commit (siku-siku) -->
-                                                    <path d="M675,350 L675,400 L525,400 L525,450" stroke="#6366F1" stroke-width="2" fill="none" marker-end="url(#arrowRaftV3)"/>
-                                                    <path d="M875,350 L875,400 L575,400 L575,450" stroke="#6366F1" stroke-width="2" fill="none" marker-end="url(#arrowRaftV3)"/>
+                                                    <!-- Validators to Commit (siku-siku, tidak melewati kotak) -->
+                                                    <path d="M675,350 L675,430 L525,430 L525,450" stroke="#6366F1" stroke-width="2" fill="none" marker-end="url(#arrowRaftV3)"/>
+                                                    <path d="M875,350 L875,430 L575,430 L575,450" stroke="#6366F1" stroke-width="2" fill="none" marker-end="url(#arrowRaftV3)"/>
 
                                                     <!-- Commit to Snapshot (lurus vertikal) -->
                                                     <path d="M550,570 L550,620" stroke="#10B981" stroke-width="2" fill="none" marker-end="url(#arrowBFTV3)"/>
                                                     <text x="570" y="595" fill="#6EE7B7" font-size="11">Snapshot Creation</text>
 
-                                                    <!-- Transactions to Batch Queue (lurus vertikal) -->
-                                                    <path d="M125,650 L125,170" stroke="#38BDF8" stroke-width="2" fill="none" marker-end="url(#arrowRaftV3)" stroke-dasharray="3,3"/>
-                                                    <text x="30" y="410" fill="#38BDF8" font-size="11">Batch Transactions</text>
+                                                    <!-- Transactions to Batch Queue (siku-siku, tidak melewati kotak, melalui kiri) -->
+                                                    <path d="M50,650 L50,600 L30,600 L30,100 L50,100 L230,100" stroke="#38BDF8" stroke-width="2" fill="none" marker-end="url(#arrowRaftV3)" stroke-dasharray="3,3"/>
+                                                    <text x="20" y="625" fill="#38BDF8" font-size="11">Batch Transactions</text>
                                                 </svg>
                                             </div>
                                         </div>

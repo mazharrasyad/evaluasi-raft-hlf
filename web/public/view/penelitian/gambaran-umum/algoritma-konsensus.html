@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluasi RAFT HLF — Algoritma Konsensus RAFT</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#38BDF8',
+                        secondary: '#6366F1',
+                        accent: '#F59E0B',
+                        highlight: '#F97316',
+                        soft: '#050B16',
+                        surface: '#0F172A',
+                        surfaceMuted: '#16213F',
+                        border: '#1E293B',
+                        muted: '#94A3B8',
+                        textdark: '#E2E8F0'
+                    }
+                }
+            }
+        };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="/images/logo-ai-center.svg">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+
+        .component-link[data-active="true"] {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.28), rgba(56, 189, 248, 0.22));
+            color: #E2E8F0;
+            border-color: rgba(249, 115, 22, 0.45);
+            box-shadow: 0 12px 40px rgba(15, 23, 42, 0.45);
+        }
+
+        .component-link[data-active="true"] .component-link__index {
+            background-color: rgba(249, 115, 22, 0.35);
+            color: #E2E8F0;
+        }
+
+        .pseudocode {
+            background: #0F172A;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            line-height: 1.75;
+            overflow-x: auto;
+        }
+
+        .pseudocode .keyword {
+            color: #38BDF8;
+            font-weight: 600;
+        }
+
+        .pseudocode .comment {
+            color: #94A3B8;
+            font-style: italic;
+        }
+
+        .pseudocode .function {
+            color: #F59E0B;
+        }
+
+        .pseudocode .variable {
+            color: #F97316;
+        }
+    </style>
+</head>
+<body class="bg-soft text-textdark">
+    <div data-component="header"></div>
+    <div class="relative min-h-screen overflow-hidden">
+        <div class="absolute inset-0 -z-10 h-full w-full">
+            <div class="absolute -left-1/3 top-0 h-[720px] w-[720px] rounded-full bg-gradient-to-br from-highlight/30 via-secondary/20 to-transparent opacity-70 blur-3xl"></div>
+            <div class="absolute -right-1/4 bottom-0 h-[620px] w-[620px] rounded-full bg-gradient-to-tr from-accent/35 via-secondary/25 to-primary/20 opacity-70 blur-3xl"></div>
+        </div>
+
+        <div class="flex min-h-screen flex-col lg:flex-row">
+            <div data-component="sidebar"></div>
+
+            <div class="flex-1">
+                <main class="mx-auto w-full max-w-5xl px-6 py-12">
+                    <div class="space-y-10">
+                        <!-- Section 1: Algoritma Konsensus RAFT -->
+                        <section class="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-surface via-soft to-[#020817] p-10 shadow-2xl shadow-black/30">
+                            <div class="flex flex-col gap-6">
+                                <div class="inline-flex w-fit items-center gap-2 rounded-full border border-highlight/40 bg-highlight/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-highlight/90">
+                                    Bab 4.1.1
+                                </div>
+                                <div class="space-y-8">
+                                    <div class="space-y-5">
+                                        <h1 class="text-3xl font-semibold text-textdark md:text-4xl">Algoritma Konsensus RAFT</h1>
+                                        <p class="text-sm text-textdark/70 md:text-base">
+                                            Algoritma konsensus RAFT (Replicated And Fault Tolerant) adalah algoritma konsensus yang dirancang untuk menjaga konsistensi data dalam sistem terdistribusi. RAFT menggunakan mekanisme leader election dan log replication untuk memastikan semua node dalam jaringan memiliki salinan data yang identik. Algoritma ini merupakan crash fault tolerant (CFT), yang berarti dapat menoleransi kegagalan node akibat crash, namun tidak dapat menangani node yang berperilaku jahat (Byzantine fault).
+                                        </p>
+                                    </div>
+
+                                    <!-- Fabric v2 -->
+                                    <div class="space-y-5">
+                                        <h2 class="text-xl font-semibold text-textdark md:text-2xl">Implementasi RAFT pada Hyperledger Fabric v2</h2>
+                                        <p class="text-sm text-textdark/70 md:text-base">
+                                            Hyperledger Fabric v2 mengimplementasikan algoritma konsensus RAFT sebagai mekanisme default untuk ordering service. Implementasi ini menggunakan Raft consensus type yang memungkinkan jaringan blockchain untuk mencapai konsensus tanpa memerlukan Byzantine fault tolerance, sehingga lebih efisien dalam hal throughput dan latency.
+                                        </p>
+
+                                        <div class="space-y-4">
+                                            <h3 class="text-lg font-semibold text-textdark">Pseudocode Algoritma RAFT pada Fabric v2</h3>
+                                            <div class="pseudocode">
+<pre><span class="comment">// Algoritma RAFT pada Hyperledger Fabric v2</span>
+<span class="keyword">class</span> <span class="function">RaftNode</span> {
+    <span class="variable">state</span>: <span class="keyword">enum</span> {FOLLOWER, CANDIDATE, LEADER}
+    <span class="variable">currentTerm</span>: <span class="keyword">int</span>
+    <span class="variable">votedFor</span>: <span class="keyword">NodeId</span> | <span class="keyword">null</span>
+    <span class="variable">log</span>: <span class="keyword">Array</span>&lt;LogEntry&gt;
+    <span class="variable">commitIndex</span>: <span class="keyword">int</span>
+    <span class="variable">lastApplied</span>: <span class="keyword">int</span>
+    <span class="variable">electionTimeout</span>: <span class="keyword">Timer</span>
+    <span class="variable">heartbeatInterval</span>: <span class="keyword">Timer</span>
+
+    <span class="function">onStartup</span>() {
+        <span class="variable">state</span> = FOLLOWER
+        <span class="variable">currentTerm</span> = 0
+        <span class="variable">votedFor</span> = <span class="keyword">null</span>
+        <span class="variable">electionTimeout</span> = <span class="function">random</span>(150ms, 300ms)
+        <span class="function">startElectionTimer</span>()
+    }
+
+    <span class="function">onElectionTimeout</span>() {
+        <span class="keyword">if</span> (<span class="variable">state</span> == FOLLOWER) {
+            <span class="variable">state</span> = CANDIDATE
+            <span class="variable">currentTerm</span>++
+            <span class="variable">votedFor</span> = <span class="keyword">self</span>
+            <span class="variable">votesReceived</span> = 1
+            
+            <span class="keyword">for</span> <span class="variable">node</span> <span class="keyword">in</span> <span class="variable">cluster</span> {
+                <span class="function">sendRequestVote</span>(<span class="variable">node</span>, <span class="variable">currentTerm</span>, 
+                    <span class="variable">log</span>.<span class="function">lastIndex</span>(), 
+                    <span class="variable">log</span>.<span class="function">lastTerm</span>())
+            }
+            
+            <span class="variable">electionTimeout</span> = <span class="function">random</span>(150ms, 300ms)
+            <span class="function">startElectionTimer</span>()
+        }
+    }
+
+    <span class="function">onReceiveVote</span>(<span class="variable">candidateTerm</span>, <span class="variable">candidateId</span>, 
+                     <span class="variable">lastLogIndex</span>, <span class="variable">lastLogTerm</span>) {
+        <span class="keyword">if</span> (<span class="variable">candidateTerm</span> > <span class="variable">currentTerm</span>) {
+            <span class="variable">currentTerm</span> = <span class="variable">candidateTerm</span>
+            <span class="variable">state</span> = FOLLOWER
+            <span class="variable">votedFor</span> = <span class="keyword">null</span>
+        }
+        
+        <span class="keyword">if</span> (<span class="variable">candidateTerm</span> == <span class="variable">currentTerm</span> && 
+            <span class="variable">votedFor</span> == <span class="keyword">null</span> &&
+            <span class="function">isLogUpToDate</span>(<span class="variable">lastLogIndex</span>, <span class="variable">lastLogTerm</span>)) {
+            <span class="variable">votedFor</span> = <span class="variable">candidateId</span>
+            <span class="function">resetElectionTimer</span>()
+            <span class="keyword">return</span> <span class="keyword">true</span>
+        }
+        <span class="keyword">return</span> <span class="keyword">false</span>
+    }
+
+    <span class="function">onReceiveHeartbeat</span>(<span class="variable">leaderTerm</span>, <span class="variable">leaderId</span>, 
+                          <span class="variable">prevLogIndex</span>, <span class="variable">prevLogTerm</span>,
+                          <span class="variable">entries</span>, <span class="variable">leaderCommit</span>) {
+        <span class="keyword">if</span> (<span class="variable">leaderTerm</span> >= <span class="variable">currentTerm</span>) {
+            <span class="variable">state</span> = FOLLOWER
+            <span class="variable">currentTerm</span> = <span class="variable">leaderTerm</span>
+            <span class="function">resetElectionTimer</span>()
+        }
+        
+        <span class="keyword">if</span> (<span class="variable">leaderTerm</span> == <span class="variable">currentTerm</span> && 
+            <span class="variable">state</span> != FOLLOWER) {
+            <span class="variable">state</span> = FOLLOWER
+        }
+        
+        <span class="keyword">if</span> (<span class="function">matchLog</span>(<span class="variable">prevLogIndex</span>, <span class="variable">prevLogTerm</span>)) {
+            <span class="function">appendEntries</span>(<span class="variable">entries</span>)
+            <span class="variable">commitIndex</span> = <span class="function">min</span>(<span class="variable">leaderCommit</span>, 
+                <span class="variable">log</span>.<span class="function">lastIndex</span>())
+            <span class="keyword">return</span> <span class="keyword">true</span>
+        }
+        <span class="keyword">return</span> <span class="keyword">false</span>
+    }
+
+    <span class="function">onBecomeLeader</span>() {
+        <span class="variable">state</span> = LEADER
+        <span class="keyword">for</span> <span class="variable">node</span> <span class="keyword">in</span> <span class="variable">cluster</span> {
+            <span class="variable">nextIndex</span>[<span class="variable">node</span>] = <span class="variable">log</span>.<span class="function">lastIndex</span>() + 1
+            <span class="variable">matchIndex</span>[<span class="variable">node</span>] = 0
+        }
+        <span class="function">sendHeartbeat</span>()
+        <span class="variable">heartbeatInterval</span> = <span class="function">setInterval</span>(<span class="function">sendHeartbeat</span>, 50ms)
+    }
+
+    <span class="function">onReceiveTransaction</span>(<span class="variable">tx</span>) {
+        <span class="keyword">if</span> (<span class="variable">state</span> == LEADER) {
+            <span class="variable">logEntry</span> = <span class="keyword">new</span> LogEntry(<span class="variable">currentTerm</span>, <span class="variable">tx</span>)
+            <span class="variable">log</span>.<span class="function">append</span>(<span class="variable">logEntry</span>)
+            
+            <span class="keyword">for</span> <span class="variable">node</span> <span class="keyword">in</span> <span class="variable">cluster</span> {
+                <span class="function">replicateLog</span>(<span class="variable">node</span>)
+            }
+        }
+    }
+}</pre>
+                                            </div>
+                                        </div>
+
+                                        <div class="space-y-4">
+                                            <h3 class="text-lg font-semibold text-textdark">Diagram Alur RAFT pada Fabric v2</h3>
+                                            <div class="overflow-x-auto rounded-2xl border border-white/10 bg-surfaceMuted/50 p-6">
+                                                <svg viewBox="0 0 1000 600" class="h-full w-full min-w-[800px]" role="img">
+                                                    <defs>
+                                                        <linearGradient id="followerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                            <stop offset="0%" stop-color="#1E3A8A" stop-opacity="0.55"/>
+                                                            <stop offset="100%" stop-color="#0F172A" stop-opacity="0.95"/>
+                                                        </linearGradient>
+                                                        <linearGradient id="candidateGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                            <stop offset="0%" stop-color="#CA8A04" stop-opacity="0.7"/>
+                                                            <stop offset="100%" stop-color="#7C2D12" stop-opacity="0.9"/>
+                                                        </linearGradient>
+                                                        <linearGradient id="leaderGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                            <stop offset="0%" stop-color="#1D4ED8" stop-opacity="0.55"/>
+                                                            <stop offset="100%" stop-color="#0B2447" stop-opacity="0.9"/>
+                                                        </linearGradient>
+                                                        <marker id="arrowBlue" markerWidth="10" markerHeight="10" refX="7.5" refY="5" orient="auto">
+                                                            <path d="M0,0 L10,5 L0,10 z" fill="#38BDF8"/>
+                                                        </marker>
+                                                    </defs>
+
+                                                    <!-- Follower Nodes -->
+                                                    <g>
+                                                        <rect x="50" y="100" width="150" height="100" rx="15" fill="url(#followerGrad)" stroke="rgba(96,165,250,0.45)" stroke-width="2"/>
+                                                        <text x="125" y="145" text-anchor="middle" fill="#E2E8F0" font-size="16" font-weight="700">Follower 1</text>
+                                                        <text x="125" y="170" text-anchor="middle" fill="#BAE6FD" font-size="12">Term: 1</text>
+                                                    </g>
+                                                    <g>
+                                                        <rect x="50" y="250" width="150" height="100" rx="15" fill="url(#followerGrad)" stroke="rgba(96,165,250,0.45)" stroke-width="2"/>
+                                                        <text x="125" y="295" text-anchor="middle" fill="#E2E8F0" font-size="16" font-weight="700">Follower 2</text>
+                                                        <text x="125" y="320" text-anchor="middle" fill="#BAE6FD" font-size="12">Term: 1</text>
+                                                    </g>
+                                                    <g>
+                                                        <rect x="50" y="400" width="150" height="100" rx="15" fill="url(#followerGrad)" stroke="rgba(96,165,250,0.45)" stroke-width="2"/>
+                                                        <text x="125" y="445" text-anchor="middle" fill="#E2E8F0" font-size="16" font-weight="700">Follower 3</text>
+                                                        <text x="125" y="470" text-anchor="middle" fill="#BAE6FD" font-size="12">Term: 1</text>
+                                                    </g>
+
+                                                    <!-- Candidate -->
+                                                    <g>
+                                                        <rect x="300" y="200" width="180" height="120" rx="18" fill="url(#candidateGrad)" stroke="rgba(251,191,36,0.5)" stroke-width="2"/>
+                                                        <text x="390" y="240" text-anchor="middle" fill="#FEF3C7" font-size="18" font-weight="700">Candidate</text>
+                                                        <text x="390" y="265" text-anchor="middle" fill="#FACC15" font-size="13">Term: 2</text>
+                                                        <text x="390" y="290" text-anchor="middle" fill="#F8FAFC" font-size="12">RequestVote</text>
+                                                    </g>
+
+                                                    <!-- Leader -->
+                                                    <g>
+                                                        <rect x="600" y="200" width="180" height="120" rx="18" fill="url(#leaderGrad)" stroke="rgba(99,102,241,0.45)" stroke-width="2"/>
+                                                        <text x="690" y="240" text-anchor="middle" fill="#E0E7FF" font-size="18" font-weight="700">Leader</text>
+                                                        <text x="690" y="265" text-anchor="middle" fill="#C7D2FE" font-size="13">Term: 2</text>
+                                                        <text x="690" y="290" text-anchor="middle" fill="#C7D2FE" font-size="12">Heartbeat</text>
+                                                    </g>
+
+                                                    <!-- Transaction Processing -->
+                                                    <g>
+                                                        <rect x="850" y="100" width="120" height="80" rx="12" fill="rgba(56,189,248,0.2)" stroke="rgba(56,189,248,0.5)" stroke-width="2"/>
+                                                        <text x="910" y="135" text-anchor="middle" fill="#38BDF8" font-size="14" font-weight="700">Transaction</text>
+                                                        <text x="910" y="160" text-anchor="middle" fill="#BAE6FD" font-size="11">Block Creation</text>
+                                                    </g>
+
+                                                    <!-- Arrows -->
+                                                    <path d="M200,150 L300,240" stroke="#38BDF8" stroke-width="2" fill="none" marker-end="url(#arrowBlue)"/>
+                                                    <path d="M200,300 L300,280" stroke="#38BDF8" stroke-width="2" fill="none" marker-end="url(#arrowBlue)"/>
+                                                    <path d="M200,450 L300,320" stroke="#38BDF8" stroke-width="2" fill="none" marker-end="url(#arrowBlue)"/>
+                                                    
+                                                    <path d="M480,260 L600,260" stroke="#F97316" stroke-width="2" fill="none" marker-end="url(#arrowBlue)"/>
+                                                    <text x="540" y="250" text-anchor="middle" fill="#FDBA74" font-size="11">Majority Vote</text>
+
+                                                    <path d="M780,260 L850,140" stroke="#6366F1" stroke-width="2" fill="none" marker-end="url(#arrowBlue)"/>
+                                                    <path d="M780,260 L200,150" stroke="#6366F1" stroke-width="2" fill="none" marker-end="url(#arrowBlue)" stroke-dasharray="5,5"/>
+                                                    <path d="M780,260 L200,300" stroke="#6366F1" stroke-width="2" fill="none" marker-end="url(#arrowBlue)" stroke-dasharray="5,5"/>
+                                                    <path d="M780,260 L200,450" stroke="#6366F1" stroke-width="2" fill="none" marker-end="url(#arrowBlue)" stroke-dasharray="5,5"/>
+                                                    <text x="490" y="100" text-anchor="middle" fill="#C7D2FE" font-size="12">Log Replication</text>
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Fabric v3 -->
+                                    <div class="space-y-5 mt-10">
+                                        <h2 class="text-xl font-semibold text-textdark md:text-2xl">Implementasi RAFT pada Hyperledger Fabric v3</h2>
+                                        <p class="text-sm text-textdark/70 md:text-base">
+                                            Hyperledger Fabric v3 memperkenalkan peningkatan pada implementasi RAFT dengan optimasi performa dan stabilitas yang lebih baik. Versi ini juga menyediakan opsi untuk menggunakan SmartBFT sebagai alternatif konsensus, namun implementasi RAFT standar tetap menjadi pilihan utama untuk skenario yang tidak memerlukan Byzantine fault tolerance.
+                                        </p>
+
+                                        <div class="space-y-4">
+                                            <h3 class="text-lg font-semibold text-textdark">Pseudocode Algoritma RAFT pada Fabric v3</h3>
+                                            <div class="pseudocode">
+<pre><span class="comment">// Algoritma RAFT pada Hyperledger Fabric v3 (Enhanced)</span>
+<span class="keyword">class</span> <span class="function">RaftNodeV3</span> {
+    <span class="variable">state</span>: <span class="keyword">enum</span> {FOLLOWER, CANDIDATE, LEADER}
+    <span class="variable">currentTerm</span>: <span class="keyword">int</span>
+    <span class="variable">votedFor</span>: <span class="keyword">NodeId</span> | <span class="keyword">null</span>
+    <span class="variable">log</span>: <span class="keyword">Array</span>&lt;LogEntry&gt;
+    <span class="variable">commitIndex</span>: <span class="keyword">int</span>
+    <span class="variable">lastApplied</span>: <span class="keyword">int</span>
+    <span class="variable">electionTimeout</span>: <span class="keyword">Timer</span>
+    <span class="variable">heartbeatInterval</span>: <span class="keyword">Timer</span>
+    <span class="variable">snapshotIndex</span>: <span class="keyword">int</span>  <span class="comment">// New in v3</span>
+    <span class="variable">snapshotTerm</span>: <span class="keyword">int</span>    <span class="comment">// New in v3</span>
+
+    <span class="function">onStartup</span>() {
+        <span class="variable">state</span> = FOLLOWER
+        <span class="variable">currentTerm</span> = 0
+        <span class="variable">votedFor</span> = <span class="keyword">null</span>
+        <span class="variable">electionTimeout</span> = <span class="function">random</span>(150ms, 300ms)
+        <span class="variable">snapshotIndex</span> = 0
+        <span class="variable">snapshotTerm</span> = 0
+        <span class="function">loadSnapshot</span>()  <span class="comment">// Enhanced: Load from snapshot</span>
+        <span class="function">startElectionTimer</span>()
+    }
+
+    <span class="function">onElectionTimeout</span>() {
+        <span class="keyword">if</span> (<span class="variable">state</span> == FOLLOWER) {
+            <span class="variable">state</span> = CANDIDATE
+            <span class="variable">currentTerm</span>++
+            <span class="variable">votedFor</span> = <span class="keyword">self</span>
+            <span class="variable">votesReceived</span> = 1
+            
+            <span class="comment">// Enhanced: Parallel vote requests</span>
+            <span class="variable">votePromises</span> = <span class="function">parallelRequestVote</span>(<span class="variable">cluster</span>, 
+                <span class="variable">currentTerm</span>, 
+                <span class="variable">log</span>.<span class="function">lastIndex</span>(), 
+                <span class="variable">log</span>.<span class="function">lastTerm</span>(),
+                <span class="variable">snapshotIndex</span>,  <span class="comment">// Include snapshot info</span>
+                <span class="variable">snapshotTerm</span>)
+            
+            <span class="variable">electionTimeout</span> = <span class="function">random</span>(150ms, 300ms)
+            <span class="function">startElectionTimer</span>()
+        }
+    }
+
+    <span class="function">onReceiveVote</span>(<span class="variable">candidateTerm</span>, <span class="variable">candidateId</span>, 
+                     <span class="variable">lastLogIndex</span>, <span class="variable">lastLogTerm</span>,
+                     <span class="variable">candidateSnapshotIndex</span>, <span class="variable">candidateSnapshotTerm</span>) {
+        <span class="keyword">if</span> (<span class="variable">candidateTerm</span> > <span class="variable">currentTerm</span>) {
+            <span class="variable">currentTerm</span> = <span class="variable">candidateTerm</span>
+            <span class="variable">state</span> = FOLLOWER
+            <span class="variable">votedFor</span> = <span class="keyword">null</span>
+        }
+        
+        <span class="comment">// Enhanced: Check snapshot consistency</span>
+        <span class="variable">logUpToDate</span> = <span class="function">isLogUpToDate</span>(<span class="variable">lastLogIndex</span>, 
+            <span class="variable">lastLogTerm</span>, 
+            <span class="variable">candidateSnapshotIndex</span>, 
+            <span class="variable">candidateSnapshotTerm</span>)
+        
+        <span class="keyword">if</span> (<span class="variable">candidateTerm</span> == <span class="variable">currentTerm</span> && 
+            <span class="variable">votedFor</span> == <span class="keyword">null</span> && <span class="variable">logUpToDate</span>) {
+            <span class="variable">votedFor</span> = <span class="variable">candidateId</span>
+            <span class="function">resetElectionTimer</span>()
+            <span class="keyword">return</span> <span class="keyword">true</span>
+        }
+        <span class="keyword">return</span> <span class="keyword">false</span>
+    }
+
+    <span class="function">onReceiveHeartbeat</span>(<span class="variable">leaderTerm</span>, <span class="variable">leaderId</span>, 
+                          <span class="variable">prevLogIndex</span>, <span class="variable">prevLogTerm</span>,
+                          <span class="variable">entries</span>, <span class="variable">leaderCommit</span>,
+                          <span class="variable">leaderSnapshotIndex</span>) {
+        <span class="keyword">if</span> (<span class="variable">leaderTerm</span> >= <span class="variable">currentTerm</span>) {
+            <span class="variable">state</span> = FOLLOWER
+            <span class="variable">currentTerm</span> = <span class="variable">leaderTerm</span>
+            <span class="function">resetElectionTimer</span>()
+        }
+        
+        <span class="comment">// Enhanced: Handle snapshot installation</span>
+        <span class="keyword">if</span> (<span class="variable">leaderSnapshotIndex</span> > <span class="variable">snapshotIndex</span>) {
+            <span class="function">installSnapshot</span>(<span class="variable">leaderSnapshotIndex</span>)
+        }
+        
+        <span class="keyword">if</span> (<span class="function">matchLog</span>(<span class="variable">prevLogIndex</span>, <span class="variable">prevLogTerm</span>)) {
+            <span class="function">appendEntries</span>(<span class="variable">entries</span>)
+            <span class="variable">commitIndex</span> = <span class="function">min</span>(<span class="variable">leaderCommit</span>, 
+                <span class="variable">log</span>.<span class="function">lastIndex</span>())
+            
+            <span class="comment">// Enhanced: Auto-compaction via snapshot</span>
+            <span class="keyword">if</span> (<span class="variable">log</span>.<span class="function">size</span>() > <span class="variable">snapshotThreshold</span>) {
+                <span class="function">createSnapshot</span>()
+            }
+            
+            <span class="keyword">return</span> <span class="keyword">true</span>
+        }
+        <span class="keyword">return</span> <span class="keyword">false</span>
+    }
+
+    <span class="function">onBecomeLeader</span>() {
+        <span class="variable">state</span> = LEADER
+        <span class="keyword">for</span> <span class="variable">node</span> <span class="keyword">in</span> <span class="variable">cluster</span> {
+            <span class="variable">nextIndex</span>[<span class="variable">node</span>] = <span class="variable">log</span>.<span class="function">lastIndex</span>() + 1
+            <span class="variable">matchIndex</span>[<span class="variable">node</span>] = 0
+        }
+        <span class="function">sendHeartbeat</span>()
+        <span class="comment">// Enhanced: Optimized heartbeat interval</span>
+        <span class="variable">heartbeatInterval</span> = <span class="function">setInterval</span>(<span class="function">sendHeartbeat</span>, 40ms)
+    }
+
+    <span class="function">onReceiveTransaction</span>(<span class="variable">tx</span>) {
+        <span class="keyword">if</span> (<span class="variable">state</span> == LEADER) {
+            <span class="variable">logEntry</span> = <span class="keyword">new</span> LogEntry(<span class="variable">currentTerm</span>, <span class="variable">tx</span>)
+            <span class="variable">log</span>.<span class="function">append</span>(<span class="variable">logEntry</span>)
+            
+            <span class="comment">// Enhanced: Batch replication for better throughput</span>
+            <span class="variable">batchSize</span> = <span class="function">calculateOptimalBatchSize</span>()
+            <span class="keyword">for</span> <span class="variable">node</span> <span class="keyword">in</span> <span class="variable">cluster</span> {
+                <span class="function">replicateLogBatch</span>(<span class="variable">node</span>, <span class="variable">batchSize</span>)
+            }
+        }
+    }
+
+    <span class="function">createSnapshot</span>() {
+        <span class="comment">// Enhanced: Create snapshot for log compaction</span>
+        <span class="variable">snapshot</span> = <span class="function">captureState</span>(<span class="variable">commitIndex</span>)
+        <span class="variable">snapshotIndex</span> = <span class="variable">commitIndex</span>
+        <span class="variable">snapshotTerm</span> = <span class="variable">log</span>[<span class="variable">commitIndex</span>].<span class="variable">term</span>
+        <span class="function">saveSnapshot</span>(<span class="variable">snapshot</span>)
+        <span class="function">compactLog</span>(<span class="variable">snapshotIndex</span>)
+    }
+}</pre>
+                                            </div>
+                                        </div>
+
+                                        <div class="space-y-4">
+                                            <h3 class="text-lg font-semibold text-textdark">Diagram Alur RAFT pada Fabric v3</h3>
+                                            <div class="overflow-x-auto rounded-2xl border border-white/10 bg-surfaceMuted/50 p-6">
+                                                <svg viewBox="0 0 1000 650" class="h-full w-full min-w-[800px]" role="img">
+                                                    <defs>
+                                                        <linearGradient id="followerGradV3" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                            <stop offset="0%" stop-color="#1E3A8A" stop-opacity="0.55"/>
+                                                            <stop offset="100%" stop-color="#0F172A" stop-opacity="0.95"/>
+                                                        </linearGradient>
+                                                        <linearGradient id="candidateGradV3" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                            <stop offset="0%" stop-color="#CA8A04" stop-opacity="0.7"/>
+                                                            <stop offset="100%" stop-color="#7C2D12" stop-opacity="0.9"/>
+                                                        </linearGradient>
+                                                        <linearGradient id="leaderGradV3" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                            <stop offset="0%" stop-color="#1D4ED8" stop-opacity="0.55"/>
+                                                            <stop offset="100%" stop-color="#0B2447" stop-opacity="0.9"/>
+                                                        </linearGradient>
+                                                        <linearGradient id="snapshotGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                            <stop offset="0%" stop-color="#10B981" stop-opacity="0.4"/>
+                                                            <stop offset="100%" stop-color="#065F46" stop-opacity="0.8"/>
+                                                        </linearGradient>
+                                                        <marker id="arrowBlueV3" markerWidth="10" markerHeight="10" refX="7.5" refY="5" orient="auto">
+                                                            <path d="M0,0 L10,5 L0,10 z" fill="#38BDF8"/>
+                                                        </marker>
+                                                    </defs>
+
+                                                    <!-- Follower Nodes -->
+                                                    <g>
+                                                        <rect x="50" y="100" width="150" height="100" rx="15" fill="url(#followerGradV3)" stroke="rgba(96,165,250,0.45)" stroke-width="2"/>
+                                                        <text x="125" y="145" text-anchor="middle" fill="#E2E8F0" font-size="16" font-weight="700">Follower 1</text>
+                                                        <text x="125" y="170" text-anchor="middle" fill="#BAE6FD" font-size="12">Term: 1</text>
+                                                    </g>
+                                                    <g>
+                                                        <rect x="50" y="250" width="150" height="100" rx="15" fill="url(#followerGradV3)" stroke="rgba(96,165,250,0.45)" stroke-width="2"/>
+                                                        <text x="125" y="295" text-anchor="middle" fill="#E2E8F0" font-size="16" font-weight="700">Follower 2</text>
+                                                        <text x="125" y="320" text-anchor="middle" fill="#BAE6FD" font-size="12">Term: 1</text>
+                                                    </g>
+                                                    <g>
+                                                        <rect x="50" y="400" width="150" height="100" rx="15" fill="url(#followerGradV3)" stroke="rgba(96,165,250,0.45)" stroke-width="2"/>
+                                                        <text x="125" y="445" text-anchor="middle" fill="#E2E8F0" font-size="16" font-weight="700">Follower 3</text>
+                                                        <text x="125" y="470" text-anchor="middle" fill="#BAE6FD" font-size="12">Term: 1</text>
+                                                    </g>
+
+                                                    <!-- Candidate -->
+                                                    <g>
+                                                        <rect x="300" y="200" width="180" height="120" rx="18" fill="url(#candidateGradV3)" stroke="rgba(251,191,36,0.5)" stroke-width="2"/>
+                                                        <text x="390" y="240" text-anchor="middle" fill="#FEF3C7" font-size="18" font-weight="700">Candidate</text>
+                                                        <text x="390" y="265" text-anchor="middle" fill="#FACC15" font-size="13">Term: 2</text>
+                                                        <text x="390" y="290" text-anchor="middle" fill="#F8FAFC" font-size="11">Parallel Vote</text>
+                                                    </g>
+
+                                                    <!-- Leader -->
+                                                    <g>
+                                                        <rect x="600" y="200" width="180" height="120" rx="18" fill="url(#leaderGradV3)" stroke="rgba(99,102,241,0.45)" stroke-width="2"/>
+                                                        <text x="690" y="240" text-anchor="middle" fill="#E0E7FF" font-size="18" font-weight="700">Leader</text>
+                                                        <text x="690" y="265" text-anchor="middle" fill="#C7D2FE" font-size="13">Term: 2</text>
+                                                        <text x="690" y="290" text-anchor="middle" fill="#C7D2FE" font-size="11">Batch Replication</text>
+                                                    </g>
+
+                                                    <!-- Snapshot -->
+                                                    <g>
+                                                        <rect x="600" y="380" width="180" height="100" rx="15" fill="url(#snapshotGrad)" stroke="rgba(16,185,129,0.5)" stroke-width="2"/>
+                                                        <text x="690" y="420" text-anchor="middle" fill="#6EE7B7" font-size="16" font-weight="700">Snapshot</text>
+                                                        <text x="690" y="445" text-anchor="middle" fill="#A7F3D0" font-size="12">Log Compaction</text>
+                                                        <text x="690" y="465" text-anchor="middle" fill="#A7F3D0" font-size="11">Auto-compaction</text>
+                                                    </g>
+
+                                                    <!-- Transaction Processing -->
+                                                    <g>
+                                                        <rect x="850" y="100" width="120" height="80" rx="12" fill="rgba(56,189,248,0.2)" stroke="rgba(56,189,248,0.5)" stroke-width="2"/>
+                                                        <text x="910" y="135" text-anchor="middle" fill="#38BDF8" font-size="14" font-weight="700">Transaction</text>
+                                                        <text x="910" y="160" text-anchor="middle" fill="#BAE6FD" font-size="11">Batch Processing</text>
+                                                    </g>
+
+                                                    <!-- Arrows -->
+                                                    <path d="M200,150 L300,240" stroke="#38BDF8" stroke-width="2" fill="none" marker-end="url(#arrowBlueV3)"/>
+                                                    <path d="M200,300 L300,280" stroke="#38BDF8" stroke-width="2" fill="none" marker-end="url(#arrowBlueV3)"/>
+                                                    <path d="M200,450 L300,320" stroke="#38BDF8" stroke-width="2" fill="none" marker-end="url(#arrowBlueV3)"/>
+                                                    
+                                                    <path d="M480,260 L600,260" stroke="#F97316" stroke-width="2" fill="none" marker-end="url(#arrowBlueV3)"/>
+                                                    <text x="540" y="250" text-anchor="middle" fill="#FDBA74" font-size="11">Majority Vote</text>
+
+                                                    <path d="M780,260 L850,140" stroke="#6366F1" stroke-width="2" fill="none" marker-end="url(#arrowBlueV3)"/>
+                                                    <path d="M780,260 L200,150" stroke="#6366F1" stroke-width="2" fill="none" marker-end="url(#arrowBlueV3)" stroke-dasharray="5,5"/>
+                                                    <path d="M780,260 L200,300" stroke="#6366F1" stroke-width="2" fill="none" marker-end="url(#arrowBlueV3)" stroke-dasharray="5,5"/>
+                                                    <path d="M780,260 L200,450" stroke="#6366F1" stroke-width="2" fill="none" marker-end="url(#arrowBlueV3)" stroke-dasharray="5,5"/>
+                                                    <text x="490" y="100" text-anchor="middle" fill="#C7D2FE" font-size="12">Batch Log Replication</text>
+
+                                                    <path d="M690,320 L690,380" stroke="#10B981" stroke-width="2" fill="none" marker-end="url(#arrowBlueV3)"/>
+                                                    <text x="720" y="350" fill="#6EE7B7" font-size="11">Snapshot Creation</text>
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </main>
+
+                <div data-component="footer"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/layout.js" defer></script>
+    <script src="/js/navigation.js" defer></script>
+</body>
+</html>
+
+

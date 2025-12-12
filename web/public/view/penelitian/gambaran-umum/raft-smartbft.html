@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluasi RAFT HLF — RAFT dengan SmartBFT</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#38BDF8',
+                        secondary: '#6366F1',
+                        accent: '#F59E0B',
+                        highlight: '#F97316',
+                        soft: '#050B16',
+                        surface: '#0F172A',
+                        surfaceMuted: '#16213F',
+                        border: '#1E293B',
+                        muted: '#94A3B8',
+                        textdark: '#E2E8F0'
+                    }
+                }
+            }
+        };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="/images/logo-ai-center.svg">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+
+        .component-link[data-active="true"] {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.28), rgba(56, 189, 248, 0.22));
+            color: #E2E8F0;
+            border-color: rgba(249, 115, 22, 0.45);
+            box-shadow: 0 12px 40px rgba(15, 23, 42, 0.45);
+        }
+
+        .component-link[data-active="true"] .component-link__index {
+            background-color: rgba(249, 115, 22, 0.35);
+            color: #E2E8F0;
+        }
+
+        .pseudocode {
+            background: #0F172A;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            line-height: 1.75;
+            overflow-x: auto;
+        }
+
+        .pseudocode .keyword {
+            color: #38BDF8;
+            font-weight: 600;
+        }
+
+        .pseudocode .comment {
+            color: #94A3B8;
+            font-style: italic;
+        }
+
+        .pseudocode .function {
+            color: #F59E0B;
+        }
+
+        .pseudocode .variable {
+            color: #F97316;
+        }
+
+        .pseudocode .bft {
+            color: #10B981;
+        }
+    </style>
+</head>
+<body class="bg-soft text-textdark">
+    <div data-component="header"></div>
+    <div class="relative min-h-screen overflow-hidden">
+        <div class="absolute inset-0 -z-10 h-full w-full">
+            <div class="absolute -left-1/3 top-0 h-[720px] w-[720px] rounded-full bg-gradient-to-br from-highlight/30 via-secondary/20 to-transparent opacity-70 blur-3xl"></div>
+            <div class="absolute -right-1/4 bottom-0 h-[620px] w-[620px] rounded-full bg-gradient-to-tr from-accent/35 via-secondary/25 to-primary/20 opacity-70 blur-3xl"></div>
+        </div>
+
+        <div class="flex min-h-screen flex-col lg:flex-row">
+            <div data-component="sidebar"></div>
+
+            <div class="flex-1">
+                <main class="mx-auto w-full max-w-5xl px-6 py-12">
+                    <div class="space-y-10">
+                        <!-- Section 1: RAFT dengan SmartBFT -->
+                        <section class="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-surface via-soft to-[#020817] p-10 shadow-2xl shadow-black/30">
+                            <div class="flex flex-col gap-6">
+                                <div class="inline-flex w-fit items-center gap-2 rounded-full border border-highlight/40 bg-highlight/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-highlight/90">
+                                    Bab 4.1.2
+                                </div>
+                                <div class="space-y-8">
+                                    <div class="space-y-5">
+                                        <h1 class="text-3xl font-semibold text-textdark md:text-4xl">Algoritma Konsensus RAFT dengan SmartBFT</h1>
+                                        <p class="text-sm text-textdark/70 md:text-base">
+                                            SmartBFT (Smart Byzantine Fault Tolerance) adalah algoritma konsensus yang dirancang untuk menangani Byzantine faults, yaitu situasi di mana node dapat berperilaku jahat atau memberikan informasi yang salah. Kombinasi RAFT dengan SmartBFT memungkinkan sistem untuk mendapatkan keuntungan dari efisiensi RAFT sambil tetap memiliki kemampuan untuk menoleransi node yang berperilaku jahat. Implementasi ini terutama tersedia pada Hyperledger Fabric v3 sebagai opsi konsensus alternatif.
+                                        </p>
+                                    </div>
+
+                                    <!-- Fabric v2 dengan SmartBFT -->
+                                    <div class="space-y-5">
+                                        <h2 class="text-xl font-semibold text-textdark md:text-2xl">RAFT dengan SmartBFT pada Hyperledger Fabric v2</h2>
+                                        <p class="text-sm text-textdark/70 md:text-base">
+                                            Meskipun Hyperledger Fabric v2 secara native tidak mendukung SmartBFT, beberapa implementasi eksperimental telah dikembangkan untuk mengintegrasikan mekanisme BFT ke dalam RAFT. Implementasi ini menggunakan hybrid approach di mana RAFT digunakan untuk leader election dan log replication, sementara SmartBFT digunakan untuk validasi dan verifikasi transaksi.
+                                        </p>
+
+                                        <div class="space-y-4">
+                                            <h3 class="text-lg font-semibold text-textdark">Pseudocode Hybrid RAFT-SmartBFT pada Fabric v2</h3>
+                                            <div class="pseudocode">
+<pre><span class="comment">// Hybrid RAFT-SmartBFT pada Hyperledger Fabric v2 (Experimental)</span>
+<span class="keyword">class</span> <span class="function">RaftSmartBFTNode</span> {
+    <span class="variable">state</span>: <span class="keyword">enum</span> {FOLLOWER, CANDIDATE, LEADER}
+    <span class="variable">currentTerm</span>: <span class="keyword">int</span>
+    <span class="variable">log</span>: <span class="keyword">Array</span>&lt;LogEntry&gt;
+    <span class="variable">bftState</span>: <span class="bft">BFTState</span>  <span class="comment">// SmartBFT state</span>
+    <span class="variable">signatures</span>: <span class="keyword">Map</span>&lt;NodeId, Signature&gt;  <span class="comment">// BFT signatures</span>
+    <span class="variable">quorumSize</span>: <span class="keyword">int</span>  <span class="comment">// (N + f) / 2 where f = faulty nodes</span>
+
+    <span class="function">onStartup</span>() {
+        <span class="variable">state</span> = FOLLOWER
+        <span class="variable">currentTerm</span> = 0
+        <span class="variable">bftState</span> = <span class="keyword">new</span> <span class="bft">BFTState</span>()
+        <span class="variable">quorumSize</span> = <span class="function">calculateQuorum</span>(<span class="variable">cluster</span>.<span class="function">size</span>())
+        <span class="function">startElectionTimer</span>()
+    }
+
+    <span class="function">onElectionTimeout</span>() {
+        <span class="comment">// RAFT leader election</span>
+        <span class="keyword">if</span> (<span class="variable">state</span> == FOLLOWER) {
+            <span class="variable">state</span> = CANDIDATE
+            <span class="variable">currentTerm</span>++
+            <span class="variable">votedFor</span> = <span class="keyword">self</span>
+            <span class="variable">votesReceived</span> = 1
+            
+            <span class="keyword">for</span> <span class="variable">node</span> <span class="keyword">in</span> <span class="variable">cluster</span> {
+                <span class="function">sendRequestVote</span>(<span class="variable">node</span>, <span class="variable">currentTerm</span>, 
+                    <span class="variable">log</span>.<span class="function">lastIndex</span>(), 
+                    <span class="variable">log</span>.<span class="function">lastTerm</span>())
+            }
+            
+            <span class="variable">electionTimeout</span> = <span class="function">random</span>(150ms, 300ms)
+            <span class="function">startElectionTimer</span>()
+        }
+    }
+
+    <span class="function">onReceiveTransaction</span>(<span class="variable">tx</span>) {
+        <span class="keyword">if</span> (<span class="variable">state</span> == LEADER) {
+            <span class="comment">// Step 1: RAFT log replication</span>
+            <span class="variable">logEntry</span> = <span class="keyword">new</span> LogEntry(<span class="variable">currentTerm</span>, <span class="variable">tx</span>)
+            <span class="variable">log</span>.<span class="function">append</span>(<span class="variable">logEntry</span>)
+            
+            <span class="keyword">for</span> <span class="variable">node</span> <span class="keyword">in</span> <span class="variable">cluster</span> {
+                <span class="function">replicateLog</span>(<span class="variable">node</span>)
+            }
+            
+            <span class="comment">// Step 2: SmartBFT validation phase</span>
+            <span class="variable">proposal</span> = <span class="function">createProposal</span>(<span class="variable">logEntry</span>)
+            <span class="variable">signature</span> = <span class="function">sign</span>(<span class="variable">proposal</span>, <span class="variable">privateKey</span>)
+            <span class="variable">signatures</span>[<span class="keyword">self</span>] = <span class="variable">signature</span>
+            
+            <span class="keyword">for</span> <span class="variable">node</span> <span class="keyword">in</span> <span class="variable">cluster</span> {
+                <span class="function">sendProposal</span>(<span class="variable">node</span>, <span class="variable">proposal</span>, <span class="variable">signature</span>)
+            }
+        }
+    }
+
+    <span class="function">onReceiveProposal</span>(<span class="variable">proposerId</span>, <span class="variable">proposal</span>, <span class="variable">signature</span>) {
+        <span class="comment">// SmartBFT: Validate proposal</span>
+        <span class="keyword">if</span> (<span class="function">verifySignature</span>(<span class="variable">proposal</span>, <span class="variable">signature</span>, <span class="variable">proposerId</span>)) {
+            <span class="keyword">if</span> (<span class="function">validateProposal</span>(<span class="variable">proposal</span>)) {
+                <span class="variable">signatures</span>[<span class="variable">proposerId</span>] = <span class="variable">signature</span>
+                
+                <span class="comment">// Check if quorum reached</span>
+                <span class="keyword">if</span> (<span class="variable">signatures</span>.<span class="function">size</span>() >= <span class="variable">quorumSize</span>) {
+                    <span class="comment">// Commit transaction with BFT guarantee</span>
+                    <span class="function">commitTransaction</span>(<span class="variable">proposal</span>.<span class="variable">tx</span>, <span class="variable">signatures</span>)
+                }
+            }
+        }
+    }
+
+    <span class="function">onReceiveLogReplication</span>(<span class="variable">leaderTerm</span>, <span class="variable">entries</span>) {
+        <span class="comment">// RAFT: Standard log replication</span>
+        <span class="keyword">if</span> (<span class="variable">leaderTerm</span> >= <span class="variable">currentTerm</span>) {
+            <span class="variable">state</span> = FOLLOWER
+            <span class="variable">currentTerm</span> = <span class="variable">leaderTerm</span>
+            <span class="function">resetElectionTimer</span>()
+        }
+        
+        <span class="keyword">if</span> (<span class="function">matchLog</span>(<span class="variable">prevLogIndex</span>, <span class="variable">prevLogTerm</span>)) {
+            <span class="function">appendEntries</span>(<span class="variable">entries</span>)
+            
+            <span class="comment">// Trigger BFT validation for each entry</span>
+            <span class="keyword">for</span> <span class="variable">entry</span> <span class="keyword">in</span> <span class="variable">entries</span> {
+                <span class="function">initiateBFTValidation</span>(<span class="variable">entry</span>)
+            }
+        }
+    }
+
+    <span class="function">commitTransaction</span>(<span class="variable">tx</span>, <span class="variable">signatures</span>) {
+        <span class="comment">// SmartBFT: Commit with quorum signatures</span>
+        <span class="variable">commitProof</span> = <span class="function">createCommitProof</span>(<span class="variable">tx</span>, <span class="variable">signatures</span>)
+        <span class="variable">commitIndex</span>++
+        <span class="variable">log</span>[<span class="variable">commitIndex</span>].<span class="variable">committed</span> = <span class="keyword">true</span>
+        <span class="variable">log</span>[<span class="variable">commitIndex</span>].<span class="variable">bftProof</span> = <span class="variable">commitProof</span>
+        
+        <span class="comment">// Apply to state machine</span>
+        <span class="function">applyToStateMachine</span>(<span class="variable">tx</span>)
+    }
+}</pre>
+                                            </div>
+                                        </div>
+
+                                        <div class="space-y-4">
+                                            <h3 class="text-lg font-semibold text-textdark">Diagram Alur RAFT-SmartBFT pada Fabric v2</h3>
+                                            <div class="overflow-x-auto rounded-2xl border border-white/10 bg-surfaceMuted/50 p-6">
+                                                <svg viewBox="0 0 1100 700" class="h-full w-full min-w-[900px]" role="img">
+                                                    <defs>
+                                                        <linearGradient id="raftGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                            <stop offset="0%" stop-color="#1D4ED8" stop-opacity="0.55"/>
+                                                            <stop offset="100%" stop-color="#0B2447" stop-opacity="0.9"/>
+                                                        </linearGradient>
+                                                        <linearGradient id="bftGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                            <stop offset="0%" stop-color="#10B981" stop-opacity="0.5"/>
+                                                            <stop offset="100%" stop-color="#065F46" stop-opacity="0.9"/>
+                                                        </linearGradient>
+                                                        <linearGradient id="hybridGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                            <stop offset="0%" stop-color="#6366F1" stop-opacity="0.5"/>
+                                                            <stop offset="100%" stop-color="#1E1B4B" stop-opacity="0.9"/>
+                                                        </linearGradient>
+                                                        <marker id="arrowRaft" markerWidth="10" markerHeight="10" refX="7.5" refY="5" orient="auto">
+                                                            <path d="M0,0 L10,5 L0,10 z" fill="#38BDF8"/>
+                                                        </marker>
+                                                        <marker id="arrowBFT" markerWidth="10" markerHeight="10" refX="7.5" refY="5" orient="auto">
+                                                            <path d="M0,0 L10,5 L0,10 z" fill="#10B981"/>
+                                                        </marker>
+                                                    </defs>
+
+                                                    <!-- Leader Node -->
+                                                    <g>
+                                                        <rect x="50" y="50" width="200" height="120" rx="18" fill="url(#raftGrad)" stroke="rgba(99,102,241,0.45)" stroke-width="2"/>
+                                                        <text x="150" y="90" text-anchor="middle" fill="#E0E7FF" font-size="18" font-weight="700">RAFT Leader</text>
+                                                        <text x="150" y="115" text-anchor="middle" fill="#C7D2FE" font-size="13">Term: 2</text>
+                                                        <text x="150" y="140" text-anchor="middle" fill="#C7D2FE" font-size="12">Log Replication</text>
+                                                        <text x="150" y="160" text-anchor="middle" fill="#C7D2FE" font-size="11">Phase 1</text>
+                                                    </g>
+
+                                                    <!-- Follower Nodes -->
+                                                    <g>
+                                                        <rect x="350" y="50" width="150" height="100" rx="15" fill="rgba(30,58,138,0.4)" stroke="rgba(96,165,250,0.45)" stroke-width="2"/>
+                                                        <text x="425" y="90" text-anchor="middle" fill="#E2E8F0" font-size="16" font-weight="700">Follower 1</text>
+                                                        <text x="425" y="115" text-anchor="middle" fill="#BAE6FD" font-size="12">Term: 2</text>
+                                                    </g>
+                                                    <g>
+                                                        <rect x="550" y="50" width="150" height="100" rx="15" fill="rgba(30,58,138,0.4)" stroke="rgba(96,165,250,0.45)" stroke-width="2"/>
+                                                        <text x="625" y="90" text-anchor="middle" fill="#E2E8F0" font-size="16" font-weight="700">Follower 2</text>
+                                                        <text x="625" y="115" text-anchor="middle" fill="#BAE6FD" font-size="12">Term: 2</text>
+                                                    </g>
+                                                    <g>
+                                                        <rect x="750" y="50" width="150" height="100" rx="15" fill="rgba(30,58,138,0.4)" stroke="rgba(96,165,250,0.45)" stroke-width="2"/>
+                                                        <text x="825" y="90" text-anchor="middle" fill="#E2E8F0" font-size="16" font-weight="700">Follower 3</text>
+                                                        <text x="825" y="115" text-anchor="middle" fill="#BAE6FD" font-size="12">Term: 2</text>
+                                                    </g>
+
+                                                    <!-- SmartBFT Validation Layer -->
+                                                    <g>
+                                                        <rect x="50" y="250" width="200" height="120" rx="18" fill="url(#bftGrad)" stroke="rgba(16,185,129,0.5)" stroke-width="2"/>
+                                                        <text x="150" y="290" text-anchor="middle" fill="#6EE7B7" font-size="18" font-weight="700">SmartBFT</text>
+                                                        <text x="150" y="315" text-anchor="middle" fill="#A7F3D0" font-size="13">Proposal</text>
+                                                        <text x="150" y="340" text-anchor="middle" fill="#A7F3D0" font-size="12">Signature</text>
+                                                        <text x="150" y="360" text-anchor="middle" fill="#A7F3D0" font-size="11">Phase 2</text>
+                                                    </g>
+
+                                                    <g>
+                                                        <rect x="350" y="250" width="150" height="100" rx="15" fill="rgba(6,95,70,0.4)" stroke="rgba(16,185,129,0.5)" stroke-width="2"/>
+                                                        <text x="425" y="290" text-anchor="middle" fill="#6EE7B7" font-size="16" font-weight="700">Validator 1</text>
+                                                        <text x="425" y="315" text-anchor="middle" fill="#A7F3D0" font-size="12">Verify & Sign</text>
+                                                    </g>
+                                                    <g>
+                                                        <rect x="550" y="250" width="150" height="100" rx="15" fill="rgba(6,95,70,0.4)" stroke="rgba(16,185,129,0.5)" stroke-width="2"/>
+                                                        <text x="625" y="290" text-anchor="middle" fill="#6EE7B7" font-size="16" font-weight="700">Validator 2</text>
+                                                        <text x="625" y="315" text-anchor="middle" fill="#A7F3D0" font-size="12">Verify & Sign</text>
+                                                    </g>
+                                                    <g>
+                                                        <rect x="750" y="250" width="150" height="100" rx="15" fill="rgba(6,95,70,0.4)" stroke="rgba(16,185,129,0.5)" stroke-width="2"/>
+                                                        <text x="825" y="290" text-anchor="middle" fill="#6EE7B7" font-size="16" font-weight="700">Validator 3</text>
+                                                        <text x="825" y="315" text-anchor="middle" fill="#A7F3D0" font-size="12">Verify & Sign</text>
+                                                    </g>
+
+                                                    <!-- Commit Phase -->
+                                                    <g>
+                                                        <rect x="400" y="450" width="300" height="120" rx="18" fill="url(#hybridGrad)" stroke="rgba(99,102,241,0.5)" stroke-width="2"/>
+                                                        <text x="550" y="495" text-anchor="middle" fill="#C7D2FE" font-size="20" font-weight="700">Commit Phase</text>
+                                                        <text x="550" y="525" text-anchor="middle" fill="#A5B4FC" font-size="14">Quorum Reached</text>
+                                                        <text x="550" y="550" text-anchor="middle" fill="#A5B4FC" font-size="13">BFT Proof Created</text>
+                                                        <text x="550" y="570" text-anchor="middle" fill="#A5B4FC" font-size="12">Apply to State</text>
+                                                    </g>
+
+                                                    <!-- Transaction Input -->
+                                                    <g>
+                                                        <rect x="50" y="600" width="150" height="80" rx="12" fill="rgba(56,189,248,0.2)" stroke="rgba(56,189,248,0.5)" stroke-width="2"/>
+                                                        <text x="125" y="635" text-anchor="middle" fill="#38BDF8" font-size="14" font-weight="700">Transaction</text>
+                                                        <text x="125" y="660" text-anchor="middle" fill="#BAE6FD" font-size="11">Input</text>
+                                                    </g>
+
+                                                    <!-- Arrows RAFT Phase -->
+                                                    <path d="M250,110 L350,100" stroke="#38BDF8" stroke-width="2" fill="none" marker-end="url(#arrowRaft)"/>
+                                                    <path d="M250,110 L550,100" stroke="#38BDF8" stroke-width="2" fill="none" marker-end="url(#arrowRaft)"/>
+                                                    <path d="M250,110 L750,100" stroke="#38BDF8" stroke-width="2" fill="none" marker-end="url(#arrowRaft)"/>
+                                                    <text x="500" y="85" text-anchor="middle" fill="#38BDF8" font-size="12">RAFT: Log Replication</text>
+
+                                                    <!-- Arrows BFT Phase -->
+                                                    <path d="M250,310 L350,300" stroke="#10B981" stroke-width="2" fill="none" marker-end="url(#arrowBFT)"/>
+                                                    <path d="M250,310 L550,300" stroke="#10B981" stroke-width="2" fill="none" marker-end="url(#arrowBFT)"/>
+                                                    <path d="M250,310 L750,300" stroke="#10B981" stroke-width="2" fill="none" marker-end="url(#arrowBFT)"/>
+                                                    <text x="500" y="285" text-anchor="middle" fill="#10B981" font-size="12">SmartBFT: Proposal & Validation</text>
+
+                                                    <!-- Arrows to Commit -->
+                                                    <path d="M425,350 L475,450" stroke="#6366F1" stroke-width="2" fill="none" marker-end="url(#arrowRaft)"/>
+                                                    <path d="M625,350 L550,450" stroke="#6366F1" stroke-width="2" fill="none" marker-end="url(#arrowRaft)"/>
+                                                    <path d="M825,350 L625,450" stroke="#6366F1" stroke-width="2" fill="none" marker-end="url(#arrowRaft)"/>
+
+                                                    <!-- Transaction to Leader -->
+                                                    <path d="M125,600 L125,170" stroke="#38BDF8" stroke-width="2" fill="none" marker-end="url(#arrowRaft)" stroke-dasharray="3,3"/>
+                                                    <text x="30" y="385" fill="#38BDF8" font-size="11">Transaction</text>
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Fabric v3 dengan SmartBFT -->
+                                    <div class="space-y-5 mt-10">
+                                        <h2 class="text-xl font-semibold text-textdark md:text-2xl">RAFT dengan SmartBFT pada Hyperledger Fabric v3</h2>
+                                        <p class="text-sm text-textdark/70 md:text-base">
+                                            Hyperledger Fabric v3 secara native mendukung SmartBFT sebagai opsi konsensus. Implementasi ini lebih matang dan terintegrasi dengan baik dibandingkan versi eksperimental pada Fabric v2. SmartBFT pada Fabric v3 menggunakan mekanisme yang lebih efisien dengan optimasi untuk throughput dan latency yang lebih baik.
+                                        </p>
+
+                                        <div class="space-y-4">
+                                            <h3 class="text-lg font-semibold text-textdark">Pseudocode RAFT-SmartBFT pada Fabric v3</h3>
+                                            <div class="pseudocode">
+<pre><span class="comment">// RAFT-SmartBFT pada Hyperledger Fabric v3 (Native Support)</span>
+<span class="keyword">class</span> <span class="function">RaftSmartBFTNodeV3</span> {
+    <span class="variable">state</span>: <span class="keyword">enum</span> {FOLLOWER, CANDIDATE, LEADER}
+    <span class="variable">currentTerm</span>: <span class="keyword">int</span>
+    <span class="variable">log</span>: <span class="keyword">Array</span>&lt;LogEntry&gt;
+    <span class="variable">bftState</span>: <span class="bft">SmartBFTState</span>
+    <span class="variable">signatures</span>: <span class="keyword">Map</span>&lt;NodeId, Signature&gt;
+    <span class="variable">quorumSize</span>: <span class="keyword">int</span>
+    <span class="variable">batchQueue</span>: <span class="keyword">Queue</span>&lt;Transaction&gt;  <span class="comment">// Enhanced: Batch processing</span>
+    <span class="variable">snapshotIndex</span>: <span class="keyword">int</span>
+
+    <span class="function">onStartup</span>() {
+        <span class="variable">state</span> = FOLLOWER
+        <span class="variable">currentTerm</span> = 0
+        <span class="variable">bftState</span> = <span class="keyword">new</span> <span class="bft">SmartBFTState</span>()
+        <span class="variable">quorumSize</span> = <span class="function">calculateQuorum</span>(<span class="variable">cluster</span>.<span class="function">size</span>())
+        <span class="variable">batchQueue</span> = <span class="keyword">new</span> <span class="keyword">Queue</span>&lt;Transaction&gt;()
+        <span class="variable">snapshotIndex</span> = 0
+        <span class="function">loadSnapshot</span>()
+        <span class="function">startElectionTimer</span>()
+        <span class="function">startBatchProcessor</span>()  <span class="comment">// Enhanced: Auto batch processing</span>
+    }
+
+    <span class="function">onReceiveTransaction</span>(<span class="variable">tx</span>) {
+        <span class="keyword">if</span> (<span class="variable">state</span> == LEADER) {
+            <span class="comment">// Enhanced: Add to batch queue</span>
+            <span class="variable">batchQueue</span>.<span class="function">enqueue</span>(<span class="variable">tx</span>)
+            
+            <span class="comment">// Process batch when threshold reached</span>
+            <span class="keyword">if</span> (<span class="variable">batchQueue</span>.<span class="function">size</span>() >= <span class="variable">batchThreshold</span>) {
+                <span class="variable">batch</span> = <span class="variable">batchQueue</span>.<span class="function">dequeueAll</span>()
+                <span class="function">processBatch</span>(<span class="variable">batch</span>)
+            }
+        }
+    }
+
+    <span class="function">processBatch</span>(<span class="variable">batch</span>) {
+        <span class="comment">// Step 1: RAFT log replication (batch mode)</span>
+        <span class="variable">logEntry</span> = <span class="keyword">new</span> LogEntry(<span class="variable">currentTerm</span>, <span class="variable">batch</span>)
+        <span class="variable">log</span>.<span class="function">append</span>(<span class="variable">logEntry</span>)
+        
+        <span class="comment">// Enhanced: Parallel batch replication</span>
+        <span class="variable">replicationPromises</span> = <span class="function">parallelReplicateLog</span>(<span class="variable">cluster</span>, <span class="variable">logEntry</span>)
+        
+        <span class="comment">// Step 2: SmartBFT validation (batch mode)</span>
+        <span class="variable">proposal</span> = <span class="function">createBatchProposal</span>(<span class="variable">logEntry</span>)
+        <span class="variable">signature</span> = <span class="function">sign</span>(<span class="variable">proposal</span>, <span class="variable">privateKey</span>)
+        <span class="variable">signatures</span>[<span class="keyword">self</span>] = <span class="variable">signature</span>
+        
+        <span class="comment">// Enhanced: Parallel proposal distribution</span>
+        <span class="variable">proposalPromises</span> = <span class="function">parallelSendProposal</span>(<span class="variable">cluster</span>, 
+            <span class="variable">proposal</span>, <span class="variable">signature</span>)
+        
+        <span class="function">await</span> <span class="variable">replicationPromises</span>
+        <span class="function">await</span> <span class="variable">proposalPromises</span>
+    }
+
+    <span class="function">onReceiveProposal</span>(<span class="variable">proposerId</span>, <span class="variable">proposal</span>, <span class="variable">signature</span>) {
+        <span class="comment">// Enhanced: Optimized signature verification</span>
+        <span class="keyword">if</span> (<span class="function">verifySignatureFast</span>(<span class="variable">proposal</span>, <span class="variable">signature</span>, <span class="variable">proposerId</span>)) {
+            <span class="keyword">if</span> (<span class="function">validateBatchProposal</span>(<span class="variable">proposal</span>)) {
+                <span class="variable">signatures</span>[<span class="variable">proposerId</span>] = <span class="variable">signature</span>
+                
+                <span class="comment">// Enhanced: Optimized quorum check</span>
+                <span class="keyword">if</span> (<span class="variable">signatures</span>.<span class="function">size</span>() >= <span class="variable">quorumSize</span>) {
+                    <span class="function">commitBatch</span>(<span class="variable">proposal</span>.<span class="variable">batch</span>, <span class="variable">signatures</span>)
+                }
+            }
+        }
+    }
+
+    <span class="function">commitBatch</span>(<span class="variable">batch</span>, <span class="variable">signatures</span>) {
+        <span class="comment">// Enhanced: Batch commit with BFT proof</span>
+        <span class="variable">commitProof</span> = <span class="function">createBatchCommitProof</span>(<span class="variable">batch</span>, <span class="variable">signatures</span>)
+        <span class="variable">commitIndex</span>++
+        <span class="variable">log</span>[<span class="variable">commitIndex</span>].<span class="variable">committed</span> = <span class="keyword">true</span>
+        <span class="variable">log</span>[<span class="variable">commitIndex</span>].<span class="variable">bftProof</span> = <span class="variable">commitProof</span>
+        
+        <span class="comment">// Enhanced: Parallel state machine application</span>
+        <span class="function">parallelApplyToStateMachine</span>(<span class="variable">batch</span>)
+        
+        <span class="comment">// Enhanced: Auto snapshot creation</span>
+        <span class="keyword">if</span> (<span class="variable">log</span>.<span class="function">size</span>() > <span class="variable">snapshotThreshold</span>) {
+            <span class="function">createSnapshot</span>()
+        }
+    }
+
+    <span class="function">onBecomeLeader</span>() {
+        <span class="variable">state</span> = LEADER
+        <span class="keyword">for</span> <span class="variable">node</span> <span class="keyword">in</span> <span class="variable">cluster</span> {
+            <span class="variable">nextIndex</span>[<span class="variable">node</span>] = <span class="variable">log</span>.<span class="function">lastIndex</span>() + 1
+            <span class="variable">matchIndex</span>[<span class="variable">node</span>] = 0
+        }
+        <span class="function">sendHeartbeat</span>()
+        <span class="comment">// Enhanced: Optimized heartbeat with BFT status</span>
+        <span class="variable">heartbeatInterval</span> = <span class="function">setInterval</span>(<span class="function">sendHeartbeatWithBFT</span>, 40ms)
+    }
+
+    <span class="function">createSnapshot</span>() {
+        <span class="comment">// Enhanced: Snapshot with BFT state</span>
+        <span class="variable">snapshot</span> = <span class="function">captureState</span>(<span class="variable">commitIndex</span>)
+        <span class="variable">snapshot</span>.<span class="variable">bftState</span> = <span class="variable">bftState</span>.<span class="function">snapshot</span>()
+        <span class="variable">snapshotIndex</span> = <span class="variable">commitIndex</span>
+        <span class="function">saveSnapshot</span>(<span class="variable">snapshot</span>)
+        <span class="function">compactLog</span>(<span class="variable">snapshotIndex</span>)
+    }
+}</pre>
+                                            </div>
+                                        </div>
+
+                                        <div class="space-y-4">
+                                            <h3 class="text-lg font-semibold text-textdark">Diagram Alur RAFT-SmartBFT pada Fabric v3</h3>
+                                            <div class="overflow-x-auto rounded-2xl border border-white/10 bg-surfaceMuted/50 p-6">
+                                                <svg viewBox="0 0 1100 750" class="h-full w-full min-w-[900px]" role="img">
+                                                    <defs>
+                                                        <linearGradient id="raftGradV3" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                            <stop offset="0%" stop-color="#1D4ED8" stop-opacity="0.55"/>
+                                                            <stop offset="100%" stop-color="#0B2447" stop-opacity="0.9"/>
+                                                        </linearGradient>
+                                                        <linearGradient id="bftGradV3" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                            <stop offset="0%" stop-color="#10B981" stop-opacity="0.5"/>
+                                                            <stop offset="100%" stop-color="#065F46" stop-opacity="0.9"/>
+                                                        </linearGradient>
+                                                        <linearGradient id="hybridGradV3" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                            <stop offset="0%" stop-color="#6366F1" stop-opacity="0.5"/>
+                                                            <stop offset="100%" stop-color="#1E1B4B" stop-opacity="0.9"/>
+                                                        </linearGradient>
+                                                        <linearGradient id="batchGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                            <stop offset="0%" stop-color="#F59E0B" stop-opacity="0.4"/>
+                                                            <stop offset="100%" stop-color="#78350F" stop-opacity="0.8"/>
+                                                        </linearGradient>
+                                                        <marker id="arrowRaftV3" markerWidth="10" markerHeight="10" refX="7.5" refY="5" orient="auto">
+                                                            <path d="M0,0 L10,5 L0,10 z" fill="#38BDF8"/>
+                                                        </marker>
+                                                        <marker id="arrowBFTV3" markerWidth="10" markerHeight="10" refX="7.5" refY="5" orient="auto">
+                                                            <path d="M0,0 L10,5 L0,10 z" fill="#10B981"/>
+                                                        </marker>
+                                                    </defs>
+
+                                                    <!-- Batch Queue -->
+                                                    <g>
+                                                        <rect x="50" y="50" width="180" height="100" rx="15" fill="url(#batchGrad)" stroke="rgba(245,158,11,0.5)" stroke-width="2"/>
+                                                        <text x="140" y="85" text-anchor="middle" fill="#FDE68A" font-size="16" font-weight="700">Batch Queue</text>
+                                                        <text x="140" y="110" text-anchor="middle" fill="#FCD34D" font-size="12">Transaction Batch</text>
+                                                        <text x="140" y="130" text-anchor="middle" fill="#FCD34D" font-size="11">Threshold: N</text>
+                                                    </g>
+
+                                                    <!-- Leader Node -->
+                                                    <g>
+                                                        <rect x="300" y="50" width="200" height="120" rx="18" fill="url(#raftGradV3)" stroke="rgba(99,102,241,0.45)" stroke-width="2"/>
+                                                        <text x="400" y="90" text-anchor="middle" fill="#E0E7FF" font-size="18" font-weight="700">RAFT Leader</text>
+                                                        <text x="400" y="115" text-anchor="middle" fill="#C7D2FE" font-size="13">Term: 2</text>
+                                                        <text x="400" y="140" text-anchor="middle" fill="#C7D2FE" font-size="12">Batch Replication</text>
+                                                        <text x="400" y="160" text-anchor="middle" fill="#C7D2FE" font-size="11">Parallel Mode</text>
+                                                    </g>
+
+                                                    <!-- Follower Nodes -->
+                                                    <g>
+                                                        <rect x="600" y="50" width="150" height="100" rx="15" fill="rgba(30,58,138,0.4)" stroke="rgba(96,165,250,0.45)" stroke-width="2"/>
+                                                        <text x="675" y="90" text-anchor="middle" fill="#E2E8F0" font-size="16" font-weight="700">Follower 1</text>
+                                                        <text x="675" y="115" text-anchor="middle" fill="#BAE6FD" font-size="12">Term: 2</text>
+                                                    </g>
+                                                    <g>
+                                                        <rect x="800" y="50" width="150" height="100" rx="15" fill="rgba(30,58,138,0.4)" stroke="rgba(96,165,250,0.45)" stroke-width="2"/>
+                                                        <text x="875" y="90" text-anchor="middle" fill="#E2E8F0" font-size="16" font-weight="700">Follower 2</text>
+                                                        <text x="875" y="115" text-anchor="middle" fill="#BAE6FD" font-size="12">Term: 2</text>
+                                                    </g>
+
+                                                    <!-- SmartBFT Validation Layer -->
+                                                    <g>
+                                                        <rect x="300" y="250" width="200" height="120" rx="18" fill="url(#bftGradV3)" stroke="rgba(16,185,129,0.5)" stroke-width="2"/>
+                                                        <text x="400" y="290" text-anchor="middle" fill="#6EE7B7" font-size="18" font-weight="700">SmartBFT</text>
+                                                        <text x="400" y="315" text-anchor="middle" fill="#A7F3D0" font-size="13">Batch Proposal</text>
+                                                        <text x="400" y="340" text-anchor="middle" fill="#A7F3D0" font-size="12">Fast Verify</text>
+                                                        <text x="400" y="360" text-anchor="middle" fill="#A7F3D0" font-size="11">Parallel Mode</text>
+                                                    </g>
+
+                                                    <g>
+                                                        <rect x="600" y="250" width="150" height="100" rx="15" fill="rgba(6,95,70,0.4)" stroke="rgba(16,185,129,0.5)" stroke-width="2"/>
+                                                        <text x="675" y="290" text-anchor="middle" fill="#6EE7B7" font-size="16" font-weight="700">Validator 1</text>
+                                                        <text x="675" y="315" text-anchor="middle" fill="#A7F3D0" font-size="12">Fast Verify</text>
+                                                    </g>
+                                                    <g>
+                                                        <rect x="800" y="250" width="150" height="100" rx="15" fill="rgba(6,95,70,0.4)" stroke="rgba(16,185,129,0.5)" stroke-width="2"/>
+                                                        <text x="875" y="290" text-anchor="middle" fill="#6EE7B7" font-size="16" font-weight="700">Validator 2</text>
+                                                        <text x="875" y="315" text-anchor="middle" fill="#A7F3D0" font-size="12">Fast Verify</text>
+                                                    </g>
+
+                                                    <!-- Commit Phase -->
+                                                    <g>
+                                                        <rect x="400" y="450" width="300" height="120" rx="18" fill="url(#hybridGradV3)" stroke="rgba(99,102,241,0.5)" stroke-width="2"/>
+                                                        <text x="550" y="495" text-anchor="middle" fill="#C7D2FE" font-size="20" font-weight="700">Batch Commit</text>
+                                                        <text x="550" y="525" text-anchor="middle" fill="#A5B4FC" font-size="14">Quorum Reached</text>
+                                                        <text x="550" y="550" text-anchor="middle" fill="#A5B4FC" font-size="13">BFT Proof Created</text>
+                                                        <text x="550" y="570" text-anchor="middle" fill="#A5B4FC" font-size="12">Parallel Apply</text>
+                                                    </g>
+
+                                                    <!-- Snapshot -->
+                                                    <g>
+                                                        <rect x="400" y="620" width="300" height="100" rx="15" fill="rgba(16,185,129,0.3)" stroke="rgba(16,185,129,0.5)" stroke-width="2"/>
+                                                        <text x="550" y="660" text-anchor="middle" fill="#6EE7B7" font-size="16" font-weight="700">Snapshot</text>
+                                                        <text x="550" y="685" text-anchor="middle" fill="#A7F3D0" font-size="13">Auto-compaction</text>
+                                                        <text x="550" y="705" text-anchor="middle" fill="#A7F3D0" font-size="12">BFT State Included</text>
+                                                    </g>
+
+                                                    <!-- Transaction Input -->
+                                                    <g>
+                                                        <rect x="50" y="650" width="150" height="80" rx="12" fill="rgba(56,189,248,0.2)" stroke="rgba(56,189,248,0.5)" stroke-width="2"/>
+                                                        <text x="125" y="685" text-anchor="middle" fill="#38BDF8" font-size="14" font-weight="700">Transactions</text>
+                                                        <text x="125" y="710" text-anchor="middle" fill="#BAE6FD" font-size="11">Batch Input</text>
+                                                    </g>
+
+                                                    <!-- Arrows -->
+                                                    <path d="M230,100 L300,110" stroke="#F59E0B" stroke-width="2" fill="none" marker-end="url(#arrowRaftV3)"/>
+                                                    <text x="265" y="95" fill="#FCD34D" font-size="11">Batch Ready</text>
+
+                                                    <path d="M500,110 L600,100" stroke="#38BDF8" stroke-width="2" fill="none" marker-end="url(#arrowRaftV3)"/>
+                                                    <path d="M500,110 L800,100" stroke="#38BDF8" stroke-width="2" fill="none" marker-end="url(#arrowRaftV3)"/>
+                                                    <text x="650" y="85" text-anchor="middle" fill="#38BDF8" font-size="12">Parallel Batch Replication</text>
+
+                                                    <path d="M500,310 L600,300" stroke="#10B981" stroke-width="2" fill="none" marker-end="url(#arrowBFTV3)"/>
+                                                    <path d="M500,310 L800,300" stroke="#10B981" stroke-width="2" fill="none" marker-end="url(#arrowBFTV3)"/>
+                                                    <text x="650" y="285" text-anchor="middle" fill="#10B981" font-size="12">Parallel Proposal & Validation</text>
+
+                                                    <path d="M675,350 L525,450" stroke="#6366F1" stroke-width="2" fill="none" marker-end="url(#arrowRaftV3)"/>
+                                                    <path d="M875,350 L575,450" stroke="#6366F1" stroke-width="2" fill="none" marker-end="url(#arrowRaftV3)"/>
+
+                                                    <path d="M550,570 L550,620" stroke="#10B981" stroke-width="2" fill="none" marker-end="url(#arrowBFTV3)"/>
+                                                    <text x="570" y="595" fill="#6EE7B7" font-size="11">Snapshot Creation</text>
+
+                                                    <path d="M125,650 L125,170" stroke="#38BDF8" stroke-width="2" fill="none" marker-end="url(#arrowRaftV3)" stroke-dasharray="3,3"/>
+                                                    <text x="30" y="410" fill="#38BDF8" font-size="11">Batch Transactions</text>
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </main>
+
+                <div data-component="footer"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/layout.js" defer></script>
+    <script src="/js/navigation.js" defer></script>
+</body>
+</html>
+
+

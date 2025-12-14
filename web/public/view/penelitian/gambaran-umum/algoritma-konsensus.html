@@ -123,7 +123,18 @@
                                         </div>
 
                                         <div class="space-y-4">
+                                            <div class="rounded-xl border border-primary/30 bg-primary/5 p-4">
+                                                <p class="text-xs font-semibold text-primary mb-2">File Konfigurasi:</p>
+                                                <p class="text-xs text-textdark/70 font-mono">
+                                                    <span class="text-primary">•</span> <span class="font-semibold">configtx.yaml</span>: <span class="text-textdark/60">fabric-2/raft-standard/config/configtx.yaml</span><br>
+                                                    <span class="text-primary">•</span> <span class="font-semibold">orderer.yaml</span>: <span class="text-textdark/60">fabric-2/raft-standard/config/orderer.yaml</span><br>
+                                                    <span class="text-primary">•</span> <span class="font-semibold">Binary</span>: <span class="text-textdark/60">fabric-2/raft-standard/bin/orderer</span> (implementasi RAFT)
+                                                </p>
+                                            </div>
                                             <h3 class="text-lg font-semibold text-textdark">Pseudocode Algoritma RAFT pada Fabric v2</h3>
+                                            <p class="text-xs text-textdark/60 italic">
+                                                Pseudocode berikut merepresentasikan logika algoritma RAFT yang diimplementasikan dalam binary orderer Hyperledger Fabric v2. Implementasi aktual menggunakan bahasa Go dan dapat ditemukan di source code Hyperledger Fabric.
+                                            </p>
                                             <div class="pseudocode">
 <pre><span class="comment">// Algoritma RAFT pada Hyperledger Fabric v2</span>
 <span class="keyword">class</span> <span class="function">RaftNode</span> {
@@ -224,6 +235,11 @@
         }
     }
 }</pre>
+                                            </div>
+                                            <div class="mt-4 rounded-lg border border-white/10 bg-surfaceMuted/30 p-3">
+                                                <p class="text-xs text-textdark/70">
+                                                    <span class="font-semibold text-primary">Implementasi Aktual:</span> Algoritma RAFT diimplementasikan dalam binary <code class="text-primary">orderer</code> Hyperledger Fabric v2 (file: <code>fabric-2/raft-standard/bin/orderer</code>). Implementasi menggunakan bahasa Go dan mengikuti spesifikasi etcd/raft. Konfigurasi RAFT (ElectionTick, HeartbeatTick, SnapshotIntervalSize) dapat diatur melalui file <code>configtx.yaml</code> pada bagian <code>EtcdRaft.Options</code>.
+                                                </p>
                                             </div>
                                         </div>
 
@@ -327,7 +343,18 @@
                                         </div>
 
                                         <div class="space-y-4">
+                                            <div class="rounded-xl border border-primary/30 bg-primary/5 p-4">
+                                                <p class="text-xs font-semibold text-primary mb-2">File Konfigurasi:</p>
+                                                <p class="text-xs text-textdark/70 font-mono">
+                                                    <span class="text-primary">•</span> <span class="font-semibold">configtx.yaml</span>: <span class="text-textdark/60">fabric-3/raft-standard/config/configtx.yaml</span><br>
+                                                    <span class="text-primary">•</span> <span class="font-semibold">orderer.yaml</span>: <span class="text-textdark/60">fabric-3/raft-standard/config/orderer.yaml</span><br>
+                                                    <span class="text-primary">•</span> <span class="font-semibold">Binary</span>: <span class="text-textdark/60">fabric-3/raft-standard/bin/orderer</span> (implementasi RAFT dengan optimasi)
+                                                </p>
+                                            </div>
                                             <h3 class="text-lg font-semibold text-textdark">Pseudocode Algoritma RAFT pada Fabric v3</h3>
+                                            <p class="text-xs text-textdark/60 italic">
+                                                Pseudocode berikut merepresentasikan logika algoritma RAFT yang diimplementasikan dalam binary orderer Hyperledger Fabric v3 dengan optimasi snapshot dan batch processing.
+                                            </p>
                                             <div class="pseudocode">
 <pre><span class="comment">// Algoritma RAFT pada Hyperledger Fabric v3 (Enhanced)</span>
 <span class="keyword">class</span> <span class="function">RaftNodeV3</span> {
@@ -460,6 +487,11 @@
         <span class="function">compactLog</span>(<span class="variable">snapshotIndex</span>)
     }
 }</pre>
+                                            </div>
+                                            <div class="mt-4 rounded-lg border border-white/10 bg-surfaceMuted/30 p-3">
+                                                <p class="text-xs text-textdark/70">
+                                                    <span class="font-semibold text-primary">Implementasi Aktual:</span> Algoritma RAFT dengan optimasi diimplementasikan dalam binary <code class="text-primary">orderer</code> Hyperledger Fabric v3 (file: <code>fabric-3/raft-standard/bin/orderer</code>). Fitur snapshot dan log compaction diaktifkan melalui konfigurasi di <code>configtx.yaml</code>. Implementasi menggunakan optimasi batch replication dan parallel processing untuk meningkatkan throughput.
+                                                </p>
                                             </div>
                                         </div>
 

@@ -366,6 +366,21 @@
                                                     <text x="20" y="575" fill="#38BDF8" font-size="11">Transaction</text>
                                                 </svg>
                                             </div>
+                                            <div class="mt-4 space-y-3 rounded-lg border border-accent/30 bg-accent/5 p-4">
+                                                <h4 class="text-sm font-semibold text-textdark">Penjelasan Diagram (Konseptual):</h4>
+                                                <p class="text-xs text-textdark/60 italic mb-3">
+                                                    <span class="font-semibold">Catatan:</span> Diagram ini bersifat konseptual karena Fabric v2 tidak mendukung SmartBFT secara native. Implementasi aktual hanya menggunakan RAFT standar.
+                                                </p>
+                                                <ol class="space-y-2 text-xs text-textdark/70 list-decimal list-inside">
+                                                    <li><span class="font-semibold">RAFT Leader Election:</span> Proses pemilihan leader menggunakan mekanisme RAFT standar. Candidate mengirim RequestVote dan memperoleh suara mayoritas untuk menjadi leader.</li>
+                                                    <li><span class="font-semibold">RAFT Log Replication:</span> Leader menerima transaksi dan mereplikasikannya ke follower melalui mekanisme AppendEntries standar RAFT. Transaksi ditambahkan ke log setiap node.</li>
+                                                    <li><span class="font-semibold">SmartBFT Proposal Phase:</span> Setelah log replication selesai, leader membuat proposal untuk transaksi tersebut dan mengirimkannya ke semua node untuk validasi SmartBFT. Setiap node memverifikasi proposal dan menandatanganinya jika valid.</li>
+                                                    <li><span class="font-semibold">SmartBFT Validation:</span> Node-node melakukan validasi proposal secara independen. Validasi meliputi verifikasi tanda tangan, konsistensi data, dan aturan bisnis. Setiap node yang menyetujui mengirim signature kembali ke leader.</li>
+                                                    <li><span class="font-semibold">Quorum Collection:</span> Leader mengumpulkan signature dari node-node yang menyetujui proposal. Sistem menunggu hingga mencapai quorum (mayoritas node) sebelum menganggap transaksi valid.</li>
+                                                    <li><span class="font-semibold">Commit dengan BFT Guarantee:</span> Setelah quorum tercapai, transaksi di-commit dengan jaminan Byzantine Fault Tolerance. Transaksi ini sekarang memiliki finalitas yang kuat dan tahan terhadap perilaku node yang jahat.</li>
+                                                    <li><span class="font-semibold">Overhead Kompleksitas:</span> Pendekatan hybrid ini menambah overhead komunikasi dan komputasi karena memerlukan dua fase konsensus (RAFT + SmartBFT), sehingga berpotensi meningkatkan latency dibandingkan RAFT standar.</li>
+                                                </ol>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -644,6 +659,20 @@
                                                     <path d="M50,650 L50,600 L30,600 L30,100 L50,100 L230,100" stroke="#38BDF8" stroke-width="2" fill="none" marker-end="url(#arrowRaftV3)" stroke-dasharray="3,3"/>
                                                     <text x="20" y="625" fill="#38BDF8" font-size="11">Batch Transactions</text>
                                                 </svg>
+                                            </div>
+                                            <div class="mt-4 space-y-3 rounded-lg border border-secondary/30 bg-secondary/5 p-4">
+                                                <h4 class="text-sm font-semibold text-textdark">Penjelasan Diagram:</h4>
+                                                <ol class="space-y-2 text-xs text-textdark/70 list-decimal list-inside">
+                                                    <li><span class="font-semibold">Batch Queue:</span> Transaksi yang masuk dikumpulkan dalam batch queue hingga mencapai threshold tertentu (jumlah atau waktu). Pendekatan batch meningkatkan efisiensi dengan mengurangi overhead komunikasi.</li>
+                                                    <li><span class="font-semibold">RAFT Leader Election:</span> Proses pemilihan leader menggunakan mekanisme RAFT yang dioptimasi. Leader terpilih bertanggung jawab untuk mengkoordinasikan batch transaksi.</li>
+                                                    <li><span class="font-semibold">RAFT Batch Log Replication:</span> Leader mengambil batch dari queue dan mereplikasikannya ke semua follower secara paralel. Replikasi batch lebih efisien dibandingkan replikasi transaksi satu per satu.</li>
+                                                    <li><span class="font-semibold">SmartBFT Batch Proposal:</span> Setelah batch direplikasi, leader membuat proposal SmartBFT untuk seluruh batch. Proposal ini mencakup hash batch dan metadata yang diperlukan untuk validasi.</li>
+                                                    <li><span class="font-semibold">Parallel SmartBFT Validation:</span> Semua node melakukan validasi proposal secara paralel. Setiap node memverifikasi tanda tangan, konsistensi batch, dan aturan bisnis secara independen. Validasi paralel mengurangi waktu total validasi.</li>
+                                                    <li><span class="font-semibold">Quorum Signature Collection:</span> Leader mengumpulkan signature dari node-node yang menyetujui proposal. Sistem menggunakan mekanisme quorum untuk memastikan mayoritas node setuju sebelum commit.</li>
+                                                    <li><span class="font-semibold">Batch Commit dengan BFT:</span> Setelah quorum tercapai, seluruh batch di-commit dengan jaminan Byzantine Fault Tolerance. Semua transaksi dalam batch memiliki finalitas yang kuat.</li>
+                                                    <li><span class="font-semibold">Snapshot Creation:</span> Sistem secara berkala membuat snapshot dari state saat ini untuk log compaction. Snapshot ini mengurangi ukuran log dan mempercepat recovery setelah kegagalan node.</li>
+                                                    <li><span class="font-semibold">Optimasi Native:</span> Implementasi native di Fabric v3 mengoptimalkan komunikasi antara fase RAFT dan SmartBFT, mengurangi overhead dibandingkan pendekatan hybrid konseptual pada Fabric v2.</li>
+                                                </ol>
                                             </div>
                                         </div>
                                     </div>

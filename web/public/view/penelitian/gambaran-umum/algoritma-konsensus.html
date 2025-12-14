@@ -97,17 +97,30 @@
                                 <div class="space-y-8">
                                     <div class="space-y-5">
                                         <h1 class="text-3xl font-semibold text-textdark md:text-4xl">Algoritma Konsensus RAFT</h1>
-                                        <p class="text-sm text-textdark/70 md:text-base">
-                                            Algoritma konsensus RAFT (Replicated And Fault Tolerant) adalah algoritma konsensus yang dirancang untuk menjaga konsistensi data dalam sistem terdistribusi. RAFT menggunakan mekanisme leader election dan log replication untuk memastikan semua node dalam jaringan memiliki salinan data yang identik. Algoritma ini merupakan crash fault tolerant (CFT), yang berarti dapat menoleransi kegagalan node akibat crash, namun tidak dapat menangani node yang berperilaku jahat (Byzantine fault).
-                                        </p>
+                                        <div class="space-y-4">
+                                            <p class="text-sm text-textdark/70 md:text-base">
+                                                Algoritma konsensus RAFT (Replicated And Fault Tolerant) merupakan algoritma konsensus yang dirancang untuk menjaga konsistensi data pada sistem terdistribusi dengan pendekatan yang sederhana dan mudah dipahami. RAFT bekerja dengan membagi proses konsensus ke dalam beberapa mekanisme utama, yaitu leader election, log replication, dan commitment, sehingga seluruh node dalam jaringan dapat memiliki urutan data yang konsisten. Algoritma ini termasuk ke dalam kategori Crash Fault Tolerant (CFT), yang mampu menangani kegagalan node akibat crash atau ketidakresponsifan, namun tidak dirancang untuk menghadapi perilaku node yang bersifat jahat (Byzantine fault).
+                                            </p>
+                                            <p class="text-sm text-textdark/70 md:text-base">
+                                                Pada RAFT, hanya satu node yang bertindak sebagai leader dalam satu periode (term). Leader bertanggung jawab untuk menerima transaksi dari klien, mengatur urutan transaksi, serta mereplikasi log transaksi ke seluruh node lain yang berperan sebagai follower. Follower tidak memproses transaksi secara langsung, melainkan menunggu instruksi dari leader melalui mekanisme heartbeat. Apabila heartbeat tidak diterima dalam rentang waktu tertentu, maka mekanisme leader election akan dijalankan untuk memilih pemimpin baru. Pendekatan ini memastikan bahwa sistem tetap berjalan meskipun terjadi kegagalan pada salah satu node.
+                                            </p>
+                                        </div>
                                     </div>
 
                                     <!-- Fabric v2 -->
                                     <div class="space-y-5">
                                         <h2 class="text-xl font-semibold text-textdark md:text-2xl">Implementasi RAFT pada Hyperledger Fabric v2</h2>
-                                        <p class="text-sm text-textdark/70 md:text-base">
-                                            Hyperledger Fabric v2 mengimplementasikan algoritma konsensus RAFT sebagai mekanisme default untuk ordering service. Implementasi ini menggunakan Raft consensus type yang memungkinkan jaringan blockchain untuk mencapai konsensus tanpa memerlukan Byzantine fault tolerance, sehingga lebih efisien dalam hal throughput dan latency.
-                                        </p>
+                                        <div class="space-y-4">
+                                            <p class="text-sm text-textdark/70 md:text-base">
+                                                Hyperledger Fabric v2 mengimplementasikan algoritma konsensus RAFT sebagai mekanisme default pada ordering service. Implementasi ini menggunakan tipe konsensus RAFT untuk mengatur urutan transaksi sebelum dibentuk menjadi blok dan didistribusikan ke peer. Dengan tidak menerapkan mekanisme Byzantine Fault Tolerance, Fabric v2 dengan RAFT difokuskan pada efisiensi pemrosesan transaksi, sehingga mampu menghasilkan throughput yang tinggi dan latency yang relatif rendah pada lingkungan jaringan yang bersifat permissioned dan terpercaya.
+                                            </p>
+                                            <p class="text-sm text-textdark/70 md:text-base">
+                                                Dalam Fabric v2, seluruh proses pengurutan transaksi terpusat pada leader orderer. Transaksi yang diterima akan direplikasi ke follower melalui mekanisme log replication hingga mencapai mayoritas (majority). Setelah mayoritas node menyetujui log transaksi tersebut, transaksi dianggap valid untuk dibentuk menjadi blok. Model ini mendukung konsistensi data yang kuat, namun juga menimbulkan potensi bottleneck pada node leader ketika beban transaksi meningkat secara signifikan.
+                                            </p>
+                                            <p class="text-sm text-textdark/70 md:text-base">
+                                                Dari sisi fault tolerance, RAFT pada Fabric v2 mampu menangani kegagalan node dengan cepat melalui deteksi timeout dan pemilihan leader baru. Selama mayoritas node masih aktif, sistem tetap dapat melanjutkan proses konsensus tanpa kehilangan konsistensi data. Karakteristik ini menjadikan Fabric v2 dengan RAFT cocok sebagai baseline evaluasi performa dalam penelitian ini.
+                                            </p>
+                                        </div>
 
                                         <div class="space-y-4">
                                             <h3 class="text-lg font-semibold text-textdark">Pseudocode Algoritma RAFT pada Fabric v2</h3>
@@ -301,9 +314,17 @@
                                     <!-- Fabric v3 -->
                                     <div class="space-y-5 mt-10">
                                         <h2 class="text-xl font-semibold text-textdark md:text-2xl">Implementasi RAFT pada Hyperledger Fabric v3</h2>
-                                        <p class="text-sm text-textdark/70 md:text-base">
-                                            Hyperledger Fabric v3 memperkenalkan peningkatan pada implementasi RAFT dengan optimasi performa dan stabilitas yang lebih baik. Versi ini juga menyediakan opsi untuk menggunakan SmartBFT sebagai alternatif konsensus, namun implementasi RAFT standar tetap menjadi pilihan utama untuk skenario yang tidak memerlukan Byzantine fault tolerance.
-                                        </p>
+                                        <div class="space-y-4">
+                                            <p class="text-sm text-textdark/70 md:text-base">
+                                                Hyperledger Fabric v3 tetap mempertahankan algoritma RAFT sebagai salah satu mekanisme konsensus utama, namun dengan sejumlah peningkatan pada sisi stabilitas dan efisiensi internal. Meskipun Fabric v3 memperkenalkan opsi konsensus lain seperti SmartBFT, implementasi RAFT standar tetap tersedia dan relevan untuk skenario yang tidak memerlukan toleransi Byzantine.
+                                            </p>
+                                            <p class="text-sm text-textdark/70 md:text-base">
+                                                Pada Fabric v3, mekanisme RAFT mengalami optimasi pada proses replikasi log dan pengelolaan state, seperti penerapan snapshot dan log compaction untuk mengurangi ukuran log yang harus disinkronkan antar node. Selain itu, proses komunikasi antar node dibuat lebih efisien, termasuk optimasi interval heartbeat dan dukungan replikasi log secara batch. Peningkatan ini bertujuan untuk menjaga stabilitas sistem serta mengurangi beban sumber daya ketika jumlah transaksi dan ukuran ledger semakin besar.
+                                            </p>
+                                            <p class="text-sm text-textdark/70 md:text-base">
+                                                Secara fungsional, prinsip kerja RAFT pada Fabric v3 tetap sama dengan versi sebelumnya, yaitu menggunakan satu leader sebagai koordinator transaksi dan follower sebagai replika data. Namun, dengan adanya optimasi tersebut, Fabric v3 diharapkan mampu memberikan kinerja yang lebih stabil pada beban transaksi menengah hingga tinggi, khususnya dalam hal pemanfaatan sumber daya dan waktu pemulihan ketika terjadi kegagalan node.
+                                            </p>
+                                        </div>
 
                                         <div class="space-y-4">
                                             <h3 class="text-lg font-semibold text-textdark">Pseudocode Algoritma RAFT pada Fabric v3</h3>
@@ -540,6 +561,19 @@
                                                     <text x="720" y="350" fill="#6EE7B7" font-size="11">Snapshot Creation</text>
                                                 </svg>
                                             </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Relevansi RAFT terhadap Pengujian Kinerja -->
+                                    <div class="space-y-5 mt-10">
+                                        <h2 class="text-xl font-semibold text-textdark md:text-2xl">Relevansi RAFT terhadap Pengujian Kinerja</h2>
+                                        <div class="space-y-4">
+                                            <p class="text-sm text-textdark/70 md:text-base">
+                                                Dalam konteks penelitian ini, algoritma RAFT digunakan sebagai objek utama evaluasi kinerja konsensus pada Hyperledger Fabric. Implementasi RAFT pada Fabric v2 merepresentasikan kondisi stabil dan umum digunakan, sedangkan implementasi RAFT pada Fabric v3 merepresentasikan versi pengembangan dengan optimasi tambahan. Perbandingan kedua versi ini memungkinkan analisis empiris terhadap pengaruh peningkatan implementasi RAFT terhadap throughput, latency, resource usage, dan fault tolerance dalam skenario simulasi pelaporan maladministrasi.
+                                            </p>
+                                            <p class="text-sm text-textdark/70 md:text-base">
+                                                Dengan demikian, pembahasan RAFT pada subbab ini menjadi landasan konseptual dan operasional untuk analisis hasil pengujian pada subbab-subsekuen, tanpa memasuki ranah Byzantine Fault Tolerance yang secara khusus akan dibahas pada subbab selanjutnya.
+                                            </p>
                                         </div>
                                     </div>
 

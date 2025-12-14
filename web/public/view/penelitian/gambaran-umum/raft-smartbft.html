@@ -101,17 +101,30 @@
                                 <div class="space-y-8">
                                     <div class="space-y-5">
                                         <h1 class="text-3xl font-semibold text-textdark md:text-4xl">Algoritma Konsensus RAFT dengan SmartBFT</h1>
-                                        <p class="text-sm text-textdark/70 md:text-base">
-                                            SmartBFT (Smart Byzantine Fault Tolerance) adalah algoritma konsensus yang dirancang untuk menangani Byzantine faults, yaitu situasi di mana node dapat berperilaku jahat atau memberikan informasi yang salah. Kombinasi RAFT dengan SmartBFT memungkinkan sistem untuk mendapatkan keuntungan dari efisiensi RAFT sambil tetap memiliki kemampuan untuk menoleransi node yang berperilaku jahat. Implementasi ini terutama tersedia pada Hyperledger Fabric v3 sebagai opsi konsensus alternatif.
-                                        </p>
+                                        <div class="space-y-4">
+                                            <p class="text-sm text-textdark/70 md:text-base">
+                                                SmartBFT (Smart Byzantine Fault Tolerance) merupakan mekanisme konsensus yang dirancang untuk meningkatkan ketahanan sistem blockchain terhadap Byzantine faults, yaitu kondisi ketika satu atau lebih node berperilaku tidak jujur, mengirimkan data yang salah, atau bertindak tidak konsisten dengan protokol. Berbeda dengan RAFT yang termasuk ke dalam kategori Crash Fault Tolerant (CFT), SmartBFT memungkinkan sistem tetap mencapai konsensus meskipun terdapat node yang gagal atau berperilaku jahat hingga batas tertentu.
+                                            </p>
+                                            <p class="text-sm text-textdark/70 md:text-base">
+                                                Integrasi SmartBFT dengan RAFT bertujuan untuk mengombinasikan efisiensi koordinasi RAFT dengan ketahanan Byzantine Fault Tolerance. Dalam pendekatan ini, RAFT tetap digunakan sebagai mekanisme dasar untuk pengelolaan kepemimpinan (leader election) dan pengurutan transaksi, sementara SmartBFT berperan sebagai lapisan tambahan yang memperkuat proses validasi dan finalitas transaksi melalui mekanisme kesepakatan kolektif berbasis quorum. Dengan demikian, transaksi tidak hanya diurutkan oleh leader, tetapi juga harus memperoleh persetujuan dari sejumlah node sesuai dengan ambang batas konsensus BFT.
+                                            </p>
+                                        </div>
                                     </div>
 
                                     <!-- Fabric v2 dengan SmartBFT -->
                                     <div class="space-y-5">
                                         <h2 class="text-xl font-semibold text-textdark md:text-2xl">RAFT dengan SmartBFT pada Hyperledger Fabric v2</h2>
-                                        <p class="text-sm text-textdark/70 md:text-base">
-                                            Meskipun Hyperledger Fabric v2 secara native tidak mendukung SmartBFT, beberapa implementasi eksperimental telah dikembangkan untuk mengintegrasikan mekanisme BFT ke dalam RAFT. Implementasi ini menggunakan hybrid approach di mana RAFT digunakan untuk leader election dan log replication, sementara SmartBFT digunakan untuk validasi dan verifikasi transaksi.
-                                        </p>
+                                        <div class="space-y-4">
+                                            <p class="text-sm text-textdark/70 md:text-base">
+                                                Pada Hyperledger Fabric v2, SmartBFT belum didukung secara native sebagai mekanisme konsensus. Fabric v2 secara desain difokuskan pada model CFT dengan RAFT sebagai konsensus utama pada ordering service. Oleh karena itu, penerapan RAFT dengan SmartBFT pada Fabric v2 bersifat terbatas dan lebih bersifat konseptual atau eksperimental, bukan bagian dari implementasi resmi yang stabil.
+                                            </p>
+                                            <p class="text-sm text-textdark/70 md:text-base">
+                                                Dalam konteks arsitektur, Fabric v2 tidak menyediakan integrasi langsung antara RAFT dan mekanisme Byzantine Fault Tolerance. Apabila konsep SmartBFT diterapkan secara konseptual pada Fabric v2, maka RAFT tetap berfungsi sebagai pengendali utama alur transaksi, sedangkan mekanisme BFT hanya dapat diposisikan sebagai lapisan verifikasi tambahan di luar konsensus inti. Pendekatan ini menambah kompleksitas komunikasi antar node serta meningkatkan beban komputasi, sehingga berpotensi memengaruhi latency dan pemanfaatan sumber daya.
+                                            </p>
+                                            <p class="text-sm text-textdark/70 md:text-base">
+                                                Oleh karena itu, dalam penelitian ini, Fabric v2 dengan RAFT diperlakukan sebagai baseline CFT, tanpa penerapan SmartBFT secara penuh. Pembahasan RAFT dengan SmartBFT pada Fabric v2 lebih digunakan sebagai referensi konseptual untuk memahami keterbatasan RAFT standar dalam menghadapi Byzantine faults, serta sebagai pembanding terhadap implementasi SmartBFT yang telah terintegrasi secara native pada Fabric v3.
+                                            </p>
+                                        </div>
 
                                         <div class="space-y-4">
                                             <h3 class="text-lg font-semibold text-textdark">Pseudocode Hybrid RAFT-SmartBFT pada Fabric v2</h3>
@@ -340,9 +353,17 @@
                                     <!-- Fabric v3 dengan SmartBFT -->
                                     <div class="space-y-5 mt-10">
                                         <h2 class="text-xl font-semibold text-textdark md:text-2xl">RAFT dengan SmartBFT pada Hyperledger Fabric v3</h2>
-                                        <p class="text-sm text-textdark/70 md:text-base">
-                                            Hyperledger Fabric v3 secara native mendukung SmartBFT sebagai opsi konsensus. Implementasi ini lebih matang dan terintegrasi dengan baik dibandingkan versi eksperimental pada Fabric v2. SmartBFT pada Fabric v3 menggunakan mekanisme yang lebih efisien dengan optimasi untuk throughput dan latency yang lebih baik.
-                                        </p>
+                                        <div class="space-y-4">
+                                            <p class="text-sm text-textdark/70 md:text-base">
+                                                Hyperledger Fabric v3 memperkenalkan dukungan SmartBFT secara native sebagai salah satu opsi mekanisme konsensus pada ordering service. Implementasi ini dirancang secara lebih matang dan terintegrasi, sehingga SmartBFT tidak hanya berfungsi sebagai lapisan tambahan, tetapi menjadi bagian dari proses konsensus yang utuh. Dalam konfigurasi ini, RAFT digunakan untuk menjaga struktur koordinasi dan efisiensi pengurutan transaksi, sementara SmartBFT memastikan bahwa setiap transaksi yang dikomit telah melewati proses validasi kolektif berbasis quorum.
+                                            </p>
+                                            <p class="text-sm text-textdark/70 md:text-base">
+                                                Pada Fabric v3, SmartBFT menerapkan mekanisme pertukaran pesan dan verifikasi tanda tangan antar node untuk mencapai kesepakatan sebelum transaksi dianggap final. Pendekatan ini meningkatkan fault tolerance sistem secara signifikan, karena jaringan tetap dapat beroperasi dengan konsisten meskipun terdapat node yang gagal atau bersikap tidak jujur. Selain itu, Fabric v3 juga mengoptimalkan proses SmartBFT melalui dukungan batch processing, replikasi paralel, serta pengelolaan state yang lebih efisien, sehingga overhead yang ditimbulkan oleh mekanisme BFT dapat ditekan.
+                                            </p>
+                                            <p class="text-sm text-textdark/70 md:text-base">
+                                                Konsekuensi dari penerapan SmartBFT adalah meningkatnya kompleksitas konsensus dibandingkan RAFT standar. Proses validasi tambahan dan komunikasi antar node berpotensi meningkatkan latency dan konsumsi sumber daya, terutama pada skenario beban transaksi tinggi. Namun, trade-off ini sejalan dengan tujuan utama SmartBFT, yaitu meningkatkan keandalan dan keamanan konsensus dalam lingkungan yang membutuhkan tingkat kepercayaan lebih tinggi.
+                                            </p>
+                                        </div>
 
                                         <div class="space-y-4">
                                             <h3 class="text-lg font-semibold text-textdark">Pseudocode RAFT-SmartBFT pada Fabric v3</h3>
@@ -586,6 +607,19 @@
                                                     <text x="20" y="625" fill="#38BDF8" font-size="11">Batch Transactions</text>
                                                 </svg>
                                             </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Relevansi RAFT dengan SmartBFT terhadap Pengujian Kinerja -->
+                                    <div class="space-y-5 mt-10">
+                                        <h2 class="text-xl font-semibold text-textdark md:text-2xl">Relevansi RAFT dengan SmartBFT terhadap Pengujian Kinerja</h2>
+                                        <div class="space-y-4">
+                                            <p class="text-sm text-textdark/70 md:text-base">
+                                                Dalam penelitian ini, RAFT dengan SmartBFT pada Hyperledger Fabric v3 diposisikan sebagai RAFT varian, yang dibandingkan dengan RAFT standar pada Fabric v2 dan Fabric v3. Evaluasi kinerja difokuskan untuk mengamati bagaimana penambahan mekanisme SmartBFT memengaruhi throughput, latency, resource usage, dan fault tolerance dalam skenario simulasi pelaporan maladministrasi.
+                                            </p>
+                                            <p class="text-sm text-textdark/70 md:text-base">
+                                                Dengan membandingkan RAFT standar dan RAFT yang diperkuat dengan SmartBFT, penelitian ini tidak hanya menilai efisiensi pemrosesan transaksi, tetapi juga menganalisis trade-off antara kinerja dan ketahanan sistem. Pembahasan pada subbab ini menjadi dasar konseptual untuk interpretasi hasil pengujian pada subbab berikutnya, khususnya dalam menjelaskan perbedaan performa antara Fabric v2 dan Fabric v3 pada kondisi beban transaksi yang bervariasi.
+                                            </p>
                                         </div>
                                     </div>
 

@@ -138,6 +138,65 @@
                                                     <span class="text-accent">•</span> <span class="font-semibold">Binary</span>: <span class="text-textdark/60">fabric-2/raft-variant/bin/orderer</span> (hanya RAFT, tanpa SmartBFT)
                                                 </p>
                                             </div>
+                                            <div class="rounded-xl border border-white/10 bg-surfaceMuted/50 p-4">
+                                                <h4 class="text-sm font-semibold text-textdark mb-3">Konfigurasi RAFT Variant pada Fabric v2 (Berdasarkan Simulasi)</h4>
+                                                <p class="text-xs text-textdark/60 mb-3 italic">
+                                                    Catatan: Konfigurasi ini menggunakan parameter variant untuk eksplorasi throughput tinggi, namun tidak mendukung SmartBFT secara native pada Fabric v2.
+                                                </p>
+                                                <div class="overflow-x-auto rounded-lg border border-white/5 bg-surface/40">
+                                                    <table class="min-w-full divide-y divide-white/10 text-left text-xs text-textdark/80">
+                                                        <thead class="bg-surfaceMuted/70 text-textdark">
+                                                            <tr>
+                                                                <th class="px-3 py-2 font-semibold">Parameter</th>
+                                                                <th class="px-3 py-2 font-semibold">Nilai</th>
+                                                                <th class="px-3 py-2 font-semibold">Deskripsi</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody class="divide-y divide-white/5">
+                                                            <tr>
+                                                                <td class="px-3 py-2 text-textdark/60">BatchTimeout</td>
+                                                                <td class="px-3 py-2 font-mono">1 detik</td>
+                                                                <td class="px-4 py-3">Mempercepat pembentukan blok untuk throughput tinggi</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="px-3 py-2 text-textdark/60">MaxMessageCount</td>
+                                                                <td class="px-3 py-2 font-mono">50</td>
+                                                                <td class="px-4 py-3">Meningkatkan jumlah transaksi per blok</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="px-3 py-2 text-textdark/60">AbsoluteMaxBytes</td>
+                                                                <td class="px-3 py-2 font-mono">20 MB</td>
+                                                                <td class="px-4 py-3">Mengurangi ukuran maksimum untuk efisiensi transmisi</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="px-3 py-2 text-textdark/60">PreferredMaxBytes</td>
+                                                                <td class="px-3 py-2 font-mono">4 MB</td>
+                                                                <td class="px-4 py-3">Meningkatkan ukuran blok untuk batch processing</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="px-3 py-2 text-textdark/60">Jumlah Orderer</td>
+                                                                <td class="px-3 py-2 font-mono">Hingga 4</td>
+                                                                <td class="px-4 py-3">Menguji fault tolerance multi-node</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="px-3 py-2 text-textdark/60">Orderer Endpoint</td>
+                                                                <td class="px-3 py-2 font-mono">orderer.fabric2.variant.com:7050</td>
+                                                                <td class="px-4 py-3">Alamat orderer node variant</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="px-3 py-2 text-textdark/60">Channel</td>
+                                                                <td class="px-3 py-2 font-mono">fabric2-channel-variant</td>
+                                                                <td class="px-4 py-3">Nama channel variant</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="px-3 py-2 text-textdark/60">SmartBFT Support</td>
+                                                                <td class="px-3 py-2 font-mono text-accent">Tidak Tersedia</td>
+                                                                <td class="px-4 py-3">Fabric v2 tidak mendukung SmartBFT secara native</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
                                             <h3 class="text-lg font-semibold text-textdark">Pseudocode Hybrid RAFT-SmartBFT pada Fabric v2</h3>
                                             <p class="text-xs text-textdark/60 italic">
                                                 Pseudocode berikut merupakan representasi konseptual dari integrasi RAFT-SmartBFT yang <span class="font-semibold">tidak diimplementasikan secara native</span> pada Fabric v2. Digunakan sebagai referensi untuk memahami keterbatasan RAFT standar.
@@ -411,6 +470,70 @@
                                                     <span class="text-secondary">ℹ</span> Konfigurasi SmartBFT meliputi: RequestBatchMaxCount, RequestBatchMaxInterval, ViewChangeTimeout, LeaderHeartbeatTimeout, dll.
                                                 </p>
                                             </div>
+                                            <div class="rounded-xl border border-white/10 bg-surfaceMuted/50 p-4">
+                                                <h4 class="text-sm font-semibold text-textdark mb-3">Konfigurasi RAFT Variant dengan SmartBFT pada Fabric v3 (Berdasarkan Simulasi)</h4>
+                                                <div class="overflow-x-auto rounded-lg border border-white/5 bg-surface/40">
+                                                    <table class="min-w-full divide-y divide-white/10 text-left text-xs text-textdark/80">
+                                                        <thead class="bg-surfaceMuted/70 text-textdark">
+                                                            <tr>
+                                                                <th class="px-3 py-2 font-semibold">Parameter</th>
+                                                                <th class="px-3 py-2 font-semibold">Nilai</th>
+                                                                <th class="px-3 py-2 font-semibold">Deskripsi</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody class="divide-y divide-white/5">
+                                                            <tr>
+                                                                <td class="px-3 py-2 text-textdark/60">BatchTimeout</td>
+                                                                <td class="px-3 py-2 font-mono">1 detik</td>
+                                                                <td class="px-4 py-3">Mempercepat pembentukan blok untuk throughput tinggi</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="px-3 py-2 text-textdark/60">MaxMessageCount</td>
+                                                                <td class="px-3 py-2 font-mono">50</td>
+                                                                <td class="px-4 py-3">Meningkatkan jumlah transaksi per blok</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="px-3 py-2 text-textdark/60">AbsoluteMaxBytes</td>
+                                                                <td class="px-3 py-2 font-mono">20 MB</td>
+                                                                <td class="px-4 py-3">Mengurangi ukuran maksimum untuk efisiensi transmisi</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="px-3 py-2 text-textdark/60">PreferredMaxBytes</td>
+                                                                <td class="px-3 py-2 font-mono">4 MB</td>
+                                                                <td class="px-4 py-3">Meningkatkan ukuran blok untuk batch processing</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="px-3 py-2 text-textdark/60">Jumlah Orderer</td>
+                                                                <td class="px-3 py-2 font-mono">Hingga 4</td>
+                                                                <td class="px-4 py-3">Menguji fault tolerance multi-node</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="px-3 py-2 text-textdark/60">Orderer Endpoint</td>
+                                                                <td class="px-3 py-2 font-mono">orderer.fabric3.variant:8055</td>
+                                                                <td class="px-4 py-3">Alamat orderer node variant (port berbeda dari v2)</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="px-3 py-2 text-textdark/60">Channel</td>
+                                                                <td class="px-3 py-2 font-mono">fabric3-channel-variant</td>
+                                                                <td class="px-4 py-3">Nama channel variant</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="px-3 py-2 text-textdark/60">OrdererType</td>
+                                                                <td class="px-3 py-2 font-mono text-secondary">BFT</td>
+                                                                <td class="px-4 py-3">Mengaktifkan SmartBFT sebagai mekanisme konsensus</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="px-3 py-2 text-textdark/60">SmartBFT Config</td>
+                                                                <td class="px-3 py-2 font-mono">RequestBatchMaxCount, ViewChangeTimeout, dll.</td>
+                                                                <td class="px-4 py-3">Parameter SmartBFT untuk optimasi performa</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                <p class="text-xs text-textdark/60 mt-3 italic">
+                                                    Konfigurasi ini digunakan untuk eksplorasi throughput tinggi dengan dukungan SmartBFT opsional pada simulasi pelaporan maladministrasi.
+                                                </p>
+                                            </div>
                                             <h3 class="text-lg font-semibold text-textdark">Pseudocode RAFT-SmartBFT pada Fabric v3</h3>
                                             <p class="text-xs text-textdark/60 italic">
                                                 Pseudocode berikut merepresentasikan logika algoritma RAFT-SmartBFT yang diimplementasikan secara native dalam binary orderer Hyperledger Fabric v3 dengan dukungan batch processing dan optimasi paralel.
@@ -673,6 +796,90 @@
                                                     <li><span class="font-semibold">Snapshot Creation:</span> Sistem secara berkala membuat snapshot dari state saat ini untuk log compaction. Snapshot ini mengurangi ukuran log dan mempercepat recovery setelah kegagalan node.</li>
                                                     <li><span class="font-semibold">Optimasi Native:</span> Implementasi native di Fabric v3 mengoptimalkan komunikasi antara fase RAFT dan SmartBFT, mengurangi overhead dibandingkan pendekatan hybrid konseptual pada Fabric v2.</li>
                                                 </ol>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Perbandingan RAFT Standar vs Variant dengan SmartBFT -->
+                                    <div class="space-y-5 mt-10">
+                                        <h2 class="text-xl font-semibold text-textdark md:text-2xl">Perbandingan RAFT Standar vs Variant dengan SmartBFT (Berdasarkan Simulasi)</h2>
+                                        <div class="space-y-4">
+                                            <p class="text-sm text-textdark/70 md:text-base">
+                                                Berdasarkan konfigurasi simulasi pada lingkungan uji, perbedaan utama antara RAFT standar dan variant dengan SmartBFT terletak pada parameter batch, jumlah orderer, dan dukungan Byzantine Fault Tolerance. Perbandingan ini dirancang untuk mengukur trade-off antara efisiensi pemrosesan transaksi dan ketahanan sistem terhadap Byzantine faults dalam skenario pelaporan maladministrasi.
+                                            </p>
+                                            <div class="rounded-xl border border-white/10 bg-surfaceMuted/50 p-6">
+                                                <h3 class="text-base font-semibold text-textdark mb-4">Tabel Perbandingan Konfigurasi RAFT Standar vs Variant dengan SmartBFT</h3>
+                                                <div class="overflow-x-auto rounded-lg border border-white/5 bg-surface/40">
+                                                    <table class="min-w-full divide-y divide-white/10 text-left text-xs text-textdark/80 md:text-sm">
+                                                        <thead class="bg-surfaceMuted/70 text-textdark">
+                                                            <tr>
+                                                                <th class="px-4 py-3 font-semibold">Parameter</th>
+                                                                <th class="px-4 py-3 font-semibold">RAFT Standar</th>
+                                                                <th class="px-4 py-3 font-semibold">RAFT Variant (SmartBFT)</th>
+                                                                <th class="px-4 py-3 font-semibold">Dampak Perubahan</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody class="divide-y divide-white/5">
+                                                            <tr>
+                                                                <td class="px-4 py-3 text-textdark/60 font-semibold">BatchTimeout</td>
+                                                                <td class="px-4 py-3 font-mono">2 detik</td>
+                                                                <td class="px-4 py-3 font-mono">1 detik</td>
+                                                                <td class="px-4 py-3">Mempercepat pembentukan blok dengan SmartBFT validation</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="px-4 py-3 text-textdark/60 font-semibold">MaxMessageCount</td>
+                                                                <td class="px-4 py-3 font-mono">10</td>
+                                                                <td class="px-4 py-3 font-mono">50</td>
+                                                                <td class="px-4 py-3">Batch processing dengan validasi SmartBFT paralel</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="px-4 py-3 text-textdark/60 font-semibold">AbsoluteMaxBytes</td>
+                                                                <td class="px-4 py-3 font-mono">99 MB</td>
+                                                                <td class="px-4 py-3 font-mono">20 MB</td>
+                                                                <td class="px-4 py-3">Efisiensi transmisi dengan overhead SmartBFT signatures</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="px-4 py-3 text-textdark/60 font-semibold">PreferredMaxBytes</td>
+                                                                <td class="px-4 py-3 font-mono">512 KB</td>
+                                                                <td class="px-4 py-3 font-mono">4 MB</td>
+                                                                <td class="px-4 py-3">Batch besar untuk mengurangi overhead komunikasi SmartBFT</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="px-4 py-3 text-textdark/60 font-semibold">Jumlah Orderer</td>
+                                                                <td class="px-4 py-3 font-mono">1</td>
+                                                                <td class="px-4 py-3 font-mono">Hingga 4</td>
+                                                                <td class="px-4 py-3">Menguji Byzantine fault tolerance dengan quorum SmartBFT</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="px-4 py-3 text-textdark/60 font-semibold">OrdererType</td>
+                                                                <td class="px-4 py-3 font-mono">etcdraft</td>
+                                                                <td class="px-4 py-3 font-mono text-secondary">BFT</td>
+                                                                <td class="px-4 py-3">Mengaktifkan SmartBFT untuk Byzantine Fault Tolerance</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="px-4 py-3 text-textdark/60 font-semibold">Fault Tolerance</td>
+                                                                <td class="px-4 py-3">Crash Fault Tolerant (CFT)</td>
+                                                                <td class="px-4 py-3 text-secondary">Byzantine Fault Tolerant (BFT)</td>
+                                                                <td class="px-4 py-3">Meningkatkan ketahanan terhadap node yang berperilaku jahat</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="px-4 py-3 text-textdark/60 font-semibold">Fokus Pengamatan</td>
+                                                                <td class="px-4 py-3">Baseline latensi dan kestabilan blok</td>
+                                                                <td class="px-4 py-3">Throughput tinggi dengan jaminan BFT</td>
+                                                                <td class="px-4 py-3">Trade-off antara performa dan keamanan konsensus</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                <div class="mt-4 rounded-lg border border-secondary/30 bg-secondary/5 p-4">
+                                                    <h4 class="text-xs font-semibold text-secondary mb-2">Rasionalisasi Perbedaan Konfigurasi dengan SmartBFT:</h4>
+                                                    <ul class="space-y-2 text-xs text-textdark/70 list-disc list-inside">
+                                                        <li><strong>RAFT Standar:</strong> Menggunakan CFT dengan parameter konservatif untuk kestabilan dan latensi yang dapat diprediksi. Tidak memiliki perlindungan terhadap Byzantine faults.</li>
+                                                        <li><strong>RAFT Variant dengan SmartBFT:</strong> Menggunakan BFT dengan parameter agresif untuk throughput tinggi. SmartBFT menambahkan lapisan validasi kolektif yang memerlukan quorum signatures, meningkatkan overhead komunikasi namun memberikan jaminan finalitas yang kuat.</li>
+                                                        <li><strong>Trade-off:</strong> Penambahan SmartBFT meningkatkan kompleksitas konsensus dan potensi latency karena memerlukan validasi tambahan dan pertukaran pesan antar node. Namun, hal ini sejalan dengan tujuan meningkatkan keandalan dan keamanan konsensus dalam lingkungan yang membutuhkan tingkat kepercayaan lebih tinggi.</li>
+                                                        <li><strong>Kombinasi:</strong> Perbandingan kedua konfigurasi memberikan gambaran menyeluruh tentang bagaimana penambahan mekanisme SmartBFT memengaruhi keseimbangan antara throughput, latency, resource usage, dan fault tolerance dalam simulasi pelaporan maladministrasi.</li>
+                                                    </ul>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

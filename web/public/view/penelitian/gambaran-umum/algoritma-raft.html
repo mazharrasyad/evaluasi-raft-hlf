@@ -371,16 +371,16 @@ onReceive(AppendEntriesSuccess from follower f):
                                     </g>
 
                                     <g>
-                                        <rect x="360" y="195" width="565" height="170" rx="28" fill="url(#raftNode)" stroke="rgba(56,189,248,0.22)" stroke-width="2" />
-                                        <text x="642" y="230" text-anchor="middle" fill="#E2E8F0" font-size="18" font-weight="700">Replikasi log & commit</text>
-                                        <text x="642" y="258" text-anchor="middle" fill="#94A3B8" font-size="13">Leader kirim entries → follower cek prevLog → ack</text>
-                                        <text x="642" y="282" text-anchor="middle" fill="#94A3B8" font-size="13">Jika ack mayoritas → commitIndex naik → blok/ledger final</text>
+                                        <rect x="360" y="235" width="565" height="170" rx="28" fill="url(#raftNode)" stroke="rgba(56,189,248,0.22)" stroke-width="2" />
+                                        <text x="642" y="270" text-anchor="middle" fill="#E2E8F0" font-size="18" font-weight="700">Replikasi log & commit</text>
+                                        <text x="642" y="298" text-anchor="middle" fill="#94A3B8" font-size="13">Leader kirim entries → follower cek prevLog → ack</text>
+                                        <text x="642" y="322" text-anchor="middle" fill="#94A3B8" font-size="13">Jika ack mayoritas → commitIndex naik → blok/ledger final</text>
 
-                                        <rect x="390" y="300" width="240" height="45" rx="16" fill="rgba(15,23,42,0.75)" stroke="rgba(255,255,255,0.08)" />
-                                        <text x="510" y="328" text-anchor="middle" fill="#E2E8F0" font-size="13">cek prevLogIndex/prevLogTerm</text>
+                                        <rect x="390" y="340" width="240" height="45" rx="16" fill="rgba(15,23,42,0.75)" stroke="rgba(255,255,255,0.08)" />
+                                        <text x="510" y="368" text-anchor="middle" fill="#E2E8F0" font-size="13">cek prevLogIndex/prevLogTerm</text>
 
-                                        <rect x="655" y="300" width="240" height="45" rx="16" fill="rgba(15,23,42,0.75)" stroke="rgba(255,255,255,0.08)" />
-                                        <text x="775" y="328" text-anchor="middle" fill="#E2E8F0" font-size="13">commit jika ack ≥ Q</text>
+                                        <rect x="655" y="340" width="240" height="45" rx="16" fill="rgba(15,23,42,0.75)" stroke="rgba(255,255,255,0.08)" />
+                                        <text x="775" y="368" text-anchor="middle" fill="#E2E8F0" font-size="13">commit jika ack ≥ Q</text>
                                     </g>
 
                                     <!-- Arrows -->
@@ -397,10 +397,10 @@ onReceive(AppendEntriesSuccess from follower f):
                                     <text x="652" y="86" text-anchor="middle" fill="#BAE6FD" font-size="12">ya → leader</text>
 
                                     <path d="M805,145 L805,155" stroke="#38BDF8" stroke-width="2.2" fill="none" marker-end="url(#raftArrow)" />
-                                    <text x="828" y="154" fill="#BAE6FD" font-size="12">tx masuk</text>
+                                    <text x="830" y="150" fill="#BAE6FD" font-size="12">tx masuk</text>
 
-                                    <path d="M805,203 L805,195" stroke="#38BDF8" stroke-width="2.2" fill="none" marker-end="url(#raftArrow)" />
-                                    <text x="828" y="214" fill="#BAE6FD" font-size="12">AppendEntries</text>
+                                    <path d="M805,203 L805,235" stroke="#38BDF8" stroke-width="2.2" fill="none" marker-end="url(#raftArrow)" />
+                                    <text x="830" y="226" fill="#BAE6FD" font-size="12">AppendEntries</text>
 
                                     <!-- Parameter pembeda (standar vs varian) -->
                                     <g>

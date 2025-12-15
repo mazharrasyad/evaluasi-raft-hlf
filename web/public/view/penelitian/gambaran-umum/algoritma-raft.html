@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluasi RAFT HLF — 4.1.1 Algoritma RAFT</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#38BDF8',
+                        secondary: '#6366F1',
+                        accent: '#F59E0B',
+                        highlight: '#F97316',
+                        soft: '#050B16',
+                        surface: '#0F172A',
+                        surfaceMuted: '#16213F',
+                        border: '#1E293B',
+                        muted: '#94A3B8',
+                        textdark: '#E2E8F0'
+                    }
+                }
+            }
+        };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="/images/logo-ai-center.svg">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+
+        .component-link[data-active="true"] {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.28), rgba(56, 189, 248, 0.22));
+            color: #E2E8F0;
+            border-color: rgba(249, 115, 22, 0.45);
+            box-shadow: 0 12px 40px rgba(15, 23, 42, 0.45);
+        }
+
+        .component-link[data-active="true"] .component-link__index {
+            background-color: rgba(249, 115, 22, 0.35);
+            color: #E2E8F0;
+        }
+
+        code, pre {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        }
+    </style>
+</head>
+<body class="bg-soft text-textdark">
+    <div data-component="header"></div>
+
+    <div class="relative min-h-screen overflow-hidden">
+        <div class="absolute inset-0 -z-10 h-full w-full">
+            <div class="absolute -left-1/3 top-0 h-[720px] w-[720px] rounded-full bg-gradient-to-br from-highlight/30 via-secondary/20 to-transparent opacity-70 blur-3xl"></div>
+            <div class="absolute -right-1/4 bottom-0 h-[620px] w-[620px] rounded-full bg-gradient-to-tr from-accent/35 via-secondary/25 to-primary/20 opacity-70 blur-3xl"></div>
+        </div>
+
+        <div class="flex min-h-screen flex-col lg:flex-row">
+            <div data-component="sidebar"></div>
+
+            <div class="flex-1">
+                <main class="mx-auto w-full max-w-5xl px-6 py-12">
+                    <div class="space-y-10">
+                        <section class="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-surface via-soft to-[#020817] p-10 shadow-2xl shadow-black/30">
+                            <div class="flex flex-col gap-6">
+                                <div class="flex flex-wrap items-center justify-between gap-3">
+                                    <div class="inline-flex w-fit items-center gap-2 rounded-full border border-highlight/40 bg-highlight/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-highlight/90">
+                                        Bab 4.1.1
+                                    </div>
+                                    <a href="/penelitian/gambaran-umum" class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1 text-xs font-semibold text-textdark/80 transition hover:bg-white/10 hover:text-textdark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-highlight">
+                                        <span aria-hidden="true">←</span>
+                                        Kembali ke 4.1
+                                    </a>
+                                </div>
+
+                                <div class="space-y-6">
+                                    <div class="space-y-4">
+                                        <h1 class="text-3xl font-semibold text-textdark md:text-4xl">Algoritma RAFT</h1>
+                                        <p class="text-sm text-textdark/75 md:text-base">
+                                            RAFT adalah algoritma konsensus <span class="font-semibold text-textdark">Crash Fault Tolerant (CFT)</span> yang menjaga konsistensi log pada sistem terdistribusi dengan cara
+                                            <span class="font-semibold text-textdark">memilih satu leader</span> untuk mengoordinasikan replikasi log ke follower. RAFT memecah persoalan konsensus menjadi tiga mekanisme inti:
+                                            <span class="font-semibold text-textdark">leader election</span>, <span class="font-semibold text-textdark">log replication</span>, dan <span class="font-semibold text-textdark">safety</span> (aturan komit dan konsistensi).
+                                        </p>
+                                    </div>
+
+                                    <div class="grid gap-4 rounded-3xl border border-white/10 bg-surfaceMuted/60 p-6 md:grid-cols-3">
+                                        <div class="space-y-2">
+                                            <p class="text-xs font-semibold uppercase tracking-[0.28em] text-primary/80">Peran node</p>
+                                            <ul class="space-y-1 text-sm text-textdark/80">
+                                                <li><span class="font-semibold text-textdark">Follower</span>: menerima heartbeat & replikasi log</li>
+                                                <li><span class="font-semibold text-textdark">Candidate</span>: meminta suara saat timeout</li>
+                                                <li><span class="font-semibold text-textdark">Leader</span>: menerima perintah, replikasi, commit</li>
+                                            </ul>
+                                        </div>
+                                        <div class="space-y-2">
+                                            <p class="text-xs font-semibold uppercase tracking-[0.28em] text-secondary/80">Struktur log</p>
+                                            <ul class="space-y-1 text-sm text-textdark/80">
+                                                <li><span class="font-semibold text-textdark">term</span>: versi epoch kepemimpinan</li>
+                                                <li><span class="font-semibold text-textdark">index</span>: posisi entri pada log</li>
+                                                <li><span class="font-semibold text-textdark">commitIndex</span>: batas entri yang “final”</li>
+                                            </ul>
+                                        </div>
+                                        <div class="space-y-2">
+                                            <p class="text-xs font-semibold uppercase tracking-[0.28em] text-highlight/80">Jaminan</p>
+                                            <ul class="space-y-1 text-sm text-textdark/80">
+                                                <li><span class="font-semibold text-textdark">majority quorum</span> mencegah split-brain</li>
+                                                <li>leader hanya commit jika mayoritas mereplikasi</li>
+                                                <li>log konsisten melalui pemeriksaan <span class="font-semibold text-textdark">prevLogIndex/prevLogTerm</span></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="space-y-6 rounded-3xl border border-white/10 bg-surface/70 p-10 shadow-2xl shadow-black/30">
+                            <div class="space-y-3">
+                                <h2 class="text-2xl font-semibold text-textdark md:text-3xl">1) Penjelasan / Rumus Inti RAFT</h2>
+                                <p class="text-sm text-textdark/75 md:text-base">
+                                    RAFT menggunakan aturan mayoritas untuk election dan commit. Notasi yang umum dipakai:
+                                </p>
+                            </div>
+
+                            <div class="grid gap-6 md:grid-cols-2">
+                                <div class="space-y-3 rounded-2xl border border-white/10 bg-surfaceMuted/60 p-6">
+                                    <h3 class="text-lg font-semibold text-textdark">Quorum mayoritas</h3>
+                                    <p class="text-sm text-textdark/75 md:text-base">
+                                        Untuk <span class="font-semibold text-textdark">N</span> node orderer, ukuran quorum mayoritas:
+                                    </p>
+                                    <div class="rounded-xl border border-white/10 bg-black/20 p-4">
+                                        <p class="text-base font-semibold text-textdark">Q = ⌊N/2⌋ + 1</p>
+                                    </div>
+                                    <p class="text-sm text-textdark/75 md:text-base">
+                                        RAFT (CFT) dapat tetap berjalan jika jumlah crash/fail-stop yang ditoleransi <span class="font-semibold text-textdark">f</span> memenuhi:
+                                    </p>
+                                    <div class="rounded-xl border border-white/10 bg-black/20 p-4">
+                                        <p class="text-base font-semibold text-textdark">N ≥ 2f + 1</p>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-3 rounded-2xl border border-white/10 bg-surfaceMuted/60 p-6">
+                                    <h3 class="text-lg font-semibold text-textdark">Timeout & heartbeat</h3>
+                                    <p class="text-sm text-textdark/75 md:text-base">
+                                        Untuk mengurangi risiko pemilihan serentak (split vote), follower memakai election timeout acak.
+                                        Secara konseptual:
+                                    </p>
+                                    <div class="rounded-xl border border-white/10 bg-black/20 p-4">
+                                        <p class="text-base font-semibold text-textdark">T<sub>election</sub> ∈ [T<sub>min</sub>, T<sub>max</sub>] (acak)</p>
+                                    </div>
+                                    <p class="text-sm text-textdark/75 md:text-base">
+                                        Jika follower tidak menerima heartbeat sampai timeout, ia naik term dan menjadi candidate.
+                                        Pada implementasi orderer RAFT (etcd/raft), parameter ini biasa muncul sebagai <span class="font-semibold text-textdark">TickInterval</span>,
+                                        <span class="font-semibold text-textdark">ElectionTick</span>, dan <span class="font-semibold text-textdark">HeartbeatTick</span>.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="space-y-3 rounded-2xl border border-white/10 bg-surfaceMuted/60 p-6">
+                                <h3 class="text-lg font-semibold text-textdark">Aturan commit (replikasi log)</h3>
+                                <p class="text-sm text-textdark/75 md:text-base">
+                                    Leader menganggap sebuah entri log <span class="font-semibold text-textdark">committed</span> jika entri tersebut sudah tersimpan pada dirinya dan sudah direplikasi ke mayoritas follower.
+                                    Secara ringkas:
+                                </p>
+                                <div class="rounded-xl border border-white/10 bg-black/20 p-4">
+                                    <p class="text-base font-semibold text-textdark">commitIndex = max { i | jumlah(matchIndex ≥ i) ≥ Q }</p>
+                                </div>
+                                <p class="text-sm text-textdark/75 md:text-base">
+                                    Untuk menjaga safety, RAFT juga memakai pemeriksaan konsistensi log saat AppendEntries:
+                                    follower hanya menerima entri baru jika pasangan <span class="font-semibold text-textdark">(prevLogIndex, prevLogTerm)</span> cocok.
+                                    Jika tidak cocok, follower menolak dan leader akan mengirim ulang entri dari titik yang sesuai.
+                                </p>
+                            </div>
+                        </section>
+
+                        <section class="space-y-6 rounded-3xl border border-white/10 bg-surfaceMuted/70 p-10 shadow-2xl shadow-black/30">
+                            <div class="space-y-3">
+                                <h2 class="text-2xl font-semibold text-textdark md:text-3xl">2) Pseudocode RAFT + Penjelasan</h2>
+                                <p class="text-sm text-textdark/75 md:text-base">
+                                    Pseudocode berikut merangkum perilaku inti RAFT (leader election + log replication) dalam bentuk yang disederhanakan.
+                                    Fokusnya adalah alur keputusan, bukan detail implementasi jaringan.
+                                </p>
+                            </div>
+
+                            <div class="space-y-4">
+                                <div class="rounded-2xl border border-white/10 bg-black/25 p-5 overflow-x-auto">
+                                    <pre class="text-sm text-textdark/90 leading-relaxed"><code>// State lokal
+state ∈ {FOLLOWER, CANDIDATE, LEADER}
+currentTerm ← 0
+votedFor ← null
+log[] ← []                // setiap entry: (term, command)
+commitIndex ← 0
+lastApplied ← 0
+
+onTimeout():
+  if state != LEADER:
+    state ← CANDIDATE
+    currentTerm ← currentTerm + 1
+    votedFor ← self
+    votes ← 1
+    send RequestVote(currentTerm, lastLogIndex, lastLogTerm) to all
+
+onReceive(RequestVote(term, lastIdx, lastTerm) from c):
+  if term &gt; currentTerm:
+    currentTerm ← term
+    state ← FOLLOWER
+    votedFor ← null
+
+  if term == currentTerm and votedFor in {null, c} and candidateLogIsUpToDate(lastIdx, lastTerm):
+    votedFor ← c
+    reply VoteGranted
+  else:
+    reply VoteDenied
+
+onReceive(VoteGranted):
+  if state == CANDIDATE:
+    votes ← votes + 1
+    if votes ≥ Q:
+      state ← LEADER
+      init nextIndex[follower] ← lastLogIndex + 1
+      periodically send AppendEntries(heartbeat or entries)
+
+onClientCommand(cmd):
+  if state != LEADER:
+    redirect to leader
+  else:
+    append (currentTerm, cmd) to log
+    send AppendEntries(prevLogIndex, prevLogTerm, entries, leaderCommit=commitIndex)
+
+onReceive(AppendEntries(term, prevIdx, prevTerm, entries, leaderCommit) from leader):
+  if term &lt; currentTerm:
+    reply Fail
+  else:
+    currentTerm ← term
+    state ← FOLLOWER
+    reset election timeout
+
+    if log[prevIdx].term != prevTerm:
+      reply Fail
+    else:
+      delete conflicting entries after prevIdx
+      append new entries
+      commitIndex ← min(leaderCommit, lastLogIndex)
+      reply Success
+
+onReceive(AppendEntriesSuccess from follower f):
+  update matchIndex[f]
+  commitIndex ← max i such that count(matchIndex ≥ i) ≥ Q</code></pre>
+                                </div>
+
+                                <div class="space-y-3 rounded-2xl border border-white/10 bg-surface/60 p-6">
+                                    <h3 class="text-lg font-semibold text-textdark">Penjelasan pseudocode</h3>
+                                    <ul class="space-y-2 text-sm text-textdark/80 md:text-base">
+                                        <li><span class="font-semibold text-textdark">onTimeout()</span>: follower menjadi candidate, menaikkan term, memberi suara untuk diri sendiri, lalu meminta suara ke node lain.</li>
+                                        <li><span class="font-semibold text-textdark">RequestVote</span>: follower memberi suara maksimal 1 kali per term, dan hanya jika log kandidat “cukup mutakhir” (mencegah leader dengan log tertinggal).</li>
+                                        <li><span class="font-semibold text-textdark">menjadi leader</span>: jika suara mencapai quorum mayoritas, kandidat menjadi leader dan mulai mengirim heartbeat/AppendEntries secara periodik.</li>
+                                        <li><span class="font-semibold text-textdark">onClientCommand</span>: hanya leader yang menerima perintah (transaksi), menambahkannya ke log, lalu mereplikasi ke follower.</li>
+                                        <li><span class="font-semibold text-textdark">AppendEntries</span>: follower menolak jika term lebih kecil, atau jika pasangan <span class="font-semibold text-textdark">prevIdx/prevTerm</span> tidak cocok; ini memastikan log tetap konsisten.</li>
+                                        <li><span class="font-semibold text-textdark">commitIndex</span>: leader menaikkan commitIndex setelah mayoritas follower mengonfirmasi replikasi, lalu follower mengikuti nilai leaderCommit.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="space-y-6 rounded-3xl border border-white/10 bg-surface/70 p-10 shadow-2xl shadow-black/30">
+                            <div class="space-y-3">
+                                <h2 class="text-2xl font-semibold text-textdark md:text-3xl">3) Flowchart / Diagram Alur RAFT + Penjelasan</h2>
+                                <p class="text-sm text-textdark/75 md:text-base">
+                                    Diagram berikut merangkum alur utama RAFT dari sisi <span class="font-semibold text-textdark">pemilihan leader</span> sampai <span class="font-semibold text-textdark">replikasi & commit log</span>.
+                                </p>
+                            </div>
+
+                            <div class="overflow-x-auto rounded-3xl border border-white/10 bg-surfaceMuted/60 p-6">
+                                <svg viewBox="0 0 980 420" class="h-full w-full min-w-[860px]" role="img" aria-labelledby="raft-flow-title raft-flow-desc">
+                                    <title id="raft-flow-title">Flowchart algoritma RAFT</title>
+                                    <desc id="raft-flow-desc">Alur follower timeout, candidate meminta vote, leader mengirim heartbeat dan mereplikasi log sampai commit mayoritas.</desc>
+                                    <defs>
+                                        <linearGradient id="raftNode" x1="0" y1="0" x2="1" y2="1">
+                                            <stop offset="0%" stop-color="#0B2447" stop-opacity="0.95" />
+                                            <stop offset="100%" stop-color="#0F172A" stop-opacity="0.95" />
+                                        </linearGradient>
+                                        <linearGradient id="raftAccent" x1="0" y1="0" x2="1" y2="1">
+                                            <stop offset="0%" stop-color="#F97316" stop-opacity="0.65" />
+                                            <stop offset="100%" stop-color="#6366F1" stop-opacity="0.35" />
+                                        </linearGradient>
+                                        <marker id="raftArrow" markerWidth="10" markerHeight="10" refX="7.5" refY="5" orient="auto" markerUnits="strokeWidth">
+                                            <path d="M0,0 L10,5 L0,10 z" fill="#38BDF8"></path>
+                                        </marker>
+                                        <marker id="raftArrowOrange" markerWidth="10" markerHeight="10" refX="7.5" refY="5" orient="auto" markerUnits="strokeWidth">
+                                            <path d="M0,0 L10,5 L0,10 z" fill="#F97316"></path>
+                                        </marker>
+                                    </defs>
+
+                                    <!-- Nodes -->
+                                    <g>
+                                        <rect x="55" y="55" width="240" height="90" rx="22" fill="url(#raftNode)" stroke="rgba(56,189,248,0.35)" stroke-width="2" />
+                                        <text x="175" y="92" text-anchor="middle" fill="#E2E8F0" font-size="18" font-weight="700">Follower</text>
+                                        <text x="175" y="118" text-anchor="middle" fill="#94A3B8" font-size="13">menunggu heartbeat</text>
+                                    </g>
+
+                                    <g>
+                                        <rect x="55" y="195" width="240" height="90" rx="22" fill="url(#raftAccent)" stroke="rgba(249,115,22,0.5)" stroke-width="2" />
+                                        <text x="175" y="232" text-anchor="middle" fill="#FFE4C4" font-size="18" font-weight="700">Candidate</text>
+                                        <text x="175" y="258" text-anchor="middle" fill="#FED7AA" font-size="13">timeout → RequestVote</text>
+                                    </g>
+
+                                    <g>
+                                        <rect x="360" y="55" width="260" height="90" rx="22" fill="url(#raftNode)" stroke="rgba(99,102,241,0.35)" stroke-width="2" />
+                                        <text x="490" y="92" text-anchor="middle" fill="#E2E8F0" font-size="18" font-weight="700">Quorum mayoritas?</text>
+                                        <text x="490" y="118" text-anchor="middle" fill="#94A3B8" font-size="13">Q = ⌊N/2⌋ + 1</text>
+                                    </g>
+
+                                    <g>
+                                        <rect x="685" y="55" width="240" height="90" rx="22" fill="url(#raftNode)" stroke="rgba(99,102,241,0.55)" stroke-width="2" />
+                                        <text x="805" y="92" text-anchor="middle" fill="#E0E7FF" font-size="18" font-weight="700">Leader</text>
+                                        <text x="805" y="118" text-anchor="middle" fill="#C7D2FE" font-size="13">heartbeat + AppendEntries</text>
+                                    </g>
+
+                                    <g>
+                                        <rect x="360" y="195" width="565" height="170" rx="28" fill="url(#raftNode)" stroke="rgba(56,189,248,0.22)" stroke-width="2" />
+                                        <text x="642" y="230" text-anchor="middle" fill="#E2E8F0" font-size="18" font-weight="700">Replikasi log & commit</text>
+                                        <text x="642" y="258" text-anchor="middle" fill="#94A3B8" font-size="13">Leader kirim entries → follower cek prevLog → ack</text>
+                                        <text x="642" y="282" text-anchor="middle" fill="#94A3B8" font-size="13">Jika ack mayoritas → commitIndex naik → blok/ledger final</text>
+
+                                        <rect x="390" y="300" width="240" height="45" rx="16" fill="rgba(15,23,42,0.75)" stroke="rgba(255,255,255,0.08)" />
+                                        <text x="510" y="328" text-anchor="middle" fill="#E2E8F0" font-size="13">cek prevLogIndex/prevLogTerm</text>
+
+                                        <rect x="655" y="300" width="240" height="45" rx="16" fill="rgba(15,23,42,0.75)" stroke="rgba(255,255,255,0.08)" />
+                                        <text x="775" y="328" text-anchor="middle" fill="#E2E8F0" font-size="13">commit jika ack ≥ Q</text>
+                                    </g>
+
+                                    <!-- Arrows -->
+                                    <path d="M295,100 L360,100" stroke="#38BDF8" stroke-width="2.4" fill="none" marker-end="url(#raftArrow)" />
+                                    <text x="330" y="86" text-anchor="middle" fill="#BAE6FD" font-size="12">heartbeat hilang</text>
+
+                                    <path d="M175,145 L175,195" stroke="#F97316" stroke-width="2.4" fill="none" marker-end="url(#raftArrowOrange)" />
+                                    <text x="195" y="175" fill="#FDBA74" font-size="12">timeout</text>
+
+                                    <path d="M295,235 C330,225 335,140 360,118" stroke="#F97316" stroke-width="2.2" fill="none" marker-end="url(#raftArrowOrange)" />
+                                    <text x="330" y="190" fill="#FDBA74" font-size="12">vote masuk</text>
+
+                                    <path d="M620,100 L685,100" stroke="#38BDF8" stroke-width="2.4" fill="none" marker-end="url(#raftArrow)" />
+                                    <text x="652" y="86" text-anchor="middle" fill="#BAE6FD" font-size="12">ya → leader</text>
+
+                                    <path d="M805,145 L805,195" stroke="#38BDF8" stroke-width="2.2" fill="none" marker-end="url(#raftArrow)" />
+                                    <text x="828" y="175" fill="#BAE6FD" font-size="12">AppendEntries</text>
+                                </svg>
+                            </div>
+
+                            <div class="space-y-3 rounded-2xl border border-white/10 bg-surfaceMuted/60 p-6">
+                                <h3 class="text-lg font-semibold text-textdark">Penjelasan diagram</h3>
+                                <ol class="space-y-2 text-sm text-textdark/80 md:text-base">
+                                    <li><span class="font-semibold text-textdark">Follower</span> menunggu heartbeat dari leader aktif.</li>
+                                    <li>Jika heartbeat tidak datang sampai <span class="font-semibold text-textdark">timeout</span>, follower menjadi <span class="font-semibold text-textdark">candidate</span> dan mengirim <span class="font-semibold text-textdark">RequestVote</span>.</li>
+                                    <li>Jika candidate mendapat <span class="font-semibold text-textdark">quorum mayoritas</span>, ia menjadi <span class="font-semibold text-textdark">leader</span>.</li>
+                                    <li>Leader mengirim <span class="font-semibold text-textdark">AppendEntries</span> (heartbeat atau entri log) ke follower; follower mengecek <span class="font-semibold text-textdark">prevLogIndex/prevLogTerm</span> untuk menjaga konsistensi.</li>
+                                    <li>Jika mayoritas follower mengakui replikasi entri, leader menaikkan <span class="font-semibold text-textdark">commitIndex</span>. Pada konteks orderer, entri yang sudah committed akan dipaketkan menjadi blok dan didistribusikan ke peer.</li>
+                                </ol>
+                            </div>
+                        </section>
+
+                        <section class="space-y-6 rounded-3xl border border-white/10 bg-surfaceMuted/70 p-10 shadow-2xl shadow-black/30">
+                            <div class="space-y-3">
+                                <h2 class="text-2xl font-semibold text-textdark md:text-3xl">4) RAFT pada Hyperledger Fabric v2 dan v3</h2>
+                                <p class="text-sm text-textdark/75 md:text-base">
+                                    Di Hyperledger Fabric, RAFT digunakan pada <span class="font-semibold text-textdark">ordering service</span> dengan tipe <span class="font-semibold text-textdark">etcdraft</span>.
+                                    Berikut ringkasan implementasinya pada dua versi yang digunakan di penelitian (Fabric v2 dan Fabric v3) sesuai struktur repo ini.
+                                </p>
+                            </div>
+
+                            <div class="grid gap-6 md:grid-cols-2">
+                                <div class="space-y-3 rounded-2xl border border-white/10 bg-surface/60 p-6">
+                                    <h3 class="text-lg font-semibold text-textdark">Fabric v2 (RAFT / etcdraft)</h3>
+                                    <ul class="space-y-2 text-sm text-textdark/80 md:text-base">
+                                        <li><span class="font-semibold text-textdark">Konfigurasi konsensus</span>: <span class="font-semibold text-textdark">OrdererType: etcdraft</span> pada <span class="font-semibold text-textdark">configtx.yaml</span> jaringan RAFT.</li>
+                                        <li><span class="font-semibold text-textdark">Parameter RAFT</span>: berada di <span class="font-semibold text-textdark">Orderer.EtcdRaft.Options</span> (contoh: <span class="font-semibold text-textdark">TickInterval</span>, <span class="font-semibold text-textdark">ElectionTick</span>, <span class="font-semibold text-textdark">HeartbeatTick</span>, <span class="font-semibold text-textdark">MaxInflightBlocks</span>).</li>
+                                        <li><span class="font-semibold text-textdark">Keanggotaan raft</span>: daftar consenter berada pada <span class="font-semibold text-textdark">Orderer.EtcdRaft.Consenters</span>.</li>
+                                    </ul>
+                                    <p class="mt-3 text-xs text-textdark/60">
+                                        Contoh file di repo: <span class="font-semibold">`fabric-2/raft-standard/config/configtx.yaml`</span> dan <span class="font-semibold">`fabric-2/raft-variant/config/configtx.yaml`</span>.
+                                    </p>
+                                </div>
+
+                                <div class="space-y-3 rounded-2xl border border-white/10 bg-surface/60 p-6">
+                                    <h3 class="text-lg font-semibold text-textdark">Fabric v3 (RAFT / etcdraft)</h3>
+                                    <ul class="space-y-2 text-sm text-textdark/80 md:text-base">
+                                        <li><span class="font-semibold text-textdark">Konfigurasi konsensus</span>: tetap memakai <span class="font-semibold text-textdark">OrdererType: etcdraft</span> untuk RAFT.</li>
+                                        <li><span class="font-semibold text-textdark">Parameter RAFT</span>: tetap berada pada <span class="font-semibold text-textdark">Orderer.EtcdRaft.Options</span> (tick, election, heartbeat) sehingga prinsip leader election & log replication sama.</li>
+                                        <li><span class="font-semibold text-textdark">Perbedaan konteks penelitian</span>: pada repo ini Fabric v3 juga disiapkan untuk opsi konsensus lain (SmartBFT) sebagai pembanding, tetapi RAFT tetap menjadi baseline untuk jaringan “standard”.</li>
+                                    </ul>
+                                    <p class="mt-3 text-xs text-textdark/60">
+                                        Contoh file di repo: <span class="font-semibold">`fabric-3/raft-standard/config/configtx.yaml`</span> dan <span class="font-semibold">`fabric-3/raft-variant/config/configtx.yaml`</span>.
+                                    </p>
+                                </div>
+                            </div>
+                        </section>
+
+                        <div class="flex flex-col gap-3 rounded-3xl border border-white/10 bg-surface/60 p-6 text-sm text-textdark/80 md:flex-row md:items-center md:justify-between">
+                            <p>
+                                Lanjut ke sub bab berikutnya: <span class="font-semibold text-textdark">4.1.2 Algoritma SmartBFT</span>
+                            </p>
+                            <a href="/penelitian/gambaran-umum/algoritma-smartbft" class="inline-flex items-center justify-center gap-2 rounded-2xl border border-secondary/40 bg-secondary/10 px-5 py-3 font-semibold text-secondary/90 transition hover:bg-secondary/20 hover:text-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary">
+                                Buka 4.1.2
+                                <span aria-hidden="true">→</span>
+                            </a>
+                        </div>
+                    </div>
+                </main>
+
+                <div data-component="footer"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/layout.js" defer></script>
+    <script src="/js/navigation.js" defer></script>
+</body>
+</html>

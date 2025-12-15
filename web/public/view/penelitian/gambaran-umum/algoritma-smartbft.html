@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluasi RAFT HLF — 4.1.2 Algoritma SmartBFT</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#38BDF8',
+                        secondary: '#6366F1',
+                        accent: '#F59E0B',
+                        highlight: '#F97316',
+                        soft: '#050B16',
+                        surface: '#0F172A',
+                        surfaceMuted: '#16213F',
+                        border: '#1E293B',
+                        muted: '#94A3B8',
+                        textdark: '#E2E8F0'
+                    }
+                }
+            }
+        };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="/images/logo-ai-center.svg">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+
+        .component-link[data-active="true"] {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.28), rgba(56, 189, 248, 0.22));
+            color: #E2E8F0;
+            border-color: rgba(249, 115, 22, 0.45);
+            box-shadow: 0 12px 40px rgba(15, 23, 42, 0.45);
+        }
+
+        .component-link[data-active="true"] .component-link__index {
+            background-color: rgba(249, 115, 22, 0.35);
+            color: #E2E8F0;
+        }
+
+        code, pre {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        }
+    </style>
+</head>
+<body class="bg-soft text-textdark">
+    <div data-component="header"></div>
+
+    <div class="relative min-h-screen overflow-hidden">
+        <div class="absolute inset-0 -z-10 h-full w-full">
+            <div class="absolute -left-1/3 top-0 h-[720px] w-[720px] rounded-full bg-gradient-to-br from-highlight/30 via-secondary/20 to-transparent opacity-70 blur-3xl"></div>
+            <div class="absolute -right-1/4 bottom-0 h-[620px] w-[620px] rounded-full bg-gradient-to-tr from-accent/35 via-secondary/25 to-primary/20 opacity-70 blur-3xl"></div>
+        </div>
+
+        <div class="flex min-h-screen flex-col lg:flex-row">
+            <div data-component="sidebar"></div>
+
+            <div class="flex-1">
+                <main class="mx-auto w-full max-w-5xl px-6 py-12">
+                    <div class="space-y-10">
+                        <section class="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-surface via-soft to-[#020817] p-10 shadow-2xl shadow-black/30">
+                            <div class="flex flex-col gap-6">
+                                <div class="flex flex-wrap items-center justify-between gap-3">
+                                    <div class="inline-flex w-fit items-center gap-2 rounded-full border border-highlight/40 bg-highlight/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-highlight/90">
+                                        Bab 4.1.2
+                                    </div>
+                                    <a href="/penelitian/gambaran-umum" class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1 text-xs font-semibold text-textdark/80 transition hover:bg-white/10 hover:text-textdark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-highlight">
+                                        <span aria-hidden="true">←</span>
+                                        Kembali ke 4.1
+                                    </a>
+                                </div>
+
+                                <div class="space-y-6">
+                                    <div class="space-y-4">
+                                        <h1 class="text-3xl font-semibold text-textdark md:text-4xl">Algoritma SmartBFT</h1>
+                                        <p class="text-sm text-textdark/75 md:text-base">
+                                            SmartBFT adalah algoritma konsensus <span class="font-semibold text-textdark">Byzantine Fault Tolerant (BFT)</span> yang dirancang untuk sistem permissioned.
+                                            Berbeda dengan RAFT (CFT) yang hanya menoleransi crash/fail-stop, SmartBFT menoleransi perilaku byzantine (misal: node jahat, pesan yang dimanipulasi,
+                                            atau node yang mengirim informasi saling bertentangan). Secara umum, SmartBFT mencapai kesepakatan melalui beberapa fase komunikasi (proposal/prepare/commit)
+                                            dan mekanisme <span class="font-semibold text-textdark">view change</span> ketika leader dicurigai gagal atau berperilaku tidak benar.
+                                        </p>
+                                    </div>
+
+                                    <div class="grid gap-4 rounded-3xl border border-white/10 bg-surfaceMuted/60 p-6 md:grid-cols-3">
+                                        <div class="space-y-2">
+                                            <p class="text-xs font-semibold uppercase tracking-[0.28em] text-primary/80">Model gangguan</p>
+                                            <ul class="space-y-1 text-sm text-textdark/80">
+                                                <li><span class="font-semibold text-textdark">CFT</span>: crash saja (RAFT)</li>
+                                                <li><span class="font-semibold text-textdark">BFT</span>: crash + byzantine (SmartBFT)</li>
+                                            </ul>
+                                        </div>
+                                        <div class="space-y-2">
+                                            <p class="text-xs font-semibold uppercase tracking-[0.28em] text-secondary/80">Fase konsensus</p>
+                                            <ul class="space-y-1 text-sm text-textdark/80">
+                                                <li><span class="font-semibold text-textdark">Propose</span>: leader mengusulkan batch</li>
+                                                <li><span class="font-semibold text-textdark">Prepare</span>: validasi & voting</li>
+                                                <li><span class="font-semibold text-textdark">Commit</span>: finalisasi keputusan</li>
+                                            </ul>
+                                        </div>
+                                        <div class="space-y-2">
+                                            <p class="text-xs font-semibold uppercase tracking-[0.28em] text-highlight/80">Kunci safety</p>
+                                            <ul class="space-y-1 text-sm text-textdark/80">
+                                                <li>quorum BFT <span class="font-semibold text-textdark">2f+1</span></li>
+                                                <li>ukuran cluster minimal <span class="font-semibold text-textdark">3f+1</span></li>
+                                                <li><span class="font-semibold text-textdark">view change</span> bila leader bermasalah</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="space-y-6 rounded-3xl border border-white/10 bg-surface/70 p-10 shadow-2xl shadow-black/30">
+                            <div class="space-y-3">
+                                <h2 class="text-2xl font-semibold text-textdark md:text-3xl">1) Penjelasan / Rumus Inti SmartBFT</h2>
+                                <p class="text-sm text-textdark/75 md:text-base">
+                                    SmartBFT mengacu pada prinsip BFT klasik: jika jumlah node total <span class="font-semibold text-textdark">N</span>, maka sistem dapat menoleransi hingga
+                                    <span class="font-semibold text-textdark">f</span> node byzantine dengan syarat berikut.
+                                </p>
+                            </div>
+
+                            <div class="grid gap-6 md:grid-cols-2">
+                                <div class="space-y-3 rounded-2xl border border-white/10 bg-surfaceMuted/60 p-6">
+                                    <h3 class="text-lg font-semibold text-textdark">Batas toleransi byzantine</h3>
+                                    <div class="rounded-xl border border-white/10 bg-black/20 p-4">
+                                        <p class="text-base font-semibold text-textdark">N ≥ 3f + 1</p>
+                                    </div>
+                                    <p class="text-sm text-textdark/75 md:text-base">
+                                        Artinya, untuk menoleransi <span class="font-semibold text-textdark">f = 1</span> node byzantine, minimal dibutuhkan <span class="font-semibold text-textdark">N = 4</span> node orderer.
+                                        Ini sejalan dengan konfigurasi BFT yang umum (empat orderer) pada contoh jaringan.
+                                    </p>
+                                </div>
+
+                                <div class="space-y-3 rounded-2xl border border-white/10 bg-surfaceMuted/60 p-6">
+                                    <h3 class="text-lg font-semibold text-textdark">Quorum keputusan</h3>
+                                    <p class="text-sm text-textdark/75 md:text-base">
+                                        Keputusan dianggap aman jika didukung oleh quorum BFT:
+                                    </p>
+                                    <div class="rounded-xl border border-white/10 bg-black/20 p-4">
+                                        <p class="text-base font-semibold text-textdark">Q<sub>BFT</sub> = 2f + 1</p>
+                                    </div>
+                                    <p class="text-sm text-textdark/75 md:text-base">
+                                        Dengan quorum 2f+1, dua quorum valid akan selalu beririsan pada minimal <span class="font-semibold text-textdark">f+1</span> node jujur, sehingga mencegah dua keputusan berbeda
+                                        (safety).
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="space-y-3 rounded-2xl border border-white/10 bg-surfaceMuted/60 p-6">
+                                <h3 class="text-lg font-semibold text-textdark">View / view change</h3>
+                                <p class="text-sm text-textdark/75 md:text-base">
+                                    SmartBFT biasanya memiliki konsep <span class="font-semibold text-textdark">view</span> (putaran kepemimpinan). Jika leader tidak mengirim proposal atau terdeteksi bermasalah,
+                                    replica akan memicu <span class="font-semibold text-textdark">view change</span> untuk memilih leader baru dan melanjutkan konsensus tanpa kehilangan safety.
+                                </p>
+                            </div>
+                        </section>
+
+                        <section class="space-y-6 rounded-3xl border border-white/10 bg-surfaceMuted/70 p-10 shadow-2xl shadow-black/30">
+                            <div class="space-y-3">
+                                <h2 class="text-2xl font-semibold text-textdark md:text-3xl">2) Pseudocode SmartBFT + Penjelasan</h2>
+                                <p class="text-sm text-textdark/75 md:text-base">
+                                    Pseudocode berikut memodelkan alur BFT yang disederhanakan: leader mengusulkan batch transaksi, replica melakukan prepare, lalu commit setelah quorum.
+                                    Istilah dan struktur pesan dibuat ringkas agar mudah dipahami.
+                                </p>
+                            </div>
+
+                            <div class="space-y-4">
+                                <div class="rounded-2xl border border-white/10 bg-black/25 p-5 overflow-x-auto">
+                                    <pre class="text-sm text-textdark/90 leading-relaxed"><code>// Parameter
+N = jumlah replica
+f = ⌊(N-1)/3⌋
+Qbft = 2f + 1
+
+// State per replica
+view ← 0
+seq ← 0
+
+onClientRequest(req):
+  send req to leader(view)
+
+leader(view) onReceive(req):
+  batch ← collectRequestsUntil(batchMaxCount or batchMaxInterval)
+  seq ← seq + 1
+  proposal ← (view, seq, hash(batch), batch)
+  broadcast PROPOSE(proposal)
+
+replica onReceive(PROPOSE(view, seq, h, batch)):
+  if valid(view, seq, batch) and leader(view) is correct sender:
+    broadcast PREPARE(view, seq, h, sig(self, view||seq||h))
+
+replica onReceive(PREPARE(view, seq, h, sig_i)):
+  store prepareSig(sig_i)
+  if countDistinctPrepareSigs(view, seq, h) ≥ Qbft:
+    broadcast COMMIT(view, seq, h, sig(self, view||seq||h))
+
+replica onReceive(COMMIT(view, seq, h, sig_i)):
+  store commitSig(sig_i)
+  if countDistinctCommitSigs(view, seq, h) ≥ Qbft:
+    decide(batch)
+    append block to ledger
+
+onTimeoutOrLeaderSuspected():
+  broadcast VIEW_CHANGE(view+1, evidence)
+  if receive Qbft view-change messages:
+    view ← view + 1
+    newLeader(view) starts proposing</code></pre>
+                                </div>
+
+                                <div class="space-y-3 rounded-2xl border border-white/10 bg-surface/60 p-6">
+                                    <h3 class="text-lg font-semibold text-textdark">Penjelasan pseudocode</h3>
+                                    <ul class="space-y-2 text-sm text-textdark/80 md:text-base">
+                                        <li><span class="font-semibold text-textdark">Propose</span>: leader membentuk batch transaksi (berdasarkan batas jumlah/waktu) lalu mengirim proposal ke semua replica.</li>
+                                        <li><span class="font-semibold text-textdark">Prepare</span>: replica memverifikasi proposal (format, urutan, autentikasi) lalu mengirim tanda tangan/vote ke semua.</li>
+                                        <li><span class="font-semibold text-textdark">Commit</span>: setelah menerima <span class="font-semibold text-textdark">2f+1</span> prepare yang cocok, replica menyiarkan commit; ketika <span class="font-semibold text-textdark">2f+1</span> commit terkumpul, keputusan final dibuat.</li>
+                                        <li><span class="font-semibold text-textdark">View change</span>: jika leader macet/bermasalah, replica memulai view change; setelah quorum tercapai, leader baru mengambil alih.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="space-y-6 rounded-3xl border border-white/10 bg-surface/70 p-10 shadow-2xl shadow-black/30">
+                            <div class="space-y-3">
+                                <h2 class="text-2xl font-semibold text-textdark md:text-3xl">3) Flowchart / Diagram Alur SmartBFT + Penjelasan</h2>
+                                <p class="text-sm text-textdark/75 md:text-base">
+                                    Diagram berikut menampilkan alur utama SmartBFT: proposal → prepare → commit → finalisasi blok, serta jalur view change bila leader bermasalah.
+                                </p>
+                            </div>
+
+                            <div class="overflow-x-auto rounded-3xl border border-white/10 bg-surfaceMuted/60 p-6">
+                                <svg viewBox="0 0 1040 440" class="h-full w-full min-w-[900px]" role="img" aria-labelledby="bft-flow-title bft-flow-desc">
+                                    <title id="bft-flow-title">Flowchart algoritma SmartBFT</title>
+                                    <desc id="bft-flow-desc">Leader membuat proposal batch, replica melakukan prepare, commit setelah quorum, lalu view change bila timeout.</desc>
+                                    <defs>
+                                        <linearGradient id="bftNode" x1="0" y1="0" x2="1" y2="1">
+                                            <stop offset="0%" stop-color="#0F172A" stop-opacity="0.96" />
+                                            <stop offset="100%" stop-color="#020817" stop-opacity="0.96" />
+                                        </linearGradient>
+                                        <linearGradient id="bftAccent" x1="0" y1="0" x2="1" y2="1">
+                                            <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.35" />
+                                            <stop offset="100%" stop-color="#6366F1" stop-opacity="0.30" />
+                                        </linearGradient>
+                                        <marker id="bftArrow" markerWidth="10" markerHeight="10" refX="7.5" refY="5" orient="auto" markerUnits="strokeWidth">
+                                            <path d="M0,0 L10,5 L0,10 z" fill="#38BDF8"></path>
+                                        </marker>
+                                        <marker id="bftArrowWarn" markerWidth="10" markerHeight="10" refX="7.5" refY="5" orient="auto" markerUnits="strokeWidth">
+                                            <path d="M0,0 L10,5 L0,10 z" fill="#F97316"></path>
+                                        </marker>
+                                    </defs>
+
+                                    <!-- nodes -->
+                                    <g>
+                                        <rect x="60" y="70" width="250" height="90" rx="22" fill="url(#bftAccent)" stroke="rgba(56,189,248,0.45)" stroke-width="2" />
+                                        <text x="185" y="108" text-anchor="middle" fill="#E2E8F0" font-size="18" font-weight="700">Leader</text>
+                                        <text x="185" y="134" text-anchor="middle" fill="#BAE6FD" font-size="13">buat batch + PROPOSE</text>
+                                    </g>
+
+                                    <g>
+                                        <rect x="360" y="70" width="250" height="90" rx="22" fill="url(#bftNode)" stroke="rgba(99,102,241,0.35)" stroke-width="2" />
+                                        <text x="485" y="108" text-anchor="middle" fill="#E2E8F0" font-size="18" font-weight="700">Replica</text>
+                                        <text x="485" y="134" text-anchor="middle" fill="#94A3B8" font-size="13">validasi → PREPARE</text>
+                                    </g>
+
+                                    <g>
+                                        <rect x="660" y="70" width="320" height="90" rx="22" fill="url(#bftNode)" stroke="rgba(56,189,248,0.25)" stroke-width="2" />
+                                        <text x="820" y="108" text-anchor="middle" fill="#E2E8F0" font-size="18" font-weight="700">Quorum PREPARE tercapai?</text>
+                                        <text x="820" y="134" text-anchor="middle" fill="#94A3B8" font-size="13">butuh 2f+1 PREPARE untuk (view, seq, hash)</text>
+                                    </g>
+
+                                    <g>
+                                        <rect x="360" y="220" width="250" height="90" rx="22" fill="url(#bftNode)" stroke="rgba(56,189,248,0.25)" stroke-width="2" />
+                                        <text x="485" y="258" text-anchor="middle" fill="#E2E8F0" font-size="18" font-weight="700">COMMIT</text>
+                                        <text x="485" y="284" text-anchor="middle" fill="#94A3B8" font-size="13">siarkan commit signature</text>
+                                    </g>
+
+                                    <g>
+                                        <rect x="660" y="220" width="320" height="90" rx="22" fill="url(#bftNode)" stroke="rgba(99,102,241,0.35)" stroke-width="2" />
+                                        <text x="820" y="258" text-anchor="middle" fill="#E2E8F0" font-size="18" font-weight="700">Quorum COMMIT tercapai?</text>
+                                        <text x="820" y="284" text-anchor="middle" fill="#94A3B8" font-size="13">butuh 2f+1 COMMIT → decide</text>
+                                    </g>
+
+                                    <g>
+                                        <rect x="60" y="220" width="250" height="140" rx="24" fill="rgba(249,115,22,0.20)" stroke="rgba(249,115,22,0.55)" stroke-width="2" />
+                                        <text x="185" y="258" text-anchor="middle" fill="#FFE4C4" font-size="18" font-weight="700">View change</text>
+                                        <text x="185" y="284" text-anchor="middle" fill="#FED7AA" font-size="13">timeout / leader dicurigai</text>
+                                        <text x="185" y="308" text-anchor="middle" fill="#FED7AA" font-size="13">kumpulkan 2f+1 bukti</text>
+                                        <text x="185" y="332" text-anchor="middle" fill="#FED7AA" font-size="13">leader baru mulai propose</text>
+                                    </g>
+
+                                    <!-- arrows -->
+                                    <path d="M310,115 L360,115" stroke="#38BDF8" stroke-width="2.4" fill="none" marker-end="url(#bftArrow)" />
+                                    <text x="335" y="100" text-anchor="middle" fill="#BAE6FD" font-size="12">PROPOSE</text>
+
+                                    <path d="M610,115 L660,115" stroke="#38BDF8" stroke-width="2.4" fill="none" marker-end="url(#bftArrow)" />
+                                    <text x="635" y="100" text-anchor="middle" fill="#BAE6FD" font-size="12">PREPARE</text>
+
+                                    <path d="M820,160 L820,205 C820,215 812,220 800,220" stroke="#38BDF8" stroke-width="2.4" fill="none" marker-end="url(#bftArrow)" />
+                                    <text x="852" y="195" fill="#BAE6FD" font-size="12">ya</text>
+
+                                    <path d="M610,265 L660,265" stroke="#38BDF8" stroke-width="2.4" fill="none" marker-end="url(#bftArrow)" />
+                                    <text x="635" y="250" text-anchor="middle" fill="#BAE6FD" font-size="12">COMMIT</text>
+
+                                    <path d="M660,310 L610,310" stroke="#F97316" stroke-width="2.2" fill="none" marker-end="url(#bftArrowWarn)" />
+                                    <text x="635" y="332" text-anchor="middle" fill="#FDBA74" font-size="12">tidak / timeout</text>
+
+                                    <path d="M360,310 L310,310" stroke="#F97316" stroke-width="2.2" fill="none" marker-end="url(#bftArrowWarn)" />
+
+                                    <path d="M185,220 C185,170 220,150 310,140" stroke="#F97316" stroke-width="2.2" fill="none" marker-end="url(#bftArrowWarn)" />
+                                    <text x="240" y="178" fill="#FDBA74" font-size="12">VIEW_CHANGE</text>
+
+                                    <path d="M980,265 C1010,265 1010,115 980,115" stroke="#38BDF8" stroke-width="2" fill="none" marker-end="url(#bftArrow)" />
+                                    <text x="1012" y="190" fill="#BAE6FD" font-size="12">decide</text>
+                                </svg>
+                            </div>
+
+                            <div class="space-y-3 rounded-2xl border border-white/10 bg-surfaceMuted/60 p-6">
+                                <h3 class="text-lg font-semibold text-textdark">Penjelasan diagram</h3>
+                                <ol class="space-y-2 text-sm text-textdark/80 md:text-base">
+                                    <li>Leader membentuk <span class="font-semibold text-textdark">batch</span> transaksi lalu menyiarkan <span class="font-semibold text-textdark">PROPOSE</span>.</li>
+                                    <li>Replica memvalidasi proposal dan menyiarkan <span class="font-semibold text-textdark">PREPARE</span> (bukti dukungan terhadap hash batch).</li>
+                                    <li>Jika quorum <span class="font-semibold text-textdark">2f+1 PREPARE</span> terkumpul, replica masuk fase <span class="font-semibold text-textdark">COMMIT</span>.</li>
+                                    <li>Jika quorum <span class="font-semibold text-textdark">2f+1 COMMIT</span> terkumpul, keputusan final dibuat dan blok dapat ditulis (append) ke ledger.</li>
+                                    <li>Jika quorum tidak tercapai atau terjadi timeout, replica menjalankan <span class="font-semibold text-textdark">view change</span> untuk mengganti leader.</li>
+                                </ol>
+                            </div>
+                        </section>
+
+                        <section class="space-y-6 rounded-3xl border border-white/10 bg-surfaceMuted/70 p-10 shadow-2xl shadow-black/30">
+                            <div class="space-y-3">
+                                <h2 class="text-2xl font-semibold text-textdark md:text-3xl">4) SmartBFT pada Hyperledger Fabric v2 dan v3</h2>
+                                <p class="text-sm text-textdark/75 md:text-base">
+                                    Pada repo ini, konfigurasi SmartBFT muncul sebagai opsi ordering service <span class="font-semibold text-textdark">OrdererType: BFT</span> dengan blok konfigurasi <span class="font-semibold text-textdark">SmartBFT</span>.
+                                    Bagian ini merangkum bagaimana SmartBFT dipetakan pada Fabric v2 dan Fabric v3 (sesuai file yang tersedia).
+                                </p>
+                            </div>
+
+                            <div class="grid gap-6 md:grid-cols-2">
+                                <div class="space-y-3 rounded-2xl border border-white/10 bg-surface/60 p-6">
+                                    <h3 class="text-lg font-semibold text-textdark">Fabric v2 (BFT config)</h3>
+                                    <ul class="space-y-2 text-sm text-textdark/80 md:text-base">
+                                        <li><span class="font-semibold text-textdark">OrdererType</span>: <span class="font-semibold text-textdark">BFT</span> pada profile channel BFT.</li>
+                                        <li><span class="font-semibold text-textdark">Parameter SmartBFT</span>: misalnya <span class="font-semibold text-textdark">RequestBatchMaxCount</span>, <span class="font-semibold text-textdark">RequestBatchMaxInterval</span>, <span class="font-semibold text-textdark">ViewChangeTimeout</span>, <span class="font-semibold text-textdark">LeaderHeartbeatTimeout</span>.</li>
+                                        <li><span class="font-semibold text-textdark">ConsenterMapping</span>: memetakan ID, endpoint, MSPID, dan sertifikat TLS setiap orderer BFT.</li>
+                                    </ul>
+                                    <p class="mt-3 text-xs text-textdark/60">
+                                        Contoh file di repo: <span class="font-semibold">`fabric-2/raft-standard/network/bft-config/configtx.yaml`</span> dan <span class="font-semibold">`fabric-2/raft-variant/network/bft-config/configtx.yaml`</span>.
+                                    </p>
+                                </div>
+
+                                <div class="space-y-3 rounded-2xl border border-white/10 bg-surface/60 p-6">
+                                    <h3 class="text-lg font-semibold text-textdark">Fabric v3 (BFT config + opsi SmartBFT)</h3>
+                                    <ul class="space-y-2 text-sm text-textdark/80 md:text-base">
+                                        <li><span class="font-semibold text-textdark">BFT config</span>: tersedia folder <span class="font-semibold text-textdark">bft-config</span> yang berisi profile <span class="font-semibold text-textdark">ChannelUsingBFT</span> dan <span class="font-semibold text-textdark">ConsenterMapping</span>.</li>
+                                        <li><span class="font-semibold text-textdark">SmartBFT di configtx</span>: pada konfigurasi tertentu terdapat profile <span class="font-semibold text-textdark">SampleAppChannelSmartBFT</span> dengan <span class="font-semibold text-textdark">OrdererType: BFT</span> dan blok <span class="font-semibold text-textdark">SmartBFT</span>.</li>
+                                        <li><span class="font-semibold text-textdark">Inti perbedaannya</span>: BFT membutuhkan ukuran cluster lebih besar (3f+1) dan quorum (2f+1), sehingga overhead komunikasi biasanya lebih tinggi daripada RAFT, tetapi memberikan ketahanan terhadap byzantine.</li>
+                                    </ul>
+                                    <p class="mt-3 text-xs text-textdark/60">
+                                        Contoh file di repo: <span class="font-semibold">`fabric-3/raft-variant/network/bft-config/configtx.yaml`</span> dan <span class="font-semibold">`fabric-3/raft-variant/config/configtx.yaml`</span>.
+                                    </p>
+                                </div>
+                            </div>
+                        </section>
+
+                        <div class="flex flex-col gap-3 rounded-3xl border border-white/10 bg-surface/60 p-6 text-sm text-textdark/80 md:flex-row md:items-center md:justify-between">
+                            <p>
+                                Kembali ke <span class="font-semibold text-textdark">4.1 Gambaran Umum Penelitian</span>.
+                            </p>
+                            <a href="/penelitian/gambaran-umum" class="inline-flex items-center justify-center gap-2 rounded-2xl border border-highlight/40 bg-highlight/10 px-5 py-3 font-semibold text-highlight/90 transition hover:bg-highlight/20 hover:text-highlight focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-highlight">
+                                Kembali
+                                <span aria-hidden="true">→</span>
+                            </a>
+                        </div>
+                    </div>
+                </main>
+
+                <div data-component="footer"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/layout.js" defer></script>
+    <script src="/js/navigation.js" defer></script>
+</body>
+</html>

@@ -1162,6 +1162,10 @@ const viewFiles = {
     presentation: path.resolve(viewsRoot, 'presentasi.html'),
     research: {
         overview: path.resolve(viewsRoot, 'penelitian/gambaran-umum.html'),
+        overviewSubsections: {
+            algoritmaRaft: path.resolve(viewsRoot, 'penelitian/gambaran-umum/algoritma-raft.html'),
+            algoritmaSmartBft: path.resolve(viewsRoot, 'penelitian/gambaran-umum/algoritma-smartbft.html'),
+        },
         environmentSetup: path.resolve(viewsRoot, 'penelitian/pembangunan-lingkungan-uji.html'),
         experimentDesign: path.resolve(viewsRoot, 'penelitian/rancangan-eksperimen.html'),
         simulationExecution: path.resolve(viewsRoot, 'penelitian/pelaksanaan-simulasi/index.html'),
@@ -1209,6 +1213,14 @@ app.get('/presentasi', (req, res) => {
 
 app.get('/penelitian/gambaran-umum', (req, res) => {
     res.sendFile(viewFiles.research.overview);
+});
+
+app.get('/penelitian/gambaran-umum/algoritma-raft', (req, res) => {
+    res.sendFile(viewFiles.research.overviewSubsections.algoritmaRaft);
+});
+
+app.get('/penelitian/gambaran-umum/algoritma-smartbft', (req, res) => {
+    res.sendFile(viewFiles.research.overviewSubsections.algoritmaSmartBft);
 });
 
 app.get('/penelitian/pembangunan-lingkungan-uji', (req, res) => {

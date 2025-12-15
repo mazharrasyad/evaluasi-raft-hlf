@@ -32,6 +32,10 @@
     <style>
         body { font-family: 'Inter', sans-serif; }
 
+        /* Bootstrap-like helpers (requested: col-md-12) */
+        .row { display: flex; flex-wrap: wrap; }
+        .col-md-12 { flex: 0 0 auto; width: 100%; }
+
         .component-link[data-active="true"] {
             background: linear-gradient(135deg, rgba(249, 115, 22, 0.28), rgba(56, 189, 248, 0.22));
             color: #E2E8F0;
@@ -357,100 +361,127 @@
                                             </div>
                                         </div>
 
-                                        <!-- Diagram: RAFT standar vs variant (SmartBFT) -->
-                                        <div class="space-y-4 mt-6" id="diagram-raft-standar-vs-smartbft">
-                                            <h3 class="text-lg font-semibold text-textdark">Diagram: RAFT Standar vs RAFT Variant (SmartBFT)</h3>
+                                        <!-- Diagram (Bab 4.1.2): RAFT Variant v2 & RAFT Variant + SmartBFT v3 -->
+                                        <div class="space-y-4 mt-6" id="diagram-raft-variant-v2-smartbft-v3">
+                                            <h3 class="text-lg font-semibold text-textdark">Diagram: RAFT Variant (Fabric v2) dan RAFT Variant + SmartBFT (Fabric v3)</h3>
                                             <p class="text-sm text-textdark/70">
-                                                Perbedaan algoritma terlihat pada tahap finalitas: <span class="font-semibold">RAFT standar</span> commit setelah mayoritas ACK replikasi log (CFT), sedangkan <span class="font-semibold">SmartBFT</span> menambahkan tahapan <span class="font-semibold">quorum signature</span> sebelum commit (BFT).
+                                                Sesuai fokus subbab 4.1.2, diagram berikut menampilkan <span class="font-semibold">RAFT Variant (CFT)</span> untuk Fabric v2 dan <span class="font-semibold">RAFT Variant + SmartBFT (BFT)</span> untuk Fabric v3. Variant menekankan parameter batching agresif; SmartBFT menambahkan tahap quorum signature sebelum finality.
                                             </p>
 
-                                            <div class="grid gap-4 md:grid-cols-2">
-                                                <figure class="algo-figure p-4">
-                                                    <figcaption class="text-xs font-semibold text-primary mb-3 uppercase tracking-[0.25em]">RAFT Standar (CFT)</figcaption>
-                                                    <svg class="algo-svg w-full" viewBox="0 0 720 360" role="img" aria-label="Diagram RAFT standar (CFT)">
-                                                        <defs>
-                                                            <marker id="arrowHeadCft" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
-                                                                <polygon points="0 0, 10 3.5, 0 7" fill="rgba(226,232,240,0.75)"></polygon>
-                                                            </marker>
-                                                        </defs>
+                                            <div class="row gap-4">
+                                                <div class="col-md-12">
+                                                    <figure class="algo-figure p-4">
+                                                        <figcaption class="text-xs font-semibold text-accent mb-3 uppercase tracking-[0.25em]">3) RAFT Variant — Fabric v2</figcaption>
+                                                        <svg class="algo-svg w-full" viewBox="0 0 720 360" role="img" aria-label="Diagram RAFT variant Fabric v2">
+                                                            <defs>
+                                                                <marker id="arrowHeadVarV2" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+                                                                    <polygon points="0 0, 10 3.5, 0 7" fill="rgba(226,232,240,0.75)"></polygon>
+                                                                </marker>
+                                                            </defs>
 
-                                                        <rect class="node node--highlight" x="28" y="56" width="160" height="64" rx="14"></rect>
-                                                        <text x="108" y="94" text-anchor="middle" fill="rgba(226,232,240,0.92)" font-size="16" font-weight="600">Client</text>
+                                                            <rect class="node node--highlight" x="28" y="54" width="150" height="64" rx="14"></rect>
+                                                            <text x="103" y="92" text-anchor="middle" fill="rgba(226,232,240,0.92)" font-size="16" font-weight="600">Client</text>
 
-                                                        <rect class="node node--primary" x="260" y="36" width="220" height="88" rx="16"></rect>
-                                                        <text x="370" y="74" text-anchor="middle" fill="rgba(226,232,240,0.92)" font-size="16" font-weight="700">Leader Orderer</text>
-                                                        <text class="note" x="370" y="98" text-anchor="middle">RAFT: replicate log</text>
+                                                            <rect class="node node--accent" x="260" y="34" width="200" height="84" rx="16"></rect>
+                                                            <text x="360" y="72" text-anchor="middle" fill="rgba(226,232,240,0.92)" font-size="16" font-weight="700">Leader Orderer</text>
+                                                            <text class="note" x="360" y="96" text-anchor="middle">Batch lebih besar & lebih cepat</text>
 
-                                                        <rect class="node" x="530" y="28" width="160" height="56" rx="14"></rect>
-                                                        <text x="610" y="62" text-anchor="middle" fill="rgba(226,232,240,0.88)" font-size="14" font-weight="600">Followers</text>
+                                                            <rect class="node" x="520" y="20" width="170" height="52" rx="14"></rect>
+                                                            <text x="605" y="50" text-anchor="middle" fill="rgba(226,232,240,0.88)" font-size="14" font-weight="600">Follower</text>
 
-                                                        <rect class="node node--accent" x="260" y="236" width="220" height="78" rx="16"></rect>
-                                                        <text x="370" y="272" text-anchor="middle" fill="rgba(226,232,240,0.92)" font-size="16" font-weight="700">Commit + Broadcast</text>
-                                                        <text class="note" x="370" y="296" text-anchor="middle">Mayoritas ACK</text>
+                                                            <rect class="node" x="520" y="84" width="170" height="52" rx="14"></rect>
+                                                            <text x="605" y="114" text-anchor="middle" fill="rgba(226,232,240,0.88)" font-size="14" font-weight="600">Follower</text>
 
-                                                        <rect class="node" x="28" y="250" width="160" height="64" rx="14"></rect>
-                                                        <text x="108" y="288" text-anchor="middle" fill="rgba(226,232,240,0.88)" font-size="14" font-weight="600">Peers</text>
+                                                            <rect class="node" x="520" y="148" width="170" height="52" rx="14"></rect>
+                                                            <text x="605" y="178" text-anchor="middle" fill="rgba(226,232,240,0.88)" font-size="14" font-weight="600">Follower</text>
 
-                                                        <line class="arrow" x1="188" y1="88" x2="260" y2="88" marker-end="url(#arrowHeadCft)"></line>
-                                                        <text class="note" x="224" y="76" text-anchor="middle">tx</text>
+                                                            <rect class="node" x="520" y="212" width="170" height="52" rx="14"></rect>
+                                                            <text x="605" y="242" text-anchor="middle" fill="rgba(226,232,240,0.88)" font-size="14" font-weight="600">Follower</text>
 
-                                                        <line class="arrow" x1="480" y1="74" x2="530" y2="56" marker-end="url(#arrowHeadCft)"></line>
-                                                        <line class="arrow" x1="530" y1="74" x2="480" y2="90" marker-end="url(#arrowHeadCft)"></line>
-                                                        <text class="note" x="516" y="110" text-anchor="end">AppendEntries / ACK</text>
+                                                            <rect class="node node--primary" x="260" y="254" width="200" height="74" rx="16"></rect>
+                                                            <text x="360" y="292" text-anchor="middle" fill="rgba(226,232,240,0.92)" font-size="16" font-weight="700">Commit + Broadcast</text>
+                                                            <text class="note" x="360" y="314" text-anchor="middle">Mayoritas ACK → commit</text>
 
-                                                        <line class="arrow" x1="370" y1="124" x2="370" y2="236" marker-end="url(#arrowHeadCft)"></line>
-                                                        <line class="arrow" x1="260" y1="282" x2="188" y2="282" marker-end="url(#arrowHeadCft)"></line>
-                                                        <text class="note" x="224" y="262" text-anchor="middle">blok</text>
-                                                    </svg>
-                                                </figure>
+                                                            <rect class="node" x="28" y="268" width="150" height="56" rx="14"></rect>
+                                                            <text x="103" y="301" text-anchor="middle" fill="rgba(226,232,240,0.88)" font-size="14" font-weight="600">Peers</text>
 
-                                                <figure class="algo-figure p-4">
-                                                    <figcaption class="text-xs font-semibold text-secondary mb-3 uppercase tracking-[0.25em]">RAFT + SmartBFT (BFT)</figcaption>
-                                                    <svg class="algo-svg w-full" viewBox="0 0 720 360" role="img" aria-label="Diagram RAFT + SmartBFT (BFT)">
-                                                        <defs>
-                                                            <marker id="arrowHeadBft" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
-                                                                <polygon points="0 0, 10 3.5, 0 7" fill="rgba(226,232,240,0.75)"></polygon>
-                                                            </marker>
-                                                        </defs>
+                                                            <line class="arrow" x1="178" y1="86" x2="260" y2="86" marker-end="url(#arrowHeadVarV2)"></line>
+                                                            <text class="note" x="219" y="74" text-anchor="middle">Broadcast tx</text>
 
-                                                        <rect class="node node--highlight" x="28" y="56" width="160" height="64" rx="14"></rect>
-                                                        <text x="108" y="94" text-anchor="middle" fill="rgba(226,232,240,0.92)" font-size="16" font-weight="600">Client</text>
+                                                            <line class="arrow" x1="460" y1="62" x2="520" y2="46" marker-end="url(#arrowHeadVarV2)"></line>
+                                                            <line class="arrow" x1="460" y1="74" x2="520" y2="110" marker-end="url(#arrowHeadVarV2)"></line>
+                                                            <line class="arrow" x1="460" y1="86" x2="520" y2="174" marker-end="url(#arrowHeadVarV2)"></line>
+                                                            <line class="arrow" x1="460" y1="98" x2="520" y2="238" marker-end="url(#arrowHeadVarV2)"></line>
+                                                            <text class="note" x="492" y="118" text-anchor="end">AppendEntries (lebih sering/besar)</text>
 
-                                                        <rect class="node node--secondary" x="250" y="30" width="240" height="76" rx="16"></rect>
-                                                        <text x="370" y="64" text-anchor="middle" fill="rgba(226,232,240,0.92)" font-size="16" font-weight="700">Leader Orderer</text>
-                                                        <text class="note" x="370" y="88" text-anchor="middle">RAFT: replicate log</text>
+                                                            <line class="arrow" x1="520" y1="58" x2="460" y2="80" marker-end="url(#arrowHeadVarV2)"></line>
+                                                            <line class="arrow" x1="520" y1="122" x2="460" y2="88" marker-end="url(#arrowHeadVarV2)"></line>
+                                                            <text class="note" x="492" y="144" text-anchor="end">ACK</text>
 
-                                                        <rect class="node" x="530" y="28" width="160" height="56" rx="14"></rect>
-                                                        <text x="610" y="62" text-anchor="middle" fill="rgba(226,232,240,0.88)" font-size="14" font-weight="600">Replicas</text>
+                                                            <line class="arrow" x1="360" y1="118" x2="360" y2="254" marker-end="url(#arrowHeadVarV2)"></line>
+                                                            <line class="arrow" x1="260" y1="296" x2="178" y2="296" marker-end="url(#arrowHeadVarV2)"></line>
+                                                            <text class="note" x="219" y="276" text-anchor="middle">Blok</text>
 
-                                                        <rect class="node node--secondary" x="250" y="130" width="240" height="78" rx="16"></rect>
-                                                        <text x="370" y="164" text-anchor="middle" fill="rgba(226,232,240,0.92)" font-size="16" font-weight="700">SmartBFT Phase</text>
-                                                        <text class="note" x="370" y="188" text-anchor="middle">Proposal → quorum signatures</text>
+                                                            <text class="note" x="670" y="316" text-anchor="end">Contoh: BatchTimeout=1s, MaxMessageCount=50</text>
+                                                        </svg>
+                                                        <p class="text-xs text-textdark/60 mt-3">
+                                                            Fokus: throughput tinggi (batch lebih cepat & lebih besar) dengan konsekuensi variasi latensi dan beban replikasi lebih tinggi.
+                                                        </p>
+                                                    </figure>
+                                                </div>
 
-                                                        <rect class="node node--accent" x="250" y="238" width="240" height="78" rx="16"></rect>
-                                                        <text x="370" y="272" text-anchor="middle" fill="rgba(226,232,240,0.92)" font-size="16" font-weight="700">Commit + Finality</text>
-                                                        <text class="note" x="370" y="296" text-anchor="middle">BFT proof (signature set)</text>
+                                                <div class="col-md-12">
+                                                    <figure class="algo-figure p-4">
+                                                        <figcaption class="text-xs font-semibold text-secondary mb-3 uppercase tracking-[0.25em]">4) RAFT Variant + SmartBFT — Fabric v3</figcaption>
+                                                        <svg class="algo-svg w-full" viewBox="0 0 720 360" role="img" aria-label="Diagram RAFT variant + SmartBFT Fabric v3">
+                                                            <defs>
+                                                                <marker id="arrowHeadBftV3" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+                                                                    <polygon points="0 0, 10 3.5, 0 7" fill="rgba(226,232,240,0.75)"></polygon>
+                                                                </marker>
+                                                            </defs>
 
-                                                        <rect class="node" x="28" y="250" width="160" height="64" rx="14"></rect>
-                                                        <text x="108" y="288" text-anchor="middle" fill="rgba(226,232,240,0.88)" font-size="14" font-weight="600">Peers</text>
+                                                            <rect class="node node--highlight" x="28" y="56" width="160" height="64" rx="14"></rect>
+                                                            <text x="108" y="94" text-anchor="middle" fill="rgba(226,232,240,0.92)" font-size="16" font-weight="600">Client</text>
 
-                                                        <line class="arrow" x1="188" y1="88" x2="250" y2="78" marker-end="url(#arrowHeadBft)"></line>
-                                                        <text class="note" x="220" y="76" text-anchor="middle">tx</text>
+                                                            <rect class="node node--secondary" x="250" y="30" width="240" height="76" rx="16"></rect>
+                                                            <text x="370" y="64" text-anchor="middle" fill="rgba(226,232,240,0.92)" font-size="16" font-weight="700">Leader Orderer (v3)</text>
+                                                            <text class="note" x="370" y="88" text-anchor="middle">RAFT variant: batch agresif</text>
 
-                                                        <line class="arrow" x1="490" y1="66" x2="530" y2="56" marker-end="url(#arrowHeadBft)"></line>
-                                                        <line class="arrow" x1="530" y1="74" x2="490" y2="86" marker-end="url(#arrowHeadBft)"></line>
-                                                        <text class="note" x="520" y="110" text-anchor="end">RAFT replicate</text>
+                                                            <rect class="node" x="530" y="28" width="160" height="56" rx="14"></rect>
+                                                            <text x="610" y="62" text-anchor="middle" fill="rgba(226,232,240,0.88)" font-size="14" font-weight="600">Replicas</text>
 
-                                                        <line class="arrow" x1="370" y1="106" x2="370" y2="130" marker-end="url(#arrowHeadBft)"></line>
-                                                        <line class="arrow" x1="490" y1="168" x2="530" y2="168" marker-end="url(#arrowHeadBft)"></line>
-                                                        <line class="arrow" x1="530" y1="186" x2="490" y2="186" marker-end="url(#arrowHeadBft)"></line>
-                                                        <text class="note" x="520" y="208" text-anchor="end">sign / vote / commit-msg</text>
+                                                            <rect class="node node--secondary" x="250" y="130" width="240" height="78" rx="16"></rect>
+                                                            <text x="370" y="164" text-anchor="middle" fill="rgba(226,232,240,0.92)" font-size="16" font-weight="700">SmartBFT Phase</text>
+                                                            <text class="note" x="370" y="188" text-anchor="middle">Proposal → quorum signatures</text>
 
-                                                        <line class="arrow" x1="370" y1="208" x2="370" y2="238" marker-end="url(#arrowHeadBft)"></line>
-                                                        <line class="arrow" x1="250" y1="282" x2="188" y2="282" marker-end="url(#arrowHeadBft)"></line>
-                                                        <text class="note" x="220" y="262" text-anchor="middle">blok + proof</text>
-                                                    </svg>
-                                                </figure>
+                                                            <rect class="node node--accent" x="250" y="238" width="240" height="78" rx="16"></rect>
+                                                            <text x="370" y="272" text-anchor="middle" fill="rgba(226,232,240,0.92)" font-size="16" font-weight="700">Commit + Finality</text>
+                                                            <text class="note" x="370" y="296" text-anchor="middle">BFT proof (signature set)</text>
+
+                                                            <rect class="node" x="28" y="250" width="160" height="64" rx="14"></rect>
+                                                            <text x="108" y="288" text-anchor="middle" fill="rgba(226,232,240,0.88)" font-size="14" font-weight="600">Peers</text>
+
+                                                            <line class="arrow" x1="188" y1="88" x2="250" y2="78" marker-end="url(#arrowHeadBftV3)"></line>
+                                                            <text class="note" x="220" y="76" text-anchor="middle">tx</text>
+
+                                                            <line class="arrow" x1="490" y1="66" x2="530" y2="56" marker-end="url(#arrowHeadBftV3)"></line>
+                                                            <line class="arrow" x1="530" y1="74" x2="490" y2="86" marker-end="url(#arrowHeadBftV3)"></line>
+                                                            <text class="note" x="520" y="110" text-anchor="end">RAFT replicate</text>
+
+                                                            <line class="arrow" x1="370" y1="106" x2="370" y2="130" marker-end="url(#arrowHeadBftV3)"></line>
+                                                            <line class="arrow" x1="490" y1="168" x2="530" y2="168" marker-end="url(#arrowHeadBftV3)"></line>
+                                                            <line class="arrow" x1="530" y1="186" x2="490" y2="186" marker-end="url(#arrowHeadBftV3)"></line>
+                                                            <text class="note" x="520" y="208" text-anchor="end">sign / vote / commit-msg</text>
+
+                                                            <line class="arrow" x1="370" y1="208" x2="370" y2="238" marker-end="url(#arrowHeadBftV3)"></line>
+                                                            <line class="arrow" x1="250" y1="282" x2="188" y2="282" marker-end="url(#arrowHeadBftV3)"></line>
+                                                            <text class="note" x="220" y="262" text-anchor="middle">blok + proof</text>
+                                                        </svg>
+                                                        <p class="text-xs text-textdark/60 mt-3">
+                                                            SmartBFT menambah finality berbasis quorum signatures (OrdererType: BFT) di atas batching agresif variant.
+                                                        </p>
+                                                    </figure>
+                                                </div>
                                             </div>
 
                                             <div class="rounded-xl border border-white/10 bg-surfaceMuted/50 p-4">

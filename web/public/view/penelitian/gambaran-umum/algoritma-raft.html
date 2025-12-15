@@ -308,7 +308,7 @@ onReceive(AppendEntriesSuccess from follower f):
                             </div>
 
                             <div class="overflow-x-auto rounded-3xl border border-white/10 bg-surfaceMuted/60 p-6">
-                                <svg viewBox="0 0 980 420" class="h-full w-full min-w-[860px]" role="img" aria-labelledby="raft-flow-title raft-flow-desc">
+                                <svg viewBox="0 0 980 760" class="h-full w-full min-w-[860px]" role="img" aria-labelledby="raft-flow-title raft-flow-desc">
                                     <title id="raft-flow-title">Flowchart algoritma RAFT</title>
                                     <desc id="raft-flow-desc">Alur follower timeout, candidate meminta vote, leader mengirim heartbeat dan mereplikasi log sampai commit mayoritas.</desc>
                                     <defs>
@@ -381,6 +381,52 @@ onReceive(AppendEntriesSuccess from follower f):
 
                                     <path d="M805,145 L805,195" stroke="#38BDF8" stroke-width="2.2" fill="none" marker-end="url(#raftArrow)" />
                                     <text x="828" y="175" fill="#BAE6FD" font-size="12">AppendEntries</text>
+
+                                    <!-- Parameter pembeda (standar vs varian) -->
+                                    <g>
+                                        <rect x="55" y="395" width="870" height="335" rx="26" fill="rgba(2,6,23,0.35)" stroke="rgba(255,255,255,0.10)" stroke-width="2" />
+
+                                        <text x="90" y="432" fill="#E2E8F0" font-size="16" font-weight="700">Parameter konfigurasi (Fabric v2) — Standar vs Varian</text>
+                                        <text x="90" y="454" fill="#94A3B8" font-size="12">Ditambahkan pada diagram agar terlihat perbedaan tiap parameter.</text>
+
+                                        <rect x="75" y="475" width="410" height="235" rx="18" fill="rgba(15,23,42,0.55)" stroke="rgba(56,189,248,0.22)" />
+                                        <rect x="495" y="475" width="410" height="235" rx="18" fill="rgba(15,23,42,0.55)" stroke="rgba(249,115,22,0.22)" />
+
+                                        <text x="95" y="504" fill="#BAE6FD" font-size="13" font-weight="700">Standar</text>
+                                        <text x="515" y="504" fill="#FED7AA" font-size="13" font-weight="700">Varian</text>
+
+                                        <text x="95" y="526" fill="#E2E8F0" font-size="12">
+                                            <tspan x="95" dy="0">• Lokasi configtx:</tspan>
+                                            <tspan x="115" dy="16">fabric-2/raft-standard/</tspan>
+                                            <tspan x="115" dy="16">network/configtx/configtx.yaml</tspan>
+                                            <tspan x="95" dy="18">• Orderer endpoint: orderer.fabric2.standard.com:7050</tspan>
+                                            <tspan x="95" dy="18">• BatchTimeout: 2 detik</tspan>
+                                            <tspan x="95" dy="18">• MaxMessageCount: 10</tspan>
+                                            <tspan x="95" dy="18">• AbsoluteMaxBytes: 99 MB</tspan>
+                                            <tspan x="95" dy="18">• PreferredMaxBytes: 512 KB</tspan>
+                                            <tspan x="95" dy="18">• Nama kanal bawaan: fabric2-channel-standard</tspan>
+                                            <tspan x="95" dy="18">• Jumlah orderer di compose:</tspan>
+                                            <tspan x="115" dy="16">1 orderer di compose/compose-test-net.yaml</tspan>
+                                            <tspan x="95" dy="18">• Fokus pengamatan:</tspan>
+                                            <tspan x="115" dy="16">Baseline latensi dan kestabilan blok</tspan>
+                                        </text>
+
+                                        <text x="515" y="526" fill="#E2E8F0" font-size="12">
+                                            <tspan x="515" dy="0">• Lokasi configtx:</tspan>
+                                            <tspan x="535" dy="16">fabric-2/raft-variant/</tspan>
+                                            <tspan x="535" dy="16">network/configtx/configtx.yaml</tspan>
+                                            <tspan x="515" dy="18">• Orderer endpoint: orderer.fabric2.variant.com:7050</tspan>
+                                            <tspan x="515" dy="18">• BatchTimeout: 1 detik</tspan>
+                                            <tspan x="515" dy="18">• MaxMessageCount: 50</tspan>
+                                            <tspan x="515" dy="18">• AbsoluteMaxBytes: 20 MB</tspan>
+                                            <tspan x="515" dy="18">• PreferredMaxBytes: 4 MB</tspan>
+                                            <tspan x="515" dy="18">• Nama kanal bawaan: fabric2-channel-variant</tspan>
+                                            <tspan x="515" dy="18">• Jumlah orderer di compose:</tspan>
+                                            <tspan x="535" dy="16">Hingga 4 orderer di compose/compose-bft-test-net.yaml</tspan>
+                                            <tspan x="515" dy="18">• Fokus pengamatan:</tspan>
+                                            <tspan x="535" dy="16">Eksperimen throughput dan toleransi gangguan</tspan>
+                                        </text>
+                                    </g>
                                 </svg>
                             </div>
 

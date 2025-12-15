@@ -363,37 +363,151 @@ onReceive(AppendEntriesSuccess from follower f):
 
                         <section class="space-y-6 rounded-3xl border border-white/10 bg-surfaceMuted/70 p-10 shadow-2xl shadow-black/30">
                             <div class="space-y-3">
-                                <h2 class="text-2xl font-semibold text-textdark md:text-3xl">4) RAFT pada Hyperledger Fabric v2 dan v3</h2>
+                                <h2 class="text-2xl font-semibold text-textdark md:text-3xl">4) RAFT pada Hyperledger Fabric v2 dan v3 (selaras dengan konfigurasi lingkungan uji)</h2>
                                 <p class="text-sm text-textdark/75 md:text-base">
                                     Di Hyperledger Fabric, RAFT digunakan pada <span class="font-semibold text-textdark">ordering service</span> dengan tipe <span class="font-semibold text-textdark">etcdraft</span>.
-                                    Berikut ringkasan implementasinya pada dua versi yang digunakan di penelitian (Fabric v2 dan Fabric v3) sesuai struktur repo ini.
+                                    Pada penelitian ini, konfigurasi RAFT tidak hanya ditentukan oleh mekanisme election/replication, tetapi juga oleh parameter <span class="font-semibold text-textdark">pembentukan blok (batch)</span>
+                                    dan <span class="font-semibold text-textdark">jumlah orderer</span> yang digunakan pada skenario standar vs varian (Fabric v2 dan v3).
                                 </p>
+                            </div>
+
+                            <div class="space-y-4 rounded-2xl border border-white/10 bg-surface/60 p-6">
+                                <h3 class="text-lg font-semibold text-textdark">Pengaruh konfigurasi terhadap kinerja (mengapa konfigurasi berpengaruh)</h3>
+                                <ul class="space-y-2 text-sm text-textdark/80 md:text-base">
+                                    <li><span class="font-semibold text-textdark">BatchTimeout</span>: batas waktu maksimum sebelum orderer membentuk blok baru. Nilai lebih kecil cenderung menurunkan latency, namun meningkatkan frekuensi proses ordering.</li>
+                                    <li><span class="font-semibold text-textdark">MaxMessageCount</span>: jumlah transaksi per blok. Nilai lebih besar dapat menaikkan throughput, tetapi dapat menambah waktu tunggu sampai blok “penuh”.</li>
+                                    <li><span class="font-semibold text-textdark">AbsoluteMaxBytes / PreferredMaxBytes</span>: batas ukuran batch/blok. Pengaturan ini memengaruhi efisiensi transmisi dan risiko penumpukan data saat replikasi antar orderer.</li>
+                                    <li><span class="font-semibold text-textdark">Jumlah orderer</span>: memengaruhi quorum \(Q\) dan toleransi gangguan \(N \ge 2f+1\). Lebih banyak orderer meningkatkan ketahanan, tetapi menambah overhead replikasi dan komunikasi.</li>
+                                </ul>
                             </div>
 
                             <div class="grid gap-6 md:grid-cols-2">
                                 <div class="space-y-3 rounded-2xl border border-white/10 bg-surface/60 p-6">
-                                    <h3 class="text-lg font-semibold text-textdark">Fabric v2 (RAFT / etcdraft)</h3>
-                                    <ul class="space-y-2 text-sm text-textdark/80 md:text-base">
-                                        <li><span class="font-semibold text-textdark">Konfigurasi konsensus</span>: <span class="font-semibold text-textdark">OrdererType: etcdraft</span> pada <span class="font-semibold text-textdark">configtx.yaml</span> jaringan RAFT.</li>
-                                        <li><span class="font-semibold text-textdark">Parameter RAFT</span>: berada di <span class="font-semibold text-textdark">Orderer.EtcdRaft.Options</span> (contoh: <span class="font-semibold text-textdark">TickInterval</span>, <span class="font-semibold text-textdark">ElectionTick</span>, <span class="font-semibold text-textdark">HeartbeatTick</span>, <span class="font-semibold text-textdark">MaxInflightBlocks</span>).</li>
-                                        <li><span class="font-semibold text-textdark">Keanggotaan raft</span>: daftar consenter berada pada <span class="font-semibold text-textdark">Orderer.EtcdRaft.Consenters</span>.</li>
-                                    </ul>
-                                    <p class="mt-3 text-xs text-textdark/60">
-                                        Contoh file di repo: <span class="font-semibold">`fabric-2/raft-standard/config/configtx.yaml`</span> dan <span class="font-semibold">`fabric-2/raft-variant/config/configtx.yaml`</span>.
+                                    <h3 class="text-lg font-semibold text-textdark">Fabric v2 — RAFT standar vs varian</h3>
+                                    <p class="text-sm text-textdark/75 md:text-base">
+                                        Profil channel RAFT dan parameter batch didefinisikan pada <span class="font-semibold text-textdark">configtx.yaml</span> di folder <span class="font-semibold text-textdark">network/configtx</span>.
                                     </p>
+                                    <div class="overflow-x-auto rounded-xl border border-white/5 bg-surface/40">
+                                        <table class="min-w-full divide-y divide-white/10 text-left text-sm text-textdark/80 md:text-base">
+                                            <thead class="bg-surfaceMuted/70 text-textdark">
+                                                <tr>
+                                                    <th class="px-4 py-3 font-semibold">Parameter</th>
+                                                    <th class="px-4 py-3 font-semibold">Standar</th>
+                                                    <th class="px-4 py-3 font-semibold">Varian</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="divide-y divide-white/5">
+                                                <tr>
+                                                    <td class="px-4 py-3 align-top text-textdark/60">Lokasi configtx</td>
+                                                    <td class="px-4 py-3 align-top"><code>fabric-2/raft-standard/network/configtx/configtx.yaml</code></td>
+                                                    <td class="px-4 py-3 align-top"><code>fabric-2/raft-variant/network/configtx/configtx.yaml</code></td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="px-4 py-3 align-top text-textdark/60">Profile (pembentukan artefak)</td>
+                                                    <td class="px-4 py-3 align-top"><code>ChannelUsingRaft</code></td>
+                                                    <td class="px-4 py-3 align-top"><code>ChannelUsingRaft</code></td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="px-4 py-3 align-top text-textdark/60">BatchTimeout</td>
+                                                    <td class="px-4 py-3 align-top">2s</td>
+                                                    <td class="px-4 py-3 align-top">1s</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="px-4 py-3 align-top text-textdark/60">MaxMessageCount</td>
+                                                    <td class="px-4 py-3 align-top">10</td>
+                                                    <td class="px-4 py-3 align-top">50</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="px-4 py-3 align-top text-textdark/60">AbsoluteMaxBytes</td>
+                                                    <td class="px-4 py-3 align-top">99 MB</td>
+                                                    <td class="px-4 py-3 align-top">20 MB</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="px-4 py-3 align-top text-textdark/60">PreferredMaxBytes</td>
+                                                    <td class="px-4 py-3 align-top">512 KB</td>
+                                                    <td class="px-4 py-3 align-top">4 MB</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="px-4 py-3 align-top text-textdark/60">Nama kanal bawaan</td>
+                                                    <td class="px-4 py-3 align-top"><code>fabric2-channel-standard</code></td>
+                                                    <td class="px-4 py-3 align-top"><code>fabric2-channel-variant</code></td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="px-4 py-3 align-top text-textdark/60">Skala orderer (orkestrasi)</td>
+                                                    <td class="px-4 py-3 align-top">baseline 1 orderer</td>
+                                                    <td class="px-4 py-3 align-top">hingga 4 orderer (uji replikasi & fault tolerance)</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
 
                                 <div class="space-y-3 rounded-2xl border border-white/10 bg-surface/60 p-6">
-                                    <h3 class="text-lg font-semibold text-textdark">Fabric v3 (RAFT / etcdraft)</h3>
-                                    <ul class="space-y-2 text-sm text-textdark/80 md:text-base">
-                                        <li><span class="font-semibold text-textdark">Konfigurasi konsensus</span>: tetap memakai <span class="font-semibold text-textdark">OrdererType: etcdraft</span> untuk RAFT.</li>
-                                        <li><span class="font-semibold text-textdark">Parameter RAFT</span>: tetap berada pada <span class="font-semibold text-textdark">Orderer.EtcdRaft.Options</span> (tick, election, heartbeat) sehingga prinsip leader election & log replication sama.</li>
-                                        <li><span class="font-semibold text-textdark">Perbedaan konteks penelitian</span>: pada repo ini Fabric v3 juga disiapkan untuk opsi konsensus lain (SmartBFT) sebagai pembanding, tetapi RAFT tetap menjadi baseline untuk jaringan “standard”.</li>
-                                    </ul>
-                                    <p class="mt-3 text-xs text-textdark/60">
-                                        Contoh file di repo: <span class="font-semibold">`fabric-3/raft-standard/config/configtx.yaml`</span> dan <span class="font-semibold">`fabric-3/raft-variant/config/configtx.yaml`</span>.
+                                    <h3 class="text-lg font-semibold text-textdark">Fabric v3 — RAFT standar vs varian</h3>
+                                    <p class="text-sm text-textdark/75 md:text-base">
+                                        Pola konfigurasi dipertahankan, namun port dan struktur organisasi menyesuaikan lingkungan v3. Varian juga menjadi landasan untuk pembanding SmartBFT.
                                     </p>
+                                    <div class="overflow-x-auto rounded-xl border border-white/5 bg-surface/40">
+                                        <table class="min-w-full divide-y divide-white/10 text-left text-sm text-textdark/80 md:text-base">
+                                            <thead class="bg-surfaceMuted/70 text-textdark">
+                                                <tr>
+                                                    <th class="px-4 py-3 font-semibold">Parameter</th>
+                                                    <th class="px-4 py-3 font-semibold">Standar</th>
+                                                    <th class="px-4 py-3 font-semibold">Varian</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="divide-y divide-white/5">
+                                                <tr>
+                                                    <td class="px-4 py-3 align-top text-textdark/60">Lokasi configtx</td>
+                                                    <td class="px-4 py-3 align-top"><code>fabric-3/raft-standard/network/configtx/configtx.yaml</code></td>
+                                                    <td class="px-4 py-3 align-top"><code>fabric-3/raft-variant/network/configtx/configtx.yaml</code></td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="px-4 py-3 align-top text-textdark/60">Profile (pembentukan artefak)</td>
+                                                    <td class="px-4 py-3 align-top"><code>ChannelUsingRaft</code></td>
+                                                    <td class="px-4 py-3 align-top"><code>ChannelUsingRaft</code></td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="px-4 py-3 align-top text-textdark/60">BatchTimeout</td>
+                                                    <td class="px-4 py-3 align-top">2s</td>
+                                                    <td class="px-4 py-3 align-top">1s</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="px-4 py-3 align-top text-textdark/60">MaxMessageCount</td>
+                                                    <td class="px-4 py-3 align-top">10</td>
+                                                    <td class="px-4 py-3 align-top">50</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="px-4 py-3 align-top text-textdark/60">AbsoluteMaxBytes</td>
+                                                    <td class="px-4 py-3 align-top">99 MB</td>
+                                                    <td class="px-4 py-3 align-top">20 MB</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="px-4 py-3 align-top text-textdark/60">PreferredMaxBytes</td>
+                                                    <td class="px-4 py-3 align-top">512 KB</td>
+                                                    <td class="px-4 py-3 align-top">4 MB</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="px-4 py-3 align-top text-textdark/60">Nama kanal bawaan</td>
+                                                    <td class="px-4 py-3 align-top"><code>fabric3-channel-standard</code></td>
+                                                    <td class="px-4 py-3 align-top"><code>fabric3-channel-variant</code></td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="px-4 py-3 align-top text-textdark/60">Skala orderer (orkestrasi)</td>
+                                                    <td class="px-4 py-3 align-top">baseline 1 orderer</td>
+                                                    <td class="px-4 py-3 align-top">hingga 4 orderer + opsi SmartBFT pada varian</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
+                            </div>
+
+                            <div class="rounded-2xl border border-white/10 bg-surface/60 p-6 text-sm text-textdark/75 md:text-base">
+                                <p>
+                                    Dengan struktur ini, perbedaan hasil throughput/latency/resource usage/fault tolerance dapat ditelusuri ke dua aspek: (1) perilaku RAFT (quorum, election, replikasi log),
+                                    dan (2) parameter pembentukan blok serta skala orderer yang dimodifikasi pada konfigurasi varian.
+                                </p>
                             </div>
                         </section>
 

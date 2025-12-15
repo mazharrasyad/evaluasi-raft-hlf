@@ -332,20 +332,31 @@ onTimeoutOrLeaderSuspected():
 
                         <section class="space-y-6 rounded-3xl border border-white/10 bg-surfaceMuted/70 p-10 shadow-2xl shadow-black/30">
                             <div class="space-y-3">
-                                <h2 class="text-2xl font-semibold text-textdark md:text-3xl">4) SmartBFT pada Hyperledger Fabric v2 dan v3</h2>
+                                <h2 class="text-2xl font-semibold text-textdark md:text-3xl">4) SmartBFT pada Hyperledger Fabric v2 dan v3 (selaras dengan konfigurasi lingkungan uji)</h2>
                                 <p class="text-sm text-textdark/75 md:text-base">
-                                    Pada repo ini, konfigurasi SmartBFT muncul sebagai opsi ordering service <span class="font-semibold text-textdark">OrdererType: BFT</span> dengan blok konfigurasi <span class="font-semibold text-textdark">SmartBFT</span>.
-                                    Bagian ini merangkum bagaimana SmartBFT dipetakan pada Fabric v2 dan Fabric v3 (sesuai file yang tersedia).
+                                    Pada repo ini, SmartBFT diposisikan sebagai opsi konsensus pada ordering service dengan <span class="font-semibold text-textdark">OrdererType: BFT</span>.
+                                    Sejalan dengan Bab 4.3, skenario SmartBFT digunakan sebagai <span class="font-semibold text-textdark\">pembanding</span> terutama pada lingkungan <span class="font-semibold text-textdark">Fabric v3 varian</span>,
+                                    sedangkan artefak BFT pada Fabric v2 tersedia sebagai konfigurasi pendamping/rujukan.
+                                </p>
+                            </div>
+
+                            <div class="space-y-4 rounded-2xl border border-white/10 bg-surface/60 p-6">
+                                <h3 class="text-lg font-semibold text-textdark">Keterkaitan konfigurasi “batch” SmartBFT dengan performa</h3>
+                                <p class="text-sm text-textdark/75 md:text-base">
+                                    SmartBFT juga mengelola <span class="font-semibold text-textdark">batch</span> transaksi, namun melalui parameter khusus, misalnya:
+                                    <span class="font-semibold text-textdark">RequestBatchMaxCount</span> (jumlah request per batch) dan <span class="font-semibold text-textdark">RequestBatchMaxInterval</span> (batas waktu pembentukan batch).
+                                    Secara konsep, pengaruhnya mirip dengan <span class="font-semibold text-textdark">MaxMessageCount</span> dan <span class="font-semibold text-textdark">BatchTimeout</span> pada RAFT: ada trade-off throughput vs latency,
+                                    ditambah overhead pesan BFT (prepare/commit) pada tiap batch.
                                 </p>
                             </div>
 
                             <div class="grid gap-6 md:grid-cols-2">
                                 <div class="space-y-3 rounded-2xl border border-white/10 bg-surface/60 p-6">
-                                    <h3 class="text-lg font-semibold text-textdark">Fabric v2 (BFT config)</h3>
+                                    <h3 class="text-lg font-semibold text-textdark">Fabric v2 — artefak BFT (rujukan konfigurasi)</h3>
                                     <ul class="space-y-2 text-sm text-textdark/80 md:text-base">
-                                        <li><span class="font-semibold text-textdark">OrdererType</span>: <span class="font-semibold text-textdark">BFT</span> pada profile channel BFT.</li>
-                                        <li><span class="font-semibold text-textdark">Parameter SmartBFT</span>: misalnya <span class="font-semibold text-textdark">RequestBatchMaxCount</span>, <span class="font-semibold text-textdark">RequestBatchMaxInterval</span>, <span class="font-semibold text-textdark">ViewChangeTimeout</span>, <span class="font-semibold text-textdark">LeaderHeartbeatTimeout</span>.</li>
-                                        <li><span class="font-semibold text-textdark">ConsenterMapping</span>: memetakan ID, endpoint, MSPID, dan sertifikat TLS setiap orderer BFT.</li>
+                                        <li><span class="font-semibold text-textdark">Profile BFT</span>: mendefinisikan <span class="font-semibold text-textdark">OrdererType: BFT</span> untuk pembuatan artefak channel.</li>
+                                        <li><span class="font-semibold text-textdark">ConsenterMapping</span>: memetakan ID, endpoint, MSPID, serta sertifikat TLS setiap orderer BFT.</li>
+                                        <li><span class="font-semibold text-textdark">SmartBFT parameters</span>: contoh parameter batch & view-change (mis. <span class="font-semibold text-textdark">RequestBatchMaxCount</span>, <span class="font-semibold text-textdark">RequestBatchMaxInterval</span>, <span class="font-semibold text-textdark">ViewChangeTimeout</span>).</li>
                                     </ul>
                                     <p class="mt-3 text-xs text-textdark/60">
                                         Contoh file di repo: <span class="font-semibold">`fabric-2/raft-standard/network/bft-config/configtx.yaml`</span> dan <span class="font-semibold">`fabric-2/raft-variant/network/bft-config/configtx.yaml`</span>.
@@ -353,11 +364,11 @@ onTimeoutOrLeaderSuspected():
                                 </div>
 
                                 <div class="space-y-3 rounded-2xl border border-white/10 bg-surface/60 p-6">
-                                    <h3 class="text-lg font-semibold text-textdark">Fabric v3 (BFT config + opsi SmartBFT)</h3>
+                                    <h3 class="text-lg font-semibold text-textdark">Fabric v3 varian — skenario pembanding SmartBFT</h3>
                                     <ul class="space-y-2 text-sm text-textdark/80 md:text-base">
-                                        <li><span class="font-semibold text-textdark">BFT config</span>: tersedia folder <span class="font-semibold text-textdark">bft-config</span> yang berisi profile <span class="font-semibold text-textdark">ChannelUsingBFT</span> dan <span class="font-semibold text-textdark">ConsenterMapping</span>.</li>
-                                        <li><span class="font-semibold text-textdark">SmartBFT di configtx</span>: pada konfigurasi tertentu terdapat profile <span class="font-semibold text-textdark">SampleAppChannelSmartBFT</span> dengan <span class="font-semibold text-textdark">OrdererType: BFT</span> dan blok <span class="font-semibold text-textdark">SmartBFT</span>.</li>
-                                        <li><span class="font-semibold text-textdark">Inti perbedaannya</span>: BFT membutuhkan ukuran cluster lebih besar (3f+1) dan quorum (2f+1), sehingga overhead komunikasi biasanya lebih tinggi daripada RAFT, tetapi memberikan ketahanan terhadap byzantine.</li>
+                                        <li><span class="font-semibold text-textdark">BFT config di network</span>: folder <span class="font-semibold text-textdark">network/bft-config</span> menyediakan profile <span class="font-semibold text-textdark">ChannelUsingBFT</span> dan <span class="font-semibold text-textdark">ConsenterMapping</span> (sejalan Bab 4.3).</li>
+                                        <li><span class="font-semibold text-textdark">Opsi SmartBFT di config</span>: terdapat definisi profile SmartBFT pada <span class="font-semibold text-textdark">config/configtx.yaml</span> (mis. profile SmartBFT dengan <span class="font-semibold text-textdark">OrdererType: BFT</span> dan blok <span class="font-semibold text-textdark">SmartBFT</span>).</li>
+                                        <li><span class="font-semibold text-textdark">Implikasi eksperimen</span>: karena kebutuhan \(N \ge 3f+1\) dan quorum \(2f+1\), SmartBFT membutuhkan cluster lebih besar dan pertukaran pesan lebih banyak dibanding RAFT; ini biasanya meningkatkan overhead namun menambah ketahanan terhadap byzantine.</li>
                                     </ul>
                                     <p class="mt-3 text-xs text-textdark/60">
                                         Contoh file di repo: <span class="font-semibold">`fabric-3/raft-variant/network/bft-config/configtx.yaml`</span> dan <span class="font-semibold">`fabric-3/raft-variant/config/configtx.yaml`</span>.

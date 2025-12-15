@@ -233,7 +233,7 @@ onTimeoutOrLeaderSuspected():
                             </div>
 
                             <div class="overflow-x-auto rounded-3xl border border-white/10 bg-surfaceMuted/60 p-6">
-                                <svg viewBox="0 0 1040 440" class="h-full w-full min-w-[900px]" role="img" aria-labelledby="bft-flow-title bft-flow-desc">
+                                <svg viewBox="0 0 1040 760" class="h-full w-full min-w-[900px]" role="img" aria-labelledby="bft-flow-title bft-flow-desc">
                                     <title id="bft-flow-title">Flowchart algoritma SmartBFT</title>
                                     <desc id="bft-flow-desc">Leader membuat proposal batch, replica melakukan prepare, commit setelah quorum, lalu view change bila timeout.</desc>
                                     <defs>
@@ -315,6 +315,52 @@ onTimeoutOrLeaderSuspected():
 
                                     <path d="M980,265 C1010,265 1010,115 980,115" stroke="#38BDF8" stroke-width="2" fill="none" marker-end="url(#bftArrow)" />
                                     <text x="1012" y="190" fill="#BAE6FD" font-size="12">decide</text>
+
+                                    <!-- Parameter pembeda (standar vs varian) -->
+                                    <g>
+                                        <rect x="60" y="395" width="920" height="335" rx="26" fill="rgba(2,6,23,0.35)" stroke="rgba(255,255,255,0.10)" stroke-width="2" />
+
+                                        <text x="92" y="432" fill="#E2E8F0" font-size="16" font-weight="700">Parameter lingkungan uji (Fabric v2) — Standar vs Varian</text>
+                                        <text x="92" y="454" fill="#94A3B8" font-size="12">Ditambahkan pada diagram agar terlihat perbedaan tiap parameter.</text>
+
+                                        <rect x="80" y="475" width="435" height="235" rx="18" fill="rgba(15,23,42,0.55)" stroke="rgba(56,189,248,0.22)" />
+                                        <rect x="525" y="475" width="435" height="235" rx="18" fill="rgba(15,23,42,0.55)" stroke="rgba(249,115,22,0.22)" />
+
+                                        <text x="100" y="504" fill="#BAE6FD" font-size="13" font-weight="700">Standar</text>
+                                        <text x="545" y="504" fill="#FED7AA" font-size="13" font-weight="700">Varian</text>
+
+                                        <text x="100" y="526" fill="#E2E8F0" font-size="12">
+                                            <tspan x="100" dy="0">• Lokasi configtx:</tspan>
+                                            <tspan x="120" dy="16">fabric-2/raft-standard/</tspan>
+                                            <tspan x="120" dy="16">network/configtx/configtx.yaml</tspan>
+                                            <tspan x="100" dy="18">• Orderer endpoint: orderer.fabric2.standard.com:7050</tspan>
+                                            <tspan x="100" dy="18">• BatchTimeout: 2 detik</tspan>
+                                            <tspan x="100" dy="18">• MaxMessageCount: 10</tspan>
+                                            <tspan x="100" dy="18">• AbsoluteMaxBytes: 99 MB</tspan>
+                                            <tspan x="100" dy="18">• PreferredMaxBytes: 512 KB</tspan>
+                                            <tspan x="100" dy="18">• Nama kanal bawaan: fabric2-channel-standard</tspan>
+                                            <tspan x="100" dy="18">• Jumlah orderer di compose:</tspan>
+                                            <tspan x="120" dy="16">1 orderer di compose/compose-test-net.yaml</tspan>
+                                            <tspan x="100" dy="18">• Fokus pengamatan:</tspan>
+                                            <tspan x="120" dy="16">Baseline latensi dan kestabilan blok</tspan>
+                                        </text>
+
+                                        <text x="545" y="526" fill="#E2E8F0" font-size="12">
+                                            <tspan x="545" dy="0">• Lokasi configtx:</tspan>
+                                            <tspan x="565" dy="16">fabric-2/raft-variant/</tspan>
+                                            <tspan x="565" dy="16">network/configtx/configtx.yaml</tspan>
+                                            <tspan x="545" dy="18">• Orderer endpoint: orderer.fabric2.variant.com:7050</tspan>
+                                            <tspan x="545" dy="18">• BatchTimeout: 1 detik</tspan>
+                                            <tspan x="545" dy="18">• MaxMessageCount: 50</tspan>
+                                            <tspan x="545" dy="18">• AbsoluteMaxBytes: 20 MB</tspan>
+                                            <tspan x="545" dy="18">• PreferredMaxBytes: 4 MB</tspan>
+                                            <tspan x="545" dy="18">• Nama kanal bawaan: fabric2-channel-variant</tspan>
+                                            <tspan x="545" dy="18">• Jumlah orderer di compose:</tspan>
+                                            <tspan x="565" dy="16">Hingga 4 orderer di compose/compose-bft-test-net.yaml</tspan>
+                                            <tspan x="545" dy="18">• Fokus pengamatan:</tspan>
+                                            <tspan x="565" dy="16">Eksperimen throughput dan toleransi gangguan</tspan>
+                                        </text>
+                                    </g>
                                 </svg>
                             </div>
 
@@ -335,7 +381,7 @@ onTimeoutOrLeaderSuspected():
                                 <h2 class="text-2xl font-semibold text-textdark md:text-3xl">4) SmartBFT pada Hyperledger Fabric v2 dan v3 (selaras dengan konfigurasi lingkungan uji)</h2>
                                 <p class="text-sm text-textdark/75 md:text-base">
                                     Pada repo ini, SmartBFT diposisikan sebagai opsi konsensus pada ordering service dengan <span class="font-semibold text-textdark">OrdererType: BFT</span>.
-                                    Sejalan dengan Bab 4.3, skenario SmartBFT digunakan sebagai <span class="font-semibold text-textdark\">pembanding</span> terutama pada lingkungan <span class="font-semibold text-textdark">Fabric v3 varian</span>,
+                                    Sejalan dengan Bab 4.3, skenario SmartBFT digunakan sebagai <span class="font-semibold text-textdark">pembanding</span> terutama pada lingkungan <span class="font-semibold text-textdark">Fabric v3 varian</span>,
                                     sedangkan artefak BFT pada Fabric v2 tersedia sebagai konfigurasi pendamping/rujukan.
                                 </p>
                             </div>

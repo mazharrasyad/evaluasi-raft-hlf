@@ -32,6 +32,10 @@
     <style>
         body { font-family: 'Inter', sans-serif; }
 
+        /* Bootstrap-like helpers (requested: col-md-12) */
+        .row { display: flex; flex-wrap: wrap; }
+        .col-md-12 { flex: 0 0 auto; width: 100%; }
+
         .component-link[data-active="true"] {
             background: linear-gradient(135deg, rgba(249, 115, 22, 0.28), rgba(56, 189, 248, 0.22));
             color: #E2E8F0;
@@ -341,125 +345,128 @@
                                             </div>
                                         </div>
 
-                                        <!-- Diagram: RAFT standar vs variant -->
-                                        <div class="space-y-4 mt-6" id="diagram-raft-standar-variant">
-                                            <h3 class="text-lg font-semibold text-textdark">Diagram Algoritma RAFT: Standar vs Variant</h3>
+                                        <!-- Diagram (Bab 4.1.1): RAFT Standar v2 & v3 -->
+                                        <div class="space-y-4 mt-6" id="diagram-raft-standar-v2-v3">
+                                            <h3 class="text-lg font-semibold text-textdark">Diagram Algoritma RAFT Standar (Fabric v2 dan Fabric v3)</h3>
                                             <p class="text-sm text-textdark/70">
-                                                Diagram berikut menampilkan alur inti RAFT (leader election → log replication → commit). Perbedaan “variant” pada penelitian ini terutama ada pada <span class="font-semibold">parameter batching</span> dan <span class="font-semibold">topologi orderer</span> (single-node vs multi-node pada compose).
+                                                Diagram berikut menampilkan alur inti RAFT (leader election → log replication → commit) untuk konfigurasi <span class="font-semibold">RAFT Standar</span> pada Fabric v2 dan Fabric v3. Keduanya tetap CFT (Crash Fault Tolerant), dengan Fabric v3 menonjolkan optimasi internal seperti snapshot dan log compaction.
                                             </p>
 
-                                            <div class="grid gap-4 md:grid-cols-2">
-                                                <figure class="algo-figure p-4">
-                                                    <figcaption class="text-xs font-semibold text-primary mb-3 uppercase tracking-[0.25em]">RAFT Standar (baseline)</figcaption>
-                                                    <svg class="algo-svg w-full" viewBox="0 0 720 360" role="img" aria-label="Diagram RAFT standar">
-                                                        <defs>
-                                                            <marker id="arrowHeadStd" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
-                                                                <polygon points="0 0, 10 3.5, 0 7" fill="rgba(226,232,240,0.75)"></polygon>
-                                                            </marker>
-                                                        </defs>
+                                            <div class="row gap-4">
+                                                <div class="col-md-12">
+                                                    <figure class="algo-figure p-4">
+                                                        <figcaption class="text-xs font-semibold text-primary mb-3 uppercase tracking-[0.25em]">1) RAFT Standar — Fabric v2</figcaption>
+                                                        <svg class="algo-svg w-full" viewBox="0 0 720 360" role="img" aria-label="Diagram RAFT standar Fabric v2">
+                                                            <defs>
+                                                                <marker id="arrowHeadStdV2" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+                                                                    <polygon points="0 0, 10 3.5, 0 7" fill="rgba(226,232,240,0.75)"></polygon>
+                                                                </marker>
+                                                            </defs>
 
-                                                        <rect class="node node--highlight" x="28" y="54" width="150" height="64" rx="14"></rect>
-                                                        <text x="103" y="92" text-anchor="middle" fill="rgba(226,232,240,0.92)" font-size="16" font-weight="600">Client</text>
+                                                            <rect class="node node--highlight" x="28" y="54" width="150" height="64" rx="14"></rect>
+                                                            <text x="103" y="92" text-anchor="middle" fill="rgba(226,232,240,0.92)" font-size="16" font-weight="600">Client</text>
 
-                                                        <rect class="node node--primary" x="260" y="34" width="200" height="84" rx="16"></rect>
-                                                        <text x="360" y="72" text-anchor="middle" fill="rgba(226,232,240,0.92)" font-size="16" font-weight="700">Leader Orderer</text>
-                                                        <text class="note" x="360" y="96" text-anchor="middle">Terima tx + bentuk batch/blok</text>
+                                                            <rect class="node node--primary" x="260" y="34" width="200" height="84" rx="16"></rect>
+                                                            <text x="360" y="72" text-anchor="middle" fill="rgba(226,232,240,0.92)" font-size="16" font-weight="700">Leader Orderer</text>
+                                                            <text class="note" x="360" y="96" text-anchor="middle">Terima tx + bentuk batch/blok</text>
 
-                                                        <rect class="node" x="520" y="20" width="170" height="58" rx="14"></rect>
-                                                        <text x="605" y="54" text-anchor="middle" fill="rgba(226,232,240,0.88)" font-size="14" font-weight="600">Follower 1</text>
+                                                            <rect class="node" x="520" y="20" width="170" height="58" rx="14"></rect>
+                                                            <text x="605" y="54" text-anchor="middle" fill="rgba(226,232,240,0.88)" font-size="14" font-weight="600">Follower 1</text>
 
-                                                        <rect class="node" x="520" y="92" width="170" height="58" rx="14"></rect>
-                                                        <text x="605" y="126" text-anchor="middle" fill="rgba(226,232,240,0.88)" font-size="14" font-weight="600">Follower 2</text>
+                                                            <rect class="node" x="520" y="92" width="170" height="58" rx="14"></rect>
+                                                            <text x="605" y="126" text-anchor="middle" fill="rgba(226,232,240,0.88)" font-size="14" font-weight="600">Follower 2</text>
 
-                                                        <rect class="node" x="520" y="164" width="170" height="58" rx="14"></rect>
-                                                        <text x="605" y="198" text-anchor="middle" fill="rgba(226,232,240,0.88)" font-size="14" font-weight="600">Follower 3</text>
+                                                            <rect class="node" x="520" y="164" width="170" height="58" rx="14"></rect>
+                                                            <text x="605" y="198" text-anchor="middle" fill="rgba(226,232,240,0.88)" font-size="14" font-weight="600">Follower 3</text>
 
-                                                        <rect class="node node--accent" x="260" y="232" width="200" height="84" rx="16"></rect>
-                                                        <text x="360" y="270" text-anchor="middle" fill="rgba(226,232,240,0.92)" font-size="16" font-weight="700">Commit + Broadcast</text>
-                                                        <text class="note" x="360" y="294" text-anchor="middle">Mayoritas ACK → commit</text>
+                                                            <rect class="node node--accent" x="260" y="232" width="200" height="84" rx="16"></rect>
+                                                            <text x="360" y="270" text-anchor="middle" fill="rgba(226,232,240,0.92)" font-size="16" font-weight="700">Commit + Broadcast</text>
+                                                            <text class="note" x="360" y="294" text-anchor="middle">Mayoritas ACK → commit</text>
 
-                                                        <rect class="node" x="28" y="246" width="150" height="64" rx="14"></rect>
-                                                        <text x="103" y="284" text-anchor="middle" fill="rgba(226,232,240,0.88)" font-size="14" font-weight="600">Peers</text>
+                                                            <rect class="node" x="28" y="246" width="150" height="64" rx="14"></rect>
+                                                            <text x="103" y="284" text-anchor="middle" fill="rgba(226,232,240,0.88)" font-size="14" font-weight="600">Peers</text>
 
-                                                        <line class="arrow" x1="178" y1="86" x2="260" y2="86" marker-end="url(#arrowHeadStd)"></line>
-                                                        <text class="note" x="219" y="74" text-anchor="middle">Broadcast tx</text>
+                                                            <line class="arrow" x1="178" y1="86" x2="260" y2="86" marker-end="url(#arrowHeadStdV2)"></line>
+                                                            <text class="note" x="219" y="74" text-anchor="middle">Broadcast tx</text>
 
-                                                        <line class="arrow" x1="460" y1="62" x2="520" y2="48" marker-end="url(#arrowHeadStd)"></line>
-                                                        <line class="arrow" x1="460" y1="76" x2="520" y2="120" marker-end="url(#arrowHeadStd)"></line>
-                                                        <line class="arrow" x1="460" y1="90" x2="520" y2="192" marker-end="url(#arrowHeadStd)"></line>
-                                                        <text class="note" x="492" y="108" text-anchor="end">AppendEntries</text>
+                                                            <line class="arrow" x1="460" y1="62" x2="520" y2="48" marker-end="url(#arrowHeadStdV2)"></line>
+                                                            <line class="arrow" x1="460" y1="76" x2="520" y2="120" marker-end="url(#arrowHeadStdV2)"></line>
+                                                            <line class="arrow" x1="460" y1="90" x2="520" y2="192" marker-end="url(#arrowHeadStdV2)"></line>
+                                                            <text class="note" x="492" y="108" text-anchor="end">AppendEntries</text>
 
-                                                        <line class="arrow" x1="520" y1="62" x2="460" y2="76" marker-end="url(#arrowHeadStd)"></line>
-                                                        <line class="arrow" x1="520" y1="134" x2="460" y2="86" marker-end="url(#arrowHeadStd)"></line>
-                                                        <text class="note" x="492" y="154" text-anchor="end">ACK (mayoritas)</text>
+                                                            <line class="arrow" x1="520" y1="62" x2="460" y2="76" marker-end="url(#arrowHeadStdV2)"></line>
+                                                            <line class="arrow" x1="520" y1="134" x2="460" y2="86" marker-end="url(#arrowHeadStdV2)"></line>
+                                                            <text class="note" x="492" y="154" text-anchor="end">ACK (mayoritas)</text>
 
-                                                        <line class="arrow" x1="360" y1="118" x2="360" y2="232" marker-end="url(#arrowHeadStd)"></line>
-                                                        <line class="arrow" x1="260" y1="274" x2="178" y2="278" marker-end="url(#arrowHeadStd)"></line>
-                                                        <text class="note" x="219" y="258" text-anchor="middle">Blok</text>
-                                                    </svg>
-                                                    <p class="text-xs text-textdark/60 mt-3">
-                                                        Fokus: latensi stabil dengan batch konservatif (contoh simulasi: BatchTimeout=2s, MaxMessageCount=10).
-                                                    </p>
-                                                </figure>
+                                                            <line class="arrow" x1="360" y1="118" x2="360" y2="232" marker-end="url(#arrowHeadStdV2)"></line>
+                                                            <line class="arrow" x1="260" y1="274" x2="178" y2="278" marker-end="url(#arrowHeadStdV2)"></line>
+                                                            <text class="note" x="219" y="258" text-anchor="middle">Blok</text>
+                                                        </svg>
+                                                        <p class="text-xs text-textdark/60 mt-3">
+                                                            Contoh konfigurasi simulasi: BatchTimeout=2s, MaxMessageCount=10 (baseline).
+                                                        </p>
+                                                    </figure>
+                                                </div>
 
-                                                <figure class="algo-figure p-4">
-                                                    <figcaption class="text-xs font-semibold text-accent mb-3 uppercase tracking-[0.25em]">RAFT Variant (parameter agresif)</figcaption>
-                                                    <svg class="algo-svg w-full" viewBox="0 0 720 360" role="img" aria-label="Diagram RAFT variant">
-                                                        <defs>
-                                                            <marker id="arrowHeadVar" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
-                                                                <polygon points="0 0, 10 3.5, 0 7" fill="rgba(226,232,240,0.75)"></polygon>
-                                                            </marker>
-                                                        </defs>
+                                                <div class="col-md-12">
+                                                    <figure class="algo-figure p-4">
+                                                        <figcaption class="text-xs font-semibold text-primary mb-3 uppercase tracking-[0.25em]">2) RAFT Standar — Fabric v3</figcaption>
+                                                        <svg class="algo-svg w-full" viewBox="0 0 720 380" role="img" aria-label="Diagram RAFT standar Fabric v3">
+                                                            <defs>
+                                                                <marker id="arrowHeadStdV3" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+                                                                    <polygon points="0 0, 10 3.5, 0 7" fill="rgba(226,232,240,0.75)"></polygon>
+                                                                </marker>
+                                                            </defs>
 
-                                                        <rect class="node node--highlight" x="28" y="54" width="150" height="64" rx="14"></rect>
-                                                        <text x="103" y="92" text-anchor="middle" fill="rgba(226,232,240,0.92)" font-size="16" font-weight="600">Client</text>
+                                                            <rect class="node node--highlight" x="28" y="54" width="150" height="64" rx="14"></rect>
+                                                            <text x="103" y="92" text-anchor="middle" fill="rgba(226,232,240,0.92)" font-size="16" font-weight="600">Client</text>
 
-                                                        <rect class="node node--accent" x="260" y="34" width="200" height="84" rx="16"></rect>
-                                                        <text x="360" y="72" text-anchor="middle" fill="rgba(226,232,240,0.92)" font-size="16" font-weight="700">Leader Orderer</text>
-                                                        <text class="note" x="360" y="96" text-anchor="middle">Batch lebih besar & lebih cepat</text>
+                                                            <rect class="node node--primary" x="250" y="32" width="220" height="88" rx="16"></rect>
+                                                            <text x="360" y="72" text-anchor="middle" fill="rgba(226,232,240,0.92)" font-size="16" font-weight="700">Leader Orderer (v3)</text>
+                                                            <text class="note" x="360" y="98" text-anchor="middle">Replicate + optimasi internal</text>
 
-                                                        <rect class="node" x="520" y="20" width="170" height="52" rx="14"></rect>
-                                                        <text x="605" y="50" text-anchor="middle" fill="rgba(226,232,240,0.88)" font-size="14" font-weight="600">Follower</text>
+                                                            <rect class="node node--accent" x="250" y="142" width="220" height="70" rx="16"></rect>
+                                                            <text x="360" y="172" text-anchor="middle" fill="rgba(226,232,240,0.92)" font-size="16" font-weight="700">Snapshot / Compaction</text>
+                                                            <text class="note" x="360" y="196" text-anchor="middle">Kurangi log & percepat recovery</text>
 
-                                                        <rect class="node" x="520" y="84" width="170" height="52" rx="14"></rect>
-                                                        <text x="605" y="114" text-anchor="middle" fill="rgba(226,232,240,0.88)" font-size="14" font-weight="600">Follower</text>
+                                                            <rect class="node" x="520" y="20" width="170" height="58" rx="14"></rect>
+                                                            <text x="605" y="54" text-anchor="middle" fill="rgba(226,232,240,0.88)" font-size="14" font-weight="600">Follower 1</text>
 
-                                                        <rect class="node" x="520" y="148" width="170" height="52" rx="14"></rect>
-                                                        <text x="605" y="178" text-anchor="middle" fill="rgba(226,232,240,0.88)" font-size="14" font-weight="600">Follower</text>
+                                                            <rect class="node" x="520" y="92" width="170" height="58" rx="14"></rect>
+                                                            <text x="605" y="126" text-anchor="middle" fill="rgba(226,232,240,0.88)" font-size="14" font-weight="600">Follower 2</text>
 
-                                                        <rect class="node" x="520" y="212" width="170" height="52" rx="14"></rect>
-                                                        <text x="605" y="242" text-anchor="middle" fill="rgba(226,232,240,0.88)" font-size="14" font-weight="600">Follower</text>
+                                                            <rect class="node" x="520" y="164" width="170" height="58" rx="14"></rect>
+                                                            <text x="605" y="198" text-anchor="middle" fill="rgba(226,232,240,0.88)" font-size="14" font-weight="600">Follower 3</text>
 
-                                                        <rect class="node node--primary" x="260" y="254" width="200" height="74" rx="16"></rect>
-                                                        <text x="360" y="292" text-anchor="middle" fill="rgba(226,232,240,0.92)" font-size="16" font-weight="700">Commit + Broadcast</text>
-                                                        <text class="note" x="360" y="314" text-anchor="middle">Mayoritas ACK → commit</text>
+                                                            <rect class="node node--accent" x="250" y="254" width="220" height="84" rx="16"></rect>
+                                                            <text x="360" y="292" text-anchor="middle" fill="rgba(226,232,240,0.92)" font-size="16" font-weight="700">Commit + Broadcast</text>
+                                                            <text class="note" x="360" y="316" text-anchor="middle">Mayoritas ACK → commit</text>
 
-                                                        <rect class="node" x="28" y="268" width="150" height="56" rx="14"></rect>
-                                                        <text x="103" y="301" text-anchor="middle" fill="rgba(226,232,240,0.88)" font-size="14" font-weight="600">Peers</text>
+                                                            <rect class="node" x="28" y="268" width="150" height="64" rx="14"></rect>
+                                                            <text x="103" y="306" text-anchor="middle" fill="rgba(226,232,240,0.88)" font-size="14" font-weight="600">Peers</text>
 
-                                                        <line class="arrow" x1="178" y1="86" x2="260" y2="86" marker-end="url(#arrowHeadVar)"></line>
-                                                        <text class="note" x="219" y="74" text-anchor="middle">Broadcast tx</text>
+                                                            <line class="arrow" x1="178" y1="86" x2="250" y2="86" marker-end="url(#arrowHeadStdV3)"></line>
+                                                            <text class="note" x="219" y="74" text-anchor="middle">Broadcast tx</text>
 
-                                                        <line class="arrow" x1="460" y1="62" x2="520" y2="46" marker-end="url(#arrowHeadVar)"></line>
-                                                        <line class="arrow" x1="460" y1="74" x2="520" y2="110" marker-end="url(#arrowHeadVar)"></line>
-                                                        <line class="arrow" x1="460" y1="86" x2="520" y2="174" marker-end="url(#arrowHeadVar)"></line>
-                                                        <line class="arrow" x1="460" y1="98" x2="520" y2="238" marker-end="url(#arrowHeadVar)"></line>
-                                                        <text class="note" x="492" y="118" text-anchor="end">AppendEntries (lebih sering/besar)</text>
+                                                            <line class="arrow" x1="470" y1="66" x2="520" y2="48" marker-end="url(#arrowHeadStdV3)"></line>
+                                                            <line class="arrow" x1="470" y1="80" x2="520" y2="120" marker-end="url(#arrowHeadStdV3)"></line>
+                                                            <line class="arrow" x1="470" y1="94" x2="520" y2="192" marker-end="url(#arrowHeadStdV3)"></line>
+                                                            <text class="note" x="502" y="112" text-anchor="end">AppendEntries</text>
 
-                                                        <line class="arrow" x1="520" y1="58" x2="460" y2="80" marker-end="url(#arrowHeadVar)"></line>
-                                                        <line class="arrow" x1="520" y1="122" x2="460" y2="88" marker-end="url(#arrowHeadVar)"></line>
-                                                        <text class="note" x="492" y="144" text-anchor="end">ACK</text>
+                                                            <line class="arrow" x1="520" y1="62" x2="470" y2="76" marker-end="url(#arrowHeadStdV3)"></line>
+                                                            <line class="arrow" x1="520" y1="134" x2="470" y2="86" marker-end="url(#arrowHeadStdV3)"></line>
+                                                            <text class="note" x="502" y="154" text-anchor="end">ACK</text>
 
-                                                        <line class="arrow" x1="360" y1="118" x2="360" y2="254" marker-end="url(#arrowHeadVar)"></line>
-                                                        <line class="arrow" x1="260" y1="296" x2="178" y2="296" marker-end="url(#arrowHeadVar)"></line>
-                                                        <text class="note" x="219" y="276" text-anchor="middle">Blok</text>
-
-                                                        <text class="note" x="670" y="316" text-anchor="end">Contoh: BatchTimeout=1s, MaxMessageCount=50</text>
-                                                    </svg>
-                                                    <p class="text-xs text-textdark/60 mt-3">
-                                                        Fokus: throughput tinggi (batch lebih cepat & lebih besar) dengan konsekuensi variasi latensi dan beban replikasi lebih tinggi.
-                                                    </p>
-                                                </figure>
+                                                            <line class="arrow" x1="360" y1="120" x2="360" y2="142" marker-end="url(#arrowHeadStdV3)"></line>
+                                                            <line class="arrow" x1="360" y1="212" x2="360" y2="254" marker-end="url(#arrowHeadStdV3)"></line>
+                                                            <line class="arrow" x1="250" y1="296" x2="178" y2="300" marker-end="url(#arrowHeadStdV3)"></line>
+                                                            <text class="note" x="219" y="280" text-anchor="middle">Blok</text>
+                                                        </svg>
+                                                        <p class="text-xs text-textdark/60 mt-3">
+                                                            Konsep sama seperti v2, dengan optimasi snapshot/log compaction untuk stabilitas dan pemulihan.
+                                                        </p>
+                                                    </figure>
+                                                </div>
                                             </div>
                                         </div>
 

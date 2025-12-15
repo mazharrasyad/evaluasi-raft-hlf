@@ -302,8 +302,16 @@
 
                                         <div class="space-y-4">
                                             <h3 class="text-lg font-semibold text-textdark">Diagram Alur RAFT pada Fabric v2</h3>
+                                            <div class="rounded-lg border border-primary/30 bg-primary/5 p-3 mb-4">
+                                                <p class="text-xs font-semibold text-primary mb-1">Lokasi Konfigurasi:</p>
+                                                <p class="text-xs text-textdark/70 font-mono">
+                                                    <span class="text-primary">📁</span> <span class="font-semibold">configtx.yaml</span>: <span class="text-textdark/60">fabric-2/raft-standard/config/configtx.yaml</span> atau <span class="text-textdark/60">fabric-2/raft-standard/network/configtx/configtx.yaml</span><br>
+                                                    <span class="text-primary">📁</span> <span class="font-semibold">orderer.yaml</span>: <span class="text-textdark/60">fabric-2/raft-standard/config/orderer.yaml</span><br>
+                                                    <span class="text-primary">⚙️</span> Parameter batch (BatchTimeout, MaxMessageCount, dll.) diatur di bagian <code class="text-primary">Orderer</code> → <code class="text-primary">BatchSize</code> dalam configtx.yaml
+                                                </p>
+                                            </div>
                                             <div class="overflow-x-auto rounded-2xl border border-white/10 bg-surfaceMuted/50 p-6">
-                                                <svg viewBox="0 0 1000 600" class="h-full w-full min-w-[800px]" role="img">
+                                                <svg viewBox="0 0 1100 600" class="h-full w-full min-w-[900px]" role="img">
                                                     <defs>
                                                         <linearGradient id="followerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                                                             <stop offset="0%" stop-color="#1E3A8A" stop-opacity="0.55"/>
@@ -362,6 +370,18 @@
                                                         <text x="910" y="160" text-anchor="middle" fill="#BAE6FD" font-size="11">Block Creation</text>
                                                     </g>
 
+                                                    <!-- Configuration Info Box -->
+                                                    <g>
+                                                        <rect x="850" y="220" width="240" height="150" rx="12" fill="rgba(56,189,248,0.15)" stroke="rgba(56,189,248,0.4)" stroke-width="2" stroke-dasharray="5,5"/>
+                                                        <text x="970" y="245" text-anchor="middle" fill="#38BDF8" font-size="13" font-weight="700">Konfigurasi RAFT Standar</text>
+                                                        <text x="860" y="270" fill="#BAE6FD" font-size="10">📁 configtx.yaml:</text>
+                                                        <text x="860" y="290" fill="#E2E8F0" font-size="9" font-family="monospace">BatchTimeout: 2s</text>
+                                                        <text x="860" y="310" fill="#E2E8F0" font-size="9" font-family="monospace">MaxMessageCount: 10</text>
+                                                        <text x="860" y="330" fill="#E2E8F0" font-size="9" font-family="monospace">PreferredMaxBytes: 512KB</text>
+                                                        <text x="860" y="350" fill="#94A3B8" font-size="8">Lokasi: fabric-2/raft-standard/</text>
+                                                        <text x="860" y="365" fill="#94A3B8" font-size="8">config/configtx.yaml</text>
+                                                    </g>
+
                                                     <!-- Arrows - Follower to Candidate (siku-siku, tidak melewati kotak) -->
                                                     <path d="M200,150 L270,150 L270,240 L300,240" stroke="#38BDF8" stroke-width="2" fill="none" marker-end="url(#arrowBlue)"/>
                                                     <path d="M200,300 L270,300 L270,280 L300,280" stroke="#38BDF8" stroke-width="2" fill="none" marker-end="url(#arrowBlue)"/>
@@ -383,6 +403,9 @@
                                             </div>
                                             <div class="mt-4 space-y-3 rounded-lg border border-white/10 bg-surfaceMuted/30 p-4">
                                                 <h4 class="text-sm font-semibold text-textdark">Penjelasan Diagram:</h4>
+                                                <p class="text-xs text-textdark/60 italic mb-2">
+                                                    <span class="font-semibold">Lokasi Konfigurasi:</span> Parameter RAFT diatur dalam file <code class="text-primary">configtx.yaml</code> yang terletak di <code>fabric-2/raft-standard/config/configtx.yaml</code> atau <code>fabric-2/raft-standard/network/configtx/configtx.yaml</code>. Konfigurasi batch (BatchTimeout, MaxMessageCount, AbsoluteMaxBytes, PreferredMaxBytes) berada di bagian <code>Orderer</code> → <code>BatchSize</code>.
+                                                </p>
                                                 <ol class="space-y-2 text-xs text-textdark/70 list-decimal list-inside">
                                                     <li><span class="font-semibold">Fase Follower:</span> Semua node awalnya berperan sebagai follower dengan term yang sama (Term: 1). Follower menunggu heartbeat dari leader untuk memastikan leader masih aktif.</li>
                                                     <li><span class="font-semibold">Election Timeout:</span> Ketika leader tidak mengirim heartbeat dalam jangka waktu tertentu, salah satu follower mengalami timeout dan berubah menjadi candidate dengan term yang lebih tinggi (Term: 2).</li>
@@ -391,6 +414,66 @@
                                                     <li><span class="font-semibold">Heartbeat:</span> Leader yang baru terpilih mulai mengirim heartbeat secara berkala ke semua follower untuk mempertahankan kepemimpinannya dan mencegah election timeout.</li>
                                                     <li><span class="font-semibold">Log Replication:</span> Leader menerima transaksi dari klien dan mereplikasikannya ke semua follower melalui mekanisme AppendEntries. Transaksi dianggap committed setelah mayoritas node menyetujui.</li>
                                                 </ol>
+                                            </div>
+                                        </div>
+
+                                        <!-- Simulasi Proses RAFT Standar -->
+                                        <div class="space-y-4 mt-6">
+                                            <h4 class="text-base font-semibold text-textdark">Simulasi Proses RAFT Standar (Berdasarkan Konfigurasi Simulasi)</h4>
+                                            <div class="rounded-xl border border-white/10 bg-surfaceMuted/50 p-6">
+                                                <div class="space-y-4">
+                                                    <div class="rounded-lg border border-primary/30 bg-primary/5 p-4">
+                                                        <h5 class="text-sm font-semibold text-primary mb-3">Contoh Data Simulasi Masuk:</h5>
+                                                        <div class="bg-surface/60 rounded p-3 font-mono text-xs text-textdark/80">
+                                                            <div class="space-y-1">
+                                                                <div><span class="text-primary">Tx1:</span> {"type":"pelaporan","id":"RPT001","timestamp":"2024-01-15T10:00:00Z"}</div>
+                                                                <div><span class="text-primary">Tx2:</span> {"type":"pelaporan","id":"RPT002","timestamp":"2024-01-15T10:00:05Z"}</div>
+                                                                <div><span class="text-primary">Tx3:</span> {"type":"pelaporan","id":"RPT003","timestamp":"2024-01-15T10:00:10Z"}</div>
+                                                                <div class="text-textdark/60">... (total 10 transaksi dalam 2 detik)</div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="space-y-3">
+                                                        <h5 class="text-sm font-semibold text-textdark">Alur Proses RAFT Standar:</h5>
+                                                        <div class="space-y-2 text-xs text-textdark/70">
+                                                            <div class="flex items-start gap-3">
+                                                                <span class="flex-shrink-0 w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center font-semibold">1</span>
+                                                                <div>
+                                                                    <span class="font-semibold">Leader Menerima Transaksi:</span> Leader menerima transaksi Tx1-Tx10 dari klien dalam rentang waktu 2 detik (BatchTimeout=2s).
+                                                                </div>
+                                                            </div>
+                                                            <div class="flex items-start gap-3">
+                                                                <span class="flex-shrink-0 w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center font-semibold">2</span>
+                                                                <div>
+                                                                    <span class="font-semibold">Pembentukan Blok:</span> Setelah mencapai MaxMessageCount=10 atau BatchTimeout=2s tercapai, leader membentuk blok dengan ukuran maksimum PreferredMaxBytes=512KB.
+                                                                </div>
+                                                            </div>
+                                                            <div class="flex items-start gap-3">
+                                                                <span class="flex-shrink-0 w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center font-semibold">3</span>
+                                                                <div>
+                                                                    <span class="font-semibold">Log Replication:</span> Leader mengirim AppendEntries ke semua follower (Follower 1, 2, 3) untuk mereplikasi log transaksi.
+                                                                </div>
+                                                            </div>
+                                                            <div class="flex items-start gap-3">
+                                                                <span class="flex-shrink-0 w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center font-semibold">4</span>
+                                                                <div>
+                                                                    <span class="font-semibold">Majority Acknowledgment:</span> Leader menunggu acknowledgment dari mayoritas follower (2 dari 3 follower).
+                                                                </div>
+                                                            </div>
+                                                            <div class="flex items-start gap-3">
+                                                                <span class="flex-shrink-0 w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center font-semibold">5</span>
+                                                                <div>
+                                                                    <span class="font-semibold">Commit:</span> Setelah mayoritas setuju, transaksi di-commit dan blok dikirim ke peer untuk validasi dan update ledger.
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="mt-4 rounded-lg border border-white/5 bg-surface/40 p-3">
+                                                            <p class="text-xs text-textdark/60">
+                                                                <span class="font-semibold">Karakteristik:</span> Dengan BatchTimeout=2s dan MaxMessageCount=10, sistem menghasilkan blok setiap ~2 detik dengan maksimal 10 transaksi per blok. Konfigurasi ini memberikan latensi yang stabil dan dapat diprediksi, cocok untuk beban transaksi sedang.
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -627,8 +710,16 @@
 
                                         <div class="space-y-4">
                                             <h3 class="text-lg font-semibold text-textdark">Diagram Alur RAFT pada Fabric v3</h3>
+                                            <div class="rounded-lg border border-primary/30 bg-primary/5 p-3 mb-4">
+                                                <p class="text-xs font-semibold text-primary mb-1">Lokasi Konfigurasi:</p>
+                                                <p class="text-xs text-textdark/70 font-mono">
+                                                    <span class="text-primary">📁</span> <span class="font-semibold">configtx.yaml</span>: <span class="text-textdark/60">fabric-3/raft-standard/config/configtx.yaml</span> atau <span class="text-textdark/60">fabric-3/raft-standard/network/configtx/configtx.yaml</span><br>
+                                                    <span class="text-primary">📁</span> <span class="font-semibold">orderer.yaml</span>: <span class="text-textdark/60">fabric-3/raft-standard/config/orderer.yaml</span><br>
+                                                    <span class="text-primary">⚙️</span> Parameter batch diatur di bagian <code class="text-primary">Orderer</code> → <code class="text-primary">BatchSize</code>, optimasi snapshot di <code class="text-primary">EtcdRaft.Options</code>
+                                                </p>
+                                            </div>
                                             <div class="overflow-x-auto rounded-2xl border border-white/10 bg-surfaceMuted/50 p-6">
-                                                <svg viewBox="0 0 1000 650" class="h-full w-full min-w-[800px]" role="img">
+                                                <svg viewBox="0 0 1100 750" class="h-full w-full min-w-[900px]" role="img">
                                                     <defs>
                                                         <linearGradient id="followerGradV3" x1="0%" y1="0%" x2="100%" y2="100%">
                                                             <stop offset="0%" stop-color="#1E3A8A" stop-opacity="0.55"/>
@@ -721,10 +812,26 @@
                                                     <!-- Leader to Snapshot (lurus vertikal, dari bawah Leader) -->
                                                     <path d="M690,320 L690,380" stroke="#10B981" stroke-width="2" fill="none" marker-end="url(#arrowBlueV3)"/>
                                                     <text x="720" y="350" fill="#6EE7B7" font-size="11">Snapshot Creation</text>
+
+                                                    <!-- Configuration Info Box -->
+                                                    <g>
+                                                        <rect x="850" y="250" width="240" height="170" rx="12" fill="rgba(56,189,248,0.15)" stroke="rgba(56,189,248,0.4)" stroke-width="2" stroke-dasharray="5,5"/>
+                                                        <text x="970" y="275" text-anchor="middle" fill="#38BDF8" font-size="13" font-weight="700">Konfigurasi RAFT Standar v3</text>
+                                                        <text x="860" y="300" fill="#BAE6FD" font-size="10">📁 configtx.yaml:</text>
+                                                        <text x="860" y="320" fill="#E2E8F0" font-size="9" font-family="monospace">BatchTimeout: 2s</text>
+                                                        <text x="860" y="340" fill="#E2E8F0" font-size="9" font-family="monospace">MaxMessageCount: 10</text>
+                                                        <text x="860" y="360" fill="#E2E8F0" font-size="9" font-family="monospace">PreferredMaxBytes: 512KB</text>
+                                                        <text x="860" y="380" fill="#10B981" font-size="9">+ Snapshot &amp; Batch</text>
+                                                        <text x="860" y="400" fill="#94A3B8" font-size="8">Lokasi: fabric-3/raft-standard/</text>
+                                                        <text x="860" y="415" fill="#94A3B8" font-size="8">config/configtx.yaml</text>
+                                                    </g>
                                                 </svg>
                                             </div>
                                             <div class="mt-4 space-y-3 rounded-lg border border-white/10 bg-surfaceMuted/30 p-4">
                                                 <h4 class="text-sm font-semibold text-textdark">Penjelasan Diagram:</h4>
+                                                <p class="text-xs text-textdark/60 italic mb-2">
+                                                    <span class="font-semibold">Lokasi Konfigurasi:</span> Parameter RAFT diatur dalam file <code class="text-primary">configtx.yaml</code> yang terletak di <code>fabric-3/raft-standard/config/configtx.yaml</code> atau <code>fabric-3/raft-standard/network/configtx/configtx.yaml</code>. Konfigurasi batch berada di bagian <code>Orderer</code> → <code>BatchSize</code>, sedangkan optimasi snapshot di <code>EtcdRaft.Options</code>.
+                                                </p>
                                                 <ol class="space-y-2 text-xs text-textdark/70 list-decimal list-inside">
                                                     <li><span class="font-semibold">Fase Follower:</span> Node-node berperan sebagai follower yang menunggu instruksi dari leader. Semua node memiliki term yang sama untuk menjaga konsistensi.</li>
                                                     <li><span class="font-semibold">Parallel Vote Request:</span> Ketika election timeout terjadi, candidate mengirim RequestVote secara paralel ke semua follower untuk mempercepat proses pemilihan leader.</li>
@@ -803,6 +910,91 @@
                                                         <li><strong>RAFT Variant:</strong> Dirancang untuk mendorong performa sistem hingga batas operasionalnya. Parameter agresif memungkinkan pengujian throughput tinggi dengan trade-off peningkatan kompleksitas pemrosesan dan potensi variasi latensi.</li>
                                                         <li><strong>Kombinasi:</strong> Perbandingan kedua konfigurasi memberikan gambaran menyeluruh tentang bagaimana perubahan parameter RAFT memengaruhi keseimbangan antara throughput, latency, dan ketahanan jaringan dalam simulasi pelaporan maladministrasi.</li>
                                                     </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Simulasi Proses RAFT Variant -->
+                                    <div class="space-y-4 mt-6">
+                                        <h4 class="text-base font-semibold text-textdark">Simulasi Proses RAFT Variant (Berdasarkan Konfigurasi Simulasi)</h4>
+                                        <div class="rounded-xl border border-white/10 bg-surfaceMuted/50 p-6">
+                                            <div class="space-y-4">
+                                                <div class="rounded-lg border border-accent/30 bg-accent/5 p-4">
+                                                    <h5 class="text-sm font-semibold text-accent mb-3">Contoh Data Simulasi Masuk (Throughput Tinggi):</h5>
+                                                    <div class="bg-surface/60 rounded p-3 font-mono text-xs text-textdark/80">
+                                                        <div class="space-y-1">
+                                                            <div><span class="text-accent">Tx1-Tx10:</span> {"type":"pelaporan","id":"RPT001-010",...}</div>
+                                                            <div><span class="text-accent">Tx11-Tx20:</span> {"type":"pelaporan","id":"RPT011-020",...}</div>
+                                                            <div><span class="text-accent">Tx21-Tx30:</span> {"type":"pelaporan","id":"RPT021-030",...}</div>
+                                                            <div><span class="text-accent">Tx31-Tx40:</span> {"type":"pelaporan","id":"RPT031-040",...}</div>
+                                                            <div><span class="text-accent">Tx41-Tx50:</span> {"type":"pelaporan","id":"RPT041-050",...}</div>
+                                                            <div class="text-textdark/60">... (total 50 transaksi dalam 1 detik)</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="space-y-3">
+                                                    <h5 class="text-sm font-semibold text-textdark">Alur Proses RAFT Variant:</h5>
+                                                    <div class="space-y-2 text-xs text-textdark/70">
+                                                        <div class="flex items-start gap-3">
+                                                            <span class="flex-shrink-0 w-6 h-6 rounded-full bg-accent/20 text-accent flex items-center justify-center font-semibold">1</span>
+                                                            <div>
+                                                                <span class="font-semibold">Leader Menerima Transaksi Batch:</span> Leader menerima 50 transaksi (Tx1-Tx50) dalam waktu 1 detik. Dengan BatchTimeout=1s dan MaxMessageCount=50, sistem mengumpulkan lebih banyak transaksi per blok.
+                                                            </div>
+                                                        </div>
+                                                        <div class="flex items-start gap-3">
+                                                            <span class="flex-shrink-0 w-6 h-6 rounded-full bg-accent/20 text-accent flex items-center justify-center font-semibold">2</span>
+                                                            <div>
+                                                                <span class="font-semibold">Pembentukan Blok Besar:</span> Setelah mencapai MaxMessageCount=50 atau BatchTimeout=1s tercapai, leader membentuk blok dengan ukuran PreferredMaxBytes=4MB (lebih besar dari standar).
+                                                            </div>
+                                                        </div>
+                                                        <div class="flex items-start gap-3">
+                                                            <span class="flex-shrink-0 w-6 h-6 rounded-full bg-accent/20 text-accent flex items-center justify-center font-semibold">3</span>
+                                                            <div>
+                                                                <span class="font-semibold">Batch Log Replication (Paralel):</span> Leader mengirim AppendEntries dengan batch besar ke semua follower secara paralel. Dengan 4 orderer node, replikasi dilakukan ke lebih banyak node.
+                                                            </div>
+                                                        </div>
+                                                        <div class="flex items-start gap-3">
+                                                            <span class="flex-shrink-0 w-6 h-6 rounded-full bg-accent/20 text-accent flex items-center justify-center font-semibold">4</span>
+                                                            <div>
+                                                                <span class="font-semibold">Majority Acknowledgment:</span> Leader menunggu acknowledgment dari mayoritas follower (3 dari 4 follower dalam konfigurasi variant).
+                                                            </div>
+                                                        </div>
+                                                        <div class="flex items-start gap-3">
+                                                            <span class="flex-shrink-0 w-6 h-6 rounded-full bg-accent/20 text-accent flex items-center justify-center font-semibold">5</span>
+                                                            <div>
+                                                                <span class="font-semibold">Commit dengan Optimasi:</span> Setelah mayoritas setuju, transaksi di-commit. Pada Fabric v3, proses ini dioptimasi dengan snapshot creation untuk log compaction.
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="mt-4 rounded-lg border border-accent/30 bg-accent/5 p-3">
+                                                        <p class="text-xs text-textdark/70">
+                                                            <span class="font-semibold text-accent">Karakteristik Variant:</span> Dengan BatchTimeout=1s dan MaxMessageCount=50, sistem menghasilkan blok lebih cepat dengan lebih banyak transaksi per blok. Konfigurasi ini meningkatkan throughput namun berpotensi meningkatkan variasi latensi. AbsoluteMaxBytes=20MB membatasi ukuran blok untuk efisiensi transmisi.
+                                                        </p>
+                                                    </div>
+                                                    <div class="mt-4 rounded-lg border border-white/5 bg-surface/40 p-3">
+                                                        <h6 class="text-xs font-semibold text-textdark mb-2">Perbandingan Standar vs Variant:</h6>
+                                                        <div class="grid grid-cols-2 gap-3 text-xs">
+                                                            <div>
+                                                                <p class="font-semibold text-primary mb-1">RAFT Standar:</p>
+                                                                <ul class="list-disc list-inside text-textdark/60 space-y-1">
+                                                                    <li>Blok setiap ~2 detik</li>
+                                                                    <li>Maksimal 10 tx/blok</li>
+                                                                    <li>Latensi stabil</li>
+                                                                    <li>Throughput: ~5 tx/s</li>
+                                                                </ul>
+                                                            </div>
+                                                            <div>
+                                                                <p class="font-semibold text-accent mb-1">RAFT Variant:</p>
+                                                                <ul class="list-disc list-inside text-textdark/60 space-y-1">
+                                                                    <li>Blok setiap ~1 detik</li>
+                                                                    <li>Maksimal 50 tx/blok</li>
+                                                                    <li>Latensi lebih variatif</li>
+                                                                    <li>Throughput: ~50 tx/s</li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>

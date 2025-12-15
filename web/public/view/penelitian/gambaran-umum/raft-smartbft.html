@@ -313,8 +313,17 @@
 
                                         <div class="space-y-4">
                                             <h3 class="text-lg font-semibold text-textdark">Diagram Alur RAFT-SmartBFT pada Fabric v2</h3>
+                                            <div class="rounded-lg border border-accent/30 bg-accent/5 p-3 mb-4">
+                                                <p class="text-xs font-semibold text-accent mb-1">Lokasi Konfigurasi (Konseptual):</p>
+                                                <p class="text-xs text-textdark/70 font-mono">
+                                                    <span class="text-accent">⚠</span> <span class="font-semibold">Catatan:</span> Fabric v2 tidak mendukung SmartBFT secara native. Konfigurasi berikut bersifat konseptual.<br>
+                                                    <span class="text-accent">📁</span> <span class="font-semibold">configtx.yaml</span>: <span class="text-textdark/60">fabric-2/raft-variant/config/configtx.yaml</span><br>
+                                                    <span class="text-accent">📁</span> <span class="font-semibold">orderer.yaml</span>: <span class="text-textdark/60">fabric-2/raft-variant/config/orderer.yaml</span><br>
+                                                    <span class="text-accent">⚙️</span> Parameter batch (BatchTimeout=1s, MaxMessageCount=50) diatur di bagian <code class="text-accent">Orderer</code> → <code class="text-accent">BatchSize</code>
+                                                </p>
+                                            </div>
                                             <div class="overflow-x-auto rounded-2xl border border-white/10 bg-surfaceMuted/50 p-6">
-                                                <svg viewBox="0 0 1100 700" class="h-full w-full min-w-[900px]" role="img">
+                                                <svg viewBox="0 0 1100 750" class="h-full w-full min-w-[900px]" role="img">
                                                     <defs>
                                                         <linearGradient id="raftGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                                                             <stop offset="0%" stop-color="#1D4ED8" stop-opacity="0.55"/>
@@ -423,10 +432,26 @@
                                                     <!-- Transaction to SmartBFT (siku-siku, tidak melewati kotak, melalui kiri) -->
                                                     <path d="M50,600 L50,550 L30,550 L30,310 L50,310 L250,310" stroke="#38BDF8" stroke-width="2" fill="none" marker-end="url(#arrowRaft)" stroke-dasharray="3,3"/>
                                                     <text x="20" y="575" fill="#38BDF8" font-size="11">Transaction</text>
+
+                                                    <!-- Configuration Info Box -->
+                                                    <g>
+                                                        <rect x="50" y="620" width="300" height="120" rx="12" fill="rgba(245,158,11,0.15)" stroke="rgba(245,158,11,0.4)" stroke-width="2" stroke-dasharray="5,5"/>
+                                                        <text x="200" y="645" text-anchor="middle" fill="#F59E0B" font-size="13" font-weight="700">Konfigurasi RAFT Variant v2</text>
+                                                        <text x="60" y="670" fill="#FCD34D" font-size="10">📁 configtx.yaml:</text>
+                                                        <text x="60" y="690" fill="#E2E8F0" font-size="9" font-family="monospace">BatchTimeout: 1s</text>
+                                                        <text x="60" y="710" fill="#E2E8F0" font-size="9" font-family="monospace">MaxMessageCount: 50</text>
+                                                        <text x="60" y="730" fill="#E2E8F0" font-size="9" font-family="monospace">PreferredMaxBytes: 4MB</text>
+                                                        <text x="200" y="690" fill="#E2E8F0" font-size="9" font-family="monospace">AbsoluteMaxBytes: 20MB</text>
+                                                        <text x="200" y="710" fill="#94A3B8" font-size="8">Lokasi: fabric-2/raft-variant/</text>
+                                                        <text x="200" y="730" fill="#F59E0B" font-size="8">⚠ SmartBFT: Tidak Tersedia</text>
+                                                    </g>
                                                 </svg>
                                             </div>
                                             <div class="mt-4 space-y-3 rounded-lg border border-accent/30 bg-accent/5 p-4">
                                                 <h4 class="text-sm font-semibold text-textdark">Penjelasan Diagram (Konseptual):</h4>
+                                                <p class="text-xs text-textdark/60 italic mb-2">
+                                                    <span class="font-semibold">Lokasi Konfigurasi:</span> Parameter RAFT variant diatur dalam file <code class="text-accent">configtx.yaml</code> yang terletak di <code>fabric-2/raft-variant/config/configtx.yaml</code> atau <code>fabric-2/raft-variant/network/configtx/configtx.yaml</code>. Konfigurasi batch berada di bagian <code>Orderer</code> → <code>BatchSize</code>. <span class="font-semibold text-accent">Catatan:</span> SmartBFT tidak didukung secara native pada Fabric v2, diagram ini bersifat konseptual.
+                                                </p>
                                                 <p class="text-xs text-textdark/60 italic mb-3">
                                                     <span class="font-semibold">Catatan:</span> Diagram ini bersifat konseptual karena Fabric v2 tidak mendukung SmartBFT secara native. Implementasi aktual hanya menggunakan RAFT standar.
                                                 </p>
@@ -656,8 +681,16 @@
 
                                         <div class="space-y-4">
                                             <h3 class="text-lg font-semibold text-textdark">Diagram Alur RAFT-SmartBFT pada Fabric v3</h3>
+                                            <div class="rounded-lg border border-secondary/30 bg-secondary/5 p-3 mb-4">
+                                                <p class="text-xs font-semibold text-secondary mb-1">Lokasi Konfigurasi:</p>
+                                                <p class="text-xs text-textdark/70 font-mono">
+                                                    <span class="text-secondary">📁</span> <span class="font-semibold">configtx.yaml</span>: <span class="text-textdark/60">fabric-3/raft-variant/config/configtx.yaml</span> atau <span class="text-textdark/60">fabric-3/raft-variant/network/configtx/configtx.yaml</span><br>
+                                                    <span class="text-secondary">📁</span> <span class="font-semibold">orderer.yaml</span>: <span class="text-textdark/60">fabric-3/raft-variant/config/orderer.yaml</span><br>
+                                                    <span class="text-secondary">⚙️</span> Parameter batch diatur di <code class="text-secondary">Orderer</code> → <code class="text-secondary">BatchSize</code>, SmartBFT diaktifkan dengan <code class="text-secondary">OrdererType: BFT</code> dan parameter di <code class="text-secondary">orderer.yaml</code>
+                                                </p>
+                                            </div>
                                             <div class="overflow-x-auto rounded-2xl border border-white/10 bg-surfaceMuted/50 p-6">
-                                                <svg viewBox="0 0 1100 750" class="h-full w-full min-w-[900px]" role="img">
+                                                <svg viewBox="0 0 1100 800" class="h-full w-full min-w-[900px]" role="img">
                                                     <defs>
                                                         <linearGradient id="raftGradV3" x1="0%" y1="0%" x2="100%" y2="100%">
                                                             <stop offset="0%" stop-color="#1D4ED8" stop-opacity="0.55"/>
@@ -796,6 +829,96 @@
                                                     <li><span class="font-semibold">Snapshot Creation:</span> Sistem secara berkala membuat snapshot dari state saat ini untuk log compaction. Snapshot ini mengurangi ukuran log dan mempercepat recovery setelah kegagalan node.</li>
                                                     <li><span class="font-semibold">Optimasi Native:</span> Implementasi native di Fabric v3 mengoptimalkan komunikasi antara fase RAFT dan SmartBFT, mengurangi overhead dibandingkan pendekatan hybrid konseptual pada Fabric v2.</li>
                                                 </ol>
+                                            </div>
+                                        </div>
+
+                                        <!-- Simulasi Proses RAFT-SmartBFT Variant -->
+                                        <div class="space-y-4 mt-6">
+                                            <h4 class="text-base font-semibold text-textdark">Simulasi Proses RAFT-SmartBFT Variant (Berdasarkan Konfigurasi Simulasi)</h4>
+                                            <div class="rounded-xl border border-white/10 bg-surfaceMuted/50 p-6">
+                                                <div class="space-y-4">
+                                                    <div class="rounded-lg border border-secondary/30 bg-secondary/5 p-4">
+                                                        <h5 class="text-sm font-semibold text-secondary mb-3">Contoh Data Simulasi Masuk dengan SmartBFT:</h5>
+                                                        <div class="bg-surface/60 rounded p-3 font-mono text-xs text-textdark/80">
+                                                            <div class="space-y-1">
+                                                                <div><span class="text-secondary">Batch 1 (Tx1-Tx50):</span> {"type":"pelaporan","id":"RPT001-050",...}</div>
+                                                                <div><span class="text-secondary">Batch 2 (Tx51-Tx100):</span> {"type":"pelaporan","id":"RPT051-100",...}</div>
+                                                                <div class="text-textdark/60">... (total 50 transaksi per batch dalam 1 detik)</div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="space-y-3">
+                                                        <h5 class="text-sm font-semibold text-textdark">Alur Proses RAFT-SmartBFT Variant:</h5>
+                                                        <div class="space-y-2 text-xs text-textdark/70">
+                                                            <div class="flex items-start gap-3">
+                                                                <span class="flex-shrink-0 w-6 h-6 rounded-full bg-secondary/20 text-secondary flex items-center justify-center font-semibold">1</span>
+                                                                <div>
+                                                                    <span class="font-semibold">Batch Queue:</span> Leader mengumpulkan 50 transaksi dalam batch queue. Dengan BatchTimeout=1s dan MaxMessageCount=50, batch siap diproses lebih cepat.
+                                                                </div>
+                                                            </div>
+                                                            <div class="flex items-start gap-3">
+                                                                <span class="flex-shrink-0 w-6 h-6 rounded-full bg-secondary/20 text-secondary flex items-center justify-center font-semibold">2</span>
+                                                                <div>
+                                                                    <span class="font-semibold">RAFT Batch Log Replication:</span> Leader mereplikasi batch ke semua follower secara paralel. Dengan 4 orderer node, replikasi dilakukan ke lebih banyak node untuk fault tolerance.
+                                                                </div>
+                                                            </div>
+                                                            <div class="flex items-start gap-3">
+                                                                <span class="flex-shrink-0 w-6 h-6 rounded-full bg-secondary/20 text-secondary flex items-center justify-center font-semibold">3</span>
+                                                                <div>
+                                                                    <span class="font-semibold">SmartBFT Proposal:</span> Setelah log replication, leader membuat proposal SmartBFT untuk batch dan mengirimkannya ke semua validator dengan signature.
+                                                                </div>
+                                                            </div>
+                                                            <div class="flex items-start gap-3">
+                                                                <span class="flex-shrink-0 w-6 h-6 rounded-full bg-secondary/20 text-secondary flex items-center justify-center font-semibold">4</span>
+                                                                <div>
+                                                                    <span class="font-semibold">Parallel SmartBFT Validation:</span> Semua validator memverifikasi proposal secara paralel. Setiap validator memverifikasi signature, konsistensi batch, dan aturan bisnis secara independen.
+                                                                </div>
+                                                            </div>
+                                                            <div class="flex items-start gap-3">
+                                                                <span class="flex-shrink-0 w-6 h-6 rounded-full bg-secondary/20 text-secondary flex items-center justify-center font-semibold">5</span>
+                                                                <div>
+                                                                    <span class="font-semibold">Quorum Signature Collection:</span> Leader mengumpulkan signature dari validator yang menyetujui. Sistem menunggu hingga mencapai quorum (mayoritas node) sebelum commit.
+                                                                </div>
+                                                            </div>
+                                                            <div class="flex items-start gap-3">
+                                                                <span class="flex-shrink-0 w-6 h-6 rounded-full bg-secondary/20 text-secondary flex items-center justify-center font-semibold">6</span>
+                                                                <div>
+                                                                    <span class="font-semibold">Batch Commit dengan BFT Proof:</span> Setelah quorum tercapai, seluruh batch di-commit dengan jaminan Byzantine Fault Tolerance. Semua transaksi memiliki finalitas yang kuat.
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="mt-4 rounded-lg border border-secondary/30 bg-secondary/5 p-3">
+                                                            <p class="text-xs text-textdark/70">
+                                                                <span class="font-semibold text-secondary">Karakteristik RAFT-SmartBFT:</span> Kombinasi RAFT variant (BatchTimeout=1s, MaxMessageCount=50) dengan SmartBFT memberikan throughput tinggi (~50 tx/s) dengan jaminan Byzantine Fault Tolerance. Proses validasi tambahan meningkatkan overhead komunikasi dan potensi latency, namun memberikan keamanan konsensus yang lebih kuat dibandingkan RAFT standar.
+                                                            </p>
+                                                        </div>
+                                                        <div class="mt-4 rounded-lg border border-white/5 bg-surface/40 p-3">
+                                                            <h6 class="text-xs font-semibold text-textdark mb-2">Perbandingan dengan RAFT Standar:</h6>
+                                                            <div class="grid grid-cols-2 gap-3 text-xs">
+                                                                <div>
+                                                                    <p class="font-semibold text-primary mb-1">RAFT Standar:</p>
+                                                                    <ul class="list-disc list-inside text-textdark/60 space-y-1">
+                                                                        <li>CFT (Crash Fault Tolerant)</li>
+                                                                        <li>Blok setiap ~2 detik</li>
+                                                                        <li>Maksimal 10 tx/blok</li>
+                                                                        <li>Throughput: ~5 tx/s</li>
+                                                                        <li>Latensi lebih stabil</li>
+                                                                    </ul>
+                                                                </div>
+                                                                <div>
+                                                                    <p class="font-semibold text-secondary mb-1">RAFT-SmartBFT Variant:</p>
+                                                                    <ul class="list-disc list-inside text-textdark/60 space-y-1">
+                                                                        <li>BFT (Byzantine Fault Tolerant)</li>
+                                                                        <li>Blok setiap ~1 detik</li>
+                                                                        <li>Maksimal 50 tx/blok</li>
+                                                                        <li>Throughput: ~50 tx/s</li>
+                                                                        <li>Latensi lebih variatif (overhead BFT)</li>
+                                                                    </ul>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

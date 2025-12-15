@@ -308,7 +308,7 @@ onReceive(AppendEntriesSuccess from follower f):
                             </div>
 
                             <div class="overflow-x-auto rounded-3xl border border-white/10 bg-surfaceMuted/60 p-6">
-                                <svg viewBox="0 0 980 760" class="h-full w-full min-w-[860px]" role="img" aria-labelledby="raft-flow-title raft-flow-desc">
+                                <svg viewBox="0 0 980 820" class="h-full w-full min-w-[860px]" role="img" aria-labelledby="raft-flow-title raft-flow-desc">
                                     <title id="raft-flow-title">Flowchart algoritma RAFT</title>
                                     <desc id="raft-flow-desc">Alur follower timeout, candidate meminta vote, leader mengirim heartbeat dan mereplikasi log sampai commit mayoritas.</desc>
                                     <defs>
@@ -328,6 +328,14 @@ onReceive(AppendEntriesSuccess from follower f):
                                         </marker>
                                     </defs>
 
+                                    <!-- Catatan konfigurasi (menunjukkan "parameter dipakai di mana") -->
+                                    <g>
+                                        <rect x="55" y="12" width="870" height="34" rx="14" fill="rgba(15,23,42,0.70)" stroke="rgba(255,255,255,0.10)" />
+                                        <text x="75" y="34" fill="#94A3B8" font-size="12">
+                                            Sumber konfigurasi: configtx + compose (channel/endpoint/jumlah orderer) → memengaruhi quorum (N,Q) dan pembentukan batch/blok sebelum replikasi RAFT.
+                                        </text>
+                                    </g>
+
                                     <!-- Nodes -->
                                     <g>
                                         <rect x="55" y="55" width="240" height="90" rx="22" fill="url(#raftNode)" stroke="rgba(56,189,248,0.35)" stroke-width="2" />
@@ -345,12 +353,21 @@ onReceive(AppendEntriesSuccess from follower f):
                                         <rect x="360" y="55" width="260" height="90" rx="22" fill="url(#raftNode)" stroke="rgba(99,102,241,0.35)" stroke-width="2" />
                                         <text x="490" y="92" text-anchor="middle" fill="#E2E8F0" font-size="18" font-weight="700">Quorum mayoritas?</text>
                                         <text x="490" y="118" text-anchor="middle" fill="#94A3B8" font-size="13">Q = ⌊N/2⌋ + 1</text>
+                                        <text x="490" y="138" text-anchor="middle" fill="#94A3B8" font-size="12">N = jumlah orderer (compose)</text>
                                     </g>
 
                                     <g>
                                         <rect x="685" y="55" width="240" height="90" rx="22" fill="url(#raftNode)" stroke="rgba(99,102,241,0.55)" stroke-width="2" />
                                         <text x="805" y="92" text-anchor="middle" fill="#E0E7FF" font-size="18" font-weight="700">Leader</text>
                                         <text x="805" y="118" text-anchor="middle" fill="#C7D2FE" font-size="13">heartbeat + AppendEntries</text>
+                                        <text x="805" y="138" text-anchor="middle" fill="#94A3B8" font-size="12">endpoint (configtx)</text>
+                                    </g>
+
+                                    <!-- Node: pembentukan batch/blok (parameter batch dipakai di sini) -->
+                                    <g>
+                                        <rect x="685" y="155" width="240" height="48" rx="16" fill="rgba(56,189,248,0.10)" stroke="rgba(56,189,248,0.28)" stroke-width="2" />
+                                        <text x="805" y="180" text-anchor="middle" fill="#E2E8F0" font-size="13" font-weight="700">Pembentukan batch/blok</text>
+                                        <text x="805" y="198" text-anchor="middle" fill="#94A3B8" font-size="11">BatchTimeout · MaxMessageCount · MaxBytes</text>
                                     </g>
 
                                     <g>
@@ -379,23 +396,26 @@ onReceive(AppendEntriesSuccess from follower f):
                                     <path d="M620,100 L685,100" stroke="#38BDF8" stroke-width="2.4" fill="none" marker-end="url(#raftArrow)" />
                                     <text x="652" y="86" text-anchor="middle" fill="#BAE6FD" font-size="12">ya → leader</text>
 
-                                    <path d="M805,145 L805,195" stroke="#38BDF8" stroke-width="2.2" fill="none" marker-end="url(#raftArrow)" />
-                                    <text x="828" y="175" fill="#BAE6FD" font-size="12">AppendEntries</text>
+                                    <path d="M805,145 L805,155" stroke="#38BDF8" stroke-width="2.2" fill="none" marker-end="url(#raftArrow)" />
+                                    <text x="828" y="154" fill="#BAE6FD" font-size="12">tx masuk</text>
+
+                                    <path d="M805,203 L805,195" stroke="#38BDF8" stroke-width="2.2" fill="none" marker-end="url(#raftArrow)" />
+                                    <text x="828" y="214" fill="#BAE6FD" font-size="12">AppendEntries</text>
 
                                     <!-- Parameter pembeda (standar vs varian) -->
                                     <g>
-                                        <rect x="55" y="395" width="870" height="335" rx="26" fill="rgba(2,6,23,0.35)" stroke="rgba(255,255,255,0.10)" stroke-width="2" />
+                                        <rect x="55" y="445" width="870" height="335" rx="26" fill="rgba(2,6,23,0.35)" stroke="rgba(255,255,255,0.10)" stroke-width="2" />
 
-                                        <text x="90" y="432" fill="#E2E8F0" font-size="16" font-weight="700">Parameter konfigurasi (Fabric v2) — Standar vs Varian</text>
-                                        <text x="90" y="454" fill="#94A3B8" font-size="12">Ditambahkan pada diagram agar terlihat perbedaan tiap parameter.</text>
+                                        <text x="90" y="482" fill="#E2E8F0" font-size="16" font-weight="700">Parameter konfigurasi (Fabric v2) — Standar vs Varian</text>
+                                        <text x="90" y="504" fill="#94A3B8" font-size="12">Kaitan ke flowchart: parameter batch dipakai pada node “Pembentukan batch/blok”, jumlah orderer memengaruhi N dan Q.</text>
 
-                                        <rect x="75" y="475" width="410" height="235" rx="18" fill="rgba(15,23,42,0.55)" stroke="rgba(56,189,248,0.22)" />
-                                        <rect x="495" y="475" width="410" height="235" rx="18" fill="rgba(15,23,42,0.55)" stroke="rgba(249,115,22,0.22)" />
+                                        <rect x="75" y="525" width="410" height="235" rx="18" fill="rgba(15,23,42,0.55)" stroke="rgba(56,189,248,0.22)" />
+                                        <rect x="495" y="525" width="410" height="235" rx="18" fill="rgba(15,23,42,0.55)" stroke="rgba(249,115,22,0.22)" />
 
-                                        <text x="95" y="504" fill="#BAE6FD" font-size="13" font-weight="700">Standar</text>
-                                        <text x="515" y="504" fill="#FED7AA" font-size="13" font-weight="700">Varian</text>
+                                        <text x="95" y="554" fill="#BAE6FD" font-size="13" font-weight="700">Standar</text>
+                                        <text x="515" y="554" fill="#FED7AA" font-size="13" font-weight="700">Varian</text>
 
-                                        <text x="95" y="526" fill="#E2E8F0" font-size="12">
+                                        <text x="95" y="576" fill="#E2E8F0" font-size="12">
                                             <tspan x="95" dy="0">• Lokasi configtx:</tspan>
                                             <tspan x="115" dy="16">fabric-2/raft-standard/</tspan>
                                             <tspan x="115" dy="16">network/configtx/configtx.yaml</tspan>
@@ -411,7 +431,7 @@ onReceive(AppendEntriesSuccess from follower f):
                                             <tspan x="115" dy="16">Baseline latensi dan kestabilan blok</tspan>
                                         </text>
 
-                                        <text x="515" y="526" fill="#E2E8F0" font-size="12">
+                                        <text x="515" y="576" fill="#E2E8F0" font-size="12">
                                             <tspan x="515" dy="0">• Lokasi configtx:</tspan>
                                             <tspan x="535" dy="16">fabric-2/raft-variant/</tspan>
                                             <tspan x="535" dy="16">network/configtx/configtx.yaml</tspan>

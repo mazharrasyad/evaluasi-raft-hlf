@@ -118,6 +118,122 @@
 
                         <section class="space-y-6 rounded-3xl border border-white/10 bg-surface/70 p-10 shadow-2xl shadow-black/30">
                             <div class="space-y-3">
+                                <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Ringkasan Perbedaan Hyperledger Fabric v2 vs v3 (dalam repo/eksperimen ini)</h2>
+                                <p class="text-sm text-textdark/75 md:text-base">
+                                    Di halaman ini, “Fabric v2” dan “Fabric v3” merujuk pada <span class="font-semibold text-textdark">paket jaringan</span> di folder <code>fabric-2/</code> dan <code>fabric-3/</code>.
+                                    Secara konsep, RAFT (etcdraft) tetap sama; perbedaannya di eksperimen ini lebih terlihat pada <span class="font-semibold text-textdark">penamaan komponen</span>,
+                                    <span class="font-semibold text-textdark">pemetaan port</span>, dan <span class="font-semibold text-textdark">organisasi berkas konfigurasi</span> agar dua versi bisa dijalankan berdampingan tanpa bentrok.
+                                </p>
+                            </div>
+
+                            <div class="overflow-x-auto rounded-2xl border border-white/10 bg-surfaceMuted/60">
+                                <table class="min-w-full divide-y divide-white/10 text-left text-sm text-textdark/80 md:text-base">
+                                    <thead class="bg-surfaceMuted/80 text-textdark">
+                                        <tr>
+                                            <th class="px-4 py-3 font-semibold">Aspek</th>
+                                            <th class="px-4 py-3 font-semibold">Fabric v2 (paket <code>fabric-2</code>)</th>
+                                            <th class="px-4 py-3 font-semibold">Fabric v3 (paket <code>fabric-3</code>)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-white/5">
+                                        <tr>
+                                            <td class="px-4 py-3 align-top text-textdark/60">Namespace/hostname orderer</td>
+                                            <td class="px-4 py-3 align-top"><code>orderer.fabric2.standard.com</code> / <code>orderer.fabric2.variant.com</code></td>
+                                            <td class="px-4 py-3 align-top"><code>orderer.fabric3.standard</code> / <code>orderer.fabric3.variant</code></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-4 py-3 align-top text-textdark/60">Port layanan orderer (listen)</td>
+                                            <td class="px-4 py-3 align-top">7050 (standar), 7050 di container dengan host-port berbeda untuk varian</td>
+                                            <td class="px-4 py-3 align-top">8055 (standar), 8055 di container dengan host-port berbeda untuk varian</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-4 py-3 align-top text-textdark/60">Contoh pemetaan port (standar)</td>
+                                            <td class="px-4 py-3 align-top"><code>7050:7050</code>, admin <code>7053:7053</code>, ops <code>9443:9443</code></td>
+                                            <td class="px-4 py-3 align-top"><code>8055:8055</code>, admin <code>8053:8053</code>, ops <code>9543:9543</code></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-4 py-3 align-top text-textdark/60">Port peer (contoh Org1/Org2)</td>
+                                            <td class="px-4 py-3 align-top">Org1: 7051, Org2: 9051</td>
+                                            <td class="px-4 py-3 align-top">Org1: 7153, Org2: 9153</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-4 py-3 align-top text-textdark/60">Nama Docker network (standar)</td>
+                                            <td class="px-4 py-3 align-top"><code>fabric_raft_standard_net</code></td>
+                                            <td class="px-4 py-3 align-top"><code>fabric3_raft_standard_net</code></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-4 py-3 align-top text-textdark/60">Nama channel bawaan</td>
+                                            <td class="px-4 py-3 align-top"><code>fabric2-channel-standard</code> / <code>fabric2-channel-variant</code></td>
+                                            <td class="px-4 py-3 align-top"><code>fabric3-channel-standard</code> / <code>fabric3-channel-variant</code></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-4 py-3 align-top text-textdark/60">Lokasi konfigurasi RAFT (BatchTimeout/BatchSize)</td>
+                                            <td class="px-4 py-3 align-top"><code>fabric-2/*/network/configtx/configtx.yaml</code> (juga ada <code>fabric-2/*/config/configtx.yaml</code>)</td>
+                                            <td class="px-4 py-3 align-top"><code>fabric-3/*/network/configtx/configtx.yaml</code> (juga ada <code>fabric-3/*/config/configtx.yaml</code>)</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-4 py-3 align-top text-textdark/60">Ketersediaan BFT di sampel (untuk pembanding)</td>
+                                            <td class="px-4 py-3 align-top">Ada flag <code>-bft</code> + folder <code>network/bft-config</code></td>
+                                            <td class="px-4 py-3 align-top">Ada flag <code>-bft</code> + folder <code>network/bft-config</code> (jadi dasar pembahasan 4.1.2)</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="overflow-x-auto rounded-2xl border border-white/10 bg-surfaceMuted/60 p-6">
+                                <h3 class="text-lg font-semibold text-textdark">Diagram cepat: “yang berubah” saat pindah v2 → v3</h3>
+                                <p class="mt-1 text-sm text-textdark/70 md:text-base">
+                                    Fokusnya adalah perubahan namespace/port (untuk menghindari bentrok) — bukan perubahan prinsip RAFT.
+                                </p>
+                                <div class="mt-4 overflow-x-auto">
+                                    <svg viewBox="0 0 860 210" class="h-full w-full min-w-[820px]" role="img" aria-labelledby="v2v3-raft-diff-title v2v3-raft-diff-desc">
+                                        <title id="v2v3-raft-diff-title">Ringkasan perbedaan paket Fabric v2 vs v3 (RAFT)</title>
+                                        <desc id="v2v3-raft-diff-desc">Perbandingan hostname, port orderer, port peer, dan nama Docker network untuk paket fabric-2 dan fabric-3.</desc>
+                                        <defs>
+                                            <linearGradient id="diffV2" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.18"></stop>
+                                                <stop offset="100%" stop-color="#0F172A" stop-opacity="0.92"></stop>
+                                            </linearGradient>
+                                            <linearGradient id="diffV3" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                <stop offset="0%" stop-color="#6366F1" stop-opacity="0.18"></stop>
+                                                <stop offset="100%" stop-color="#0F172A" stop-opacity="0.92"></stop>
+                                            </linearGradient>
+                                            <marker id="diffArrow" markerWidth="10" markerHeight="10" refX="7.5" refY="5" orient="auto" markerUnits="strokeWidth">
+                                                <path d="M0,0 L10,5 L0,10 z" fill="#F97316"></path>
+                                            </marker>
+                                        </defs>
+
+                                        <rect x="24" y="28" width="386" height="154" rx="22" fill="url(#diffV2)" stroke="rgba(56,189,248,0.35)" stroke-width="2"></rect>
+                                        <text x="52" y="56" fill="#E2E8F0" font-size="16" font-weight="800">Fabric v2 (paket <tspan fill="#BAE6FD">fabric-2</tspan>)</text>
+                                        <text x="52" y="84" fill="#94A3B8" font-size="12">Orderer</text>
+                                        <text x="140" y="84" fill="#E2E8F0" font-size="12" font-weight="700">orderer.fabric2.standard.com:7050</text>
+                                        <text x="52" y="108" fill="#94A3B8" font-size="12">Peer</text>
+                                        <text x="140" y="108" fill="#E2E8F0" font-size="12" font-weight="700">Org1 7051 • Org2 9051</text>
+                                        <text x="52" y="132" fill="#94A3B8" font-size="12">Docker network</text>
+                                        <text x="170" y="132" fill="#E2E8F0" font-size="12" font-weight="700">fabric_raft_standard_net</text>
+                                        <text x="52" y="156" fill="#94A3B8" font-size="12">Channel</text>
+                                        <text x="140" y="156" fill="#E2E8F0" font-size="12" font-weight="700">fabric2-channel-standard</text>
+
+                                        <path d="M424,105 L436,105" stroke="#F97316" stroke-width="3" fill="none" marker-end="url(#diffArrow)"></path>
+                                        <text x="430" y="88" text-anchor="middle" fill="#FDBA74" font-size="11" font-weight="700">geser namespace + port</text>
+
+                                        <rect x="450" y="28" width="386" height="154" rx="22" fill="url(#diffV3)" stroke="rgba(99,102,241,0.35)" stroke-width="2"></rect>
+                                        <text x="478" y="56" fill="#E2E8F0" font-size="16" font-weight="800">Fabric v3 (paket <tspan fill="#C7D2FE">fabric-3</tspan>)</text>
+                                        <text x="478" y="84" fill="#94A3B8" font-size="12">Orderer</text>
+                                        <text x="566" y="84" fill="#E2E8F0" font-size="12" font-weight="700">orderer.fabric3.standard:8055</text>
+                                        <text x="478" y="108" fill="#94A3B8" font-size="12">Peer</text>
+                                        <text x="566" y="108" fill="#E2E8F0" font-size="12" font-weight="700">Org1 7153 • Org2 9153</text>
+                                        <text x="478" y="132" fill="#94A3B8" font-size="12">Docker network</text>
+                                        <text x="596" y="132" fill="#E2E8F0" font-size="12" font-weight="700">fabric3_raft_standard_net</text>
+                                        <text x="478" y="156" fill="#94A3B8" font-size="12">Channel</text>
+                                        <text x="566" y="156" fill="#E2E8F0" font-size="12" font-weight="700">fabric3-channel-standard</text>
+                                    </svg>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="space-y-6 rounded-3xl border border-white/10 bg-surface/70 p-10 shadow-2xl shadow-black/30">
+                            <div class="space-y-3">
                                 <h2 class="text-2xl font-semibold text-textdark md:text-3xl">1) Penjelasan / Rumus Inti RAFT</h2>
                                 <p class="text-sm text-textdark/75 md:text-base">
                                     RAFT menggunakan aturan mayoritas untuk election dan commit. Notasi yang umum dipakai:

@@ -118,6 +118,107 @@
 
                         <section class="space-y-6 rounded-3xl border border-white/10 bg-surface/70 p-10 shadow-2xl shadow-black/30">
                             <div class="space-y-3">
+                                <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Ringkasan Perbedaan Hyperledger Fabric v2 vs v3 (konteks SmartBFT di repo ini)</h2>
+                                <p class="text-sm text-textdark/75 md:text-base">
+                                    SmartBFT dipakai sebagai pembanding karena model gangguannya BFT. Di repo ini, “Fabric v2” dan “Fabric v3” merujuk pada paket jaringan di <code>fabric-2/</code> dan <code>fabric-3/</code>.
+                                    Perbedaan yang paling tampak untuk sub-bab ini adalah <span class="font-semibold text-textdark">ketersediaan profil <code>OrdererType: BFT</code> + blok <code>SmartBFT</code></span> pada <code>configtx</code>,
+                                    serta <span class="font-semibold text-textdark">pemetaan host/port consenter</span> (agar eksperimen v2 dan v3 bisa berjalan paralel).
+                                </p>
+                            </div>
+
+                            <div class="overflow-x-auto rounded-2xl border border-white/10 bg-surfaceMuted/60">
+                                <table class="min-w-full divide-y divide-white/10 text-left text-sm text-textdark/80 md:text-base">
+                                    <thead class="bg-surfaceMuted/80 text-textdark">
+                                        <tr>
+                                            <th class="px-4 py-3 font-semibold">Aspek</th>
+                                            <th class="px-4 py-3 font-semibold">Fabric v2 (paket <code>fabric-2</code>)</th>
+                                            <th class="px-4 py-3 font-semibold">Fabric v3 (paket <code>fabric-3</code>)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-white/5">
+                                        <tr>
+                                            <td class="px-4 py-3 align-top text-textdark/60">Lokasi profil/artefak BFT (configtx)</td>
+                                            <td class="px-4 py-3 align-top"><code>fabric-2/*/network/bft-config/configtx.yaml</code> (profile <code>ChannelUsingBFT</code>)</td>
+                                            <td class="px-4 py-3 align-top"><code>fabric-3/*/network/bft-config/configtx.yaml</code> (profile <code>ChannelUsingBFT</code>)</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-4 py-3 align-top text-textdark/60">Parameter SmartBFT (batch & timeouts)</td>
+                                            <td class="px-4 py-3 align-top">Ada blok <code>SmartBFT:</code> (mis. <code>RequestBatchMaxCount</code>, <code>RequestBatchMaxInterval</code>, <code>ViewChangeTimeout</code>)</td>
+                                            <td class="px-4 py-3 align-top">Ada blok <code>SmartBFT:</code> dan dipakai sebagai skenario pembanding pada paket v3</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-4 py-3 align-top text-textdark/60">Contoh endpoint consenter (di configtx)</td>
+                                            <td class="px-4 py-3 align-top"><code>orderer.fabric2.variant.com:7050</code>, <code>orderer2.variant.com:7052</code>, …</td>
+                                            <td class="px-4 py-3 align-top"><code>orderer.fabric3.variant:8055</code>, <code>orderer2.fabric3.variant:8052</code>, …</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-4 py-3 align-top text-textdark/60">Tujuan pemisahan port (host mapping)</td>
+                                            <td class="px-4 py-3 align-top">Menghindari bentrok dengan paket lain (mis. host-port 7150/7253/9643 untuk varian)</td>
+                                            <td class="px-4 py-3 align-top">Menghindari bentrok dengan paket lain (mis. host-port 8255/8253/9743 untuk varian)</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-4 py-3 align-top text-textdark/60">Implikasi eksperimen</td>
+                                            <td class="px-4 py-3 align-top">BFT butuh cluster lebih besar (N≥3f+1) dan pesan lebih banyak (prepare/commit)</td>
+                                            <td class="px-4 py-3 align-top">BFT dipakai untuk membandingkan overhead vs RAFT pada paket v3</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="overflow-x-auto rounded-2xl border border-white/10 bg-surfaceMuted/60 p-6">
+                                <h3 class="text-lg font-semibold text-textdark">Diagram cepat: perubahan “alamat consenter” v2 vs v3</h3>
+                                <p class="mt-1 text-sm text-textdark/70 md:text-base">
+                                    Pada SmartBFT, daftar consenter (Host/Port + TLS cert) adalah kunci. Di repo ini perbedaannya terutama pada hostname/port untuk isolasi eksperimen.
+                                </p>
+                                <div class="mt-4 overflow-x-auto">
+                                    <svg viewBox="0 0 860 220" class="h-full w-full min-w-[820px]" role="img" aria-labelledby="v2v3-bft-diff-title v2v3-bft-diff-desc">
+                                        <title id="v2v3-bft-diff-title">Ringkasan perbedaan Fabric v2 vs v3 untuk SmartBFT</title>
+                                        <desc id="v2v3-bft-diff-desc">Perbandingan contoh consenter mapping dan port dasar BFT pada paket fabric-2 dan fabric-3.</desc>
+                                        <defs>
+                                            <linearGradient id="bftDiffV2" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.18"></stop>
+                                                <stop offset="100%" stop-color="#0F172A" stop-opacity="0.92"></stop>
+                                            </linearGradient>
+                                            <linearGradient id="bftDiffV3" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                <stop offset="0%" stop-color="#6366F1" stop-opacity="0.18"></stop>
+                                                <stop offset="100%" stop-color="#0F172A" stop-opacity="0.92"></stop>
+                                            </linearGradient>
+                                            <marker id="bftDiffArrow" markerWidth="10" markerHeight="10" refX="7.5" refY="5" orient="auto" markerUnits="strokeWidth">
+                                                <path d="M0,0 L10,5 L0,10 z" fill="#F97316"></path>
+                                            </marker>
+                                        </defs>
+
+                                        <rect x="24" y="28" width="386" height="164" rx="22" fill="url(#bftDiffV2)" stroke="rgba(56,189,248,0.35)" stroke-width="2"></rect>
+                                        <text x="52" y="56" fill="#E2E8F0" font-size="16" font-weight="800">Fabric v2 (paket <tspan fill="#BAE6FD">fabric-2</tspan>)</text>
+                                        <text x="52" y="86" fill="#94A3B8" font-size="12">Profile</text>
+                                        <text x="120" y="86" fill="#E2E8F0" font-size="12" font-weight="700">ChannelUsingBFT</text>
+                                        <text x="52" y="112" fill="#94A3B8" font-size="12">Contoh consenter</text>
+                                        <text x="170" y="112" fill="#E2E8F0" font-size="12" font-weight="700">orderer.fabric2.variant.com:7050</text>
+                                        <text x="52" y="136" fill="#94A3B8" font-size="12">Konsep quorum</text>
+                                        <text x="170" y="136" fill="#E2E8F0" font-size="12" font-weight="700">N≥3f+1 • Q=2f+1</text>
+                                        <text x="52" y="160" fill="#94A3B8" font-size="12">Berkas</text>
+                                        <text x="120" y="160" fill="#E2E8F0" font-size="12" font-weight="700">fabric-2/*/network/bft-config/configtx.yaml</text>
+
+                                        <path d="M424,110 L436,110" stroke="#F97316" stroke-width="3" fill="none" marker-end="url(#bftDiffArrow)"></path>
+                                        <text x="430" y="92" text-anchor="middle" fill="#FDBA74" font-size="11" font-weight="700">geser host + port</text>
+
+                                        <rect x="450" y="28" width="386" height="164" rx="22" fill="url(#bftDiffV3)" stroke="rgba(99,102,241,0.35)" stroke-width="2"></rect>
+                                        <text x="478" y="56" fill="#E2E8F0" font-size="16" font-weight="800">Fabric v3 (paket <tspan fill="#C7D2FE">fabric-3</tspan>)</text>
+                                        <text x="478" y="86" fill="#94A3B8" font-size="12">Profile</text>
+                                        <text x="546" y="86" fill="#E2E8F0" font-size="12" font-weight="700">ChannelUsingBFT</text>
+                                        <text x="478" y="112" fill="#94A3B8" font-size="12">Contoh consenter</text>
+                                        <text x="596" y="112" fill="#E2E8F0" font-size="12" font-weight="700">orderer.fabric3.variant:8055</text>
+                                        <text x="478" y="136" fill="#94A3B8" font-size="12">Konsep quorum</text>
+                                        <text x="596" y="136" fill="#E2E8F0" font-size="12" font-weight="700">N≥3f+1 • Q=2f+1</text>
+                                        <text x="478" y="160" fill="#94A3B8" font-size="12">Berkas</text>
+                                        <text x="546" y="160" fill="#E2E8F0" font-size="12" font-weight="700">fabric-3/*/network/bft-config/configtx.yaml</text>
+                                    </svg>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="space-y-6 rounded-3xl border border-white/10 bg-surface/70 p-10 shadow-2xl shadow-black/30">
+                            <div class="space-y-3">
                                 <h2 class="text-2xl font-semibold text-textdark md:text-3xl">1) Penjelasan / Rumus Inti SmartBFT</h2>
                                 <p class="text-sm text-textdark/75 md:text-base">
                                     SmartBFT mengacu pada prinsip BFT klasik: jika jumlah node total <span class="font-semibold text-textdark">N</span>, maka sistem dapat menoleransi hingga

@@ -233,9 +233,9 @@ onTimeoutOrLeaderSuspected():
                             </div>
 
                             <div class="overflow-x-auto rounded-3xl border border-white/10 bg-surfaceMuted/60 p-6">
-                                <svg viewBox="0 0 1040 820" class="h-full w-full min-w-[900px]" role="img" aria-labelledby="bft-flow-title bft-flow-desc">
+                                <svg viewBox="-320 0 1360 820" class="h-full w-full min-w-[900px]" role="img" aria-labelledby="bft-flow-title bft-flow-desc">
                                     <title id="bft-flow-title">Flowchart algoritma SmartBFT</title>
-                                    <desc id="bft-flow-desc">Leader membuat proposal batch, replica melakukan prepare, commit setelah quorum, lalu view change bila timeout.</desc>
+                                    <desc id="bft-flow-desc">Alur SmartBFT di orderer (propose/prepare/commit/view-change) serta jalur data simulasi masuk dari client → peer → orderer → finalisasi blok → commit ke ledger.</desc>
                                     <defs>
                                         <linearGradient id="bftNode" x1="0" y1="0" x2="1" y2="1">
                                             <stop offset="0%" stop-color="#0F172A" stop-opacity="0.96" />
@@ -259,6 +259,28 @@ onTimeoutOrLeaderSuspected():
                                         <text x="82" y="34" fill="#94A3B8" font-size="12">
                                             Parameter batch/blok dipakai pada langkah “buat batch”, sedangkan jumlah orderer memengaruhi N,f dan quorum (2f+1).
                                         </text>
+                                    </g>
+
+                                    <!-- Jalur data simulasi (input → transaksi → blok → commit) -->
+                                    <g>
+                                        <rect x="-300" y="55" width="255" height="62" rx="18" fill="rgba(56,189,248,0.10)" stroke="rgba(56,189,248,0.35)" stroke-width="2" />
+                                        <text x="-172" y="82" text-anchor="middle" fill="#E2E8F0" font-size="14" font-weight="700">Data simulasi</text>
+                                        <text x="-172" y="103" text-anchor="middle" fill="#94A3B8" font-size="11">mis: JSON/CSV (sample-data)</text>
+
+                                        <rect x="-300" y="135" width="255" height="70" rx="18" fill="rgba(99,102,241,0.10)" stroke="rgba(99,102,241,0.35)" stroke-width="2" />
+                                        <text x="-172" y="164" text-anchor="middle" fill="#E2E8F0" font-size="14" font-weight="700">Script simulasi / client</text>
+                                        <text x="-172" y="185" text-anchor="middle" fill="#94A3B8" font-size="11">SDK/Gateway → submit tx</text>
+
+                                        <rect x="-300" y="225" width="255" height="70" rx="18" fill="rgba(15,23,42,0.75)" stroke="rgba(255,255,255,0.14)" stroke-width="2" />
+                                        <text x="-172" y="254" text-anchor="middle" fill="#E2E8F0" font-size="14" font-weight="700">Peer (endorsement)</text>
+                                        <text x="-172" y="275" text-anchor="middle" fill="#94A3B8" font-size="11">chaincode dieksekusi → endorse</text>
+
+                                        <rect x="-300" y="315" width="255" height="70" rx="18" fill="rgba(249,115,22,0.10)" stroke="rgba(249,115,22,0.45)" stroke-width="2" />
+                                        <text x="-172" y="344" text-anchor="middle" fill="#FFE4C4" font-size="14" font-weight="700">Commit ke ledger</text>
+                                        <text x="-172" y="365" text-anchor="middle" fill="#FED7AA" font-size="11">blok diterima → ledger/world state</text>
+
+                                        <rect x="-300" y="405" width="255" height="40" rx="16" fill="rgba(2,6,23,0.35)" stroke="rgba(255,255,255,0.12)" stroke-width="2" />
+                                        <text x="-172" y="430" text-anchor="middle" fill="#94A3B8" font-size="11">output: block height, latency, throughput</text>
                                     </g>
 
                                     <!-- nodes -->
@@ -326,6 +348,22 @@ onTimeoutOrLeaderSuspected():
                                     <path d="M980,265 C1010,265 1010,115 980,115" stroke="#38BDF8" stroke-width="2" fill="none" marker-end="url(#bftArrow)" />
                                     <text x="1012" y="190" fill="#BAE6FD" font-size="12">decide</text>
 
+                                    <!-- Panah jalur data simulasi -->
+                                    <path d="M-172,117 L-172,135" stroke="#38BDF8" stroke-width="2.2" fill="none" marker-end="url(#bftArrow)" />
+                                    <text x="-150" y="128" fill="#BAE6FD" font-size="12">generate tx</text>
+
+                                    <path d="M-172,205 L-172,225" stroke="#38BDF8" stroke-width="2.2" fill="none" marker-end="url(#bftArrow)" />
+                                    <text x="-150" y="218" fill="#BAE6FD" font-size="12">submit</text>
+
+                                    <path d="M-45,260 C-10,260 10,200 60,140" stroke="#38BDF8" stroke-width="2.2" fill="none" marker-end="url(#bftArrow)" />
+                                    <text x="-12" y="238" fill="#BAE6FD" font-size="12">proposal tx ke orderer</text>
+
+                                    <path d="M660,265 C430,340 120,350 -45,350" stroke="#38BDF8" stroke-width="2.2" fill="none" marker-end="url(#bftArrow)" />
+                                    <text x="300" y="364" fill="#BAE6FD" font-size="12">blok final (decide) → didistribusikan</text>
+
+                                    <path d="M-172,385 L-172,405" stroke="#F97316" stroke-width="2.0" fill="none" marker-end="url(#bftArrowWarn)" />
+                                    <text x="-150" y="400" fill="#FDBA74" font-size="12">ukur metrik</text>
+
                                     <!-- Parameter pembeda (standar vs varian) -->
                                     <g>
                                         <rect x="60" y="445" width="920" height="335" rx="26" fill="rgba(2,6,23,0.35)" stroke="rgba(255,255,255,0.10)" stroke-width="2" />
@@ -377,11 +415,14 @@ onTimeoutOrLeaderSuspected():
                             <div class="space-y-3 rounded-2xl border border-white/10 bg-surfaceMuted/60 p-6">
                                 <h3 class="text-lg font-semibold text-textdark">Penjelasan diagram</h3>
                                 <ol class="space-y-2 text-sm text-textdark/80 md:text-base">
-                                    <li>Leader membentuk <span class="font-semibold text-textdark">batch</span> transaksi lalu menyiarkan <span class="font-semibold text-textdark">PROPOSE</span>.</li>
+                                    <li><span class="font-semibold text-textdark">Data simulasi</span> (mis. file JSON/CSV) dibaca oleh <span class="font-semibold text-textdark">script simulasi/client</span> untuk menghasilkan request transaksi.</li>
+                                    <li>Client mengirim transaksi melalui <span class="font-semibold text-textdark">SDK/Gateway</span> ke <span class="font-semibold text-textdark">peer endorser</span>; peer mengeksekusi chaincode dan mengembalikan <span class="font-semibold text-textdark">endorsement</span>.</li>
+                                    <li>Transaksi yang sudah valid (proposal + endorsement) diteruskan ke <span class="font-semibold text-textdark">ordering service SmartBFT</span> (leader), lalu leader membentuk <span class="font-semibold text-textdark">batch</span> dan menyiarkan <span class="font-semibold text-textdark">PROPOSE</span>.</li>
                                     <li>Replica memvalidasi proposal dan menyiarkan <span class="font-semibold text-textdark">PREPARE</span> (bukti dukungan terhadap hash batch).</li>
                                     <li>Jika quorum <span class="font-semibold text-textdark">2f+1 PREPARE</span> terkumpul, replica masuk fase <span class="font-semibold text-textdark">COMMIT</span>.</li>
-                                    <li>Jika quorum <span class="font-semibold text-textdark">2f+1 COMMIT</span> terkumpul, keputusan final dibuat dan blok dapat ditulis (append) ke ledger.</li>
+                                    <li>Jika quorum <span class="font-semibold text-textdark">2f+1 COMMIT</span> terkumpul, terjadi <span class="font-semibold text-textdark">decide</span> (keputusan final) sehingga batch difinalkan menjadi <span class="font-semibold text-textdark">blok</span>, lalu <span class="font-semibold text-textdark">dikirim ke peer</span> untuk <span class="font-semibold text-textdark">commit ke ledger/world state</span>.</li>
                                     <li>Jika quorum tidak tercapai atau terjadi timeout, replica menjalankan <span class="font-semibold text-textdark">view change</span> untuk mengganti leader.</li>
+                                    <li>Setelah commit, client dapat mengamati hasil (mis. block height / event) untuk menghitung <span class="font-semibold text-textdark">latency/throughput</span> dari waktu kirim vs konfirmasi.</li>
                                 </ol>
                             </div>
                         </section>

@@ -228,122 +228,81 @@ onTimeoutOrLeaderSuspected():
                             <div class="space-y-3">
                                 <h2 class="text-2xl font-semibold text-textdark md:text-3xl">3) Flowchart / Diagram Alur SmartBFT + Penjelasan</h2>
                                 <p class="text-sm text-textdark/75 md:text-base">
-                                    Diagram berikut dibuat ringkas dan disajikan dalam <span class="font-semibold text-textdark">dua versi</span>: <span class="font-semibold text-textdark">Fabric v2</span> (rujukan artefak BFT) dan <span class="font-semibold text-textdark">Fabric v3</span> (skenario pembanding pada varian).
-                                    Inti alurnya tetap: PROPOSE → PREPARE → COMMIT → decide, plus <span class="font-semibold text-textdark">view change</span> saat leader bermasalah.
+                                    Diagram berikut diringkas menjadi <span class="font-semibold text-textdark">satu diagram</span> yang merangkum <span class="font-semibold text-textdark">Fabric v2 vs Fabric v3</span>.
+                                    Inti alurnya tetap: PROPOSE → PREPARE → COMMIT → decide, plus <span class="font-semibold text-textdark">view change</span> saat leader bermasalah; perbedaan versi ditunjukkan pada panel konfigurasi/endpoint di bawah diagram.
                                 </p>
                             </div>
 
                             <div class="overflow-x-auto rounded-3xl border border-white/10 bg-surfaceMuted/60 p-6">
-                                <div class="grid grid-cols-1 gap-6">
-                                    <div class="space-y-3 rounded-2xl border border-white/10 bg-surface/60 p-5">
-                                        <h4 class="text-base font-semibold text-textdark">Versi 2 (Fabric v2 — SmartBFT / BFT)</h4>
-                                        <svg viewBox="0 0 760 360" class="h-full w-full min-w-[760px]" role="img" aria-labelledby="bft-v2-title bft-v2-desc">
-                                            <title id="bft-v2-title">Diagram ringkas SmartBFT pada Fabric v2</title>
-                                            <desc id="bft-v2-desc">Alur singkat: PROPOSE → PREPARE (2f+1) → COMMIT (2f+1) → decide; dan view change saat timeout.</desc>
-                                            <defs>
-                                                <marker id="bftV2Arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
-                                                    <path d="M0,0 L10,5 L0,10 z" fill="#38BDF8"></path>
-                                                </marker>
-                                                <marker id="bftV2ArrowWarn" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
-                                                    <path d="M0,0 L10,5 L0,10 z" fill="#F97316"></path>
-                                                </marker>
-                                            </defs>
+                                <div class="space-y-3 rounded-2xl border border-white/10 bg-surface/60 p-5">
+                                    <h4 class="text-base font-semibold text-textdark">SmartBFT (Fabric v2 vs v3 — BFT)</h4>
+                                    <svg viewBox="0 0 760 400" class="h-full w-full min-w-[760px]" role="img" aria-labelledby="bft-v2v3-title bft-v2v3-desc">
+                                        <title id="bft-v2v3-title">Diagram ringkas SmartBFT (Fabric v2 vs v3)</title>
+                                        <desc id="bft-v2v3-desc">Inti alur SmartBFT sama: PROPOSE → PREPARE (2f+1) → COMMIT (2f+1) → decide, plus view change saat leader bermasalah. Perbedaan ada pada lokasi konfigurasi dan contoh consenter endpoint.</desc>
+                                        <defs>
+                                            <marker id="bftArrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
+                                                <path d="M0,0 L10,5 L0,10 z" fill="#38BDF8"></path>
+                                            </marker>
+                                            <marker id="bftArrowWarn" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
+                                                <path d="M0,0 L10,5 L0,10 z" fill="#F97316"></path>
+                                            </marker>
+                                        </defs>
 
-                                            <rect x="24" y="44" width="190" height="62" rx="18" fill="rgba(15,23,42,0.75)" stroke="rgba(255,255,255,0.14)" stroke-width="2" />
-                                            <text x="119" y="70" text-anchor="middle" fill="#E2E8F0" font-size="13" font-weight="700">Client → Peer</text>
-                                            <text x="119" y="90" text-anchor="middle" fill="#94A3B8" font-size="11">endorsement & submit tx</text>
+                                        <rect x="24" y="44" width="190" height="62" rx="18" fill="rgba(15,23,42,0.75)" stroke="rgba(255,255,255,0.14)" stroke-width="2" />
+                                        <text x="119" y="70" text-anchor="middle" fill="#E2E8F0" font-size="13" font-weight="700">Client → Peer</text>
+                                        <text x="119" y="90" text-anchor="middle" fill="#94A3B8" font-size="11">endorsement & submit tx</text>
 
-                                            <rect x="244" y="44" width="220" height="62" rx="18" fill="rgba(56,189,248,0.10)" stroke="rgba(56,189,248,0.35)" stroke-width="2" />
-                                            <text x="354" y="70" text-anchor="middle" fill="#E2E8F0" font-size="13" font-weight="700">Leader (BFT orderer)</text>
-                                            <text x="354" y="90" text-anchor="middle" fill="#94A3B8" font-size="11">buat batch + PROPOSE</text>
+                                        <rect x="244" y="44" width="220" height="62" rx="18" fill="rgba(56,189,248,0.10)" stroke="rgba(56,189,248,0.35)" stroke-width="2" />
+                                        <text x="354" y="70" text-anchor="middle" fill="#E2E8F0" font-size="13" font-weight="700">Leader (BFT orderer)</text>
+                                        <text x="354" y="90" text-anchor="middle" fill="#94A3B8" font-size="11">buat batch + PROPOSE</text>
 
-                                            <rect x="494" y="44" width="242" height="62" rx="18" fill="rgba(99,102,241,0.10)" stroke="rgba(99,102,241,0.35)" stroke-width="2" />
-                                            <text x="615" y="70" text-anchor="middle" fill="#E2E8F0" font-size="13" font-weight="700">Replica (N-1)</text>
-                                            <text x="615" y="90" text-anchor="middle" fill="#94A3B8" font-size="11">validasi → PREPARE</text>
+                                        <rect x="494" y="44" width="242" height="62" rx="18" fill="rgba(99,102,241,0.10)" stroke="rgba(99,102,241,0.35)" stroke-width="2" />
+                                        <text x="615" y="70" text-anchor="middle" fill="#E2E8F0" font-size="13" font-weight="700">Replica (N-1)</text>
+                                        <text x="615" y="90" text-anchor="middle" fill="#94A3B8" font-size="11">validasi → PREPARE</text>
 
-                                            <rect x="244" y="142" width="492" height="62" rx="18" fill="rgba(15,23,42,0.75)" stroke="rgba(255,255,255,0.14)" stroke-width="2" />
-                                            <text x="490" y="168" text-anchor="middle" fill="#E2E8F0" font-size="13" font-weight="700">PREPARE quorum → COMMIT quorum → decide</text>
-                                            <text x="490" y="188" text-anchor="middle" fill="#94A3B8" font-size="11">Qbft = 2f+1, f = ⌊(N-1)/3⌋ (umum: N=4 untuk f=1)</text>
+                                        <rect x="244" y="142" width="492" height="62" rx="18" fill="rgba(15,23,42,0.75)" stroke="rgba(255,255,255,0.14)" stroke-width="2" />
+                                        <text x="490" y="168" text-anchor="middle" fill="#E2E8F0" font-size="13" font-weight="700">PREPARE quorum → COMMIT quorum → decide</text>
+                                        <text x="490" y="188" text-anchor="middle" fill="#94A3B8" font-size="11">Qbft = 2f+1, N≥3f+1 (umum: N=4 untuk f=1)</text>
 
-                                            <rect x="244" y="240" width="492" height="62" rx="18" fill="rgba(249,115,22,0.10)" stroke="rgba(249,115,22,0.45)" stroke-width="2" />
-                                            <text x="490" y="266" text-anchor="middle" fill="#FFE4C4" font-size="13" font-weight="700">Blok final → didistribusikan → commit ledger</text>
-                                            <text x="490" y="286" text-anchor="middle" fill="#FED7AA" font-size="11">peer commit (block event) → ukur latency/throughput</text>
+                                        <rect x="244" y="240" width="492" height="62" rx="18" fill="rgba(249,115,22,0.10)" stroke="rgba(249,115,22,0.45)" stroke-width="2" />
+                                        <text x="490" y="266" text-anchor="middle" fill="#FFE4C4" font-size="13" font-weight="700">Blok final → didistribusikan → commit ledger</text>
+                                        <text x="490" y="286" text-anchor="middle" fill="#FED7AA" font-size="11">peer commit (block event) → ukur latency/throughput</text>
 
-                                            <!-- View change -->
-                                            <rect x="24" y="142" width="190" height="62" rx="18" fill="rgba(249,115,22,0.12)" stroke="rgba(249,115,22,0.55)" stroke-width="2" />
-                                            <text x="119" y="168" text-anchor="middle" fill="#FFE4C4" font-size="13" font-weight="700">View change</text>
-                                            <text x="119" y="188" text-anchor="middle" fill="#FED7AA" font-size="11">timeout / leader dicurigai</text>
+                                        <!-- View change -->
+                                        <rect x="24" y="142" width="190" height="62" rx="18" fill="rgba(249,115,22,0.12)" stroke="rgba(249,115,22,0.55)" stroke-width="2" />
+                                        <text x="119" y="168" text-anchor="middle" fill="#FFE4C4" font-size="13" font-weight="700">View change</text>
+                                        <text x="119" y="188" text-anchor="middle" fill="#FED7AA" font-size="11">timeout / leader dicurigai</text>
 
-                                            <path d="M214,75 L244,75" stroke="#38BDF8" stroke-width="2.2" fill="none" marker-end="url(#bftV2Arrow)" />
-                                            <path d="M464,75 L494,75" stroke="#38BDF8" stroke-width="2.2" fill="none" marker-end="url(#bftV2Arrow)" />
-                                            <path d="M354,106 L354,142" stroke="#38BDF8" stroke-width="2.2" fill="none" marker-end="url(#bftV2Arrow)" />
-                                            <path d="M490,204 L490,240" stroke="#38BDF8" stroke-width="2.2" fill="none" marker-end="url(#bftV2Arrow)" />
+                                        <path d="M214,75 L244,75" stroke="#38BDF8" stroke-width="2.2" fill="none" marker-end="url(#bftArrow)" />
+                                        <path d="M464,75 L494,75" stroke="#38BDF8" stroke-width="2.2" fill="none" marker-end="url(#bftArrow)" />
+                                        <path d="M354,106 L354,142" stroke="#38BDF8" stroke-width="2.2" fill="none" marker-end="url(#bftArrow)" />
+                                        <path d="M490,204 L490,240" stroke="#38BDF8" stroke-width="2.2" fill="none" marker-end="url(#bftArrow)" />
 
-                                            <path d="M214,173 L244,173" stroke="#F97316" stroke-width="2.2" fill="none" marker-end="url(#bftV2ArrowWarn)" />
-                                            <text x="229" y="160" text-anchor="middle" fill="#FDBA74" font-size="11">VIEW_CHANGE</text>
+                                        <path d="M214,173 L244,173" stroke="#F97316" stroke-width="2.2" fill="none" marker-end="url(#bftArrowWarn)" />
+                                        <text x="229" y="160" text-anchor="middle" fill="#FDBA74" font-size="11">VIEW_CHANGE</text>
 
-                                            <!-- Perbedaan versi (v2) -->
-                                            <rect x="24" y="300" width="712" height="56" rx="14" fill="rgba(2,6,23,0.42)" stroke="rgba(255,255,255,0.10)" />
-                                            <text x="40" y="322" fill="#BAE6FD" font-size="11" font-weight="700">Perbedaan v2</text>
-                                            <text x="136" y="322" fill="#94A3B8" font-size="11">bft-config di <tspan fill="#E2E8F0">fabric-2/*/network/bft-config/configtx.yaml</tspan></text>
-                                            <text x="40" y="342" fill="#94A3B8" font-size="11">consenters contoh: <tspan fill="#E2E8F0">orderer.fabric2.standard.com:7050</tspan>, <tspan fill="#E2E8F0">orderer2.standard.com:7052</tspan>, ...</text>
-                                        </svg>
-                                    </div>
+                                        <!-- Perbedaan v2 vs v3 -->
+                                        <rect x="24" y="312" width="712" height="72" rx="14" fill="rgba(2,6,23,0.42)" stroke="rgba(255,255,255,0.10)" />
+                                        <text x="40" y="334" fill="#BAE6FD" font-size="11" font-weight="700">Perbedaan versi (bukan algoritma)</text>
 
-                                    <div class="space-y-3 rounded-2xl border border-white/10 bg-surface/60 p-5">
-                                        <h4 class="text-base font-semibold text-textdark">Versi 3 (Fabric v3 — SmartBFT / BFT)</h4>
-                                        <svg viewBox="0 0 760 360" class="h-full w-full min-w-[760px]" role="img" aria-labelledby="bft-v3-title bft-v3-desc">
-                                            <title id="bft-v3-title">Diagram ringkas SmartBFT pada Fabric v3</title>
-                                            <desc id="bft-v3-desc">Skenario pembanding SmartBFT dipakai pada Fabric v3 varian dengan cluster BFT 4 orderer dan quorum 2f+1.</desc>
-                                            <defs>
-                                                <marker id="bftV3Arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
-                                                    <path d="M0,0 L10,5 L0,10 z" fill="#38BDF8"></path>
-                                                </marker>
-                                                <marker id="bftV3ArrowWarn" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
-                                                    <path d="M0,0 L10,5 L0,10 z" fill="#F97316"></path>
-                                                </marker>
-                                            </defs>
+                                        <rect x="40" y="344" width="332" height="32" rx="10" fill="rgba(56,189,248,0.08)" stroke="rgba(56,189,248,0.25)" />
+                                        <text x="56" y="365" fill="#E2E8F0" font-size="11" font-weight="700">Fabric v2</text>
+                                        <text x="132" y="365" fill="#94A3B8" font-size="11">
+                                            bft-config: <tspan fill="#E2E8F0">fabric-2/*/network/bft-config/configtx.yaml</tspan>
+                                        </text>
+                                        <text x="56" y="384" fill="#94A3B8" font-size="11">
+                                            consenters: <tspan fill="#E2E8F0">...:7050</tspan>, <tspan fill="#E2E8F0">...:7052</tspan>, ...
+                                        </text>
 
-                                            <rect x="24" y="44" width="190" height="62" rx="18" fill="rgba(15,23,42,0.75)" stroke="rgba(255,255,255,0.14)" stroke-width="2" />
-                                            <text x="119" y="70" text-anchor="middle" fill="#E2E8F0" font-size="13" font-weight="700">Client → Peer</text>
-                                            <text x="119" y="90" text-anchor="middle" fill="#94A3B8" font-size="11">endorsement & submit tx</text>
-
-                                            <rect x="244" y="44" width="220" height="62" rx="18" fill="rgba(56,189,248,0.10)" stroke="rgba(56,189,248,0.35)" stroke-width="2" />
-                                            <text x="354" y="70" text-anchor="middle" fill="#E2E8F0" font-size="13" font-weight="700">Leader (BFT orderer)</text>
-                                            <text x="354" y="90" text-anchor="middle" fill="#94A3B8" font-size="11">buat batch + PROPOSE</text>
-
-                                            <rect x="494" y="44" width="242" height="62" rx="18" fill="rgba(99,102,241,0.10)" stroke="rgba(99,102,241,0.35)" stroke-width="2" />
-                                            <text x="615" y="70" text-anchor="middle" fill="#E2E8F0" font-size="13" font-weight="700">Replica (N-1)</text>
-                                            <text x="615" y="90" text-anchor="middle" fill="#94A3B8" font-size="11">validasi → PREPARE</text>
-
-                                            <rect x="244" y="142" width="492" height="62" rx="18" fill="rgba(15,23,42,0.75)" stroke="rgba(255,255,255,0.14)" stroke-width="2" />
-                                            <text x="490" y="168" text-anchor="middle" fill="#E2E8F0" font-size="13" font-weight="700">PREPARE quorum → COMMIT quorum → decide</text>
-                                            <text x="490" y="188" text-anchor="middle" fill="#94A3B8" font-size="11">Qbft = 2f+1, N≥3f+1 (umum: N=4 untuk f=1)</text>
-
-                                            <rect x="244" y="240" width="492" height="62" rx="18" fill="rgba(249,115,22,0.10)" stroke="rgba(249,115,22,0.45)" stroke-width="2" />
-                                            <text x="490" y="266" text-anchor="middle" fill="#FFE4C4" font-size="13" font-weight="700">Blok final → didistribusikan → commit ledger</text>
-                                            <text x="490" y="286" text-anchor="middle" fill="#FED7AA" font-size="11">peer commit (block event) → ukur latency/throughput</text>
-
-                                            <!-- View change -->
-                                            <rect x="24" y="142" width="190" height="62" rx="18" fill="rgba(249,115,22,0.12)" stroke="rgba(249,115,22,0.55)" stroke-width="2" />
-                                            <text x="119" y="168" text-anchor="middle" fill="#FFE4C4" font-size="13" font-weight="700">View change</text>
-                                            <text x="119" y="188" text-anchor="middle" fill="#FED7AA" font-size="11">timeout / leader dicurigai</text>
-
-                                            <path d="M214,75 L244,75" stroke="#38BDF8" stroke-width="2.2" fill="none" marker-end="url(#bftV3Arrow)" />
-                                            <path d="M464,75 L494,75" stroke="#38BDF8" stroke-width="2.2" fill="none" marker-end="url(#bftV3Arrow)" />
-                                            <path d="M354,106 L354,142" stroke="#38BDF8" stroke-width="2.2" fill="none" marker-end="url(#bftV3Arrow)" />
-                                            <path d="M490,204 L490,240" stroke="#38BDF8" stroke-width="2.2" fill="none" marker-end="url(#bftV3Arrow)" />
-
-                                            <path d="M214,173 L244,173" stroke="#F97316" stroke-width="2.2" fill="none" marker-end="url(#bftV3ArrowWarn)" />
-                                            <text x="229" y="160" text-anchor="middle" fill="#FDBA74" font-size="11">VIEW_CHANGE</text>
-
-                                            <!-- Perbedaan versi (v3) -->
-                                            <rect x="24" y="300" width="712" height="56" rx="14" fill="rgba(2,6,23,0.42)" stroke="rgba(255,255,255,0.10)" />
-                                            <text x="40" y="322" fill="#BAE6FD" font-size="11" font-weight="700">Perbedaan v3</text>
-                                            <text x="136" y="322" fill="#94A3B8" font-size="11">bft-config di <tspan fill="#E2E8F0">fabric-3/raft-variant/network/bft-config/configtx.yaml</tspan></text>
-                                            <text x="40" y="342" fill="#94A3B8" font-size="11">consenters contoh: <tspan fill="#E2E8F0">orderer.fabric3.variant:8055</tspan>, <tspan fill="#E2E8F0">orderer2.fabric3.variant:8052</tspan>, ...</text>
-                                        </svg>
-                                    </div>
+                                        <rect x="384" y="344" width="332" height="32" rx="10" fill="rgba(99,102,241,0.08)" stroke="rgba(99,102,241,0.25)" />
+                                        <text x="400" y="365" fill="#E2E8F0" font-size="11" font-weight="700">Fabric v3</text>
+                                        <text x="476" y="365" fill="#94A3B8" font-size="11">
+                                            bft-config: <tspan fill="#E2E8F0">fabric-3/raft-variant/network/bft-config/configtx.yaml</tspan>
+                                        </text>
+                                        <text x="400" y="384" fill="#94A3B8" font-size="11">
+                                            consenters: <tspan fill="#E2E8F0">...:8055</tspan>, <tspan fill="#E2E8F0">...:8052</tspan>, ...
+                                        </text>
+                                    </svg>
                                 </div>
                             </div>
 

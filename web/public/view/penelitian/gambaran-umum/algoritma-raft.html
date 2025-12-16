@@ -268,8 +268,8 @@ onReceive(AppendEntriesSuccess from follower f):
                             <div class="space-y-3">
                                 <h2 class="text-2xl font-semibold text-textdark md:text-3xl">3) Flowchart / Diagram Alur RAFT + Penjelasan</h2>
                                 <p class="text-sm text-textdark/75 md:text-base">
-                                    Diagram berikut dibuat ringkas dan disajikan dalam <span class="font-semibold text-textdark">dua versi</span>: <span class="font-semibold text-textdark">Fabric v2</span> dan <span class="font-semibold text-textdark">Fabric v3</span>.
-                                    Alur RAFT-nya sama (election → replikasi → commit), tetapi contoh <span class="font-semibold text-textdark">endpoint/port</span> dan lokasi <span class="font-semibold text-textdark">configtx</span> berbeda.
+                                    Diagram berikut diringkas menjadi <span class="font-semibold text-textdark">satu diagram</span> yang merangkum <span class="font-semibold text-textdark">Fabric v2 vs Fabric v3</span>.
+                                    Alur RAFT-nya sama (election → replikasi → commit), sedangkan perbedaannya ditunjukkan pada bagian <span class="font-semibold text-textdark">lokasi configtx</span> dan contoh <span class="font-semibold text-textdark">endpoint/port</span>.
                                 </p>
                             </div>
 
@@ -309,130 +309,82 @@ onReceive(AppendEntriesSuccess from follower f):
                             </div>
 
                             <div class="overflow-x-auto rounded-3xl border border-white/10 bg-surfaceMuted/60 p-6">
-                                <div class="grid grid-cols-1 gap-6">
-                                    <div class="space-y-3 rounded-2xl border border-white/10 bg-surface/60 p-5">
-                                        <h4 class="text-base font-semibold text-textdark">Versi 2 (Fabric v2 — RAFT / etcdraft)</h4>
-                                        <svg viewBox="0 0 760 360" class="h-full w-full min-w-[760px]" role="img" aria-labelledby="raft-v2-title raft-v2-desc">
-                                            <title id="raft-v2-title">Diagram ringkas RAFT pada Fabric v2</title>
-                                            <desc id="raft-v2-desc">Alur singkat: follower timeout → election → leader; lalu transaksi dibatch, direplikasi, dan commit jika quorum mayoritas terpenuhi.</desc>
-                                            <defs>
-                                                <marker id="raftV2Arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
-                                                    <path d="M0,0 L10,5 L0,10 z" fill="#38BDF8"></path>
-                                                </marker>
-                                                <marker id="raftV2ArrowWarn" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
-                                                    <path d="M0,0 L10,5 L0,10 z" fill="#F97316"></path>
-                                                </marker>
-                                            </defs>
+                                <div class="space-y-3 rounded-2xl border border-white/10 bg-surface/60 p-5">
+                                    <h4 class="text-base font-semibold text-textdark">RAFT (Fabric v2 vs v3 — etcdraft)</h4>
+                                    <svg viewBox="0 0 760 400" class="h-full w-full min-w-[760px]" role="img" aria-labelledby="raft-v2v3-title raft-v2v3-desc">
+                                        <title id="raft-v2v3-title">Diagram ringkas RAFT (Fabric v2 vs v3)</title>
+                                        <desc id="raft-v2v3-desc">Alur RAFT sama: follower timeout → election → leader; transaksi dibatch, direplikasi, dan commit jika quorum mayoritas. Perbedaannya ada pada lokasi config dan contoh endpoint/port.</desc>
+                                        <defs>
+                                            <marker id="raftArrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
+                                                <path d="M0,0 L10,5 L0,10 z" fill="#38BDF8"></path>
+                                            </marker>
+                                            <marker id="raftArrowWarn" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
+                                                <path d="M0,0 L10,5 L0,10 z" fill="#F97316"></path>
+                                            </marker>
+                                        </defs>
 
-                                            <!-- Election lane -->
-                                            <rect x="24" y="28" width="150" height="56" rx="16" fill="rgba(15,23,42,0.75)" stroke="rgba(56,189,248,0.35)" stroke-width="2" />
-                                            <text x="99" y="52" text-anchor="middle" fill="#E2E8F0" font-size="13" font-weight="700">Follower</text>
-                                            <text x="99" y="72" text-anchor="middle" fill="#94A3B8" font-size="11">menunggu heartbeat</text>
+                                        <!-- Election lane -->
+                                        <rect x="24" y="28" width="150" height="56" rx="16" fill="rgba(15,23,42,0.75)" stroke="rgba(56,189,248,0.35)" stroke-width="2" />
+                                        <text x="99" y="52" text-anchor="middle" fill="#E2E8F0" font-size="13" font-weight="700">Follower</text>
+                                        <text x="99" y="72" text-anchor="middle" fill="#94A3B8" font-size="11">menunggu heartbeat</text>
 
-                                            <rect x="204" y="28" width="150" height="56" rx="16" fill="rgba(249,115,22,0.12)" stroke="rgba(249,115,22,0.55)" stroke-width="2" />
-                                            <text x="279" y="52" text-anchor="middle" fill="#FFE4C4" font-size="13" font-weight="700">Candidate</text>
-                                            <text x="279" y="72" text-anchor="middle" fill="#FED7AA" font-size="11">RequestVote</text>
+                                        <rect x="204" y="28" width="150" height="56" rx="16" fill="rgba(249,115,22,0.12)" stroke="rgba(249,115,22,0.55)" stroke-width="2" />
+                                        <text x="279" y="52" text-anchor="middle" fill="#FFE4C4" font-size="13" font-weight="700">Candidate</text>
+                                        <text x="279" y="72" text-anchor="middle" fill="#FED7AA" font-size="11">RequestVote</text>
 
-                                            <rect x="384" y="28" width="150" height="56" rx="16" fill="rgba(99,102,241,0.12)" stroke="rgba(99,102,241,0.55)" stroke-width="2" />
-                                            <text x="459" y="52" text-anchor="middle" fill="#E0E7FF" font-size="13" font-weight="700">Leader</text>
-                                            <text x="459" y="72" text-anchor="middle" fill="#C7D2FE" font-size="11">heartbeat + AppendEntries</text>
+                                        <rect x="384" y="28" width="150" height="56" rx="16" fill="rgba(99,102,241,0.12)" stroke="rgba(99,102,241,0.55)" stroke-width="2" />
+                                        <text x="459" y="52" text-anchor="middle" fill="#E0E7FF" font-size="13" font-weight="700">Leader</text>
+                                        <text x="459" y="72" text-anchor="middle" fill="#C7D2FE" font-size="11">heartbeat + AppendEntries</text>
 
-                                            <path d="M174,56 L204,56" stroke="#F97316" stroke-width="2.2" fill="none" marker-end="url(#raftV2ArrowWarn)" />
-                                            <text x="189" y="44" text-anchor="middle" fill="#FDBA74" font-size="11">timeout</text>
+                                        <path d="M174,56 L204,56" stroke="#F97316" stroke-width="2.2" fill="none" marker-end="url(#raftArrowWarn)" />
+                                        <text x="189" y="44" text-anchor="middle" fill="#FDBA74" font-size="11">timeout</text>
 
-                                            <path d="M354,56 L384,56" stroke="#38BDF8" stroke-width="2.2" fill="none" marker-end="url(#raftV2Arrow)" />
-                                            <text x="369" y="44" text-anchor="middle" fill="#BAE6FD" font-size="11">Q votes</text>
+                                        <path d="M354,56 L384,56" stroke="#38BDF8" stroke-width="2.2" fill="none" marker-end="url(#raftArrow)" />
+                                        <text x="369" y="44" text-anchor="middle" fill="#BAE6FD" font-size="11">Q votes</text>
 
-                                            <!-- Tx lane -->
-                                            <rect x="24" y="140" width="200" height="62" rx="18" fill="rgba(15,23,42,0.75)" stroke="rgba(255,255,255,0.14)" stroke-width="2" />
-                                            <text x="124" y="166" text-anchor="middle" fill="#E2E8F0" font-size="13" font-weight="700">Client → Peer</text>
-                                            <text x="124" y="186" text-anchor="middle" fill="#94A3B8" font-size="11">endorsement & submit tx</text>
+                                        <!-- Tx lane -->
+                                        <rect x="24" y="140" width="200" height="62" rx="18" fill="rgba(15,23,42,0.75)" stroke="rgba(255,255,255,0.14)" stroke-width="2" />
+                                        <text x="124" y="166" text-anchor="middle" fill="#E2E8F0" font-size="13" font-weight="700">Client → Peer</text>
+                                        <text x="124" y="186" text-anchor="middle" fill="#94A3B8" font-size="11">endorsement & submit tx</text>
 
-                                            <rect x="264" y="140" width="210" height="62" rx="18" fill="rgba(56,189,248,0.10)" stroke="rgba(56,189,248,0.35)" stroke-width="2" />
-                                            <text x="369" y="166" text-anchor="middle" fill="#E2E8F0" font-size="13" font-weight="700">Orderer (Leader)</text>
-                                            <text x="369" y="186" text-anchor="middle" fill="#94A3B8" font-size="11">batch/blok (configtx)</text>
+                                        <rect x="264" y="140" width="210" height="62" rx="18" fill="rgba(56,189,248,0.10)" stroke="rgba(56,189,248,0.35)" stroke-width="2" />
+                                        <text x="369" y="166" text-anchor="middle" fill="#E2E8F0" font-size="13" font-weight="700">Orderer (Leader)</text>
+                                        <text x="369" y="186" text-anchor="middle" fill="#94A3B8" font-size="11">batch/blok (configtx)</text>
 
-                                            <rect x="514" y="140" width="222" height="62" rx="18" fill="rgba(99,102,241,0.10)" stroke="rgba(99,102,241,0.35)" stroke-width="2" />
-                                            <text x="625" y="166" text-anchor="middle" fill="#E2E8F0" font-size="13" font-weight="700">Follower (N-1)</text>
-                                            <text x="625" y="186" text-anchor="middle" fill="#94A3B8" font-size="11">ack AppendEntries</text>
+                                        <rect x="514" y="140" width="222" height="62" rx="18" fill="rgba(99,102,241,0.10)" stroke="rgba(99,102,241,0.35)" stroke-width="2" />
+                                        <text x="625" y="166" text-anchor="middle" fill="#E2E8F0" font-size="13" font-weight="700">Follower (N-1)</text>
+                                        <text x="625" y="186" text-anchor="middle" fill="#94A3B8" font-size="11">ack AppendEntries</text>
 
-                                            <rect x="264" y="232" width="472" height="62" rx="18" fill="rgba(15,23,42,0.75)" stroke="rgba(255,255,255,0.14)" stroke-width="2" />
-                                            <text x="500" y="258" text-anchor="middle" fill="#E2E8F0" font-size="13" font-weight="700">Commit jika mayoritas ack</text>
-                                            <text x="500" y="278" text-anchor="middle" fill="#94A3B8" font-size="11">Q = ⌊N/2⌋ + 1 → commitIndex naik → blok didistribusikan</text>
+                                        <rect x="264" y="232" width="472" height="62" rx="18" fill="rgba(15,23,42,0.75)" stroke="rgba(255,255,255,0.14)" stroke-width="2" />
+                                        <text x="500" y="258" text-anchor="middle" fill="#E2E8F0" font-size="13" font-weight="700">Commit jika mayoritas ack</text>
+                                        <text x="500" y="278" text-anchor="middle" fill="#94A3B8" font-size="11">Q = ⌊N/2⌋ + 1 → commitIndex naik → blok didistribusikan</text>
 
-                                            <path d="M224,171 L264,171" stroke="#38BDF8" stroke-width="2.2" fill="none" marker-end="url(#raftV2Arrow)" />
-                                            <path d="M474,171 L514,171" stroke="#38BDF8" stroke-width="2.2" fill="none" marker-end="url(#raftV2Arrow)" />
-                                            <path d="M369,202 L369,232" stroke="#38BDF8" stroke-width="2.2" fill="none" marker-end="url(#raftV2Arrow)" />
+                                        <path d="M224,171 L264,171" stroke="#38BDF8" stroke-width="2.2" fill="none" marker-end="url(#raftArrow)" />
+                                        <path d="M474,171 L514,171" stroke="#38BDF8" stroke-width="2.2" fill="none" marker-end="url(#raftArrow)" />
+                                        <path d="M369,202 L369,232" stroke="#38BDF8" stroke-width="2.2" fill="none" marker-end="url(#raftArrow)" />
 
-                                            <!-- Perbedaan versi (v2) -->
-                                            <rect x="24" y="300" width="712" height="56" rx="14" fill="rgba(2,6,23,0.42)" stroke="rgba(255,255,255,0.10)" />
-                                            <text x="40" y="322" fill="#BAE6FD" font-size="11" font-weight="700">Perbedaan v2</text>
-                                            <text x="136" y="322" fill="#94A3B8" font-size="11">configtx di <tspan fill="#E2E8F0">fabric-2/*/network/configtx/configtx.yaml</tspan></text>
-                                            <text x="40" y="342" fill="#94A3B8" font-size="11">endpoint contoh: <tspan fill="#E2E8F0">orderer.fabric2.standard.com:7050</tspan> (umum: seri port 705x)</text>
-                                        </svg>
-                                    </div>
+                                        <!-- Perbedaan v2 vs v3 -->
+                                        <rect x="24" y="312" width="712" height="72" rx="14" fill="rgba(2,6,23,0.42)" stroke="rgba(255,255,255,0.10)" />
+                                        <text x="40" y="334" fill="#BAE6FD" font-size="11" font-weight="700">Perbedaan versi (bukan algoritma)</text>
 
-                                    <div class="space-y-3 rounded-2xl border border-white/10 bg-surface/60 p-5">
-                                        <h4 class="text-base font-semibold text-textdark">Versi 3 (Fabric v3 — RAFT / etcdraft)</h4>
-                                        <svg viewBox="0 0 760 360" class="h-full w-full min-w-[760px]" role="img" aria-labelledby="raft-v3-title raft-v3-desc">
-                                            <title id="raft-v3-title">Diagram ringkas RAFT pada Fabric v3</title>
-                                            <desc id="raft-v3-desc">Alur RAFT sama, tetapi konfigurasi endpoint/port dan struktur identitas mengikuti lingkungan Fabric v3.</desc>
-                                            <defs>
-                                                <marker id="raftV3Arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
-                                                    <path d="M0,0 L10,5 L0,10 z" fill="#38BDF8"></path>
-                                                </marker>
-                                                <marker id="raftV3ArrowWarn" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
-                                                    <path d="M0,0 L10,5 L0,10 z" fill="#F97316"></path>
-                                                </marker>
-                                            </defs>
+                                        <rect x="40" y="344" width="332" height="32" rx="10" fill="rgba(56,189,248,0.08)" stroke="rgba(56,189,248,0.25)" />
+                                        <text x="56" y="365" fill="#E2E8F0" font-size="11" font-weight="700">Fabric v2</text>
+                                        <text x="132" y="365" fill="#94A3B8" font-size="11">
+                                            configtx: <tspan fill="#E2E8F0">fabric-2/*/network/configtx/configtx.yaml</tspan>
+                                        </text>
+                                        <text x="56" y="384" fill="#94A3B8" font-size="11">
+                                            endpoint: <tspan fill="#E2E8F0">orderer.fabric2.standard.com:7050</tspan> (seri 705x)
+                                        </text>
 
-                                            <!-- Election lane -->
-                                            <rect x="24" y="28" width="150" height="56" rx="16" fill="rgba(15,23,42,0.75)" stroke="rgba(56,189,248,0.35)" stroke-width="2" />
-                                            <text x="99" y="52" text-anchor="middle" fill="#E2E8F0" font-size="13" font-weight="700">Follower</text>
-                                            <text x="99" y="72" text-anchor="middle" fill="#94A3B8" font-size="11">menunggu heartbeat</text>
-
-                                            <rect x="204" y="28" width="150" height="56" rx="16" fill="rgba(249,115,22,0.12)" stroke="rgba(249,115,22,0.55)" stroke-width="2" />
-                                            <text x="279" y="52" text-anchor="middle" fill="#FFE4C4" font-size="13" font-weight="700">Candidate</text>
-                                            <text x="279" y="72" text-anchor="middle" fill="#FED7AA" font-size="11">RequestVote</text>
-
-                                            <rect x="384" y="28" width="150" height="56" rx="16" fill="rgba(99,102,241,0.12)" stroke="rgba(99,102,241,0.55)" stroke-width="2" />
-                                            <text x="459" y="52" text-anchor="middle" fill="#E0E7FF" font-size="13" font-weight="700">Leader</text>
-                                            <text x="459" y="72" text-anchor="middle" fill="#C7D2FE" font-size="11">heartbeat + AppendEntries</text>
-
-                                            <path d="M174,56 L204,56" stroke="#F97316" stroke-width="2.2" fill="none" marker-end="url(#raftV3ArrowWarn)" />
-                                            <text x="189" y="44" text-anchor="middle" fill="#FDBA74" font-size="11">timeout</text>
-
-                                            <path d="M354,56 L384,56" stroke="#38BDF8" stroke-width="2.2" fill="none" marker-end="url(#raftV3Arrow)" />
-                                            <text x="369" y="44" text-anchor="middle" fill="#BAE6FD" font-size="11">Q votes</text>
-
-                                            <!-- Tx lane -->
-                                            <rect x="24" y="140" width="200" height="62" rx="18" fill="rgba(15,23,42,0.75)" stroke="rgba(255,255,255,0.14)" stroke-width="2" />
-                                            <text x="124" y="166" text-anchor="middle" fill="#E2E8F0" font-size="13" font-weight="700">Client → Peer</text>
-                                            <text x="124" y="186" text-anchor="middle" fill="#94A3B8" font-size="11">endorsement & submit tx</text>
-
-                                            <rect x="264" y="140" width="210" height="62" rx="18" fill="rgba(56,189,248,0.10)" stroke="rgba(56,189,248,0.35)" stroke-width="2" />
-                                            <text x="369" y="166" text-anchor="middle" fill="#E2E8F0" font-size="13" font-weight="700">Orderer (Leader)</text>
-                                            <text x="369" y="186" text-anchor="middle" fill="#94A3B8" font-size="11">batch/blok (configtx)</text>
-
-                                            <rect x="514" y="140" width="222" height="62" rx="18" fill="rgba(99,102,241,0.10)" stroke="rgba(99,102,241,0.35)" stroke-width="2" />
-                                            <text x="625" y="166" text-anchor="middle" fill="#E2E8F0" font-size="13" font-weight="700">Follower (N-1)</text>
-                                            <text x="625" y="186" text-anchor="middle" fill="#94A3B8" font-size="11">ack AppendEntries</text>
-
-                                            <rect x="264" y="232" width="472" height="62" rx="18" fill="rgba(15,23,42,0.75)" stroke="rgba(255,255,255,0.14)" stroke-width="2" />
-                                            <text x="500" y="258" text-anchor="middle" fill="#E2E8F0" font-size="13" font-weight="700">Commit jika mayoritas ack</text>
-                                            <text x="500" y="278" text-anchor="middle" fill="#94A3B8" font-size="11">Q = ⌊N/2⌋ + 1 → commitIndex naik → blok didistribusikan</text>
-
-                                            <path d="M224,171 L264,171" stroke="#38BDF8" stroke-width="2.2" fill="none" marker-end="url(#raftV3Arrow)" />
-                                            <path d="M474,171 L514,171" stroke="#38BDF8" stroke-width="2.2" fill="none" marker-end="url(#raftV3Arrow)" />
-                                            <path d="M369,202 L369,232" stroke="#38BDF8" stroke-width="2.2" fill="none" marker-end="url(#raftV3Arrow)" />
-
-                                            <!-- Perbedaan versi (v3) -->
-                                            <rect x="24" y="300" width="712" height="56" rx="14" fill="rgba(2,6,23,0.42)" stroke="rgba(255,255,255,0.10)" />
-                                            <text x="40" y="322" fill="#BAE6FD" font-size="11" font-weight="700">Perbedaan v3</text>
-                                            <text x="136" y="322" fill="#94A3B8" font-size="11">configtx di <tspan fill="#E2E8F0">fabric-3/*/network/configtx/configtx.yaml</tspan></text>
-                                            <text x="40" y="342" fill="#94A3B8" font-size="11">endpoint contoh: <tspan fill="#E2E8F0">orderer.fabric3.standard:8055</tspan> (umum: seri port 805x)</text>
-                                        </svg>
-                                    </div>
+                                        <rect x="384" y="344" width="332" height="32" rx="10" fill="rgba(99,102,241,0.08)" stroke="rgba(99,102,241,0.25)" />
+                                        <text x="400" y="365" fill="#E2E8F0" font-size="11" font-weight="700">Fabric v3</text>
+                                        <text x="476" y="365" fill="#94A3B8" font-size="11">
+                                            configtx: <tspan fill="#E2E8F0">fabric-3/*/network/configtx/configtx.yaml</tspan>
+                                        </text>
+                                        <text x="400" y="384" fill="#94A3B8" font-size="11">
+                                            endpoint: <tspan fill="#E2E8F0">orderer.fabric3.standard:8055</tspan> (seri 805x)
+                                        </text>
+                                    </svg>
                                 </div>
                             </div>
 

@@ -1187,7 +1187,6 @@ const viewFiles = {
         evaluasiHasil: path.resolve(viewsRoot, 'penelitian/evaluasi-hasil/index.html'),
         evaluasiHasilSubsections: {
             ringkasanHasil: path.resolve(viewsRoot, 'penelitian/evaluasi-hasil/ringkasan-hasil.html'),
-            implikasiPenelitian: path.resolve(viewsRoot, 'penelitian/evaluasi-hasil/implikasi-penelitian.html'),
         },
     },
 };
@@ -1288,10 +1287,6 @@ app.get('/penelitian/evaluasi-hasil', (req, res) => {
 
 app.get('/penelitian/evaluasi-hasil/ringkasan-hasil', (req, res) => {
     res.sendFile(viewFiles.research.evaluasiHasilSubsections.ringkasanHasil);
-});
-
-app.get('/penelitian/evaluasi-hasil/implikasi-penelitian', (req, res) => {
-    res.sendFile(viewFiles.research.evaluasiHasilSubsections.implikasiPenelitian);
 });
 
 app.get('/dashboard', (req, res) => {

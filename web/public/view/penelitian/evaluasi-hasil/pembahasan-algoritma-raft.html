@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluasi RAFT HLF — Pembahasan Algoritma Konsensus RAFT</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#38BDF8',
+                        secondary: '#6366F1',
+                        accent: '#F59E0B',
+                        highlight: '#F97316',
+                        soft: '#050B16',
+                        surface: '#0F172A',
+                        surfaceMuted: '#16213F',
+                        border: '#1E293B',
+                        muted: '#94A3B8',
+                        textdark: '#E2E8F0'
+                    }
+                }
+            }
+        };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="/images/logo-ai-center.svg">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+
+        .component-link[data-active="true"] {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.28), rgba(56, 189, 248, 0.22));
+            color: #E2E8F0;
+            border-color: rgba(249, 115, 22, 0.45);
+            box-shadow: 0 12px 40px rgba(15, 23, 42, 0.45);
+        }
+
+        .component-link[data-active="true"] .component-link__index {
+            background-color: rgba(249, 115, 22, 0.35);
+            color: #E2E8F0;
+        }
+    </style>
+</head>
+<body class="bg-soft text-textdark">
+    <div data-component="header"></div>
+    <div class="relative min-h-screen overflow-hidden">
+        <div class="absolute inset-0 -z-10 h-full w-full">
+            <div class="absolute -left-1/3 top-0 h-[720px] w-[720px] rounded-full bg-gradient-to-br from-highlight/30 via-secondary/20 to-transparent opacity-70 blur-3xl"></div>
+            <div class="absolute -right-1/4 bottom-0 h-[620px] w-[620px] rounded-full bg-gradient-to-tr from-accent/35 via-secondary/25 to-primary/20 opacity-70 blur-3xl"></div>
+        </div>
+
+        <div class="flex min-h-screen flex-col lg:flex-row">
+            <div data-component="sidebar"></div>
+
+            <div class="flex-1">
+                <main class="mx-auto w-full max-w-6xl px-6 py-12">
+                    <div class="space-y-10">
+                        <section class="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-surface via-soft to-[#020817] p-10 shadow-2xl shadow-black/30">
+                            <div class="flex flex-col gap-6">
+                                <div class="inline-flex w-fit items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-primary/90">
+                                    Bab 4.6.2
+                                </div>
+                                <div class="space-y-5">
+                                    <h1 class="text-3xl font-semibold text-textdark md:text-4xl">Pembahasan Algoritma Konsensus RAFT</h1>
+                                    <p class="text-sm text-textdark/70 md:text-base leading-relaxed">
+                                        Subbab ini membahas prinsip kerja algoritma konsensus <strong>RAFT</strong> pada layanan ordering Hyperledger Fabric (HLF) dan menyajikan pseudocode yang
+                                        merepresentasikan alur RAFT pada <strong>Fabric v2</strong> dan <strong>Fabric v3</strong>.
+                                        Selain itu, dibahas perbedaan implementasi <strong>RAFT standar</strong> dan <strong>RAFT varian</strong> pada eksperimen ini (terutama pada parameter pembentukan blok),
+                                        serta posisi <strong>SmartBFT</strong> sebagai opsi konsensus BFT yang tersedia pada Fabric v3.
+                                    </p>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="space-y-8 rounded-3xl border border-white/10 bg-surfaceMuted/70 p-8 shadow-2xl shadow-black/30">
+                            <div class="flex flex-col gap-3">
+                                <div class="inline-flex w-fit items-center gap-2 rounded-full border border-secondary/40 bg-secondary/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.32em] text-secondary/80">
+                                    Bab 4.6.2.1
+                                </div>
+                                <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Garis Besar Algoritma RAFT pada HLF</h2>
+                                <p class="text-sm text-textdark/70 md:text-base">
+                                    RAFT adalah algoritma <em>crash fault tolerant</em> (CFT) berbasis pemimpin (leader-based) yang menjaga konsistensi replika melalui
+                                    <strong>leader election</strong> dan <strong>log replication</strong>. Pada HLF, “log entry” RAFT dapat dipetakan sebagai blok (atau batch transaksi yang akan menjadi blok),
+                                    yang direplikasi antar orderer (consenter) dan dinyatakan <em>committed</em> ketika memperoleh persetujuan mayoritas (quorum).
+                                </p>
+                                <div class="grid gap-5 md:grid-cols-3">
+                                    <article class="rounded-2xl border border-white/10 bg-surface/60 p-6 text-sm text-textdark/70 shadow-inner shadow-black/20">
+                                        <h3 class="text-base font-semibold text-textdark">Peran Node</h3>
+                                        <ul class="mt-2 space-y-2">
+                                            <li><strong class="text-textdark">Follower</strong>: menerima heartbeat dan replikasi log dari leader.</li>
+                                            <li><strong class="text-textdark">Candidate</strong>: memulai pemilihan saat timeout, meminta suara (<em>RequestVote</em>).</li>
+                                            <li><strong class="text-textdark">Leader</strong>: mengoordinasikan pemesanan transaksi, mengirim heartbeat, mereplikasi log.</li>
+                                        </ul>
+                                    </article>
+                                    <article class="rounded-2xl border border-white/10 bg-surface/60 p-6 text-sm text-textdark/70 shadow-inner shadow-black/20">
+                                        <h3 class="text-base font-semibold text-textdark">Konsep Kunci</h3>
+                                        <ul class="mt-2 space-y-2">
+                                            <li><strong class="text-textdark">term</strong>: penanda era kepemimpinan; meningkat pada proses election.</li>
+                                            <li><strong class="text-textdark">log index</strong>: urutan entry; dipakai untuk konsistensi dan commit index.</li>
+                                            <li><strong class="text-textdark">quorum</strong>: mayoritas node; syarat commit pada CFT.</li>
+                                        </ul>
+                                    </article>
+                                    <article class="rounded-2xl border border-white/10 bg-surface/60 p-6 text-sm text-textdark/70 shadow-inner shadow-black/20">
+                                        <h3 class="text-base font-semibold text-textdark">Alur Tingkat Tinggi</h3>
+                                        <ol class="mt-2 list-decimal space-y-2 pl-5">
+                                            <li>Leader menerima transaksi, membentuk batch/blok.</li>
+                                            <li>Leader mengirim AppendEntries (blok) ke followers.</li>
+                                            <li>Mayoritas ack → commit; blok disajikan ke peer (deliver).</li>
+                                        </ol>
+                                    </article>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="space-y-8 rounded-3xl border border-white/10 bg-surface/60 p-8 shadow-2xl shadow-black/30">
+                            <div class="flex flex-col gap-3">
+                                <div class="inline-flex w-fit items-center gap-2 rounded-full border border-accent/40 bg-accent/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.32em] text-accent/80">
+                                    Bab 4.6.2.2
+                                </div>
+                                <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Pseudocode RAFT — Fabric v2</h2>
+                                <p class="text-sm text-textdark/70 md:text-base">
+                                    Pseudocode berikut merangkum perilaku RAFT pada orderer Fabric v2 untuk dua komponen inti: (1) pemilihan leader dan (2) replikasi log blok.
+                                    Pada konteks HLF, “entry” merepresentasikan blok yang dibentuk dari transaksi menggunakan parameter batch (BatchTimeout, MaxMessageCount, dan ukuran byte).
+                                </p>
+                            </div>
+
+                            <div class="rounded-2xl border border-white/10 bg-surfaceMuted/80 p-6 shadow-inner shadow-black/20">
+                                <h3 class="text-base font-semibold text-textdark">Algoritma 4.1 — RAFT (Fabric v2)</h3>
+                                <p class="mt-2 text-xs text-textdark/60 md:text-sm">
+                                    Ringkasan pseudocode RAFT dengan fokus pada orderer leader, follower, dan proses commit quorum.
+                                </p>
+                                <pre class="mt-4 overflow-x-auto rounded-xl border border-white/5 bg-surface/50 p-4 text-[11px] text-textdark/90 md:text-sm"><code>STATE: role ∈ {Follower, Candidate, Leader}
+PERSISTENT: currentTerm, votedFor, log[]
+VOLATILE: commitIndex, lastApplied
+LEADER ONLY: nextIndex[peer], matchIndex[peer]
+
+onStart():
+  role ← Follower
+  resetElectionTimer(randomizedTimeout)
+
+onElectionTimeout() when role != Leader:
+  role ← Candidate
+  currentTerm ← currentTerm + 1
+  votedFor ← self
+  votes ← 1
+  resetElectionTimer(randomizedTimeout)
+  broadcast RequestVote(term=currentTerm, lastLogIndex, lastLogTerm)
+
+onReceive(RequestVote(term, candId, lastLogIndex, lastLogTerm)):
+  if term &gt; currentTerm: currentTerm ← term; role ← Follower; votedFor ← null
+  if term &lt; currentTerm: reply VoteGranted=false
+  else if (votedFor is null or votedFor == candId) and logIsUpToDate(lastLogIndex,lastLogTerm):
+    votedFor ← candId
+    resetElectionTimer(randomizedTimeout)
+    reply VoteGranted=true
+  else reply VoteGranted=false
+
+onReceive(VoteResponse(term, granted)) when role == Candidate:
+  if term &gt; currentTerm: currentTerm ← term; role ← Follower; votedFor ← null; return
+  if granted: votes ← votes + 1
+  if votes &gt;= majority:
+    role ← Leader
+    initialize nextIndex[*] ← lastLogIndex+1; matchIndex[*] ← 0
+    sendHeartbeat()
+
+sendHeartbeat() when role == Leader:
+  periodically every HeartbeatTick:
+    broadcast AppendEntries(term=currentTerm, leaderId, prevLogIndex, prevLogTerm, entries=[], leaderCommit=commitIndex)
+
+// Ordering service: menerima transaksi lalu membentuk blok (entry)
+onLeaderReceiveTransaction(tx) when role == Leader:
+  bufferTx.append(tx)
+  if shouldCutBlock(bufferTx, BatchTimeout, MaxMessageCount, PreferredMaxBytes, AbsoluteMaxBytes):
+    block ← makeBlock(bufferTx); bufferTx.clear()
+    log.append(blockEntry(block))
+    broadcast AppendEntries(term=currentTerm, entries=[blockEntry], leaderCommit=commitIndex)
+
+onReceive(AppendEntries(term, leaderId, prevLogIndex, prevLogTerm, entries, leaderCommit)):
+  if term &lt; currentTerm: reply Success=false
+  if term &gt; currentTerm: currentTerm ← term; role ← Follower; votedFor ← null
+  resetElectionTimer(randomizedTimeout)
+  if !logMatches(prevLogIndex, prevLogTerm): reply Success=false
+  else:
+    deleteConflictingEntriesFrom(prevLogIndex+1)
+    append(entries)
+    if leaderCommit &gt; commitIndex:
+      commitIndex ← min(leaderCommit, lastLogIndex)
+    reply Success=true, matchIndex=lastLogIndex
+
+onLeaderReceive(AppendResponse(peer, term, success, matchIndex)) when role == Leader:
+  if term &gt; currentTerm: currentTerm ← term; role ← Follower; votedFor ← null; return
+  if success:
+    matchIndex[peer] ← matchIndex
+    nextIndex[peer] ← matchIndex + 1
+    // commit jika entry direplikasi ke mayoritas
+    for N from lastLogIndex downTo commitIndex+1:
+      if countPeersWith(matchIndex[*] ≥ N) ≥ majority and log[N].term == currentTerm:
+        commitIndex ← N
+        broadcast AppendEntries(term=currentTerm, entries=[], leaderCommit=commitIndex)
+        break
+  else:
+    nextIndex[peer] ← max(1, nextIndex[peer]-1)
+    retry AppendEntries for peer
+
+applyCommitted():
+  while lastApplied &lt; commitIndex:
+    lastApplied ← lastApplied + 1
+    deliverBlockToLedger(log[lastApplied])</code></pre>
+                                <p class="mt-4 text-xs text-textdark/60 md:text-sm">
+                                    Catatan: fungsi <code>shouldCutBlock()</code> pada HLF dipengaruhi oleh konfigurasi batch.
+                                    Pada eksperimen ini, konfigurasi batch menjadi pembeda utama antara “RAFT standar” dan “RAFT varian”.
+                                </p>
+                            </div>
+                        </section>
+
+                        <section class="space-y-8 rounded-3xl border border-white/10 bg-surfaceMuted/70 p-8 shadow-2xl shadow-black/30">
+                            <div class="flex flex-col gap-3">
+                                <div class="inline-flex w-fit items-center gap-2 rounded-full border border-secondary/40 bg-secondary/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.32em] text-secondary/80">
+                                    Bab 4.6.2.3
+                                </div>
+                                <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Pseudocode RAFT — Fabric v3</h2>
+                                <p class="text-sm text-textdark/70 md:text-base">
+                                    Pada Fabric v3, mekanisme RAFT (etcdraft) tetap mempertahankan prinsip yang sama seperti v2: pemilihan leader, heartbeat, replikasi log, dan commit quorum.
+                                    Pembaruan utama pada v3 dalam konteks penelitian ini adalah ketersediaan opsi konsensus BFT (SmartBFT) sebagai pembanding.
+                                </p>
+                            </div>
+
+                            <div class="rounded-2xl border border-white/10 bg-surface/60 p-6 shadow-inner shadow-black/20">
+                                <h3 class="text-base font-semibold text-textdark">Algoritma 4.2 — RAFT (Fabric v3)</h3>
+                                <p class="mt-2 text-xs text-textdark/60 md:text-sm">
+                                    Pseudocode RAFT v3 menambahkan penekanan pada plugin konsensus (RAFT/BFT) di sisi orderer.
+                                </p>
+                                <pre class="mt-4 overflow-x-auto rounded-xl border border-white/5 bg-surfaceMuted/60 p-4 text-[11px] text-textdark/90 md:text-sm"><code>INPUT: consensusType ∈ {etcdraft, BFT}
+
+if consensusType == etcdraft:
+  runRaftLoop()   // sama secara prinsip dengan RAFT v2
+
+function runRaftLoop():
+  while running:
+    if role == Leader:
+      receiveTx()
+      maybeCutBlockUsingBatchPolicy()
+      replicateBlockWithAppendEntries()
+      commitWhenQuorumAcks()
+      sendHeartbeats()
+    else:
+      followLeaderAppendEntries()
+      startElectionOnTimeout()
+
+function maybeCutBlockUsingBatchPolicy():
+  // Parameter batch berbeda antara konfigurasi standar vs varian
+  if shouldCutBlock(bufferTx, BatchTimeout, MaxMessageCount, PreferredMaxBytes, AbsoluteMaxBytes):
+    block ← makeBlock(bufferTx)
+    log.append(block)
+
+function commitWhenQuorumAcks():
+  if replicatedToMajority(blockIndex):
+    commitIndex ← blockIndex
+    appendToLocalLedger(block)
+    serveCommittedBlocksToPeers()</code></pre>
+                                <p class="mt-4 text-xs text-textdark/60 md:text-sm">
+                                    Pada eksperimen ini, mode RAFT v3 tetap menggunakan <code>etcdraft</code>. Untuk pembanding BFT, digunakan plugin <code>BFT</code> (SmartBFT) yang dijelaskan pada Bab 4.6.2.5.
+                                </p>
+                            </div>
+                        </section>
+
+                        <section class="space-y-8 rounded-3xl border border-white/10 bg-surface/60 p-8 shadow-2xl shadow-black/30">
+                            <div class="flex flex-col gap-3">
+                                <div class="inline-flex w-fit items-center gap-2 rounded-full border border-highlight/40 bg-highlight/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.32em] text-highlight/80">
+                                    Bab 4.6.2.4
+                                </div>
+                                <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Perbedaan RAFT Standar vs RAFT Varian (Eksperimen)</h2>
+                                <p class="text-sm text-textdark/70 md:text-base">
+                                    Perbedaan “standar” dan “varian” pada penelitian ini terutama terletak pada kebijakan <strong>pembentukan blok (block cutting)</strong> melalui parameter batch di <code>configtx.yaml</code>.
+                                    Parameter RAFT inti (TickInterval/ElectionTick/HeartbeatTick) tetap sama, sehingga perubahan performa lebih banyak dipengaruhi oleh cara transaksi dikemas menjadi blok serta beban komunikasi replikasi.
+                                </p>
+                            </div>
+
+                            <div class="overflow-x-auto rounded-2xl border border-white/10 bg-surfaceMuted/80 shadow-inner shadow-black/20">
+                                <table class="min-w-full divide-y divide-white/10 text-left text-sm text-textdark/80 md:text-base">
+                                    <thead class="bg-surfaceMuted/90">
+                                        <tr>
+                                            <th class="px-4 py-3 font-semibold">Parameter</th>
+                                            <th class="px-4 py-3 font-semibold">RAFT Standar</th>
+                                            <th class="px-4 py-3 font-semibold">RAFT Varian</th>
+                                            <th class="px-4 py-3 font-semibold">Implikasi Utama</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-white/5">
+                                        <tr>
+                                            <td class="px-4 py-3 align-top text-textdark/60">BatchTimeout</td>
+                                            <td class="px-4 py-3 align-top">2s</td>
+                                            <td class="px-4 py-3 align-top">1s</td>
+                                            <td class="px-4 py-3 align-top">Timeout lebih kecil cenderung menurunkan latensi pada beban rendah, tetapi dapat menambah overhead blok.</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-4 py-3 align-top text-textdark/60">MaxMessageCount</td>
+                                            <td class="px-4 py-3 align-top">10</td>
+                                            <td class="px-4 py-3 align-top">50</td>
+                                            <td class="px-4 py-3 align-top">Varian memungkinkan lebih banyak transaksi per blok → potensi throughput naik pada beban tinggi.</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-4 py-3 align-top text-textdark/60">AbsoluteMaxBytes</td>
+                                            <td class="px-4 py-3 align-top">99 MB</td>
+                                            <td class="px-4 py-3 align-top">20 MB</td>
+                                            <td class="px-4 py-3 align-top">Batas maksimum ukuran blok; memengaruhi risiko blok besar vs stabilitas jaringan.</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-4 py-3 align-top text-textdark/60">PreferredMaxBytes</td>
+                                            <td class="px-4 py-3 align-top">512 KB</td>
+                                            <td class="px-4 py-3 align-top">4 MB</td>
+                                            <td class="px-4 py-3 align-top">Ukuran target batch; semakin besar dapat mengurangi frekuensi commit namun menambah waktu tunggu pengisian batch.</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="grid gap-5 md:grid-cols-2">
+                                <article class="rounded-2xl border border-white/10 bg-surface/60 p-6 text-sm text-textdark/70 shadow-inner shadow-black/20">
+                                    <h3 class="text-base font-semibold text-textdark">Interpretasi terhadap Throughput</h3>
+                                    <p class="mt-2">
+                                        Dengan <strong>MaxMessageCount</strong> lebih besar dan <strong>PreferredMaxBytes</strong> lebih longgar, RAFT varian berpotensi meningkatkan throughput
+                                        karena lebih banyak transaksi dapat diselesaikan per blok yang direplikasi. Namun, manfaat tersebut paling terasa saat beban transaksi cukup tinggi untuk mengisi batch.
+                                    </p>
+                                </article>
+                                <article class="rounded-2xl border border-white/10 bg-surface/60 p-6 text-sm text-textdark/70 shadow-inner shadow-black/20">
+                                    <h3 class="text-base font-semibold text-textdark">Interpretasi terhadap Latency</h3>
+                                    <p class="mt-2">
+                                        <strong>BatchTimeout</strong> yang lebih kecil (1s) pada varian cenderung memotong blok lebih cepat saat transaksi tidak cukup untuk memenuhi batas jumlah/ukuran,
+                                        sehingga latency dapat lebih rendah pada beban ringan–sedang. Sebaliknya, blok yang lebih sering terbentuk dapat menambah overhead replikasi dan validasi.
+                                    </p>
+                                </article>
+                            </div>
+                        </section>
+
+                        <section class="space-y-8 rounded-3xl border border-white/10 bg-surfaceMuted/70 p-8 shadow-2xl shadow-black/30">
+                            <div class="flex flex-col gap-3">
+                                <div class="inline-flex w-fit items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.32em] text-primary/80">
+                                    Bab 4.6.2.5
+                                </div>
+                                <h2 class="text-2xl font-semibold text-textdark md:text-3xl">SmartBFT sebagai Pembanding (Fabric v3)</h2>
+                                <p class="text-sm text-textdark/70 md:text-base">
+                                    RAFT hanya menjamin konsistensi ketika kegagalan bersifat <em>crash</em> (node berhenti/terputus), sehingga termasuk kategori CFT.
+                                    Pada Fabric v3, tersedia opsi konsensus <strong>SmartBFT</strong> (melalui tipe orderer <code>BFT</code>) untuk menghadapi skenario
+                                    <em>Byzantine faults</em> (node bertindak arbitrer/malicious).
+                                </p>
+                            </div>
+
+                            <div class="grid gap-5 md:grid-cols-2">
+                                <article class="rounded-2xl border border-white/10 bg-surface/60 p-6 text-sm text-textdark/70 shadow-inner shadow-black/20">
+                                    <h3 class="text-base font-semibold text-textdark">Prinsip Dasar SmartBFT</h3>
+                                    <ul class="mt-2 space-y-2">
+                                        <li><strong class="text-textdark">Model BFT</strong>: toleran terhadap node yang berperilaku tidak benar.</li>
+                                        <li><strong class="text-textdark">Kebutuhan node</strong>: umumnya \(n \ge 3f + 1\) untuk menoleransi \(f\) Byzantine faults.</li>
+                                        <li><strong class="text-textdark">View change</strong>: mekanisme pergantian pemimpin ketika pemimpin gagal/bermasalah.</li>
+                                    </ul>
+                                </article>
+                                <article class="rounded-2xl border border-white/10 bg-surface/60 p-6 text-sm text-textdark/70 shadow-inner shadow-black/20">
+                                    <h3 class="text-base font-semibold text-textdark">Perbandingan Konseptual RAFT vs SmartBFT</h3>
+                                    <ul class="mt-2 space-y-2">
+                                        <li><strong class="text-textdark">Ketahanan</strong>: RAFT (CFT) vs SmartBFT (BFT).</li>
+                                        <li><strong class="text-textdark">Overhead</strong>: SmartBFT biasanya membutuhkan lebih banyak pesan/quorum certificate → potensi latency lebih tinggi.</li>
+                                        <li><strong class="text-textdark">Konteks penelitian</strong>: SmartBFT dipakai sebagai pembanding untuk melihat trade-off performa vs ketahanan.</li>
+                                    </ul>
+                                </article>
+                            </div>
+
+                            <div class="rounded-2xl border border-accent/30 bg-accent/5 p-6">
+                                <p class="text-sm text-textdark/80 leading-relaxed">
+                                    Dengan demikian, SmartBFT bukan “varian RAFT”, melainkan <strong>kelas konsensus berbeda</strong> yang memprioritaskan ketahanan terhadap perilaku arbitrer.
+                                    Dalam evaluasi hasil, interpretasi metrik (throughput/latency/resource) perlu mempertimbangkan bahwa SmartBFT secara alamiah memiliki biaya koordinasi yang lebih tinggi
+                                    dibanding RAFT, namun menawarkan jaminan keamanan yang lebih kuat.
+                                </p>
+                            </div>
+                        </section>
+                    </div>
+                </main>
+
+                <div data-component="footer"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/layout.js" defer></script>
+    <script src="/js/navigation.js" defer></script>
+</body>
+</html>

@@ -91,7 +91,7 @@
                             </header>
 
                             <div class="mt-8 space-y-6">
-                                <div class="grid gap-4 md:grid-cols-1">
+                                <div class="grid gap-4 md:grid-cols-2">
                                     <div class="rounded-xl border border-primary/30 bg-primary/5 p-6">
                                         <div class="mb-4 flex items-center gap-3">
                                             <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary/20">
@@ -126,6 +126,36 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <div class="rounded-xl border border-highlight/30 bg-highlight/5 p-6">
+                                        <div class="mb-4 flex items-center gap-3">
+                                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-highlight/20">
+                                                <svg class="h-6 w-6 text-highlight" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <h3 class="text-lg font-semibold text-textdark">Pembahasan Algoritma RAFT</h3>
+                                                <p class="text-xs text-textdark/60">Bab 4.6.2</p>
+                                            </div>
+                                        </div>
+                                        <p class="text-sm text-textdark/70 mb-4">
+                                            Membahas alur RAFT pada Fabric v2 &amp; v3, pseudocode, perbedaan RAFT standar vs varian, dan penjelasan SmartBFT sebagai pembanding BFT.
+                                        </p>
+                                        <div class="space-y-2 text-xs text-textdark/60">
+                                            <div class="flex items-start gap-2">
+                                                <span class="text-highlight">✓</span>
+                                                <span>Pseudocode RAFT v2 &amp; v3</span>
+                                            </div>
+                                            <div class="flex items-start gap-2">
+                                                <span class="text-highlight">✓</span>
+                                                <span>Perbedaan konfigurasi standar vs varian</span>
+                                            </div>
+                                            <div class="flex items-start gap-2">
+                                                <span class="text-highlight">✓</span>
+                                                <span>SmartBFT dan trade-off performa vs ketahanan</span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </section>
@@ -137,7 +167,7 @@
                                 <p class="text-sm text-textdark/70">Pilih halaman yang ingin Anda akses</p>
                             </header>
 
-                            <div class="grid gap-6 md:grid-cols-1">
+                            <div class="grid gap-6 md:grid-cols-2">
                                 <!-- Ringkasan Hasil Card -->
                                 <a href="/penelitian/evaluasi-hasil/ringkasan-hasil" class="nav-card group relative isolate overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-primary/10 via-surface to-surface p-8 shadow-lg">
                                     <div class="absolute inset-0 -z-10 bg-gradient-to-br from-primary/5 to-transparent opacity-0 transition-opacity group-hover:opacity-100"></div>
@@ -163,6 +193,38 @@
                                     </div>
 
                                     <div class="mt-6 flex items-center gap-2 text-sm font-semibold text-primary">
+                                        <span>Buka Halaman</span>
+                                        <svg class="h-4 w-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                        </svg>
+                                    </div>
+                                </a>
+
+                                <!-- Pembahasan Algoritma RAFT Card -->
+                                <a href="/penelitian/evaluasi-hasil/pembahasan-algoritma-raft" class="nav-card group relative isolate overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-highlight/10 via-surface to-surface p-8 shadow-lg">
+                                    <div class="absolute inset-0 -z-10 bg-gradient-to-br from-highlight/5 to-transparent opacity-0 transition-opacity group-hover:opacity-100"></div>
+
+                                    <div class="mb-6 flex items-start justify-between">
+                                        <div class="flex h-14 w-14 items-center justify-center rounded-xl bg-highlight/20 transition-transform group-hover:scale-110">
+                                            <svg class="h-7 w-7 text-highlight" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                            </svg>
+                                        </div>
+                                        <div class="inline-flex items-center gap-2 rounded-full border border-highlight/30 bg-highlight/10 px-3 py-1 text-xs font-semibold text-highlight">
+                                            4.6.2
+                                        </div>
+                                    </div>
+
+                                    <div class="space-y-3">
+                                        <h3 class="text-xl font-semibold text-textdark group-hover:text-highlight transition-colors">
+                                            Pembahasan Algoritma RAFT
+                                        </h3>
+                                        <p class="text-sm text-textdark/70 leading-relaxed">
+                                            Baca penjelasan mekanisme RAFT, pseudocode untuk Fabric v2 &amp; v3, perbedaan RAFT standar vs varian, serta ringkasan SmartBFT (BFT).
+                                        </p>
+                                    </div>
+
+                                    <div class="mt-6 flex items-center gap-2 text-sm font-semibold text-highlight">
                                         <span>Buka Halaman</span>
                                         <svg class="h-4 w-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>

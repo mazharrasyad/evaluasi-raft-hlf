@@ -1187,6 +1187,7 @@ const viewFiles = {
         evaluasiHasil: path.resolve(viewsRoot, 'penelitian/evaluasi-hasil/index.html'),
         evaluasiHasilSubsections: {
             ringkasanHasil: path.resolve(viewsRoot, 'penelitian/evaluasi-hasil/ringkasan-hasil.html'),
+            pembahasanAlgoritmaRaft: path.resolve(viewsRoot, 'penelitian/evaluasi-hasil/pembahasan-algoritma-raft.html'),
         },
     },
 };
@@ -1287,6 +1288,10 @@ app.get('/penelitian/evaluasi-hasil', (req, res) => {
 
 app.get('/penelitian/evaluasi-hasil/ringkasan-hasil', (req, res) => {
     res.sendFile(viewFiles.research.evaluasiHasilSubsections.ringkasanHasil);
+});
+
+app.get('/penelitian/evaluasi-hasil/pembahasan-algoritma-raft', (req, res) => {
+    res.sendFile(viewFiles.research.evaluasiHasilSubsections.pembahasanAlgoritmaRaft);
 });
 
 app.get('/dashboard', (req, res) => {

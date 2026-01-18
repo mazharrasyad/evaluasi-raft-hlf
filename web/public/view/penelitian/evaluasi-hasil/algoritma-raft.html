@@ -49,7 +49,7 @@
                                 <div class="space-y-5">
                                     <h1 class="text-3xl font-semibold text-textdark md:text-4xl">Algoritma Raft</h1>
                                     <p class="text-sm text-textdark/70 md:text-base leading-relaxed">
-                                        Sub bab ini menjelaskan bagaimana <strong>Raft</strong> bekerja sebagai mekanisme konsensus CFT pada Hyperledger Fabric v2 dan v3. Fokus pembahasan mencakup alur kerja (leader election, replikasi log, hingga commit) beserta perbandingan singkat dengan opsi <strong>SmartBFT</strong> sebagai konsensus BFT pada Fabric v3.
+                                        Sub bab ini menempatkan <strong>Raft</strong> sebagai algoritma konsensus yang dijalankan oleh <strong>ordering service</strong> pada Hyperledger Fabric v2 dan v3. Penelitian menelusuri bagaimana orderer menerima transaksi, membentuk blok, mereplikasi log ke replika ordering service, hingga memastikan commit blok, lalu membandingkannya secara ringkas dengan opsi <strong>SmartBFT</strong> pada Fabric v3 sebagai pembanding.
                                     </p>
                                 </div>
                             </div>
@@ -57,19 +57,13 @@
                         <section class="space-y-6 rounded-3xl border border-white/10 bg-surfaceMuted/70 p-8 shadow-2xl shadow-black/30">
                             <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Fase Utama dalam Raft</h2>
                             <p class="text-sm text-textdark/70 md:text-base">
-                                Dalam konteks penelitian ini, alur Raft dipaparkan sebagai rangkaian fase berulang yang menjaga konsistensi log antarnode. Setiap fase menegaskan peran leader sebagai koordinator dan follower sebagai replika.
+                                Dalam konteks penelitian ini, alur Raft dipaparkan sebagai rangkaian fase berulang di dalam <strong>ordering service</strong> untuk menjaga konsistensi log antar-orderer. Ketika terjadi <strong>leader election</strong>, kandidat orderer meminta suara agar dapat mengoordinasikan pembuatan blok. Setelah leader terpilih, fase <strong>log replication</strong> dimulai: orderer leader menerima transaksi dari klien, membentuk batch, lalu mengirim AppendEntries ke replika orderer. Pada fase <strong>commit &amp; apply</strong>, mayoritas acknowledgment dari orderer membuat blok dianggap valid, kemudian disiarkan agar state setiap replika selaras. Jika ada orderer tertinggal, fase <strong>recovery</strong> memastikan sinkronisasi ulang hingga log konsisten kembali.
                             </p>
-                            <ol class="list-decimal pl-6 text-textdark/80 space-y-2">
-                                <li><strong>Leader election:</strong> node kandidat meminta suara untuk menjadi leader ketika timeout.</li>
-                                <li><strong>Log replication:</strong> leader menerima transaksi, membentuk batch, lalu mengirim AppendEntries.</li>
-                                <li><strong>Commit &amp; apply:</strong> mayoritas acknowledgment membuat blok dianggap valid dan diterapkan ke state.</li>
-                                <li><strong>Recovery:</strong> node tertinggal mengejar log dari leader hingga konsisten kembali.</li>
-                            </ol>
                         </section>
                         <section class="space-y-8 rounded-3xl border border-white/10 bg-surface/60 p-8 shadow-2xl shadow-black/30">
                             <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Pseudocode Raft (HLF v2 & v3)</h2>
                             <p class="text-sm text-textdark/70 md:text-base">
-                                Pseudocode berikut merangkum proses yang sama pada Fabric v2 dan v3, dengan penyesuaian parameter konfigurasi seperti ukuran batch, timeout, dan mekanisme pengiriman blok.
+                                Pseudocode berikut merangkum proses yang sama pada Fabric v2 dan v3 untuk <strong>ordering service</strong>, dengan penyesuaian parameter konfigurasi seperti ukuran batch, timeout, dan mekanisme pengiriman blok.
                             </p>
                             <pre class="bg-surfaceMuted/80 rounded-lg p-4 text-xs overflow-x-auto text-textdark/90"><code>// Leader menerima transaksi
 onReceiveTransaction(tx):
@@ -101,15 +95,19 @@ onTimeout():
                         <section class="space-y-8 rounded-3xl border border-white/10 bg-surface/60 p-8 shadow-2xl shadow-black/30">
                             <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Diagram Simulasi Berdasarkan Pseudocode</h2>
                             <p class="text-sm text-textdark/70 md:text-base">
-                                Diagram berikut memvisualisasikan alur simulasi dari pseudocode untuk empat skenario sesuai perbedaan konfigurasi pada halaman pembangunan lingkungan uji: Fabric v2 RAFT standar, Fabric v2 RAFT varian (multi-orderer &amp; batch agresif), Fabric v3 RAFT standar (pipeline ordering), dan Fabric v3 RAFT varian (opsi SmartBFT). Setiap diagram menekankan titik pembeda utama pada jumlah orderer, parameter batch, dan strategi pengiriman blok.
+                                Diagram berikut memvisualisasikan alur simulasi dari pseudocode untuk empat skenario sesuai perbedaan konfigurasi pada lingkungan uji: Fabric v2 RAFT standar, Fabric v2 RAFT varian (multi-orderer &amp; batch agresif), Fabric v3 RAFT standar (pipeline ordering), dan Fabric v3 RAFT varian (opsi SmartBFT). Setiap diagram menekankan titik pembeda utama pada jumlah orderer, parameter batch, dan strategi pengiriman blok dari <strong>ordering service</strong>. Semua diagram dapat diunduh sebagai gambar untuk dokumentasi penelitian.
                             </p>
-                            <div class="grid gap-6 lg:grid-cols-2">
-                                <article class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6 shadow-xl shadow-black/20">
+                            <div class="grid gap-6">
+                                <article class="col-md-12 rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6 shadow-xl shadow-black/20">
                                     <div class="flex flex-wrap items-center justify-between gap-2">
                                         <h3 class="text-lg font-semibold text-textdark">Fabric v2 — Raft Standar</h3>
                                         <span class="rounded-full border border-primary/40 bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-primary/90">CFT</span>
                                     </div>
                                     <figure class="mt-6 rounded-xl border border-white/10 bg-surface/60 p-4">
+                                        <div class="flex flex-wrap items-center justify-between gap-3 pb-3">
+                                            <p class="text-xs text-textdark/70">Ordering service dengan satu leader dan replika quorum CFT.</p>
+                                            <button type="button" class="rounded-full border border-primary/40 bg-primary/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-primary/90 transition hover:bg-primary/20" data-download="diagram-raft-v2-standar.svg">Download diagram</button>
+                                        </div>
                                         <svg class="w-full h-auto" viewBox="0 0 560 300" role="img" aria-labelledby="diagramV2StandardTitle">
                                             <title id="diagramV2StandardTitle">Flow Fabric v2 Raft standar</title>
                                             <defs>
@@ -151,12 +149,16 @@ onTimeout():
                                         </figcaption>
                                     </figure>
                                 </article>
-                                <article class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6 shadow-xl shadow-black/20">
+                                <article class="col-md-12 rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6 shadow-xl shadow-black/20">
                                     <div class="flex flex-wrap items-center justify-between gap-2">
                                         <h3 class="text-lg font-semibold text-textdark">Fabric v2 — Raft Varian</h3>
                                         <span class="rounded-full border border-highlight/40 bg-highlight/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-highlight/90">Multi-orderer</span>
                                     </div>
                                     <figure class="mt-6 rounded-xl border border-white/10 bg-surface/60 p-4">
+                                        <div class="flex flex-wrap items-center justify-between gap-3 pb-3">
+                                            <p class="text-xs text-textdark/70">Ordering service diperluas dengan beberapa orderer untuk throughput tinggi.</p>
+                                            <button type="button" class="rounded-full border border-highlight/40 bg-highlight/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-highlight/90 transition hover:bg-highlight/20" data-download="diagram-raft-v2-varian.svg">Download diagram</button>
+                                        </div>
                                         <svg class="w-full h-auto" viewBox="0 0 560 300" role="img" aria-labelledby="diagramV2VariantTitle">
                                             <title id="diagramV2VariantTitle">Flow Fabric v2 Raft varian</title>
                                             <defs>
@@ -199,12 +201,16 @@ onTimeout():
                                         </figcaption>
                                     </figure>
                                 </article>
-                                <article class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6 shadow-xl shadow-black/20">
+                                <article class="col-md-12 rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6 shadow-xl shadow-black/20">
                                     <div class="flex flex-wrap items-center justify-between gap-2">
                                         <h3 class="text-lg font-semibold text-textdark">Fabric v3 — Raft Standar</h3>
                                         <span class="rounded-full border border-secondary/40 bg-secondary/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-secondary/90">Pipeline</span>
                                     </div>
                                     <figure class="mt-6 rounded-xl border border-white/10 bg-surface/60 p-4">
+                                        <div class="flex flex-wrap items-center justify-between gap-3 pb-3">
+                                            <p class="text-xs text-textdark/70">Ordering service v3 memanfaatkan pipeline untuk mempercepat replikasi blok.</p>
+                                            <button type="button" class="rounded-full border border-secondary/40 bg-secondary/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-secondary/90 transition hover:bg-secondary/20" data-download="diagram-raft-v3-standar.svg">Download diagram</button>
+                                        </div>
                                         <svg class="w-full h-auto" viewBox="0 0 560 300" role="img" aria-labelledby="diagramV3StandardTitle">
                                             <title id="diagramV3StandardTitle">Flow Fabric v3 Raft standar</title>
                                             <defs>
@@ -247,12 +253,16 @@ onTimeout():
                                         </figcaption>
                                     </figure>
                                 </article>
-                                <article class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6 shadow-xl shadow-black/20">
+                                <article class="col-md-12 rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6 shadow-xl shadow-black/20">
                                     <div class="flex flex-wrap items-center justify-between gap-2">
                                         <h3 class="text-lg font-semibold text-textdark">Fabric v3 — Raft Varian + SmartBFT</h3>
                                         <span class="rounded-full border border-accent/40 bg-accent/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-accent/90">BFT</span>
                                     </div>
                                     <figure class="mt-6 rounded-xl border border-white/10 bg-surface/60 p-4">
+                                        <div class="flex flex-wrap items-center justify-between gap-3 pb-3">
+                                            <p class="text-xs text-textdark/70">Ordering service v3 varian menambahkan opsi SmartBFT untuk toleransi Byzantine.</p>
+                                            <button type="button" class="rounded-full border border-accent/40 bg-accent/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-accent/90 transition hover:bg-accent/20" data-download="diagram-raft-v3-varian-smartbft.svg">Download diagram</button>
+                                        </div>
                                         <svg class="w-full h-auto" viewBox="0 0 560 300" role="img" aria-labelledby="diagramV3VariantTitle">
                                             <title id="diagramV3VariantTitle">Flow Fabric v3 Raft varian dan SmartBFT</title>
                                             <defs>
@@ -301,11 +311,9 @@ onTimeout():
                         </section>
                         <section class="space-y-6 rounded-3xl border border-white/10 bg-surface/60 p-8 shadow-2xl shadow-black/30">
                             <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Perbandingan Implementasi v2 &amp; v3</h2>
-                            <ul class="list-disc pl-6 text-textdark/80 space-y-2">
-                                <li><strong>Fabric v2:</strong> fokus pada stabilitas RAFT standar dengan konfigurasi CFT yang teruji.</li>
-                                <li><strong>Fabric v3:</strong> menawarkan perbaikan pipeline serta opsi konsensus <strong>SmartBFT</strong> untuk kebutuhan toleransi Byzantine.</li>
-                                <li><strong>Varian penelitian:</strong> penyesuaian parameter dan skenario beban digunakan untuk melihat efek pada throughput dan latency.</li>
-                            </ul>
+                            <p class="text-sm text-textdark/70 md:text-base">
+                                Pada <strong>Fabric v2</strong>, penelitian menyoroti kestabilan Raft standar pada ordering service dengan konfigurasi CFT yang sudah teruji. Pada <strong>Fabric v3</strong>, fokus bergeser ke pipeline ordering dan opsi <strong>SmartBFT</strong> yang menambah toleransi Byzantine, sehingga berdampak pada latensi dan kebutuhan quorum. Varian penelitian dilakukan dengan penyesuaian parameter batch dan skenario beban untuk melihat pergeseran throughput serta latency di masing-masing konfigurasi ordering service.
+                            </p>
                         </section>
                         <section class="space-y-8 rounded-3xl border border-white/10 bg-surface/60 p-8 shadow-2xl shadow-black/30">
                             <h2 class="text-2xl font-semibold text-textdark md:text-3xl">SmartBFT sebagai Pembanding</h2>
@@ -332,11 +340,9 @@ onCommit(block):
                         </section>
                         <section class="space-y-6 rounded-3xl border border-white/10 bg-surfaceMuted/70 p-8 shadow-2xl shadow-black/30">
                             <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Ringkasan Sub Bab 4.6.1</h2>
-                            <ul class="list-disc pl-6 text-textdark/80 space-y-2">
-                                <li>RAFT diposisikan sebagai mekanisme CFT yang menyeimbangkan konsistensi dan ketersediaan jaringan.</li>
-                                <li>Alur leader election dan log replication menjadi kunci perbedaan performa ketika beban transaksi meningkat.</li>
-                                <li>SmartBFT diperkenalkan sebagai pembanding ketika dibutuhkan toleransi Byzantine yang lebih tinggi.</li>
-                            </ul>
+                            <p class="text-sm text-textdark/70 md:text-base">
+                                Secara ringkas, RAFT diposisikan sebagai mekanisme CFT yang menyeimbangkan konsistensi dan ketersediaan <strong>ordering service</strong>. Alur leader election dan log replication pada orderer menjadi kunci perbedaan performa ketika beban transaksi meningkat, sementara <strong>SmartBFT</strong> diperkenalkan sebagai pembanding saat diperlukan toleransi Byzantine yang lebih tinggi.
+                            </p>
                         </section>
                     </div>
                 </main>
@@ -348,5 +354,27 @@ onCommit(block):
 
     <script src="/js/layout.js" defer></script>
     <script src="/js/navigation.js" defer></script>
+    <script>
+        document.querySelectorAll('[data-download]').forEach((button) => {
+            button.addEventListener('click', () => {
+                const figure = button.closest('figure');
+                const svg = figure ? figure.querySelector('svg') : null;
+                if (!svg) {
+                    return;
+                }
+                const serializer = new XMLSerializer();
+                const source = serializer.serializeToString(svg);
+                const blob = new Blob([source], { type: 'image/svg+xml;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = button.dataset.download || 'diagram-raft.svg';
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                URL.revokeObjectURL(url);
+            });
+        });
+    </script>
 </body>
 </html>

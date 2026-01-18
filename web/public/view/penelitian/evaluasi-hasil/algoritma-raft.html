@@ -98,6 +98,82 @@ onTimeout():
     startElection()
 </code></pre>
                         </section>
+                        <section class="space-y-8 rounded-3xl border border-white/10 bg-surface/60 p-8 shadow-2xl shadow-black/30">
+                            <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Diagram Simulasi Berdasarkan Pseudocode</h2>
+                            <p class="text-sm text-textdark/70 md:text-base">
+                                Diagram berikut memvisualisasikan alur simulasi dari pseudocode untuk empat skenario: Fabric v2 Raft standar, Fabric v3 Raft standar, Raft varian, dan Raft varian dengan SmartBFT. Setiap diagram menekankan urutan event utama yang relevan dengan pengujian penelitian.
+                            </p>
+                            <div class="grid gap-6 lg:grid-cols-2">
+                                <article class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6 shadow-xl shadow-black/20">
+                                    <div class="flex flex-wrap items-center justify-between gap-2">
+                                        <h3 class="text-lg font-semibold text-textdark">Fabric v2 — Raft Standar</h3>
+                                        <span class="rounded-full border border-primary/40 bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-primary/90">CFT</span>
+                                    </div>
+                                    <div class="mt-6 space-y-3 text-sm text-textdark/80">
+                                        <div class="rounded-lg border border-white/5 bg-surface/60 p-3">1. Terima transaksi &amp; masuk batch statis.</div>
+                                        <div class="text-center text-xs text-textdark/50">⬇</div>
+                                        <div class="rounded-lg border border-white/5 bg-surface/60 p-3">2. Leader membentuk blok saat batch penuh/timeout.</div>
+                                        <div class="text-center text-xs text-textdark/50">⬇</div>
+                                        <div class="rounded-lg border border-white/5 bg-surface/60 p-3">3. Kirim AppendEntries ke follower.</div>
+                                        <div class="text-center text-xs text-textdark/50">⬇</div>
+                                        <div class="rounded-lg border border-white/5 bg-surface/60 p-3">4. Follower ack, leader commit saat quorum.</div>
+                                        <div class="text-center text-xs text-textdark/50">⬇</div>
+                                        <div class="rounded-lg border border-white/5 bg-surface/60 p-3">5. Broadcast blok ke peer &amp; apply state.</div>
+                                    </div>
+                                </article>
+                                <article class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6 shadow-xl shadow-black/20">
+                                    <div class="flex flex-wrap items-center justify-between gap-2">
+                                        <h3 class="text-lg font-semibold text-textdark">Fabric v3 — Raft Standar</h3>
+                                        <span class="rounded-full border border-secondary/40 bg-secondary/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-secondary/90">Pipeline</span>
+                                    </div>
+                                    <div class="mt-6 space-y-3 text-sm text-textdark/80">
+                                        <div class="rounded-lg border border-white/5 bg-surface/60 p-3">1. Tx masuk buffer &amp; scheduler batch dinamis.</div>
+                                        <div class="text-center text-xs text-textdark/50">⬇</div>
+                                        <div class="rounded-lg border border-white/5 bg-surface/60 p-3">2. Leader memotong blok &amp; menyiapkan metadata ordering.</div>
+                                        <div class="text-center text-xs text-textdark/50">⬇</div>
+                                        <div class="rounded-lg border border-white/5 bg-surface/60 p-3">3. AppendEntries + pipeline delivery ke follower.</div>
+                                        <div class="text-center text-xs text-textdark/50">⬇</div>
+                                        <div class="rounded-lg border border-white/5 bg-surface/60 p-3">4. Quorum ack → commit, blok disalurkan ke peer.</div>
+                                        <div class="text-center text-xs text-textdark/50">⬇</div>
+                                        <div class="rounded-lg border border-white/5 bg-surface/60 p-3">5. Sinkronisasi cepat untuk node yang tertinggal.</div>
+                                    </div>
+                                </article>
+                                <article class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6 shadow-xl shadow-black/20">
+                                    <div class="flex flex-wrap items-center justify-between gap-2">
+                                        <h3 class="text-lg font-semibold text-textdark">Raft Varian (Eksperimen)</h3>
+                                        <span class="rounded-full border border-highlight/40 bg-highlight/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-highlight/90">Tuning</span>
+                                    </div>
+                                    <div class="mt-6 space-y-3 text-sm text-textdark/80">
+                                        <div class="rounded-lg border border-white/5 bg-surface/60 p-3">1. Timeout election dipersingkat untuk respons cepat.</div>
+                                        <div class="text-center text-xs text-textdark/50">⬇</div>
+                                        <div class="rounded-lg border border-white/5 bg-surface/60 p-3">2. Batch adaptif menyesuaikan beban transaksi.</div>
+                                        <div class="text-center text-xs text-textdark/50">⬇</div>
+                                        <div class="rounded-lg border border-white/5 bg-surface/60 p-3">3. AppendEntries paralel untuk menekan latensi.</div>
+                                        <div class="text-center text-xs text-textdark/50">⬇</div>
+                                        <div class="rounded-lg border border-white/5 bg-surface/60 p-3">4. Ack quorum diukur per fase, commit lebih agresif.</div>
+                                        <div class="text-center text-xs text-textdark/50">⬇</div>
+                                        <div class="rounded-lg border border-white/5 bg-surface/60 p-3">5. Monitoring backlog untuk trigger recovery.</div>
+                                    </div>
+                                </article>
+                                <article class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6 shadow-xl shadow-black/20">
+                                    <div class="flex flex-wrap items-center justify-between gap-2">
+                                        <h3 class="text-lg font-semibold text-textdark">Varian + SmartBFT (Fabric v3)</h3>
+                                        <span class="rounded-full border border-accent/40 bg-accent/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-accent/90">BFT</span>
+                                    </div>
+                                    <div class="mt-6 space-y-3 text-sm text-textdark/80">
+                                        <div class="rounded-lg border border-white/5 bg-surface/60 p-3">1. Leader mengusulkan blok (PrePrepare).</div>
+                                        <div class="text-center text-xs text-textdark/50">⬇</div>
+                                        <div class="rounded-lg border border-white/5 bg-surface/60 p-3">2. Replika validasi &amp; broadcast Prepare.</div>
+                                        <div class="text-center text-xs text-textdark/50">⬇</div>
+                                        <div class="rounded-lg border border-white/5 bg-surface/60 p-3">3. Quorum Prepare → kirim Commit.</div>
+                                        <div class="text-center text-xs text-textdark/50">⬇</div>
+                                        <div class="rounded-lg border border-white/5 bg-surface/60 p-3">4. Quorum Commit → blok final &amp; broadcast ke peer.</div>
+                                        <div class="text-center text-xs text-textdark/50">⬇</div>
+                                        <div class="rounded-lg border border-white/5 bg-surface/60 p-3">5. Audit tambahan untuk ketahanan byzantine.</div>
+                                    </div>
+                                </article>
+                            </div>
+                        </section>
                         <section class="space-y-6 rounded-3xl border border-white/10 bg-surface/60 p-8 shadow-2xl shadow-black/30">
                             <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Perbandingan Implementasi v2 &amp; v3</h2>
                             <ul class="list-disc pl-6 text-textdark/80 space-y-2">

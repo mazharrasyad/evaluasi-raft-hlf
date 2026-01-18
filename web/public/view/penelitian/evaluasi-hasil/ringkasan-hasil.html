@@ -78,7 +78,40 @@
                                 <div class="space-y-5">
                                     <h1 class="text-3xl font-semibold text-textdark md:text-4xl">Ringkasan Hasil</h1>
                                     <p class="text-sm text-textdark/70 md:text-base leading-relaxed">
-                                        Halaman ini menyajikan ringkasan hasil evaluasi performa berdasarkan empat parameter utama analisis data: <strong>Throughput</strong> yang mengukur kemampuan sistem dalam memproses transaksi per detik, <strong>Latency</strong> yang mengukur waktu respons sistem, <strong>Resource Usage</strong> yang memantau penggunaan CPU dan memori, serta <strong>Fault Tolerance</strong> yang mengevaluasi ketahanan sistem terhadap kegagalan node. Data yang disajikan mencakup hasil dari empat konfigurasi jaringan (Fabric 2 dan 3, RAFT standar dan varian), termasuk opsi SmartBFT pada Fabric v3 varian. Data disajikan dalam bentuk angka dan penjelasan untuk memudahkan interpretasi hasil simulasi.
+                                        Sub bab 4.6.2 merangkum hasil evaluasi performa berdasarkan empat parameter utama analisis data: <strong>Throughput</strong> (kemampuan memproses transaksi per detik), <strong>Latency</strong> (waktu respons), <strong>Resource Usage</strong> (penggunaan CPU dan memori), serta <strong>Fault Tolerance</strong> (ketahanan terhadap kegagalan node). Ringkasan ini mencakup empat konfigurasi jaringan (Fabric 2 dan 3 dengan RAFT standar maupun varian), termasuk opsi SmartBFT pada Fabric v3 varian, sehingga memudahkan perbandingan lintas skenario.
+                                    </p>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20 backdrop-blur-sm">
+                            <header class="flex flex-col gap-2 border-b border-white/10 pb-6">
+                                <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Fokus Ringkasan 4.6.2</h2>
+                                <p class="text-sm text-textdark/70">Panduan membaca bagian ringkasan hasil</p>
+                            </header>
+                            <div class="mt-6 grid gap-4 md:grid-cols-2">
+                                <div class="rounded-xl border border-primary/30 bg-primary/5 p-6">
+                                    <h3 class="text-lg font-semibold text-textdark mb-2">Statistik Keseluruhan</h3>
+                                    <p class="text-sm text-textdark/70">
+                                        Menyajikan jumlah transaksi, success rate, throughput rata-rata, dan latency rata-rata sebagai gambaran umum performa.
+                                    </p>
+                                </div>
+                                <div class="rounded-xl border border-highlight/30 bg-highlight/5 p-6">
+                                    <h3 class="text-lg font-semibold text-textdark mb-2">Perbandingan Antar Network</h3>
+                                    <p class="text-sm text-textdark/70">
+                                        Membandingkan empat konfigurasi jaringan untuk mengidentifikasi keunggulan performa pada skenario beban transaksi.
+                                    </p>
+                                </div>
+                                <div class="rounded-xl border border-secondary/30 bg-secondary/5 p-6">
+                                    <h3 class="text-lg font-semibold text-textdark mb-2">Analisis Parameter</h3>
+                                    <p class="text-sm text-textdark/70">
+                                        Menjelaskan hasil per parameter (throughput, latency, resource usage, fault tolerance) sehingga mudah dikaitkan dengan tujuan penelitian.
+                                    </p>
+                                </div>
+                                <div class="rounded-xl border border-accent/30 bg-accent/5 p-6">
+                                    <h3 class="text-lg font-semibold text-textdark mb-2">Interpretasi Hasil</h3>
+                                    <p class="text-sm text-textdark/70">
+                                        Menyediakan narasi singkat untuk menafsirkan perbedaan antar konfigurasi berdasarkan data simulasi yang dimuat.
                                     </p>
                                 </div>
                             </div>

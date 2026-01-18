@@ -101,7 +101,7 @@ onTimeout():
                         <section class="space-y-8 rounded-3xl border border-white/10 bg-surface/60 p-8 shadow-2xl shadow-black/30">
                             <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Diagram Simulasi Berdasarkan Pseudocode</h2>
                             <p class="text-sm text-textdark/70 md:text-base">
-                                Diagram berikut memvisualisasikan alur simulasi dari pseudocode untuk empat skenario: Fabric v2 Raft standar, Fabric v3 Raft standar, Raft varian, dan Raft varian dengan SmartBFT. Setiap diagram menekankan urutan event utama yang relevan dengan pengujian penelitian.
+                                Diagram berikut memvisualisasikan alur simulasi dari pseudocode untuk empat skenario sesuai perbedaan konfigurasi pada halaman pembangunan lingkungan uji: Fabric v2 RAFT standar, Fabric v2 RAFT varian (multi-orderer &amp; batch agresif), Fabric v3 RAFT standar (pipeline ordering), dan Fabric v3 RAFT varian (opsi SmartBFT). Setiap diagram menekankan titik pembeda utama pada jumlah orderer, parameter batch, dan strategi pengiriman blok.
                             </p>
                             <div class="grid gap-6 lg:grid-cols-2">
                                 <article class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6 shadow-xl shadow-black/20">
@@ -109,68 +109,193 @@ onTimeout():
                                         <h3 class="text-lg font-semibold text-textdark">Fabric v2 — Raft Standar</h3>
                                         <span class="rounded-full border border-primary/40 bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-primary/90">CFT</span>
                                     </div>
-                                    <div class="mt-6 space-y-3 text-sm text-textdark/80">
-                                        <div class="rounded-lg border border-white/5 bg-surface/60 p-3">1. Terima transaksi &amp; masuk batch statis.</div>
-                                        <div class="text-center text-xs text-textdark/50">⬇</div>
-                                        <div class="rounded-lg border border-white/5 bg-surface/60 p-3">2. Leader membentuk blok saat batch penuh/timeout.</div>
-                                        <div class="text-center text-xs text-textdark/50">⬇</div>
-                                        <div class="rounded-lg border border-white/5 bg-surface/60 p-3">3. Kirim AppendEntries ke follower.</div>
-                                        <div class="text-center text-xs text-textdark/50">⬇</div>
-                                        <div class="rounded-lg border border-white/5 bg-surface/60 p-3">4. Follower ack, leader commit saat quorum.</div>
-                                        <div class="text-center text-xs text-textdark/50">⬇</div>
-                                        <div class="rounded-lg border border-white/5 bg-surface/60 p-3">5. Broadcast blok ke peer &amp; apply state.</div>
+                                    <figure class="mt-6 rounded-xl border border-white/10 bg-surface/60 p-4">
+                                        <svg class="w-full h-auto" viewBox="0 0 560 300" role="img" aria-labelledby="diagramV2StandardTitle">
+                                            <title id="diagramV2StandardTitle">Flow Fabric v2 Raft standar</title>
+                                            <defs>
+                                                <linearGradient id="v2StandardBg" x1="0" y1="0" x2="1" y2="1">
+                                                    <stop offset="0%" stop-color="#1E293B" stop-opacity="0.9"/>
+                                                    <stop offset="100%" stop-color="#0B1120" stop-opacity="0.9"/>
+                                                </linearGradient>
+                                                <marker id="v2StandardArrow" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto">
+                                                    <path d="M0,0 L0,6 L6,3 z" fill="#38BDF8"/>
+                                                </marker>
+                                            </defs>
+                                            <rect x="0" y="0" width="560" height="300" rx="16" fill="url(#v2StandardBg)"/>
+                                            <rect x="28" y="40" width="140" height="54" rx="12" fill="#0F172A" stroke="#38BDF8" stroke-width="1.5"/>
+                                            <text x="98" y="70" text-anchor="middle" fill="#E2E8F0" font-size="12" font-weight="600">Client Tx</text>
+                                            <text x="98" y="86" text-anchor="middle" fill="#94A3B8" font-size="10">Beban normal</text>
+
+                                            <rect x="210" y="32" width="160" height="70" rx="12" fill="#0F172A" stroke="#38BDF8" stroke-width="1.5"/>
+                                            <text x="290" y="62" text-anchor="middle" fill="#E2E8F0" font-size="12" font-weight="600">Orderer Leader</text>
+                                            <text x="290" y="80" text-anchor="middle" fill="#94A3B8" font-size="10">1 node, batch stabil</text>
+
+                                            <rect x="410" y="32" width="122" height="70" rx="12" fill="#0F172A" stroke="#38BDF8" stroke-width="1.5"/>
+                                            <text x="471" y="62" text-anchor="middle" fill="#E2E8F0" font-size="12" font-weight="600">Followers</text>
+                                            <text x="471" y="80" text-anchor="middle" fill="#94A3B8" font-size="10">Quorum CFT</text>
+
+                                            <rect x="210" y="140" width="322" height="70" rx="12" fill="#0F172A" stroke="#38BDF8" stroke-width="1.5"/>
+                                            <text x="371" y="170" text-anchor="middle" fill="#E2E8F0" font-size="12" font-weight="600">AppendEntries + Ack</text>
+                                            <text x="371" y="188" text-anchor="middle" fill="#94A3B8" font-size="10">Commit saat mayoritas</text>
+
+                                            <rect x="210" y="238" width="322" height="48" rx="12" fill="#0F172A" stroke="#38BDF8" stroke-width="1.5"/>
+                                            <text x="371" y="266" text-anchor="middle" fill="#E2E8F0" font-size="12" font-weight="600">Broadcast blok ke peer</text>
+
+                                            <path d="M168 67 L210 67" stroke="#38BDF8" stroke-width="1.5" marker-end="url(#v2StandardArrow)"/>
+                                            <path d="M370 67 L410 67" stroke="#38BDF8" stroke-width="1.5" marker-end="url(#v2StandardArrow)"/>
+                                            <path d="M290 102 L290 140" stroke="#38BDF8" stroke-width="1.5" marker-end="url(#v2StandardArrow)"/>
+                                            <path d="M371 210 L371 238" stroke="#38BDF8" stroke-width="1.5" marker-end="url(#v2StandardArrow)"/>
+                                        </svg>
+                                        <figcaption class="mt-3 text-xs text-textdark/70">
+                                            Fokus pada kestabilan latency: satu orderer leader dengan batch ukuran standar sebelum commit.
+                                        </figcaption>
+                                    </figure>
+                                </article>
+                                <article class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6 shadow-xl shadow-black/20">
+                                    <div class="flex flex-wrap items-center justify-between gap-2">
+                                        <h3 class="text-lg font-semibold text-textdark">Fabric v2 — Raft Varian</h3>
+                                        <span class="rounded-full border border-highlight/40 bg-highlight/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-highlight/90">Multi-orderer</span>
                                     </div>
+                                    <figure class="mt-6 rounded-xl border border-white/10 bg-surface/60 p-4">
+                                        <svg class="w-full h-auto" viewBox="0 0 560 300" role="img" aria-labelledby="diagramV2VariantTitle">
+                                            <title id="diagramV2VariantTitle">Flow Fabric v2 Raft varian</title>
+                                            <defs>
+                                                <linearGradient id="v2VariantBg" x1="0" y1="0" x2="1" y2="1">
+                                                    <stop offset="0%" stop-color="#1F2937" stop-opacity="0.95"/>
+                                                    <stop offset="100%" stop-color="#0B1120" stop-opacity="0.9"/>
+                                                </linearGradient>
+                                                <marker id="v2VariantArrow" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto">
+                                                    <path d="M0,0 L0,6 L6,3 z" fill="#F97316"/>
+                                                </marker>
+                                            </defs>
+                                            <rect x="0" y="0" width="560" height="300" rx="16" fill="url(#v2VariantBg)"/>
+                                            <rect x="28" y="36" width="140" height="60" rx="12" fill="#0F172A" stroke="#F97316" stroke-width="1.5"/>
+                                            <text x="98" y="64" text-anchor="middle" fill="#E2E8F0" font-size="12" font-weight="600">Client Tx</text>
+                                            <text x="98" y="82" text-anchor="middle" fill="#94A3B8" font-size="10">Beban tinggi</text>
+
+                                            <rect x="208" y="24" width="190" height="84" rx="12" fill="#0F172A" stroke="#F97316" stroke-width="1.5"/>
+                                            <text x="303" y="54" text-anchor="middle" fill="#E2E8F0" font-size="12" font-weight="600">Orderer Cluster</text>
+                                            <text x="303" y="72" text-anchor="middle" fill="#94A3B8" font-size="10">hingga 4 node</text>
+                                            <text x="303" y="90" text-anchor="middle" fill="#94A3B8" font-size="10">batch agresif</text>
+
+                                            <rect x="430" y="24" width="110" height="84" rx="12" fill="#0F172A" stroke="#F97316" stroke-width="1.5"/>
+                                            <text x="485" y="54" text-anchor="middle" fill="#E2E8F0" font-size="12" font-weight="600">Followers</text>
+                                            <text x="485" y="72" text-anchor="middle" fill="#94A3B8" font-size="10">quorum cepat</text>
+
+                                            <rect x="208" y="134" width="332" height="72" rx="12" fill="#0F172A" stroke="#F97316" stroke-width="1.5"/>
+                                            <text x="374" y="162" text-anchor="middle" fill="#E2E8F0" font-size="12" font-weight="600">AppendEntries paralel</text>
+                                            <text x="374" y="182" text-anchor="middle" fill="#94A3B8" font-size="10">latensi ditekan</text>
+
+                                            <rect x="208" y="230" width="332" height="54" rx="12" fill="#0F172A" stroke="#F97316" stroke-width="1.5"/>
+                                            <text x="374" y="260" text-anchor="middle" fill="#E2E8F0" font-size="12" font-weight="600">Commit agresif &amp; sync</text>
+
+                                            <path d="M168 66 L208 66" stroke="#F97316" stroke-width="1.5" marker-end="url(#v2VariantArrow)"/>
+                                            <path d="M398 66 L430 66" stroke="#F97316" stroke-width="1.5" marker-end="url(#v2VariantArrow)"/>
+                                            <path d="M303 108 L303 134" stroke="#F97316" stroke-width="1.5" marker-end="url(#v2VariantArrow)"/>
+                                            <path d="M374 206 L374 230" stroke="#F97316" stroke-width="1.5" marker-end="url(#v2VariantArrow)"/>
+                                        </svg>
+                                        <figcaption class="mt-3 text-xs text-textdark/70">
+                                            Konfigurasi varian menggunakan cluster orderer lebih banyak dan batch lebih agresif untuk throughput.
+                                        </figcaption>
+                                    </figure>
                                 </article>
                                 <article class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6 shadow-xl shadow-black/20">
                                     <div class="flex flex-wrap items-center justify-between gap-2">
                                         <h3 class="text-lg font-semibold text-textdark">Fabric v3 — Raft Standar</h3>
                                         <span class="rounded-full border border-secondary/40 bg-secondary/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-secondary/90">Pipeline</span>
                                     </div>
-                                    <div class="mt-6 space-y-3 text-sm text-textdark/80">
-                                        <div class="rounded-lg border border-white/5 bg-surface/60 p-3">1. Tx masuk buffer &amp; scheduler batch dinamis.</div>
-                                        <div class="text-center text-xs text-textdark/50">⬇</div>
-                                        <div class="rounded-lg border border-white/5 bg-surface/60 p-3">2. Leader memotong blok &amp; menyiapkan metadata ordering.</div>
-                                        <div class="text-center text-xs text-textdark/50">⬇</div>
-                                        <div class="rounded-lg border border-white/5 bg-surface/60 p-3">3. AppendEntries + pipeline delivery ke follower.</div>
-                                        <div class="text-center text-xs text-textdark/50">⬇</div>
-                                        <div class="rounded-lg border border-white/5 bg-surface/60 p-3">4. Quorum ack → commit, blok disalurkan ke peer.</div>
-                                        <div class="text-center text-xs text-textdark/50">⬇</div>
-                                        <div class="rounded-lg border border-white/5 bg-surface/60 p-3">5. Sinkronisasi cepat untuk node yang tertinggal.</div>
-                                    </div>
+                                    <figure class="mt-6 rounded-xl border border-white/10 bg-surface/60 p-4">
+                                        <svg class="w-full h-auto" viewBox="0 0 560 300" role="img" aria-labelledby="diagramV3StandardTitle">
+                                            <title id="diagramV3StandardTitle">Flow Fabric v3 Raft standar</title>
+                                            <defs>
+                                                <linearGradient id="v3StandardBg" x1="0" y1="0" x2="1" y2="1">
+                                                    <stop offset="0%" stop-color="#1E293B" stop-opacity="0.95"/>
+                                                    <stop offset="100%" stop-color="#0B1120" stop-opacity="0.9"/>
+                                                </linearGradient>
+                                                <marker id="v3StandardArrow" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto">
+                                                    <path d="M0,0 L0,6 L6,3 z" fill="#6366F1"/>
+                                                </marker>
+                                            </defs>
+                                            <rect x="0" y="0" width="560" height="300" rx="16" fill="url(#v3StandardBg)"/>
+                                            <rect x="26" y="42" width="150" height="60" rx="12" fill="#0F172A" stroke="#6366F1" stroke-width="1.5"/>
+                                            <text x="101" y="70" text-anchor="middle" fill="#E2E8F0" font-size="12" font-weight="600">Client Tx</text>
+                                            <text x="101" y="88" text-anchor="middle" fill="#94A3B8" font-size="10">buffer dinamis</text>
+
+                                            <rect x="200" y="30" width="180" height="84" rx="12" fill="#0F172A" stroke="#6366F1" stroke-width="1.5"/>
+                                            <text x="290" y="60" text-anchor="middle" fill="#E2E8F0" font-size="12" font-weight="600">Orderer v3</text>
+                                            <text x="290" y="78" text-anchor="middle" fill="#94A3B8" font-size="10">pipeline ordering</text>
+                                            <text x="290" y="96" text-anchor="middle" fill="#94A3B8" font-size="10">batch adaptif</text>
+
+                                            <rect x="408" y="30" width="122" height="84" rx="12" fill="#0F172A" stroke="#6366F1" stroke-width="1.5"/>
+                                            <text x="469" y="60" text-anchor="middle" fill="#E2E8F0" font-size="12" font-weight="600">Followers</text>
+                                            <text x="469" y="78" text-anchor="middle" fill="#94A3B8" font-size="10">osnadmin</text>
+
+                                            <rect x="200" y="146" width="330" height="70" rx="12" fill="#0F172A" stroke="#6366F1" stroke-width="1.5"/>
+                                            <text x="365" y="174" text-anchor="middle" fill="#E2E8F0" font-size="12" font-weight="600">AppendEntries + pipeline</text>
+                                            <text x="365" y="194" text-anchor="middle" fill="#94A3B8" font-size="10">delivery berlapis</text>
+
+                                            <rect x="200" y="236" width="330" height="48" rx="12" fill="#0F172A" stroke="#6366F1" stroke-width="1.5"/>
+                                            <text x="365" y="264" text-anchor="middle" fill="#E2E8F0" font-size="12" font-weight="600">Commit &amp; sync cepat</text>
+
+                                            <path d="M176 72 L200 72" stroke="#6366F1" stroke-width="1.5" marker-end="url(#v3StandardArrow)"/>
+                                            <path d="M380 72 L408 72" stroke="#6366F1" stroke-width="1.5" marker-end="url(#v3StandardArrow)"/>
+                                            <path d="M290 114 L290 146" stroke="#6366F1" stroke-width="1.5" marker-end="url(#v3StandardArrow)"/>
+                                            <path d="M365 216 L365 236" stroke="#6366F1" stroke-width="1.5" marker-end="url(#v3StandardArrow)"/>
+                                        </svg>
+                                        <figcaption class="mt-3 text-xs text-textdark/70">
+                                            Versi v3 menambahkan pipeline ordering untuk mempercepat pengiriman blok.
+                                        </figcaption>
+                                    </figure>
                                 </article>
                                 <article class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6 shadow-xl shadow-black/20">
                                     <div class="flex flex-wrap items-center justify-between gap-2">
-                                        <h3 class="text-lg font-semibold text-textdark">Raft Varian (Eksperimen)</h3>
-                                        <span class="rounded-full border border-highlight/40 bg-highlight/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-highlight/90">Tuning</span>
-                                    </div>
-                                    <div class="mt-6 space-y-3 text-sm text-textdark/80">
-                                        <div class="rounded-lg border border-white/5 bg-surface/60 p-3">1. Timeout election dipersingkat untuk respons cepat.</div>
-                                        <div class="text-center text-xs text-textdark/50">⬇</div>
-                                        <div class="rounded-lg border border-white/5 bg-surface/60 p-3">2. Batch adaptif menyesuaikan beban transaksi.</div>
-                                        <div class="text-center text-xs text-textdark/50">⬇</div>
-                                        <div class="rounded-lg border border-white/5 bg-surface/60 p-3">3. AppendEntries paralel untuk menekan latensi.</div>
-                                        <div class="text-center text-xs text-textdark/50">⬇</div>
-                                        <div class="rounded-lg border border-white/5 bg-surface/60 p-3">4. Ack quorum diukur per fase, commit lebih agresif.</div>
-                                        <div class="text-center text-xs text-textdark/50">⬇</div>
-                                        <div class="rounded-lg border border-white/5 bg-surface/60 p-3">5. Monitoring backlog untuk trigger recovery.</div>
-                                    </div>
-                                </article>
-                                <article class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6 shadow-xl shadow-black/20">
-                                    <div class="flex flex-wrap items-center justify-between gap-2">
-                                        <h3 class="text-lg font-semibold text-textdark">Varian + SmartBFT (Fabric v3)</h3>
+                                        <h3 class="text-lg font-semibold text-textdark">Fabric v3 — Raft Varian + SmartBFT</h3>
                                         <span class="rounded-full border border-accent/40 bg-accent/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-accent/90">BFT</span>
                                     </div>
-                                    <div class="mt-6 space-y-3 text-sm text-textdark/80">
-                                        <div class="rounded-lg border border-white/5 bg-surface/60 p-3">1. Leader mengusulkan blok (PrePrepare).</div>
-                                        <div class="text-center text-xs text-textdark/50">⬇</div>
-                                        <div class="rounded-lg border border-white/5 bg-surface/60 p-3">2. Replika validasi &amp; broadcast Prepare.</div>
-                                        <div class="text-center text-xs text-textdark/50">⬇</div>
-                                        <div class="rounded-lg border border-white/5 bg-surface/60 p-3">3. Quorum Prepare → kirim Commit.</div>
-                                        <div class="text-center text-xs text-textdark/50">⬇</div>
-                                        <div class="rounded-lg border border-white/5 bg-surface/60 p-3">4. Quorum Commit → blok final &amp; broadcast ke peer.</div>
-                                        <div class="text-center text-xs text-textdark/50">⬇</div>
-                                        <div class="rounded-lg border border-white/5 bg-surface/60 p-3">5. Audit tambahan untuk ketahanan byzantine.</div>
-                                    </div>
+                                    <figure class="mt-6 rounded-xl border border-white/10 bg-surface/60 p-4">
+                                        <svg class="w-full h-auto" viewBox="0 0 560 300" role="img" aria-labelledby="diagramV3VariantTitle">
+                                            <title id="diagramV3VariantTitle">Flow Fabric v3 Raft varian dan SmartBFT</title>
+                                            <defs>
+                                                <linearGradient id="v3VariantBg" x1="0" y1="0" x2="1" y2="1">
+                                                    <stop offset="0%" stop-color="#1F2937" stop-opacity="0.95"/>
+                                                    <stop offset="100%" stop-color="#0B1120" stop-opacity="0.92"/>
+                                                </linearGradient>
+                                                <marker id="v3VariantArrow" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto">
+                                                    <path d="M0,0 L0,6 L6,3 z" fill="#F59E0B"/>
+                                                </marker>
+                                            </defs>
+                                            <rect x="0" y="0" width="560" height="300" rx="16" fill="url(#v3VariantBg)"/>
+                                            <rect x="26" y="30" width="150" height="72" rx="12" fill="#0F172A" stroke="#F59E0B" stroke-width="1.5"/>
+                                            <text x="101" y="60" text-anchor="middle" fill="#E2E8F0" font-size="12" font-weight="600">Client Tx</text>
+                                            <text x="101" y="78" text-anchor="middle" fill="#94A3B8" font-size="10">batch agresif</text>
+                                            <text x="101" y="94" text-anchor="middle" fill="#94A3B8" font-size="10">throughput tinggi</text>
+
+                                            <rect x="200" y="24" width="182" height="86" rx="12" fill="#0F172A" stroke="#F59E0B" stroke-width="1.5"/>
+                                            <text x="291" y="52" text-anchor="middle" fill="#E2E8F0" font-size="12" font-weight="600">Orderer v3</text>
+                                            <text x="291" y="70" text-anchor="middle" fill="#94A3B8" font-size="10">raft varian</text>
+                                            <text x="291" y="88" text-anchor="middle" fill="#94A3B8" font-size="10">opsi SmartBFT</text>
+
+                                            <rect x="408" y="24" width="122" height="86" rx="12" fill="#0F172A" stroke="#F59E0B" stroke-width="1.5"/>
+                                            <text x="469" y="54" text-anchor="middle" fill="#E2E8F0" font-size="12" font-weight="600">Replica Set</text>
+                                            <text x="469" y="72" text-anchor="middle" fill="#94A3B8" font-size="10">quorum BFT</text>
+                                            <text x="469" y="88" text-anchor="middle" fill="#94A3B8" font-size="10">validasi ekstra</text>
+
+                                            <rect x="200" y="140" width="330" height="68" rx="12" fill="#0F172A" stroke="#F59E0B" stroke-width="1.5"/>
+                                            <text x="365" y="168" text-anchor="middle" fill="#E2E8F0" font-size="12" font-weight="600">PrePrepare → Prepare</text>
+                                            <text x="365" y="186" text-anchor="middle" fill="#94A3B8" font-size="10">commit setelah quorum</text>
+
+                                            <rect x="200" y="232" width="330" height="52" rx="12" fill="#0F172A" stroke="#F59E0B" stroke-width="1.5"/>
+                                            <text x="365" y="262" text-anchor="middle" fill="#E2E8F0" font-size="12" font-weight="600">Commit final + audit</text>
+
+                                            <path d="M176 68 L200 68" stroke="#F59E0B" stroke-width="1.5" marker-end="url(#v3VariantArrow)"/>
+                                            <path d="M382 68 L408 68" stroke="#F59E0B" stroke-width="1.5" marker-end="url(#v3VariantArrow)"/>
+                                            <path d="M291 110 L291 140" stroke="#F59E0B" stroke-width="1.5" marker-end="url(#v3VariantArrow)"/>
+                                            <path d="M365 208 L365 232" stroke="#F59E0B" stroke-width="1.5" marker-end="url(#v3VariantArrow)"/>
+                                        </svg>
+                                        <figcaption class="mt-3 text-xs text-textdark/70">
+                                            Varian v3 menambahkan opsi SmartBFT untuk toleransi byzantine dengan validasi tambahan.
+                                        </figcaption>
+                                    </figure>
                                 </article>
                             </div>
                         </section>
@@ -218,5 +343,10 @@ onCommit(block):
             </div>
         </div>
     </div>
+
+    <div data-component="footer"></div>
+
+    <script src="/js/layout.js" defer></script>
+    <script src="/js/navigation.js" defer></script>
 </body>
 </html>

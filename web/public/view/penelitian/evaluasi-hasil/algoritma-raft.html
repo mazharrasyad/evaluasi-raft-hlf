@@ -5,6 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Evaluasi RAFT HLF — Algoritma Raft</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#38BDF8',
+                        secondary: '#6366F1',
+                        accent: '#F59E0B',
+                        highlight: '#F97316',
+                        soft: '#050B16',
+                        surface: '#0F172A',
+                        surfaceMuted: '#16213F',
+                        border: '#1E293B',
+                        muted: '#94A3B8',
+                        textdark: '#E2E8F0'
+                    }
+                }
+            }
+        };
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -29,24 +49,28 @@
                                 <div class="space-y-5">
                                     <h1 class="text-3xl font-semibold text-textdark md:text-4xl">Algoritma Raft</h1>
                                     <p class="text-sm text-textdark/70 md:text-base leading-relaxed">
-                                        Halaman ini membahas flow dan pseudocode algoritma konsensus <strong>Raft</strong> pada Hyperledger Fabric versi 2 dan 3, serta varian dengan <strong>SmartBFT</strong>.
+                                        Sub bab ini menjelaskan bagaimana <strong>Raft</strong> bekerja sebagai mekanisme konsensus CFT pada Hyperledger Fabric v2 dan v3. Fokus pembahasan mencakup alur kerja (leader election, replikasi log, hingga commit) beserta perbandingan singkat dengan opsi <strong>SmartBFT</strong> sebagai konsensus BFT pada Fabric v3.
                                     </p>
                                 </div>
                             </div>
                         </section>
-                        <section class="space-y-8 rounded-3xl border border-white/10 bg-surfaceMuted/70 p-8 shadow-2xl shadow-black/30">
-                            <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Flow Algoritma Raft</h2>
+                        <section class="space-y-6 rounded-3xl border border-white/10 bg-surfaceMuted/70 p-8 shadow-2xl shadow-black/30">
+                            <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Fase Utama dalam Raft</h2>
+                            <p class="text-sm text-textdark/70 md:text-base">
+                                Dalam konteks penelitian ini, alur Raft dipaparkan sebagai rangkaian fase berulang yang menjaga konsistensi log antarnode. Setiap fase menegaskan peran leader sebagai koordinator dan follower sebagai replika.
+                            </p>
                             <ol class="list-decimal pl-6 text-textdark/80 space-y-2">
-                                <li>Leader menerima transaksi dari client.</li>
-                                <li>Leader membentuk batch/blok dari transaksi.</li>
-                                <li>Leader mengirim AppendEntries (blok) ke follower.</li>
-                                <li>Follower menulis log dan mengirim ack ke leader.</li>
-                                <li>Jika mayoritas follower ack, blok di-commit dan didistribusikan ke peer.</li>
-                                <li>Pada kegagalan leader, pemilihan leader baru dilakukan (election).</li>
+                                <li><strong>Leader election:</strong> node kandidat meminta suara untuk menjadi leader ketika timeout.</li>
+                                <li><strong>Log replication:</strong> leader menerima transaksi, membentuk batch, lalu mengirim AppendEntries.</li>
+                                <li><strong>Commit &amp; apply:</strong> mayoritas acknowledgment membuat blok dianggap valid dan diterapkan ke state.</li>
+                                <li><strong>Recovery:</strong> node tertinggal mengejar log dari leader hingga konsisten kembali.</li>
                             </ol>
                         </section>
                         <section class="space-y-8 rounded-3xl border border-white/10 bg-surface/60 p-8 shadow-2xl shadow-black/30">
                             <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Pseudocode Raft (HLF v2 & v3)</h2>
+                            <p class="text-sm text-textdark/70 md:text-base">
+                                Pseudocode berikut merangkum proses yang sama pada Fabric v2 dan v3, dengan penyesuaian parameter konfigurasi seperti ukuran batch, timeout, dan mekanisme pengiriman blok.
+                            </p>
                             <pre class="bg-surfaceMuted/80 rounded-lg p-4 text-xs overflow-x-auto text-textdark/90"><code>// Leader menerima transaksi
 onReceiveTransaction(tx):
     batch.append(tx)
@@ -74,10 +98,18 @@ onTimeout():
     startElection()
 </code></pre>
                         </section>
+                        <section class="space-y-6 rounded-3xl border border-white/10 bg-surface/60 p-8 shadow-2xl shadow-black/30">
+                            <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Perbandingan Implementasi v2 &amp; v3</h2>
+                            <ul class="list-disc pl-6 text-textdark/80 space-y-2">
+                                <li><strong>Fabric v2:</strong> fokus pada stabilitas RAFT standar dengan konfigurasi CFT yang teruji.</li>
+                                <li><strong>Fabric v3:</strong> menawarkan perbaikan pipeline serta opsi konsensus <strong>SmartBFT</strong> untuk kebutuhan toleransi Byzantine.</li>
+                                <li><strong>Varian penelitian:</strong> penyesuaian parameter dan skenario beban digunakan untuk melihat efek pada throughput dan latency.</li>
+                            </ul>
+                        </section>
                         <section class="space-y-8 rounded-3xl border border-white/10 bg-surface/60 p-8 shadow-2xl shadow-black/30">
-                            <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Varian Raft dengan SmartBFT (HLF v3)</h2>
+                            <h2 class="text-2xl font-semibold text-textdark md:text-3xl">SmartBFT sebagai Pembanding</h2>
                             <p class="text-sm text-textdark/70 md:text-base">
-                                Pada Fabric v3, <strong>SmartBFT</strong> menjadi opsi konsensus BFT. Flow mirip Raft, namun menggunakan protokol BFT (Byzantine Fault Tolerance) dengan quorum lebih besar dan mekanisme validasi tambahan.
+                                Pada Fabric v3, <strong>SmartBFT</strong> menjadi opsi konsensus BFT. Flow mirip Raft, namun menggunakan protokol BFT (Byzantine Fault Tolerance) dengan quorum lebih besar dan validasi tambahan sehingga berdampak pada latensi namun meningkatkan ketahanan terhadap perilaku byzantine.
                             </p>
                             <pre class="bg-surfaceMuted/80 rounded-lg p-4 text-xs overflow-x-auto text-textdark/90"><code>// SmartBFT (skema sederhana)
 onProposeBlock(block):
@@ -96,6 +128,14 @@ onCommit(block):
         commit(block)
         broadcast block to peers
 </code></pre>
+                        </section>
+                        <section class="space-y-6 rounded-3xl border border-white/10 bg-surfaceMuted/70 p-8 shadow-2xl shadow-black/30">
+                            <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Ringkasan Sub Bab 4.6.1</h2>
+                            <ul class="list-disc pl-6 text-textdark/80 space-y-2">
+                                <li>RAFT diposisikan sebagai mekanisme CFT yang menyeimbangkan konsistensi dan ketersediaan jaringan.</li>
+                                <li>Alur leader election dan log replication menjadi kunci perbedaan performa ketika beban transaksi meningkat.</li>
+                                <li>SmartBFT diperkenalkan sebagai pembanding ketika dibutuhkan toleransi Byzantine yang lebih tinggi.</li>
+                            </ul>
                         </section>
                     </div>
                 </main>

@@ -1186,7 +1186,11 @@ const viewFiles = {
         evaluasiHasil: path.resolve(viewsRoot, 'penelitian/evaluasi-hasil/index.html'),
         evaluasiHasilSubsections: {
             ringkasanHasil: path.resolve(viewsRoot, 'penelitian/evaluasi-hasil/ringkasan-hasil.html'),
-            algoritmaRaft: path.resolve(viewsRoot, 'penelitian/evaluasi-hasil/algoritma-raft.html'),
+            algoritmaRaft: path.resolve(viewsRoot, 'penelitian/evaluasi-hasil/algoritma-raft/index.html'),
+            algoritmaRaftV2Standar: path.resolve(viewsRoot, 'penelitian/evaluasi-hasil/algoritma-raft/fabric-v2-raft-standar.html'),
+            algoritmaRaftV2Varian: path.resolve(viewsRoot, 'penelitian/evaluasi-hasil/algoritma-raft/fabric-v2-raft-varian.html'),
+            algoritmaRaftV3Standar: path.resolve(viewsRoot, 'penelitian/evaluasi-hasil/algoritma-raft/fabric-v3-raft-standar.html'),
+            algoritmaRaftV4SmartBft: path.resolve(viewsRoot, 'penelitian/evaluasi-hasil/algoritma-raft/fabric-v4-raft-varian-smartbft.html'),
         },
     },
 };
@@ -1287,6 +1291,22 @@ app.get('/penelitian/evaluasi-hasil/ringkasan-hasil', (req, res) => {
 
 app.get('/penelitian/evaluasi-hasil/algoritma-raft', (req, res) => {
     res.sendFile(viewFiles.research.evaluasiHasilSubsections.algoritmaRaft);
+});
+
+app.get('/penelitian/evaluasi-hasil/algoritma-raft/fabric-v2-raft-standar', (req, res) => {
+    res.sendFile(viewFiles.research.evaluasiHasilSubsections.algoritmaRaftV2Standar);
+});
+
+app.get('/penelitian/evaluasi-hasil/algoritma-raft/fabric-v2-raft-varian', (req, res) => {
+    res.sendFile(viewFiles.research.evaluasiHasilSubsections.algoritmaRaftV2Varian);
+});
+
+app.get('/penelitian/evaluasi-hasil/algoritma-raft/fabric-v3-raft-standar', (req, res) => {
+    res.sendFile(viewFiles.research.evaluasiHasilSubsections.algoritmaRaftV3Standar);
+});
+
+app.get('/penelitian/evaluasi-hasil/algoritma-raft/fabric-v4-raft-varian-smartbft', (req, res) => {
+    res.sendFile(viewFiles.research.evaluasiHasilSubsections.algoritmaRaftV4SmartBft);
 });
 
 app.get('/penelitian/evaluasi-hasil/pembahasan-algoritma-raft', (req, res) => {

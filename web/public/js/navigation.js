@@ -45,7 +45,9 @@
         navLinks.forEach((link) => {
             const target = normalizePath(link.dataset.navTarget || '/');
             const isRoot = target === '/';
-            const isActive = isRoot ? currentPath === '/' : currentPath === target;
+            const isExactMatch = currentPath === target;
+            const isChildMatch = !isRoot && currentPath.startsWith(`${target}/`);
+            const isActive = isRoot ? currentPath === '/' : (isExactMatch || isChildMatch);
 
             link.dataset.active = isActive ? 'true' : 'false';
 

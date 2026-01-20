@@ -147,6 +147,27 @@
                                 <p class="text-sm text-textdark/70">
                                     Klik tombol untuk menampilkan tahapan Raft varian dengan SmartBFT sesuai beban yang dipilih.
                                 </p>
+                                <div class="grid gap-3 sm:grid-cols-3">
+                                    <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-4">
+                                        <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-textdark/60">Input transaksi</p>
+                                        <p class="mt-2 text-lg font-semibold text-textdark" data-sim-input>0 tx</p>
+                                    </div>
+                                    <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-4">
+                                        <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-textdark/60">Batch size</p>
+                                        <p class="mt-2 text-lg font-semibold text-textdark" data-sim-batch>0 tx</p>
+                                    </div>
+                                    <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-4">
+                                        <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-textdark/60">Estimasi blok</p>
+                                        <p class="mt-2 text-lg font-semibold text-textdark" data-sim-blocks>0 blok</p>
+                                    </div>
+                                </div>
+                                <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-4">
+                                    <div class="flex flex-wrap items-center justify-between gap-3 text-xs font-semibold uppercase tracking-[0.2em] text-textdark/60">
+                                        <span>Status simulasi</span>
+                                        <span class="text-[11px] font-semibold text-textdark/60" data-sim-fill>Batch 0/0</span>
+                                    </div>
+                                    <p class="mt-2 text-sm text-textdark/70" data-sim-status>Tekan tombol simulasi untuk memulai alur transaksi.</p>
+                                </div>
                                 <ol class="space-y-3">
                                     <li class="sim-step rounded-2xl border border-white/10 bg-surfaceMuted/70 p-4 text-sm text-textdark/70" data-sim-step="0">
                                         <strong class="text-textdark">Tx masuk ke leader</strong> — transaksi masuk ke batch varian.
@@ -219,31 +240,82 @@
         const steps = Array.from(document.querySelectorAll('[data-sim-step]'));
         const nodes = Array.from(document.querySelectorAll('[data-sim-node]'));
         const loadSelect = document.querySelector('[data-sim-load]');
+        const inputEl = document.querySelector('[data-sim-input]');
+        const batchEl = document.querySelector('[data-sim-batch]');
+        const blocksEl = document.querySelector('[data-sim-blocks]');
+        const fillEl = document.querySelector('[data-sim-fill]');
+        const statusEl = document.querySelector('[data-sim-status]');
         let timerIds = [];
         const loadTimings = {
             ringan: 1100,
             sedang: 900,
             tinggi: 650
         };
+        const loadProfiles = {
+            ringan: { inputTx: 60, batchSize: 20 },
+            sedang: { inputTx: 180, batchSize: 40 },
+            tinggi: { inputTx: 360, batchSize: 60 }
+        };
 
-        const resetSimulation = () => {
+        const clearHighlights = () => {
             steps.forEach(step => step.dataset.active = 'false');
             nodes.forEach(node => node.dataset.active = 'false');
+        };
+
+        const clearTimers = () => {
             timerIds.forEach(id => clearTimeout(id));
             timerIds = [];
+        };
+
+        const resetSimulation = () => {
+            clearTimers();
+            clearHighlights();
+        };
+
+        const updateMetrics = () => {
+            const profile = loadProfiles[loadSelect?.value] ?? loadProfiles.sedang;
+            const blocks = Math.ceil(profile.inputTx / profile.batchSize);
+            if (inputEl) inputEl.textContent = `${profile.inputTx} tx`;
+            if (batchEl) batchEl.textContent = `${profile.batchSize} tx`;
+            if (blocksEl) blocksEl.textContent = `${blocks} blok`;
+            if (fillEl) fillEl.textContent = `Batch 0/${profile.batchSize}`;
+            if (statusEl) statusEl.textContent = 'Tekan tombol simulasi untuk memulai alur transaksi.';
         };
 
         const runSimulation = () => {
             resetSimulation();
             const delayPerStep = loadTimings[loadSelect?.value] ?? 900;
+            const profile = loadProfiles[loadSelect?.value] ?? loadProfiles.sedang;
+            const collected = Math.min(profile.batchSize, profile.inputTx);
+            const statusMessages = [
+                `Input ${profile.inputTx} tx masuk, batch terisi ${collected}/${profile.batchSize}.`,
+                `Batch penuh, membuat blok #1 dari ${profile.batchSize} tx.`,
+                `Blok #1 direplikasi ke follower (${profile.batchSize} tx).`,
+                'Mayoritas ack, blok #1 di-commit.',
+                'Blok #1 disebarkan ke peer dan masuk ke ledger.'
+            ];
             steps.forEach((step, index) => {
                 const delay = index * delayPerStep;
                 timerIds.push(setTimeout(() => {
-                    resetSimulation();
+                    clearHighlights();
                     step.dataset.active = 'true';
                     const node = nodes.find(target => target.dataset.simNode === String(index));
                     if (node) {
                         node.dataset.active = 'true';
+                    }
+                    if (statusEl) statusEl.textContent = statusMessages[index] ?? statusMessages[0];
+                    if (fillEl) {
+                        if (index === 0) {
+                            fillEl.textContent = `Batch ${collected}/${profile.batchSize}`;
+                        } else if (index === 1) {
+                            fillEl.textContent = `Blok #1 dibuat (${profile.batchSize} tx)`;
+                        } else if (index === 2) {
+                            fillEl.textContent = 'Replikasi blok #1';
+                        } else if (index === 3) {
+                            fillEl.textContent = 'Commit blok #1';
+                        } else {
+                            fillEl.textContent = 'Ledger diperbarui';
+                        }
                     }
                 }, delay));
             });
@@ -252,6 +324,10 @@
         if (button) {
             button.addEventListener('click', runSimulation);
         }
+        if (loadSelect) {
+            loadSelect.addEventListener('change', updateMetrics);
+        }
+        updateMetrics();
     </script>
 </body>
 </html>

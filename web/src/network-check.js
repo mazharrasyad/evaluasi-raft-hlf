@@ -16,43 +16,13 @@ const PROJECT_ROOT = process.env.PROJECT_ROOT || path.resolve(__dirname, '../..'
 // Configuration
 const mspId = 'Org1MSP';
 const chaincodeName = 'pelaporan';
-const standardNetworkDir = path.join(PROJECT_ROOT, 'fabric-2/raft-standard/network');
-const variantNetworkDir = path.join(PROJECT_ROOT, 'fabric-2/raft-variant/network');
 const fabric3StandardNetworkDir = path.join(PROJECT_ROOT, 'fabric-3/raft-standard/network');
 const fabric3VariantNetworkDir = path.join(PROJECT_ROOT, 'fabric-3/raft-variant/network');
 
 const networkConfigurations = [
     {
-        targetId: 'channel-standard',
-        label: 'Fabric 2 RAFT Standard',
-        networkDir: standardNetworkDir,
-        channelName: 'fabric2-channel-standard',
-        peerEndpoint: 'localhost:7051',
-        peerHostAlias: 'peer0.org1.fabric2.standard.com',
-        domain: 'standard.com',
-        organizationsDir: 'organizations',
-        instructions: {
-            up: `cd ${standardNetworkDir} && ./network.sh up -ca && ./network.sh createChannel -c fabric2-channel-standard -ca`,
-            deploy: `cd ${standardNetworkDir} && ./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl javascript -c fabric2-channel-standard`
-        }
-    },
-    {
-        targetId: 'channel-variant',
-        label: 'Fabric 2 RAFT Variant',
-        networkDir: variantNetworkDir,
-        channelName: 'fabric2-channel-variant',
-        peerEndpoint: 'localhost:7052',
-        peerHostAlias: 'peer0.org1.fabric2.variant.com',
-        domain: 'variant.com',
-        organizationsDir: 'organizations',
-        instructions: {
-            up: `cd ${variantNetworkDir} && ./network.sh up -ca -bft && ./network.sh createChannel -c fabric2-channel-variant -ca -bft`,
-            deploy: `cd ${variantNetworkDir} && ./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl javascript -c fabric2-channel-variant -bft`
-        }
-    },
-    {
         targetId: 'channel-fabric3-standard',
-        label: 'Fabric 3 RAFT Standard',
+        label: 'Fabric 3 Raft',
         networkDir: fabric3StandardNetworkDir,
         channelName: 'fabric3-channel-standard',
         peerEndpoint: 'localhost:7153',
@@ -66,7 +36,7 @@ const networkConfigurations = [
     },
     {
         targetId: 'channel-fabric3-variant',
-        label: 'Fabric 3 RAFT Variant',
+        label: 'Fabric 3 SmartBFT',
         networkDir: fabric3VariantNetworkDir,
         channelName: 'fabric3-channel-variant',
         peerEndpoint: 'localhost:7353',

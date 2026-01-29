@@ -111,14 +111,6 @@ async function clearThroughputData() {
 
 // Container patterns for each network
 const CONTAINER_PATTERNS = {
-    'channel-standard': {
-        orderers: ['orderer.fabric2.standard.com', 'orderer2.fabric2.standard.com', 'orderer3.fabric2.standard.com'],
-        peers: ['peer0.org1.fabric2.standard.com', 'peer0.org2.fabric2.standard.com']
-    },
-    'channel-variant': {
-        orderers: ['orderer.fabric2.variant.com', 'orderer2.fabric2.variant.com', 'orderer3.fabric2.variant.com', 'orderer4.fabric2.variant.com', 'orderer5.fabric2.variant.com'],
-        peers: ['peer0.org1.fabric2.variant.com', 'peer0.org2.fabric2.variant.com']
-    },
     'channel-fabric3-standard': {
         orderers: ['orderer.fabric3.standard', 'orderer2.fabric3.standard', 'orderer3.fabric3.standard'],
         peers: ['peer0.org1.fabric3.standard', 'peer0.org2.fabric3.standard']
@@ -648,89 +640,21 @@ async function logNetworkStartupFailure(result) {
 
 const NETWORK_SHUTDOWN_TARGETS = [
     {
-        id: 'standard',
-        label: 'RAFT Standard Network',
-        directory: path.resolve(__dirname, '../../fabric-2/raft-standard/network'),
-    },
-    {
-        id: 'variant',
-        label: 'RAFT Variant Network',
-        directory: path.resolve(__dirname, '../../fabric-2/raft-variant/network'),
-    },
-    {
         id: 'fabric3-standard',
-        label: 'Fabric 3 RAFT Standard Network',
+        label: 'Fabric 3 Raft Network',
         directory: path.resolve(__dirname, '../../fabric-3/raft-standard/network'),
     },
     {
         id: 'fabric3-variant',
-        label: 'Fabric 3 RAFT Variant Network',
+        label: 'Fabric 3 SmartBFT Network',
         directory: path.resolve(__dirname, '../../fabric-3/raft-variant/network'),
     },
 ];
 
 const NETWORK_START_TARGETS = [
     {
-        id: 'standard',
-        label: 'RAFT Standard Network',
-        directory: path.resolve(__dirname, '../../fabric-2/raft-standard/network'),
-        channel: 'fabric2-channel-standard',
-        commands: [
-            {
-                label: 'Start network and create channel',
-                args: ['up', 'createChannel', '-ca', '-c', 'fabric2-channel-standard'],
-                displayCommand: './network.sh up createChannel -ca -c fabric2-channel-standard',
-            },
-            {
-                label: 'Deploy chaincode',
-                args: [
-                    'deployCC',
-                    '-ccn',
-                    'pelaporan',
-                    '-ccp',
-                    '../chaincode/pelaporan',
-                    '-ccl',
-                    'javascript',
-                    '-c',
-                    'fabric2-channel-standard',
-                ],
-                displayCommand:
-                    './network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl javascript -c fabric2-channel-standard',
-            },
-        ],
-    },
-    {
-        id: 'variant',
-        label: 'RAFT Variant Network',
-        directory: path.resolve(__dirname, '../../fabric-2/raft-variant/network'),
-        channel: 'fabric2-channel-variant',
-        commands: [
-            {
-                label: 'Start network and create channel',
-                args: ['up', 'createChannel', '-ca', '-c', 'fabric2-channel-variant'],
-                displayCommand: './network.sh up createChannel -ca -c fabric2-channel-variant',
-            },
-            {
-                label: 'Deploy chaincode',
-                args: [
-                    'deployCC',
-                    '-ccn',
-                    'pelaporan',
-                    '-ccp',
-                    '../chaincode/pelaporan',
-                    '-ccl',
-                    'javascript',
-                    '-c',
-                    'fabric2-channel-variant',
-                ],
-                displayCommand:
-                    './network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl javascript -c fabric2-channel-variant',
-            },
-        ],
-    },
-    {
         id: 'fabric3-standard',
-        label: 'Fabric 3 RAFT Standard Network',
+        label: 'Fabric 3 Raft Network',
         directory: path.resolve(__dirname, '../../fabric-3/raft-standard/network'),
         channel: 'fabric3-channel-standard',
         commands: [
@@ -759,7 +683,7 @@ const NETWORK_START_TARGETS = [
     },
     {
         id: 'fabric3-variant',
-        label: 'Fabric 3 RAFT Variant Network',
+        label: 'Fabric 3 SmartBFT Network',
         directory: path.resolve(__dirname, '../../fabric-3/raft-variant/network'),
         channel: 'fabric3-channel-variant',
         commands: [
@@ -1187,10 +1111,8 @@ const viewFiles = {
         evaluasiHasilSubsections: {
             ringkasanHasil: path.resolve(viewsRoot, 'penelitian/evaluasi-hasil/ringkasan-hasil.html'),
             algoritmaRaft: path.resolve(viewsRoot, 'penelitian/evaluasi-hasil/algoritma-raft/index.html'),
-            algoritmaRaftV2Standar: path.resolve(viewsRoot, 'penelitian/evaluasi-hasil/algoritma-raft/fabric-v2-raft-standar.html'),
-            algoritmaRaftV2Varian: path.resolve(viewsRoot, 'penelitian/evaluasi-hasil/algoritma-raft/fabric-v2-raft-varian.html'),
             algoritmaRaftV3Standar: path.resolve(viewsRoot, 'penelitian/evaluasi-hasil/algoritma-raft/fabric-v3-raft-standar.html'),
-            algoritmaRaftV4SmartBft: path.resolve(viewsRoot, 'penelitian/evaluasi-hasil/algoritma-raft/fabric-v4-raft-varian-smartbft.html'),
+            algoritmaRaftV3SmartBft: path.resolve(viewsRoot, 'penelitian/evaluasi-hasil/algoritma-raft/fabric-v3-smartbft.html'),
         },
     },
 };
@@ -1293,20 +1215,12 @@ app.get('/penelitian/evaluasi-hasil/algoritma-raft', (req, res) => {
     res.sendFile(viewFiles.research.evaluasiHasilSubsections.algoritmaRaft);
 });
 
-app.get('/penelitian/evaluasi-hasil/algoritma-raft/fabric-v2-raft-standar', (req, res) => {
-    res.sendFile(viewFiles.research.evaluasiHasilSubsections.algoritmaRaftV2Standar);
-});
-
-app.get('/penelitian/evaluasi-hasil/algoritma-raft/fabric-v2-raft-varian', (req, res) => {
-    res.sendFile(viewFiles.research.evaluasiHasilSubsections.algoritmaRaftV2Varian);
-});
-
 app.get('/penelitian/evaluasi-hasil/algoritma-raft/fabric-v3-raft-standar', (req, res) => {
     res.sendFile(viewFiles.research.evaluasiHasilSubsections.algoritmaRaftV3Standar);
 });
 
-app.get('/penelitian/evaluasi-hasil/algoritma-raft/fabric-v4-raft-varian-smartbft', (req, res) => {
-    res.sendFile(viewFiles.research.evaluasiHasilSubsections.algoritmaRaftV4SmartBft);
+app.get('/penelitian/evaluasi-hasil/algoritma-raft/fabric-v3-smartbft', (req, res) => {
+    res.sendFile(viewFiles.research.evaluasiHasilSubsections.algoritmaRaftV3SmartBft);
 });
 
 app.get('/penelitian/evaluasi-hasil/pembahasan-algoritma-raft', (req, res) => {
@@ -1647,190 +1561,6 @@ app.post('/api/shutdown-network', async (req, res) => {
 // ============================================================================
 // These endpoints allow direct interaction with specific fabric networks
 
-// Fabric 2 RAFT Standard - POST endpoint
-app.post('/api/fabric-2/raft-standard/pelaporan', async (req, res) => {
-    const submittedAt = new Date().toISOString();
-    const networkId = 'channel-standard';
-
-    try {
-        const record = req.body;
-
-        // Validate input
-        if (!record || typeof record !== 'object') {
-            return res.status(400).json({
-                submittedAt,
-                completedAt: new Date().toISOString(),
-                success: false,
-                error: 'Record data is required',
-            });
-        }
-
-        // Submit to specific network
-        const result = await submitTransaction(networkId, record);
-
-        const completedAt = new Date().toISOString();
-
-        res.json({
-            submittedAt,
-            completedAt,
-            success: result.success,
-            networkId,
-            label: 'Fabric 2 RAFT Standard',
-            result,
-        });
-    } catch (error) {
-        console.error('Error submitting to Fabric 2 RAFT Standard:', error);
-        res.status(500).json({
-            submittedAt,
-            completedAt: new Date().toISOString(),
-            success: false,
-            networkId,
-            error: error instanceof Error ? error.message : String(error),
-        });
-    }
-});
-
-// Fabric 2 RAFT Standard - GET endpoint
-app.get('/api/fabric-2/raft-standard/pelaporan', async (req, res) => {
-    const fetchedAt = new Date().toISOString();
-    const networkId = 'channel-standard';
-
-    try {
-        // Mengambil data dari state database
-        const result = await queryRecordsFromNetwork(networkId);
-
-        // Collect resource usage dari Docker containers
-        const resourceSnapshot = await collectResourceUsage(networkId);
-
-        // Calculate metrics dari records
-        const metrics = calculateMetricsFromRecords(result.records, resourceSnapshot);
-
-        const completedAt = new Date().toISOString();
-
-        res.json({
-            fetchedAt,
-            completedAt,
-            success: result.success,
-            networkId,
-            label: 'Fabric 2 RAFT Standard',
-            count: result.count,
-            records: result.records,
-            // Data metrics terpisah untuk kemudahan analisis
-            data_throughput: metrics.throughput,
-            data_latency: metrics.latency,
-            data_resource_usage: metrics.resourceUsage,
-            data_fault_tolerance: metrics.faultTolerance
-        });
-    } catch (error) {
-        console.error('Error querying from Fabric 2 RAFT Standard:', error);
-        res.status(500).json({
-            fetchedAt,
-            completedAt: new Date().toISOString(),
-            success: false,
-            networkId,
-            error: error instanceof Error ? error.message : String(error),
-            count: 0,
-            records: [],
-            data_throughput: null,
-            data_latency: null,
-            data_resource_usage: null,
-            data_fault_tolerance: null
-        });
-    }
-});
-
-// Fabric 2 RAFT Variant - POST endpoint
-app.post('/api/fabric-2/raft-variant/pelaporan', async (req, res) => {
-    const submittedAt = new Date().toISOString();
-    const networkId = 'channel-variant';
-
-    try {
-        const record = req.body;
-
-        // Validate input
-        if (!record || typeof record !== 'object') {
-            return res.status(400).json({
-                submittedAt,
-                completedAt: new Date().toISOString(),
-                success: false,
-                error: 'Record data is required',
-            });
-        }
-
-        // Submit to specific network
-        const result = await submitTransaction(networkId, record);
-
-        const completedAt = new Date().toISOString();
-
-        res.json({
-            submittedAt,
-            completedAt,
-            success: result.success,
-            networkId,
-            label: 'Fabric 2 RAFT Variant',
-            result,
-        });
-    } catch (error) {
-        console.error('Error submitting to Fabric 2 RAFT Variant:', error);
-        res.status(500).json({
-            submittedAt,
-            completedAt: new Date().toISOString(),
-            success: false,
-            networkId,
-            error: error instanceof Error ? error.message : String(error),
-        });
-    }
-});
-
-// Fabric 2 RAFT Variant - GET endpoint
-app.get('/api/fabric-2/raft-variant/pelaporan', async (req, res) => {
-    const fetchedAt = new Date().toISOString();
-    const networkId = 'channel-variant';
-
-    try {
-        // Mengambil data dari state database
-        const result = await queryRecordsFromNetwork(networkId);
-
-        // Collect resource usage dari Docker containers
-        const resourceSnapshot = await collectResourceUsage(networkId);
-
-        // Calculate metrics dari records
-        const metrics = calculateMetricsFromRecords(result.records, resourceSnapshot);
-
-        const completedAt = new Date().toISOString();
-
-        res.json({
-            fetchedAt,
-            completedAt,
-            success: result.success,
-            networkId,
-            label: 'Fabric 2 RAFT Variant',
-            count: result.count,
-            records: result.records,
-            // Data metrics terpisah untuk kemudahan analisis
-            data_throughput: metrics.throughput,
-            data_latency: metrics.latency,
-            data_resource_usage: metrics.resourceUsage,
-            data_fault_tolerance: metrics.faultTolerance
-        });
-    } catch (error) {
-        console.error('Error querying from Fabric 2 RAFT Variant:', error);
-        res.status(500).json({
-            fetchedAt,
-            completedAt: new Date().toISOString(),
-            success: false,
-            networkId,
-            error: error instanceof Error ? error.message : String(error),
-            count: 0,
-            records: [],
-            data_throughput: null,
-            data_latency: null,
-            data_resource_usage: null,
-            data_fault_tolerance: null
-        });
-    }
-});
-
 // Fabric 3 RAFT Standard - POST endpoint
 app.post('/api/fabric-3/raft-standard/pelaporan', async (req, res) => {
     const submittedAt = new Date().toISOString();
@@ -1859,11 +1589,11 @@ app.post('/api/fabric-3/raft-standard/pelaporan', async (req, res) => {
             completedAt,
             success: result.success,
             networkId,
-            label: 'Fabric 3 RAFT Standard',
+            label: 'Fabric 3 Raft',
             result,
         });
     } catch (error) {
-        console.error('Error submitting to Fabric 3 RAFT Standard:', error);
+        console.error('Error submitting to Fabric 3 Raft:', error);
         res.status(500).json({
             submittedAt,
             completedAt: new Date().toISOString(),
@@ -1896,7 +1626,7 @@ app.get('/api/fabric-3/raft-standard/pelaporan', async (req, res) => {
             completedAt,
             success: result.success,
             networkId,
-            label: 'Fabric 3 RAFT Standard',
+            label: 'Fabric 3 Raft',
             count: result.count,
             records: result.records,
             // Data metrics terpisah untuk kemudahan analisis
@@ -1906,7 +1636,7 @@ app.get('/api/fabric-3/raft-standard/pelaporan', async (req, res) => {
             data_fault_tolerance: metrics.faultTolerance
         });
     } catch (error) {
-        console.error('Error querying from Fabric 3 RAFT Standard:', error);
+        console.error('Error querying from Fabric 3 Raft:', error);
         res.status(500).json({
             fetchedAt,
             completedAt: new Date().toISOString(),
@@ -1951,11 +1681,11 @@ app.post('/api/fabric-3/raft-variant/pelaporan', async (req, res) => {
             completedAt,
             success: result.success,
             networkId,
-            label: 'Fabric 3 RAFT Variant',
+            label: 'Fabric 3 SmartBFT',
             result,
         });
     } catch (error) {
-        console.error('Error submitting to Fabric 3 RAFT Variant:', error);
+        console.error('Error submitting to Fabric 3 SmartBFT:', error);
         res.status(500).json({
             submittedAt,
             completedAt: new Date().toISOString(),
@@ -1988,7 +1718,7 @@ app.get('/api/fabric-3/raft-variant/pelaporan', async (req, res) => {
             completedAt,
             success: result.success,
             networkId,
-            label: 'Fabric 3 RAFT Variant',
+            label: 'Fabric 3 SmartBFT',
             count: result.count,
             records: result.records,
             // Data metrics terpisah untuk kemudahan analisis
@@ -1998,7 +1728,7 @@ app.get('/api/fabric-3/raft-variant/pelaporan', async (req, res) => {
             data_fault_tolerance: metrics.faultTolerance
         });
     } catch (error) {
-        console.error('Error querying from Fabric 3 RAFT Variant:', error);
+        console.error('Error querying from Fabric 3 SmartBFT:', error);
         res.status(500).json({
             fetchedAt,
             completedAt: new Date().toISOString(),
@@ -2477,73 +2207,37 @@ app.get('/api/list', (req, res) => {
             ]
         },
         {
-            category: 'Fabric 2 RAFT Standard',
-            endpoints: [
-                {
-                    method: 'POST',
-                    path: '/api/fabric-2/raft-standard/pelaporan',
-                    description: 'Submit reporting data ke Fabric 2 RAFT Standard',
-                    body: 'reporting record object',
-                    response: '{ submittedAt, completedAt, success, networkId, result }'
-                },
-                {
-                    method: 'GET',
-                    path: '/api/fabric-2/raft-standard/pelaporan',
-                    description: 'Query semua transactions dari Fabric 2 RAFT Standard',
-                    response: '{ fetchedAt, success, networkId, count, records[], totalBlocks }'
-                }
-            ]
-        },
-        {
-            category: 'Fabric 2 RAFT Variant',
-            endpoints: [
-                {
-                    method: 'POST',
-                    path: '/api/fabric-2/raft-variant/pelaporan',
-                    description: 'Submit reporting data ke Fabric 2 RAFT Variant',
-                    body: 'reporting record object',
-                    response: '{ submittedAt, completedAt, success, networkId, result }'
-                },
-                {
-                    method: 'GET',
-                    path: '/api/fabric-2/raft-variant/pelaporan',
-                    description: 'Query semua transactions dari Fabric 2 RAFT Variant',
-                    response: '{ fetchedAt, success, networkId, count, records[], totalBlocks }'
-                }
-            ]
-        },
-        {
-            category: 'Fabric 3 RAFT Standard',
+            category: 'Fabric 3 Raft',
             endpoints: [
                 {
                     method: 'POST',
                     path: '/api/fabric-3/raft-standard/pelaporan',
-                    description: 'Submit reporting data ke Fabric 3 RAFT Standard',
+                    description: 'Submit reporting data ke Fabric 3 Raft',
                     body: 'reporting record object',
                     response: '{ submittedAt, completedAt, success, networkId, result }'
                 },
                 {
                     method: 'GET',
                     path: '/api/fabric-3/raft-standard/pelaporan',
-                    description: 'Query semua transactions dari Fabric 3 RAFT Standard',
+                    description: 'Query semua transactions dari Fabric 3 Raft',
                     response: '{ fetchedAt, success, networkId, count, records[], totalBlocks }'
                 }
             ]
         },
         {
-            category: 'Fabric 3 RAFT Variant',
+            category: 'Fabric 3 SmartBFT',
             endpoints: [
                 {
                     method: 'POST',
                     path: '/api/fabric-3/raft-variant/pelaporan',
-                    description: 'Submit reporting data ke Fabric 3 RAFT Variant',
+                    description: 'Submit reporting data ke Fabric 3 SmartBFT',
                     body: 'reporting record object',
                     response: '{ submittedAt, completedAt, success, networkId, result }'
                 },
                 {
                     method: 'GET',
                     path: '/api/fabric-3/raft-variant/pelaporan',
-                    description: 'Query semua transactions dari Fabric 3 RAFT Variant',
+                    description: 'Query semua transactions dari Fabric 3 SmartBFT',
                     response: '{ fetchedAt, success, networkId, count, records[], totalBlocks }'
                 }
             ]

@@ -78,7 +78,7 @@
                                 <div class="space-y-5">
                                     <h1 class="text-3xl font-semibold text-textdark md:text-4xl">Ringkasan Hasil</h1>
                                     <p class="text-sm text-textdark/70 md:text-base leading-relaxed">
-                                        Sub bab 4.6.2 merangkum hasil evaluasi performa berdasarkan empat parameter utama analisis data: <strong>Throughput</strong> (kemampuan memproses transaksi per detik), <strong>Latency</strong> (waktu respons), <strong>Resource Usage</strong> (penggunaan CPU dan memori), serta <strong>Fault Tolerance</strong> (ketahanan terhadap kegagalan node). Ringkasan ini mencakup empat konfigurasi jaringan (Fabric 2 dan 3 dengan RAFT standar maupun varian), termasuk opsi SmartBFT pada Fabric v3 varian, sehingga memudahkan perbandingan lintas skenario.
+                                        Sub bab 4.6.2 merangkum hasil evaluasi performa berdasarkan empat parameter utama analisis data: <strong>Throughput</strong> (kemampuan memproses transaksi per detik), <strong>Latency</strong> (waktu respons), <strong>Resource Usage</strong> (penggunaan CPU dan memori), serta <strong>Fault Tolerance</strong> (ketahanan terhadap kegagalan node). Ringkasan ini mencakup dua konfigurasi jaringan Fabric v3 (Raft dan SmartBFT), sehingga memudahkan perbandingan lintas skenario.
                                     </p>
                                 </div>
                             </div>
@@ -211,7 +211,7 @@
                         <section id="networkComparison" class="hidden rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20 backdrop-blur-sm">
                             <header class="flex flex-col gap-2 border-b border-white/10 pb-6">
                                 <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Perbandingan Antar Network</h2>
-                                <p class="text-sm text-textdark/70">Komparasi performa antara Fabric 2 dan Fabric 3 dengan konfigurasi Standard dan Variant</p>
+                                <p class="text-sm text-textdark/70">Komparasi performa antara Fabric 3 Raft dan Fabric 3 SmartBFT</p>
                             </header>
 
                             <div class="mt-8">
@@ -255,21 +255,13 @@
                                         </div>
                                         <div class="flex-1">
                                             <h4 class="text-lg font-semibold text-textdark mb-3">Throughput (TPS)</h4>
-                                            <div class="grid gap-3 md:grid-cols-4 mb-4">
+                                            <div class="grid gap-3 md:grid-cols-2 mb-4">
                                                 <div class="rounded-lg border border-white/10 bg-soft/50 p-3">
-                                                    <p class="text-xs text-textdark/60 mb-1">Fabric 2 Standard</p>
-                                                    <p id="throughputF2Std" class="text-xl font-bold text-accent">-</p>
-                                                </div>
-                                                <div class="rounded-lg border border-white/10 bg-soft/50 p-3">
-                                                    <p class="text-xs text-textdark/60 mb-1">Fabric 2 Variant</p>
-                                                    <p id="throughputF2Var" class="text-xl font-bold text-accent">-</p>
-                                                </div>
-                                                <div class="rounded-lg border border-white/10 bg-soft/50 p-3">
-                                                    <p class="text-xs text-textdark/60 mb-1">Fabric 3 Standard</p>
+                                                    <p class="text-xs text-textdark/60 mb-1">Fabric 3 Raft</p>
                                                     <p id="throughputF3Std" class="text-xl font-bold text-accent">-</p>
                                                 </div>
                                                 <div class="rounded-lg border border-white/10 bg-soft/50 p-3">
-                                                    <p class="text-xs text-textdark/60 mb-1">Fabric 3 Variant</p>
+                                                    <p class="text-xs text-textdark/60 mb-1">Fabric 3 SmartBFT</p>
                                                     <p id="throughputF3Var" class="text-xl font-bold text-accent">-</p>
                                                 </div>
                                             </div>
@@ -292,21 +284,13 @@
                                         </div>
                                         <div class="flex-1">
                                             <h4 class="text-lg font-semibold text-textdark mb-3">Latency (ms)</h4>
-                                            <div class="grid gap-3 md:grid-cols-4 mb-4">
+                                            <div class="grid gap-3 md:grid-cols-2 mb-4">
                                                 <div class="rounded-lg border border-white/10 bg-soft/50 p-3">
-                                                    <p class="text-xs text-textdark/60 mb-1">Fabric 2 Standard</p>
-                                                    <p id="latencyF2Std" class="text-xl font-bold text-secondary">-</p>
-                                                </div>
-                                                <div class="rounded-lg border border-white/10 bg-soft/50 p-3">
-                                                    <p class="text-xs text-textdark/60 mb-1">Fabric 2 Variant</p>
-                                                    <p id="latencyF2Var" class="text-xl font-bold text-secondary">-</p>
-                                                </div>
-                                                <div class="rounded-lg border border-white/10 bg-soft/50 p-3">
-                                                    <p class="text-xs text-textdark/60 mb-1">Fabric 3 Standard</p>
+                                                    <p class="text-xs text-textdark/60 mb-1">Fabric 3 Raft</p>
                                                     <p id="latencyF3Std" class="text-xl font-bold text-secondary">-</p>
                                                 </div>
                                                 <div class="rounded-lg border border-white/10 bg-soft/50 p-3">
-                                                    <p class="text-xs text-textdark/60 mb-1">Fabric 3 Variant</p>
+                                                    <p class="text-xs text-textdark/60 mb-1">Fabric 3 SmartBFT</p>
                                                     <p id="latencyF3Var" class="text-xl font-bold text-secondary">-</p>
                                                 </div>
                                             </div>
@@ -334,19 +318,11 @@
                                                     <p class="text-xs text-textdark/60 mb-2 font-semibold">CPU Usage (%)</p>
                                                     <div class="grid grid-cols-2 gap-2">
                                                         <div class="rounded-lg border border-white/10 bg-soft/50 p-3">
-                                                            <p class="text-[10px] text-textdark/60 mb-1">F2 Standard</p>
-                                                            <p id="cpuF2Std" class="text-lg font-bold text-highlight">-</p>
-                                                        </div>
-                                                        <div class="rounded-lg border border-white/10 bg-soft/50 p-3">
-                                                            <p class="text-[10px] text-textdark/60 mb-1">F2 Variant</p>
-                                                            <p id="cpuF2Var" class="text-lg font-bold text-highlight">-</p>
-                                                        </div>
-                                                        <div class="rounded-lg border border-white/10 bg-soft/50 p-3">
-                                                            <p class="text-[10px] text-textdark/60 mb-1">F3 Standard</p>
+                                                            <p class="text-[10px] text-textdark/60 mb-1">F3 Raft</p>
                                                             <p id="cpuF3Std" class="text-lg font-bold text-highlight">-</p>
                                                         </div>
                                                         <div class="rounded-lg border border-white/10 bg-soft/50 p-3">
-                                                            <p class="text-[10px] text-textdark/60 mb-1">F3 Variant</p>
+                                                            <p class="text-[10px] text-textdark/60 mb-1">F3 SmartBFT</p>
                                                             <p id="cpuF3Var" class="text-lg font-bold text-highlight">-</p>
                                                         </div>
                                                     </div>
@@ -355,19 +331,11 @@
                                                     <p class="text-xs text-textdark/60 mb-2 font-semibold">Memory Usage (MB)</p>
                                                     <div class="grid grid-cols-2 gap-2">
                                                         <div class="rounded-lg border border-white/10 bg-soft/50 p-3">
-                                                            <p class="text-[10px] text-textdark/60 mb-1">F2 Standard</p>
-                                                            <p id="memoryF2Std" class="text-lg font-bold text-highlight">-</p>
-                                                        </div>
-                                                        <div class="rounded-lg border border-white/10 bg-soft/50 p-3">
-                                                            <p class="text-[10px] text-textdark/60 mb-1">F2 Variant</p>
-                                                            <p id="memoryF2Var" class="text-lg font-bold text-highlight">-</p>
-                                                        </div>
-                                                        <div class="rounded-lg border border-white/10 bg-soft/50 p-3">
-                                                            <p class="text-[10px] text-textdark/60 mb-1">F3 Standard</p>
+                                                            <p class="text-[10px] text-textdark/60 mb-1">F3 Raft</p>
                                                             <p id="memoryF3Std" class="text-lg font-bold text-highlight">-</p>
                                                         </div>
                                                         <div class="rounded-lg border border-white/10 bg-soft/50 p-3">
-                                                            <p class="text-[10px] text-textdark/60 mb-1">F3 Variant</p>
+                                                            <p class="text-[10px] text-textdark/60 mb-1">F3 SmartBFT</p>
                                                             <p id="memoryF3Var" class="text-lg font-bold text-highlight">-</p>
                                                         </div>
                                                     </div>
@@ -392,21 +360,13 @@
                                         </div>
                                         <div class="flex-1">
                                             <h4 class="text-lg font-semibold text-textdark mb-3">Fault Tolerance</h4>
-                                            <div class="grid gap-3 md:grid-cols-4 mb-4">
+                                            <div class="grid gap-3 md:grid-cols-2 mb-4">
                                                 <div class="rounded-lg border border-white/10 bg-soft/50 p-3">
-                                                    <p class="text-xs text-textdark/60 mb-1">Fabric 2 Standard</p>
-                                                    <p id="faultToleranceF2Std" class="text-xl font-bold text-emerald-400">-</p>
-                                                </div>
-                                                <div class="rounded-lg border border-white/10 bg-soft/50 p-3">
-                                                    <p class="text-xs text-textdark/60 mb-1">Fabric 2 Variant</p>
-                                                    <p id="faultToleranceF2Var" class="text-xl font-bold text-emerald-400">-</p>
-                                                </div>
-                                                <div class="rounded-lg border border-white/10 bg-soft/50 p-3">
-                                                    <p class="text-xs text-textdark/60 mb-1">Fabric 3 Standard</p>
+                                                    <p class="text-xs text-textdark/60 mb-1">Fabric 3 Raft</p>
                                                     <p id="faultToleranceF3Std" class="text-xl font-bold text-emerald-400">-</p>
                                                 </div>
                                                 <div class="rounded-lg border border-white/10 bg-soft/50 p-3">
-                                                    <p class="text-xs text-textdark/60 mb-1">Fabric 3 Variant</p>
+                                                    <p class="text-xs text-textdark/60 mb-1">Fabric 3 SmartBFT</p>
                                                     <p id="faultToleranceF3Var" class="text-xl font-bold text-emerald-400">-</p>
                                                 </div>
                                             </div>
@@ -508,22 +468,16 @@
         let processedNetworks = [];
 
         const networkEndpoints = {
-            'channel-standard': '/api/fabric-2/raft-standard/pelaporan',
-            'channel-variant': '/api/fabric-2/raft-variant/pelaporan',
             'channel-fabric3-standard': '/api/fabric-3/raft-standard/pelaporan',
             'channel-fabric3-variant': '/api/fabric-3/raft-variant/pelaporan'
         };
 
         const networkDisplayNames = {
-            'channel-standard': 'Fabric 2 Standard',
-            'channel-variant': 'Fabric 2 Variant',
-            'channel-fabric3-standard': 'Fabric 3 Standard',
-            'channel-fabric3-variant': 'Fabric 3 Variant'
+            'channel-fabric3-standard': 'Fabric 3 Raft',
+            'channel-fabric3-variant': 'Fabric 3 SmartBFT'
         };
 
         const networkKeyMapping = {
-            'channel-standard': 'f2std',
-            'channel-variant': 'f2var',
             'channel-fabric3-standard': 'f3std',
             'channel-fabric3-variant': 'f3var'
         };
@@ -724,8 +678,6 @@
 
         function updateMetricElements(metrics) {
             const elementMapping = {
-                'f2std': { suffix: 'F2Std' },
-                'f2var': { suffix: 'F2Var' },
                 'f3std': { suffix: 'F3Std' },
                 'f3var': { suffix: 'F3Var' }
             };
@@ -775,15 +727,13 @@
             const avg = values.reduce((a, b) => a + b, 0) / values.length;
 
             const networkLabels = {
-                f2std: 'Fabric 2 Standard',
-                f2var: 'Fabric 2 Variant',
-                f3std: 'Fabric 3 Standard',
-                f3var: 'Fabric 3 Variant'
+                f3std: 'Fabric 3 Raft',
+                f3var: 'Fabric 3 SmartBFT'
             };
 
             const bestNetwork = Object.keys(throughputData).find(key => throughputData[key] === max);
 
-            const analysis = `Hasil analisis throughput menunjukkan bahwa ${networkLabels[bestNetwork] || 'salah satu network'} mencapai performa tertinggi dengan ${max.toFixed(2)} TPS. Rata-rata throughput keseluruhan adalah ${avg.toFixed(2)} TPS dengan rentang ${min.toFixed(2)} - ${max.toFixed(2)} TPS. Perbedaan throughput antar konfigurasi menunjukkan pengaruh optimisasi algoritma konsensus RAFT terhadap kemampuan pemrosesan transaksi. Konfigurasi dengan throughput lebih tinggi mengindikasikan efisiensi yang lebih baik dalam pengelolaan pipeline transaksi dan proses konsensus.`;
+            const analysis = `Hasil analisis throughput menunjukkan bahwa ${networkLabels[bestNetwork] || 'salah satu network'} mencapai performa tertinggi dengan ${max.toFixed(2)} TPS. Rata-rata throughput keseluruhan adalah ${avg.toFixed(2)} TPS dengan rentang ${min.toFixed(2)} - ${max.toFixed(2)} TPS. Perbedaan throughput antar konfigurasi menunjukkan pengaruh mekanisme konsensus terhadap kemampuan pemrosesan transaksi. Konfigurasi dengan throughput lebih tinggi mengindikasikan efisiensi yang lebih baik dalam pengelolaan pipeline transaksi dan proses konsensus.`;
 
             document.getElementById('throughputAnalysis').textContent = analysis;
         }
@@ -798,10 +748,8 @@
             const avg = values.reduce((a, b) => a + b, 0) / values.length;
 
             const networkLabels = {
-                f2std: 'Fabric 2 Standard',
-                f2var: 'Fabric 2 Variant',
-                f3std: 'Fabric 3 Standard',
-                f3var: 'Fabric 3 Variant'
+                f3std: 'Fabric 3 Raft',
+                f3var: 'Fabric 3 SmartBFT'
             };
 
             const bestNetwork = Object.keys(latencyData).find(key => latencyData[key] === min);
@@ -825,10 +773,8 @@
             const maxMem = memValues.length > 0 ? Math.max(...memValues) : 0;
 
             const networkLabels = {
-                f2std: 'Fabric 2 Standard',
-                f2var: 'Fabric 2 Variant',
-                f3std: 'Fabric 3 Standard',
-                f3var: 'Fabric 3 Variant'
+                f3std: 'Fabric 3 Raft',
+                f3var: 'Fabric 3 SmartBFT'
             };
 
             const mostEfficientCPUKey = cpuValues.length > 0
@@ -851,15 +797,13 @@
             const avg = values.reduce((a, b) => a + b, 0) / values.length;
 
             const networkLabels = {
-                f2std: 'Fabric 2 Standard',
-                f2var: 'Fabric 2 Variant',
-                f3std: 'Fabric 3 Standard',
-                f3var: 'Fabric 3 Variant'
+                f3std: 'Fabric 3 Raft',
+                f3var: 'Fabric 3 SmartBFT'
             };
 
             const bestNetwork = Object.keys(successRateData).find(key => successRateData[key] === max);
 
-            const analysis = `Fault tolerance evaluation menunjukkan ${networkLabels[bestNetwork] || 'salah satu network'} memiliki success rate tertinggi sebesar ${max.toFixed(2)}%. Rata-rata success rate keseluruhan adalah ${avg.toFixed(2)}% dengan rentang ${min.toFixed(2)}% - ${max.toFixed(2)}%. Success rate tinggi mengindikasikan robustness sistem dalam menghadapi berbagai kondisi termasuk network latency, node failures, dan konkurensi transaksi. Algoritma konsensus RAFT dengan mekanisme leader election dan log replication yang baik akan menghasilkan success rate yang lebih konsisten bahkan dalam kondisi beban tinggi.`;
+            const analysis = `Fault tolerance evaluation menunjukkan ${networkLabels[bestNetwork] || 'salah satu network'} memiliki success rate tertinggi sebesar ${max.toFixed(2)}%. Rata-rata success rate keseluruhan adalah ${avg.toFixed(2)}% dengan rentang ${min.toFixed(2)}% - ${max.toFixed(2)}%. Success rate tinggi mengindikasikan robustness sistem dalam menghadapi berbagai kondisi termasuk network latency, node failures, dan konkurensi transaksi. Mekanisme konsensus yang kuat akan menghasilkan success rate yang lebih konsisten bahkan dalam kondisi beban tinggi.`;
 
             document.getElementById('faultToleranceAnalysis').textContent = analysis;
         }

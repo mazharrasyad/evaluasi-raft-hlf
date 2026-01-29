@@ -14,30 +14,8 @@ const PROJECT_ROOT = process.env.PROJECT_ROOT || path.resolve(__dirname, '../..'
 
 // Network configuration mapping
 const NETWORK_CONFIGS = {
-    'channel-standard': {
-        label: 'Fabric 2 RAFT Standard',
-        fabricVersion: 'fabric-2',
-        variant: 'raft-standard',
-        channel: 'fabric2-channel-standard',
-        chaincode: 'pelaporan',
-        peerEndpoint: 'localhost:7051',
-        peerHostAlias: 'peer0.org1.fabric2.standard.com',
-        orgPath: 'org1.standard.com',
-        mspId: 'Org1MSP',
-    },
-    'channel-variant': {
-        label: 'Fabric 2 RAFT Variant',
-        fabricVersion: 'fabric-2',
-        variant: 'raft-variant',
-        channel: 'fabric2-channel-variant',
-        chaincode: 'pelaporan',
-        peerEndpoint: 'localhost:7052',
-        peerHostAlias: 'peer0.org1.fabric2.variant.com',
-        orgPath: 'org1.variant.com',
-        mspId: 'Org1MSP',
-    },
     'channel-fabric3-standard': {
-        label: 'Fabric 3 RAFT Standard',
+        label: 'Fabric 3 Raft',
         fabricVersion: 'fabric-3',
         variant: 'raft-standard',
         channel: 'fabric3-channel-standard',
@@ -48,7 +26,7 @@ const NETWORK_CONFIGS = {
         mspId: 'Org1MSP',
     },
     'channel-fabric3-variant': {
-        label: 'Fabric 3 RAFT Variant',
+        label: 'Fabric 3 SmartBFT',
         fabricVersion: 'fabric-3',
         variant: 'raft-variant',
         channel: 'fabric3-channel-variant',

@@ -68,7 +68,7 @@
                                 <div class="space-y-5">
                                     <h1 class="text-3xl font-semibold text-textdark md:text-4xl">Pembuatan Network Blockchain</h1>
                                     <p class="text-sm text-textdark/70 md:text-base">
-                                        Pembuatan network blockchain merupakan tahap penting dalam membangun jaringan Hyperledger Fabric. Tahap ini meliputi pembuatan channel dan menyalakan jaringan untuk memastikan komunikasi privat antara subset organisasi dalam jaringan. Gunakan dashboard berikut untuk menyalakan, mematikan, dan memeriksa status jaringan Fabric 2 dan Fabric 3. Khusus untuk Fabric 3 varian, tersedia opsi SmartBFT sebagai alternatif konsensus untuk perbandingan dengan RAFT.
+                                        Pembuatan network blockchain merupakan tahap penting dalam membangun jaringan Hyperledger Fabric. Tahap ini meliputi pembuatan channel dan menyalakan jaringan untuk memastikan komunikasi privat antara subset organisasi dalam jaringan. Gunakan dashboard berikut untuk menyalakan, mematikan, dan memeriksa status jaringan Fabric 3 dengan dua opsi konsensus: Raft dan SmartBFT.
                                     </p>
                                 </div>
                             </div>
@@ -78,7 +78,7 @@
                         <section id="all-networks" class="rounded-3xl border border-white/10 bg-surface p-8 shadow-2xl shadow-black/20 backdrop-blur-sm">
                             <header class="flex flex-col gap-2 border-b border-white/10 pb-6">
                                 <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Network Management</h2>
-                                <p class="text-sm text-textdark/70">Kelola semua jaringan RAFT (Fabric 2 dan Fabric 3) dari satu dashboard terpadu.</p>
+                                <p class="text-sm text-textdark/70">Kelola semua jaringan Fabric 3 (Raft &amp; SmartBFT) dari satu dashboard terpadu.</p>
                             </header>
                             <div class="mt-6 space-y-6">
                                 <div class="flex flex-col gap-2 rounded-2xl border border-white/10 bg-surfaceMuted/70 p-6 text-sm text-textdark">
@@ -96,88 +96,44 @@
                                         <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-300">⚡</span>
                                     </header>
                                     <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                                        <!-- Fabric 2 RAFT Standard -->
-                                        <div class="flex flex-col gap-3" data-fabric-scope="fabric-2">
-                                            <button
-                                                type="button"
-                                                class="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-500/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-emerald-500/40 transition duration-200 hover:-translate-y-0.5 hover:bg-emerald-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
-                                                data-network-startup-button="standard"
-                                                data-network-label="Fabric 2 RAFT Standard"
-                                            >
-                                                <span>Fabric 2 Standard</span>
-                                            </button>
-                                            <p
-                                                class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 py-2 text-xs font-medium text-textdark/80"
-                                                role="status"
-                                                aria-live="polite"
-                                                data-network-startup-status="standard"
-                                                data-network-label="Fabric 2 RAFT Standard"
-                                            >
-                                                <span data-indicator class="h-2 w-2 rounded-full bg-secondary"></span>
-                                                <span data-message>Siap untuk dijalankan</span>
-                                            </p>
-                                        </div>
-
-                                        <!-- Fabric 2 RAFT Variant -->
-                                        <div class="flex flex-col gap-3" data-fabric-scope="fabric-2">
-                                            <button
-                                                type="button"
-                                                class="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-500/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-emerald-500/40 transition duration-200 hover:-translate-y-0.5 hover:bg-emerald-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
-                                                data-network-startup-button="variant"
-                                                data-network-label="Fabric 2 RAFT Variant"
-                                            >
-                                                <span>Fabric 2 Variant</span>
-                                            </button>
-                                            <p
-                                                class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 py-2 text-xs font-medium text-textdark/80"
-                                                role="status"
-                                                aria-live="polite"
-                                                data-network-startup-status="variant"
-                                                data-network-label="Fabric 2 RAFT Variant"
-                                            >
-                                                <span data-indicator class="h-2 w-2 rounded-full bg-secondary"></span>
-                                                <span data-message>Siap untuk dijalankan</span>
-                                            </p>
-                                        </div>
-
-                                        <!-- Fabric 3 RAFT Standard -->
+                                        <!-- Fabric 3 Raft -->
                                         <div class="flex flex-col gap-3" data-fabric-scope="fabric-3">
                                             <button
                                                 type="button"
                                                 class="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-500/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-emerald-500/40 transition duration-200 hover:-translate-y-0.5 hover:bg-emerald-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
                                                 data-network-startup-button="fabric3-standard"
-                                                data-network-label="Fabric 3 RAFT Standard"
+                                                data-network-label="Fabric 3 Raft"
                                             >
-                                                <span>Fabric 3 Standard</span>
+                                                <span>Fabric 3 Raft</span>
                                             </button>
                                             <p
                                                 class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 py-2 text-xs font-medium text-textdark/80"
                                                 role="status"
                                                 aria-live="polite"
                                                 data-network-startup-status="fabric3-standard"
-                                                data-network-label="Fabric 3 RAFT Standard"
+                                                data-network-label="Fabric 3 Raft"
                                             >
                                                 <span data-indicator class="h-2 w-2 rounded-full bg-secondary"></span>
                                                 <span data-message>Siap untuk dijalankan</span>
                                             </p>
                                         </div>
 
-                                        <!-- Fabric 3 RAFT Variant -->
+                                        <!-- Fabric 3 SmartBFT -->
                                         <div class="flex flex-col gap-3" data-fabric-scope="fabric-3">
                                             <button
                                                 type="button"
                                                 class="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-500/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-emerald-500/40 transition duration-200 hover:-translate-y-0.5 hover:bg-emerald-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
                                                 data-network-startup-button="fabric3-variant"
-                                                data-network-label="Fabric 3 RAFT Variant"
+                                                data-network-label="Fabric 3 SmartBFT"
                                             >
-                                                <span>Fabric 3 Variant</span>
+                                                <span>Fabric 3 SmartBFT</span>
                                             </button>
                                             <p
                                                 class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 py-2 text-xs font-medium text-textdark/80"
                                                 role="status"
                                                 aria-live="polite"
                                                 data-network-startup-status="fabric3-variant"
-                                                data-network-label="Fabric 3 RAFT Variant"
+                                                data-network-label="Fabric 3 SmartBFT"
                                             >
                                                 <span data-indicator class="h-2 w-2 rounded-full bg-secondary"></span>
                                                 <span data-message>Siap untuk dijalankan</span>
@@ -195,89 +151,45 @@
                                         </div>
                                         <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-rose-500/10 text-rose-400">⏻</span>
                                     </header>
-                                    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                                        <!-- Fabric 2 RAFT Standard -->
-                                        <div class="flex flex-col gap-3" data-fabric-scope="fabric-2">
-                                            <button
-                                                type="button"
-                                                data-network-shutdown-button="standard"
-                                                data-network-label="Fabric 2 RAFT Standard"
-                                                class="inline-flex items-center justify-center gap-2 rounded-lg bg-rose-500/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-rose-500/40 transition duration-200 hover:-translate-y-0.5 hover:bg-rose-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-400"
-                                            >
-                                                <span>Fabric 2 Standard</span>
-                                            </button>
-                                            <p
-                                                class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 py-2 text-xs font-medium text-textdark/80"
-                                                role="status"
-                                                aria-live="polite"
-                                                data-network-shutdown-status="standard"
-                                                data-network-label="Fabric 2 RAFT Standard"
-                                            >
-                                                <span data-indicator class="h-2 w-2 rounded-full bg-secondary"></span>
-                                                <span data-message>Siap untuk dihentikan</span>
-                                            </p>
-                                        </div>
-
-                                        <!-- Fabric 2 RAFT Variant -->
-                                        <div class="flex flex-col gap-3" data-fabric-scope="fabric-2">
-                                            <button
-                                                type="button"
-                                                data-network-shutdown-button="variant"
-                                                data-network-label="Fabric 2 RAFT Variant"
-                                                class="inline-flex items-center justify-center gap-2 rounded-lg bg-rose-500/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-rose-500/40 transition duration-200 hover:-translate-y-0.5 hover:bg-rose-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-400"
-                                            >
-                                                <span>Fabric 2 Variant</span>
-                                            </button>
-                                            <p
-                                                class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 py-2 text-xs font-medium text-textdark/80"
-                                                role="status"
-                                                aria-live="polite"
-                                                data-network-shutdown-status="variant"
-                                                data-network-label="Fabric 2 RAFT Variant"
-                                            >
-                                                <span data-indicator class="h-2 w-2 rounded-full bg-secondary"></span>
-                                                <span data-message>Siap untuk dihentikan</span>
-                                            </p>
-                                        </div>
-
-                                        <!-- Fabric 3 RAFT Standard -->
+                                    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
+                                        <!-- Fabric 3 Raft -->
                                         <div class="flex flex-col gap-3" data-fabric-scope="fabric-3">
                                             <button
                                                 type="button"
                                                 data-network-shutdown-button="fabric3-standard"
-                                                data-network-label="Fabric 3 RAFT Standard"
+                                                data-network-label="Fabric 3 Raft"
                                                 class="inline-flex items-center justify-center gap-2 rounded-lg bg-rose-500/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-rose-500/40 transition duration-200 hover:-translate-y-0.5 hover:bg-rose-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-400"
                                             >
-                                                <span>Fabric 3 Standard</span>
+                                                <span>Fabric 3 Raft</span>
                                             </button>
                                             <p
                                                 class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 py-2 text-xs font-medium text-textdark/80"
                                                 role="status"
                                                 aria-live="polite"
                                                 data-network-shutdown-status="fabric3-standard"
-                                                data-network-label="Fabric 3 RAFT Standard"
+                                                data-network-label="Fabric 3 Raft"
                                             >
                                                 <span data-indicator class="h-2 w-2 rounded-full bg-secondary"></span>
                                                 <span data-message>Siap untuk dihentikan</span>
                                             </p>
                                         </div>
 
-                                        <!-- Fabric 3 RAFT Variant -->
+                                        <!-- Fabric 3 SmartBFT -->
                                         <div class="flex flex-col gap-3" data-fabric-scope="fabric-3">
                                             <button
                                                 type="button"
                                                 data-network-shutdown-button="fabric3-variant"
-                                                data-network-label="Fabric 3 RAFT Variant"
+                                                data-network-label="Fabric 3 SmartBFT"
                                                 class="inline-flex items-center justify-center gap-2 rounded-lg bg-rose-500/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-rose-500/40 transition duration-200 hover:-translate-y-0.5 hover:bg-rose-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-400"
                                             >
-                                                <span>Fabric 3 Variant</span>
+                                                <span>Fabric 3 SmartBFT</span>
                                             </button>
                                             <p
                                                 class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 py-2 text-xs font-medium text-textdark/80"
                                                 role="status"
                                                 aria-live="polite"
                                                 data-network-shutdown-status="fabric3-variant"
-                                                data-network-label="Fabric 3 RAFT Variant"
+                                                data-network-label="Fabric 3 SmartBFT"
                                             >
                                                 <span data-indicator class="h-2 w-2 rounded-full bg-secondary"></span>
                                                 <span data-message>Siap untuk dihentikan</span>
@@ -377,7 +289,7 @@
                                         </div>
                                         <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-secondary/20 text-secondary">⟳</span>
                                     </header>
-                                    <p class="text-sm text-textdark/70 mb-4">Jalankan pemeriksaan kesehatan untuk semua jaringan RAFT (Fabric 2 dan Fabric 3).</p>
+                                    <p class="text-sm text-textdark/70 mb-4">Jalankan pemeriksaan kesehatan untuk semua jaringan Fabric 3 (Raft &amp; SmartBFT).</p>
                                     <div class="flex flex-col gap-3">
                                         <button type="button" id="networkCheckButton" class="inline-flex items-center justify-center gap-2 rounded-lg bg-secondary/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-textdark shadow-lg shadow-secondary/40 transition duration-200 hover:-translate-y-0.5 hover:bg-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary">
                                             <span>Check All Networks</span>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Evaluasi RAFT HLF — Fabric v4 Raft Varian + SmartBFT</title>
+    <title>Evaluasi RAFT HLF — Fabric v3 SmartBFT</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -76,9 +76,9 @@
                                     Bab 4.6.1.4
                                 </div>
                                 <div class="space-y-5">
-                                    <h1 class="text-3xl font-semibold text-textdark md:text-4xl">Fabric v4 — Raft Varian + SmartBFT</h1>
+                                    <h1 class="text-3xl font-semibold text-textdark md:text-4xl">Fabric v3 — SmartBFT</h1>
                                     <p class="text-sm text-textdark/70 md:text-base leading-relaxed">
-                                        Pada Fabric v4, varian Raft dipadukan dengan <strong>SmartBFT</strong> untuk menambah toleransi Byzantine. Konfigurasi ini memprioritaskan <strong>keandalan tinggi</strong> melalui tahapan validasi tambahan sebelum commit.
+                                        Pada Fabric v3, <strong>SmartBFT</strong> dipadukan dengan Raft untuk menambah toleransi Byzantine. Konfigurasi ini memprioritaskan <strong>keandalan tinggi</strong> melalui tahapan validasi tambahan sebelum commit.
                                     </p>
                                 </div>
                             </div>
@@ -145,7 +145,7 @@
                                     </div>
                                 </div>
                                 <p class="text-sm text-textdark/70">
-                                    Klik tombol untuk menampilkan tahapan Raft varian dengan SmartBFT sesuai beban yang dipilih.
+                                    Klik tombol untuk menampilkan tahapan SmartBFT sesuai beban yang dipilih.
                                 </p>
                                 <div class="grid gap-3 sm:grid-cols-3">
                                     <div class="rounded-2xl border border-white/10 bg-surfaceMuted/70 p-4">
@@ -187,10 +187,10 @@
                                 </ol>
                             </div>
                             <div class="rounded-3xl border border-white/10 bg-surfaceMuted/70 p-8 shadow-2xl shadow-black/30">
-                                <h3 class="text-lg font-semibold text-textdark">Diagram SmartBFT v4</h3>
+                                <h3 class="text-lg font-semibold text-textdark">Diagram SmartBFT v3</h3>
                                 <figure class="mt-6 rounded-2xl border border-white/10 bg-surface/60 p-4">
-                                    <svg class="w-full h-auto" viewBox="0 0 520 320" role="img" aria-labelledby="diagramV4SmartBft">
-                                        <title id="diagramV4SmartBft">Flow Fabric v4 Raft varian + SmartBFT</title>
+                                    <svg class="w-full h-auto" viewBox="0 0 520 320" role="img" aria-labelledby="diagramV3SmartBft">
+                                        <title id="diagramV3SmartBft">Flow Fabric v3 SmartBFT</title>
                                         <defs>
                                             <marker id="arrowV4SmartBft" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto">
                                                 <path d="M0,0 L0,6 L6,3 z" fill="#F59E0B"/>
@@ -202,7 +202,7 @@
                                         <text x="99" y="84" text-anchor="middle" fill="#94A3B8" font-size="10">Batch varian</text>
 
                                         <rect x="198" y="24" width="176" height="88" rx="12" fill="#0F172A" stroke="#1E293B" stroke-width="1.5" data-sim-node="1" class="sim-node"/>
-                                        <text x="286" y="54" text-anchor="middle" fill="#E2E8F0" font-size="12" font-weight="600">Leader v4</text>
+                                        <text x="286" y="54" text-anchor="middle" fill="#E2E8F0" font-size="12" font-weight="600">Leader v3</text>
                                         <text x="286" y="72" text-anchor="middle" fill="#94A3B8" font-size="10">Propose blok</text>
                                         <text x="286" y="90" text-anchor="middle" fill="#94A3B8" font-size="10">PrePrepare</text>
 

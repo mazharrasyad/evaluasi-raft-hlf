@@ -145,18 +145,6 @@
             font-weight: 600;
         }
 
-        .badge-f2-standard {
-            background: rgba(34, 197, 94, 0.2);
-            color: rgb(74, 222, 128);
-            border: 1px solid rgba(34, 197, 94, 0.3);
-        }
-
-        .badge-f2-variant {
-            background: rgba(59, 130, 246, 0.2);
-            color: rgb(96, 165, 250);
-            border: 1px solid rgba(59, 130, 246, 0.3);
-        }
-
         .badge-f3-standard {
             background: rgba(168, 85, 247, 0.2);
             color: rgb(192, 132, 252);
@@ -382,7 +370,7 @@
                                 <div class="space-y-5">
                                     <h1 class="text-3xl font-semibold text-textdark md:text-4xl">Penyimpanan Data Transaksi</h1>
                                     <p class="text-sm text-textdark/70 md:text-base leading-relaxed">
-                                        Halaman ini menampilkan data transaksi yang tersimpan pada semua network blockchain dalam satu tabel gabungan. Data diambil dari state database setiap network menggunakan API GET pelaporan. Anda dapat melihat semua record yang telah disubmit ke network Fabric 2 RAFT Standard, Fabric 2 RAFT Variant, Fabric 3 RAFT Standard, dan Fabric 3 RAFT Variant, lengkap dengan informasi network dan kategori beban. Tampilan dibatasi 4 rows per halaman untuk perbandingan yang lebih fokus.
+                                        Halaman ini menampilkan data transaksi yang tersimpan pada semua network blockchain dalam satu tabel gabungan. Data diambil dari state database setiap network menggunakan API GET pelaporan. Anda dapat melihat semua record yang telah disubmit ke network Fabric 3 Raft dan Fabric 3 SmartBFT, lengkap dengan informasi network dan kategori beban. Tampilan dibatasi 4 rows per halaman untuk perbandingan yang lebih fokus.
                                     </p>
                                 </div>
                             </div>
@@ -580,29 +568,17 @@
     <script>
         // Network configuration
         const networkConfig = {
-            'f2-standard': {
-                apiUrl: '/api/fabric-2/raft-standard/pelaporan',
-                label: 'Fabric 2 RAFT Standard',
-                badgeClass: 'badge-f2-standard',
-                badgeText: 'F2 Standard'
-            },
-            'f2-variant': {
-                apiUrl: '/api/fabric-2/raft-variant/pelaporan',
-                label: 'Fabric 2 RAFT Variant',
-                badgeClass: 'badge-f2-variant',
-                badgeText: 'F2 Variant'
-            },
             'f3-standard': {
                 apiUrl: '/api/fabric-3/raft-standard/pelaporan',
-                label: 'Fabric 3 RAFT Standard',
+                label: 'Fabric 3 Raft',
                 badgeClass: 'badge-f3-standard',
-                badgeText: 'F3 Standard'
+                badgeText: 'F3 Raft'
             },
             'f3-variant': {
                 apiUrl: '/api/fabric-3/raft-variant/pelaporan',
-                label: 'Fabric 3 RAFT Variant',
+                label: 'Fabric 3 SmartBFT',
                 badgeClass: 'badge-f3-variant',
-                badgeText: 'F3 Variant'
+                badgeText: 'F3 SmartBFT'
             }
         };
 

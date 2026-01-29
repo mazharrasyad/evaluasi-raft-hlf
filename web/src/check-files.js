@@ -11,8 +11,8 @@ const __dirname = path.dirname(__filename);
 const PROJECT_ROOT = process.env.PROJECT_ROOT || path.resolve(__dirname, '../..');
 
 // Define paths to check
-const standardNetworkPath = path.join(PROJECT_ROOT, 'fabric-2/raft-standard/network');
-const variantNetworkPath = path.join(PROJECT_ROOT, 'fabric-2/raft-variant/network');
+const standardNetworkPath = path.join(PROJECT_ROOT, 'fabric-3/raft-standard/network');
+const variantNetworkPath = path.join(PROJECT_ROOT, 'fabric-3/raft-variant/network');
 
 const networkCandidates = [
   standardNetworkPath,
@@ -20,8 +20,8 @@ const networkCandidates = [
 ];
 
 const domainByNetworkPath = new Map([
-  [standardNetworkPath, 'standard.com'],
-  [variantNetworkPath, 'variant.com'],
+  [standardNetworkPath, 'fabric3.standard'],
+  [variantNetworkPath, 'fabric3.variant'],
 ]);
 
 async function resolveNetworkPath() {
@@ -66,10 +66,10 @@ async function checkFiles() {
     console.error(error.message);
 
     console.log('\nPlease ensure the Hyperledger Fabric network is set up correctly:');
-    console.log(`1. Make sure the network is running: cd ${standardNetworkPath} && ./network.sh up -ca && ./network.sh createChannel -c fabric2-channel-standard -ca`);
-    console.log(`   (use ${variantNetworkPath} if you are relying on the variant Fabric network with channel fabric2-channel-variant)`);
-    console.log(`2. Make sure the chaincode is deployed: cd ${standardNetworkPath} && ./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl javascript -c fabric2-channel-standard`);
-    console.log(`   (use ${variantNetworkPath} for the RAFT Variant network when deploying chaincode with -c fabric2-channel-variant)`);
+    console.log(`1. Make sure the network is running: cd ${standardNetworkPath} && ./network.sh up && ./network.sh createChannel -c fabric3-channel-standard`);
+    console.log(`   (use ${variantNetworkPath} if you are relying on the SmartBFT network with channel fabric3-channel-variant)`);
+    console.log(`2. Make sure the chaincode is deployed: cd ${standardNetworkPath} && ./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl node -c fabric3-channel-standard`);
+    console.log(`   (use ${variantNetworkPath} for the SmartBFT network when deploying chaincode with -c fabric3-channel-variant)`);
     console.log('3. Check that the crypto materials are generated in the correct location');
 
     return false;

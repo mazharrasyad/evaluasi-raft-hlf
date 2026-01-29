@@ -69,7 +69,7 @@ const fabric3NetworkBlockSummaryEl = document.getElementById('fabric3NetworkBloc
 const fabric3NetworkHealthSummaryEl = document.getElementById('fabric3NetworkHealthSummary');
 const fabric3NetworkHealthListEl = document.getElementById('fabric3NetworkHealthList');
 
-const DEFAULT_FABRIC_CONTEXT = 'fabric-2';
+const DEFAULT_FABRIC_CONTEXT = 'fabric-3';
 const DEFAULT_OVERALL_STATUS = 'unknown';
 const currentPath = typeof window !== 'undefined' ? window.location.pathname : '/';
 const normalizedPath = typeof currentPath === 'string' && currentPath.length > 1 && currentPath.endsWith('/')
@@ -81,19 +81,15 @@ const fabricContext = normalizedPath === '/'
         ? 'all'
         : normalizedPath.startsWith('/fabric-3/')
             ? 'fabric-3'
-            : normalizedPath.startsWith('/fabric-2/')
-                ? 'fabric-2'
-                : DEFAULT_FABRIC_CONTEXT;
+            : DEFAULT_FABRIC_CONTEXT;
 
 const FABRIC_CONTEXT_RESULT_LABELS = {
     all: null,
-    'fabric-2': ['Fabric 2 RAFT Standard', 'Fabric 2 RAFT Variant'],
-    'fabric-3': ['Fabric 3 RAFT Standard', 'Fabric 3 RAFT Variant'],
+    'fabric-3': ['Fabric 3 Raft', 'Fabric 3 SmartBFT'],
 };
 
 const FABRIC_CONTEXT_LABELS = {
-    all: 'Fabric 2 & Fabric 3',
-    'fabric-2': 'Fabric 2',
+    all: 'Fabric 3 (Raft & SmartBFT)',
     'fabric-3': 'Fabric 3',
 };
 
@@ -485,26 +481,14 @@ let isIngestingSimulation = false;
 
 const ALL_BLOCKCHAIN_TARGETS = [
     {
-        id: 'channel-standard',
-        label: 'Fabric 2 RAFT Standard',
-        channel: 'fabric2-channel-standard',
-        scope: 'fabric-2',
-    },
-    {
-        id: 'channel-variant',
-        label: 'Fabric 2 RAFT Variant',
-        channel: 'fabric2-channel-variant',
-        scope: 'fabric-2',
-    },
-    {
         id: 'channel-fabric3-standard',
-        label: 'Fabric 3 RAFT Standard',
+        label: 'Fabric 3 Raft',
         channel: 'fabric3-channel-standard',
         scope: 'fabric-3',
     },
     {
         id: 'channel-fabric3-variant',
-        label: 'Fabric 3 RAFT Variant',
+        label: 'Fabric 3 SmartBFT',
         channel: 'fabric3-channel-variant',
         scope: 'fabric-3',
     },
@@ -996,22 +980,14 @@ async function confirmNetworkShutdown(networkType, networkLabel) {
     let text = 'This command runs ./network.sh down for all available RAFT networks. Make sure no critical operations are in progress before continuing.';
     let confirmButtonText = 'Yes, shut down the networks';
 
-    if (normalizedType === 'standard') {
+    if (normalizedType === 'fabric3-standard') {
         title = `Shut down ${label}?`;
-        text = 'This command runs ./network.sh down for the Fabric 2 RAFT Standard network.';
-        confirmButtonText = 'Yes, shut down Fabric 2 RAFT Standard';
-    } else if (normalizedType === 'variant') {
-        title = `Shut down ${label}?`;
-        text = 'This command runs ./network.sh down for the Fabric 2 RAFT Variant network.';
-        confirmButtonText = 'Yes, shut down Fabric 2 RAFT Variant';
-    } else if (normalizedType === 'fabric3-standard') {
-        title = `Shut down ${label}?`;
-        text = 'This command runs ./network.sh down for the Fabric 3 RAFT Standard network.';
-        confirmButtonText = 'Yes, shut down Fabric 3 RAFT Standard';
+        text = 'This command runs ./network.sh down for the Fabric 3 Raft network.';
+        confirmButtonText = 'Yes, shut down Fabric 3 Raft';
     } else if (normalizedType === 'fabric3-variant') {
         title = `Shut down ${label}?`;
-        text = 'This command runs ./network.sh down for the Fabric 3 RAFT Variant network.';
-        confirmButtonText = 'Yes, shut down Fabric 3 RAFT Variant';
+        text = 'This command runs ./network.sh down for the Fabric 3 SmartBFT network.';
+        confirmButtonText = 'Yes, shut down Fabric 3 SmartBFT';
     }
 
     if (isSwalAvailable()) {
@@ -1044,11 +1020,7 @@ async function confirmNetworkStartup(networkType, networkLabel) {
     let title = `Start ${label}?`;
     let text = `This command runs a series of ./network.sh scripts to start ${label}. Ensure the server is ready before continuing.`;
 
-    if (normalizedType === 'standard') {
-        text = 'This will run ./network.sh up -ca, ./network.sh createChannel -c fabric2-channel-standard -ca, and deploy the pelaporan chaincode on fabric2-channel-standard.';
-    } else if (normalizedType === 'variant') {
-        text = 'This will run ./network.sh up -ca -bft, ./network.sh createChannel -c fabric2-channel-variant -ca -bft, and deploy the pelaporan chaincode on fabric2-channel-variant.';
-    } else if (normalizedType === 'fabric3-standard') {
+    if (normalizedType === 'fabric3-standard') {
         text = 'This will run ./network.sh up, ./network.sh createChannel -c fabric3-channel-standard, and deploy the pelaporan chaincode on fabric3-channel-standard.';
     } else if (normalizedType === 'fabric3-variant') {
         text = 'This will run ./network.sh up, ./network.sh createChannel -c fabric3-channel-variant, and deploy the pelaporan chaincode on fabric3-channel-variant.';
@@ -1056,7 +1028,7 @@ async function confirmNetworkStartup(networkType, networkLabel) {
 
     if (normalizedType === 'all') {
         title = 'Start all RAFT networks?';
-        text = 'This will run the Fabric 2 Standard, Fabric 2 Variant, Fabric 3 Standard, and Fabric 3 Variant startup scripts in parallel. Ensure Docker and the host environment are ready before continuing.';
+        text = 'This will run the Fabric 3 Raft and Fabric 3 SmartBFT startup scripts in parallel. Ensure Docker and the host environment are ready before continuing.';
     } else if (!normalizedType) {
         title = 'Start the Fabric networks?';
     }
@@ -5150,8 +5122,6 @@ async function handleNetworkCheckButtonClick() {
 
         // Fetch blockHeight from pelaporan API for each network
         const pelaporanEndpoints = {
-            'channel-standard': '/api/fabric-2/raft-standard/pelaporan',
-            'channel-variant': '/api/fabric-2/raft-variant/pelaporan',
             'channel-fabric3-standard': '/api/fabric-3/raft-standard/pelaporan',
             'channel-fabric3-variant': '/api/fabric-3/raft-variant/pelaporan'
         };

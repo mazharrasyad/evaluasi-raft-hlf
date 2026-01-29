@@ -80,7 +80,7 @@
                                 </div>
                                 <h2 class="text-2xl font-semibold text-textdark md:text-3xl">Arsitektur dan Spesifikasi Sistem</h2>
                                   <p class="text-sm text-textdark/70 md:text-base">
-                                        Arsitektur folder blockchain dalam penelitian ini disusun secara berpasangan di bawah dua direktori utama, yaitu fabric-2 dan fabric-3, yang masing-masing memuat dua konfigurasi: raft-standard dan raft-variant. Penataan ini dimaksudkan untuk menjaga konsistensi struktur dan memudahkan proses replikasi eksperimen lintas versi. Setiap pasangan direktori memiliki susunan folder yang seragam, mencakup bin/ untuk utilitas HLF, chaincode/ untuk smart contract pelaporan, config/ untuk berkas pengaturan inti, env.sh sebagai definisi variabel lingkungan, serta network/ yang memuat orkestrasi organisasi dan kanal. Pendekatan kembar ini memastikan seluruh skenario pengujian dijalankan pada kondisi dasar yang sebanding sebelum parameter RAFT dimodifikasi pada tahap lanjutan.
+                                        Arsitektur folder blockchain dalam penelitian ini berfokus pada Fabric v3 dengan dua konfigurasi: <strong>raft-standard</strong> (Raft) dan <strong>raft-variant</strong> (SmartBFT). Penataan ini dimaksudkan untuk menjaga konsistensi struktur dan memudahkan proses replikasi eksperimen lintas konfigurasi. Struktur direktori mencakup bin/ untuk utilitas HLF, chaincode/ untuk smart contract pelaporan, config/ untuk berkas pengaturan inti, env.sh sebagai definisi variabel lingkungan, serta network/ yang memuat orkestrasi organisasi dan kanal. Pendekatan ini memastikan seluruh skenario pengujian dijalankan pada kondisi dasar yang sebanding sebelum parameter konsensus dimodifikasi pada tahap lanjutan.
                                   </p>
                                   <p class="text-sm text-textdark/70 md:text-base">
                                         Struktur tersebut divisualisasikan melalui Diagram Arsitektur Folder yang menunjukkan kesetimbangan antara empat lingkungan uji, sehingga hubungan antar direktori utama dapat terbaca dengan jelas sebelum pembahasan detail pada konfigurasi berikutnya.
@@ -88,25 +88,9 @@
                                   <div class="rounded-2xl border border-white/10 bg-surface/60 p-6 shadow-inner shadow-black/20">
                                       <h3 class="text-base font-semibold text-textdark">Gambar 4.3 Struktur Direktori Lingkungan Uji Hyperledger Fabric</h3>
                                       <p class="mt-3 text-xs text-textdark/60 md:text-sm">
-                                          Struktur direktori pada gambar memperlihatkan dua lingkungan utama, yaitu fabric-2 dan fabric-3, yang masing-masing memiliki dua konfigurasi pengujian: raft-standard dan raft-variant. Setiap konfigurasi memiliki pola folder yang identik agar seluruh eksperimen dijalankan dengan kondisi dasar yang konsisten.
+                                          Struktur direktori pada gambar memperlihatkan satu lingkungan utama (fabric-3) dengan dua konfigurasi pengujian: raft-standard dan raft-variant. Setiap konfigurasi memiliki pola folder yang identik agar seluruh eksperimen dijalankan dengan kondisi dasar yang konsisten.
                                       </p>
-                                        <div class="mt-4 grid gap-4 md:grid-cols-2">
-                                            <div class="overflow-x-auto rounded-xl border border-white/5 bg-surfaceMuted/80 p-4 text-[11px] font-mono text-textdark/70 md:text-sm">
-<pre class="whitespace-pre">fabric-2/
-|-- raft-standard/
-|   |-- bin/               # Binaries CLI Fabric (configtxgen, peer, dll.)
-|   |-- chaincode/         # Kontrak pintar pelaporan
-|   |-- config/            # Konfigurasi core/orderer
-|   |-- env.sh             # Variabel lingkungan testbed
-|   `-- network/           # Skrip orkestrasi & artefak jaringan
-`-- raft-variant/
-    |-- bin/
-    |-- chaincode/
-    |-- config/
-    |-- env.sh
-    `-- network/
-</pre>
-                                            </div>
+                                        <div class="mt-4 grid gap-4 md:grid-cols-1">
                                             <div class="overflow-x-auto rounded-xl border border-white/5 bg-surfaceMuted/80 p-4 text-[11px] font-mono text-textdark/70 md:text-sm">
 <pre class="whitespace-pre">fabric-3/
 |-- raft-standard/
@@ -135,7 +119,7 @@
                                           <li><strong>network/</strong> berisi skrip dan artefak orkestrasi node, termasuk pembuatan identitas, kanal, dan pemasangan chaincode, yang menjadi pusat eksekusi seluruh eksperimen.</li>
                                       </ol>
                                       <p class="mt-4 text-xs text-textdark/60 md:text-sm">
-                                          Penataan yang simetris antara fabric-2 dan fabric-3 memungkinkan pengujian dilakukan secara paralel pada dua versi Fabric yang berbeda, sekaligus menjaga keteraturan dokumentasi antar konfigurasi. Struktur ini juga memudahkan proses validasi hasil eksperimen karena setiap komponen jaringan dapat dilacak melalui direktori yang konsisten di seluruh varian uji.
+                                          Penataan yang konsisten antara raft-standard dan raft-variant pada Fabric v3 memungkinkan pengujian dilakukan secara paralel pada dua mekanisme konsensus yang berbeda, sekaligus menjaga keteraturan dokumentasi antar konfigurasi. Struktur ini juga memudahkan proses validasi hasil eksperimen karena setiap komponen jaringan dapat dilacak melalui direktori yang konsisten di seluruh varian uji.
                                       </p>
                                   </div>
                             </div>
@@ -151,72 +135,6 @@
                                 </p>
                             </div>
                               <div class="space-y-6">
-                                  <div class="rounded-2xl border border-white/10 bg-surfaceMuted/80 p-6 shadow-inner shadow-black/20">
-                                      <div class="space-y-2">
-                                          <h3 class="text-base font-semibold text-textdark">Fabric v2 — Perbandingan Konfigurasi</h3>
-                                          <p class="text-sm text-textdark/70 md:text-base">
-                                              Lingkungan uji Fabric v2 terdiri dari dua skenario: konfigurasi RAFT standar sebagai baseline dan konfigurasi RAFT varian yang memperluas pengujian terhadap skalabilitas dan performa. Pada konfigurasi standar, sistem menggunakan satu orderer dengan domain standard.com, sedangkan varian menggunakan domain variant.com yang memungkinkan hingga empat orderer node melalui berkas compose/compose-bft-test-net.yaml. Perbedaan utama antara kedua konfigurasi terletak pada parameter batch yang berfungsi mengatur jumlah transaksi per blok serta waktu tunggu pembentukan blok. Pengaturan ini mencerminkan trade-off antara kestabilan lantency (pada konfigurasi standar) dan eksplorasi throughput tinggi (pada konfigurasi varian).
-                                          </p>
-                                      </div>
-                                      <div class="mt-4 overflow-x-auto rounded-xl border border-white/5 bg-surface/40">
-                                          <table class="min-w-full divide-y divide-white/10 text-left text-sm text-textdark/80 md:text-base">
-                                              <thead class="bg-surfaceMuted/70 text-textdark">
-                                                  <tr>
-                                                      <th class="px-4 py-3 font-semibold">Parameter</th>
-                                                      <th class="px-4 py-3 font-semibold">Standar</th>
-                                                      <th class="px-4 py-3 font-semibold">Varian</th>
-                                                  </tr>
-                                              </thead>
-                                              <tbody class="divide-y divide-white/5">
-                                                  <tr>
-                                                      <td class="px-4 py-3 align-top text-textdark/60">Lokasi configtx</td>
-                                                      <td class="px-4 py-3 align-top"><code>fabric-2/raft-standard/network/configtx/configtx.yaml</code></td>
-                                                      <td class="px-4 py-3 align-top"><code>fabric-2/raft-variant/network/configtx/configtx.yaml</code></td>
-                                                  </tr>
-                                                  <tr>
-                                                      <td class="px-4 py-3 align-top text-textdark/60">Orderer endpoint</td>
-                                                      <td class="px-4 py-3 align-top"><code>orderer.fabric2.standard.com:7050</code></td>
-                                                      <td class="px-4 py-3 align-top"><code>orderer.fabric2.variant.com:7050</code></td>
-                                                  </tr>
-                                                  <tr>
-                                                      <td class="px-4 py-3 align-top text-textdark/60">BatchTimeout</td>
-                                                      <td class="px-4 py-3 align-top">2 detik</td>
-                                                      <td class="px-4 py-3 align-top">1 detik</td>
-                                                  </tr>
-                                                  <tr>
-                                                      <td class="px-4 py-3 align-top text-textdark/60">MaxMessageCount</td>
-                                                      <td class="px-4 py-3 align-top">10</td>
-                                                      <td class="px-4 py-3 align-top">50</td>
-                                                  </tr>
-                                                  <tr>
-                                                      <td class="px-4 py-3 align-top text-textdark/60">AbsoluteMaxBytes</td>
-                                                      <td class="px-4 py-3 align-top">99&nbsp;MB</td>
-                                                      <td class="px-4 py-3 align-top">20&nbsp;MB</td>
-                                                  </tr>
-                                                  <tr>
-                                                      <td class="px-4 py-3 align-top text-textdark/60">PreferredMaxBytes</td>
-                                                      <td class="px-4 py-3 align-top">512&nbsp;KB</td>
-                                                      <td class="px-4 py-3 align-top">4&nbsp;MB</td>
-                                                  </tr>
-                                                  <tr>
-                                                      <td class="px-4 py-3 align-top text-textdark/60">Nama kanal bawaan</td>
-                                                      <td class="px-4 py-3 align-top"><code>fabric2-channel-standard</code></td>
-                                                      <td class="px-4 py-3 align-top"><code>fabric2-channel-variant</code></td>
-                                                  </tr>
-                                                  <tr>
-                                                      <td class="px-4 py-3 align-top text-textdark/60">Jumlah orderer di compose</td>
-                                                      <td class="px-4 py-3 align-top">1 orderer di <code>compose/compose-test-net.yaml</code></td>
-                                                      <td class="px-4 py-3 align-top">Hingga 4 orderer di <code>compose/compose-bft-test-net.yaml</code></td>
-                                                  </tr>
-                                                  <tr>
-                                                      <td class="px-4 py-3 align-top text-textdark/60">Fokus pengamatan</td>
-                                                      <td class="px-4 py-3 align-top">Baseline latensi dan kestabilan blok</td>
-                                                      <td class="px-4 py-3 align-top">Eksperimen throughput dan toleransi gangguan</td>
-                                                  </tr>
-                                              </tbody>
-                                          </table>
-                                      </div>
-                                  </div>
                                   <div class="rounded-2xl border border-white/10 bg-surfaceMuted/80 p-6 shadow-inner shadow-black/20">
                                       <div class="space-y-2">
                                           <div class="flex items-center gap-3 flex-wrap">

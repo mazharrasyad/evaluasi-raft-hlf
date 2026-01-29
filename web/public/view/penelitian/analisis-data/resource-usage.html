@@ -367,32 +367,18 @@
                             <div class="rounded-2xl border border-white/10 bg-surfaceMuted/30 p-6">
                                 <canvas id="perTransactionChart" class="w-full" style="max-height: 500px;"></canvas>
                             </div>
-                            <div class="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                                <div class="rounded-xl border border-primary/30 bg-primary/10 p-4">
-                                    <div class="flex items-center gap-2 mb-2">
-                                        <div class="w-3 h-3 rounded-full bg-primary"></div>
-                                        <span class="text-sm font-semibold text-primary">F2 Standard</span>
-                                    </div>
-                                    <p id="f2StandardStats" class="text-xs text-textdark/70">-</p>
-                                </div>
-                                <div class="rounded-xl border border-secondary/30 bg-secondary/10 p-4">
-                                    <div class="flex items-center gap-2 mb-2">
-                                        <div class="w-3 h-3 rounded-full bg-secondary"></div>
-                                        <span class="text-sm font-semibold text-secondary">F2 Variant</span>
-                                    </div>
-                                    <p id="f2VariantStats" class="text-xs text-textdark/70">-</p>
-                                </div>
+                            <div class="mt-4 grid gap-4 md:grid-cols-2">
                                 <div class="rounded-xl border border-accent/30 bg-accent/10 p-4">
                                     <div class="flex items-center gap-2 mb-2">
                                         <div class="w-3 h-3 rounded-full bg-accent"></div>
-                                        <span class="text-sm font-semibold text-accent">F3 Standard</span>
+                                        <span class="text-sm font-semibold text-accent">F3 Raft</span>
                                     </div>
                                     <p id="f3StandardStats" class="text-xs text-textdark/70">-</p>
                                 </div>
                                 <div class="rounded-xl border border-highlight/30 bg-highlight/10 p-4">
                                     <div class="flex items-center gap-2 mb-2">
                                         <div class="w-3 h-3 rounded-full bg-highlight"></div>
-                                        <span class="text-sm font-semibold text-highlight">F3 Variant</span>
+                                        <span class="text-sm font-semibold text-highlight">F3 SmartBFT</span>
                                     </div>
                                     <p id="f3VariantStats" class="text-xs text-textdark/70">-</p>
                                 </div>
@@ -405,61 +391,11 @@
                             <p class="mb-6 text-sm text-textdark/70">Grafik berikut menampilkan detail CPU usage setiap transaksi untuk masing-masing network secara terpisah.</p>
 
                             <div class="grid gap-6">
-                                <!-- F2 Standard Chart -->
-                                <div class="rounded-2xl border border-primary/30 bg-surfaceMuted/30 p-6">
-                                    <div class="flex items-center gap-3 mb-4">
-                                        <div class="w-4 h-4 rounded-full bg-primary"></div>
-                                        <h3 class="text-lg font-semibold text-primary">Fabric 2 RAFT Standard</h3>
-                                    </div>
-                                    <div class="mb-4">
-                                        <canvas id="f2StandardIndividualChart" class="w-full" style="max-height: 300px;"></canvas>
-                                    </div>
-                                    <div class="grid grid-cols-3 gap-2 text-center">
-                                        <div class="rounded-lg bg-primary/10 p-2">
-                                            <p class="text-xs text-textdark/60">Avg CPU</p>
-                                            <p id="f2StandardAvg" class="text-sm font-bold text-primary">-</p>
-                                        </div>
-                                        <div class="rounded-lg bg-primary/10 p-2">
-                                            <p class="text-xs text-textdark/60">Min</p>
-                                            <p id="f2StandardMin" class="text-sm font-bold text-primary">-</p>
-                                        </div>
-                                        <div class="rounded-lg bg-primary/10 p-2">
-                                            <p class="text-xs text-textdark/60">Max</p>
-                                            <p id="f2StandardMax" class="text-sm font-bold text-primary">-</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- F2 Variant Chart -->
-                                <div class="rounded-2xl border border-secondary/30 bg-surfaceMuted/30 p-6">
-                                    <div class="flex items-center gap-3 mb-4">
-                                        <div class="w-4 h-4 rounded-full bg-secondary"></div>
-                                        <h3 class="text-lg font-semibold text-secondary">Fabric 2 RAFT Variant</h3>
-                                    </div>
-                                    <div class="mb-4">
-                                        <canvas id="f2VariantIndividualChart" class="w-full" style="max-height: 300px;"></canvas>
-                                    </div>
-                                    <div class="grid grid-cols-3 gap-2 text-center">
-                                        <div class="rounded-lg bg-secondary/10 p-2">
-                                            <p class="text-xs text-textdark/60">Avg CPU</p>
-                                            <p id="f2VariantAvg" class="text-sm font-bold text-secondary">-</p>
-                                        </div>
-                                        <div class="rounded-lg bg-secondary/10 p-2">
-                                            <p class="text-xs text-textdark/60">Min</p>
-                                            <p id="f2VariantMin" class="text-sm font-bold text-secondary">-</p>
-                                        </div>
-                                        <div class="rounded-lg bg-secondary/10 p-2">
-                                            <p class="text-xs text-textdark/60">Max</p>
-                                            <p id="f2VariantMax" class="text-sm font-bold text-secondary">-</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- F3 Standard Chart -->
+                                <!-- F3 Raft Chart -->
                                 <div class="rounded-2xl border border-accent/30 bg-surfaceMuted/30 p-6">
                                     <div class="flex items-center gap-3 mb-4">
                                         <div class="w-4 h-4 rounded-full bg-accent"></div>
-                                        <h3 class="text-lg font-semibold text-accent">Fabric 3 RAFT Standard</h3>
+                                        <h3 class="text-lg font-semibold text-accent">Fabric 3 Raft</h3>
                                     </div>
                                     <div class="mb-4">
                                         <canvas id="f3StandardIndividualChart" class="w-full" style="max-height: 300px;"></canvas>
@@ -480,11 +416,11 @@
                                     </div>
                                 </div>
 
-                                <!-- F3 Variant Chart -->
+                                <!-- F3 SmartBFT Chart -->
                                 <div class="rounded-2xl border border-highlight/30 bg-surfaceMuted/30 p-6">
                                     <div class="flex items-center gap-3 mb-4">
                                         <div class="w-4 h-4 rounded-full bg-highlight"></div>
-                                        <h3 class="text-lg font-semibold text-highlight">Fabric 3 RAFT Variant</h3>
+                                        <h3 class="text-lg font-semibold text-highlight">Fabric 3 SmartBFT</h3>
                                     </div>
                                     <div class="mb-4">
                                         <canvas id="f3VariantIndividualChart" class="w-full" style="max-height: 300px;"></canvas>
@@ -541,10 +477,8 @@
         let individualCharts = {};
 
         const networkNames = {
-            'channel-standard': 'Fabric 2 RAFT Standard',
-            'channel-variant': 'Fabric 2 RAFT Variant',
-            'channel-fabric3-standard': 'Fabric 3 RAFT Standard',
-            'channel-fabric3-variant': 'Fabric 3 RAFT Variant'
+            'channel-fabric3-standard': 'Fabric 3 Raft',
+            'channel-fabric3-variant': 'Fabric 3 SmartBFT'
         };
 
         const categoryNames = {
@@ -556,8 +490,6 @@
 
         // API endpoints untuk setiap network
         const networkEndpoints = {
-            'channel-standard': '/api/fabric-2/raft-standard/pelaporan',
-            'channel-variant': '/api/fabric-2/raft-variant/pelaporan',
             'channel-fabric3-standard': '/api/fabric-3/raft-standard/pelaporan',
             'channel-fabric3-variant': '/api/fabric-3/raft-variant/pelaporan'
         };
@@ -823,10 +755,8 @@
             }
 
             const networkConfigs = {
-                'channel-standard': { label: 'F2 Standard', color: 'rgba(56, 189, 248, 1)', bgColor: 'rgba(56, 189, 248, 0.3)', statsId: 'f2StandardStats' },
-                'channel-variant': { label: 'F2 Variant', color: 'rgba(99, 102, 241, 1)', bgColor: 'rgba(99, 102, 241, 0.3)', statsId: 'f2VariantStats' },
-                'channel-fabric3-standard': { label: 'F3 Standard', color: 'rgba(245, 158, 11, 1)', bgColor: 'rgba(245, 158, 11, 0.3)', statsId: 'f3StandardStats' },
-                'channel-fabric3-variant': { label: 'F3 Variant', color: 'rgba(249, 115, 22, 1)', bgColor: 'rgba(249, 115, 22, 0.3)', statsId: 'f3VariantStats' }
+                'channel-fabric3-standard': { label: 'F3 Raft', color: 'rgba(245, 158, 11, 1)', bgColor: 'rgba(245, 158, 11, 0.3)', statsId: 'f3StandardStats' },
+                'channel-fabric3-variant': { label: 'F3 SmartBFT', color: 'rgba(249, 115, 22, 1)', bgColor: 'rgba(249, 115, 22, 0.3)', statsId: 'f3VariantStats' }
             };
 
             const datasets = [];
@@ -1290,30 +1220,12 @@
         // Display individual network charts
         function displayIndividualNetworkCharts() {
             const networkConfigs = {
-                'channel-standard': {
-                    chartId: 'f2StandardIndividualChart',
-                    avgId: 'f2StandardAvg',
-                    minId: 'f2StandardMin',
-                    maxId: 'f2StandardMax',
-                    label: 'Fabric 2 RAFT Standard',
-                    color: 'rgba(56, 189, 248, 1)',
-                    bgColor: 'rgba(56, 189, 248, 0.3)'
-                },
-                'channel-variant': {
-                    chartId: 'f2VariantIndividualChart',
-                    avgId: 'f2VariantAvg',
-                    minId: 'f2VariantMin',
-                    maxId: 'f2VariantMax',
-                    label: 'Fabric 2 RAFT Variant',
-                    color: 'rgba(99, 102, 241, 1)',
-                    bgColor: 'rgba(99, 102, 241, 0.3)'
-                },
                 'channel-fabric3-standard': {
                     chartId: 'f3StandardIndividualChart',
                     avgId: 'f3StandardAvg',
                     minId: 'f3StandardMin',
                     maxId: 'f3StandardMax',
-                    label: 'Fabric 3 RAFT Standard',
+                    label: 'Fabric 3 Raft',
                     color: 'rgba(245, 158, 11, 1)',
                     bgColor: 'rgba(245, 158, 11, 0.3)'
                 },
@@ -1322,7 +1234,7 @@
                     avgId: 'f3VariantAvg',
                     minId: 'f3VariantMin',
                     maxId: 'f3VariantMax',
-                    label: 'Fabric 3 RAFT Variant',
+                    label: 'Fabric 3 SmartBFT',
                     color: 'rgba(249, 115, 22, 1)',
                     bgColor: 'rgba(249, 115, 22, 0.3)'
                 }

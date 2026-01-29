@@ -9,7 +9,7 @@ const ACTION_METADATA = {
     start: {
         badge: 'Start jaringan',
         title: 'Nyalakan semua jaringan',
-        description: 'Menjalankan perintah start untuk seluruh jaringan Fabric 2 & Fabric 3.',
+        description: 'Menjalankan perintah start untuk seluruh jaringan Fabric 3 (Raft & SmartBFT).',
     },
     shutdown: {
         badge: 'Shutdown jaringan',

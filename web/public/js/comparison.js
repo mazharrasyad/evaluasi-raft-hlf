@@ -16,69 +16,41 @@ componentLoaderReady.then(() => {
     };
 
     const NETWORK_META = {
-        'fabric2-raft-standard': {
-            title: 'Fabric 2 — RAFT Standard',
-            scopeLabel: 'Fabric 2',
-            variantLabel: 'RAFT Standard',
-            badgeClass: 'border-secondary/40 bg-secondary/15 text-secondary/90',
-        },
-        'fabric2-raft-variant': {
-            title: 'Fabric 2 — RAFT Variant',
-            scopeLabel: 'Fabric 2',
-            variantLabel: 'RAFT Variant',
-            badgeClass: 'border-highlight/40 bg-highlight/15 text-highlight/90',
-        },
         'fabric3-raft-standard': {
-            title: 'Fabric 3 — RAFT Standard',
+            title: 'Fabric 3 — Raft',
             scopeLabel: 'Fabric 3',
-            variantLabel: 'RAFT Standard',
+            variantLabel: 'Raft',
             badgeClass: 'border-accent/40 bg-accent/15 text-accent/90',
         },
         'fabric3-raft-variant': {
-            title: 'Fabric 3 — RAFT Variant',
+            title: 'Fabric 3 — SmartBFT',
             scopeLabel: 'Fabric 3',
-            variantLabel: 'RAFT Variant',
+            variantLabel: 'SmartBFT',
             badgeClass: 'border-primary/40 bg-primary/15 text-primary/90',
         },
     };
 
     const NETWORK_ORDER = [
-        'fabric2-raft-standard',
-        'fabric2-raft-variant',
         'fabric3-raft-standard',
         'fabric3-raft-variant',
     ];
 
     const RAFT_CONFIG_META = {
-        'raft-standard': {
-            title: 'Fabric 2 — RAFT Standard',
-            scopeLabel: 'Fabric 2',
-            variantLabel: 'RAFT Standard',
-            badgeClass: NETWORK_META['fabric2-raft-standard']?.badgeClass ?? 'border-secondary/40 bg-secondary/15 text-secondary/90',
-        },
-        'raft-variant': {
-            title: 'Fabric 2 — RAFT Variant',
-            scopeLabel: 'Fabric 2',
-            variantLabel: 'RAFT Variant',
-            badgeClass: NETWORK_META['fabric2-raft-variant']?.badgeClass ?? 'border-highlight/40 bg-highlight/15 text-highlight/90',
-        },
         'fabric3-raft-standard': {
-            title: 'Fabric 3 — RAFT Standard',
+            title: 'Fabric 3 — Raft',
             scopeLabel: 'Fabric 3',
-            variantLabel: 'RAFT Standard',
+            variantLabel: 'Raft',
             badgeClass: NETWORK_META['fabric3-raft-standard']?.badgeClass ?? 'border-accent/40 bg-accent/15 text-accent/90',
         },
         'fabric3-raft-variant': {
-            title: 'Fabric 3 — RAFT Variant',
+            title: 'Fabric 3 — SmartBFT',
             scopeLabel: 'Fabric 3',
-            variantLabel: 'RAFT Variant',
+            variantLabel: 'SmartBFT',
             badgeClass: NETWORK_META['fabric3-raft-variant']?.badgeClass ?? 'border-primary/40 bg-primary/15 text-primary/90',
         },
     };
 
     const RAFT_CONFIG_ORDER = [
-        'raft-standard',
-        'raft-variant',
         'fabric3-raft-standard',
         'fabric3-raft-variant',
     ];
@@ -624,10 +596,7 @@ componentLoaderReady.then(() => {
 
         const normalized = scope.toLowerCase();
 
-        if (normalized.includes('fabric') && normalized.includes('2')) {
-            return 'Fabric 2';
-        }
-        if (normalized.includes('fabric') && normalized.includes('3')) {
+        if (normalized.includes('fabric')) {
             return 'Fabric 3';
         }
 

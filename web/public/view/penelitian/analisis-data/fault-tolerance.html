@@ -386,41 +386,11 @@
                             <p class="mb-6 text-sm text-textdark/70">Grafik berikut menampilkan distribusi tipe skenario fault tolerance untuk masing-masing network secara terpisah.</p>
 
                             <div class="grid gap-6 grid-cols-1">
-                                <!-- F2 Standard Chart -->
-                                <div class="rounded-2xl border border-primary/30 bg-surfaceMuted/30 p-6">
-                                    <div class="flex items-center gap-3 mb-4">
-                                        <div class="w-4 h-4 rounded-full bg-primary"></div>
-                                        <h3 class="text-lg font-semibold text-primary">Fabric 2 RAFT Standard</h3>
-                                    </div>
-                                    <div class="mb-4">
-                                        <canvas id="f2StandardIndividualChart" class="w-full" style="max-height: 300px;"></canvas>
-                                    </div>
-                                    <div class="rounded-lg bg-primary/10 p-3 text-center">
-                                        <p class="text-xs text-textdark/60 mb-1">Total Kejadian Fault</p>
-                                        <p id="f2StandardTotal" class="text-xl font-bold text-primary">-</p>
-                                    </div>
-                                </div>
-
-                                <!-- F2 Variant Chart -->
-                                <div class="rounded-2xl border border-secondary/30 bg-surfaceMuted/30 p-6">
-                                    <div class="flex items-center gap-3 mb-4">
-                                        <div class="w-4 h-4 rounded-full bg-secondary"></div>
-                                        <h3 class="text-lg font-semibold text-secondary">Fabric 2 RAFT Variant</h3>
-                                    </div>
-                                    <div class="mb-4">
-                                        <canvas id="f2VariantIndividualChart" class="w-full" style="max-height: 300px;"></canvas>
-                                    </div>
-                                    <div class="rounded-lg bg-secondary/10 p-3 text-center">
-                                        <p class="text-xs text-textdark/60 mb-1">Total Kejadian Fault</p>
-                                        <p id="f2VariantTotal" class="text-xl font-bold text-secondary">-</p>
-                                    </div>
-                                </div>
-
-                                <!-- F3 Standard Chart -->
+                                <!-- F3 Raft Chart -->
                                 <div class="rounded-2xl border border-accent/30 bg-surfaceMuted/30 p-6">
                                     <div class="flex items-center gap-3 mb-4">
                                         <div class="w-4 h-4 rounded-full bg-accent"></div>
-                                        <h3 class="text-lg font-semibold text-accent">Fabric 3 RAFT Standard</h3>
+                                        <h3 class="text-lg font-semibold text-accent">Fabric 3 Raft</h3>
                                     </div>
                                     <div class="mb-4">
                                         <canvas id="f3StandardIndividualChart" class="w-full" style="max-height: 300px;"></canvas>
@@ -431,11 +401,11 @@
                                     </div>
                                 </div>
 
-                                <!-- F3 Variant Chart -->
+                                <!-- F3 SmartBFT Chart -->
                                 <div class="rounded-2xl border border-highlight/30 bg-surfaceMuted/30 p-6">
                                     <div class="flex items-center gap-3 mb-4">
                                         <div class="w-4 h-4 rounded-full bg-highlight"></div>
-                                        <h3 class="text-lg font-semibold text-highlight">Fabric 3 RAFT Variant</h3>
+                                        <h3 class="text-lg font-semibold text-highlight">Fabric 3 SmartBFT</h3>
                                     </div>
                                     <div class="mb-4">
                                         <canvas id="f3VariantIndividualChart" class="w-full" style="max-height: 300px;"></canvas>
@@ -465,10 +435,8 @@
         let individualCharts = {};
 
         const networkNames = {
-            'channel-standard': 'Fabric 2 RAFT Standard',
-            'channel-variant': 'Fabric 2 RAFT Variant',
-            'channel-fabric3-standard': 'Fabric 3 RAFT Standard',
-            'channel-fabric3-variant': 'Fabric 3 RAFT Variant'
+            'channel-fabric3-standard': 'Fabric 3 Raft',
+            'channel-fabric3-variant': 'Fabric 3 SmartBFT'
         };
 
         const categoryNames = {
@@ -480,8 +448,6 @@
 
         // API endpoints untuk setiap network
         const networkEndpoints = {
-            'channel-standard': '/api/fabric-2/raft-standard/pelaporan',
-            'channel-variant': '/api/fabric-2/raft-variant/pelaporan',
             'channel-fabric3-standard': '/api/fabric-3/raft-standard/pelaporan',
             'channel-fabric3-variant': '/api/fabric-3/raft-variant/pelaporan'
         };
@@ -715,10 +681,8 @@
             }
 
             const networkConfigs = {
-                'channel-standard': { label: 'F2 Standard', color: 'rgba(56, 189, 248, 1)' },
-                'channel-variant': { label: 'F2 Variant', color: 'rgba(99, 102, 241, 1)' },
-                'channel-fabric3-standard': { label: 'F3 Standard', color: 'rgba(245, 158, 11, 1)' },
-                'channel-fabric3-variant': { label: 'F3 Variant', color: 'rgba(249, 115, 22, 1)' }
+                'channel-fabric3-standard': { label: 'F3 Raft', color: 'rgba(245, 158, 11, 1)' },
+                'channel-fabric3-variant': { label: 'F3 SmartBFT', color: 'rgba(249, 115, 22, 1)' }
             };
 
             // Definisi tipe fault tolerance dengan warna
@@ -873,25 +837,15 @@
 
         function displayIndividualNetworkCharts() {
             const networkConfigs = {
-                'channel-standard': {
-                    chartId: 'f2StandardIndividualChart',
-                    totalId: 'f2StandardTotal',
-                    label: 'Fabric 2 RAFT Standard'
-                },
-                'channel-variant': {
-                    chartId: 'f2VariantIndividualChart',
-                    totalId: 'f2VariantTotal',
-                    label: 'Fabric 2 RAFT Variant'
-                },
                 'channel-fabric3-standard': {
                     chartId: 'f3StandardIndividualChart',
                     totalId: 'f3StandardTotal',
-                    label: 'Fabric 3 RAFT Standard'
+                    label: 'Fabric 3 Raft'
                 },
                 'channel-fabric3-variant': {
                     chartId: 'f3VariantIndividualChart',
                     totalId: 'f3VariantTotal',
-                    label: 'Fabric 3 RAFT Variant'
+                    label: 'Fabric 3 SmartBFT'
                 }
             };
 
@@ -1098,7 +1052,7 @@
                 <p>
                     Grafik di bawah menampilkan distribusi tipe fault tolerance yang terjadi pada masing-masing network.
                     Perbandingan ini membantu mengidentifikasi pola kegagalan dan karakteristik fault tolerance
-                    dari setiap konfigurasi network (Standard vs Variant, Fabric 2 vs Fabric 3).
+                    dari setiap konfigurasi network (Raft vs SmartBFT pada Fabric 3).
                 </p>
             `;
 

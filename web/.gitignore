@@ -12,3 +12,4 @@ jspm_packages/
 
 # Data files - simulation data stored in JSONL format
 data/simulations.jsonl
+logs/

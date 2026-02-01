@@ -750,6 +750,10 @@
               </div>
             </div>
             <div class="control-panel-body">
+              <!-- Windows Note -->
+              <div style="background: #fef3c7; border: 1px solid #f59e0b; border-radius: 6px; padding: 10px 14px; margin-bottom: 16px; font-size: 13px; color: #92400e;">
+                <strong>⚠️ Windows Users:</strong> Network scripts require <strong>Git Bash</strong> or <strong>WSL</strong> to run. Make sure <code>bash</code> is available in your PATH.
+              </div>
               <div class="control-actions">
                 <select class="network-select" id="networkSelect">
                   <option value="all">All Networks</option>
@@ -1161,39 +1165,48 @@
       appendLog('Checking network health...', 'info');
       
       try {
-        const response = await fetch('/api/network-health');
+        const response = await fetch('/api/check-network');
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
         const data = await response.json();
         
-        if (data.success) {
-          let raftRunning = false;
-          let smartbftRunning = false;
-          
-          if (data.networks) {
-            data.networks.forEach(net => {
-              if (net.networkId === 'channel-fabric3-standard') {
-                raftRunning = net.status === 'healthy';
-              }
-              if (net.networkId === 'channel-fabric3-variant') {
-                smartbftRunning = net.status === 'healthy';
-              }
-            });
-          }
-          
-          updateNetworkCards(raftRunning, smartbftRunning);
-          
-          if (raftRunning && smartbftRunning) {
-            updateStatus('running', 'All networks running');
-            appendLog('✓ Both RAFT and SmartBFT networks are healthy', 'success');
-          } else if (raftRunning || smartbftRunning) {
-            updateStatus('running', 'Partial networks running');
-            appendLog(`⚠ RAFT: ${raftRunning ? 'Running' : 'Stopped'}, SmartBFT: ${smartbftRunning ? 'Running' : 'Stopped'}`, 'warn');
-          } else {
-            updateStatus('stopped', 'Networks stopped');
-            appendLog('⚠ No networks are currently running', 'warn');
-          }
+        let raftRunning = false;
+        let smartbftRunning = false;
+        
+        if (data.results && Array.isArray(data.results)) {
+          data.results.forEach(net => {
+            // Check for RAFT network (channel-fabric3-standard)
+            if (net.channel === 'fabric3-channel-standard' || 
+                net.networkId === 'channel-fabric3-standard' ||
+                (net.label && net.label.toLowerCase().includes('raft'))) {
+              raftRunning = net.status === 'healthy';
+            }
+            // Check for SmartBFT network (channel-fabric3-variant)
+            if (net.channel === 'fabric3-channel-variant' || 
+                net.networkId === 'channel-fabric3-variant' ||
+                (net.label && net.label.toLowerCase().includes('smartbft'))) {
+              smartbftRunning = net.status === 'healthy';
+            }
+          });
+        }
+        
+        updateNetworkCards(raftRunning, smartbftRunning);
+        
+        if (data.overallStatus === 'healthy') {
+          updateStatus('running', 'All networks running');
+          appendLog('✓ Both RAFT and SmartBFT networks are healthy', 'success');
+        } else if (data.overallStatus === 'partial') {
+          updateStatus('running', 'Partial networks running');
+          appendLog(`⚠ RAFT: ${raftRunning ? 'Running' : 'Stopped'}, SmartBFT: ${smartbftRunning ? 'Running' : 'Stopped'}`, 'warn');
         } else {
-          updateStatus('stopped', 'Unable to check status');
-          appendLog('✗ Failed to get network status: ' + (data.error || 'Unknown error'), 'error');
+          updateStatus('stopped', 'Networks stopped');
+          appendLog('⚠ No networks are currently running', 'warn');
+          if (data.error) {
+            appendLog(`   Reason: ${data.error}`, 'info');
+          }
         }
       } catch (error) {
         updateStatus('stopped', 'Connection error');
@@ -1235,6 +1248,9 @@
                 appendLog(`  ✓ ${result.label}: Started successfully`, 'success');
               } else {
                 appendLog(`  ✗ ${result.label}: ${result.message || 'Failed'}`, 'error');
+                if (result.resolution) {
+                  appendLog(`    → ${result.resolution}`, 'info');
+                }
               }
             });
           }
@@ -1245,7 +1261,14 @@
           if (data.results) {
             data.results.forEach(result => {
               appendLog(`  - ${result.label}: ${result.message || result.status}`, 'error');
+              if (result.resolution) {
+                appendLog(`    → ${result.resolution}`, 'info');
+              }
             });
+          }
+          if (data.dependencyStatus === 'bash_unavailable') {
+            appendLog('', 'info');
+            appendLog('💡 TIP: Install Git Bash from https://git-scm.com/downloads', 'warn');
           }
           updateStatus('stopped', 'Startup failed');
         }

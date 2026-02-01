@@ -2,11 +2,12 @@ import express from 'express';
 import fs from 'fs/promises';
 import { constants as fsConstants } from 'fs';
 import path from 'path';
-import { execFile } from 'child_process';
+import { execFile, exec } from 'child_process';
 import { fileURLToPath } from 'url';
 import { promisify } from 'util';
 import { EventEmitter } from 'events';
 import { randomUUID } from 'crypto';
+import os from 'os';
 
 import { checkNetworkHealth, getAllBlocks, getAllCatatan, getBlocksWithSimulationData } from './network-check.js';
 import { loadFabricDescriptions } from './fabric-description.js';
@@ -16,6 +17,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const execFileAsync = promisify(execFile);
+const execAsync = promisify(exec);
+
+// Detect platform for shell script execution
+const isWindows = os.platform() === 'win32';
 
 const logsRoot = path.resolve(__dirname, '../logs');
 const networkShutdownLogPath = path.resolve(logsRoot, 'network-shutdown.log');
@@ -712,6 +717,25 @@ const NETWORK_START_TARGETS = [
     },
 ];
 
+// Check if bash is available (needed on Windows)
+async function ensureBashAvailable() {
+    if (!isWindows) {
+        return null; // Unix-like systems don't need this check
+    }
+
+    try {
+        await execAsync('bash --version', { shell: true });
+        return null;
+    } catch (error) {
+        return {
+            status: 'dependency_missing',
+            message: 'Bash shell tidak ditemukan di sistem Windows.',
+            resolution: 'Install Git Bash (https://git-scm.com/downloads) dan pastikan bash tersedia di PATH, atau gunakan WSL.',
+            error: error instanceof Error ? error.message : String(error),
+        };
+    }
+}
+
 function getContainerCliVersionCommand() {
     const rawValue = process.env.CONTAINER_CLI?.trim();
     const parts = rawValue ? rawValue.split(/\s+/).filter(Boolean) : [];
@@ -758,8 +782,30 @@ async function ensureDockerAvailable() {
 async function executeNetworkShutdown({ id, label, directory }) {
     const scriptPath = path.resolve(directory, 'network.sh');
 
+    // Check if bash is available on Windows
+    if (isWindows) {
+        const bashFailure = await ensureBashAvailable();
+        if (bashFailure) {
+            const failureResult = {
+                targetId: id,
+                label,
+                networkDir: directory,
+                command: './network.sh down',
+                status: 'dependency_missing',
+                message: bashFailure.message,
+                resolution: bashFailure.resolution,
+                error: bashFailure.error,
+            };
+
+            await logNetworkShutdownFailure(failureResult);
+            return failureResult;
+        }
+    }
+
     try {
-        await fs.access(directory, fsConstants.R_OK | fsConstants.X_OK);
+        // On Windows, just check if directory exists (X_OK is not reliable)
+        const accessMode = isWindows ? fsConstants.R_OK : (fsConstants.R_OK | fsConstants.X_OK);
+        await fs.access(directory, accessMode);
     } catch (error) {
         const failureResult = {
             targetId: id,
@@ -777,7 +823,9 @@ async function executeNetworkShutdown({ id, label, directory }) {
     }
 
     try {
-        await fs.access(scriptPath, fsConstants.X_OK);
+        // On Windows, just check if file exists (X_OK is not reliable)
+        const accessMode = isWindows ? fsConstants.R_OK : fsConstants.X_OK;
+        await fs.access(scriptPath, accessMode);
     } catch (error) {
         const failureResult = {
             targetId: id,
@@ -795,10 +843,27 @@ async function executeNetworkShutdown({ id, label, directory }) {
     }
 
     try {
-        const { stdout, stderr } = await execFileAsync('./network.sh', ['down'], {
-            cwd: directory,
-            maxBuffer: EXEC_MAX_BUFFER,
-        });
+        let stdout, stderr;
+        
+        if (isWindows) {
+            // On Windows, use bash (Git Bash) or wsl to run shell scripts
+            const bashCommand = `bash -c "cd '${directory.replace(/\\/g, '/')}' && ./network.sh down"`;
+            
+            const result = await execAsync(bashCommand, {
+                maxBuffer: EXEC_MAX_BUFFER,
+                shell: true,
+            });
+            stdout = result.stdout;
+            stderr = result.stderr;
+        } else {
+            // On Unix-like systems, execute directly
+            const result = await execFileAsync('./network.sh', ['down'], {
+                cwd: directory,
+                maxBuffer: EXEC_MAX_BUFFER,
+            });
+            stdout = result.stdout;
+            stderr = result.stderr;
+        }
 
         return {
             targetId: id,
@@ -864,8 +929,36 @@ async function executeNetworkStartup({ id, label, directory, commands }, context
         networkDir: directory,
     };
 
+    // Check if bash is available on Windows
+    if (isWindows) {
+        const bashFailure = await ensureBashAvailable();
+        if (bashFailure) {
+            const failureResult = {
+                targetId: id,
+                label,
+                networkDir: directory,
+                status: 'dependency_missing',
+                message: bashFailure.message,
+                resolution: bashFailure.resolution,
+                error: bashFailure.error,
+            };
+
+            await logNetworkStartupFailure(failureResult);
+            broadcastNetworkOperationEvent({
+                ...baseEvent,
+                phase: 'target_error',
+                status: 'dependency_missing',
+                message: failureResult.message,
+            });
+
+            return failureResult;
+        }
+    }
+
     try {
-        await fs.access(directory, fsConstants.R_OK | fsConstants.X_OK);
+        // On Windows, just check if directory exists (X_OK is not reliable)
+        const accessMode = isWindows ? fsConstants.R_OK : (fsConstants.R_OK | fsConstants.X_OK);
+        await fs.access(directory, accessMode);
     } catch (error) {
         const failureResult = {
             targetId: id,
@@ -889,7 +982,9 @@ async function executeNetworkStartup({ id, label, directory, commands }, context
     }
 
     try {
-        await fs.access(scriptPath, fsConstants.X_OK);
+        // On Windows, just check if file exists (X_OK is not reliable)
+        const accessMode = isWindows ? fsConstants.R_OK : fsConstants.X_OK;
+        await fs.access(scriptPath, accessMode);
     } catch (error) {
         const failureResult = {
             targetId: id,
@@ -957,10 +1052,28 @@ async function executeNetworkStartup({ id, label, directory, commands }, context
         });
 
         try {
-            const { stdout, stderr } = await execFileAsync('./network.sh', stepResult.args, {
-                cwd: directory,
-                maxBuffer: EXEC_MAX_BUFFER,
-            });
+            let stdout, stderr;
+            
+            if (isWindows) {
+                // On Windows, use bash (Git Bash) or wsl to run shell scripts
+                const argsString = stepResult.args.join(' ');
+                const bashCommand = `bash -c "cd '${directory.replace(/\\/g, '/')}' && ./network.sh ${argsString}"`;
+                
+                const result = await execAsync(bashCommand, {
+                    maxBuffer: EXEC_MAX_BUFFER,
+                    shell: true,
+                });
+                stdout = result.stdout;
+                stderr = result.stderr;
+            } else {
+                // On Unix-like systems, execute directly
+                const result = await execFileAsync('./network.sh', stepResult.args, {
+                    cwd: directory,
+                    maxBuffer: EXEC_MAX_BUFFER,
+                });
+                stdout = result.stdout;
+                stderr = result.stderr;
+            }
 
             stepResult.status = 'success';
             stepResult.stdout = stdout;

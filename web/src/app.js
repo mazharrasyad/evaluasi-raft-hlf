@@ -1078,157 +1078,16 @@ const app = express();
 app.disable('x-powered-by');
 
 const staticRoot = path.resolve(__dirname, '../public');
-const viewsRoot = path.resolve(staticRoot, 'view');
-
-const viewFiles = {
-    home: path.resolve(viewsRoot, 'home.html'),
-    listApi: path.resolve(viewsRoot, 'list-api.html'),
-    research: {
-        overview: path.resolve(viewsRoot, 'penelitian/gambaran-umum.html'),
-        environmentSetup: path.resolve(viewsRoot, 'penelitian/pembangunan-lingkungan-uji.html'),
-        experimentDesign: path.resolve(viewsRoot, 'penelitian/rancangan-eksperimen.html'),
-        simulationExecution: path.resolve(viewsRoot, 'penelitian/pelaksanaan-simulasi/index.html'),
-        simulationSubsections: {
-            menjalankanNetwork: path.resolve(viewsRoot, 'penelitian/pelaksanaan-simulasi/menjalankan-network.html'),
-            pembuatanDataSimulasi: path.resolve(viewsRoot, 'penelitian/pelaksanaan-simulasi/pembuatan-data-simulasi.html'),
-            pengeksekusianSimulasiTransaksi: path.resolve(viewsRoot, 'penelitian/pelaksanaan-simulasi/pengeksekusian-simulasi-transaksi.html'),
-            penyimpananDataTransaksi: path.resolve(viewsRoot, 'penelitian/pelaksanaan-simulasi/penyimpanan-data-transaksi.html'),
-            penampilanHasil: path.resolve(viewsRoot, 'penelitian/pelaksanaan-simulasi/penampilan-hasil.html'),
-        },
-        dataProcessing: path.resolve(viewsRoot, 'penelitian/pengolahan-data.html'),
-        dataProcessingSubsections: {
-            pengumpulanValidasiLog: path.resolve(viewsRoot, 'penelitian/pengolahan-data/pengumpulan-validasi-log.html'),
-            pengolahanNilaiRataRataGrafik: path.resolve(viewsRoot, 'penelitian/pengolahan-data/pengolahan-nilai-rata-rata-grafik.html'),
-        },
-        dataAnalysis: path.resolve(viewsRoot, 'penelitian/analisis-data/index.html'),
-        dataAnalysisSubsections: {
-            throughput: path.resolve(viewsRoot, 'penelitian/analisis-data/throughput.html'),
-            latency: path.resolve(viewsRoot, 'penelitian/analisis-data/latency.html'),
-            resourceUsage: path.resolve(viewsRoot, 'penelitian/analisis-data/resource-usage.html'),
-            faultTolerance: path.resolve(viewsRoot, 'penelitian/analisis-data/fault-tolerance.html'),
-        },
-        evaluasiHasil: path.resolve(viewsRoot, 'penelitian/evaluasi-hasil/index.html'),
-        evaluasiHasilSubsections: {
-            ringkasanHasil: path.resolve(viewsRoot, 'penelitian/evaluasi-hasil/ringkasan-hasil.html'),
-            algoritmaRaft: path.resolve(viewsRoot, 'penelitian/evaluasi-hasil/algoritma-raft/index.html'),
-            algoritmaRaftV3Standar: path.resolve(viewsRoot, 'penelitian/evaluasi-hasil/algoritma-raft/fabric-v3-raft-standar.html'),
-            algoritmaRaftV3SmartBft: path.resolve(viewsRoot, 'penelitian/evaluasi-hasil/algoritma-raft/fabric-v3-smartbft.html'),
-        },
-    },
-};
 
 app.use(express.static(staticRoot));
 app.use(express.json({ limit: '2mb' }));
 
-app.get('/', (req, res) => {
-    res.sendFile(viewFiles.home);
-});
+app.use((req, res, next) => {
+    if (req.path.startsWith('/api')) {
+        return next();
+    }
 
-app.get('/list-api', (req, res) => {
-    res.sendFile(viewFiles.listApi);
-});
-
-app.get('/penelitian/gambaran-umum', (req, res) => {
-    res.sendFile(viewFiles.research.overview);
-});
-
-app.get('/penelitian/gambaran-umum/algoritma-raft', (req, res) => {
-    res.redirect(302, '/penelitian/gambaran-umum');
-});
-
-app.get('/penelitian/gambaran-umum/algoritma-smartbft', (req, res) => {
-    res.redirect(302, '/penelitian/gambaran-umum');
-});
-
-app.get('/penelitian/pembangunan-lingkungan-uji', (req, res) => {
-    res.sendFile(viewFiles.research.environmentSetup);
-});
-
-app.get('/penelitian/rancangan-eksperimen', (req, res) => {
-    res.sendFile(viewFiles.research.experimentDesign);
-});
-app.get('/penelitian/pelaksanaan-simulasi', (req, res) => {
-    res.sendFile(viewFiles.research.simulationExecution);
-});
-
-app.get('/penelitian/pelaksanaan-simulasi/menjalankan-network', (req, res) => {
-    res.sendFile(viewFiles.research.simulationSubsections.menjalankanNetwork);
-});
-
-app.get('/penelitian/pelaksanaan-simulasi/pembuatan-data-simulasi', (req, res) => {
-    res.sendFile(viewFiles.research.simulationSubsections.pembuatanDataSimulasi);
-});
-
-app.get('/penelitian/pelaksanaan-simulasi/pengeksekusian-simulasi-transaksi', (req, res) => {
-    res.sendFile(viewFiles.research.simulationSubsections.pengeksekusianSimulasiTransaksi);
-});
-
-app.get('/penelitian/pelaksanaan-simulasi/penyimpanan-data-transaksi', (req, res) => {
-    res.sendFile(viewFiles.research.simulationSubsections.penyimpananDataTransaksi);
-});
-
-app.get('/penelitian/pelaksanaan-simulasi/penampilan-hasil', (req, res) => {
-    res.sendFile(viewFiles.research.simulationSubsections.penampilanHasil);
-});
-
-app.get('/penelitian/pengolahan-data', (req, res) => {
-    res.sendFile(viewFiles.research.dataProcessing);
-});
-
-app.get('/penelitian/pengolahan-data/pengumpulan-validasi-log', (req, res) => {
-    res.sendFile(viewFiles.research.dataProcessingSubsections.pengumpulanValidasiLog);
-});
-
-app.get('/penelitian/pengolahan-data/pengolahan-nilai-rata-rata-grafik', (req, res) => {
-    res.sendFile(viewFiles.research.dataProcessingSubsections.pengolahanNilaiRataRataGrafik);
-});
-
-app.get('/penelitian/analisis-data', (req, res) => {
-    res.sendFile(viewFiles.research.dataAnalysis);
-});
-
-app.get('/penelitian/analisis-data/throughput', (req, res) => {
-    res.sendFile(viewFiles.research.dataAnalysisSubsections.throughput);
-});
-
-app.get('/penelitian/analisis-data/latency', (req, res) => {
-    res.sendFile(viewFiles.research.dataAnalysisSubsections.latency);
-});
-
-app.get('/penelitian/analisis-data/resource-usage', (req, res) => {
-    res.sendFile(viewFiles.research.dataAnalysisSubsections.resourceUsage);
-});
-
-app.get('/penelitian/analisis-data/fault-tolerance', (req, res) => {
-    res.sendFile(viewFiles.research.dataAnalysisSubsections.faultTolerance);
-});
-
-app.get('/penelitian/evaluasi-hasil', (req, res) => {
-    res.sendFile(viewFiles.research.evaluasiHasil);
-});
-
-app.get('/penelitian/evaluasi-hasil/ringkasan-hasil', (req, res) => {
-    res.sendFile(viewFiles.research.evaluasiHasilSubsections.ringkasanHasil);
-});
-
-app.get('/penelitian/evaluasi-hasil/algoritma-raft', (req, res) => {
-    res.sendFile(viewFiles.research.evaluasiHasilSubsections.algoritmaRaft);
-});
-
-app.get('/penelitian/evaluasi-hasil/algoritma-raft/fabric-v3-raft-standar', (req, res) => {
-    res.sendFile(viewFiles.research.evaluasiHasilSubsections.algoritmaRaftV3Standar);
-});
-
-app.get('/penelitian/evaluasi-hasil/algoritma-raft/fabric-v3-smartbft', (req, res) => {
-    res.sendFile(viewFiles.research.evaluasiHasilSubsections.algoritmaRaftV3SmartBft);
-});
-
-app.get('/penelitian/evaluasi-hasil/pembahasan-algoritma-raft', (req, res) => {
-    res.redirect(302, '/penelitian/evaluasi-hasil/algoritma-raft');
-});
-
-app.get('/dashboard', (req, res) => {
-    res.redirect(302, '/');
+    return res.status(404).send('');
 });
 
 app.get('/api/check-network', async (req, res) => {
@@ -2263,7 +2122,7 @@ app.get('/api/list', (req, res) => {
 });
 
 app.get('*', (req, res) => {
-    res.sendFile(viewFiles.home);
+    res.status(404).send('');
 });
 
 const PORT = process.env.PORT || 5176;

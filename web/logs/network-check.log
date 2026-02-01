@@ -1,0 +1,16 @@
+[2026-02-01T23:21:01.814Z] Pemeriksaan jaringan: Fabric 3 Raft
+Status: not_found
+Direktori: D:\laragon\www\evaluasi-raft-hlf\fabric-3\raft-standard\network
+Channel: fabric3-channel-standard
+Chaincode: pelaporan
+Peer: localhost:7153
+Pesan: Direktori jaringan tidak ditemukan.
+
+[2026-02-01T23:21:01.825Z] Pemeriksaan jaringan: Fabric 3 SmartBFT
+Status: not_found
+Direktori: D:\laragon\www\evaluasi-raft-hlf\fabric-3\raft-variant\network
+Channel: fabric3-channel-variant
+Chaincode: pelaporan
+Peer: localhost:7353
+Pesan: Direktori jaringan tidak ditemukan.
+

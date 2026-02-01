@@ -1549,8 +1549,8 @@ app.post('/api/shutdown-network', async (req, res) => {
 // ============================================================================
 // These endpoints allow direct interaction with specific fabric networks
 
-// Fabric 3 RAFT Standard - POST endpoint
-app.post('/api/fabric-3/raft-standard/pelaporan', async (req, res) => {
+// RAFT Network - POST endpoint
+app.post('/api/raft/pelaporan', async (req, res) => {
     const submittedAt = new Date().toISOString();
     const networkId = 'channel-fabric3-standard';
 
@@ -1592,8 +1592,8 @@ app.post('/api/fabric-3/raft-standard/pelaporan', async (req, res) => {
     }
 });
 
-// Fabric 3 RAFT Standard - GET endpoint
-app.get('/api/fabric-3/raft-standard/pelaporan', async (req, res) => {
+// RAFT Network - GET endpoint
+app.get('/api/raft/pelaporan', async (req, res) => {
     const fetchedAt = new Date().toISOString();
     const networkId = 'channel-fabric3-standard';
 
@@ -1641,8 +1641,8 @@ app.get('/api/fabric-3/raft-standard/pelaporan', async (req, res) => {
     }
 });
 
-// Fabric 3 RAFT Variant - POST endpoint
-app.post('/api/fabric-3/raft-variant/pelaporan', async (req, res) => {
+// SmartBFT Network - POST endpoint
+app.post('/api/smartbft/pelaporan', async (req, res) => {
     const submittedAt = new Date().toISOString();
     const networkId = 'channel-fabric3-variant';
 
@@ -1684,8 +1684,8 @@ app.post('/api/fabric-3/raft-variant/pelaporan', async (req, res) => {
     }
 });
 
-// Fabric 3 RAFT Variant - GET endpoint
-app.get('/api/fabric-3/raft-variant/pelaporan', async (req, res) => {
+// SmartBFT Network - GET endpoint
+app.get('/api/smartbft/pelaporan', async (req, res) => {
     const fetchedAt = new Date().toISOString();
     const networkId = 'channel-fabric3-variant';
 
@@ -2195,37 +2195,37 @@ app.get('/api/list', (req, res) => {
             ]
         },
         {
-            category: 'Fabric 3 Raft',
+            category: 'RAFT Network',
             endpoints: [
                 {
                     method: 'POST',
-                    path: '/api/fabric-3/raft-standard/pelaporan',
-                    description: 'Submit reporting data ke Fabric 3 Raft',
+                    path: '/api/raft/pelaporan',
+                    description: 'Submit reporting data ke RAFT Network',
                     body: 'reporting record object',
                     response: '{ submittedAt, completedAt, success, networkId, result }'
                 },
                 {
                     method: 'GET',
-                    path: '/api/fabric-3/raft-standard/pelaporan',
-                    description: 'Query semua transactions dari Fabric 3 Raft',
+                    path: '/api/raft/pelaporan',
+                    description: 'Query semua transactions dari RAFT Network',
                     response: '{ fetchedAt, success, networkId, count, records[], totalBlocks }'
                 }
             ]
         },
         {
-            category: 'Fabric 3 SmartBFT',
+            category: 'SmartBFT Network',
             endpoints: [
                 {
                     method: 'POST',
-                    path: '/api/fabric-3/raft-variant/pelaporan',
-                    description: 'Submit reporting data ke Fabric 3 SmartBFT',
+                    path: '/api/smartbft/pelaporan',
+                    description: 'Submit reporting data ke SmartBFT Network',
                     body: 'reporting record object',
                     response: '{ submittedAt, completedAt, success, networkId, result }'
                 },
                 {
                     method: 'GET',
-                    path: '/api/fabric-3/raft-variant/pelaporan',
-                    description: 'Query semua transactions dari Fabric 3 SmartBFT',
+                    path: '/api/smartbft/pelaporan',
+                    description: 'Query semua transactions dari SmartBFT Network',
                     response: '{ fetchedAt, success, networkId, count, records[], totalBlocks }'
                 }
             ]

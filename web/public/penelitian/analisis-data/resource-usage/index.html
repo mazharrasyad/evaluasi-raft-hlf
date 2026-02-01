@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>4.5.3 Resource Usage - Evaluasi RAFT HLF</title>
+  <link rel="stylesheet" href="/css/site.css" />
+  <script src="/js/tailwind-config.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-slate-950 via-slate-950 to-slate-900 text-textdark">
+  <div data-component="header"></div>
+  <div class="flex min-h-screen">
+    <div data-component="sidebar"></div>
+    <main class="flex-1 px-6 pb-16 pt-24 lg:pt-10">
+      <div class="mx-auto flex w-full max-w-5xl flex-col gap-8">
+        <section class="rounded-3xl border border-white/10 bg-surface/80 p-8 shadow-xl shadow-black/20">
+          <p class="text-xs font-semibold uppercase tracking-[0.3em] text-secondary/80">Sub Bab 4.5.3</p>
+          <h1 class="mt-3 text-3xl font-semibold text-textdark">Analisis Resource Usage</h1>
+          <p class="mt-4 text-base text-textdark/70">Menganalisis penggunaan CPU dan memori pada orderer serta peer selama eksperimen.</p>
+        </section>
+        <section class="grid gap-6 lg:grid-cols-2">
+          <article class="rounded-3xl border border-white/10 bg-surfaceMuted/70 p-6">
+            <h2 class="text-lg font-semibold">CPU Usage</h2>
+            <p class="mt-3 text-sm text-textdark/70">Bandingkan rata-rata CPU dan puncaknya untuk kedua jaringan.</p>
+            <div class="mt-4 rounded-2xl border border-white/10 bg-surface/70 p-4 text-sm text-textdark/70">Raft: {CPU_RAFT} | SmartBFT: {CPU_SMARTBFT}</div>
+          </article>
+          <article class="rounded-3xl border border-white/10 bg-surfaceMuted/70 p-6">
+            <h2 class="text-lg font-semibold">Memori</h2>
+            <p class="mt-3 text-sm text-textdark/70">Catat total memori yang dipakai orderer/peer saat beban tinggi.</p>
+            <div class="mt-4 rounded-2xl border border-white/10 bg-surface/70 p-4 text-sm text-textdark/70">Raft: {MEM_RAFT} | SmartBFT: {MEM_SMARTBFT}</div>
+          </article>
+        </section>
+      </div>
+    </main>
+  </div>
+  <div data-component="footer"></div>
+  <script src="/js/layout.js"></script>
+  <script src="/js/navigation.js"></script>
+  <script src="/js/site.js"></script>
+</body>
+</html>

@@ -1078,16 +1078,28 @@ const app = express();
 app.disable('x-powered-by');
 
 const staticRoot = path.resolve(__dirname, '../public');
+const pagesRoot = path.resolve(staticRoot, 'pages');
 
 app.use(express.static(staticRoot));
 app.use(express.json({ limit: '2mb' }));
 
+// Page routes
+app.get('/scenario', (req, res) => {
+    res.sendFile(path.join(pagesRoot, 'scenario.html'));
+});
+
+// Catch-all for non-API routes - serve index.html or 404
 app.use((req, res, next) => {
     if (req.path.startsWith('/api')) {
         return next();
     }
 
-    return res.status(404).send('');
+    // For root path, serve index
+    if (req.path === '/') {
+        return res.sendFile(path.join(staticRoot, 'index.html'));
+    }
+
+    return res.status(404).send('Page not found');
 });
 
 app.get('/api/check-network', async (req, res) => {

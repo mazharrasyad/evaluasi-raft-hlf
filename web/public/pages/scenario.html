@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>4.1 Test Scenario Setup · RAFT vs SmartBFT Evaluation</title>
+  <link rel="icon" type="image/svg+xml" href="/images/logo-ai-center.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    /* Additional styles for this page */
+    .info-banner {
+      background: linear-gradient(135deg, #fef3c7, #fde68a);
+      border: 1px solid #f59e0b;
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+      margin-bottom: 32px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .info-banner-icon {
+      color: #d97706;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .info-banner p {
+      font-size: 14px;
+      color: #92400e;
+      line-height: 1.6;
+    }
+    .info-banner strong {
+      color: #78350f;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 16px;
+    }
+    .data-table th,
+    .data-table td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+    }
+    .data-table th {
+      background: var(--bg);
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+    .data-table td {
+      color: var(--text-muted);
+    }
+    .data-table code {
+      background: #e0f2fe;
+      color: #0369a1;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 13px;
+      font-family: 'SF Mono', 'Consolas', monospace;
+    }
+
+    .check-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .check-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      background: #ecfdf5;
+      border: 1px solid #a7f3d0;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      color: #065f46;
+    }
+    .check-item svg {
+      color: #10b981;
+      flex-shrink: 0;
+    }
+
+    .formula-card {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      margin-bottom: 12px;
+    }
+    .formula-card h4 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin-bottom: 8px;
+    }
+    .formula-code {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 12px 16px;
+      border-radius: var(--radius-sm);
+      font-family: 'SF Mono', 'Consolas', monospace;
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+    .formula-card p {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .raw-data-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+    }
+    .raw-data-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 20px;
+    }
+    .raw-data-card h4 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .raw-data-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .raw-data-list li {
+      font-size: 13px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .raw-data-list code {
+      background: var(--bg);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'SF Mono', 'Consolas', monospace;
+      font-size: 12px;
+      color: var(--text-dark);
+    }
+
+    .subsection {
+      margin-bottom: 24px;
+    }
+    .subsection-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--accent-soft);
+    }
+
+    .variable-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 16px;
+    }
+    .variable-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 16px;
+    }
+    .variable-card .label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-light);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+    .variable-card .value {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+    .variable-card.independent { border-left: 3px solid #3b82f6; }
+    .variable-card.dependent { border-left: 3px solid #10b981; }
+    .variable-card.control { border-left: 3px solid #f59e0b; }
+
+    @media (max-width: 768px) {
+      .variable-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- Mobile Toggle -->
+    <button class="mobile-toggle" onclick="toggleSidebar()" aria-label="Toggle menu">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    </button>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay"></div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-brand">
+          <img src="/images/logo-ai-center.svg" alt="AI Center Logo" class="sidebar-logo-img">
+          <span class="sidebar-brand-text">Hyperledger Fabric</span>
+        </div>
+        <p class="sidebar-title">
+          Analisis Perbandingan Kinerja Algoritma Konsensus RAFT dan SmartBFT pada Hyperledger Fabric
+        </p>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <div class="nav-section-title">Menu</div>
+          <ul class="nav-list">
+            <li class="nav-item">
+              <a href="/">
+                <span class="nav-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                </span>
+                Home
+              </a>
+            </li>
+          </ul>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">Chapter IV</div>
+          <ul class="nav-list">
+            <li class="nav-item">
+              <a href="/scenario">
+                <span class="nav-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>
+                </span>
+                4.1 Test Scenario
+              </a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main">
+      <div class="main-content">
+        <!-- Hero -->
+        <section class="hero">
+          <span class="hero-badge">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+            Chapter 4.1
+          </span>
+          <h1 class="hero-title">Test Scenario Setup</h1>
+          <p class="hero-desc">
+            Establishing a standardized test scenario as a guideline for experiments comparing the performance of <strong>RAFT</strong> and <strong>SmartBFT</strong> consensus algorithms on Hyperledger Fabric network.
+          </p>
+        </section>
+
+        <!-- Important Notice -->
+        <div class="info-banner">
+          <div class="info-banner-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+          </div>
+          <p>
+            <strong>Important:</strong> Stage 4.1 does not produce performance metrics (TPS/latency/CPU). 
+            This stage produces <strong>scenario artifacts</strong> that will be used in stages 4.2–4.6. 
+            Performance values will appear after execution (4.4) and analysis (4.5–4.6).
+          </p>
+        </div>
+
+        <!-- Section A: Objectives -->
+        <div class="content-section">
+          <div class="section-header">
+            <span class="section-number">A</span>
+            <h2 class="section-title">Stage 4.1 Objectives</h2>
+          </div>
+          <div class="card">
+            <p class="card-text">This stage establishes a <strong>standardized test scenario</strong> to ensure:</p>
+            <ul class="card-list" style="margin-top: 12px;">
+              <li><strong>Fair Comparison</strong> — Both networks receive equivalent testing treatment, so performance differences can be attributed directly to consensus mechanism characteristics</li>
+              <li><strong>Repeatability</strong> — Testing procedures can be repeated with the same parameters, not due to workload or procedural differences</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Section 4.1.1: Research Object & Focus -->
+        <div class="content-section">
+          <div class="section-header">
+            <span class="section-number">4.1.1</span>
+            <h2 class="section-title">Research Object & Focus</h2>
+          </div>
+          
+          <div class="subsection">
+            <h3 class="subsection-title">Test Object</h3>
+            <div class="card">
+              <p class="card-text">
+                The primary component being tested is the <strong>Ordering Service</strong> on Hyperledger Fabric, 
+                as this component runs consensus for transaction ordering, block formation, and block distribution.
+              </p>
+            </div>
+          </div>
+
+          <div class="subsection">
+            <h3 class="subsection-title">Comparison Focus</h3>
+            <div class="cards-grid" style="grid-template-columns: repeat(2, 1fr);">
+              <div class="card">
+                <div class="card-icon" style="background: #dbeafe;">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/></svg>
+                </div>
+                <h3 class="card-title">Network A: RAFT</h3>
+                <p class="card-text">Crash Fault Tolerant (CFT) consensus mechanism</p>
+              </div>
+              <div class="card">
+                <div class="card-icon" style="background: #dcfce7;">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/></svg>
+                </div>
+                <h3 class="card-title">Network B: SmartBFT</h3>
+                <p class="card-text">Byzantine Fault Tolerant (BFT) consensus mechanism</p>
+              </div>
+            </div>
+            <div class="card" style="margin-top: 16px;">
+              <p class="card-text">
+                <strong>Workload Source:</strong> Dummy transactions from <strong>Web Prototype</strong> as client
+              </p>
+            </div>
+          </div>
+
+          <div class="subsection">
+            <h3 class="subsection-title">Research Variables</h3>
+            <div class="variable-grid">
+              <div class="variable-card independent">
+                <div class="label">Independent Variable</div>
+                <div class="value">Consensus Type (RAFT vs SmartBFT)</div>
+              </div>
+              <div class="variable-card dependent">
+                <div class="label">Dependent Variables</div>
+                <div class="value">Throughput, Latency, Resource Usage, Fault Tolerance</div>
+              </div>
+              <div class="variable-card control">
+                <div class="label">Control Variables</div>
+                <div class="value">Workload, Payload, Chaincode, Channel, Environment, Procedures</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="subsection">
+            <h3 class="subsection-title">Performance Parameters (analyzed in 4.5–4.6)</h3>
+            <div class="spec-grid">
+              <div class="spec-card">
+                <div class="spec-label">Throughput</div>
+                <div class="spec-value">TPS</div>
+                <div class="spec-desc">Transactions per second</div>
+              </div>
+              <div class="spec-card">
+                <div class="spec-label">Latency</div>
+                <div class="spec-value">ms</div>
+                <div class="spec-desc">Response time in milliseconds</div>
+              </div>
+              <div class="spec-card">
+                <div class="spec-label">Resource Usage</div>
+                <div class="spec-value">CPU & Memory</div>
+                <div class="spec-desc">System resource consumption</div>
+              </div>
+              <div class="spec-card">
+                <div class="spec-label">Fault Tolerance</div>
+                <div class="spec-value">Scope-based</div>
+                <div class="spec-desc">As defined in research scope</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 4.1.2: Stage Output -->
+        <div class="content-section">
+          <div class="section-header">
+            <span class="section-number">4.1.2</span>
+            <h2 class="section-title">Stage 4.1 Output (Structured Deliverables)</h2>
+          </div>
+          <div class="card">
+            <p class="card-text" style="margin-bottom: 16px;">
+              Stage 4.1 produces a <strong>final test scenario document</strong> that serves as reference for running experiments in stages 4.2–4.4. The following outputs are mandatory:
+            </p>
+            <ul class="card-list">
+              <li><strong>Test Scenario Parameters (final)</strong> — Transaction count, submission pattern, concurrency, iterations, success criteria</li>
+              <li><strong>Fairness Controls</strong> — List of controls ensuring fair RAFT vs SmartBFT comparison</li>
+              <li><strong>Dummy Transaction Definition</strong> — Transaction source, payload consistency, success criteria</li>
+              <li><strong>Test Execution SOP</strong> — Standard operating procedure from network start to completion</li>
+              <li><strong>Data Capture Plan</strong> — Raw data types that must be recorded for metric calculation</li>
+              <li><strong>Metric Mapping</strong> — Operational definitions showing how metrics are calculated from raw data</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Section C: Parameter Table -->
+        <div class="content-section">
+          <div class="section-header">
+            <span class="section-number">C</span>
+            <h2 class="section-title">Table 4.1 — Test Scenario Parameters</h2>
+          </div>
+          <div class="card">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Component</th>
+                  <th>Value / Specification</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Transactions per test</td>
+                  <td><code>{JUMLAH_TRANSAKSI}</code></td>
+                </tr>
+                <tr>
+                  <td>Submission pattern</td>
+                  <td><code>{SEQUENTIAL/PARALLEL}</code></td>
+                </tr>
+                <tr>
+                  <td>Concurrency</td>
+                  <td><code>{CONCURRENCY}</code> <em>(if applicable)</em></td>
+                </tr>
+                <tr>
+                  <td>Test iterations</td>
+                  <td><code>{JUMLAH_PERCOBAAN}</code></td>
+                </tr>
+                <tr>
+                  <td>Success criteria</td>
+                  <td>Committed to ledger + success response received</td>
+                </tr>
+                <tr>
+                  <td>Transaction payload</td>
+                  <td>Consistent for all transactions</td>
+                </tr>
+                <tr>
+                  <td>Fairness controls</td>
+                  <td>Same payload, chaincode, channel, environment</td>
+                </tr>
+                <tr>
+                  <td>Raw data to record</td>
+                  <td>Timestamps, success/fail count, commit evidence, CPU, memory</td>
+                </tr>
+                <tr>
+                  <td>Stage 4.1 output</td>
+                  <td>Scenario document + SOP + data capture plan + metric mapping</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Section D: Dummy Transaction -->
+        <div class="content-section">
+          <div class="section-header">
+            <span class="section-number">D</span>
+            <h2 class="section-title">Dummy Transaction Definition</h2>
+          </div>
+          <div class="card">
+            <p class="card-text" style="margin-bottom: 16px;">
+              Dummy transactions are test transactions sent from the <strong>web prototype (client)</strong> 
+              to load the blockchain network without carrying production/real data. All transactions use 
+              the same payload format to ensure consistent workload.
+            </p>
+            <h4 class="card-title">Success Criteria</h4>
+            <p class="card-text">A transaction is considered <strong>successful</strong> when:</p>
+            <ul class="card-list" style="margin-top: 8px;">
+              <li>Transaction is processed until <strong>committed</strong> to the ledger</li>
+              <li>Client receives a <strong>success response</strong></li>
+            </ul>
+            <p class="card-text" style="margin-top: 12px; font-style: italic; color: var(--text-light);">
+              Note: Detailed payload structure (fields/attributes) will be documented in section 4.3.
+            </p>
+          </div>
+        </div>
+
+        <!-- Section E: Fairness Controls -->
+        <div class="content-section">
+          <div class="section-header">
+            <span class="section-number">E</span>
+            <h2 class="section-title">Fairness Controls</h2>
+          </div>
+          <div class="card">
+            <p class="card-text">To ensure fair comparison, the following controls are applied equally to RAFT and SmartBFT:</p>
+            <div class="check-grid">
+              <div class="check-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                <span>Same payload structure</span>
+              </div>
+              <div class="check-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                <span>Same chaincode</span>
+              </div>
+              <div class="check-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                <span>Same channel</span>
+              </div>
+              <div class="check-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                <span>Same environment/infrastructure</span>
+              </div>
+              <div class="check-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                <span>Same execution parameters</span>
+              </div>
+              <div class="check-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                <span>Same recording procedure</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section F: SOP -->
+        <div class="content-section">
+          <div class="section-header">
+            <span class="section-number">F</span>
+            <h2 class="section-title">Test Execution SOP</h2>
+          </div>
+          <p class="card-text" style="margin-bottom: 16px;">
+            This SOP defines the testing "rules of engagement" that will be executed in stage 4.4.
+          </p>
+          <div class="procedure-list">
+            <div class="procedure-item">
+              <div class="procedure-number">1</div>
+              <div class="procedure-content">
+                <h4>Start Network A (RAFT)</h4>
+                <p>Launch the RAFT network and verify status is ready to accept transactions</p>
+              </div>
+            </div>
+            <div class="procedure-item">
+              <div class="procedure-number">2</div>
+              <div class="procedure-content">
+                <h4>Submit Dummy Transactions</h4>
+                <p>Send <code>{JUMLAH_TRANSAKSI}</code> dummy transactions from web prototype using <code>{SEQUENTIAL/PARALLEL}</code> pattern with <code>{CONCURRENCY}</code> concurrency</p>
+              </div>
+            </div>
+            <div class="procedure-item">
+              <div class="procedure-number">3</div>
+              <div class="procedure-content">
+                <h4>Record Timestamps & Outcome</h4>
+                <p>Log start time, end time, count of successful/failed transactions</p>
+              </div>
+            </div>
+            <div class="procedure-item">
+              <div class="procedure-number">4</div>
+              <div class="procedure-content">
+                <h4>Capture Resource Metrics</h4>
+                <p>Record CPU & memory monitoring logs during execution</p>
+              </div>
+            </div>
+            <div class="procedure-item">
+              <div class="procedure-number">5</div>
+              <div class="procedure-content">
+                <h4>Repeat Test</h4>
+                <p>Repeat steps 2–4 for <code>{JUMLAH_PERCOBAAN}</code> iterations</p>
+              </div>
+            </div>
+            <div class="procedure-item">
+              <div class="procedure-number">6</div>
+              <div class="procedure-content">
+                <h4>Test Network B (SmartBFT)</h4>
+                <p>Execute the same procedure on SmartBFT network with identical parameters</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section G: Data Capture Plan -->
+        <div class="content-section">
+          <div class="section-header">
+            <span class="section-number">G</span>
+            <h2 class="section-title">Data Capture Plan (Raw Data)</h2>
+          </div>
+          <p class="card-text" style="margin-bottom: 16px;">
+            To enable metric calculation in stages 4.5–4.6, stage 4.1 specifies the following minimum raw data:
+          </p>
+          <div class="raw-data-grid">
+            <div class="raw-data-card">
+              <h4>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+                Transaction Data
+              </h4>
+              <ul class="raw-data-list">
+                <li><code>start_time</code> — Test start timestamp</li>
+                <li><code>end_time</code> — Test end timestamp</li>
+                <li><code>tx_submitted</code> — Transactions submitted</li>
+                <li><code>tx_success</code> — Successful transactions</li>
+                <li><code>tx_failed</code> — Failed transactions</li>
+                <li><code>commit_evidence</code> — Commit proof/log</li>
+              </ul>
+            </div>
+            <div class="raw-data-card">
+              <h4>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>
+                Resource Data
+              </h4>
+              <ul class="raw-data-list">
+                <li><code>cpu_avg</code> — Average CPU usage</li>
+                <li><code>cpu_peak</code> — Peak CPU usage</li>
+                <li><code>mem_avg</code> — Average memory usage</li>
+                <li><code>mem_peak</code> — Peak memory usage</li>
+              </ul>
+            </div>
+            <div class="raw-data-card">
+              <h4>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/></svg>
+                Fault Tolerance Data
+              </h4>
+              <ul class="raw-data-list">
+                <li><code>fault_tolerance_note</code> — Scope note</li>
+                <li style="font-style: italic; color: var(--text-light);">
+                  "Analyzed within defined scope; no active failure injection testing"
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section H: Metric Mapping -->
+        <div class="content-section">
+          <div class="section-header">
+            <span class="section-number">H</span>
+            <h2 class="section-title">Metric Mapping (Raw Data → Metrics)</h2>
+          </div>
+          <p class="card-text" style="margin-bottom: 16px;">
+            Operational definitions for consistent analysis:
+          </p>
+          
+          <div class="formula-card">
+            <h4>Throughput (TPS)</h4>
+            <div class="formula-code">TPS = tx_success / (end_time - start_time)</div>
+            <p>Transactions per second calculated from successful transactions divided by execution duration</p>
+          </div>
+
+          <div class="formula-card">
+            <h4>Latency</h4>
+            <div class="formula-code">latency_avg = average(response_times)</div>
+            <p>Measured from transaction response time. Using <strong>average (mean)</strong> method consistently</p>
+          </div>
+
+          <div class="formula-card">
+            <h4>Resource Usage</h4>
+            <div class="formula-code">cpu_usage = cpu_avg | cpu_peak<br>mem_usage = mem_avg | mem_peak</div>
+            <p>Based on CPU/memory summary during scenario execution</p>
+          </div>
+
+          <div class="formula-card">
+            <h4>Fault Tolerance</h4>
+            <div class="formula-code">fault_tolerance = descriptive_analysis(scope)</div>
+            <p>Presented according to scope: descriptive or based on limited disruption simulation results (if any)</p>
+          </div>
+        </div>
+
+        <!-- Stage Output Summary -->
+        <div class="content-section">
+          <div class="output-box">
+            <div class="output-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <div class="output-content">
+              <h4>Stage 4.1 Deliverable</h4>
+              <p>
+                The output of this stage is a <strong>final test scenario document</strong> containing: 
+                execution parameters (transaction count, submission pattern, iterations), success criteria, 
+                fairness controls, execution SOP, data capture plan, and metric mapping definitions 
+                that will be used as guidelines for stages 4.2–4.6.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="page-footer">
+          <p class="footer-text">
+            Thesis Research · Comparative Analysis of RAFT and SmartBFT Consensus on Hyperledger Fabric
+          </p>
+        </footer>
+      </div>
+    </main>
+  </div>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>

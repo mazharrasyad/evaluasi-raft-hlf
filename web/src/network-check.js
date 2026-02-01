@@ -16,28 +16,28 @@ const PROJECT_ROOT = process.env.PROJECT_ROOT || path.resolve(__dirname, '../..'
 // Configuration
 const mspId = 'Org1MSP';
 const chaincodeName = 'pelaporan';
-const fabric3StandardNetworkDir = path.join(PROJECT_ROOT, 'fabric-3/raft-standard/network');
-const fabric3VariantNetworkDir = path.join(PROJECT_ROOT, 'fabric-3/raft-variant/network');
+const raftNetworkDir = path.join(PROJECT_ROOT, 'raft/network');
+const smartbftNetworkDir = path.join(PROJECT_ROOT, 'smartbft/network');
 
 const networkConfigurations = [
     {
         targetId: 'channel-fabric3-standard',
-        label: 'Fabric 3 Raft',
-        networkDir: fabric3StandardNetworkDir,
+        label: 'RAFT Network',
+        networkDir: raftNetworkDir,
         channelName: 'fabric3-channel-standard',
         peerEndpoint: 'localhost:7153',
         peerHostAlias: 'peer0.org1.fabric3.standard',
         domain: 'fabric3.standard',
         organizationsDir: 'organizations',
         instructions: {
-            up: `cd ${fabric3StandardNetworkDir} && ./network.sh up && ./network.sh createChannel -c fabric3-channel-standard`,
-            deploy: `cd ${fabric3StandardNetworkDir} && ./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl node -c fabric3-channel-standard`
+            up: `cd ${raftNetworkDir} && ./network.sh up && ./network.sh createChannel -c fabric3-channel-standard`,
+            deploy: `cd ${raftNetworkDir} && ./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl node -c fabric3-channel-standard`
         }
     },
     {
         targetId: 'channel-fabric3-variant',
-        label: 'Fabric 3 SmartBFT',
-        networkDir: fabric3VariantNetworkDir,
+        label: 'SmartBFT Network',
+        networkDir: smartbftNetworkDir,
         channelName: 'fabric3-channel-variant',
         peerEndpoint: 'localhost:7353',
         peerHostAlias: 'peer0.org1.fabric3.variant',

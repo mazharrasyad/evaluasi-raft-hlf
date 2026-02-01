@@ -11,17 +11,17 @@ const __dirname = path.dirname(__filename);
 const PROJECT_ROOT = process.env.PROJECT_ROOT || path.resolve(__dirname, '../..');
 
 // Define paths to check
-const standardNetworkPath = path.join(PROJECT_ROOT, 'fabric-3/raft-standard/network');
-const variantNetworkPath = path.join(PROJECT_ROOT, 'fabric-3/raft-variant/network');
+const raftNetworkPath = path.join(PROJECT_ROOT, 'raft/network');
+const smartbftNetworkPath = path.join(PROJECT_ROOT, 'smartbft/network');
 
 const networkCandidates = [
-  standardNetworkPath,
-  variantNetworkPath
+  raftNetworkPath,
+  smartbftNetworkPath
 ];
 
 const domainByNetworkPath = new Map([
-  [standardNetworkPath, 'fabric3.standard'],
-  [variantNetworkPath, 'fabric3.variant'],
+  [raftNetworkPath, 'fabric3.standard'],
+  [smartbftNetworkPath, 'fabric3.variant'],
 ]);
 
 async function resolveNetworkPath() {

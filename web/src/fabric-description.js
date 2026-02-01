@@ -9,20 +9,20 @@ const __dirname = path.dirname(__filename);
 // Use PROJECT_ROOT environment variable if set, otherwise use relative path from __dirname
 const PROJECT_ROOT = process.env.PROJECT_ROOT || path.resolve(__dirname, '../..');
 
-const FABRIC3_STANDARD_NETWORK_ROOT = path.join(PROJECT_ROOT, 'fabric-3', 'raft-standard', 'network');
-const FABRIC3_VARIANT_NETWORK_ROOT = path.join(PROJECT_ROOT, 'fabric-3', 'raft-variant', 'network');
+const RAFT_NETWORK_ROOT = path.join(PROJECT_ROOT, 'raft', 'network');
+const SMARTBFT_NETWORK_ROOT = path.join(PROJECT_ROOT, 'smartbft', 'network');
 
 const NETWORK_SOURCES = [
     {
-        id: 'fabric3-raft-standard',
-        label: 'Fabric 3 Raft',
-        root: FABRIC3_STANDARD_NETWORK_ROOT,
+        id: 'raft',
+        label: 'RAFT Network',
+        root: RAFT_NETWORK_ROOT,
         ordererServiceName: 'orderer.fabric3.standard',
     },
     {
-        id: 'fabric3-raft-variant',
-        label: 'Fabric 3 SmartBFT',
-        root: FABRIC3_VARIANT_NETWORK_ROOT,
+        id: 'smartbft',
+        label: 'SmartBFT Network',
+        root: SMARTBFT_NETWORK_ROOT,
         ordererServiceName: 'orderer.fabric3.variant',
     },
 ];

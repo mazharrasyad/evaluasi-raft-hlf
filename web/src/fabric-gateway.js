@@ -15,9 +15,9 @@ const PROJECT_ROOT = process.env.PROJECT_ROOT || path.resolve(__dirname, '../..'
 // Network configuration mapping
 const NETWORK_CONFIGS = {
     'channel-fabric3-standard': {
-        label: 'Fabric 3 Raft',
-        fabricVersion: 'fabric-3',
-        variant: 'raft-standard',
+        label: 'RAFT Network',
+        networkType: 'raft',
+        variant: 'raft',
         channel: 'fabric3-channel-standard',
         chaincode: 'pelaporan',
         peerEndpoint: 'localhost:7153',
@@ -26,9 +26,9 @@ const NETWORK_CONFIGS = {
         mspId: 'Org1MSP',
     },
     'channel-fabric3-variant': {
-        label: 'Fabric 3 SmartBFT',
-        fabricVersion: 'fabric-3',
-        variant: 'raft-variant',
+        label: 'SmartBFT Network',
+        networkType: 'smartbft',
+        variant: 'smartbft',
         channel: 'fabric3-channel-variant',
         chaincode: 'pelaporan',
         peerEndpoint: 'localhost:7353',

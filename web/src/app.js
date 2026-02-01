@@ -640,22 +640,22 @@ async function logNetworkStartupFailure(result) {
 
 const NETWORK_SHUTDOWN_TARGETS = [
     {
-        id: 'fabric3-standard',
-        label: 'Fabric 3 Raft Network',
-        directory: path.resolve(__dirname, '../../fabric-3/raft-standard/network'),
+        id: 'raft',
+        label: 'RAFT Consensus Network',
+        directory: path.resolve(__dirname, '../../raft/network'),
     },
     {
-        id: 'fabric3-variant',
-        label: 'Fabric 3 SmartBFT Network',
-        directory: path.resolve(__dirname, '../../fabric-3/raft-variant/network'),
+        id: 'smartbft',
+        label: 'SmartBFT Consensus Network',
+        directory: path.resolve(__dirname, '../../smartbft/network'),
     },
 ];
 
 const NETWORK_START_TARGETS = [
     {
-        id: 'fabric3-standard',
-        label: 'Fabric 3 Raft Network',
-        directory: path.resolve(__dirname, '../../fabric-3/raft-standard/network'),
+        id: 'raft',
+        label: 'RAFT Consensus Network',
+        directory: path.resolve(__dirname, '../../raft/network'),
         channel: 'fabric3-channel-standard',
         commands: [
             {
@@ -682,9 +682,9 @@ const NETWORK_START_TARGETS = [
         ],
     },
     {
-        id: 'fabric3-variant',
-        label: 'Fabric 3 SmartBFT Network',
-        directory: path.resolve(__dirname, '../../fabric-3/raft-variant/network'),
+        id: 'smartbft',
+        label: 'SmartBFT Consensus Network',
+        directory: path.resolve(__dirname, '../../smartbft/network'),
         channel: 'fabric3-channel-variant',
         commands: [
             {
@@ -1086,6 +1086,10 @@ app.use(express.json({ limit: '2mb' }));
 // Page routes
 app.get('/scenario', (req, res) => {
     res.sendFile(path.join(pagesRoot, 'scenario.html'));
+});
+
+app.get('/implementation', (req, res) => {
+    res.sendFile(path.join(pagesRoot, 'implementation.html'));
 });
 
 // Catch-all for non-API routes - serve index.html or 404

@@ -81,12 +81,16 @@ joinChannel() {
 	local rc=1
 	local COUNTER=1
 	## Sometimes Join takes time, hence retry
-	while [ $rc -ne 0 -a $COUNTER -lt $MAX_RETRY ] ; do
+  while [ $rc -ne 0 -a $COUNTER -lt $MAX_RETRY ] ; do
     sleep $DELAY
     set -x
     peer channel join -b $BLOCKFILE >&log.txt
     res=$?
     { set +x; } 2>/dev/null
+    if [ $res -ne 0 ] && grep -qi "already exists" log.txt; then
+      infoln "Peer0.org${ORG} already joined channel '${CHANNEL_NAME}'. Skipping join."
+      res=0
+    fi
 		let rc=$res
 		COUNTER=$(expr $COUNTER + 1)
 	done

@@ -869,6 +869,7 @@
     async function runTest() {
       const txCount = parseInt(document.getElementById('testTxCount').value, 10);
       const mode = document.getElementById('testMode').value;
+      const concurrency = parseInt(document.getElementById('concurrency').value, 10) || 1;
       const batchInterval = parseInt(document.getElementById('batchInterval').value, 10);
       
       const targets = [];
@@ -893,7 +894,8 @@
       setTestStatus('running', 'Running');
 
       const totalTx = txCount * targets.length;
-      log(`Starting test: ${txCount} tx per network, targets: ${targets.join(', ')}`, 'info');
+      const effectiveConcurrency = mode === 'parallel' ? concurrency : 1;
+      log(`Starting test: ${txCount} tx per network, mode: ${mode.toUpperCase()}, concurrency: ${effectiveConcurrency}, targets: ${targets.join(', ')}`, 'info');
 
       let simulationId = null;
       const networkResults = {};
@@ -903,7 +905,9 @@
         const startPayload = {
           totalTransactions: totalTx,
           targetNetworks: targets.map(t => NETWORKS[t].id),
-          loadCategory: 'test-4.4'
+          loadCategory: 'test-4.4',
+          mode: mode,
+          concurrency: effectiveConcurrency
         };
         const startRes = await postJson('/api/metrics/simulation/start', startPayload);
         simulationId = startRes.simulationId;
@@ -923,57 +927,14 @@
             latencies: []
           };
 
-          log(`--- ${network.label} Network: sending ${txCount} transactions ---`, 'info');
+          log(`--- ${network.label} Network: sending ${txCount} transactions (${mode}, concurrency: ${effectiveConcurrency}) ---`, 'info');
 
-          for (let i = 1; i <= txCount; i++) {
-            if (testState.cancelled) {
-              log('Test cancelled by user', 'warning');
-              break;
-            }
-
-            const record = buildDummyRecord(network.label, i);
-            const submittedAt = new Date().toISOString();
-
-            try {
-              const submitRes = await postJson(network.endpoint, record);
-              const completedAt = submitRes.completedAt || new Date().toISOString();
-              const success = submitRes.success !== false;
-              const latencyMs = new Date(completedAt).getTime() - new Date(submittedAt).getTime();
-
-              // Record transaction
-              await postJson(`/api/metrics/simulation/${simulationId}/transaction`, {
-                txId: record.reportId,
-                networkId: network.id,
-                submittedAt,
-                completedAt,
-                success,
-                error: submitRes.error || null
-              });
-
-              if (success) {
-                testState.stats.success++;
-                networkResults[target].txSuccess++;
-                networkResults[target].latencies.push(latencyMs);
-                log(`${network.label} TX ${i}/${txCount}: OK (${latencyMs}ms) - ${record.reportId}`, 'success');
-              } else {
-                testState.stats.failed++;
-                networkResults[target].txFailed++;
-                log(`${network.label} TX ${i}/${txCount}: FAILED - ${submitRes.error}`, 'error');
-              }
-            } catch (err) {
-              testState.stats.failed++;
-              networkResults[target].txFailed++;
-              log(`${network.label} TX ${i}/${txCount}: ERROR - ${err.message}`, 'error');
-            }
-
-            testState.stats.total++;
-            updateStats();
-            updateProgress(testState.stats.total, totalTx);
-
-            // Apply interval if specified
-            if (batchInterval > 0) {
-              await delay(batchInterval);
-            }
+          if (mode === 'parallel' && effectiveConcurrency > 1) {
+            // PARALLEL MODE: Send transactions in batches with concurrency
+            await runParallelTransactions(network, target, txCount, effectiveConcurrency, simulationId, networkResults, batchInterval);
+          } else {
+            // SEQUENTIAL MODE: Send one transaction at a time
+            await runSequentialTransactions(network, target, txCount, simulationId, networkResults, batchInterval, totalTx);
           }
 
           networkResults[target].endTimestamp = new Date().toISOString();
@@ -1000,6 +961,103 @@
         runTestBtn.disabled = false;
         stopTestBtn.disabled = true;
       }
+    }
+
+    // Sequential transaction execution
+    async function runSequentialTransactions(network, target, txCount, simulationId, networkResults, batchInterval, totalTx) {
+      for (let i = 1; i <= txCount; i++) {
+        if (testState.cancelled) {
+          log('Test cancelled by user', 'warning');
+          break;
+        }
+
+        await executeSingleTransaction(network, target, i, txCount, simulationId, networkResults);
+        updateProgress(testState.stats.total, totalTx);
+
+        // Apply interval if specified
+        if (batchInterval > 0) {
+          await delay(batchInterval);
+        }
+      }
+    }
+
+    // Parallel transaction execution with concurrency limit
+    async function runParallelTransactions(network, target, txCount, concurrency, simulationId, networkResults, batchInterval) {
+      const totalTx = txCount * 2; // Approximate for progress (both networks)
+      let completedCount = 0;
+      
+      // Create array of transaction indices
+      const txIndices = Array.from({ length: txCount }, (_, i) => i + 1);
+      
+      // Process in batches based on concurrency
+      for (let batchStart = 0; batchStart < txIndices.length; batchStart += concurrency) {
+        if (testState.cancelled) {
+          log('Test cancelled by user', 'warning');
+          break;
+        }
+
+        const batch = txIndices.slice(batchStart, batchStart + concurrency);
+        const batchNum = Math.floor(batchStart / concurrency) + 1;
+        const totalBatches = Math.ceil(txCount / concurrency);
+        
+        log(`${network.label} Batch ${batchNum}/${totalBatches}: sending ${batch.length} concurrent transactions...`, 'info');
+        
+        // Execute batch concurrently using Promise.all
+        const batchPromises = batch.map(i => 
+          executeSingleTransaction(network, target, i, txCount, simulationId, networkResults, true)
+        );
+        
+        await Promise.all(batchPromises);
+        
+        completedCount += batch.length;
+        updateProgress(testState.stats.total, txCount);
+
+        // Apply interval between batches if specified
+        if (batchInterval > 0 && batchStart + concurrency < txIndices.length) {
+          await delay(batchInterval);
+        }
+      }
+    }
+
+    // Execute a single transaction
+    async function executeSingleTransaction(network, target, index, txCount, simulationId, networkResults, isBatch = false) {
+      const record = buildDummyRecord(network.label, index);
+      const submittedAt = new Date().toISOString();
+
+      try {
+        const submitRes = await postJson(network.endpoint, record);
+        const completedAt = submitRes.completedAt || new Date().toISOString();
+        const success = submitRes.success !== false;
+        const latencyMs = new Date(completedAt).getTime() - new Date(submittedAt).getTime();
+
+        // Record transaction
+        await postJson(`/api/metrics/simulation/${simulationId}/transaction`, {
+          txId: record.reportId,
+          networkId: network.id,
+          submittedAt,
+          completedAt,
+          success,
+          error: submitRes.error || null
+        });
+
+        if (success) {
+          testState.stats.success++;
+          networkResults[target].txSuccess++;
+          networkResults[target].latencies.push(latencyMs);
+          log(`${network.label} TX ${index}/${txCount}: OK (${latencyMs}ms) - ${record.reportId}`, 'success');
+        } else {
+          testState.stats.failed++;
+          networkResults[target].txFailed++;
+          log(`${network.label} TX ${index}/${txCount}: FAILED - ${submitRes.error}`, 'error');
+        }
+      } catch (err) {
+        testState.stats.failed++;
+        networkResults[target].txFailed++;
+        log(`${network.label} TX ${index}/${txCount}: ERROR - ${err.message}`, 'error');
+      }
+
+      testState.stats.total++;
+      updateStats();
     }
 
     function displayResults(results) {

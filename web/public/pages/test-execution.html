@@ -240,6 +240,24 @@
     .log-info { color: #60a5fa; }
     .log-warning { color: #fbbf24; }
 
+    .scenario-status {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .scenario-status.pending { background: #e2e8f0; color: #64748b; }
+    .scenario-status.running { background: #dbeafe; color: #1d4ed8; }
+    .scenario-status.completed { background: #d1fae5; color: #059669; }
+    .scenario-status.failed { background: #fee2e2; color: #dc2626; }
+
+    .btn-secondary {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-dark);
+    }
+
     .results-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -444,126 +462,277 @@
         <div class="content-section">
           <div class="section-header">
             <span class="section-number">4.3.1</span>
-            <h2 class="section-title">Konfigurasi Pengujian (Sesuai Skenario 4.1)</h2>
+            <h2 class="section-title">Konfigurasi Pengujian</h2>
           </div>
           
-          <!-- Scenario Summary Table -->
+          <!-- Landasan Penetapan Skenario -->
           <div class="card" style="margin-bottom: 20px;">
             <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 12px; color: var(--text-dark);">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline; vertical-align: middle; margin-right: 6px;"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
-              Parameter Skenario Pengujian (Stage 4.1)
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline; vertical-align: middle; margin-right: 6px;"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+              Landasan Penetapan Skenario
             </h3>
+            <p class="card-text" style="margin-bottom: 16px; line-height: 1.7;">
+              Pengujian dilakukan dalam dua pola beban, yaitu <strong>sequential</strong> sebagai baseline untuk mengukur overhead dasar konsensus tanpa pengaruh antrean, serta <strong>parallel</strong> untuk merepresentasikan kondisi operasional ketika banyak permintaan transaksi masuk secara bersamaan. Tingkat concurrency ditetapkan bertahap (5, 10, 20) dan jumlah transaksi ditetapkan pada nilai representatif (200, 500, 800) agar perbedaan karakteristik koordinasi konsensus Raft dan SmartBFT dapat diamati secara konsisten pada lingkungan pengujian yang sama.
+            </p>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+              <div style="background: #eff6ff; border-radius: 8px; padding: 16px; border-left: 3px solid #3b82f6;">
+                <h4 style="font-size: 13px; font-weight: 600; color: #1e40af; margin-bottom: 8px;">🔵 Sequential (Concurrency=1)</h4>
+                <p style="font-size: 12px; color: #1e3a5f; line-height: 1.5; margin: 0;">
+                  Dipakai sebagai <strong>baseline</strong>: mengukur overhead konsensus per transaksi tanpa efek antrean/penjadwalan. Setiap transaksi melewati satu siklus konsensus penuh.
+                </p>
+              </div>
+              <div style="background: #fef3c7; border-radius: 8px; padding: 16px; border-left: 3px solid #f59e0b;">
+                <h4 style="font-size: 13px; font-weight: 600; color: #92400e; margin-bottom: 8px;">🟠 Parallel (Concurrency>1)</h4>
+                <p style="font-size: 12px; color: #78350f; line-height: 1.5; margin: 0;">
+                  Dipakai sebagai <strong>kondisi realistis</strong>: request banyak masuk bersamaan, muncul efek antrian, batching, dan koordinasi konsensus.
+                </p>
+              </div>
+            </div>
+
+            <div style="background: #ecfdf5; border-radius: 8px; padding: 16px; margin-top: 16px; border-left: 3px solid #10b981;">
+              <h4 style="font-size: 13px; font-weight: 600; color: #065f46; margin-bottom: 8px;">✓ Variabel Terkontrol</h4>
+              <p style="font-size: 12px; color: #047857; line-height: 1.5; margin: 0;">
+                Variabel bebas hanya <strong>konsensus (Raft vs SmartBFT)</strong>. Yang lain dikunci: payload dummy (256 bytes), chaincode pelaporan, channel masing-masing network, konfigurasi identik, dan environment yang sama.
+              </p>
+            </div>
+          </div>
+
+          <!-- Skenario A: Baseline Sequential -->
+          <div class="card" style="margin-bottom: 20px;">
+            <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 12px; color: #1e40af;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline; vertical-align: middle; margin-right: 6px;"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+              A. Baseline — SEQUENTIAL
+            </h3>
+            <div style="background: #f8fafc; padding: 12px; border-radius: 6px; margin-bottom: 12px; font-size: 12px;">
+              <strong>Pattern:</strong> SEQUENTIAL | <strong>Concurrency:</strong> 1 | <strong>Interval:</strong> 0 ms | <strong>Iterations:</strong> 3 per skenario
+            </div>
             <table class="data-table" style="margin-top: 0;">
+              <thead>
+                <tr>
+                  <th style="width: 60px;">ID</th>
+                  <th style="width: 120px;">Transactions</th>
+                  <th>Tujuan</th>
+                  <th style="width: 100px;">Status</th>
+                </tr>
+              </thead>
               <tbody>
                 <tr>
-                  <td style="width: 200px; font-weight: 600;">Transactions per test</td>
-                  <td><span id="scenarioTxCount">500</span> transaksi</td>
+                  <td><code>B1</code></td>
+                  <td>200</td>
+                  <td>Baseline awal & validasi sistem stabil</td>
+                  <td><span class="scenario-status pending" id="status-B1">Pending</span></td>
                 </tr>
                 <tr>
-                  <td style="font-weight: 600;">Submission pattern</td>
-                  <td><span id="scenarioPattern">SEQUENTIAL</span></td>
+                  <td><code>B2</code></td>
+                  <td>500</td>
+                  <td>Baseline representatif (titik utama perbandingan)</td>
+                  <td><span class="scenario-status pending" id="status-B2">Pending</span></td>
                 </tr>
                 <tr>
-                  <td style="font-weight: 600;">Concurrency</td>
-                  <td><span id="scenarioConcurrency">1</span> (if applicable)</td>
+                  <td><code>B3</code></td>
+                  <td>800</td>
+                  <td>Baseline mendekati batas tanpa paralel</td>
+                  <td><span class="scenario-status pending" id="status-B3">Pending</span></td>
+                </tr>
+              </tbody>
+            </table>
+            <p style="font-size: 11px; color: var(--text-light); margin-top: 8px; margin-bottom: 0;">
+              <em>Kenapa 200/500/800?</em> — 200 cukup untuk pemanasan & baseline cepat. 500 jadi titik utama yang stabil untuk perbandingan. 800 menguji scaling tanpa dipengaruhi paralelisme.
+            </p>
+          </div>
+
+          <!-- Skenario B: Realistic Load Parallel -->
+          <div class="card" style="margin-bottom: 20px;">
+            <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 12px; color: #d97706;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline; vertical-align: middle; margin-right: 6px;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              B. Realistic Load — PARALLEL
+            </h3>
+            <div style="background: #fef3c7; padding: 12px; border-radius: 6px; margin-bottom: 12px; font-size: 12px;">
+              <strong>Pattern:</strong> PARALLEL | <strong>Interval:</strong> 0 ms | <strong>Iterations:</strong> 3 per skenario
+            </div>
+            <table class="data-table" style="margin-top: 0;">
+              <thead>
+                <tr>
+                  <th style="width: 60px;">ID</th>
+                  <th style="width: 100px;">Transactions</th>
+                  <th style="width: 100px;">Concurrency</th>
+                  <th>Tujuan</th>
+                  <th style="width: 100px;">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>P1</code></td>
+                  <td>500</td>
+                  <td>5</td>
+                  <td>Load ramai ringan</td>
+                  <td><span class="scenario-status pending" id="status-P1">Pending</span></td>
                 </tr>
                 <tr>
-                  <td style="font-weight: 600;">Test iterations</td>
-                  <td><span id="scenarioIterations">1</span> iterasi per network</td>
+                  <td><code>P2</code></td>
+                  <td>500</td>
+                  <td>10</td>
+                  <td>Load ramai menengah (utama)</td>
+                  <td><span class="scenario-status pending" id="status-P2">Pending</span></td>
                 </tr>
                 <tr>
-                  <td style="font-weight: 600;">Success criteria</td>
-                  <td>Committed to ledger + success response received</td>
+                  <td><code>P3</code></td>
+                  <td>500</td>
+                  <td>20</td>
+                  <td>Load ramai tinggi</td>
+                  <td><span class="scenario-status pending" id="status-P3">Pending</span></td>
                 </tr>
                 <tr>
-                  <td style="font-weight: 600;">Transaction payload</td>
-                  <td>Consistent for all transactions (256 bytes dummy data)</td>
+                  <td><code>P4</code></td>
+                  <td>800</td>
+                  <td>5</td>
+                  <td>Scaling + paralel</td>
+                  <td><span class="scenario-status pending" id="status-P4">Pending</span></td>
                 </tr>
                 <tr>
-                  <td style="font-weight: 600;">Fairness controls</td>
-                  <td>Same payload, chaincode, channel, environment</td>
+                  <td><code>P5</code></td>
+                  <td>800</td>
+                  <td>10</td>
+                  <td>Scaling utama + paralel</td>
+                  <td><span class="scenario-status pending" id="status-P5">Pending</span></td>
                 </tr>
                 <tr>
-                  <td style="font-weight: 600;">Raw data to record</td>
-                  <td>Timestamps, success/fail count, commit evidence, CPU, memory</td>
+                  <td><code>P6</code></td>
+                  <td>800</td>
+                  <td>20</td>
+                  <td>Batas performa + paralel</td>
+                  <td><span class="scenario-status pending" id="status-P6">Pending</span></td>
+                </tr>
+              </tbody>
+            </table>
+            <p style="font-size: 11px; color: var(--text-light); margin-top: 8px; margin-bottom: 0;">
+              <em>Kenapa concurrency 5/10/20?</em> — 5: paralel ringan umum di sistem web. 10: sweet spot untuk beda konsensus mulai kelihatan. 20: tekanan tinggi tapi masih realistis untuk uji VPS.
+            </p>
+          </div>
+
+          <!-- Skenario C: Fault Tolerance -->
+          <div class="card" style="margin-bottom: 20px;">
+            <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 12px; color: #dc2626;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline; vertical-align: middle; margin-right: 6px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+              C. Fault Tolerance
+            </h3>
+            <div style="background: #fef2f2; padding: 12px; border-radius: 6px; margin-bottom: 12px; font-size: 12px;">
+              <strong>Pattern:</strong> PARALLEL | <strong>Transactions:</strong> 500 | <strong>Concurrency:</strong> 10 | <strong>Iterations:</strong> 1-2
+            </div>
+            <table class="data-table" style="margin-top: 0;">
+              <thead>
+                <tr>
+                  <th style="width: 60px;">ID</th>
+                  <th style="width: 200px;">Gangguan</th>
+                  <th>Yang Dicatat</th>
+                  <th style="width: 100px;">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>F1</code></td>
+                  <td>Matikan 1 orderer saat test</td>
+                  <td>Recovery time, tx gagal/sukses, lonjakan latency</td>
+                  <td><span class="scenario-status pending" id="status-F1">Pending</span></td>
+                </tr>
+                <tr>
+                  <td><code>F2</code></td>
+                  <td>Restart 1 orderer saat test</td>
+                  <td>Downtime, retry, perubahan TPS/latency</td>
+                  <td><span class="scenario-status pending" id="status-F2">Pending</span></td>
                 </tr>
               </tbody>
             </table>
           </div>
 
+          <!-- Ringkasan Total Run -->
+          <div class="card" style="margin-bottom: 20px; background: linear-gradient(135deg, #f8fafc, #f1f5f9);">
+            <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 12px; color: var(--text-dark);">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline; vertical-align: middle; margin-right: 6px;"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+              Ringkasan Total Run
+            </h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+              <div style="background: white; padding: 12px; border-radius: 6px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 700; color: #3b82f6;">9</div>
+                <div style="font-size: 11px; color: var(--text-light);">Baseline runs per konsensus</div>
+                <div style="font-size: 10px; color: var(--text-muted);">3 skenario × 3 iterasi</div>
+              </div>
+              <div style="background: white; padding: 12px; border-radius: 6px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 700; color: #f59e0b;">18</div>
+                <div style="font-size: 11px; color: var(--text-light);">Parallel runs per konsensus</div>
+                <div style="font-size: 10px; color: var(--text-muted);">6 skenario × 3 iterasi</div>
+              </div>
+              <div style="background: white; padding: 12px; border-radius: 6px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 700; color: #dc2626;">2-4</div>
+                <div style="font-size: 11px; color: var(--text-light);">Fault runs per konsensus</div>
+                <div style="font-size: 10px; color: var(--text-muted);">2 skenario × 1-2 iterasi</div>
+              </div>
+              <div style="background: white; padding: 12px; border-radius: 6px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 700; color: #10b981;">58-62</div>
+                <div style="font-size: 11px; color: var(--text-light);">Total runs (2 konsensus)</div>
+                <div style="font-size: 10px; color: var(--text-muted);">~30 run × 2 network</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Eksekusi Skenario -->
           <div class="test-panel">
-            <h3>Parameter Eksekusi</h3>
-            <div class="config-grid">
-              <div class="form-group">
-                <label for="testTxCount">Transactions per Test</label>
-                <input type="number" id="testTxCount" value="500" min="1" max="10000">
-                <span class="helper-text">Jumlah transaksi per network</span>
-              </div>
-              <div class="form-group">
-                <label for="testMode">Submission Pattern</label>
-                <select id="testMode">
-                  <option value="sequential">SEQUENTIAL (satu per satu)</option>
-                  <option value="parallel">PARALLEL (dengan concurrency)</option>
-                </select>
-                <span class="helper-text">Mode pengiriman transaksi</span>
-              </div>
-              <div class="form-group">
-                <label for="concurrency">Concurrency</label>
-                <input type="number" id="concurrency" value="1" min="1" max="100">
-                <span class="helper-text">Jumlah concurrent requests (untuk parallel)</span>
-              </div>
-              <div class="form-group">
-                <label for="testIterations">Test Iterations</label>
-                <input type="number" id="testIterations" value="1" min="1" max="10">
-                <span class="helper-text">Jumlah percobaan per skenario</span>
-              </div>
-              <div class="form-group">
-                <label for="batchInterval">Interval (ms)</label>
-                <input type="number" id="batchInterval" value="0" min="0" max="1000">
-                <span class="helper-text">Delay antar transaksi (0 = tanpa delay)</span>
+            <h3>Pilih Skenario untuk Dijalankan</h3>
+            
+            <div style="margin-bottom: 16px;">
+              <label style="font-size: 13px; font-weight: 600; color: var(--text-dark); display: block; margin-bottom: 8px;">Target Network:</label>
+              <div class="checkbox-group" style="display: flex; gap: 20px; flex-wrap: wrap;">
+                <label>
+                  <input type="checkbox" id="targetRaft" checked>
+                  <strong>RAFT</strong> — channel-fabric3-standard (CFT)
+                </label>
+                <label>
+                  <input type="checkbox" id="targetSmartbft" checked>
+                  <strong>SmartBFT</strong> — channel-fabric3-variant (BFT)
+                </label>
               </div>
             </div>
 
-            <h3>Target Network</h3>
-            <div class="checkbox-group">
-              <label>
-                <input type="checkbox" id="targetRaft44" checked>
-                <strong>RAFT Network</strong> — channel-fabric3-standard (CFT Consensus)
-              </label>
-              <label>
-                <input type="checkbox" id="targetSmartbft44" checked>
-                <strong>SmartBFT Network</strong> — channel-fabric3-variant (BFT Consensus)
-              </label>
+            <div style="margin-bottom: 16px;">
+              <label style="font-size: 13px; font-weight: 600; color: var(--text-dark); display: block; margin-bottom: 8px;">Skenario:</label>
+              <select id="scenarioSelect" style="width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px;">
+                <optgroup label="A. Baseline — SEQUENTIAL">
+                  <option value="B1">B1 — 200 tx, Sequential (baseline awal)</option>
+                  <option value="B2" selected>B2 — 500 tx, Sequential (baseline utama)</option>
+                  <option value="B3">B3 — 800 tx, Sequential (scaling tanpa paralel)</option>
+                </optgroup>
+                <optgroup label="B. Realistic Load — PARALLEL">
+                  <option value="P1">P1 — 500 tx, Concurrency 5 (load ringan)</option>
+                  <option value="P2">P2 — 500 tx, Concurrency 10 (load menengah)</option>
+                  <option value="P3">P3 — 500 tx, Concurrency 20 (load tinggi)</option>
+                  <option value="P4">P4 — 800 tx, Concurrency 5 (scaling + paralel)</option>
+                  <option value="P5">P5 — 800 tx, Concurrency 10 (scaling utama)</option>
+                  <option value="P6">P6 — 800 tx, Concurrency 20 (batas performa)</option>
+                </optgroup>
+                <optgroup label="C. Fault Tolerance">
+                  <option value="F1">F1 — Matikan 1 orderer saat test</option>
+                  <option value="F2">F2 — Restart 1 orderer saat test</option>
+                </optgroup>
+              </select>
             </div>
 
-            <h3 style="margin-top: 20px;">Data yang Direkam</h3>
-            <div class="checkbox-group">
-              <label>
-                <input type="checkbox" id="recordTimestamps" checked disabled>
-                <strong>Timestamps</strong> — Waktu submit dan commit setiap transaksi
-              </label>
-              <label>
-                <input type="checkbox" id="recordSuccessFail" checked disabled>
-                <strong>Success/Fail Count</strong> — Jumlah transaksi berhasil/gagal
-              </label>
-              <label>
-                <input type="checkbox" id="recordCommitEvidence" checked disabled>
-                <strong>Commit Evidence</strong> — Bukti transaksi committed ke ledger
-              </label>
-              <label>
-                <input type="checkbox" id="recordCpuMemory" checked>
-                <strong>CPU & Memory</strong> — Penggunaan resource selama pengujian
-              </label>
+            <div id="scenarioInfo" style="background: #f8fafc; padding: 12px; border-radius: 6px; margin-bottom: 16px; font-size: 13px;">
+              <strong>B2:</strong> 500 transaksi | Pattern: SEQUENTIAL | Concurrency: 1 | Iterations: 3
             </div>
 
             <div class="btn-group">
               <button class="btn btn-primary" id="runTestBtn">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                Jalankan Pengujian
+                Jalankan Skenario
               </button>
               <button class="btn btn-danger" id="stopTestBtn" disabled>
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12"/></svg>
                 Hentikan
+              </button>
+              <button class="btn btn-secondary" id="runAllBtn" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
+                Jalankan Semua Skenario
               </button>
             </div>
           </div>
@@ -626,19 +795,10 @@
           </div>
         </div>
 
-        <!-- Results Preview -->
-        <div class="content-section" id="resultsSection" style="display: none;">
-          <div class="section-header">
-            <span class="section-number">4.3.4</span>
-            <h2 class="section-title">Hasil Pengujian</h2>
-          </div>
-          <div class="results-grid" id="resultsGrid"></div>
-        </div>
-
         <!-- Data Recording Spec -->
         <div class="content-section">
           <div class="section-header">
-            <span class="section-number">4.3.5</span>
+            <span class="section-number">4.3.4</span>
             <h2 class="section-title">Struktur Data Hasil Uji</h2>
           </div>
           <div class="card">
@@ -704,43 +864,18 @@
           </div>
         </div>
 
-        <!-- Stage 4.1 Output Summary -->
-        <div class="content-section">
+        <!-- Results Preview -->
+        <div class="content-section" id="resultsSection" style="display: none;">
           <div class="section-header">
-            <span class="section-number">4.3.6</span>
-            <h2 class="section-title">Output Tahap 4.1 (Skenario)</h2>
+            <span class="section-number">4.3.5</span>
+            <h2 class="section-title">Pencatatan Hasil</h2>
           </div>
-          <div class="card">
+          <div class="card" style="margin-bottom: 20px;">
             <p class="card-text">
-              Output yang dihasilkan dari tahap skenario pengujian (4.1) sebagai dasar pelaksanaan:
+              Hasil pengujian dicatat secara otomatis setelah eksekusi selesai. Data mencakup throughput, latency, dan success rate untuk setiap network.
             </p>
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th style="width: 200px;">Output</th>
-                  <th>Deskripsi</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><strong>Scenario Document</strong></td>
-                  <td>Dokumen yang mendefinisikan parameter pengujian, jumlah transaksi, pola pengiriman, dan kriteria keberhasilan</td>
-                </tr>
-                <tr>
-                  <td><strong>Standard Operating Procedure</strong></td>
-                  <td>Prosedur standar pelaksanaan pengujian untuk memastikan konsistensi antar network</td>
-                </tr>
-                <tr>
-                  <td><strong>Data Capture Plan</strong></td>
-                  <td>Rencana pengambilan data: timestamps, success/fail count, commit evidence, CPU, memory</td>
-                </tr>
-                <tr>
-                  <td><strong>Metric Mapping</strong></td>
-                  <td>Pemetaan data mentah ke metrik kinerja: Throughput, Latency, Resource Usage, Fault Tolerance</td>
-                </tr>
-              </tbody>
-            </table>
           </div>
+          <div class="results-grid" id="resultsGrid"></div>
         </div>
 
         <footer class="page-footer">
@@ -754,6 +889,9 @@
 
   <script src="/js/app.js"></script>
   <script>
+    // ============================================================
+    // NETWORK CONFIGURATION
+    // ============================================================
     const NETWORKS = {
       raft: {
         id: 'channel-fabric3-standard',
@@ -769,9 +907,36 @@
       }
     };
 
-    // DOM Elements
+    // ============================================================
+    // PREDEFINED SCENARIOS (based on 4.1 specification)
+    // ============================================================
+    const SCENARIOS = {
+      // A. Baseline Sequential
+      B1: { id: 'B1', group: 'A', name: 'Baseline Awal', txCount: 200, mode: 'sequential', concurrency: 1, iterations: 3, description: 'Baseline minimum untuk verifikasi sistem' },
+      B2: { id: 'B2', group: 'A', name: 'Baseline Utama', txCount: 500, mode: 'sequential', concurrency: 1, iterations: 3, description: 'Baseline utama untuk perbandingan' },
+      B3: { id: 'B3', group: 'A', name: 'Scaling Sequential', txCount: 800, mode: 'sequential', concurrency: 1, iterations: 3, description: 'Scaling tanpa paralel' },
+      
+      // B. Realistic Load Parallel
+      P1: { id: 'P1', group: 'B', name: 'Load Ringan', txCount: 500, mode: 'parallel', concurrency: 5, iterations: 3, description: '500 tx dengan 5 concurrent' },
+      P2: { id: 'P2', group: 'B', name: 'Load Menengah', txCount: 500, mode: 'parallel', concurrency: 10, iterations: 3, description: '500 tx dengan 10 concurrent' },
+      P3: { id: 'P3', group: 'B', name: 'Load Tinggi', txCount: 500, mode: 'parallel', concurrency: 20, iterations: 3, description: '500 tx dengan 20 concurrent' },
+      P4: { id: 'P4', group: 'B', name: 'Scaling + Paralel', txCount: 800, mode: 'parallel', concurrency: 5, iterations: 3, description: '800 tx dengan 5 concurrent' },
+      P5: { id: 'P5', group: 'B', name: 'Scaling Utama', txCount: 800, mode: 'parallel', concurrency: 10, iterations: 3, description: '800 tx dengan 10 concurrent' },
+      P6: { id: 'P6', group: 'B', name: 'Batas Performa', txCount: 800, mode: 'parallel', concurrency: 20, iterations: 3, description: '800 tx dengan 20 concurrent' },
+      
+      // C. Fault Tolerance (1-2 iterations per 4.3.1.md)
+      F1: { id: 'F1', group: 'C', name: 'Kill Orderer', txCount: 500, mode: 'parallel', concurrency: 10, iterations: 2, description: 'Matikan 1 orderer saat test', faultAction: 'kill' },
+      F2: { id: 'F2', group: 'C', name: 'Restart Orderer', txCount: 500, mode: 'parallel', concurrency: 10, iterations: 2, description: 'Restart 1 orderer saat test', faultAction: 'restart' }
+    };
+
+    // ============================================================
+    // DOM ELEMENTS
+    // ============================================================
     const runTestBtn = document.getElementById('runTestBtn');
     const stopTestBtn = document.getElementById('stopTestBtn');
+    const runAllBtn = document.getElementById('runAllBtn');
+    const scenarioSelect = document.getElementById('scenarioSelect');
+    const scenarioInfo = document.getElementById('scenarioInfo');
     const testStatus = document.getElementById('testStatus');
     const progressBar = document.getElementById('progressBar');
     const execLog = document.getElementById('execLog');
@@ -784,14 +949,27 @@
     const statFailed = document.getElementById('statFailed');
     const statDuration = document.getElementById('statDuration');
 
-    // State
+    // ============================================================
+    // STATE MANAGEMENT
+    // ============================================================
     let testState = {
       running: false,
       cancelled: false,
       startTime: null,
+      currentScenario: null,
+      currentIteration: 0,
       stats: { total: 0, success: 0, failed: 0 }
     };
 
+    // Track scenario statuses for the tables
+    const scenarioStatuses = {};
+    Object.keys(SCENARIOS).forEach(key => {
+      scenarioStatuses[key] = { status: 'pending', iterations: [] };
+    });
+
+    // ============================================================
+    // LOGGING UTILITIES
+    // ============================================================
     function log(message, type = 'info') {
       const time = new Date().toLocaleTimeString('en-GB', { hour12: false });
       const prefix = {
@@ -810,6 +988,9 @@
       execLog.innerHTML = '[System] Log cleared.\n';
     }
 
+    // ============================================================
+    // UI UPDATE FUNCTIONS
+    // ============================================================
     function setTestStatus(status, text) {
       testStatus.className = `progress-status status-${status}`;
       testStatus.textContent = text;
@@ -831,24 +1012,52 @@
       progressBar.style.width = `${percent}%`;
     }
 
-    function buildDummyRecord(networkLabel, index) {
+    function updateScenarioInfo() {
+      const scenarioId = scenarioSelect.value;
+      const scenario = SCENARIOS[scenarioId];
+      if (scenario) {
+        const modeLabel = scenario.mode === 'parallel' ? 'PARALLEL' : 'SEQUENTIAL';
+        scenarioInfo.innerHTML = `
+          <strong>${scenario.id}:</strong> ${scenario.txCount} transaksi | 
+          Pattern: ${modeLabel} | 
+          Concurrency: ${scenario.concurrency} | 
+          Iterations: ${scenario.iterations}
+          <br><em style="color: #64748b;">${scenario.description}</em>
+        `;
+      }
+    }
+
+    function updateScenarioTableStatus(scenarioId, status) {
+      const statusCell = document.getElementById(`status-${scenarioId}`);
+      if (statusCell) {
+        statusCell.innerHTML = `<span class="scenario-status ${status}">${status.charAt(0).toUpperCase() + status.slice(1)}</span>`;
+      }
+    }
+
+    // ============================================================
+    // DATA BUILDERS
+    // ============================================================
+    function buildDummyRecord(networkLabel, index, scenarioId) {
       const now = new Date();
-      const reportId = `test-${networkLabel.toLowerCase()}-${now.getTime()}-${index}-${Math.random().toString(16).slice(2, 8)}`;
+      const reportId = `${scenarioId}-${networkLabel.toLowerCase()}-${now.getTime()}-${index}-${Math.random().toString(16).slice(2, 8)}`;
       return {
         reportId,
-        jenis: 'dummy',
-        sumber: '4.4',
+        jenis: 'benchmark',
+        sumber: scenarioId,
         urutan: index,
         network: networkLabel,
         timestamp: now.toISOString(),
         payload: {
-          catatan: 'Transaksi dummy untuk pengujian kinerja - 4.4',
+          catatan: `Benchmark transaksi skenario ${scenarioId}`,
           ukuran: 256,
           konsisten: true
         }
       };
     }
 
+    // ============================================================
+    // API UTILITIES
+    // ============================================================
     async function postJson(url, payload) {
       const res = await fetch(url, {
         method: 'POST',
@@ -866,18 +1075,25 @@
       return new Promise(resolve => setTimeout(resolve, ms));
     }
 
+    // ============================================================
+    // MAIN TEST EXECUTION
+    // ============================================================
     async function runTest() {
-      const txCount = parseInt(document.getElementById('testTxCount').value, 10);
-      const mode = document.getElementById('testMode').value;
-      const concurrency = parseInt(document.getElementById('concurrency').value, 10) || 1;
-      const batchInterval = parseInt(document.getElementById('batchInterval').value, 10);
+      const scenarioId = scenarioSelect.value;
+      const scenario = SCENARIOS[scenarioId];
       
-      const targets = [];
-      if (document.getElementById('targetRaft44').checked) targets.push('raft');
-      if (document.getElementById('targetSmartbft44').checked) targets.push('smartbft');
+      if (!scenario) {
+        log('Skenario tidak valid', 'error');
+        return;
+      }
 
-      if (!txCount || txCount < 1 || targets.length === 0) {
-        log('Pilih minimal satu network dan jumlah transaksi > 0', 'error');
+      // Check network targets
+      const targets = [];
+      if (document.getElementById('targetRaft').checked) targets.push('raft');
+      if (document.getElementById('targetSmartbft').checked) targets.push('smartbft');
+
+      if (targets.length === 0) {
+        log('Pilih minimal satu network target', 'error');
         return;
       }
 
@@ -886,110 +1102,142 @@
         running: true,
         cancelled: false,
         startTime: Date.now(),
+        currentScenario: scenarioId,
+        currentIteration: 0,
         stats: { total: 0, success: 0, failed: 0 }
       };
 
       runTestBtn.disabled = true;
       stopTestBtn.disabled = false;
+      runAllBtn.disabled = true;
       setTestStatus('running', 'Running');
+      updateScenarioTableStatus(scenarioId, 'running');
 
-      const totalTx = txCount * targets.length;
-      const effectiveConcurrency = mode === 'parallel' ? concurrency : 1;
-      log(`Starting test: ${txCount} tx per network, mode: ${mode.toUpperCase()}, concurrency: ${effectiveConcurrency}, targets: ${targets.join(', ')}`, 'info');
+      const { txCount, mode, concurrency, iterations } = scenario;
+      const totalTxPerIteration = txCount * targets.length;
+      const totalTxAll = totalTxPerIteration * iterations;
 
-      let simulationId = null;
-      const networkResults = {};
+      log(`\n════════════════════════════════════════════════════════════`, 'info');
+      log(`SKENARIO ${scenarioId}: ${scenario.name}`, 'info');
+      log(`TX: ${txCount} | Mode: ${mode.toUpperCase()} | Concurrency: ${concurrency} | Iterations: ${iterations}`, 'info');
+      log(`Targets: ${targets.join(', ')}`, 'info');
+      log(`════════════════════════════════════════════════════════════\n`, 'info');
+
+      const allResults = [];
 
       try {
-        // Start simulation
-        const startPayload = {
-          totalTransactions: totalTx,
-          targetNetworks: targets.map(t => NETWORKS[t].id),
-          loadCategory: 'test-4.4',
-          mode: mode,
-          concurrency: effectiveConcurrency
-        };
-        const startRes = await postJson('/api/metrics/simulation/start', startPayload);
-        simulationId = startRes.simulationId;
-        log(`Simulation started: ${simulationId}`, 'info');
-
-        for (const target of targets) {
+        for (let iter = 1; iter <= iterations; iter++) {
           if (testState.cancelled) break;
 
-          const network = NETWORKS[target];
-          networkResults[target] = {
-            consensus: network.consensus,
-            txTotal: txCount,
-            txSuccess: 0,
-            txFailed: 0,
-            startTimestamp: new Date().toISOString(),
-            endTimestamp: null,
-            latencies: []
-          };
+          testState.currentIteration = iter;
+          log(`\n─── Iteration ${iter}/${iterations} ───`, 'info');
 
-          log(`--- ${network.label} Network: sending ${txCount} transactions (${mode}, concurrency: ${effectiveConcurrency}) ---`, 'info');
-
-          if (mode === 'parallel' && effectiveConcurrency > 1) {
-            // PARALLEL MODE: Send transactions in batches with concurrency
-            await runParallelTransactions(network, target, txCount, effectiveConcurrency, simulationId, networkResults, batchInterval);
-          } else {
-            // SEQUENTIAL MODE: Send one transaction at a time
-            await runSequentialTransactions(network, target, txCount, simulationId, networkResults, batchInterval, totalTx);
-          }
-
-          networkResults[target].endTimestamp = new Date().toISOString();
-          networkResults[target].durationSec = 
-            (new Date(networkResults[target].endTimestamp) - new Date(networkResults[target].startTimestamp)) / 1000;
+          const iterationResults = await runSingleIteration(scenario, targets, iter);
+          allResults.push(iterationResults);
         }
 
-        // Complete simulation
-        if (simulationId) {
-          const completeRes = await postJson(`/api/metrics/simulation/${simulationId}/complete`, {});
-          log(`Simulation completed. Overall TPS: ${completeRes.metrics?.throughput?.transactionsPerSecond?.toFixed(2) || 0}`, 'success');
+        if (!testState.cancelled) {
+          updateScenarioTableStatus(scenarioId, 'completed');
+          displayResults(allResults[allResults.length - 1]); // Show last iteration results
+          setTestStatus('completed', 'Completed');
+          log(`\n✓ Skenario ${scenarioId} selesai: ${iterations} iterasi`, 'success');
+        } else {
+          updateScenarioTableStatus(scenarioId, 'failed');
+          setTestStatus('cancelled', 'Cancelled');
         }
-
-        // Show results
-        displayResults(networkResults);
-        setTestStatus('completed', 'Completed');
-        log('Test execution finished successfully', 'success');
 
       } catch (err) {
         log(`Test error: ${err.message}`, 'error');
+        updateScenarioTableStatus(scenarioId, 'failed');
         setTestStatus('error', 'Error');
       } finally {
         testState.running = false;
         runTestBtn.disabled = false;
         stopTestBtn.disabled = true;
+        runAllBtn.disabled = false;
       }
     }
 
+    async function runSingleIteration(scenario, targets, iterationNum) {
+      const { txCount, mode, concurrency } = scenario;
+      const totalTx = txCount * targets.length;
+      
+      let simulationId = null;
+      const networkResults = {};
+
+      // Start simulation
+      const startPayload = {
+        totalTransactions: totalTx,
+        targetNetworks: targets.map(t => NETWORKS[t].id),
+        loadCategory: `scenario-${scenario.id}-iter${iterationNum}`,
+        mode: mode,
+        concurrency: concurrency
+      };
+      
+      const startRes = await postJson('/api/metrics/simulation/start', startPayload);
+      simulationId = startRes.simulationId;
+      log(`Simulation started: ${simulationId}`, 'info');
+
+      for (const target of targets) {
+        if (testState.cancelled) break;
+
+        const network = NETWORKS[target];
+        networkResults[target] = {
+          consensus: network.consensus,
+          scenarioId: scenario.id,
+          iteration: iterationNum,
+          txTotal: txCount,
+          txSuccess: 0,
+          txFailed: 0,
+          startTimestamp: new Date().toISOString(),
+          endTimestamp: null,
+          latencies: []
+        };
+
+        log(`→ ${network.label}: ${txCount} tx (${mode}, c=${concurrency})`, 'info');
+
+        if (mode === 'parallel' && concurrency > 1) {
+          await runParallelTransactions(network, target, txCount, concurrency, simulationId, networkResults, scenario.id);
+        } else {
+          await runSequentialTransactions(network, target, txCount, simulationId, networkResults, scenario.id, totalTx);
+        }
+
+        networkResults[target].endTimestamp = new Date().toISOString();
+        networkResults[target].durationSec = 
+          (new Date(networkResults[target].endTimestamp) - new Date(networkResults[target].startTimestamp)) / 1000;
+        
+        const tps = networkResults[target].durationSec > 0 
+          ? (networkResults[target].txSuccess / networkResults[target].durationSec).toFixed(2) 
+          : 0;
+        log(`← ${network.label}: ${networkResults[target].txSuccess}/${txCount} OK, TPS: ${tps}`, 'success');
+      }
+
+      // Complete simulation
+      if (simulationId) {
+        const completeRes = await postJson(`/api/metrics/simulation/${simulationId}/complete`, {});
+        log(`Iteration ${iterationNum} completed. TPS: ${completeRes.metrics?.throughput?.transactionsPerSecond?.toFixed(2) || 0}`, 'success');
+      }
+
+      return networkResults;
+    }
+
     // Sequential transaction execution
-    async function runSequentialTransactions(network, target, txCount, simulationId, networkResults, batchInterval, totalTx) {
+    async function runSequentialTransactions(network, target, txCount, simulationId, networkResults, scenarioId, totalTx) {
       for (let i = 1; i <= txCount; i++) {
         if (testState.cancelled) {
           log('Test cancelled by user', 'warning');
           break;
         }
 
-        await executeSingleTransaction(network, target, i, txCount, simulationId, networkResults);
+        await executeSingleTransaction(network, target, i, txCount, simulationId, networkResults, scenarioId);
         updateProgress(testState.stats.total, totalTx);
-
-        // Apply interval if specified
-        if (batchInterval > 0) {
-          await delay(batchInterval);
-        }
       }
     }
 
     // Parallel transaction execution with concurrency limit
-    async function runParallelTransactions(network, target, txCount, concurrency, simulationId, networkResults, batchInterval) {
-      const totalTx = txCount * 2; // Approximate for progress (both networks)
-      let completedCount = 0;
-      
-      // Create array of transaction indices
+    async function runParallelTransactions(network, target, txCount, concurrency, simulationId, networkResults, scenarioId) {
       const txIndices = Array.from({ length: txCount }, (_, i) => i + 1);
       
-      // Process in batches based on concurrency
       for (let batchStart = 0; batchStart < txIndices.length; batchStart += concurrency) {
         if (testState.cancelled) {
           log('Test cancelled by user', 'warning');
@@ -1000,28 +1248,19 @@
         const batchNum = Math.floor(batchStart / concurrency) + 1;
         const totalBatches = Math.ceil(txCount / concurrency);
         
-        log(`${network.label} Batch ${batchNum}/${totalBatches}: sending ${batch.length} concurrent transactions...`, 'info');
-        
-        // Execute batch concurrently using Promise.all
+        // Execute batch concurrently
         const batchPromises = batch.map(i => 
-          executeSingleTransaction(network, target, i, txCount, simulationId, networkResults, true)
+          executeSingleTransaction(network, target, i, txCount, simulationId, networkResults, scenarioId, true)
         );
         
         await Promise.all(batchPromises);
-        
-        completedCount += batch.length;
         updateProgress(testState.stats.total, txCount);
-
-        // Apply interval between batches if specified
-        if (batchInterval > 0 && batchStart + concurrency < txIndices.length) {
-          await delay(batchInterval);
-        }
       }
     }
 
     // Execute a single transaction
-    async function executeSingleTransaction(network, target, index, txCount, simulationId, networkResults, isBatch = false) {
-      const record = buildDummyRecord(network.label, index);
+    async function executeSingleTransaction(network, target, index, txCount, simulationId, networkResults, scenarioId, isBatch = false) {
+      const record = buildDummyRecord(network.label, index, scenarioId);
       const submittedAt = new Date().toISOString();
 
       try {
@@ -1044,7 +1283,9 @@
           testState.stats.success++;
           networkResults[target].txSuccess++;
           networkResults[target].latencies.push(latencyMs);
-          log(`${network.label} TX ${index}/${txCount}: OK (${latencyMs}ms) - ${record.reportId}`, 'success');
+          if (!isBatch) {
+            log(`${network.label} TX ${index}/${txCount}: OK (${latencyMs}ms)`, 'success');
+          }
         } else {
           testState.stats.failed++;
           networkResults[target].txFailed++;
@@ -1060,6 +1301,59 @@
       updateStats();
     }
 
+    // ============================================================
+    // RUN ALL SCENARIOS
+    // ============================================================
+    async function runAllScenarios() {
+      const allScenarioIds = Object.keys(SCENARIOS);
+      
+      log(`\n╔════════════════════════════════════════════════════════════╗`, 'info');
+      log(`║  MEMULAI EKSEKUSI SEMUA SKENARIO (${allScenarioIds.length} skenario)            ║`, 'info');
+      log(`╚════════════════════════════════════════════════════════════╝\n`, 'info');
+
+      runAllBtn.disabled = true;
+      runTestBtn.disabled = true;
+      
+      let completedCount = 0;
+      let failedCount = 0;
+
+      for (const scenarioId of allScenarioIds) {
+        if (testState.cancelled) {
+          log(`\nBatch execution cancelled at scenario ${scenarioId}`, 'warning');
+          break;
+        }
+
+        scenarioSelect.value = scenarioId;
+        updateScenarioInfo();
+        
+        log(`\n▶ Memulai skenario ${completedCount + 1}/${allScenarioIds.length}: ${scenarioId}`, 'info');
+        
+        try {
+          await runTest();
+          completedCount++;
+        } catch (err) {
+          log(`Skenario ${scenarioId} gagal: ${err.message}`, 'error');
+          failedCount++;
+        }
+
+        // Brief pause between scenarios
+        if (completedCount < allScenarioIds.length) {
+          log(`Jeda 3 detik sebelum skenario berikutnya...`, 'info');
+          await delay(3000);
+        }
+      }
+
+      log(`\n╔════════════════════════════════════════════════════════════╗`, 'info');
+      log(`║  EKSEKUSI SELESAI: ${completedCount} berhasil, ${failedCount} gagal                    ║`, 'info');
+      log(`╚════════════════════════════════════════════════════════════╝\n`, 'success');
+
+      runAllBtn.disabled = false;
+      runTestBtn.disabled = false;
+    }
+
+    // ============================================================
+    // RESULTS DISPLAY
+    // ============================================================
     function displayResults(results) {
       resultsSection.style.display = 'block';
       resultsGrid.innerHTML = '';
@@ -1082,6 +1376,10 @@
           </h4>
           <div class="result-metrics">
             <div class="metric-item">
+              <div class="metric-label">Scenario</div>
+              <div class="metric-value">${data.scenarioId || '-'}</div>
+            </div>
+            <div class="metric-item">
               <div class="metric-label">Total TX</div>
               <div class="metric-value">${data.txTotal}</div>
             </div>
@@ -1101,24 +1399,27 @@
               <div class="metric-label">Avg Latency</div>
               <div class="metric-value">${avgLatency} <span class="metric-unit">ms</span></div>
             </div>
-            <div class="metric-item">
-              <div class="metric-label">Success Rate</div>
-              <div class="metric-value">${((data.txSuccess / data.txTotal) * 100).toFixed(1)} <span class="metric-unit">%</span></div>
-            </div>
           </div>
         `;
         resultsGrid.appendChild(card);
       });
     }
 
-    // Event listeners
+    // ============================================================
+    // EVENT LISTENERS
+    // ============================================================
     runTestBtn.addEventListener('click', runTest);
+    
     stopTestBtn.addEventListener('click', () => {
       testState.cancelled = true;
       log('Stop requested, waiting for current transaction...', 'warning');
     });
 
-    // Update duration timer
+    runAllBtn.addEventListener('click', runAllScenarios);
+
+    scenarioSelect.addEventListener('change', updateScenarioInfo);
+
+    // Duration timer
     setInterval(() => {
       if (testState.running && testState.startTime) {
         const elapsed = (Date.now() - testState.startTime) / 1000;
@@ -1126,23 +1427,8 @@
       }
     }, 100);
 
-    // Sync form inputs with scenario summary table
-    function updateScenarioSummary() {
-      document.getElementById('scenarioTxCount').textContent = document.getElementById('testTxCount').value;
-      const mode = document.getElementById('testMode').value;
-      document.getElementById('scenarioPattern').textContent = mode.toUpperCase();
-      document.getElementById('scenarioConcurrency').textContent = document.getElementById('concurrency').value;
-      document.getElementById('scenarioIterations').textContent = document.getElementById('testIterations').value;
-    }
-
-    // Attach change listeners
-    document.getElementById('testTxCount').addEventListener('change', updateScenarioSummary);
-    document.getElementById('testMode').addEventListener('change', updateScenarioSummary);
-    document.getElementById('concurrency').addEventListener('change', updateScenarioSummary);
-    document.getElementById('testIterations').addEventListener('change', updateScenarioSummary);
-
-    // Initial sync
-    updateScenarioSummary();
+    // Initialize
+    updateScenarioInfo();
   </script>
 </body>
 </html>

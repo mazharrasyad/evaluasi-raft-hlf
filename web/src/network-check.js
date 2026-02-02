@@ -31,7 +31,7 @@ const networkConfigurations = [
         organizationsDir: 'organizations',
         instructions: {
             up: `cd ${raftNetworkDir} && ./network.sh up && ./network.sh createChannel -c raft`,
-            deploy: `cd ${raftNetworkDir} && ./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl node -c raft`
+            deploy: `cd ${raftNetworkDir} && ./network.sh deployCCAAS -ccn pelaporan -ccp ../chaincode/pelaporan -ccs auto -c raft`
         }
     },
     {
@@ -45,7 +45,7 @@ const networkConfigurations = [
         organizationsDir: 'organizations-variant',
         instructions: {
             up: `cd ${smartbftNetworkDir} && ./network.sh up && ./network.sh createChannel -c smartbft`,
-            deploy: `cd ${smartbftNetworkDir} && ./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl node -c smartbft`
+            deploy: `cd ${smartbftNetworkDir} && ./network.sh deployCCAAS -ccn pelaporan -ccp ../chaincode/pelaporan -ccs auto -c smartbft`
         }
     }
 ];

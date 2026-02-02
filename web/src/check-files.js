@@ -66,10 +66,10 @@ async function checkFiles() {
     console.error(error.message);
 
     console.log('\nPlease ensure the Hyperledger Fabric network is set up correctly:');
-    console.log(`1. Make sure the network is running: cd ${standardNetworkPath} && ./network.sh up && ./network.sh createChannel -c raft`);
-    console.log(`   (use ${variantNetworkPath} if you are relying on the SmartBFT network with channel smartbft)`);
-    console.log(`2. Make sure the chaincode is deployed: cd ${standardNetworkPath} && ./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl node -c raft`);
-    console.log(`   (use ${variantNetworkPath} for the SmartBFT network when deploying chaincode with -c smartbft)`);
+    console.log(`1. Make sure the network is running: cd ${raftNetworkPath} && ./network.sh up && ./network.sh createChannel -c raft`);
+    console.log(`   (use ${smartbftNetworkPath} if you are relying on the SmartBFT network with channel smartbft)`);
+    console.log(`2. Make sure the chaincode is deployed: cd ${raftNetworkPath} && ./network.sh deployCCAAS -ccn pelaporan -ccp ../chaincode/pelaporan -ccs auto -c raft`);
+    console.log(`   (use ${smartbftNetworkPath} for the SmartBFT network when deploying chaincode with -c smartbft)`);
     console.log('3. Check that the crypto materials are generated in the correct location');
 
     return false;

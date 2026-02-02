@@ -196,10 +196,71 @@
       color: #38bdf8;
       font-weight: 600;
     }
+    .flow-diagram {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(200px, 1fr));
+      gap: 16px;
+      align-items: stretch;
+      margin-top: 16px;
+    }
+    .flow-box {
+      border: 2px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+      background: white;
+    }
+    .flow-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .flow-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    .flow-list li::before {
+      content: "-";
+      margin-right: 6px;
+      color: var(--text-light);
+    }
+    .flow-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      color: var(--text-light);
+    }
+    .storage-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .storage-item {
+      background: #f8fafc;
+      border: 1px dashed var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    .storage-item strong {
+      color: var(--text-dark);
+    }
 
     @media (max-width: 768px) {
       .section-grid,
       .process-flow {
+        grid-template-columns: 1fr;
+      }
+      .flow-diagram {
         grid-template-columns: 1fr;
       }
     }
@@ -382,6 +443,48 @@
         <div class="content-section">
           <div class="section-header">
             <span class="section-number">4.3.4</span>
+            <h2 class="section-title">Proses Setelah Generate Transaksi</h2>
+          </div>
+          <div class="card">
+            <p class="card-text">
+              Setelah transaksi dummy dikirim, data akan melewati tahapan ordering service dan dicatat ke blok.
+              Diagram berikut mengikuti kerangka konsep penelitian.
+            </p>
+            <div class="flow-diagram">
+              <div class="flow-box">
+                <div class="flow-title">Algoritma Konsensus</div>
+                <ul class="flow-list">
+                  <li>RAFT</li>
+                  <li>SmartBFT</li>
+                </ul>
+              </div>
+              <div class="flow-arrow">→</div>
+              <div class="flow-box">
+                <div class="flow-title">Ordering Service</div>
+                <ul class="flow-list">
+                  <li>Pengurutan transaksi</li>
+                  <li>Batching</li>
+                  <li>Pembentukan blok</li>
+                  <li>Distribusi blok ke peer</li>
+                </ul>
+              </div>
+              <div class="flow-arrow">→</div>
+              <div class="flow-box">
+                <div class="flow-title">Kinerja Sistem Blockchain</div>
+                <ul class="flow-list">
+                  <li>Throughput</li>
+                  <li>Latency</li>
+                  <li>Resource Usage</li>
+                  <li>Fault Tolerance</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="content-section">
+          <div class="section-header">
+            <span class="section-number">4.3.5</span>
             <h2 class="section-title">Kontrol Eksekusi Transaksi Dummy</h2>
           </div>
           <div class="card">
@@ -412,6 +515,29 @@
                 <span id="logStatus">Idle</span>
               </div>
               <div class="log-body" id="dummyLog"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="content-section">
+          <div class="section-header">
+            <span class="section-number">4.3.6</span>
+            <h2 class="section-title">Penyimpanan Data Transaksi</h2>
+          </div>
+          <div class="card">
+            <p class="card-text">
+              Setiap transaksi dummy disimpan sebagai record di ledger dan sekaligus dicatat sebagai log pengujian.
+              Struktur data yang disimpan bersifat konsisten untuk semua skenario.
+            </p>
+            <div class="storage-grid">
+              <div class="storage-item"><strong>reportId</strong> - ID unik transaksi</div>
+              <div class="storage-item"><strong>jenis</strong> - penanda transaksi dummy</div>
+              <div class="storage-item"><strong>timestamp</strong> - waktu pengiriman transaksi</div>
+              <div class="storage-item"><strong>payload</strong> - isi data dummy yang seragam</div>
+              <div class="storage-item"><strong>submittedAt</strong> - waktu submit ke jaringan</div>
+              <div class="storage-item"><strong>completedAt</strong> - waktu commit selesai</div>
+              <div class="storage-item"><strong>networkMetadata</strong> - channel, chaincode, peer, dan variant jaringan</div>
+              <div class="storage-item"><strong>status commit</strong> - sukses atau gagal</div>
             </div>
           </div>
         </div>

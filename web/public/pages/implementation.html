@@ -378,6 +378,20 @@
       padding: 24px;
       margin: 16px 0;
     }
+    .topology-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(220px, 1fr));
+      gap: 24px;
+      align-items: start;
+      justify-items: center;
+    }
+    .topology-stack {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+    }
     .topology-row {
       display: flex;
       justify-content: center;
@@ -394,6 +408,8 @@
       padding: 12px 20px;
       text-align: center;
       min-width: 120px;
+      width: 100%;
+      max-width: 260px;
     }
     .topology-node.orderer {
       border-color: #3b82f6;
@@ -423,7 +439,7 @@
     .topology-connector {
       display: flex;
       justify-content: center;
-      margin: -10px 0;
+      margin: 0;
     }
     .topology-connector svg {
       color: var(--text-light);
@@ -488,6 +504,9 @@
     @media (max-width: 768px) {
       .network-grid,
       .config-comparison {
+        grid-template-columns: 1fr;
+      }
+      .topology-grid {
         grid-template-columns: 1fr;
       }
       .topology-row {
@@ -767,32 +786,54 @@
 
           <!-- Topology Diagram -->
           <div class="topology-diagram">
-            <div class="topology-row">
-              <div class="topology-node orderer">
-                <div class="node-label">Ordering Service</div>
-                <div class="node-name">RAFT / SmartBFT</div>
+            <div class="topology-grid">
+              <div class="topology-stack">
+                <div class="topology-node orderer">
+                  <div class="node-label">RAFT Ordering Service</div>
+                  <div class="node-name">orderer.raft</div>
+                </div>
+                <div class="topology-connector">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+                </div>
+                <div class="topology-node channel">
+                  <div class="node-label">Channel (RAFT)</div>
+                  <div class="node-name">raft</div>
+                </div>
+                <div class="topology-connector">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+                </div>
+                <div class="topology-node peer">
+                  <div class="node-label">Org1 (RAFT)</div>
+                  <div class="node-name">peer0.org1.raft</div>
+                </div>
+                <div class="topology-node peer">
+                  <div class="node-label">Org2 (RAFT)</div>
+                  <div class="node-name">peer0.org2.raft</div>
+                </div>
               </div>
-            </div>
-            <div class="topology-connector">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
-            </div>
-            <div class="topology-row">
-              <div class="topology-node channel">
-                <div class="node-label">Channel</div>
-                <div class="node-name">raft / smartbft</div>
-              </div>
-            </div>
-            <div class="topology-connector">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
-            </div>
-            <div class="topology-row">
-              <div class="topology-node peer">
-                <div class="node-label">Org1</div>
-                <div class="node-name">Peer0</div>
-              </div>
-              <div class="topology-node peer">
-                <div class="node-label">Org2</div>
-                <div class="node-name">Peer0</div>
+              <div class="topology-stack">
+                <div class="topology-node orderer">
+                  <div class="node-label">SmartBFT Ordering Service</div>
+                  <div class="node-name">orderer.smartbft</div>
+                </div>
+                <div class="topology-connector">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+                </div>
+                <div class="topology-node channel">
+                  <div class="node-label">Channel (SmartBFT)</div>
+                  <div class="node-name">smartbft</div>
+                </div>
+                <div class="topology-connector">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+                </div>
+                <div class="topology-node peer">
+                  <div class="node-label">Org1 (SmartBFT)</div>
+                  <div class="node-name">peer0.org1.smartbft</div>
+                </div>
+                <div class="topology-node peer">
+                  <div class="node-label">Org2 (SmartBFT)</div>
+                  <div class="node-name">peer0.org2.smartbft</div>
+                </div>
               </div>
             </div>
           </div>

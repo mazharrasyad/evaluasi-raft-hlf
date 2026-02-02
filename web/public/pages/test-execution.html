@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>4.4 Pelaksanaan Pengujian · RAFT vs SmartBFT Evaluation</title>
+  <link rel="icon" type="image/svg+xml" href="/images/logo-ai-center.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .info-banner {
+      background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+      border: 1px solid #34d399;
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .info-banner-icon {
+      color: #059669;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .info-banner p {
+      font-size: 14px;
+      color: #065f46;
+      line-height: 1.6;
+    }
+    .info-banner strong {
+      color: #064e3b;
+    }
+
+    .test-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      margin-top: 16px;
+    }
+    .test-panel h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 16px;
+    }
+
+    .config-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .form-group label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+    .form-group input,
+    .form-group select {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      font-size: 14px;
+      background: white;
+      color: var(--text-dark);
+    }
+    .form-group .helper-text {
+      font-size: 11px;
+      color: var(--text-light);
+    }
+
+    .checkbox-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .checkbox-group label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .checkbox-group input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      color: white;
+    }
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    }
+    .btn-success {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+    }
+    .btn-danger {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: white;
+    }
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .progress-panel {
+      margin-top: 24px;
+      padding: 20px;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+    }
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .progress-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+    .progress-status {
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-weight: 600;
+    }
+    .status-idle { background: #e2e8f0; color: #475569; }
+    .status-running { background: #dbeafe; color: #1d4ed8; }
+    .status-completed { background: #d1fae5; color: #059669; }
+    .status-error { background: #fee2e2; color: #dc2626; }
+
+    .progress-bar-container {
+      width: 100%;
+      height: 8px;
+      background: #e2e8f0;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #3b82f6, #10b981);
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+
+    .progress-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+    .stat-item {
+      text-align: center;
+    }
+    .stat-value {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+    .stat-label {
+      font-size: 11px;
+      color: var(--text-light);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .log-container {
+      margin-top: 24px;
+    }
+    .log-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      background: #1e293b;
+      border-radius: var(--radius-md) var(--radius-md) 0 0;
+    }
+    .log-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .log-actions button {
+      background: transparent;
+      border: 1px solid #475569;
+      color: #94a3b8;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 11px;
+      cursor: pointer;
+    }
+    .log-body {
+      background: #0f172a;
+      padding: 16px;
+      font-family: 'SF Mono', 'Consolas', monospace;
+      font-size: 12px;
+      color: #e2e8f0;
+      max-height: 300px;
+      overflow: auto;
+      border-radius: 0 0 var(--radius-md) var(--radius-md);
+      white-space: pre-wrap;
+      line-height: 1.6;
+    }
+    .log-success { color: #34d399; }
+    .log-error { color: #f87171; }
+    .log-info { color: #60a5fa; }
+    .log-warning { color: #fbbf24; }
+
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      margin-top: 24px;
+    }
+    .result-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 20px;
+    }
+    .result-card h4 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .result-card .network-badge {
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+    .badge-raft { background: #dbeafe; color: #1d4ed8; }
+    .badge-smartbft { background: #fef3c7; color: #d97706; }
+
+    .result-metrics {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    .metric-item {
+      padding: 12px;
+      background: #f8fafc;
+      border-radius: var(--radius-sm);
+    }
+    .metric-label {
+      font-size: 11px;
+      color: var(--text-light);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .metric-value {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+    .metric-unit {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 16px;
+    }
+    .data-table th,
+    .data-table td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+    }
+    .data-table th {
+      background: var(--bg);
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+    .data-table td {
+      color: var(--text-muted);
+    }
+    .data-table code {
+      background: #e0f2fe;
+      color: #0369a1;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+
+    @media (max-width: 768px) {
+      .config-grid,
+      .progress-stats,
+      .results-grid,
+      .result-metrics {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <button class="mobile-toggle" onclick="toggleSidebar()" aria-label="Toggle menu">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    </button>
+
+    <div class="sidebar-overlay"></div>
+
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-brand">
+          <img src="/images/logo-ai-center.svg" alt="AI Center Logo" class="sidebar-logo-img">
+          <span class="sidebar-brand-text">Hyperledger Fabric</span>
+        </div>
+        <p class="sidebar-title">
+          Analisis Perbandingan Kinerja Algoritma Konsensus RAFT dan SmartBFT pada Hyperledger Fabric
+        </p>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <div class="nav-section-title">Menu</div>
+          <ul class="nav-list">
+            <li class="nav-item">
+              <a href="/">
+                <span class="nav-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                </span>
+                Home
+              </a>
+            </li>
+          </ul>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">Chapter IV</div>
+          <ul class="nav-list">
+            <li class="nav-item">
+              <a href="/scenario">
+                <span class="nav-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>
+                </span>
+                4.1 Skenario Pengujian
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="/implementation">
+                <span class="nav-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>
+                </span>
+                4.2 Implementasi
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="/dummy-transactions">
+                <span class="nav-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2"/><line x1="8" x2="16" y1="20" y2="20"/><line x1="12" x2="12" y1="16" y2="20"/><path d="M8 9h8"/><path d="M8 12h6"/></svg>
+                </span>
+                4.3 Transaksi Dummy
+              </a>
+            </li>
+            <li class="nav-item active">
+              <a href="/test-execution">
+                <span class="nav-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+                </span>
+                4.4 Pelaksanaan Pengujian
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="/data-grouping">
+                <span class="nav-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+                </span>
+                4.5 Pengelompokan Data
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="/analysis">
+                <span class="nav-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" x2="18" y1="20" y2="10"/><line x1="12" x2="12" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="14"/></svg>
+                </span>
+                4.6 Analisis Kinerja
+              </a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <div class="main-content">
+        <section class="hero">
+          <span class="hero-badge">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+            Chapter 4.4
+          </span>
+          <h1 class="hero-title">Pelaksanaan Pengujian dan Pencatatan Aktivitas Sistem</h1>
+          <p class="hero-desc">
+            Tahap ini menjalankan transaksi dummy secara deterministik pada jaringan <strong>RAFT</strong> dan <strong>SmartBFT</strong>, mengukur durasi eksekusi end-to-end, dan menjamin setiap transaksi benar-benar committed ke ledger.
+          </p>
+        </section>
+
+        <div class="info-banner">
+          <div class="info-banner-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          </div>
+          <p>
+            <strong>Sesuai spesifikasi 4.4:</strong> Pengujian dijalankan secara deterministik dengan pencatatan waktu submit dan waktu commit untuk setiap transaksi. Data ini menjadi dasar perhitungan metrik kinerja pada tahap berikutnya.
+          </p>
+        </div>
+
+        <!-- Test Configuration -->
+        <div class="content-section">
+          <div class="section-header">
+            <span class="section-number">4.4.1</span>
+            <h2 class="section-title">Konfigurasi Pengujian</h2>
+          </div>
+          <div class="test-panel">
+            <h3>Parameter Eksekusi</h3>
+            <div class="config-grid">
+              <div class="form-group">
+                <label for="testTxCount">Jumlah Transaksi</label>
+                <input type="number" id="testTxCount" value="500" min="1" max="10000">
+                <span class="helper-text">Jumlah transaksi per network sesuai skenario</span>
+              </div>
+              <div class="form-group">
+                <label for="testMode">Pola Pengiriman</label>
+                <select id="testMode">
+                  <option value="sequential">Sequential (satu per satu)</option>
+                  <option value="batch">Batch (dengan interval)</option>
+                </select>
+                <span class="helper-text">Mode pengiriman transaksi</span>
+              </div>
+              <div class="form-group">
+                <label for="batchInterval">Interval Batch (ms)</label>
+                <input type="number" id="batchInterval" value="0" min="0" max="1000">
+                <span class="helper-text">Delay antar transaksi (0 = tanpa delay)</span>
+              </div>
+            </div>
+
+            <h3>Target Network</h3>
+            <div class="checkbox-group">
+              <label>
+                <input type="checkbox" id="targetRaft44" checked>
+                <strong>RAFT Network</strong> — channel-fabric3-standard
+              </label>
+              <label>
+                <input type="checkbox" id="targetSmartbft44" checked>
+                <strong>SmartBFT Network</strong> — channel-fabric3-variant
+              </label>
+            </div>
+
+            <div class="btn-group">
+              <button class="btn btn-primary" id="runTestBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                Jalankan Pengujian
+              </button>
+              <button class="btn btn-danger" id="stopTestBtn" disabled>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12"/></svg>
+                Hentikan
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Progress Panel -->
+        <div class="content-section">
+          <div class="section-header">
+            <span class="section-number">4.4.2</span>
+            <h2 class="section-title">Progress Eksekusi</h2>
+          </div>
+          <div class="progress-panel">
+            <div class="progress-header">
+              <span class="progress-title">Status Pengujian</span>
+              <span class="progress-status status-idle" id="testStatus">Idle</span>
+            </div>
+            <div class="progress-bar-container">
+              <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+            </div>
+            <div class="progress-stats">
+              <div class="stat-item">
+                <div class="stat-value" id="statTotal">0</div>
+                <div class="stat-label">Total TX</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-value" id="statSuccess">0</div>
+                <div class="stat-label">Success</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-value" id="statFailed">0</div>
+                <div class="stat-label">Failed</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-value" id="statDuration">0s</div>
+                <div class="stat-label">Duration</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Execution Log -->
+        <div class="content-section">
+          <div class="section-header">
+            <span class="section-number">4.4.3</span>
+            <h2 class="section-title">Log Aktivitas Sistem</h2>
+          </div>
+          <div class="card">
+            <p class="card-text">
+              Log real-time mencatat setiap transaksi yang dikirim beserta timestamp submit dan commit untuk analisis kinerja.
+            </p>
+            <div class="log-container">
+              <div class="log-header">
+                <span class="log-title">Execution Log</span>
+                <div class="log-actions">
+                  <button onclick="clearLog()">Clear</button>
+                </div>
+              </div>
+              <div class="log-body" id="execLog">[System] Ready to run test...\n</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Results Preview -->
+        <div class="content-section" id="resultsSection" style="display: none;">
+          <div class="section-header">
+            <span class="section-number">4.4.4</span>
+            <h2 class="section-title">Hasil Pengujian</h2>
+          </div>
+          <div class="results-grid" id="resultsGrid"></div>
+        </div>
+
+        <!-- Data Recording Spec -->
+        <div class="content-section">
+          <div class="section-header">
+            <span class="section-number">Spec</span>
+            <h2 class="section-title">Struktur Data Hasil Uji</h2>
+          </div>
+          <div class="card">
+            <p class="card-text">
+              Sesuai spesifikasi dokumen 4.4, setiap hasil pengujian dicatat dengan struktur standar berikut:
+            </p>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Field</th>
+                  <th>Tipe</th>
+                  <th>Deskripsi</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>consensus</code></td>
+                  <td>string</td>
+                  <td>Jenis konsensus (raft | smartbft)</td>
+                </tr>
+                <tr>
+                  <td><code>txTotal</code></td>
+                  <td>number</td>
+                  <td>Total transaksi yang dieksekusi</td>
+                </tr>
+                <tr>
+                  <td><code>txSuccess</code></td>
+                  <td>number</td>
+                  <td>Jumlah transaksi sukses (committed)</td>
+                </tr>
+                <tr>
+                  <td><code>durationSec</code></td>
+                  <td>number</td>
+                  <td>Durasi eksekusi dalam detik</td>
+                </tr>
+                <tr>
+                  <td><code>startTimestamp</code></td>
+                  <td>ISO-8601</td>
+                  <td>Waktu mulai pengujian</td>
+                </tr>
+                <tr>
+                  <td><code>endTimestamp</code></td>
+                  <td>ISO-8601</td>
+                  <td>Waktu selesai pengujian</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <footer class="page-footer">
+          <p class="footer-text">
+            Thesis Research - Comparative Analysis of RAFT and SmartBFT Consensus on Hyperledger Fabric
+          </p>
+        </footer>
+      </div>
+    </main>
+  </div>
+
+  <script src="/js/app.js"></script>
+  <script>
+    const NETWORKS = {
+      raft: {
+        id: 'channel-fabric3-standard',
+        label: 'RAFT',
+        consensus: 'raft',
+        endpoint: '/api/raft/pelaporan'
+      },
+      smartbft: {
+        id: 'channel-fabric3-variant',
+        label: 'SmartBFT',
+        consensus: 'smartbft',
+        endpoint: '/api/smartbft/pelaporan'
+      }
+    };
+
+    // DOM Elements
+    const runTestBtn = document.getElementById('runTestBtn');
+    const stopTestBtn = document.getElementById('stopTestBtn');
+    const testStatus = document.getElementById('testStatus');
+    const progressBar = document.getElementById('progressBar');
+    const execLog = document.getElementById('execLog');
+    const resultsSection = document.getElementById('resultsSection');
+    const resultsGrid = document.getElementById('resultsGrid');
+
+    // Stats elements
+    const statTotal = document.getElementById('statTotal');
+    const statSuccess = document.getElementById('statSuccess');
+    const statFailed = document.getElementById('statFailed');
+    const statDuration = document.getElementById('statDuration');
+
+    // State
+    let testState = {
+      running: false,
+      cancelled: false,
+      startTime: null,
+      stats: { total: 0, success: 0, failed: 0 }
+    };
+
+    function log(message, type = 'info') {
+      const time = new Date().toLocaleTimeString('en-GB', { hour12: false });
+      const prefix = {
+        info: '[INFO]',
+        success: '[OK]',
+        error: '[ERROR]',
+        warning: '[WARN]'
+      }[type] || '[LOG]';
+      
+      const colorClass = `log-${type}`;
+      execLog.innerHTML += `<span class="${colorClass}">${time} ${prefix}</span> ${message}\n`;
+      execLog.scrollTop = execLog.scrollHeight;
+    }
+
+    function clearLog() {
+      execLog.innerHTML = '[System] Log cleared.\n';
+    }
+
+    function setTestStatus(status, text) {
+      testStatus.className = `progress-status status-${status}`;
+      testStatus.textContent = text;
+    }
+
+    function updateStats() {
+      statTotal.textContent = testState.stats.total;
+      statSuccess.textContent = testState.stats.success;
+      statFailed.textContent = testState.stats.failed;
+      
+      if (testState.startTime) {
+        const elapsed = (Date.now() - testState.startTime) / 1000;
+        statDuration.textContent = `${elapsed.toFixed(1)}s`;
+      }
+    }
+
+    function updateProgress(current, total) {
+      const percent = total > 0 ? (current / total) * 100 : 0;
+      progressBar.style.width = `${percent}%`;
+    }
+
+    function buildDummyRecord(networkLabel, index) {
+      const now = new Date();
+      const reportId = `test-${networkLabel.toLowerCase()}-${now.getTime()}-${index}-${Math.random().toString(16).slice(2, 8)}`;
+      return {
+        reportId,
+        jenis: 'dummy',
+        sumber: '4.4',
+        urutan: index,
+        network: networkLabel,
+        timestamp: now.toISOString(),
+        payload: {
+          catatan: 'Transaksi dummy untuk pengujian kinerja - 4.4',
+          ukuran: 256,
+          konsisten: true
+        }
+      };
+    }
+
+    async function postJson(url, payload) {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`HTTP ${res.status}: ${text}`);
+      }
+      return res.json();
+    }
+
+    function delay(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async function runTest() {
+      const txCount = parseInt(document.getElementById('testTxCount').value, 10);
+      const mode = document.getElementById('testMode').value;
+      const batchInterval = parseInt(document.getElementById('batchInterval').value, 10);
+      
+      const targets = [];
+      if (document.getElementById('targetRaft44').checked) targets.push('raft');
+      if (document.getElementById('targetSmartbft44').checked) targets.push('smartbft');
+
+      if (!txCount || txCount < 1 || targets.length === 0) {
+        log('Pilih minimal satu network dan jumlah transaksi > 0', 'error');
+        return;
+      }
+
+      // Initialize state
+      testState = {
+        running: true,
+        cancelled: false,
+        startTime: Date.now(),
+        stats: { total: 0, success: 0, failed: 0 }
+      };
+
+      runTestBtn.disabled = true;
+      stopTestBtn.disabled = false;
+      setTestStatus('running', 'Running');
+
+      const totalTx = txCount * targets.length;
+      log(`Starting test: ${txCount} tx per network, targets: ${targets.join(', ')}`, 'info');
+
+      let simulationId = null;
+      const networkResults = {};
+
+      try {
+        // Start simulation
+        const startPayload = {
+          totalTransactions: totalTx,
+          targetNetworks: targets.map(t => NETWORKS[t].id),
+          loadCategory: 'test-4.4'
+        };
+        const startRes = await postJson('/api/metrics/simulation/start', startPayload);
+        simulationId = startRes.simulationId;
+        log(`Simulation started: ${simulationId}`, 'info');
+
+        for (const target of targets) {
+          if (testState.cancelled) break;
+
+          const network = NETWORKS[target];
+          networkResults[target] = {
+            consensus: network.consensus,
+            txTotal: txCount,
+            txSuccess: 0,
+            txFailed: 0,
+            startTimestamp: new Date().toISOString(),
+            endTimestamp: null,
+            latencies: []
+          };
+
+          log(`--- ${network.label} Network: sending ${txCount} transactions ---`, 'info');
+
+          for (let i = 1; i <= txCount; i++) {
+            if (testState.cancelled) {
+              log('Test cancelled by user', 'warning');
+              break;
+            }
+
+            const record = buildDummyRecord(network.label, i);
+            const submittedAt = new Date().toISOString();
+
+            try {
+              const submitRes = await postJson(network.endpoint, record);
+              const completedAt = submitRes.completedAt || new Date().toISOString();
+              const success = submitRes.success !== false;
+              const latencyMs = new Date(completedAt).getTime() - new Date(submittedAt).getTime();
+
+              // Record transaction
+              await postJson(`/api/metrics/simulation/${simulationId}/transaction`, {
+                txId: record.reportId,
+                networkId: network.id,
+                submittedAt,
+                completedAt,
+                success,
+                error: submitRes.error || null
+              });
+
+              if (success) {
+                testState.stats.success++;
+                networkResults[target].txSuccess++;
+                networkResults[target].latencies.push(latencyMs);
+                log(`${network.label} TX ${i}/${txCount}: OK (${latencyMs}ms) - ${record.reportId}`, 'success');
+              } else {
+                testState.stats.failed++;
+                networkResults[target].txFailed++;
+                log(`${network.label} TX ${i}/${txCount}: FAILED - ${submitRes.error}`, 'error');
+              }
+            } catch (err) {
+              testState.stats.failed++;
+              networkResults[target].txFailed++;
+              log(`${network.label} TX ${i}/${txCount}: ERROR - ${err.message}`, 'error');
+            }
+
+            testState.stats.total++;
+            updateStats();
+            updateProgress(testState.stats.total, totalTx);
+
+            // Apply interval if specified
+            if (batchInterval > 0) {
+              await delay(batchInterval);
+            }
+          }
+
+          networkResults[target].endTimestamp = new Date().toISOString();
+          networkResults[target].durationSec = 
+            (new Date(networkResults[target].endTimestamp) - new Date(networkResults[target].startTimestamp)) / 1000;
+        }
+
+        // Complete simulation
+        if (simulationId) {
+          const completeRes = await postJson(`/api/metrics/simulation/${simulationId}/complete`, {});
+          log(`Simulation completed. Overall TPS: ${completeRes.metrics?.throughput?.transactionsPerSecond?.toFixed(2) || 0}`, 'success');
+        }
+
+        // Show results
+        displayResults(networkResults);
+        setTestStatus('completed', 'Completed');
+        log('Test execution finished successfully', 'success');
+
+      } catch (err) {
+        log(`Test error: ${err.message}`, 'error');
+        setTestStatus('error', 'Error');
+      } finally {
+        testState.running = false;
+        runTestBtn.disabled = false;
+        stopTestBtn.disabled = true;
+      }
+    }
+
+    function displayResults(results) {
+      resultsSection.style.display = 'block';
+      resultsGrid.innerHTML = '';
+
+      Object.entries(results).forEach(([key, data]) => {
+        const network = NETWORKS[key];
+        const avgLatency = data.latencies.length > 0
+          ? (data.latencies.reduce((a, b) => a + b, 0) / data.latencies.length).toFixed(2)
+          : 0;
+        const tps = data.durationSec > 0
+          ? (data.txSuccess / data.durationSec).toFixed(2)
+          : 0;
+
+        const card = document.createElement('div');
+        card.className = 'result-card';
+        card.innerHTML = `
+          <h4>
+            ${network.label} Network
+            <span class="network-badge badge-${key}">${data.consensus.toUpperCase()}</span>
+          </h4>
+          <div class="result-metrics">
+            <div class="metric-item">
+              <div class="metric-label">Total TX</div>
+              <div class="metric-value">${data.txTotal}</div>
+            </div>
+            <div class="metric-item">
+              <div class="metric-label">Success</div>
+              <div class="metric-value">${data.txSuccess}</div>
+            </div>
+            <div class="metric-item">
+              <div class="metric-label">Duration</div>
+              <div class="metric-value">${data.durationSec.toFixed(2)} <span class="metric-unit">sec</span></div>
+            </div>
+            <div class="metric-item">
+              <div class="metric-label">TPS</div>
+              <div class="metric-value">${tps} <span class="metric-unit">tx/s</span></div>
+            </div>
+            <div class="metric-item">
+              <div class="metric-label">Avg Latency</div>
+              <div class="metric-value">${avgLatency} <span class="metric-unit">ms</span></div>
+            </div>
+            <div class="metric-item">
+              <div class="metric-label">Success Rate</div>
+              <div class="metric-value">${((data.txSuccess / data.txTotal) * 100).toFixed(1)} <span class="metric-unit">%</span></div>
+            </div>
+          </div>
+        `;
+        resultsGrid.appendChild(card);
+      });
+    }
+
+    // Event listeners
+    runTestBtn.addEventListener('click', runTest);
+    stopTestBtn.addEventListener('click', () => {
+      testState.cancelled = true;
+      log('Stop requested, waiting for current transaction...', 'warning');
+    });
+
+    // Update duration timer
+    setInterval(() => {
+      if (testState.running && testState.startTime) {
+        const elapsed = (Date.now() - testState.startTime) / 1000;
+        statDuration.textContent = `${elapsed.toFixed(1)}s`;
+      }
+    }, 100);
+  </script>
+</body>
+</html>

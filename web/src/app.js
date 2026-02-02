@@ -1209,6 +1209,18 @@ app.get('/dummy-transactions', (req, res) => {
     res.sendFile(path.join(pagesRoot, 'dummy-transactions.html'));
 });
 
+app.get('/test-execution', (req, res) => {
+    res.sendFile(path.join(pagesRoot, 'test-execution.html'));
+});
+
+app.get('/data-grouping', (req, res) => {
+    res.sendFile(path.join(pagesRoot, 'data-grouping.html'));
+});
+
+app.get('/analysis', (req, res) => {
+    res.sendFile(path.join(pagesRoot, 'analysis.html'));
+});
+
 // Catch-all for non-API routes - serve index.html or 404
 app.use((req, res, next) => {
     if (req.path.startsWith('/api')) {

@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>4.5 Pengelompokan Data Kinerja · RAFT vs SmartBFT Evaluation</title>
+  <link rel="icon" type="image/svg+xml" href="/images/logo-ai-center.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    .info-banner {
+      background: linear-gradient(135deg, #ede9fe, #ddd6fe);
+      border: 1px solid #a78bfa;
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .info-banner-icon {
+      color: #7c3aed;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .info-banner p {
+      font-size: 14px;
+      color: #5b21b6;
+      line-height: 1.6;
+    }
+    .info-banner strong {
+      color: #4c1d95;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .metric-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      text-align: center;
+    }
+    .metric-card.highlight {
+      border-color: #a78bfa;
+      background: linear-gradient(135deg, #faf5ff, #f3e8ff);
+    }
+    .metric-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 12px;
+    }
+    .metric-icon.throughput { background: #dbeafe; color: #2563eb; }
+    .metric-icon.latency { background: #fef3c7; color: #d97706; }
+    .metric-icon.resource { background: #d1fae5; color: #059669; }
+    .metric-icon.fault { background: #fee2e2; color: #dc2626; }
+
+    .metric-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 4px;
+    }
+    .metric-label {
+      font-size: 12px;
+      color: var(--text-light);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .metric-sublabel {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .data-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    .data-section h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .data-section h3 .badge {
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+    .badge-raft { background: #dbeafe; color: #1d4ed8; }
+    .badge-smartbft { background: #fef3c7; color: #d97706; }
+
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .comparison-table th,
+    .comparison-table td {
+      padding: 14px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    .comparison-table th {
+      background: var(--bg);
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--text-dark);
+    }
+    .comparison-table td {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+    .comparison-table .metric-name {
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+    .comparison-table .value {
+      font-family: 'SF Mono', 'Consolas', monospace;
+      font-weight: 600;
+    }
+    .comparison-table .value.better {
+      color: #059669;
+    }
+    .comparison-table .value.worse {
+      color: #dc2626;
+    }
+
+    .chart-container {
+      position: relative;
+      height: 300px;
+      margin-top: 20px;
+    }
+
+    .formula-card {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    .formula-card h4 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin-bottom: 12px;
+    }
+    .formula-code {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 12px 16px;
+      border-radius: var(--radius-sm);
+      font-family: 'SF Mono', 'Consolas', monospace;
+      font-size: 13px;
+      margin-bottom: 12px;
+      overflow-x: auto;
+    }
+    .formula-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+      color: white;
+    }
+    .btn-secondary {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-dark);
+    }
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .stats-summary {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      margin-top: 24px;
+    }
+    .summary-card {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 20px;
+    }
+    .summary-card h4 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 12px;
+    }
+    .summary-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .summary-list li {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: var(--text-muted);
+      padding: 8px 0;
+      border-bottom: 1px dashed var(--border);
+    }
+    .summary-list li:last-child {
+      border-bottom: none;
+    }
+    .summary-list .label {
+      color: var(--text-dark);
+    }
+    .summary-list .value {
+      font-weight: 600;
+      font-family: 'SF Mono', 'Consolas', monospace;
+    }
+
+    .loading-state {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-muted);
+    }
+    .loading-state svg {
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 1024px) {
+      .metrics-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 768px) {
+      .metrics-grid,
+      .stats-summary {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <button class="mobile-toggle" onclick="toggleSidebar()" aria-label="Toggle menu">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    </button>
+
+    <div class="sidebar-overlay"></div>
+
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-brand">
+          <img src="/images/logo-ai-center.svg" alt="AI Center Logo" class="sidebar-logo-img">
+          <span class="sidebar-brand-text">Hyperledger Fabric</span>
+        </div>
+        <p class="sidebar-title">
+          Analisis Perbandingan Kinerja Algoritma Konsensus RAFT dan SmartBFT pada Hyperledger Fabric
+        </p>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <div class="nav-section-title">Menu</div>
+          <ul class="nav-list">
+            <li class="nav-item">
+              <a href="/">
+                <span class="nav-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                </span>
+                Home
+              </a>
+            </li>
+          </ul>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">Chapter IV</div>
+          <ul class="nav-list">
+            <li class="nav-item">
+              <a href="/scenario">
+                <span class="nav-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>
+                </span>
+                4.1 Skenario Pengujian
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="/implementation">
+                <span class="nav-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>
+                </span>
+                4.2 Implementasi
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="/dummy-transactions">
+                <span class="nav-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2"/><line x1="8" x2="16" y1="20" y2="20"/><line x1="12" x2="12" y1="16" y2="20"/><path d="M8 9h8"/><path d="M8 12h6"/></svg>
+                </span>
+                4.3 Transaksi Dummy
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="/test-execution">
+                <span class="nav-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+                </span>
+                4.4 Pelaksanaan Pengujian
+              </a>
+            </li>
+            <li class="nav-item active">
+              <a href="/data-grouping">
+                <span class="nav-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+                </span>
+                4.5 Pengelompokan Data
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="/analysis">
+                <span class="nav-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" x2="18" y1="20" y2="10"/><line x1="12" x2="12" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="14"/></svg>
+                </span>
+                4.6 Analisis Kinerja
+              </a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <div class="main-content">
+        <section class="hero">
+          <span class="hero-badge">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+            Chapter 4.5
+          </span>
+          <h1 class="hero-title">Pengelompokan Data Kinerja Sistem</h1>
+          <p class="hero-desc">
+            Tahap ini mengkonversi data hasil eksekusi menjadi parameter kinerja yang siap dianalisis. Data <strong>RAFT</strong> dan <strong>SmartBFT</strong> dikelompokkan dengan struktur yang comparable untuk perbandingan objektif.
+          </p>
+        </section>
+
+        <div class="info-banner">
+          <div class="info-banner-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+          </div>
+          <p>
+            <strong>Sesuai spesifikasi 4.5:</strong> Data hasil uji dikonversi menjadi metrik performa konsisten agar data RAFT dan SmartBFT dapat dibandingkan secara langsung (comparable).
+          </p>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="btn-group">
+          <button class="btn btn-primary" id="loadDataBtn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>
+            Load Data Pengujian
+          </button>
+          <button class="btn btn-secondary" id="exportDataBtn" disabled>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+            Export JSON
+          </button>
+        </div>
+
+        <!-- Metrics Overview -->
+        <div class="metrics-grid" id="metricsGrid">
+          <div class="metric-card highlight">
+            <div class="metric-icon throughput">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </div>
+            <div class="metric-value" id="avgTps">-</div>
+            <div class="metric-label">Avg TPS</div>
+            <div class="metric-sublabel">Transactions per second</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-icon latency">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div class="metric-value" id="avgLatency">-</div>
+            <div class="metric-label">Avg Latency</div>
+            <div class="metric-sublabel">milliseconds</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-icon resource">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>
+            </div>
+            <div class="metric-value" id="avgCpu">-</div>
+            <div class="metric-label">Avg CPU</div>
+            <div class="metric-sublabel">percentage</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-icon fault">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m9 12 2 2 4-4"/></svg>
+            </div>
+            <div class="metric-value" id="avgSuccess">-</div>
+            <div class="metric-label">Success Rate</div>
+            <div class="metric-sublabel">percentage</div>
+          </div>
+        </div>
+
+        <!-- Throughput Data -->
+        <div class="content-section">
+          <div class="section-header">
+            <span class="section-number">4.5.1</span>
+            <h2 class="section-title">Data Throughput</h2>
+          </div>
+          <div class="data-section">
+            <h3>
+              Perbandingan Throughput
+              <span class="badge badge-raft">RAFT</span>
+              <span class="badge badge-smartbft">SmartBFT</span>
+            </h3>
+            <table class="comparison-table">
+              <thead>
+                <tr>
+                  <th>Metrik</th>
+                  <th>RAFT</th>
+                  <th>SmartBFT</th>
+                  <th>Selisih</th>
+                </tr>
+              </thead>
+              <tbody id="throughputTableBody">
+                <tr>
+                  <td colspan="4" class="loading-state">Klik "Load Data Pengujian" untuk memuat data</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="chart-container">
+              <canvas id="throughputChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Latency Data -->
+        <div class="content-section">
+          <div class="section-header">
+            <span class="section-number">4.5.2</span>
+            <h2 class="section-title">Data Latency</h2>
+          </div>
+          <div class="data-section">
+            <h3>Perbandingan Latency</h3>
+            <table class="comparison-table">
+              <thead>
+                <tr>
+                  <th>Metrik</th>
+                  <th>RAFT</th>
+                  <th>SmartBFT</th>
+                  <th>Selisih</th>
+                </tr>
+              </thead>
+              <tbody id="latencyTableBody">
+                <tr>
+                  <td colspan="4" class="loading-state">Klik "Load Data Pengujian" untuk memuat data</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="chart-container">
+              <canvas id="latencyChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Formula Section -->
+        <div class="content-section">
+          <div class="section-header">
+            <span class="section-number">Spec</span>
+            <h2 class="section-title">Rumus Perhitungan Metrik</h2>
+          </div>
+          <div class="card">
+            <p class="card-text">Sesuai spesifikasi dokumen 4.5, metrik kinerja dihitung dengan rumus standar berikut:</p>
+            
+            <div class="formula-card">
+              <h4>Throughput (TPS)</h4>
+              <div class="formula-code">TPS = txSuccess / durationSec</div>
+              <p class="formula-desc">Jumlah transaksi sukses dibagi durasi eksekusi dalam detik.</p>
+            </div>
+
+            <div class="formula-card">
+              <h4>Latency (ms)</h4>
+              <div class="formula-code">Latency = completedAt - submittedAt</div>
+              <p class="formula-desc">Selisih waktu antara transaksi selesai commit dan waktu submit.</p>
+            </div>
+
+            <div class="formula-card">
+              <h4>Success Rate (%)</h4>
+              <div class="formula-code">SuccessRate = (txSuccess / txTotal) × 100</div>
+              <p class="formula-desc">Persentase transaksi yang berhasil dari total transaksi.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Data Structure -->
+        <div class="content-section">
+          <div class="section-header">
+            <span class="section-number">Struktur</span>
+            <h2 class="section-title">Struktur Data Hasil Uji</h2>
+          </div>
+          <div class="card">
+            <p class="card-text">Data hasil uji menggunakan struktur standar berikut untuk memastikan konsistensi:</p>
+            <div class="formula-code" style="background: #1e293b; padding: 16px; border-radius: 8px; overflow-x: auto;">
+{
+  "consensus": "raft | smartbft",
+  "txTotal": 500,
+  "txSuccess": 500,
+  "durationSec": 25,
+  "throughput": {
+    "transactionsPerSecond": 20.0,
+    "totalTransactions": 500,
+    "successfulTransactions": 500
+  },
+  "latency": {
+    "averageLatencyMs": 45.5,
+    "minLatencyMs": 12,
+    "maxLatencyMs": 156,
+    "p50LatencyMs": 42,
+    "p95LatencyMs": 89,
+    "p99LatencyMs": 134
+  }
+}
+            </div>
+          </div>
+        </div>
+
+        <footer class="page-footer">
+          <p class="footer-text">
+            Thesis Research - Comparative Analysis of RAFT and SmartBFT Consensus on Hyperledger Fabric
+          </p>
+        </footer>
+      </div>
+    </main>
+  </div>
+
+  <script src="/js/app.js"></script>
+  <script>
+    let raftData = null;
+    let smartbftData = null;
+    let throughputChart = null;
+    let latencyChart = null;
+
+    const loadDataBtn = document.getElementById('loadDataBtn');
+    const exportDataBtn = document.getElementById('exportDataBtn');
+
+    async function fetchNetworkData(endpoint) {
+      const res = await fetch(endpoint);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    }
+
+    async function loadData() {
+      loadDataBtn.disabled = true;
+      loadDataBtn.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="animate-spin"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+        Loading...
+      `;
+
+      try {
+        const [raftRes, smartbftRes] = await Promise.all([
+          fetchNetworkData('/api/raft/pelaporan'),
+          fetchNetworkData('/api/smartbft/pelaporan')
+        ]);
+
+        raftData = raftRes;
+        smartbftData = smartbftRes;
+
+        updateMetricsOverview();
+        updateThroughputTable();
+        updateLatencyTable();
+        renderCharts();
+
+        exportDataBtn.disabled = false;
+      } catch (err) {
+        console.error('Error loading data:', err);
+        alert('Gagal memuat data: ' + err.message);
+      } finally {
+        loadDataBtn.disabled = false;
+        loadDataBtn.innerHTML = `
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>
+          Load Data Pengujian
+        `;
+      }
+    }
+
+    function updateMetricsOverview() {
+      const raftTps = raftData?.data_throughput?.transactionsPerSecond || 0;
+      const smartbftTps = smartbftData?.data_throughput?.transactionsPerSecond || 0;
+      const avgTps = (raftTps + smartbftTps) / 2;
+
+      const raftLatency = raftData?.data_latency?.averageLatencyMs || 0;
+      const smartbftLatency = smartbftData?.data_latency?.averageLatencyMs || 0;
+      const avgLatency = (raftLatency + smartbftLatency) / 2;
+
+      const raftCpu = raftData?.data_resource_usage?.averageCPU || 0;
+      const smartbftCpu = smartbftData?.data_resource_usage?.averageCPU || 0;
+      const avgCpu = (raftCpu + smartbftCpu) / 2;
+
+      const raftSuccess = raftData?.data_fault_tolerance?.successRate || 0;
+      const smartbftSuccess = smartbftData?.data_fault_tolerance?.successRate || 0;
+      const avgSuccess = (raftSuccess + smartbftSuccess) / 2;
+
+      document.getElementById('avgTps').textContent = avgTps.toFixed(2);
+      document.getElementById('avgLatency').textContent = avgLatency.toFixed(1) + 'ms';
+      document.getElementById('avgCpu').textContent = avgCpu.toFixed(1) + '%';
+      document.getElementById('avgSuccess').textContent = avgSuccess.toFixed(1) + '%';
+    }
+
+    function formatDiff(raft, smartbft, unit = '', lowerIsBetter = false) {
+      const diff = smartbft - raft;
+      const pct = raft !== 0 ? ((diff / raft) * 100).toFixed(1) : 0;
+      const sign = diff > 0 ? '+' : '';
+      const isBetter = lowerIsBetter ? diff < 0 : diff > 0;
+      const cls = isBetter ? 'better' : 'worse';
+      return `<span class="value ${cls}">${sign}${diff.toFixed(2)}${unit} (${sign}${pct}%)</span>`;
+    }
+
+    function updateThroughputTable() {
+      const raftTp = raftData?.data_throughput || {};
+      const smartbftTp = smartbftData?.data_throughput || {};
+
+      const tbody = document.getElementById('throughputTableBody');
+      tbody.innerHTML = `
+        <tr>
+          <td class="metric-name">TPS (tx/sec)</td>
+          <td class="value">${(raftTp.transactionsPerSecond || 0).toFixed(2)}</td>
+          <td class="value">${(smartbftTp.transactionsPerSecond || 0).toFixed(2)}</td>
+          <td>${formatDiff(raftTp.transactionsPerSecond || 0, smartbftTp.transactionsPerSecond || 0)}</td>
+        </tr>
+        <tr>
+          <td class="metric-name">Total Transactions</td>
+          <td class="value">${raftTp.totalTransactions || 0}</td>
+          <td class="value">${smartbftTp.totalTransactions || 0}</td>
+          <td>${formatDiff(raftTp.totalTransactions || 0, smartbftTp.totalTransactions || 0)}</td>
+        </tr>
+        <tr>
+          <td class="metric-name">Successful Transactions</td>
+          <td class="value">${raftTp.successfulTransactions || 0}</td>
+          <td class="value">${smartbftTp.successfulTransactions || 0}</td>
+          <td>${formatDiff(raftTp.successfulTransactions || 0, smartbftTp.successfulTransactions || 0)}</td>
+        </tr>
+        <tr>
+          <td class="metric-name">Duration (sec)</td>
+          <td class="value">${(raftTp.durationSeconds || 0).toFixed(2)}</td>
+          <td class="value">${(smartbftTp.durationSeconds || 0).toFixed(2)}</td>
+          <td>${formatDiff(raftTp.durationSeconds || 0, smartbftTp.durationSeconds || 0, 's', true)}</td>
+        </tr>
+      `;
+    }
+
+    function updateLatencyTable() {
+      const raftLat = raftData?.data_latency || {};
+      const smartbftLat = smartbftData?.data_latency || {};
+
+      const tbody = document.getElementById('latencyTableBody');
+      tbody.innerHTML = `
+        <tr>
+          <td class="metric-name">Average Latency</td>
+          <td class="value">${(raftLat.averageLatencyMs || 0).toFixed(2)} ms</td>
+          <td class="value">${(smartbftLat.averageLatencyMs || 0).toFixed(2)} ms</td>
+          <td>${formatDiff(raftLat.averageLatencyMs || 0, smartbftLat.averageLatencyMs || 0, 'ms', true)}</td>
+        </tr>
+        <tr>
+          <td class="metric-name">Min Latency</td>
+          <td class="value">${(raftLat.minLatencyMs || 0).toFixed(2)} ms</td>
+          <td class="value">${(smartbftLat.minLatencyMs || 0).toFixed(2)} ms</td>
+          <td>${formatDiff(raftLat.minLatencyMs || 0, smartbftLat.minLatencyMs || 0, 'ms', true)}</td>
+        </tr>
+        <tr>
+          <td class="metric-name">Max Latency</td>
+          <td class="value">${(raftLat.maxLatencyMs || 0).toFixed(2)} ms</td>
+          <td class="value">${(smartbftLat.maxLatencyMs || 0).toFixed(2)} ms</td>
+          <td>${formatDiff(raftLat.maxLatencyMs || 0, smartbftLat.maxLatencyMs || 0, 'ms', true)}</td>
+        </tr>
+        <tr>
+          <td class="metric-name">P50 Latency</td>
+          <td class="value">${(raftLat.p50LatencyMs || 0).toFixed(2)} ms</td>
+          <td class="value">${(smartbftLat.p50LatencyMs || 0).toFixed(2)} ms</td>
+          <td>${formatDiff(raftLat.p50LatencyMs || 0, smartbftLat.p50LatencyMs || 0, 'ms', true)}</td>
+        </tr>
+        <tr>
+          <td class="metric-name">P95 Latency</td>
+          <td class="value">${(raftLat.p95LatencyMs || 0).toFixed(2)} ms</td>
+          <td class="value">${(smartbftLat.p95LatencyMs || 0).toFixed(2)} ms</td>
+          <td>${formatDiff(raftLat.p95LatencyMs || 0, smartbftLat.p95LatencyMs || 0, 'ms', true)}</td>
+        </tr>
+        <tr>
+          <td class="metric-name">P99 Latency</td>
+          <td class="value">${(raftLat.p99LatencyMs || 0).toFixed(2)} ms</td>
+          <td class="value">${(smartbftLat.p99LatencyMs || 0).toFixed(2)} ms</td>
+          <td>${formatDiff(raftLat.p99LatencyMs || 0, smartbftLat.p99LatencyMs || 0, 'ms', true)}</td>
+        </tr>
+      `;
+    }
+
+    function renderCharts() {
+      const raftTp = raftData?.data_throughput || {};
+      const smartbftTp = smartbftData?.data_throughput || {};
+      const raftLat = raftData?.data_latency || {};
+      const smartbftLat = smartbftData?.data_latency || {};
+
+      // Throughput Chart
+      if (throughputChart) throughputChart.destroy();
+      const tpCtx = document.getElementById('throughputChart').getContext('2d');
+      throughputChart = new Chart(tpCtx, {
+        type: 'bar',
+        data: {
+          labels: ['TPS', 'Total TX', 'Success TX'],
+          datasets: [
+            {
+              label: 'RAFT',
+              data: [
+                raftTp.transactionsPerSecond || 0,
+                raftTp.totalTransactions || 0,
+                raftTp.successfulTransactions || 0
+              ],
+              backgroundColor: 'rgba(59, 130, 246, 0.7)',
+              borderColor: 'rgba(59, 130, 246, 1)',
+              borderWidth: 1
+            },
+            {
+              label: 'SmartBFT',
+              data: [
+                smartbftTp.transactionsPerSecond || 0,
+                smartbftTp.totalTransactions || 0,
+                smartbftTp.successfulTransactions || 0
+              ],
+              backgroundColor: 'rgba(245, 158, 11, 0.7)',
+              borderColor: 'rgba(245, 158, 11, 1)',
+              borderWidth: 1
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'top' },
+            title: { display: true, text: 'Throughput Comparison' }
+          },
+          scales: {
+            y: { beginAtZero: true }
+          }
+        }
+      });
+
+      // Latency Chart
+      if (latencyChart) latencyChart.destroy();
+      const latCtx = document.getElementById('latencyChart').getContext('2d');
+      latencyChart = new Chart(latCtx, {
+        type: 'bar',
+        data: {
+          labels: ['Avg', 'Min', 'Max', 'P50', 'P95', 'P99'],
+          datasets: [
+            {
+              label: 'RAFT',
+              data: [
+                raftLat.averageLatencyMs || 0,
+                raftLat.minLatencyMs || 0,
+                raftLat.maxLatencyMs || 0,
+                raftLat.p50LatencyMs || 0,
+                raftLat.p95LatencyMs || 0,
+                raftLat.p99LatencyMs || 0
+              ],
+              backgroundColor: 'rgba(59, 130, 246, 0.7)',
+              borderColor: 'rgba(59, 130, 246, 1)',
+              borderWidth: 1
+            },
+            {
+              label: 'SmartBFT',
+              data: [
+                smartbftLat.averageLatencyMs || 0,
+                smartbftLat.minLatencyMs || 0,
+                smartbftLat.maxLatencyMs || 0,
+                smartbftLat.p50LatencyMs || 0,
+                smartbftLat.p95LatencyMs || 0,
+                smartbftLat.p99LatencyMs || 0
+              ],
+              backgroundColor: 'rgba(245, 158, 11, 0.7)',
+              borderColor: 'rgba(245, 158, 11, 1)',
+              borderWidth: 1
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'top' },
+            title: { display: true, text: 'Latency Comparison (ms)' }
+          },
+          scales: {
+            y: { beginAtZero: true }
+          }
+        }
+      });
+    }
+
+    function exportData() {
+      const exportObj = {
+        exportedAt: new Date().toISOString(),
+        raft: {
+          consensus: 'raft',
+          networkId: 'channel-fabric3-standard',
+          throughput: raftData?.data_throughput,
+          latency: raftData?.data_latency,
+          resourceUsage: raftData?.data_resource_usage,
+          faultTolerance: raftData?.data_fault_tolerance
+        },
+        smartbft: {
+          consensus: 'smartbft',
+          networkId: 'channel-fabric3-variant',
+          throughput: smartbftData?.data_throughput,
+          latency: smartbftData?.data_latency,
+          resourceUsage: smartbftData?.data_resource_usage,
+          faultTolerance: smartbftData?.data_fault_tolerance
+        }
+      };
+
+      const blob = new Blob([JSON.stringify(exportObj, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `performance-data-${Date.now()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    loadDataBtn.addEventListener('click', loadData);
+    exportDataBtn.addEventListener('click', exportData);
+  </script>
+</body>
+</html>

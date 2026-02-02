@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>4.4 Pelaksanaan Pengujian · RAFT vs SmartBFT Evaluation</title>
+  <title>4.3 Pelaksanaan Pengujian · RAFT vs SmartBFT Evaluation</title>
   <link rel="icon" type="image/svg+xml" href="/images/logo-ai-center.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -443,27 +443,82 @@
         <!-- Test Configuration -->
         <div class="content-section">
           <div class="section-header">
-            <span class="section-number">4.4.1</span>
-            <h2 class="section-title">Konfigurasi Pengujian</h2>
+            <span class="section-number">4.3.1</span>
+            <h2 class="section-title">Konfigurasi Pengujian (Sesuai Skenario 4.1)</h2>
           </div>
+          
+          <!-- Scenario Summary Table -->
+          <div class="card" style="margin-bottom: 20px;">
+            <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 12px; color: var(--text-dark);">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline; vertical-align: middle; margin-right: 6px;"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Parameter Skenario Pengujian (Stage 4.1)
+            </h3>
+            <table class="data-table" style="margin-top: 0;">
+              <tbody>
+                <tr>
+                  <td style="width: 200px; font-weight: 600;">Transactions per test</td>
+                  <td><span id="scenarioTxCount">500</span> transaksi</td>
+                </tr>
+                <tr>
+                  <td style="font-weight: 600;">Submission pattern</td>
+                  <td><span id="scenarioPattern">SEQUENTIAL</span></td>
+                </tr>
+                <tr>
+                  <td style="font-weight: 600;">Concurrency</td>
+                  <td><span id="scenarioConcurrency">1</span> (if applicable)</td>
+                </tr>
+                <tr>
+                  <td style="font-weight: 600;">Test iterations</td>
+                  <td><span id="scenarioIterations">1</span> iterasi per network</td>
+                </tr>
+                <tr>
+                  <td style="font-weight: 600;">Success criteria</td>
+                  <td>Committed to ledger + success response received</td>
+                </tr>
+                <tr>
+                  <td style="font-weight: 600;">Transaction payload</td>
+                  <td>Consistent for all transactions (256 bytes dummy data)</td>
+                </tr>
+                <tr>
+                  <td style="font-weight: 600;">Fairness controls</td>
+                  <td>Same payload, chaincode, channel, environment</td>
+                </tr>
+                <tr>
+                  <td style="font-weight: 600;">Raw data to record</td>
+                  <td>Timestamps, success/fail count, commit evidence, CPU, memory</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
           <div class="test-panel">
             <h3>Parameter Eksekusi</h3>
             <div class="config-grid">
               <div class="form-group">
-                <label for="testTxCount">Jumlah Transaksi</label>
+                <label for="testTxCount">Transactions per Test</label>
                 <input type="number" id="testTxCount" value="500" min="1" max="10000">
-                <span class="helper-text">Jumlah transaksi per network sesuai skenario</span>
+                <span class="helper-text">Jumlah transaksi per network</span>
               </div>
               <div class="form-group">
-                <label for="testMode">Pola Pengiriman</label>
+                <label for="testMode">Submission Pattern</label>
                 <select id="testMode">
-                  <option value="sequential">Sequential (satu per satu)</option>
-                  <option value="batch">Batch (dengan interval)</option>
+                  <option value="sequential">SEQUENTIAL (satu per satu)</option>
+                  <option value="parallel">PARALLEL (dengan concurrency)</option>
                 </select>
                 <span class="helper-text">Mode pengiriman transaksi</span>
               </div>
               <div class="form-group">
-                <label for="batchInterval">Interval Batch (ms)</label>
+                <label for="concurrency">Concurrency</label>
+                <input type="number" id="concurrency" value="1" min="1" max="100">
+                <span class="helper-text">Jumlah concurrent requests (untuk parallel)</span>
+              </div>
+              <div class="form-group">
+                <label for="testIterations">Test Iterations</label>
+                <input type="number" id="testIterations" value="1" min="1" max="10">
+                <span class="helper-text">Jumlah percobaan per skenario</span>
+              </div>
+              <div class="form-group">
+                <label for="batchInterval">Interval (ms)</label>
                 <input type="number" id="batchInterval" value="0" min="0" max="1000">
                 <span class="helper-text">Delay antar transaksi (0 = tanpa delay)</span>
               </div>
@@ -473,11 +528,31 @@
             <div class="checkbox-group">
               <label>
                 <input type="checkbox" id="targetRaft44" checked>
-                <strong>RAFT Network</strong> — channel-fabric3-standard
+                <strong>RAFT Network</strong> — channel-fabric3-standard (CFT Consensus)
               </label>
               <label>
                 <input type="checkbox" id="targetSmartbft44" checked>
-                <strong>SmartBFT Network</strong> — channel-fabric3-variant
+                <strong>SmartBFT Network</strong> — channel-fabric3-variant (BFT Consensus)
+              </label>
+            </div>
+
+            <h3 style="margin-top: 20px;">Data yang Direkam</h3>
+            <div class="checkbox-group">
+              <label>
+                <input type="checkbox" id="recordTimestamps" checked disabled>
+                <strong>Timestamps</strong> — Waktu submit dan commit setiap transaksi
+              </label>
+              <label>
+                <input type="checkbox" id="recordSuccessFail" checked disabled>
+                <strong>Success/Fail Count</strong> — Jumlah transaksi berhasil/gagal
+              </label>
+              <label>
+                <input type="checkbox" id="recordCommitEvidence" checked disabled>
+                <strong>Commit Evidence</strong> — Bukti transaksi committed ke ledger
+              </label>
+              <label>
+                <input type="checkbox" id="recordCpuMemory" checked>
+                <strong>CPU & Memory</strong> — Penggunaan resource selama pengujian
               </label>
             </div>
 
@@ -497,7 +572,7 @@
         <!-- Progress Panel -->
         <div class="content-section">
           <div class="section-header">
-            <span class="section-number">4.4.2</span>
+            <span class="section-number">4.3.2</span>
             <h2 class="section-title">Progress Eksekusi</h2>
           </div>
           <div class="progress-panel">
@@ -532,7 +607,7 @@
         <!-- Execution Log -->
         <div class="content-section">
           <div class="section-header">
-            <span class="section-number">4.4.3</span>
+            <span class="section-number">4.3.3</span>
             <h2 class="section-title">Log Aktivitas Sistem</h2>
           </div>
           <div class="card">
@@ -554,7 +629,7 @@
         <!-- Results Preview -->
         <div class="content-section" id="resultsSection" style="display: none;">
           <div class="section-header">
-            <span class="section-number">4.4.4</span>
+            <span class="section-number">4.3.4</span>
             <h2 class="section-title">Hasil Pengujian</h2>
           </div>
           <div class="results-grid" id="resultsGrid"></div>
@@ -563,12 +638,12 @@
         <!-- Data Recording Spec -->
         <div class="content-section">
           <div class="section-header">
-            <span class="section-number">Spec</span>
+            <span class="section-number">4.3.5</span>
             <h2 class="section-title">Struktur Data Hasil Uji</h2>
           </div>
           <div class="card">
             <p class="card-text">
-              Sesuai spesifikasi dokumen 4.3, setiap hasil pengujian dicatat dengan struktur standar berikut:
+              Sesuai spesifikasi skenario 4.1, setiap hasil pengujian dicatat dengan struktur standar berikut:
             </p>
             <table class="data-table">
               <thead>
@@ -608,6 +683,60 @@
                   <td><code>endTimestamp</code></td>
                   <td>ISO-8601</td>
                   <td>Waktu selesai pengujian</td>
+                </tr>
+                <tr>
+                  <td><code>latencies[]</code></td>
+                  <td>number[]</td>
+                  <td>Array latency per transaksi (ms)</td>
+                </tr>
+                <tr>
+                  <td><code>cpuUsage</code></td>
+                  <td>number</td>
+                  <td>Penggunaan CPU rata-rata (%)</td>
+                </tr>
+                <tr>
+                  <td><code>memoryUsage</code></td>
+                  <td>number</td>
+                  <td>Penggunaan memory rata-rata (MB)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Stage 4.1 Output Summary -->
+        <div class="content-section">
+          <div class="section-header">
+            <span class="section-number">4.3.6</span>
+            <h2 class="section-title">Output Tahap 4.1 (Skenario)</h2>
+          </div>
+          <div class="card">
+            <p class="card-text">
+              Output yang dihasilkan dari tahap skenario pengujian (4.1) sebagai dasar pelaksanaan:
+            </p>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th style="width: 200px;">Output</th>
+                  <th>Deskripsi</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Scenario Document</strong></td>
+                  <td>Dokumen yang mendefinisikan parameter pengujian, jumlah transaksi, pola pengiriman, dan kriteria keberhasilan</td>
+                </tr>
+                <tr>
+                  <td><strong>Standard Operating Procedure</strong></td>
+                  <td>Prosedur standar pelaksanaan pengujian untuk memastikan konsistensi antar network</td>
+                </tr>
+                <tr>
+                  <td><strong>Data Capture Plan</strong></td>
+                  <td>Rencana pengambilan data: timestamps, success/fail count, commit evidence, CPU, memory</td>
+                </tr>
+                <tr>
+                  <td><strong>Metric Mapping</strong></td>
+                  <td>Pemetaan data mentah ke metrik kinerja: Throughput, Latency, Resource Usage, Fault Tolerance</td>
                 </tr>
               </tbody>
             </table>
@@ -938,6 +1067,24 @@
         statDuration.textContent = `${elapsed.toFixed(1)}s`;
       }
     }, 100);
+
+    // Sync form inputs with scenario summary table
+    function updateScenarioSummary() {
+      document.getElementById('scenarioTxCount').textContent = document.getElementById('testTxCount').value;
+      const mode = document.getElementById('testMode').value;
+      document.getElementById('scenarioPattern').textContent = mode.toUpperCase();
+      document.getElementById('scenarioConcurrency').textContent = document.getElementById('concurrency').value;
+      document.getElementById('scenarioIterations').textContent = document.getElementById('testIterations').value;
+    }
+
+    // Attach change listeners
+    document.getElementById('testTxCount').addEventListener('change', updateScenarioSummary);
+    document.getElementById('testMode').addEventListener('change', updateScenarioSummary);
+    document.getElementById('concurrency').addEventListener('change', updateScenarioSummary);
+    document.getElementById('testIterations').addEventListener('change', updateScenarioSummary);
+
+    // Initial sync
+    updateScenarioSummary();
   </script>
 </body>
 </html>

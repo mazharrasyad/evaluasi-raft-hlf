@@ -39,6 +39,13 @@ const NETWORK_CONFIGS = {
     },
 };
 
+function resolveNetworkDir(config) {
+    if (config.fabricVersion) {
+        return path.join(PROJECT_ROOT, config.fabricVersion, config.variant, 'network');
+    }
+    return path.join(PROJECT_ROOT, config.variant, 'network');
+}
+
 /**
  * Get network configuration by network ID
  */
@@ -59,7 +66,7 @@ async function createGrpcClient(config) {
     const organizationsDir = config.organizationsDir || 'organizations';
 
     // Read TLS certificate
-    const networkDir = path.join(PROJECT_ROOT, config.fabricVersion, config.variant, 'network');
+    const networkDir = resolveNetworkDir(config);
     const tlsCertPath = path.join(
         networkDir,
         `${organizationsDir}/peerOrganizations`,
@@ -93,7 +100,7 @@ async function createGrpcClient(config) {
  * Create identity for signing transactions
  */
 async function createIdentity(config) {
-    const networkDir = path.join(PROJECT_ROOT, config.fabricVersion, config.variant, 'network');
+    const networkDir = resolveNetworkDir(config);
     const organizationsDir = config.organizationsDir || 'organizations';
 
     // Read certificate directory
@@ -136,7 +143,7 @@ async function createIdentity(config) {
  * Create signer for signing transactions
  */
 async function createSigner(config) {
-    const networkDir = path.join(PROJECT_ROOT, config.fabricVersion, config.variant, 'network');
+    const networkDir = resolveNetworkDir(config);
     const organizationsDir = config.organizationsDir || 'organizations';
 
     // Read private key
@@ -256,7 +263,7 @@ export async function submitTransaction(networkId, record, metadata = {}) {
             networkMetadata: {
                 channel: config.channel,
                 chaincode: config.chaincode,
-                fabricVersion: config.fabricVersion,
+                fabricVersion: config.fabricVersion || null,
                 variant: config.variant,
                 peerEndpoint: config.peerEndpoint,
                 label: config.label,

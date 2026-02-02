@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>4.6 Analisis Kinerja Algoritma Konsensus · RAFT vs SmartBFT</title>
+  <title>4.5 Analisis Kinerja Algoritma Konsensus · RAFT vs SmartBFT</title>
   <link rel="icon" type="image/svg+xml" href="/images/logo-ai-center.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -133,6 +133,68 @@
     }
     .analysis-card h3 svg {
       color: var(--accent);
+    }
+    .analysis-card .card-desc {
+      font-size: 12px;
+      color: var(--text-light);
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px dashed var(--border);
+    }
+    .analysis-card .metric-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .analysis-card .metric-item:last-child {
+      border-bottom: none;
+    }
+    .analysis-card .metric-label {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    .analysis-card .metric-values {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+    .analysis-card .val-raft {
+      font-size: 13px;
+      font-weight: 600;
+      color: #2563eb;
+      min-width: 80px;
+      text-align: right;
+    }
+    .analysis-card .val-smartbft {
+      font-size: 13px;
+      font-weight: 600;
+      color: #d97706;
+      min-width: 80px;
+      text-align: right;
+    }
+    .analysis-card .winner-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-top: 12px;
+    }
+    .analysis-card .winner-badge.raft {
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+    .analysis-card .winner-badge.smartbft {
+      background: #fef3c7;
+      color: #b45309;
+    }
+    .analysis-card .winner-badge.equal {
+      background: #e5e7eb;
+      color: #4b5563;
     }
 
     .metric-comparison {
@@ -471,26 +533,55 @@
         <!-- Analysis Results -->
         <div class="content-section">
           <div class="section-header">
-            <span class="section-number">4.6.1</span>
+            <span class="section-number">4.5.1</span>
             <h2 class="section-title">Perbandingan Parameter Kinerja</h2>
           </div>
 
           <div class="analysis-grid">
-            <div class="analysis-card">
+            <!-- Card 1: Throughput -->
+            <div class="analysis-card" id="throughputCard">
               <h3>
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-                Throughput Analysis
+                1. Throughput Analysis
               </h3>
+              <p class="card-desc">Mengukur jumlah transaksi yang dapat diproses per detik (TPS)</p>
               <div id="throughputAnalysis">
                 <p style="color: var(--text-muted); font-size: 14px;">Klik "Jalankan Analisis" untuk memuat data</p>
               </div>
             </div>
-            <div class="analysis-card">
+
+            <!-- Card 2: Latency -->
+            <div class="analysis-card" id="latencyCard">
               <h3>
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                Latency Analysis
+                2. Latency Analysis
               </h3>
+              <p class="card-desc">Mengukur waktu yang dibutuhkan dari submit hingga commit transaksi</p>
               <div id="latencyAnalysis">
+                <p style="color: var(--text-muted); font-size: 14px;">Klik "Jalankan Analisis" untuk memuat data</p>
+              </div>
+            </div>
+
+            <!-- Card 3: Resource Usage -->
+            <div class="analysis-card" id="resourceCard">
+              <h3>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+                3. Resource Usage Analysis
+              </h3>
+              <p class="card-desc">Mengukur penggunaan CPU dan Memory selama proses konsensus</p>
+              <div id="resourceAnalysis">
+                <p style="color: var(--text-muted); font-size: 14px;">Klik "Jalankan Analisis" untuk memuat data</p>
+              </div>
+            </div>
+
+            <!-- Card 4: Fault Tolerance -->
+            <div class="analysis-card" id="faultCard">
+              <h3>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+                4. Fault Tolerance Analysis
+              </h3>
+              <p class="card-desc">Mengukur tingkat keberhasilan transaksi dan ketahanan terhadap kegagalan</p>
+              <div id="faultAnalysis">
                 <p style="color: var(--text-muted); font-size: 14px;">Klik "Jalankan Analisis" untuk memuat data</p>
               </div>
             </div>
@@ -515,7 +606,7 @@
         <!-- Summary Table -->
         <div class="content-section">
           <div class="section-header">
-            <span class="section-number">4.6.2</span>
+            <span class="section-number">4.5.2</span>
             <h2 class="section-title">Tabel Ringkasan Perbandingan</h2>
           </div>
           <div class="card">
@@ -543,7 +634,7 @@
         <!-- Hypothesis Testing -->
         <div class="content-section">
           <div class="section-header">
-            <span class="section-number">4.6.3</span>
+            <span class="section-number">4.5.3</span>
             <h2 class="section-title">Pengujian Hipotesis</h2>
           </div>
           <div class="card">
@@ -660,36 +751,178 @@
       const smartbftTp = smartbftData?.data_throughput || {};
       const raftLat = raftData?.data_latency || {};
       const smartbftLat = smartbftData?.data_latency || {};
+      const raftRes = raftData?.data_resource_usage || {};
+      const smartbftRes = smartbftData?.data_resource_usage || {};
+      const raftFt = raftData?.data_fault_tolerance || {};
+      const smartbftFt = smartbftData?.data_fault_tolerance || {};
 
-      // Throughput Analysis
-      const tpDiff = (smartbftTp.transactionsPerSecond || 0) - (raftTp.transactionsPerSecond || 0);
-      const tpPct = raftTp.transactionsPerSecond ? ((tpDiff / raftTp.transactionsPerSecond) * 100).toFixed(1) : 0;
-      const tpWinner = tpDiff > 0 ? 'SmartBFT' : tpDiff < 0 ? 'RAFT' : 'Equal';
+      // === Card 1: Throughput Analysis ===
+      const raftTps = raftTp.transactionsPerSecond || 0;
+      const smartbftTps = smartbftTp.transactionsPerSecond || 0;
+      const tpWinner = raftTps > smartbftTps ? 'raft' : smartbftTps > raftTps ? 'smartbft' : 'equal';
 
       document.getElementById('throughputAnalysis').innerHTML = `
-        <div style="font-size: 14px; color: var(--text-muted); line-height: 1.8;">
-          <p><strong>RAFT TPS:</strong> ${(raftTp.transactionsPerSecond || 0).toFixed(2)} tx/sec</p>
-          <p><strong>SmartBFT TPS:</strong> ${(smartbftTp.transactionsPerSecond || 0).toFixed(2)} tx/sec</p>
-          <p><strong>Difference:</strong> ${tpDiff > 0 ? '+' : ''}${tpDiff.toFixed(2)} tx/sec (${tpDiff > 0 ? '+' : ''}${tpPct}%)</p>
-          <p style="margin-top: 12px; padding: 10px; background: #f0fdf4; border-radius: 6px; color: #166534;">
-            <strong>Winner:</strong> ${tpWinner}
-          </p>
+        <div class="metric-item">
+          <span class="metric-label">Transactions/Second (TPS)</span>
+          <div class="metric-values">
+            <span class="val-raft">${raftTps.toFixed(2)}</span>
+            <span class="val-smartbft">${smartbftTps.toFixed(2)}</span>
+          </div>
+        </div>
+        <div class="metric-item">
+          <span class="metric-label">Total Transactions</span>
+          <div class="metric-values">
+            <span class="val-raft">${raftTp.totalTransactions || 0}</span>
+            <span class="val-smartbft">${smartbftTp.totalTransactions || 0}</span>
+          </div>
+        </div>
+        <div class="metric-item">
+          <span class="metric-label">Test Duration (sec)</span>
+          <div class="metric-values">
+            <span class="val-raft">${(raftTp.testDurationSeconds || 0).toFixed(2)}</span>
+            <span class="val-smartbft">${(smartbftTp.testDurationSeconds || 0).toFixed(2)}</span>
+          </div>
+        </div>
+        <div class="winner-badge ${tpWinner}">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          Winner: ${tpWinner === 'equal' ? 'Equal' : tpWinner === 'raft' ? 'RAFT' : 'SmartBFT'} (higher is better)
         </div>
       `;
 
-      // Latency Analysis
-      const latDiff = (smartbftLat.averageLatencyMs || 0) - (raftLat.averageLatencyMs || 0);
-      const latPct = raftLat.averageLatencyMs ? ((latDiff / raftLat.averageLatencyMs) * 100).toFixed(1) : 0;
-      const latWinner = latDiff < 0 ? 'SmartBFT' : latDiff > 0 ? 'RAFT' : 'Equal';
+      // === Card 2: Latency Analysis ===
+      const raftAvgLat = raftLat.averageLatencyMs || 0;
+      const smartbftAvgLat = smartbftLat.averageLatencyMs || 0;
+      const latWinner = raftAvgLat < smartbftAvgLat ? 'raft' : smartbftAvgLat < raftAvgLat ? 'smartbft' : 'equal';
 
       document.getElementById('latencyAnalysis').innerHTML = `
-        <div style="font-size: 14px; color: var(--text-muted); line-height: 1.8;">
-          <p><strong>RAFT Avg Latency:</strong> ${(raftLat.averageLatencyMs || 0).toFixed(2)} ms</p>
-          <p><strong>SmartBFT Avg Latency:</strong> ${(smartbftLat.averageLatencyMs || 0).toFixed(2)} ms</p>
-          <p><strong>Difference:</strong> ${latDiff > 0 ? '+' : ''}${latDiff.toFixed(2)} ms (${latDiff > 0 ? '+' : ''}${latPct}%)</p>
-          <p style="margin-top: 12px; padding: 10px; background: #f0fdf4; border-radius: 6px; color: #166534;">
-            <strong>Winner (lower is better):</strong> ${latWinner}
-          </p>
+        <div class="metric-item">
+          <span class="metric-label">Average Latency (ms)</span>
+          <div class="metric-values">
+            <span class="val-raft">${raftAvgLat.toFixed(2)}</span>
+            <span class="val-smartbft">${smartbftAvgLat.toFixed(2)}</span>
+          </div>
+        </div>
+        <div class="metric-item">
+          <span class="metric-label">Min Latency (ms)</span>
+          <div class="metric-values">
+            <span class="val-raft">${(raftLat.minLatencyMs || 0).toFixed(2)}</span>
+            <span class="val-smartbft">${(smartbftLat.minLatencyMs || 0).toFixed(2)}</span>
+          </div>
+        </div>
+        <div class="metric-item">
+          <span class="metric-label">Max Latency (ms)</span>
+          <div class="metric-values">
+            <span class="val-raft">${(raftLat.maxLatencyMs || 0).toFixed(2)}</span>
+            <span class="val-smartbft">${(smartbftLat.maxLatencyMs || 0).toFixed(2)}</span>
+          </div>
+        </div>
+        <div class="metric-item">
+          <span class="metric-label">P95 Latency (ms)</span>
+          <div class="metric-values">
+            <span class="val-raft">${(raftLat.p95LatencyMs || 0).toFixed(2)}</span>
+            <span class="val-smartbft">${(smartbftLat.p95LatencyMs || 0).toFixed(2)}</span>
+          </div>
+        </div>
+        <div class="metric-item">
+          <span class="metric-label">P99 Latency (ms)</span>
+          <div class="metric-values">
+            <span class="val-raft">${(raftLat.p99LatencyMs || 0).toFixed(2)}</span>
+            <span class="val-smartbft">${(smartbftLat.p99LatencyMs || 0).toFixed(2)}</span>
+          </div>
+        </div>
+        <div class="winner-badge ${latWinner}">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          Winner: ${latWinner === 'equal' ? 'Equal' : latWinner === 'raft' ? 'RAFT' : 'SmartBFT'} (lower is better)
+        </div>
+      `;
+
+      // === Card 3: Resource Usage Analysis ===
+      const raftCpu = raftRes.avgCpuPercent || raftRes.cpuUsage || 0;
+      const smartbftCpu = smartbftRes.avgCpuPercent || smartbftRes.cpuUsage || 0;
+      const raftMem = raftRes.avgMemoryMB || raftRes.memoryUsage || 0;
+      const smartbftMem = smartbftRes.avgMemoryMB || smartbftRes.memoryUsage || 0;
+      const resWinner = (raftCpu + raftMem) < (smartbftCpu + smartbftMem) ? 'raft' : 
+                        (smartbftCpu + smartbftMem) < (raftCpu + raftMem) ? 'smartbft' : 'equal';
+
+      document.getElementById('resourceAnalysis').innerHTML = `
+        <div class="metric-item">
+          <span class="metric-label">Avg CPU Usage (%)</span>
+          <div class="metric-values">
+            <span class="val-raft">${raftCpu.toFixed(2)}</span>
+            <span class="val-smartbft">${smartbftCpu.toFixed(2)}</span>
+          </div>
+        </div>
+        <div class="metric-item">
+          <span class="metric-label">Peak CPU Usage (%)</span>
+          <div class="metric-values">
+            <span class="val-raft">${(raftRes.peakCpuPercent || raftRes.peakCpu || 0).toFixed(2)}</span>
+            <span class="val-smartbft">${(smartbftRes.peakCpuPercent || smartbftRes.peakCpu || 0).toFixed(2)}</span>
+          </div>
+        </div>
+        <div class="metric-item">
+          <span class="metric-label">Avg Memory (MB)</span>
+          <div class="metric-values">
+            <span class="val-raft">${raftMem.toFixed(2)}</span>
+            <span class="val-smartbft">${smartbftMem.toFixed(2)}</span>
+          </div>
+        </div>
+        <div class="metric-item">
+          <span class="metric-label">Peak Memory (MB)</span>
+          <div class="metric-values">
+            <span class="val-raft">${(raftRes.peakMemoryMB || raftRes.peakMemory || 0).toFixed(2)}</span>
+            <span class="val-smartbft">${(smartbftRes.peakMemoryMB || smartbftRes.peakMemory || 0).toFixed(2)}</span>
+          </div>
+        </div>
+        <div class="winner-badge ${resWinner}">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          Winner: ${resWinner === 'equal' ? 'Equal' : resWinner === 'raft' ? 'RAFT' : 'SmartBFT'} (lower is better)
+        </div>
+      `;
+
+      // === Card 4: Fault Tolerance Analysis ===
+      const raftSuccess = raftFt.successRate || 0;
+      const smartbftSuccess = smartbftFt.successRate || 0;
+      const ftWinner = raftSuccess > smartbftSuccess ? 'raft' : smartbftSuccess > raftSuccess ? 'smartbft' : 'equal';
+
+      document.getElementById('faultAnalysis').innerHTML = `
+        <div class="metric-item">
+          <span class="metric-label">Success Rate (%)</span>
+          <div class="metric-values">
+            <span class="val-raft">${raftSuccess.toFixed(2)}</span>
+            <span class="val-smartbft">${smartbftSuccess.toFixed(2)}</span>
+          </div>
+        </div>
+        <div class="metric-item">
+          <span class="metric-label">Total Submitted</span>
+          <div class="metric-values">
+            <span class="val-raft">${raftFt.totalSubmitted || 0}</span>
+            <span class="val-smartbft">${smartbftFt.totalSubmitted || 0}</span>
+          </div>
+        </div>
+        <div class="metric-item">
+          <span class="metric-label">Total Success</span>
+          <div class="metric-values">
+            <span class="val-raft">${raftFt.totalSuccess || 0}</span>
+            <span class="val-smartbft">${smartbftFt.totalSuccess || 0}</span>
+          </div>
+        </div>
+        <div class="metric-item">
+          <span class="metric-label">Total Failed</span>
+          <div class="metric-values">
+            <span class="val-raft">${raftFt.totalFailed || 0}</span>
+            <span class="val-smartbft">${smartbftFt.totalFailed || 0}</span>
+          </div>
+        </div>
+        <div class="metric-item">
+          <span class="metric-label">Fault Tolerance Model</span>
+          <div class="metric-values">
+            <span class="val-raft" style="font-size: 11px;">CFT (f crashes)</span>
+            <span class="val-smartbft" style="font-size: 11px;">BFT (f byzantine)</span>
+          </div>
+        </div>
+        <div class="winner-badge ${ftWinner}">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          Winner: ${ftWinner === 'equal' ? 'Equal' : ftWinner === 'raft' ? 'RAFT' : 'SmartBFT'} (higher is better)
         </div>
       `;
     }
@@ -699,55 +932,46 @@
       const smartbftTp = smartbftData?.data_throughput || {};
       const raftLat = raftData?.data_latency || {};
       const smartbftLat = smartbftData?.data_latency || {};
+      const raftRes = raftData?.data_resource_usage || {};
+      const smartbftRes = smartbftData?.data_resource_usage || {};
       const raftFt = raftData?.data_fault_tolerance || {};
       const smartbftFt = smartbftData?.data_fault_tolerance || {};
 
       const metrics = [
-        {
-          name: 'TPS (tx/sec)',
-          raft: raftTp.transactionsPerSecond || 0,
-          smartbft: smartbftTp.transactionsPerSecond || 0,
-          higherIsBetter: true
-        },
-        {
-          name: 'Total Transactions',
-          raft: raftTp.totalTransactions || 0,
-          smartbft: smartbftTp.totalTransactions || 0,
-          higherIsBetter: true
-        },
-        {
-          name: 'Avg Latency (ms)',
-          raft: raftLat.averageLatencyMs || 0,
-          smartbft: smartbftLat.averageLatencyMs || 0,
-          higherIsBetter: false
-        },
-        {
-          name: 'P95 Latency (ms)',
-          raft: raftLat.p95LatencyMs || 0,
-          smartbft: smartbftLat.p95LatencyMs || 0,
-          higherIsBetter: false
-        },
-        {
-          name: 'Success Rate (%)',
-          raft: raftFt.successRate || 0,
-          smartbft: smartbftFt.successRate || 0,
-          higherIsBetter: true
-        }
+        // Throughput metrics
+        { name: 'TPS (tx/sec)', raft: raftTp.transactionsPerSecond || 0, smartbft: smartbftTp.transactionsPerSecond || 0, higherIsBetter: true, category: 'Throughput' },
+        { name: 'Total Transactions', raft: raftTp.totalTransactions || 0, smartbft: smartbftTp.totalTransactions || 0, higherIsBetter: true, category: 'Throughput' },
+        // Latency metrics
+        { name: 'Avg Latency (ms)', raft: raftLat.averageLatencyMs || 0, smartbft: smartbftLat.averageLatencyMs || 0, higherIsBetter: false, category: 'Latency' },
+        { name: 'P95 Latency (ms)', raft: raftLat.p95LatencyMs || 0, smartbft: smartbftLat.p95LatencyMs || 0, higherIsBetter: false, category: 'Latency' },
+        { name: 'P99 Latency (ms)', raft: raftLat.p99LatencyMs || 0, smartbft: smartbftLat.p99LatencyMs || 0, higherIsBetter: false, category: 'Latency' },
+        // Resource Usage metrics
+        { name: 'Avg CPU (%)', raft: raftRes.avgCpuPercent || raftRes.cpuUsage || 0, smartbft: smartbftRes.avgCpuPercent || smartbftRes.cpuUsage || 0, higherIsBetter: false, category: 'Resource' },
+        { name: 'Avg Memory (MB)', raft: raftRes.avgMemoryMB || raftRes.memoryUsage || 0, smartbft: smartbftRes.avgMemoryMB || smartbftRes.memoryUsage || 0, higherIsBetter: false, category: 'Resource' },
+        // Fault Tolerance metrics
+        { name: 'Success Rate (%)', raft: raftFt.successRate || 0, smartbft: smartbftFt.successRate || 0, higherIsBetter: true, category: 'Fault Tolerance' }
       ];
 
       const tbody = document.getElementById('summaryTableBody');
+      let lastCategory = '';
       tbody.innerHTML = metrics.map(m => {
         const diff = m.smartbft - m.raft;
         const winner = m.higherIsBetter
           ? (diff > 0 ? 'SmartBFT' : diff < 0 ? 'RAFT' : 'Equal')
           : (diff < 0 ? 'SmartBFT' : diff > 0 ? 'RAFT' : 'Equal');
         const winnerClass = winner !== 'Equal' ? 'winner-cell' : '';
+        
+        let categoryRow = '';
+        if (m.category !== lastCategory) {
+          lastCategory = m.category;
+          categoryRow = `<tr style="background: #f8fafc;"><td colspan="5" style="font-weight: 700; color: var(--accent); font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em;">${m.category}</td></tr>`;
+        }
 
-        return `
+        return categoryRow + `
           <tr>
             <td><strong>${m.name}</strong></td>
-            <td>${m.raft.toFixed(2)}</td>
-            <td>${m.smartbft.toFixed(2)}</td>
+            <td style="color: #2563eb;">${typeof m.raft === 'number' ? m.raft.toFixed(2) : m.raft}</td>
+            <td style="color: #d97706;">${typeof m.smartbft === 'number' ? m.smartbft.toFixed(2) : m.smartbft}</td>
             <td class="${winnerClass}">${winner}</td>
             <td>${diff > 0 ? '+' : ''}${diff.toFixed(2)}</td>
           </tr>
@@ -793,6 +1017,8 @@
       const smartbftTp = smartbftData?.data_throughput || {};
       const raftLat = raftData?.data_latency || {};
       const smartbftLat = smartbftData?.data_latency || {};
+      const raftRes = raftData?.data_resource_usage || {};
+      const smartbftRes = smartbftData?.data_resource_usage || {};
       const raftFt = raftData?.data_fault_tolerance || {};
       const smartbftFt = smartbftData?.data_fault_tolerance || {};
 
@@ -802,7 +1028,7 @@
       comparisonChart = new Chart(compCtx, {
         type: 'bar',
         data: {
-          labels: ['TPS', 'Avg Latency (ms)', 'P95 Latency (ms)', 'Success Rate (%)'],
+          labels: ['TPS', 'Avg Latency (ms)', 'P95 Latency (ms)', 'CPU (%)', 'Memory (MB)', 'Success Rate (%)'],
           datasets: [
             {
               label: 'RAFT',
@@ -810,6 +1036,8 @@
                 raftTp.transactionsPerSecond || 0,
                 raftLat.averageLatencyMs || 0,
                 raftLat.p95LatencyMs || 0,
+                raftRes.avgCpuPercent || raftRes.cpuUsage || 0,
+                raftRes.avgMemoryMB || raftRes.memoryUsage || 0,
                 raftFt.successRate || 0
               ],
               backgroundColor: 'rgba(59, 130, 246, 0.7)',
@@ -822,6 +1050,8 @@
                 smartbftTp.transactionsPerSecond || 0,
                 smartbftLat.averageLatencyMs || 0,
                 smartbftLat.p95LatencyMs || 0,
+                smartbftRes.avgCpuPercent || smartbftRes.cpuUsage || 0,
+                smartbftRes.avgMemoryMB || smartbftRes.memoryUsage || 0,
                 smartbftFt.successRate || 0
               ],
               backgroundColor: 'rgba(245, 158, 11, 0.7)',
@@ -835,7 +1065,7 @@
           maintainAspectRatio: false,
           plugins: {
             legend: { position: 'top' },
-            title: { display: true, text: 'RAFT vs SmartBFT - Performance Metrics Comparison' }
+            title: { display: true, text: 'RAFT vs SmartBFT - All Performance Metrics Comparison' }
           },
           scales: {
             y: { beginAtZero: true }
@@ -851,11 +1081,13 @@
       const maxTps = Math.max(raftTp.transactionsPerSecond || 1, smartbftTp.transactionsPerSecond || 1);
       const maxLat = Math.max(raftLat.averageLatencyMs || 1, smartbftLat.averageLatencyMs || 1);
       const maxP95 = Math.max(raftLat.p95LatencyMs || 1, smartbftLat.p95LatencyMs || 1);
+      const maxCpu = Math.max(raftRes.avgCpuPercent || raftRes.cpuUsage || 1, smartbftRes.avgCpuPercent || smartbftRes.cpuUsage || 1);
+      const maxMem = Math.max(raftRes.avgMemoryMB || raftRes.memoryUsage || 1, smartbftRes.avgMemoryMB || smartbftRes.memoryUsage || 1);
 
       radarChart = new Chart(radarCtx, {
         type: 'radar',
         data: {
-          labels: ['Throughput', 'Low Latency', 'Consistency (P95)', 'Success Rate', 'Reliability'],
+          labels: ['Throughput', 'Low Latency', 'Consistency (P95)', 'CPU Efficiency', 'Memory Efficiency', 'Success Rate'],
           datasets: [
             {
               label: 'RAFT',
@@ -863,7 +1095,8 @@
                 ((raftTp.transactionsPerSecond || 0) / maxTps) * 100,
                 100 - ((raftLat.averageLatencyMs || 0) / maxLat) * 100,
                 100 - ((raftLat.p95LatencyMs || 0) / maxP95) * 100,
-                raftFt.successRate || 0,
+                100 - ((raftRes.avgCpuPercent || raftRes.cpuUsage || 0) / maxCpu) * 100,
+                100 - ((raftRes.avgMemoryMB || raftRes.memoryUsage || 0) / maxMem) * 100,
                 raftFt.successRate || 0
               ],
               backgroundColor: 'rgba(59, 130, 246, 0.2)',
@@ -877,7 +1110,8 @@
                 ((smartbftTp.transactionsPerSecond || 0) / maxTps) * 100,
                 100 - ((smartbftLat.averageLatencyMs || 0) / maxLat) * 100,
                 100 - ((smartbftLat.p95LatencyMs || 0) / maxP95) * 100,
-                smartbftFt.successRate || 0,
+                100 - ((smartbftRes.avgCpuPercent || smartbftRes.cpuUsage || 0) / maxCpu) * 100,
+                100 - ((smartbftRes.avgMemoryMB || smartbftRes.memoryUsage || 0) / maxMem) * 100,
                 smartbftFt.successRate || 0
               ],
               backgroundColor: 'rgba(245, 158, 11, 0.2)',
@@ -892,7 +1126,7 @@
           maintainAspectRatio: false,
           plugins: {
             legend: { position: 'top' },
-            title: { display: true, text: 'Multi-dimensional Performance Analysis' }
+            title: { display: true, text: 'Multi-dimensional Performance Analysis (6 Dimensions)' }
           },
           scales: {
             r: {

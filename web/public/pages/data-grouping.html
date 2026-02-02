@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>4.5 Pengelompokan Data Kinerja · RAFT vs SmartBFT Evaluation</title>
+  <title>4.4 Pengelompokan Data Kinerja · RAFT vs SmartBFT Evaluation</title>
   <link rel="icon" type="image/svg+xml" href="/images/logo-ai-center.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -436,7 +436,7 @@
         <!-- Throughput Data -->
         <div class="content-section">
           <div class="section-header">
-            <span class="section-number">4.5.1</span>
+            <span class="section-number">4.4.1</span>
             <h2 class="section-title">Data Throughput</h2>
           </div>
           <div class="data-section">
@@ -469,7 +469,7 @@
         <!-- Latency Data -->
         <div class="content-section">
           <div class="section-header">
-            <span class="section-number">4.5.2</span>
+            <span class="section-number">4.4.2</span>
             <h2 class="section-title">Data Latency</h2>
           </div>
           <div class="data-section">
@@ -491,6 +491,72 @@
             </table>
             <div class="chart-container">
               <canvas id="latencyChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Resource Usage Data -->
+        <div class="content-section">
+          <div class="section-header">
+            <span class="section-number">4.4.3</span>
+            <h2 class="section-title">Data Resource Usage</h2>
+          </div>
+          <div class="data-section">
+            <h3>
+              Perbandingan Penggunaan Resource
+              <span class="badge badge-raft">RAFT</span>
+              <span class="badge badge-smartbft">SmartBFT</span>
+            </h3>
+            <table class="comparison-table">
+              <thead>
+                <tr>
+                  <th>Metrik</th>
+                  <th>RAFT</th>
+                  <th>SmartBFT</th>
+                  <th>Selisih</th>
+                </tr>
+              </thead>
+              <tbody id="resourceTableBody">
+                <tr>
+                  <td colspan="4" class="loading-state">Klik "Load Data Pengujian" untuk memuat data</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="chart-container">
+              <canvas id="resourceChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fault Tolerance Data -->
+        <div class="content-section">
+          <div class="section-header">
+            <span class="section-number">4.4.4</span>
+            <h2 class="section-title">Data Fault Tolerance</h2>
+          </div>
+          <div class="data-section">
+            <h3>
+              Perbandingan Fault Tolerance
+              <span class="badge badge-raft">RAFT</span>
+              <span class="badge badge-smartbft">SmartBFT</span>
+            </h3>
+            <table class="comparison-table">
+              <thead>
+                <tr>
+                  <th>Metrik</th>
+                  <th>RAFT</th>
+                  <th>SmartBFT</th>
+                  <th>Selisih</th>
+                </tr>
+              </thead>
+              <tbody id="faultTableBody">
+                <tr>
+                  <td colspan="4" class="loading-state">Klik "Load Data Pengujian" untuk memuat data</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="chart-container">
+              <canvas id="faultChart"></canvas>
             </div>
           </div>
         </div>
@@ -521,6 +587,18 @@
               <div class="formula-code">SuccessRate = (txSuccess / txTotal) × 100</div>
               <p class="formula-desc">Persentase transaksi yang berhasil dari total transaksi.</p>
             </div>
+
+            <div class="formula-card">
+              <h4>CPU Usage (%)</h4>
+              <div class="formula-code">AvgCPU = Σ(cpu_samples) / n_samples</div>
+              <p class="formula-desc">Rata-rata penggunaan CPU selama eksekusi transaksi dari semua container orderer.</p>
+            </div>
+
+            <div class="formula-card">
+              <h4>Memory Usage (MB)</h4>
+              <div class="formula-code">AvgMemory = Σ(memory_samples) / n_samples</div>
+              <p class="formula-desc">Rata-rata penggunaan memori selama eksekusi transaksi.</p>
+            </div>
           </div>
         </div>
 
@@ -535,21 +613,32 @@
             <div class="formula-code" style="background: #1e293b; padding: 16px; border-radius: 8px; overflow-x: auto;">
 {
   "consensus": "raft | smartbft",
-  "txTotal": 500,
-  "txSuccess": 500,
-  "durationSec": 25,
-  "throughput": {
+  "data_throughput": {
     "transactionsPerSecond": 20.0,
     "totalTransactions": 500,
-    "successfulTransactions": 500
+    "successfulTransactions": 500,
+    "testDurationSeconds": 25
   },
-  "latency": {
+  "data_latency": {
     "averageLatencyMs": 45.5,
     "minLatencyMs": 12,
     "maxLatencyMs": 156,
     "p50LatencyMs": 42,
     "p95LatencyMs": 89,
     "p99LatencyMs": 134
+  },
+  "data_resource_usage": {
+    "avgCpuPercent": 35.5,
+    "peakCpuPercent": 78.2,
+    "avgMemoryMB": 256,
+    "peakMemoryMB": 512,
+    "networkIO": 1024
+  },
+  "data_fault_tolerance": {
+    "successRate": 100.0,
+    "totalSubmitted": 500,
+    "totalSuccess": 500,
+    "totalFailed": 0
   }
 }
             </div>
@@ -571,6 +660,8 @@
     let smartbftData = null;
     let throughputChart = null;
     let latencyChart = null;
+    let resourceChart = null;
+    let faultChart = null;
 
     const loadDataBtn = document.getElementById('loadDataBtn');
     const exportDataBtn = document.getElementById('exportDataBtn');
@@ -600,6 +691,8 @@
         updateMetricsOverview();
         updateThroughputTable();
         updateLatencyTable();
+        updateResourceTable();
+        updateFaultTable();
         renderCharts();
 
         exportDataBtn.disabled = false;
@@ -624,8 +717,8 @@
       const smartbftLatency = smartbftData?.data_latency?.averageLatencyMs || 0;
       const avgLatency = (raftLatency + smartbftLatency) / 2;
 
-      const raftCpu = raftData?.data_resource_usage?.averageCPU || 0;
-      const smartbftCpu = smartbftData?.data_resource_usage?.averageCPU || 0;
+      const raftCpu = raftData?.data_resource_usage?.avgCpuPercent || raftData?.data_resource_usage?.cpuUsage || 0;
+      const smartbftCpu = smartbftData?.data_resource_usage?.avgCpuPercent || smartbftData?.data_resource_usage?.cpuUsage || 0;
       const avgCpu = (raftCpu + smartbftCpu) / 2;
 
       const raftSuccess = raftData?.data_fault_tolerance?.successRate || 0;
@@ -725,11 +818,99 @@
       `;
     }
 
+    function updateResourceTable() {
+      const raftRes = raftData?.data_resource_usage || {};
+      const smartbftRes = smartbftData?.data_resource_usage || {};
+
+      const tbody = document.getElementById('resourceTableBody');
+      tbody.innerHTML = `
+        <tr>
+          <td class="metric-name">Avg CPU Usage (%)</td>
+          <td class="value">${(raftRes.avgCpuPercent || raftRes.cpuUsage || 0).toFixed(2)}%</td>
+          <td class="value">${(smartbftRes.avgCpuPercent || smartbftRes.cpuUsage || 0).toFixed(2)}%</td>
+          <td>${formatDiff(raftRes.avgCpuPercent || raftRes.cpuUsage || 0, smartbftRes.avgCpuPercent || smartbftRes.cpuUsage || 0, '%', true)}</td>
+        </tr>
+        <tr>
+          <td class="metric-name">Peak CPU Usage (%)</td>
+          <td class="value">${(raftRes.peakCpuPercent || raftRes.peakCpu || 0).toFixed(2)}%</td>
+          <td class="value">${(smartbftRes.peakCpuPercent || smartbftRes.peakCpu || 0).toFixed(2)}%</td>
+          <td>${formatDiff(raftRes.peakCpuPercent || raftRes.peakCpu || 0, smartbftRes.peakCpuPercent || smartbftRes.peakCpu || 0, '%', true)}</td>
+        </tr>
+        <tr>
+          <td class="metric-name">Avg Memory (MB)</td>
+          <td class="value">${(raftRes.avgMemoryMB || raftRes.memoryUsage || 0).toFixed(2)} MB</td>
+          <td class="value">${(smartbftRes.avgMemoryMB || smartbftRes.memoryUsage || 0).toFixed(2)} MB</td>
+          <td>${formatDiff(raftRes.avgMemoryMB || raftRes.memoryUsage || 0, smartbftRes.avgMemoryMB || smartbftRes.memoryUsage || 0, 'MB', true)}</td>
+        </tr>
+        <tr>
+          <td class="metric-name">Peak Memory (MB)</td>
+          <td class="value">${(raftRes.peakMemoryMB || raftRes.peakMemory || 0).toFixed(2)} MB</td>
+          <td class="value">${(smartbftRes.peakMemoryMB || smartbftRes.peakMemory || 0).toFixed(2)} MB</td>
+          <td>${formatDiff(raftRes.peakMemoryMB || raftRes.peakMemory || 0, smartbftRes.peakMemoryMB || smartbftRes.peakMemory || 0, 'MB', true)}</td>
+        </tr>
+        <tr>
+          <td class="metric-name">Network I/O (KB)</td>
+          <td class="value">${(raftRes.networkIO || 0).toFixed(2)} KB</td>
+          <td class="value">${(smartbftRes.networkIO || 0).toFixed(2)} KB</td>
+          <td>${formatDiff(raftRes.networkIO || 0, smartbftRes.networkIO || 0, 'KB', true)}</td>
+        </tr>
+      `;
+    }
+
+    function updateFaultTable() {
+      const raftFt = raftData?.data_fault_tolerance || {};
+      const smartbftFt = smartbftData?.data_fault_tolerance || {};
+
+      const tbody = document.getElementById('faultTableBody');
+      tbody.innerHTML = `
+        <tr>
+          <td class="metric-name">Success Rate (%)</td>
+          <td class="value">${(raftFt.successRate || 0).toFixed(2)}%</td>
+          <td class="value">${(smartbftFt.successRate || 0).toFixed(2)}%</td>
+          <td>${formatDiff(raftFt.successRate || 0, smartbftFt.successRate || 0, '%')}</td>
+        </tr>
+        <tr>
+          <td class="metric-name">Total Submitted</td>
+          <td class="value">${raftFt.totalSubmitted || 0}</td>
+          <td class="value">${smartbftFt.totalSubmitted || 0}</td>
+          <td>${formatDiff(raftFt.totalSubmitted || 0, smartbftFt.totalSubmitted || 0)}</td>
+        </tr>
+        <tr>
+          <td class="metric-name">Total Success</td>
+          <td class="value">${raftFt.totalSuccess || 0}</td>
+          <td class="value">${smartbftFt.totalSuccess || 0}</td>
+          <td>${formatDiff(raftFt.totalSuccess || 0, smartbftFt.totalSuccess || 0)}</td>
+        </tr>
+        <tr>
+          <td class="metric-name">Total Failed</td>
+          <td class="value">${raftFt.totalFailed || 0}</td>
+          <td class="value">${smartbftFt.totalFailed || 0}</td>
+          <td>${formatDiff(raftFt.totalFailed || 0, smartbftFt.totalFailed || 0, '', true)}</td>
+        </tr>
+        <tr>
+          <td class="metric-name">Fault Model</td>
+          <td class="value" style="font-size: 12px;">CFT (Crash Fault)</td>
+          <td class="value" style="font-size: 12px;">BFT (Byzantine)</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td class="metric-name">Max Tolerable Faults</td>
+          <td class="value">f crashes (f+1 survive)</td>
+          <td class="value">f byzantine (2f+1 survive)</td>
+          <td>-</td>
+        </tr>
+      `;
+    }
+
     function renderCharts() {
       const raftTp = raftData?.data_throughput || {};
       const smartbftTp = smartbftData?.data_throughput || {};
       const raftLat = raftData?.data_latency || {};
       const smartbftLat = smartbftData?.data_latency || {};
+      const raftRes = raftData?.data_resource_usage || {};
+      const smartbftRes = smartbftData?.data_resource_usage || {};
+      const raftFt = raftData?.data_fault_tolerance || {};
+      const smartbftFt = smartbftData?.data_fault_tolerance || {};
 
       // Throughput Chart
       if (throughputChart) throughputChart.destroy();
@@ -820,6 +1001,100 @@
           plugins: {
             legend: { position: 'top' },
             title: { display: true, text: 'Latency Comparison (ms)' }
+          },
+          scales: {
+            y: { beginAtZero: true }
+          }
+        }
+      });
+
+      // Resource Usage Chart
+      if (resourceChart) resourceChart.destroy();
+      const resCtx = document.getElementById('resourceChart').getContext('2d');
+      resourceChart = new Chart(resCtx, {
+        type: 'bar',
+        data: {
+          labels: ['Avg CPU (%)', 'Peak CPU (%)', 'Avg Memory (MB)', 'Peak Memory (MB)'],
+          datasets: [
+            {
+              label: 'RAFT',
+              data: [
+                raftRes.avgCpuPercent || raftRes.cpuUsage || 0,
+                raftRes.peakCpuPercent || raftRes.peakCpu || 0,
+                raftRes.avgMemoryMB || raftRes.memoryUsage || 0,
+                raftRes.peakMemoryMB || raftRes.peakMemory || 0
+              ],
+              backgroundColor: 'rgba(59, 130, 246, 0.7)',
+              borderColor: 'rgba(59, 130, 246, 1)',
+              borderWidth: 1
+            },
+            {
+              label: 'SmartBFT',
+              data: [
+                smartbftRes.avgCpuPercent || smartbftRes.cpuUsage || 0,
+                smartbftRes.peakCpuPercent || smartbftRes.peakCpu || 0,
+                smartbftRes.avgMemoryMB || smartbftRes.memoryUsage || 0,
+                smartbftRes.peakMemoryMB || smartbftRes.peakMemory || 0
+              ],
+              backgroundColor: 'rgba(245, 158, 11, 0.7)',
+              borderColor: 'rgba(245, 158, 11, 1)',
+              borderWidth: 1
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'top' },
+            title: { display: true, text: 'Resource Usage Comparison' }
+          },
+          scales: {
+            y: { beginAtZero: true }
+          }
+        }
+      });
+
+      // Fault Tolerance Chart
+      if (faultChart) faultChart.destroy();
+      const ftCtx = document.getElementById('faultChart').getContext('2d');
+      faultChart = new Chart(ftCtx, {
+        type: 'bar',
+        data: {
+          labels: ['Success Rate (%)', 'Total Submitted', 'Total Success', 'Total Failed'],
+          datasets: [
+            {
+              label: 'RAFT',
+              data: [
+                raftFt.successRate || 0,
+                raftFt.totalSubmitted || 0,
+                raftFt.totalSuccess || 0,
+                raftFt.totalFailed || 0
+              ],
+              backgroundColor: 'rgba(59, 130, 246, 0.7)',
+              borderColor: 'rgba(59, 130, 246, 1)',
+              borderWidth: 1
+            },
+            {
+              label: 'SmartBFT',
+              data: [
+                smartbftFt.successRate || 0,
+                smartbftFt.totalSubmitted || 0,
+                smartbftFt.totalSuccess || 0,
+                smartbftFt.totalFailed || 0
+              ],
+              backgroundColor: 'rgba(245, 158, 11, 0.7)',
+              borderColor: 'rgba(245, 158, 11, 1)',
+              borderWidth: 1
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'top' },
+            title: { display: true, text: 'Fault Tolerance Comparison' }
           },
           scales: {
             y: { beginAtZero: true }

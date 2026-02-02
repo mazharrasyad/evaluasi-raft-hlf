@@ -721,6 +721,83 @@
               <strong>B2:</strong> 500 transaksi | Pattern: SEQUENTIAL | Concurrency: 1 | Iterations: 3
             </div>
 
+            <!-- Checklist Skenario untuk Batch Run -->
+            <div style="margin-bottom: 16px; padding: 16px; background: linear-gradient(135deg, #f5f3ff, #ede9fe); border-radius: 8px; border: 1px solid #c4b5fd;">
+              <label style="font-size: 13px; font-weight: 700; color: #5b21b6; display: block; margin-bottom: 12px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline; vertical-align: middle; margin-right: 4px;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                Pilih Skenario untuk Batch Run:
+              </label>
+              
+              <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                <button type="button" onclick="selectAllScenarios()" class="btn" style="padding: 4px 10px; font-size: 11px; background: #7c3aed; color: white;">Pilih Semua</button>
+                <button type="button" onclick="deselectAllScenarios()" class="btn" style="padding: 4px 10px; font-size: 11px; background: #e2e8f0; color: #475569;">Hapus Semua</button>
+                <button type="button" onclick="selectBaselineOnly()" class="btn" style="padding: 4px 10px; font-size: 11px; background: #3b82f6; color: white;">Baseline Only</button>
+                <button type="button" onclick="selectParallelOnly()" class="btn" style="padding: 4px 10px; font-size: 11px; background: #f59e0b; color: white;">Parallel Only</button>
+              </div>
+
+              <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
+                <!-- Baseline -->
+                <div style="background: white; padding: 10px; border-radius: 6px;">
+                  <div style="font-size: 11px; font-weight: 600; color: #3b82f6; margin-bottom: 6px;">A. Baseline</div>
+                  <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; cursor: pointer; margin-bottom: 4px;">
+                    <input type="checkbox" class="scenario-checkbox" value="B1" checked> <code>B1</code> 200tx seq
+                  </label>
+                  <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; cursor: pointer; margin-bottom: 4px;">
+                    <input type="checkbox" class="scenario-checkbox" value="B2" checked> <code>B2</code> 500tx seq
+                  </label>
+                  <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; cursor: pointer;">
+                    <input type="checkbox" class="scenario-checkbox" value="B3" checked> <code>B3</code> 800tx seq
+                  </label>
+                </div>
+                <!-- Parallel -->
+                <div style="background: white; padding: 10px; border-radius: 6px;">
+                  <div style="font-size: 11px; font-weight: 600; color: #f59e0b; margin-bottom: 6px;">B. Parallel</div>
+                  <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; cursor: pointer; margin-bottom: 4px;">
+                    <input type="checkbox" class="scenario-checkbox" value="P1" checked> <code>P1</code> 500tx c5
+                  </label>
+                  <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; cursor: pointer; margin-bottom: 4px;">
+                    <input type="checkbox" class="scenario-checkbox" value="P2" checked> <code>P2</code> 500tx c10
+                  </label>
+                  <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; cursor: pointer; margin-bottom: 4px;">
+                    <input type="checkbox" class="scenario-checkbox" value="P3" checked> <code>P3</code> 500tx c20
+                  </label>
+                  <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; cursor: pointer; margin-bottom: 4px;">
+                    <input type="checkbox" class="scenario-checkbox" value="P4" checked> <code>P4</code> 800tx c5
+                  </label>
+                  <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; cursor: pointer; margin-bottom: 4px;">
+                    <input type="checkbox" class="scenario-checkbox" value="P5" checked> <code>P5</code> 800tx c10
+                  </label>
+                  <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; cursor: pointer;">
+                    <input type="checkbox" class="scenario-checkbox" value="P6" checked> <code>P6</code> 800tx c20
+                  </label>
+                </div>
+                <!-- Fault Tolerance -->
+                <div style="background: white; padding: 10px; border-radius: 6px;">
+                  <div style="font-size: 11px; font-weight: 600; color: #dc2626; margin-bottom: 6px;">C. Fault Tolerance</div>
+                  <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; cursor: pointer; margin-bottom: 4px;">
+                    <input type="checkbox" class="scenario-checkbox" value="F1"> <code>F1</code> Kill orderer
+                  </label>
+                  <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; cursor: pointer;">
+                    <input type="checkbox" class="scenario-checkbox" value="F2"> <code>F2</code> Restart orderer
+                  </label>
+                  <div style="font-size: 10px; color: #94a3b8; margin-top: 6px;">⚠️ Memerlukan akses Docker</div>
+                </div>
+              </div>
+
+              <!-- Batch Progress -->
+              <div id="batchProgress" style="margin-top: 12px; display: none;">
+                <div style="font-size: 12px; font-weight: 600; color: #5b21b6; margin-bottom: 6px;">
+                  Progress Batch: <span id="batchCurrentScenario">-</span>
+                </div>
+                <div style="background: #e2e8f0; border-radius: 4px; height: 8px; overflow: hidden;">
+                  <div id="batchProgressBar" style="background: linear-gradient(90deg, #8b5cf6, #7c3aed); height: 100%; width: 0%; transition: width 0.3s;"></div>
+                </div>
+                <div style="font-size: 11px; color: #64748b; margin-top: 4px;">
+                  <span id="batchCompleted">0</span> / <span id="batchTotal">0</span> skenario selesai
+                </div>
+              </div>
+            </div>
+
             <div class="btn-group">
               <button class="btn btn-primary" id="runTestBtn">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
@@ -732,7 +809,7 @@
               </button>
               <button class="btn btn-secondary" id="runAllBtn" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white;">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
-                Jalankan Semua Skenario
+                Jalankan Skenario Terpilih
               </button>
             </div>
           </div>
@@ -1302,53 +1379,213 @@
     }
 
     // ============================================================
-    // RUN ALL SCENARIOS
+    // RUN ALL SCENARIOS (with checklist support)
     // ============================================================
     async function runAllScenarios() {
-      const allScenarioIds = Object.keys(SCENARIOS);
+      // Get selected scenarios from checkboxes
+      const selectedCheckboxes = document.querySelectorAll('.scenario-checkbox:checked');
+      const selectedScenarios = Array.from(selectedCheckboxes).map(cb => cb.value);
       
+      if (selectedScenarios.length === 0) {
+        log('Pilih minimal satu skenario untuk dijalankan!', 'error');
+        alert('Pilih minimal satu skenario untuk dijalankan!');
+        return;
+      }
+
+      // Check network targets
+      const targets = [];
+      if (document.getElementById('targetRaft').checked) targets.push('raft');
+      if (document.getElementById('targetSmartbft').checked) targets.push('smartbft');
+
+      if (targets.length === 0) {
+        log('Pilih minimal satu network target!', 'error');
+        alert('Pilih minimal satu network target!');
+        return;
+      }
+
+      // Show batch progress panel
+      const batchProgress = document.getElementById('batchProgress');
+      const batchProgressBar = document.getElementById('batchProgressBar');
+      const batchCurrentScenario = document.getElementById('batchCurrentScenario');
+      const batchCompleted = document.getElementById('batchCompleted');
+      const batchTotal = document.getElementById('batchTotal');
+      
+      batchProgress.style.display = 'block';
+      batchTotal.textContent = selectedScenarios.length;
+      batchCompleted.textContent = '0';
+      batchProgressBar.style.width = '0%';
+
+      // Reset all statuses
+      selectedScenarios.forEach(id => updateScenarioTableStatus(id, 'pending'));
+
       log(`\n╔════════════════════════════════════════════════════════════╗`, 'info');
-      log(`║  MEMULAI EKSEKUSI SEMUA SKENARIO (${allScenarioIds.length} skenario)            ║`, 'info');
+      log(`║  BATCH EXECUTION: ${selectedScenarios.length} skenario terpilih                    ║`, 'info');
+      log(`║  Networks: ${targets.join(', ').padEnd(44)}║`, 'info');
       log(`╚════════════════════════════════════════════════════════════╝\n`, 'info');
 
       runAllBtn.disabled = true;
       runTestBtn.disabled = true;
+      stopTestBtn.disabled = false;
+      
+      // Reset cancelled state
+      testState.cancelled = false;
       
       let completedCount = 0;
       let failedCount = 0;
+      const allBatchResults = [];
 
-      for (const scenarioId of allScenarioIds) {
+      for (let i = 0; i < selectedScenarios.length; i++) {
+        const scenarioId = selectedScenarios[i];
+        
         if (testState.cancelled) {
-          log(`\nBatch execution cancelled at scenario ${scenarioId}`, 'warning');
+          log(`\n⚠ Batch execution cancelled at scenario ${scenarioId}`, 'warning');
+          // Mark remaining as pending
+          for (let j = i; j < selectedScenarios.length; j++) {
+            updateScenarioTableStatus(selectedScenarios[j], 'pending');
+            uncheckScenario(selectedScenarios[j]);
+          }
           break;
         }
 
+        // Update UI
+        batchCurrentScenario.textContent = `${scenarioId} (${i + 1}/${selectedScenarios.length})`;
         scenarioSelect.value = scenarioId;
         updateScenarioInfo();
+        updateScenarioTableStatus(scenarioId, 'running');
         
-        log(`\n▶ Memulai skenario ${completedCount + 1}/${allScenarioIds.length}: ${scenarioId}`, 'info');
+        log(`\n▶ [${i + 1}/${selectedScenarios.length}] Memulai skenario ${scenarioId}`, 'info');
         
         try {
-          await runTest();
-          completedCount++;
+          const scenario = SCENARIOS[scenarioId];
+          const { txCount, mode, concurrency, iterations } = scenario;
+
+          // Reset stats for this scenario
+          testState.running = true;
+          testState.startTime = Date.now();
+          testState.currentScenario = scenarioId;
+          testState.stats = { total: 0, success: 0, failed: 0 };
+
+          setTestStatus('running', `Running ${scenarioId}`);
+
+          log(`TX: ${txCount} | Mode: ${mode.toUpperCase()} | Concurrency: ${concurrency} | Iterations: ${iterations}`, 'info');
+
+          const scenarioResults = [];
+          
+          for (let iter = 1; iter <= iterations; iter++) {
+            if (testState.cancelled) break;
+            
+            testState.currentIteration = iter;
+            log(`─── Iteration ${iter}/${iterations} ───`, 'info');
+            
+            const iterResult = await runSingleIteration(scenario, targets, iter);
+            scenarioResults.push(iterResult);
+          }
+
+          if (!testState.cancelled) {
+            updateScenarioTableStatus(scenarioId, 'completed');
+            markScenarioCheckbox(scenarioId, true);
+            completedCount++;
+            allBatchResults.push({ scenarioId, results: scenarioResults });
+            log(`✓ Skenario ${scenarioId} selesai`, 'success');
+          } else {
+            updateScenarioTableStatus(scenarioId, 'failed');
+            failedCount++;
+          }
+
         } catch (err) {
-          log(`Skenario ${scenarioId} gagal: ${err.message}`, 'error');
+          log(`✗ Skenario ${scenarioId} gagal: ${err.message}`, 'error');
+          updateScenarioTableStatus(scenarioId, 'failed');
           failedCount++;
         }
 
-        // Brief pause between scenarios
-        if (completedCount < allScenarioIds.length) {
-          log(`Jeda 3 detik sebelum skenario berikutnya...`, 'info');
-          await delay(3000);
+        // Update batch progress
+        batchCompleted.textContent = completedCount;
+        batchProgressBar.style.width = `${((i + 1) / selectedScenarios.length) * 100}%`;
+
+        // Brief pause between scenarios (if not last and not cancelled)
+        if (i < selectedScenarios.length - 1 && !testState.cancelled) {
+          log(`Jeda 2 detik...`, 'info');
+          await delay(2000);
         }
       }
 
+      // Final summary
       log(`\n╔════════════════════════════════════════════════════════════╗`, 'info');
-      log(`║  EKSEKUSI SELESAI: ${completedCount} berhasil, ${failedCount} gagal                    ║`, 'info');
-      log(`╚════════════════════════════════════════════════════════════╝\n`, 'success');
+      log(`║  BATCH EXECUTION SELESAI                                   ║`, 'info');
+      log(`║  ✓ Berhasil: ${String(completedCount).padEnd(3)} | ✗ Gagal: ${String(failedCount).padEnd(3)}                        ║`, 'info');
+      log(`╚════════════════════════════════════════════════════════════╝\n`, completedCount > 0 ? 'success' : 'warning');
 
+      // Show final results (last successful scenario)
+      if (allBatchResults.length > 0) {
+        const lastResult = allBatchResults[allBatchResults.length - 1];
+        const lastIterResult = lastResult.results[lastResult.results.length - 1];
+        displayResults(lastIterResult);
+      }
+
+      batchCurrentScenario.textContent = testState.cancelled ? 'Dibatalkan' : 'Selesai!';
+      setTestStatus(testState.cancelled ? 'cancelled' : 'completed', testState.cancelled ? 'Cancelled' : 'Batch Completed');
+      
+      testState.running = false;
       runAllBtn.disabled = false;
       runTestBtn.disabled = false;
+      stopTestBtn.disabled = true;
+    }
+
+    // ============================================================
+    // CHECKBOX HELPERS
+    // ============================================================
+    function selectAllScenarios() {
+      document.querySelectorAll('.scenario-checkbox').forEach(cb => cb.checked = true);
+    }
+
+    function deselectAllScenarios() {
+      document.querySelectorAll('.scenario-checkbox').forEach(cb => cb.checked = false);
+    }
+
+    function selectBaselineOnly() {
+      document.querySelectorAll('.scenario-checkbox').forEach(cb => {
+        cb.checked = cb.value.startsWith('B');
+      });
+    }
+
+    function selectParallelOnly() {
+      document.querySelectorAll('.scenario-checkbox').forEach(cb => {
+        cb.checked = cb.value.startsWith('P');
+      });
+    }
+
+    function markScenarioCheckbox(scenarioId, completed) {
+      const checkbox = document.querySelector(`.scenario-checkbox[value="${scenarioId}"]`);
+      if (checkbox) {
+        // Add visual indicator
+        const label = checkbox.closest('label');
+        if (label) {
+          if (completed) {
+            label.style.color = '#059669';
+            label.style.textDecoration = 'line-through';
+          } else {
+            label.style.color = '';
+            label.style.textDecoration = '';
+          }
+        }
+      }
+    }
+
+    function uncheckScenario(scenarioId) {
+      const checkbox = document.querySelector(`.scenario-checkbox[value="${scenarioId}"]`);
+      if (checkbox) {
+        checkbox.checked = false;
+      }
+    }
+
+    function resetScenarioCheckboxStyles() {
+      document.querySelectorAll('.scenario-checkbox').forEach(cb => {
+        const label = cb.closest('label');
+        if (label) {
+          label.style.color = '';
+          label.style.textDecoration = '';
+        }
+      });
     }
 
     // ============================================================
@@ -1415,7 +1652,10 @@
       log('Stop requested, waiting for current transaction...', 'warning');
     });
 
-    runAllBtn.addEventListener('click', runAllScenarios);
+    runAllBtn.addEventListener('click', () => {
+      resetScenarioCheckboxStyles();
+      runAllScenarios();
+    });
 
     scenarioSelect.addEventListener('change', updateScenarioInfo);
 

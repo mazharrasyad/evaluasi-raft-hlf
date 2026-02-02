@@ -1,0 +1,599 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>4.3 Dummy Transactions - RAFT vs SmartBFT Evaluation</title>
+  <link rel="icon" type="image/svg+xml" href="/images/logo-ai-center.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .info-banner {
+      background: linear-gradient(135deg, #e0f2fe, #dbeafe);
+      border: 1px solid #60a5fa;
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .info-banner-icon {
+      color: #2563eb;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .info-banner p {
+      font-size: 14px;
+      color: #1e3a8a;
+      line-height: 1.6;
+    }
+    .section-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+    .note-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 18px 20px;
+    }
+    .note-card h4 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 8px;
+    }
+    .note-card p,
+    .note-card li {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+    .note-card ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .note-card li::before {
+      content: "•";
+      color: var(--accent);
+      margin-right: 8px;
+    }
+
+    .process-flow {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .process-step {
+      background: #f8fafc;
+      border: 1px dashed var(--border);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    .process-step strong {
+      color: var(--text-dark);
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 16px;
+    }
+    .data-table th,
+    .data-table td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+    }
+    .data-table th {
+      background: var(--bg);
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+    .data-table td {
+      color: var(--text-muted);
+    }
+    .control-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-top: 12px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .form-group label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+    .form-group input,
+    .form-group select {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 8px 10px;
+      font-size: 13px;
+      background: white;
+      color: var(--text-dark);
+    }
+    .checkbox-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    .checkbox-group label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .control-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+    .control-actions button {
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 10px 16px;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .btn-start {
+      background: #16a34a;
+      color: white;
+    }
+    .btn-stop {
+      background: #dc2626;
+      color: white;
+    }
+    .btn-disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .log-box {
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: var(--radius-md);
+      margin-top: 16px;
+      overflow: hidden;
+    }
+    .log-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 14px;
+      background: #111827;
+      font-size: 12px;
+      color: #94a3b8;
+    }
+    .log-body {
+      padding: 12px 14px;
+      font-family: 'SF Mono', 'Consolas', monospace;
+      font-size: 12px;
+      color: #e2e8f0;
+      max-height: 260px;
+      overflow: auto;
+      white-space: pre-wrap;
+    }
+    .log-tag {
+      color: #38bdf8;
+      font-weight: 600;
+    }
+
+    @media (max-width: 768px) {
+      .section-grid,
+      .process-flow {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <button class="mobile-toggle" onclick="toggleSidebar()" aria-label="Toggle menu">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    </button>
+
+    <div class="sidebar-overlay"></div>
+
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-brand">
+          <img src="/images/logo-ai-center.svg" alt="AI Center Logo" class="sidebar-logo-img">
+          <span class="sidebar-brand-text">Hyperledger Fabric</span>
+        </div>
+        <p class="sidebar-title">
+          Analisis Perbandingan Kinerja Algoritma Konsensus RAFT dan SmartBFT pada Hyperledger Fabric
+        </p>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <div class="nav-section-title">Menu</div>
+          <ul class="nav-list">
+            <li class="nav-item">
+              <a href="/">
+                <span class="nav-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                </span>
+                Home
+              </a>
+            </li>
+          </ul>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">Chapter IV</div>
+          <ul class="nav-list">
+            <li class="nav-item">
+              <a href="/scenario">
+                <span class="nav-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>
+                </span>
+                4.1 Test Scenario
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="/implementation">
+                <span class="nav-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>
+                </span>
+                4.2 Implementation
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="/dummy-transactions">
+                <span class="nav-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2"/><line x1="8" x2="16" y1="20" y2="20"/><line x1="12" x2="12" y1="16" y2="20"/><path d="M8 9h8"/><path d="M8 12h6"/></svg>
+                </span>
+                4.3 Eksekusi Transaksi Dummy
+              </a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <div class="main-content">
+        <section class="hero">
+          <span class="hero-badge">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>
+            Chapter 4.3
+          </span>
+          <h1 class="hero-title">Eksekusi Transaksi Dummy sebagai Beban Sistem</h1>
+          <p class="hero-desc">
+            Tahap ini mengeksekusi transaksi dummy yang seragam pada jaringan <strong>RAFT</strong> dan <strong>SmartBFT</strong> untuk memberikan beban kerja terkontrol, sehingga evaluasi kinerja konsensus dapat dilakukan secara objektif.
+          </p>
+        </section>
+
+        <div class="info-banner">
+          <div class="info-banner-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+          </div>
+          <p>
+            <strong>Tujuan utama:</strong> memberikan beban transaksi yang konsisten agar perbedaan kinerja yang terukur berasal dari mekanisme konsensus, bukan dari variasi struktur data atau logika bisnis.
+          </p>
+        </div>
+
+        <div class="content-section">
+          <div class="section-header">
+            <span class="section-number">4.3.1</span>
+            <h2 class="section-title">Karakteristik Transaksi Dummy</h2>
+          </div>
+          <div class="card">
+            <p class="card-text">
+              Transaksi dummy didefinisikan sebagai transaksi tulis dengan struktur data sederhana dan konsisten. Setiap transaksi memiliki payload berukuran relatif sama, tidak saling bergantung, serta tidak mengandung percabangan logika bisnis.
+            </p>
+            <div class="section-grid">
+              <div class="note-card">
+                <h4>Karakteristik Utama</h4>
+                <ul>
+                  <li>Struktur data seragam pada setiap transaksi</li>
+                  <li>Tidak memiliki dependensi terhadap transaksi sebelumnya</li>
+                  <li>Tidak mengandung percabangan logika bisnis</li>
+                  <li>Memicu proses ordering dan commit ledger</li>
+                </ul>
+              </div>
+              <div class="note-card">
+                <h4>Implikasi Pengujian</h4>
+                <p>
+                  Dengan beban yang seragam, overhead yang terukur merefleksikan proses konsensus dan komitmen data, bukan kompleksitas aplikasi.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="content-section">
+          <div class="section-header">
+            <span class="section-number">4.3.2</span>
+            <h2 class="section-title">Mekanisme Eksekusi Transaksi</h2>
+          </div>
+          <div class="card">
+            <p class="card-text">
+              Transaksi dummy dikirimkan melalui antarmuka klien Hyperledger Fabric pada jaringan yang telah dikonfigurasi. Pengiriman dilakukan secara berurutan hingga jumlah transaksi pada skenario pengujian terpenuhi.
+            </p>
+            <div class="process-flow">
+              <div class="process-step"><strong>Langkah 1:</strong> Pastikan jaringan RAFT dan SmartBFT aktif.</div>
+              <div class="process-step"><strong>Langkah 2:</strong> Kirim transaksi dummy secara berurutan sesuai skenario.</div>
+              <div class="process-step"><strong>Langkah 3:</strong> Tunggu setiap transaksi hingga commit ke ledger.</div>
+              <div class="process-step"><strong>Langkah 4:</strong> Catat total transaksi sukses dan waktu eksekusi.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="content-section">
+          <div class="section-header">
+            <span class="section-number">4.3.3</span>
+            <h2 class="section-title">Pencatatan Waktu dan Hasil Eksekusi</h2>
+          </div>
+          <div class="card">
+            <p class="card-text">
+              Waktu mulai dan selesai dicatat untuk setiap skenario pengujian. Data ini digunakan menghitung durasi total eksekusi, throughput, dan latency. Hanya transaksi yang berhasil dikonfirmasi (commit) yang dihitung sebagai hasil pengujian.
+            </p>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Data yang Dicatat</th>
+                  <th>Tujuan</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Waktu mulai eksekusi</td>
+                  <td>Menentukan titik awal pengukuran durasi</td>
+                </tr>
+                <tr>
+                  <td>Waktu selesai eksekusi</td>
+                  <td>Menentukan titik akhir pengukuran durasi</td>
+                </tr>
+                <tr>
+                  <td>Jumlah transaksi berhasil</td>
+                  <td>Dasar perhitungan throughput dan latency</td>
+                </tr>
+                <tr>
+                  <td>Status commit transaksi</td>
+                  <td>Memastikan transaksi valid dan tercatat di ledger</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="content-section">
+          <div class="section-header">
+            <span class="section-number">4.3.4</span>
+            <h2 class="section-title">Kontrol Eksekusi Transaksi Dummy</h2>
+          </div>
+          <div class="card">
+            <p class="card-text">
+              Gunakan panel ini untuk menjalankan transaksi dummy otomatis ke ledger dan menyimpan data log pengujian.
+              Semua hasil tersimpan di server sebagai dasar monitoring dan analisis kinerja.
+            </p>
+            <div class="control-grid">
+              <div class="form-group">
+                <label for="txCount">Jumlah transaksi per network</label>
+                <input id="txCount" type="number" min="1" value="10">
+              </div>
+              <div class="form-group">
+                <label>Target jaringan</label>
+                <div class="checkbox-group">
+                  <label><input type="checkbox" id="targetRaft" checked> RAFT (channel raft)</label>
+                  <label><input type="checkbox" id="targetSmartbft" checked> SmartBFT (channel smartbft)</label>
+                </div>
+              </div>
+            </div>
+            <div class="control-actions">
+              <button class="btn-start" id="startDummyBtn">Start Dummy Transactions</button>
+              <button class="btn-stop btn-disabled" id="stopDummyBtn" disabled>Stop</button>
+            </div>
+            <div class="log-box">
+              <div class="log-header">
+                <span>Output Log</span>
+                <span id="logStatus">Idle</span>
+              </div>
+              <div class="log-body" id="dummyLog"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="content-section">
+          <div class="section-header">
+            <span class="section-number">Output</span>
+            <h2 class="section-title">Hasil Tahap 4.3</h2>
+          </div>
+          <div class="card">
+            <p class="card-text">Output tahap ini menjadi input utama untuk analisis kinerja pada tahap berikutnya.</p>
+            <div class="section-grid">
+              <div class="note-card">
+                <h4>Data Mentah Pengujian</h4>
+                <p>Waktu mulai, waktu selesai, jumlah transaksi sukses, dan status commit.</p>
+              </div>
+              <div class="note-card">
+                <h4>Dasar Perhitungan Metrik</h4>
+                <p>Throughput dan latency dihitung dari total transaksi sukses serta durasi eksekusi.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <footer class="page-footer">
+          <p class="footer-text">
+            Thesis Research - Comparative Analysis of RAFT and SmartBFT Consensus on Hyperledger Fabric
+          </p>
+        </footer>
+      </div>
+    </main>
+  </div>
+
+  <script src="/js/app.js"></script>
+  <script>
+    const NETWORKS = {
+      raft: {
+        id: 'channel-fabric3-standard',
+        label: 'RAFT',
+        endpoint: '/api/raft/pelaporan'
+      },
+      smartbft: {
+        id: 'channel-fabric3-variant',
+        label: 'SmartBFT',
+        endpoint: '/api/smartbft/pelaporan'
+      }
+    };
+
+    const logEl = document.getElementById('dummyLog');
+    const logStatus = document.getElementById('logStatus');
+    const startBtn = document.getElementById('startDummyBtn');
+    const stopBtn = document.getElementById('stopDummyBtn');
+
+    let runState = { running: false, cancelled: false };
+
+    function appendLog(message) {
+      const time = new Date().toLocaleTimeString('en-GB', { hour12: false });
+      logEl.textContent += `[${time}] ${message}\n`;
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    function setRunningState(running) {
+      runState.running = running;
+      runState.cancelled = false;
+      startBtn.disabled = running;
+      stopBtn.disabled = !running;
+      startBtn.classList.toggle('btn-disabled', running);
+      stopBtn.classList.toggle('btn-disabled', !running);
+      logStatus.textContent = running ? 'Running' : 'Idle';
+    }
+
+    function buildDummyRecord(networkLabel, index) {
+      const now = new Date();
+      const reportId = `${networkLabel.toLowerCase()}-${now.getTime()}-${index}-${Math.random().toString(16).slice(2, 8)}`;
+      return {
+        reportId,
+        jenis: 'dummy',
+        sumber: '4.3',
+        urutan: index,
+        network: networkLabel,
+        timestamp: now.toISOString(),
+        payload: {
+          catatan: 'Transaksi dummy untuk pengujian kinerja.',
+          ukuran: 256,
+          konsisten: true
+        }
+      };
+    }
+
+    async function postJson(url, payload) {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`HTTP ${res.status}: ${text}`);
+      }
+      return res.json();
+    }
+
+    async function runDummyTransactions() {
+      const txCount = parseInt(document.getElementById('txCount').value, 10);
+      const targets = [];
+      if (document.getElementById('targetRaft').checked) targets.push('raft');
+      if (document.getElementById('targetSmartbft').checked) targets.push('smartbft');
+
+      if (!txCount || txCount < 1 || targets.length === 0) {
+        appendLog('ERROR: pilih target jaringan dan jumlah transaksi minimal 1.');
+        return;
+      }
+
+      setRunningState(true);
+      appendLog(`Start dummy transactions: ${txCount} per network, target=${targets.join(', ')}`);
+
+      let simulationId = null;
+      try {
+        const startPayload = {
+          totalTransactions: txCount * targets.length,
+          targetNetworks: targets.map(t => NETWORKS[t].id)
+        };
+        const startRes = await postJson('/api/metrics/simulation/start', startPayload);
+        simulationId = startRes.simulationId;
+        appendLog(`Simulation ID: ${simulationId}`);
+
+        for (const target of targets) {
+          const network = NETWORKS[target];
+          appendLog(`-- ${network.label}: sending ${txCount} transaksi`);
+
+          for (let i = 1; i <= txCount; i++) {
+            if (runState.cancelled) {
+              appendLog('Proses dihentikan oleh user.');
+              break;
+            }
+
+            const record = buildDummyRecord(network.label, i);
+            const submitRes = await postJson(network.endpoint, record);
+
+            const submittedAt = submitRes.submittedAt || new Date().toISOString();
+            const completedAt = submitRes.completedAt || new Date().toISOString();
+            const success = submitRes.success !== false;
+
+            await postJson(`/api/metrics/simulation/${simulationId}/transaction`, {
+              txId: record.reportId,
+              networkId: network.id,
+              submittedAt,
+              completedAt,
+              success,
+              error: submitRes.error || null
+            });
+
+            const statusText = success ? 'OK' : 'FAIL';
+            appendLog(`${network.label} tx ${i}/${txCount}: ${statusText} (${record.reportId})`);
+          }
+        }
+
+        if (simulationId) {
+          const completeRes = await postJson(`/api/metrics/simulation/${simulationId}/complete`, {});
+          appendLog(`Selesai. Metrics tersimpan. TPS=${completeRes.metrics?.throughput?.transactionsPerSecond?.toFixed?.(2) || 0}`);
+          appendLog('Data log disimpan di server untuk monitoring.');
+        }
+      } catch (err) {
+        appendLog(`ERROR: ${err.message}`);
+      } finally {
+        setRunningState(false);
+      }
+    }
+
+    startBtn.addEventListener('click', () => {
+      if (!runState.running) {
+        logEl.textContent = '';
+        runDummyTransactions();
+      }
+    });
+
+    stopBtn.addEventListener('click', () => {
+      if (runState.running) {
+        runState.cancelled = true;
+        appendLog('Stop requested. Menunggu transaksi berjalan selesai...');
+      }
+    });
+  </script>
+</body>
+</html>

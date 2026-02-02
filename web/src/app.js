@@ -1205,6 +1205,10 @@ app.get('/implementation', (req, res) => {
     res.sendFile(path.join(pagesRoot, 'implementation.html'));
 });
 
+app.get('/dummy-transactions', (req, res) => {
+    res.sendFile(path.join(pagesRoot, 'dummy-transactions.html'));
+});
+
 // Catch-all for non-API routes - serve index.html or 404
 app.use((req, res, next) => {
     if (req.path.startsWith('/api')) {

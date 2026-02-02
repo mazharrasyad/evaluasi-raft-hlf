@@ -572,6 +572,14 @@
                 4.2 Implementation
               </a>
             </li>
+            <li class="nav-item">
+              <a href="/dummy-transactions">
+                <span class="nav-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2"/><line x1="8" x2="16" y1="20" y2="20"/><line x1="12" x2="12" y1="16" y2="20"/><path d="M8 9h8"/><path d="M8 12h6"/></svg>
+                </span>
+                4.3 Eksekusi Transaksi Dummy
+              </a>
+            </li>
           </ul>
         </div>
       </nav>
@@ -1041,12 +1049,12 @@
             </div>
             <div class="terminal-body">
               <span class="comment"># Create channel command</span><br>
-              <span class="command">$ {PERINTAH_CREATE_CHANNEL}</span><br><br>
-              <span class="highlight">Creating channel '{NAMA_CHANNEL}'...</span><br>
-              Channel '{NAMA_CHANNEL}' created<br>
+              <span class="command">$ ./network.sh up createChannel -c raft</span><br><br>
+              <span class="highlight">Creating channel 'raft'...</span><br>
+              Channel 'raft' created<br>
               Joining org1 peer to the channel...<br>
               Joining org2 peer to the channel...<br><br>
-              <span class="success">✓ Channel '{NAMA_CHANNEL}' created and joined successfully</span>
+              <span class="success">✓ Channel 'raft' created and joined successfully</span>
             </div>
           </div>
           <p class="figure-caption">Figure 4.3 — Channel creation output</p>
@@ -1068,15 +1076,15 @@
             </div>
             <div class="terminal-body">
               <span class="comment"># Deploy chaincode command</span><br>
-              <span class="command">$ {PERINTAH_DEPLOY_CHAINCODE}</span><br><br>
-              <span class="highlight">Deploying chaincode '{NAMA_CHAINCODE}'...</span><br>
+              <span class="command">$ ./network.sh deployCCAAS -ccn pelaporan -ccp ../chaincode/pelaporan -ccs auto -c raft</span><br><br>
+              <span class="highlight">Deploying chaincode 'pelaporan'...</span><br>
               Packaging chaincode...<br>
               Installing chaincode on peer0.org1...<br>
               Installing chaincode on peer0.org2...<br>
               Approving chaincode for org1...<br>
               Approving chaincode for org2...<br>
               Committing chaincode definition...<br><br>
-              <span class="success">✓ Chaincode '{NAMA_CHAINCODE}' deployed and committed successfully</span>
+              <span class="success">✓ Chaincode 'pelaporan' deployed and committed successfully</span>
             </div>
           </div>
           <p class="figure-caption">Figure 4.4 — Chaincode deployment output</p>

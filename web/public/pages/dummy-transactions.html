@@ -254,6 +254,55 @@
     .storage-item strong {
       color: var(--text-dark);
     }
+    .block-panel {
+      margin-top: 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      background: var(--surface);
+    }
+    .block-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .block-card {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    .block-card h4 {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 8px;
+    }
+    .block-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .block-list li {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .block-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #e2e8f0;
+      color: #0f172a;
+      font-size: 11px;
+      font-weight: 600;
+    }
 
     @media (max-width: 768px) {
       .section-grid,
@@ -522,6 +571,24 @@
         <div class="content-section">
           <div class="section-header">
             <span class="section-number">4.3.6</span>
+            <h2 class="section-title">Cek Blok Setelah Generate</h2>
+          </div>
+          <div class="card">
+            <p class="card-text">
+              Setelah transaksi dijalankan, blok terbaru dapat diperiksa untuk memastikan transaksi sudah masuk ke ledger pada masing-masing network.
+            </p>
+            <div class="control-actions">
+              <button class="btn-start" id="checkBlocksBtn">Check Blocks</button>
+            </div>
+            <div class="block-panel" id="blockPanel">
+              <div class="block-grid" id="blockGrid"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="content-section">
+          <div class="section-header">
+            <span class="section-number">4.3.7</span>
             <h2 class="section-title">Penyimpanan Data Transaksi</h2>
           </div>
           <div class="card">
@@ -590,6 +657,8 @@
     const logStatus = document.getElementById('logStatus');
     const startBtn = document.getElementById('startDummyBtn');
     const stopBtn = document.getElementById('stopDummyBtn');
+    const checkBlocksBtn = document.getElementById('checkBlocksBtn');
+    const blockGrid = document.getElementById('blockGrid');
 
     let runState = { running: false, cancelled: false };
 
@@ -720,6 +789,59 @@
         appendLog('Stop requested. Menunggu transaksi berjalan selesai...');
       }
     });
+
+    function renderBlocks(results) {
+      blockGrid.innerHTML = '';
+      if (!Array.isArray(results) || results.length === 0) {
+        blockGrid.innerHTML = '<div class="block-card">Tidak ada data blok.</div>';
+        return;
+      }
+
+      results.forEach((network) => {
+        const status = network.status || 'unknown';
+        const blocks = Array.isArray(network.blocks) ? network.blocks : [];
+        const latestBlocks = blocks.slice(-5).reverse();
+        const latestNumber = latestBlocks.length ? latestBlocks[0].blockNumber : '-';
+        const latestTx = latestBlocks.length ? latestBlocks[0].transactionCount : '-';
+
+        const card = document.createElement('div');
+        card.className = 'block-card';
+        card.innerHTML = `
+          <h4>${network.label || 'Network'}</h4>
+          <div class="block-pill">Status: ${status}</div>
+          <ul class="block-list" style="margin-top: 8px;">
+            <li><span>Block height</span><span>${network.blockHeight ?? '-'}</span></li>
+            <li><span>Latest block</span><span>#${latestNumber}</span></li>
+            <li><span>Latest tx count</span><span>${latestTx}</span></li>
+          </ul>
+          <div style="margin-top: 10px; font-weight: 600; color: var(--text-dark); font-size: 12px;">Blok terbaru</div>
+          <ul class="block-list" style="margin-top: 6px;">
+            ${latestBlocks.map(b => {
+              const tag = b.simulationData && b.simulationData.reportId ? `✔ ${b.simulationData.reportId}` : '—';
+              return `<li><span>#${b.blockNumber}</span><span>${b.transactionCount} tx ${tag}</span></li>`;
+            }).join('')}
+          </ul>
+        `;
+        blockGrid.appendChild(card);
+      });
+    }
+
+    async function fetchBlocks() {
+      blockGrid.innerHTML = '<div class="block-card">Loading...</div>';
+      try {
+        const res = await fetch('/api/blocks');
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(text);
+        }
+        const data = await res.json();
+        renderBlocks(data.results || []);
+      } catch (err) {
+        blockGrid.innerHTML = `<div class="block-card">ERROR: ${err.message}</div>`;
+      }
+    }
+
+    checkBlocksBtn.addEventListener('click', fetchBlocks);
   </script>
 </body>
 </html>

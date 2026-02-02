@@ -1265,6 +1265,25 @@ app.get('/api/check-network', async (req, res) => {
     }
 });
 
+app.get('/api/blocks', async (req, res) => {
+    const fetchedAt = new Date().toISOString();
+
+    try {
+        const results = await getBlocksWithSimulationData();
+        res.json({
+            fetchedAt,
+            results,
+        });
+    } catch (error) {
+        console.error('Failed to fetch blocks:', error);
+        res.status(500).json({
+            fetchedAt,
+            error: error instanceof Error ? error.message : String(error),
+            results: [],
+        });
+    }
+});
+
 app.get('/api/network-operations/stream', (req, res) => {
     // Set headers for Server-Sent Events (SSE)
     res.setHeader('Content-Type', 'text/event-stream');

@@ -33,7 +33,7 @@ fetchChannelConfig() {
 
   while [ $rc -ne 0 ] && [ $counter -le $max_retry ]; do
     set -x
-    peer channel fetch config ${TEST_NETWORK_HOME}/channel-artifacts/config_block.pb -o localhost:8255 --ordererTLSHostnameOverride orderer.fabric3.variant -c $CHANNEL --tls --cafile "$ORDERER_CA"
+    peer channel fetch config ${TEST_NETWORK_HOME}/channel-artifacts/config_block.pb -o localhost:8255 --ordererTLSHostnameOverride orderer.smartbft -c $CHANNEL --tls --cafile "$ORDERER_CA"
     rc=$?
     { set +x; } 2>/dev/null
 
@@ -86,3 +86,4 @@ signConfigtxAsPeerOrg() {
   peer channel signconfigtx -f "${CONFIGTXFILE}"
   { set +x; } 2>/dev/null
 }
+

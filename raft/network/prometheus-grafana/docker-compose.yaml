@@ -1,4 +1,3 @@
-version: '3'
 
 volumes:
     prometheus_data: {}
@@ -9,7 +8,7 @@ services:
     image: prom/prometheus:v2.32.1
     container_name: prometheus
     labels:
-      raft-network: fabric3-raft-standard
+      raft-network: raft
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus_data:/prometheus
@@ -25,7 +24,7 @@ services:
     image: grafana/grafana:8.3.4
     container_name: grafana
     labels:
-      raft-network: fabric3-raft-standard
+      raft-network: raft
     user: "104"
     depends_on:
       - prometheus
@@ -43,7 +42,7 @@ services:
     privileged: true
     container_name: cadvisor
     labels:
-      raft-network: fabric3-raft-standard
+      raft-network: raft
     volumes:
       - /var/run:/var/run:rw
       - /sys:/sys:ro
@@ -57,7 +56,7 @@ services:
     image: prom/node-exporter:v1.3.1
     container_name: node-exporter
     labels:
-      raft-network: fabric3-raft-standard
+      raft-network: raft
     volumes:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
@@ -73,4 +72,5 @@ services:
 networks:
   default:
       external: true
-      name: fabric3_raft_standard_net
+      name: raft_net
+

@@ -24,28 +24,28 @@ const networkConfigurations = [
         targetId: 'channel-fabric3-standard',
         label: 'RAFT Network',
         networkDir: raftNetworkDir,
-        channelName: 'fabric3-channel-standard',
+        channelName: 'raft',
         peerEndpoint: 'localhost:7153',
-        peerHostAlias: 'peer0.org1.fabric3.standard',
-        domain: 'fabric3.standard',
+        peerHostAlias: 'peer0.org1.raft',
+        domain: 'raft',
         organizationsDir: 'organizations',
         instructions: {
-            up: `cd ${raftNetworkDir} && ./network.sh up && ./network.sh createChannel -c fabric3-channel-standard`,
-            deploy: `cd ${raftNetworkDir} && ./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl node -c fabric3-channel-standard`
+            up: `cd ${raftNetworkDir} && ./network.sh up && ./network.sh createChannel -c raft`,
+            deploy: `cd ${raftNetworkDir} && ./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl node -c raft`
         }
     },
     {
         targetId: 'channel-fabric3-variant',
         label: 'SmartBFT Network',
         networkDir: smartbftNetworkDir,
-        channelName: 'fabric3-channel-variant',
+        channelName: 'smartbft',
         peerEndpoint: 'localhost:7353',
-        peerHostAlias: 'peer0.org1.fabric3.variant',
-        domain: 'fabric3.variant',
+        peerHostAlias: 'peer0.org1.smartbft',
+        domain: 'smartbft',
         organizationsDir: 'organizations-variant',
         instructions: {
-            up: `cd ${smartbftNetworkDir} && ./network.sh up && ./network.sh createChannel -c fabric3-channel-variant`,
-            deploy: `cd ${smartbftNetworkDir} && ./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl node -c fabric3-channel-variant`
+            up: `cd ${smartbftNetworkDir} && ./network.sh up && ./network.sh createChannel -c smartbft`,
+            deploy: `cd ${smartbftNetworkDir} && ./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl node -c smartbft`
         }
     }
 ];
@@ -1430,3 +1430,5 @@ async function checkNetworkHealth() {
 }
 
 export { checkNetworkHealth, getAllBlocks, getAllCatatan, getBlocksWithSimulationData, decodeBlockchainInfo };
+
+

@@ -22,22 +22,22 @@ export PATH=${ROOTDIR}/../bin:${PWD}/../bin:$PATH
 export FABRIC_CFG_PATH=${PWD}/configtx
 export VERBOSE=false
 
-: ${COMPOSE_PROJECT_NAME:="raftstandard3"}
+: ${COMPOSE_PROJECT_NAME:="raft"}
 export COMPOSE_PROJECT_NAME
 
 VOLUME_SUFFIXES=(
-  "orderer.fabric3.standard"
-  "orderer2.fabric3.standard"
-  "orderer3.fabric3.standard"
-  "orderer4.fabric3.standard"
-  "peer0.org1.fabric3.standard"
-  "peer0.org2.fabric3.standard"
+  "orderer.raft"
+  "orderer2.raft"
+  "orderer3.raft"
+  "orderer4.raft"
+  "peer0.org1.raft"
+  "peer0.org2.raft"
 )
 
 LEGACY_VOLUME_SUFFIXES=(
-  "orderer.fabric3.standard"
-  "peer0.org1.fabric3.standard"
-  "peer0.org2.fabric3.standard"
+  "orderer.raft"
+  "peer0.org1.raft"
+  "peer0.org2.raft"
 )
 
 # push to the required directory & set a trap to go back if needed
@@ -58,8 +58,8 @@ infoln "Using ${CONTAINER_CLI} and ${CONTAINER_CLI_COMPOSE}"
 # This function is called when you bring a network down
 function clearContainers() {
   infoln "Removing remaining containers"
-  local network_filter="network=fabric3_raft_standard_net"
-  ${CONTAINER_CLI} rm -f $(${CONTAINER_CLI} ps -aq --filter label=raft-network=fabric3-raft-standard) 2>/dev/null || true
+  local network_filter="network=raft_net"
+  ${CONTAINER_CLI} rm -f $(${CONTAINER_CLI} ps -aq --filter label=raft-network=raft) 2>/dev/null || true
   ${CONTAINER_CLI} rm -f $(${CONTAINER_CLI} ps -aq --filter name='dev-peer*' --filter ${network_filter}) 2>/dev/null || true
   ${CONTAINER_CLI} kill "$(${CONTAINER_CLI} ps -q --filter name=ccaas --filter ${network_filter})" 2>/dev/null || true
 }
@@ -223,18 +223,18 @@ function createOrgs() {
 
     . organizations/cfssl/registerEnroll.sh
     #function_name cert-type   CN   org
-    peer_cert peer peer0.org1.fabric3.standard org1
-    peer_cert admin Admin@org1.fabric3.standard org1
+    peer_cert peer peer0.org1.raft org1
+    peer_cert admin Admin@org1.raft org1
 
     infoln "Creating Org2 Identities"
     #function_name cert-type   CN   org
-    peer_cert peer peer0.org2.fabric3.standard org2
-    peer_cert admin Admin@org2.fabric3.standard org2
+    peer_cert peer peer0.org2.raft org2
+    peer_cert admin Admin@org2.raft org2
 
     infoln "Creating Orderer Org Identities"
     #function_name cert-type   CN   
-    orderer_cert orderer orderer.fabric3.standard
-    orderer_cert admin Admin@fabric3.standard
+    orderer_cert orderer orderer.raft
+    orderer_cert admin Admin@raft
 
   fi 
 
@@ -256,7 +256,7 @@ function createOrgs() {
     done
 
     # Make sure CA service is initialized and can accept requests before making register and enroll calls
-    export FABRIC_CA_CLIENT_HOME=${PWD}/organizations/peerOrganizations/org1.fabric3.standard/
+    export FABRIC_CA_CLIENT_HOME=${PWD}/organizations/peerOrganizations/org1.raft/
     COUNTER=0
     rc=1
     while [[ $rc -ne 0 && $COUNTER -lt $MAX_RETRY ]]; do
@@ -327,6 +327,9 @@ function networkUp() {
 
   if [ "${DATABASE}" == "couchdb" ]; then
     COMPOSE_FILES="${COMPOSE_FILES} -f compose/${COMPOSE_FILE_COUCH} -f compose/${CONTAINER_CLI}/${CONTAINER_CLI}-${COMPOSE_FILE_COUCH}"
+  fi
+  if [ "$WINDOWS_HOST" == "true" ]; then
+    COMPOSE_FILES="${COMPOSE_FILES} -f compose/compose-windows.yaml"
   fi
 
   DOCKER_SOCK="${DOCKER_SOCK}" ${CONTAINER_CLI_COMPOSE} ${COMPOSE_FILES} up -d 2>&1
@@ -457,6 +460,9 @@ function networkDown() {
   COMPOSE_COUCH_FILES="-f compose/${COMPOSE_FILE_COUCH} -f compose/${CONTAINER_CLI}/${CONTAINER_CLI}-${COMPOSE_FILE_COUCH}"
   COMPOSE_CA_FILES="-f compose/${COMPOSE_FILE_CA} -f compose/${CONTAINER_CLI}/${CONTAINER_CLI}-${COMPOSE_FILE_CA}"
   COMPOSE_FILES="${COMPOSE_BASE_FILES} ${COMPOSE_COUCH_FILES} ${COMPOSE_CA_FILES}"
+  if [ "$WINDOWS_HOST" == "true" ]; then
+    COMPOSE_FILES="${COMPOSE_FILES} -f compose/compose-windows.yaml"
+  fi
 
   # stop org3 containers also in addition to org1 and org2, in case we were running sample to add org3
   COMPOSE_ORG3_BASE_FILES="-f addOrg3/compose/${COMPOSE_FILE_ORG3_BASE} -f addOrg3/compose/${CONTAINER_CLI}/${CONTAINER_CLI}-${COMPOSE_FILE_ORG3_BASE}"
@@ -528,6 +534,14 @@ DOCKER_SOCK="${SOCK##unix://}"
 
 # BFT activated flag
 BFT=0
+
+WINDOWS_HOST=false
+case "$(uname -s)" in
+  MINGW*|MSYS*|CYGWIN*) WINDOWS_HOST=true ;;
+esac
+if [ "${FABRIC_WINDOWS_DOCKER}" == "1" ]; then
+  WINDOWS_HOST=true
+fi
 
 # Parse commandline args
 
@@ -713,3 +727,4 @@ else
   printHelp
   exit 1
 fi
+

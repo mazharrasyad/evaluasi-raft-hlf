@@ -21,7 +21,7 @@ Organizations:
         # ID to load the MSP definition as
         ID: Org3MSP
 
-        MSPDir: ../organizations/peerOrganizations/org3.fabric3.standard/msp
+        MSPDir: ../organizations/peerOrganizations/org3.raft/msp
 
         Policies:
             Readers:
@@ -36,3 +36,4 @@ Organizations:
             Endorsement:
                 Type: Signature
                 Rule: "OR('Org3MSP.peer')"
+

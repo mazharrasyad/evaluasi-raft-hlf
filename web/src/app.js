@@ -117,12 +117,12 @@ async function clearThroughputData() {
 // Container patterns for each network
 const CONTAINER_PATTERNS = {
     'channel-fabric3-standard': {
-        orderers: ['orderer.fabric3.standard', 'orderer2.fabric3.standard', 'orderer3.fabric3.standard'],
-        peers: ['peer0.org1.fabric3.standard', 'peer0.org2.fabric3.standard']
+        orderers: ['orderer.raft', 'orderer2.raft', 'orderer3.raft'],
+        peers: ['peer0.org1.raft', 'peer0.org2.raft']
     },
     'channel-fabric3-variant': {
-        orderers: ['orderer.fabric3.variant', 'orderer2.fabric3.variant', 'orderer3.fabric3.variant', 'orderer4.fabric3.variant', 'orderer5.fabric3.variant'],
-        peers: ['peer0.org1.fabric3.variant', 'peer0.org2.fabric3.variant']
+        orderers: ['orderer.smartbft', 'orderer2.smartbft', 'orderer3.smartbft', 'orderer4.smartbft', 'orderer5.smartbft'],
+        peers: ['peer0.org1.smartbft', 'peer0.org2.smartbft']
     }
 };
 
@@ -661,12 +661,12 @@ const NETWORK_START_TARGETS = [
         id: 'raft',
         label: 'RAFT Consensus Network',
         directory: path.resolve(__dirname, '../../raft/network'),
-        channel: 'fabric3-channel-standard',
+        channel: 'raft',
         commands: [
             {
                 label: 'Start network and create channel',
-                args: ['up', 'createChannel', '-c', 'fabric3-channel-standard'],
-                displayCommand: './network.sh up createChannel -c fabric3-channel-standard',
+                args: ['up', 'createChannel', '-c', 'raft'],
+                displayCommand: './network.sh up createChannel -c raft',
             },
             {
                 label: 'Deploy chaincode',
@@ -679,10 +679,10 @@ const NETWORK_START_TARGETS = [
                     '-ccl',
                     'node',
                     '-c',
-                    'fabric3-channel-standard',
+                    'raft',
                 ],
                 displayCommand:
-                    './network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl node -c fabric3-channel-standard',
+                    './network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl node -c raft',
             },
         ],
     },
@@ -690,12 +690,12 @@ const NETWORK_START_TARGETS = [
         id: 'smartbft',
         label: 'SmartBFT Consensus Network',
         directory: path.resolve(__dirname, '../../smartbft/network'),
-        channel: 'fabric3-channel-variant',
+        channel: 'smartbft',
         commands: [
             {
                 label: 'Start network and create channel',
-                args: ['up', 'createChannel', '-c', 'fabric3-channel-variant'],
-                displayCommand: './network.sh up createChannel -c fabric3-channel-variant',
+                args: ['up', 'createChannel', '-c', 'smartbft'],
+                displayCommand: './network.sh up createChannel -c smartbft',
             },
             {
                 label: 'Deploy chaincode',
@@ -708,10 +708,10 @@ const NETWORK_START_TARGETS = [
                     '-ccl',
                     'node',
                     '-c',
-                    'fabric3-channel-variant',
+                    'smartbft',
                 ],
                 displayCommand:
-                    './network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl node -c fabric3-channel-variant',
+                    './network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl node -c smartbft',
             },
         ],
     },
@@ -2260,3 +2260,5 @@ const HOST = process.env.HOST || '0.0.0.0';
 app.listen(PORT, HOST, () => {
     console.log(`Gateway listening on http://${HOST}:${PORT}`);
 });
+
+

@@ -1,0 +1,7 @@
+services:
+  peer0.org1.raft:
+    volumes:
+      - ./docker/peercfg:/etc/hyperledger/peercfg
+  peer0.org2.raft:
+    volumes:
+      - ./docker/peercfg:/etc/hyperledger/peercfg

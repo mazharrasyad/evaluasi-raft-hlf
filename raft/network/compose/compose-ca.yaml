@@ -3,11 +3,10 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-version: '3.7'
 
 networks:
   test:
-    name: fabric3_raft_standard_net
+    name: raft_net
 
 services:
 
@@ -15,7 +14,7 @@ services:
     image: hyperledger/fabric-ca:latest
     labels:
       service: hyperledger-fabric
-      raft-network: fabric3-raft-standard
+      raft-network: raft
     environment:
       - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
       - FABRIC_CA_SERVER_CA_NAME=ca-org1
@@ -36,7 +35,7 @@ services:
     image: hyperledger/fabric-ca:latest
     labels:
       service: hyperledger-fabric
-      raft-network: fabric3-raft-standard
+      raft-network: raft
     environment:
       - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
       - FABRIC_CA_SERVER_CA_NAME=ca-org2
@@ -57,7 +56,7 @@ services:
     image: hyperledger/fabric-ca:latest
     labels:
       service: hyperledger-fabric
-      raft-network: fabric3-raft-standard
+      raft-network: raft
     environment:
       - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
       - FABRIC_CA_SERVER_CA_NAME=ca-orderer
@@ -73,3 +72,4 @@ services:
     container_name: ca_orderer_fabric3
     networks:
       - test
+

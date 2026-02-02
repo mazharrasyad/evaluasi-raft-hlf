@@ -1,6 +1,5 @@
 ---
 name: test-network-org${ORG}
-version: 1.0.0
 client:
   organization: Org${ORG}
   connection:
@@ -11,20 +10,20 @@ organizations:
   Org${ORG}:
     mspid: Org${ORG}MSP
     peers:
-    - peer0.org${ORG}.fabric3.variant
+    - peer0.org${ORG}.smartbft
     certificateAuthorities:
-    - ca.org${ORG}.fabric3.variant
+    - ca.org${ORG}.smartbft
 peers:
-  peer0.org${ORG}.fabric3.variant:
+  peer0.org${ORG}.smartbft:
     url: grpcs://localhost:${P0PORT}
     tlsCACerts:
       pem: |
           ${PEERPEM}
     grpcOptions:
-      ssl-target-name-override: peer0.org${ORG}.fabric3.variant
-      hostnameOverride: peer0.org${ORG}.fabric3.variant
+      ssl-target-name-override: peer0.org${ORG}.smartbft
+      hostnameOverride: peer0.org${ORG}.smartbft
 certificateAuthorities:
-  ca.org${ORG}.fabric3.variant:
+  ca.org${ORG}.smartbft:
     url: https://localhost:${CAPORT}
     caName: ca-org${ORG}
     tlsCACerts:
@@ -33,3 +32,4 @@ certificateAuthorities:
           ${CAPEM}
     httpOptions:
       verify: false
+

@@ -8,7 +8,7 @@ DELAY="$2"
 MAX_RETRY="$3"
 VERBOSE="$4"
 BFT="$5"
-: ${CHANNEL_NAME:="fabric3-channel-variant"}
+: ${CHANNEL_NAME:="smartbft"}
 : ${DELAY:="3"}
 : ${MAX_RETRY:="5"}
 : ${VERBOSE:="false"}
@@ -125,3 +125,4 @@ infoln "Setting anchor peer for org2..."
 setAnchorPeer 2
 
 successln "Channel '$CHANNEL_NAME' joined"
+

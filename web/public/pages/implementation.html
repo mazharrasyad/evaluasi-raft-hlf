@@ -871,11 +871,11 @@
             <div class="terminal-box" style="margin: 0;">
               <div class="terminal-body" style="padding: 12px 16px;">
                 <span class="comment"># RAFT Network Commands (from raft/network/ folder)</span><br>
-                <span class="command">./network.sh up createChannel -c fabric3-channel-standard</span><br>
+                <span class="command">./network.sh up createChannel -c raft</span><br>
                 <span class="command">./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl node</span><br>
                 <span class="command">./network.sh down</span><br><br>
                 <span class="comment"># SmartBFT Network Commands (from smartbft/network/ folder)</span><br>
-                <span class="command">./network.sh up createChannel -c fabric3-channel-variant</span><br>
+                <span class="command">./network.sh up createChannel -c smartbft</span><br>
                 <span class="command">./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl node</span><br>
                 <span class="command">./network.sh down</span>
               </div>
@@ -1179,13 +1179,13 @@
         if (data.results && Array.isArray(data.results)) {
           data.results.forEach(net => {
             // Check for RAFT network (channel-fabric3-standard)
-            if (net.channel === 'fabric3-channel-standard' || 
+            if (net.channel === 'raft' || 
                 net.networkId === 'channel-fabric3-standard' ||
                 (net.label && net.label.toLowerCase().includes('raft'))) {
               raftRunning = net.status === 'healthy';
             }
             // Check for SmartBFT network (channel-fabric3-variant)
-            if (net.channel === 'fabric3-channel-variant' || 
+            if (net.channel === 'smartbft' || 
                 net.networkId === 'channel-fabric3-variant' ||
                 (net.label && net.label.toLowerCase().includes('smartbft'))) {
               smartbftRunning = net.status === 'healthy';
@@ -1335,3 +1335,4 @@
   </script>
 </body>
 </html>
+

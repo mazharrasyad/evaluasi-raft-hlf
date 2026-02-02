@@ -29,17 +29,18 @@ function yaml_ccp {
 ORG=1
 P0PORT=7153
 CAPORT=7254
-PEERPEM=organizations/peerOrganizations/org1.fabric3.standard/tlsca/tlsca.org1.fabric3.standard-cert.pem
-CAPEM=organizations/peerOrganizations/org1.fabric3.standard/ca/ca.org1.fabric3.standard-cert.pem
+PEERPEM=organizations/peerOrganizations/org1.raft/tlsca/tlsca.org1.raft-cert.pem
+CAPEM=organizations/peerOrganizations/org1.raft/ca/ca.org1.raft-cert.pem
 
-echo "$(json_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/org1.fabric3.standard/connection-org1.json
-echo "$(yaml_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/org1.fabric3.standard/connection-org1.yaml
+echo "$(json_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/org1.raft/connection-org1.json
+echo "$(yaml_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/org1.raft/connection-org1.yaml
 
 ORG=2
 P0PORT=9153
 CAPORT=8254
-PEERPEM=organizations/peerOrganizations/org2.fabric3.standard/tlsca/tlsca.org2.fabric3.standard-cert.pem
-CAPEM=organizations/peerOrganizations/org2.fabric3.standard/ca/ca.org2.fabric3.standard-cert.pem
+PEERPEM=organizations/peerOrganizations/org2.raft/tlsca/tlsca.org2.raft-cert.pem
+CAPEM=organizations/peerOrganizations/org2.raft/ca/ca.org2.raft-cert.pem
 
-echo "$(json_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/org2.fabric3.standard/connection-org2.json
-echo "$(yaml_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/org2.fabric3.standard/connection-org2.yaml
+echo "$(json_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/org2.raft/connection-org2.json
+echo "$(yaml_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/org2.raft/connection-org2.yaml
+

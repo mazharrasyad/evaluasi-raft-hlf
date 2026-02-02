@@ -7,20 +7,20 @@ function peer_cert() {
     USER=$2
     ORG=$3
 
-    mkdir -p "organizations-variant/peerOrganizations/$ORG.fabric3.variant/ca"
-    mkdir -p "organizations-variant/peerOrganizations/$ORG.fabric3.variant/msp/cacerts"
-    mkdir -p "organizations-variant/peerOrganizations/$ORG.fabric3.variant/msp/tlscacerts"
-    mkdir -p "organizations-variant/peerOrganizations/$ORG.fabric3.variant/peers"
-    mkdir -p "organizations-variant/peerOrganizations/$ORG.fabric3.variant/tlsca"
+    mkdir -p "organizations-variant/peerOrganizations/$ORG.smartbft/ca"
+    mkdir -p "organizations-variant/peerOrganizations/$ORG.smartbft/msp/cacerts"
+    mkdir -p "organizations-variant/peerOrganizations/$ORG.smartbft/msp/tlscacerts"
+    mkdir -p "organizations-variant/peerOrganizations/$ORG.smartbft/peers"
+    mkdir -p "organizations-variant/peerOrganizations/$ORG.smartbft/tlsca"
 
-    CERT_DIR=organizations-variant/peerOrganizations/$ORG.fabric3.variant
+    CERT_DIR=organizations-variant/peerOrganizations/$ORG.smartbft
 
     if [ ! -f "$CERT_DIR/ca/ca-key.pem" ]; then
 
         cfssl gencert -initca "${PWD}/organizations-variant/cfssl/ca-peer.json" | cfssljson -bare "$CERT_DIR/ca/ca"
 
-        cp "$CERT_DIR/ca/ca.pem" "$CERT_DIR/tlsca/tlsca.$ORG.fabric3.variant-cert.pem"
-        cp "$CERT_DIR/ca/ca.pem" "$CERT_DIR/ca/ca.$ORG.fabric3.variant-cert.pem"
+        cp "$CERT_DIR/ca/ca.pem" "$CERT_DIR/tlsca/tlsca.$ORG.smartbft-cert.pem"
+        cp "$CERT_DIR/ca/ca.pem" "$CERT_DIR/ca/ca.$ORG.smartbft-cert.pem"
 
         cp "$CERT_DIR/ca/ca.pem" "$CERT_DIR/msp/cacerts/"
         cp "$CERT_DIR/ca/ca.pem" "$CERT_DIR/msp/tlscacerts/"
@@ -55,24 +55,24 @@ function peer_cert() {
 
 function orderer_cert() {
     TYPE=$1 #orderer user
-    USER=$2 #orderer.fabric3.variant
+    USER=$2 #orderer.smartbft
 
-    mkdir -p organizations-variant/ordererOrganizations/fabric3.variant/ca
-    mkdir -p organizations-variant/ordererOrganizations/fabric3.variant/msp/cacerts
-    mkdir -p organizations-variant/ordererOrganizations/fabric3.variant/msp/tlscacerts
-    mkdir -p organizations-variant/ordererOrganizations/fabric3.variant/orderers
-    mkdir -p organizations-variant/ordererOrganizations/fabric3.variant/tlsca
+    mkdir -p organizations-variant/ordererOrganizations/smartbft/ca
+    mkdir -p organizations-variant/ordererOrganizations/smartbft/msp/cacerts
+    mkdir -p organizations-variant/ordererOrganizations/smartbft/msp/tlscacerts
+    mkdir -p organizations-variant/ordererOrganizations/smartbft/orderers
+    mkdir -p organizations-variant/ordererOrganizations/smartbft/tlsca
 
-    CERT_DIR=organizations-variant/ordererOrganizations/fabric3.variant
+    CERT_DIR=organizations-variant/ordererOrganizations/smartbft
 
     if [ ! -f "$CERT_DIR/ca/ca-key.pem" ]; then
 
         cfssl gencert -initca "${PWD}/organizations-variant/cfssl/ca-orderer.json" | cfssljson -bare "$CERT_DIR/ca/ca"
 
-        cp "$CERT_DIR/ca/ca.pem" "$CERT_DIR/tlsca/tlsca.fabric3.variant-cert.pem"
+        cp "$CERT_DIR/ca/ca.pem" "$CERT_DIR/tlsca/tlsca.smartbft-cert.pem"
 
         cp "$CERT_DIR/ca/ca.pem" "$CERT_DIR/msp/cacerts/"
-        cp "$CERT_DIR/ca/ca.pem" "$CERT_DIR/msp/tlscacerts/tlsca.fabric3.variant-cert.pem"
+        cp "$CERT_DIR/ca/ca.pem" "$CERT_DIR/msp/tlscacerts/tlsca.smartbft-cert.pem"
 
         echo 'NodeOUs:
     Enable: true
@@ -224,10 +224,10 @@ function generate_orderer_certs() {
     USER=$2
 
     for DIR in cacerts keystore signcerts tlscacerts; do
-        mkdir -p "organizations-variant/ordererOrganizations/fabric3.variant/orderers/$USER/msp/$DIR"
+        mkdir -p "organizations-variant/ordererOrganizations/smartbft/orderers/$USER/msp/$DIR"
     done
 
-    mkdir -p "organizations-variant/ordererOrganizations/fabric3.variant/orderers/$USER/tls"
+    mkdir -p "organizations-variant/ordererOrganizations/smartbft/orderers/$USER/tls"
 
     sed -e "s/{USER}/$USER/g" <"$PWD/organizations-variant/cfssl/orderer-csr-template.json" >"$PWD/organizations-variant/cfssl/orderer-${USER}.json"
 
@@ -243,7 +243,7 @@ function generate_orderer_certs() {
     mv "$CERT_DIR/orderers/$USER/msp/signcerts/cert-key.pem" "$CERT_DIR/orderers/$USER/msp/keystore"
 
     cp "$CERT_DIR/ca/ca.pem" "$CERT_DIR/orderers/$USER/msp/cacerts"
-    cp "$CERT_DIR/ca/ca.pem" "$CERT_DIR/orderers/$USER/msp/tlscacerts/tlsca.fabric3.variant-cert.pem"
+    cp "$CERT_DIR/ca/ca.pem" "$CERT_DIR/orderers/$USER/msp/tlscacerts/tlsca.smartbft-cert.pem"
 
     echo 'NodeOUs:
     Enable: true
@@ -274,3 +274,4 @@ function generate_orderer_certs() {
     mv "$CERT_DIR/orderers/$USER/tls/server-key.pem" "$CERT_DIR/orderers/$USER/tls/server.key"
     rm "$PWD/organizations-variant/cfssl/orderer-${USER}.json"
 }
+

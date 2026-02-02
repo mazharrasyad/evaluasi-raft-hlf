@@ -17,13 +17,13 @@ const NETWORK_SOURCES = [
         id: 'raft',
         label: 'RAFT Network',
         root: RAFT_NETWORK_ROOT,
-        ordererServiceName: 'orderer.fabric3.standard',
+        ordererServiceName: 'orderer.raft',
     },
     {
         id: 'smartbft',
         label: 'SmartBFT Network',
         root: SMARTBFT_NETWORK_ROOT,
-        ordererServiceName: 'orderer.fabric3.variant',
+        ordererServiceName: 'orderer.smartbft',
     },
 ];
 
@@ -598,3 +598,4 @@ function findOrdererService(services, preferredName) {
 
     return { name: ordererEntry[0], service: ordererEntry[1] };
 }
+

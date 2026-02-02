@@ -10,7 +10,7 @@ cd addOrg3
 ./addOrg3.sh up
 ```
 
-If you used `network.sh` to create a channel other than the default `fabric3-channel-variant`, you need pass that name to the `addorg3.sh` script.
+If you used `network.sh` to create a channel other than the default `smartbft`, you need pass that name to the `addorg3.sh` script.
 ```
 ./network.sh up createChannel -c channel1
 cd addOrg3
@@ -26,3 +26,4 @@ cd addOrg3
 ```
 
 For more information, use `./addOrg3.sh -h` to see the `addOrg3.sh` help text.
+

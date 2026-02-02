@@ -29,8 +29,9 @@ function yaml_ccp {
 ORG=3
 P0PORT=11051
 CAPORT=11154
-PEERPEM=../organizations-variant/peerOrganizations/org3.fabric3.variant/tlsca/tlsca.org3.fabric3.variant-cert.pem
-CAPEM=../organizations-variant/peerOrganizations/org3.fabric3.variant/ca/ca.org3.fabric3.variant-cert.pem
+PEERPEM=../organizations-variant/peerOrganizations/org3.smartbft/tlsca/tlsca.org3.smartbft-cert.pem
+CAPEM=../organizations-variant/peerOrganizations/org3.smartbft/ca/ca.org3.smartbft-cert.pem
 
-echo "$(json_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > ../organizations-variant/peerOrganizations/org3.fabric3.variant/connection-org3.json
-echo "$(yaml_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > ../organizations-variant/peerOrganizations/org3.fabric3.variant/connection-org3.yaml
+echo "$(json_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > ../organizations-variant/peerOrganizations/org3.smartbft/connection-org3.json
+echo "$(yaml_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > ../organizations-variant/peerOrganizations/org3.smartbft/connection-org3.yaml
+

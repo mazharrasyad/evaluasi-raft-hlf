@@ -3,14 +3,14 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-version: '3.7'
 
 services:
-  peer0.org1.fabric3.variant:
+  peer0.org1.smartbft:
     volumes:
       - ./podman/peercfg:/etc/hyperledger/peercfg
 
-  peer0.org2.fabric3.variant:
+  peer0.org2.smartbft:
     volumes:
       - ./podman/peercfg:/etc/hyperledger/peercfg
+
 

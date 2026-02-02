@@ -11,7 +11,7 @@ PeerOrgs:
   # Org2
   # ---------------------------------------------------------------------------
   - Name: Org2
-    Domain: org2.fabric3.standard
+    Domain: org2.raft
     EnableNodeOUs: true
     # ---------------------------------------------------------------------------
     # "Specs"
@@ -30,8 +30,8 @@ PeerOrgs:
     #                 Org.Domain, respectively.
     # ---------------------------------------------------------------------------
     # Specs:
-    #   - Hostname: foo # implicitly "foo.org1.fabric3.standard"
-    #     CommonName: foo27.org5.fabric3.standard # overrides Hostname-based FQDN set above
+    #   - Hostname: foo # implicitly "foo.org1.raft"
+    #     CommonName: foo27.org5.raft # overrides Hostname-based FQDN set above
     #   - Hostname: bar
     #   - Hostname: baz
     # ---------------------------------------------------------------------------
@@ -59,3 +59,4 @@ PeerOrgs:
     # ---------------------------------------------------------------------------
     Users:
       Count: 1
+

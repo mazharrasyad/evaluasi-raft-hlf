@@ -1,0 +1,7 @@
+services:
+  peer0.org1.smartbft:
+    volumes:
+      - ./docker/peercfg:/etc/hyperledger/peercfg
+  peer0.org2.smartbft:
+    volumes:
+      - ./docker/peercfg:/etc/hyperledger/peercfg

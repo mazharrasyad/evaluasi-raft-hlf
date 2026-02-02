@@ -35,9 +35,9 @@ Brings up
 
 Fabric metrics targets:
 
-- `peer0.org1.fabric3.variant:9544`
-- `peer0.org2.fabric3.variant:9545`
-- `orderer.fabric3.variant:9543`
+- `peer0.org1.smartbft:9544`
+- `peer0.org2.smartbft:9545`
+- `orderer.smartbft:9543`
 
 System and docker metrics targets:
 
@@ -50,3 +50,4 @@ Check the state of the connections with targets on http://localhost:9090/targets
 
 [Prometheus docs](https://prometheus.io/docs/introduction/overview/)
 [Grafana docs](https://grafana.com/docs/)
+

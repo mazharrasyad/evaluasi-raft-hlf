@@ -11,7 +11,7 @@ PeerOrgs:
   # Org3
   # ---------------------------------------------------------------------------
   - Name: Org3
-    Domain: org3.fabric3.variant
+    Domain: org3.smartbft
     EnableNodeOUs: true
     Template:
       Count: 1
@@ -19,3 +19,4 @@ PeerOrgs:
         - localhost
     Users:
       Count: 1
+

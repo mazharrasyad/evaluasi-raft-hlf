@@ -18,22 +18,22 @@ const NETWORK_CONFIGS = {
         label: 'RAFT Network',
         networkType: 'raft',
         variant: 'raft',
-        channel: 'fabric3-channel-standard',
+        channel: 'raft',
         chaincode: 'pelaporan',
         peerEndpoint: 'localhost:7153',
-        peerHostAlias: 'peer0.org1.fabric3.standard',
-        orgPath: 'org1.fabric3.standard',
+        peerHostAlias: 'peer0.org1.raft',
+        orgPath: 'org1.raft',
         mspId: 'Org1MSP',
     },
     'channel-fabric3-variant': {
         label: 'SmartBFT Network',
         networkType: 'smartbft',
         variant: 'smartbft',
-        channel: 'fabric3-channel-variant',
+        channel: 'smartbft',
         chaincode: 'pelaporan',
         peerEndpoint: 'localhost:7353',
-        peerHostAlias: 'peer0.org1.fabric3.variant',
-        orgPath: 'org1.fabric3.variant',
+        peerHostAlias: 'peer0.org1.smartbft',
+        orgPath: 'org1.smartbft',
         mspId: 'Org1MSP',
         organizationsDir: 'organizations-variant',
     },
@@ -836,3 +836,5 @@ export async function submitToNetworks(record, targetNetworkIds) {
 
     return results;
 }
+
+

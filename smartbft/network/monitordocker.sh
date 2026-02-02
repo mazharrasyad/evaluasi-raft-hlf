@@ -6,7 +6,7 @@
 # More information at https://github.com/gliderlabs/logspout/tree/master/httpstream
 
 if [ -z "$1" ]; then
-   DOCKER_NETWORK=fabric3_raft_variant_net
+   DOCKER_NETWORK=smartbft_net
 else
    DOCKER_NETWORK="$1"
 fi
@@ -31,3 +31,4 @@ docker run -d --rm --name="logspout" \
 	gliderlabs/logspout
 sleep 3
 curl http://127.0.0.1:${PORT}/logs
+

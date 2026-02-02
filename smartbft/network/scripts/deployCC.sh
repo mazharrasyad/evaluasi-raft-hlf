@@ -2,7 +2,7 @@
 
 source scripts/utils.sh
 
-CHANNEL_NAME=${1:-"fabric3-channel-variant"}
+CHANNEL_NAME=${1:-"smartbft"}
 CC_NAME=${2}
 CC_SRC_PATH=${3}
 CC_SRC_LANGUAGE=${4}
@@ -116,3 +116,4 @@ else
 fi
 
 exit 0
+

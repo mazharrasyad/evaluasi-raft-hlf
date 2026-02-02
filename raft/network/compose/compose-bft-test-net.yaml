@@ -1,26 +1,25 @@
-version: '3.7'
 
 volumes:
-  orderer.fabric3.standard:
-  orderer2.fabric3.standard:
-  orderer3.fabric3.standard:
-  orderer4.fabric3.standard:
-  peer0.org1.fabric3.standard:
-  peer0.org2.fabric3.standard:
+  orderer.raft:
+  orderer2.raft:
+  orderer3.raft:
+  orderer4.raft:
+  peer0.org1.raft:
+  peer0.org2.raft:
 
 networks:
   test:
-    name: fabric3_raft_standard_net
+    name: raft_net
 
 services:
 
-  orderer.fabric3.standard:
-    container_name: orderer.fabric3.standard
-    hostname: orderer.fabric3.standard
+  orderer.raft:
+    container_name: orderer.raft
+    hostname: orderer.raft
     image: hyperledger/fabric-orderer:latest
     labels:
       service: hyperledger-fabric
-      raft-network: fabric3-raft-standard
+      raft-network: raft
     environment:
       - FABRIC_LOGGING_SPEC=INFO
       - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
@@ -43,14 +42,14 @@ services:
       - ORDERER_ADMIN_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
       - ORDERER_ADMIN_TLS_CLIENTROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
       - ORDERER_ADMIN_LISTENADDRESS=0.0.0.0:8053
-      - ORDERER_OPERATIONS_LISTENADDRESS=orderer.fabric3.standard:9543
+      - ORDERER_OPERATIONS_LISTENADDRESS=orderer.raft:9543
       - ORDERER_METRICS_PROVIDER=prometheus
     working_dir: /root
     command: orderer
     volumes:
-      - ../organizations/ordererOrganizations/fabric3.standard/orderers/orderer.fabric3.standard/msp:/var/hyperledger/orderer/msp
-      - ../organizations/ordererOrganizations/fabric3.standard/orderers/orderer.fabric3.standard/tls/:/var/hyperledger/orderer/tls
-      - orderer.fabric3.standard:/var/hyperledger/production/orderer
+      - ../organizations/ordererOrganizations/raft/orderers/orderer.raft/msp:/var/hyperledger/orderer/msp
+      - ../organizations/ordererOrganizations/raft/orderers/orderer.raft/tls/:/var/hyperledger/orderer/tls
+      - orderer.raft:/var/hyperledger/production/orderer
     ports:
       - 8055:8055
       - 8053:8053
@@ -58,13 +57,13 @@ services:
     networks:
       - test
 
-  orderer2.fabric3.standard:
-    container_name: orderer2.fabric3.standard
-    hostname: orderer2.fabric3.standard
+  orderer2.raft:
+    container_name: orderer2.raft
+    hostname: orderer2.raft
     image: hyperledger/fabric-orderer:latest
     labels:
       service: hyperledger-fabric
-      raft-network: fabric3-raft-standard
+      raft-network: raft
     environment:
       - FABRIC_LOGGING_SPEC=INFO
       - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
@@ -87,14 +86,14 @@ services:
       - ORDERER_ADMIN_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
       - ORDERER_ADMIN_TLS_CLIENTROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
       - ORDERER_ADMIN_LISTENADDRESS=0.0.0.0:9055
-      - ORDERER_OPERATIONS_LISTENADDRESS=orderer2.fabric3.standard:9546
+      - ORDERER_OPERATIONS_LISTENADDRESS=orderer2.raft:9546
       - ORDERER_METRICS_PROVIDER=prometheus
     working_dir: /root
     command: orderer
     volumes:
-      - ../organizations/ordererOrganizations/fabric3.standard/orderers/orderer2.fabric3.standard/msp:/var/hyperledger/orderer/msp
-      - ../organizations/ordererOrganizations/fabric3.standard/orderers/orderer2.fabric3.standard/tls/:/var/hyperledger/orderer/tls
-      - orderer2.fabric3.standard:/var/hyperledger/production/orderer
+      - ../organizations/ordererOrganizations/raft/orderers/orderer2.raft/msp:/var/hyperledger/orderer/msp
+      - ../organizations/ordererOrganizations/raft/orderers/orderer2.raft/tls/:/var/hyperledger/orderer/tls
+      - orderer2.raft:/var/hyperledger/production/orderer
     ports:
       - 8052:8052
       - 9055:9055
@@ -102,13 +101,13 @@ services:
     networks:
       - test
 
-  orderer3.fabric3.standard:
-    container_name: orderer3.fabric3.standard
-    hostname: orderer3.fabric3.standard
+  orderer3.raft:
+    container_name: orderer3.raft
+    hostname: orderer3.raft
     image: hyperledger/fabric-orderer:latest
     labels:
       service: hyperledger-fabric
-      raft-network: fabric3-raft-standard
+      raft-network: raft
     environment:
       - FABRIC_LOGGING_SPEC=INFO
       - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
@@ -131,14 +130,14 @@ services:
       - ORDERER_ADMIN_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
       - ORDERER_ADMIN_TLS_CLIENTROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
       - ORDERER_ADMIN_LISTENADDRESS=0.0.0.0:9057
-      - ORDERER_OPERATIONS_LISTENADDRESS=orderer3.fabric3.standard:9547
+      - ORDERER_OPERATIONS_LISTENADDRESS=orderer3.raft:9547
       - ORDERER_METRICS_PROVIDER=prometheus
     working_dir: /root
     command: orderer
     volumes:
-      - ../organizations/ordererOrganizations/fabric3.standard/orderers/orderer3.fabric3.standard/msp:/var/hyperledger/orderer/msp
-      - ../organizations/ordererOrganizations/fabric3.standard/orderers/orderer3.fabric3.standard/tls/:/var/hyperledger/orderer/tls
-      - orderer3.fabric3.standard:/var/hyperledger/production/orderer
+      - ../organizations/ordererOrganizations/raft/orderers/orderer3.raft/msp:/var/hyperledger/orderer/msp
+      - ../organizations/ordererOrganizations/raft/orderers/orderer3.raft/tls/:/var/hyperledger/orderer/tls
+      - orderer3.raft:/var/hyperledger/production/orderer
     ports:
       - 8056:8056
       - 9057:9057
@@ -146,13 +145,13 @@ services:
     networks:
       - test
 
-  orderer4.fabric3.standard:
-    container_name: orderer4.fabric3.standard
-    hostname: orderer4.fabric3.standard
+  orderer4.raft:
+    container_name: orderer4.raft
+    hostname: orderer4.raft
     image: hyperledger/fabric-orderer:latest
     labels:
       service: hyperledger-fabric
-      raft-network: fabric3-raft-standard
+      raft-network: raft
     environment:
       - FABRIC_LOGGING_SPEC=INFO
       - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
@@ -175,14 +174,14 @@ services:
       - ORDERER_ADMIN_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
       - ORDERER_ADMIN_TLS_CLIENTROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
       - ORDERER_ADMIN_LISTENADDRESS=0.0.0.0:9059
-      - ORDERER_OPERATIONS_LISTENADDRESS=orderer4.fabric3.standard:9548
+      - ORDERER_OPERATIONS_LISTENADDRESS=orderer4.raft:9548
       - ORDERER_METRICS_PROVIDER=prometheus
     working_dir: /root
     command: orderer
     volumes:
-      - ../organizations/ordererOrganizations/fabric3.standard/orderers/orderer4.fabric3.standard/msp:/var/hyperledger/orderer/msp
-      - ../organizations/ordererOrganizations/fabric3.standard/orderers/orderer4.fabric3.standard/tls/:/var/hyperledger/orderer/tls
-      - orderer4.fabric3.standard:/var/hyperledger/production/orderer
+      - ../organizations/ordererOrganizations/raft/orderers/orderer4.raft/msp:/var/hyperledger/orderer/msp
+      - ../organizations/ordererOrganizations/raft/orderers/orderer4.raft/tls/:/var/hyperledger/orderer/tls
+      - orderer4.raft:/var/hyperledger/production/orderer
     ports:
       - 8058:8058
       - 9059:9059
@@ -193,13 +192,13 @@ services:
 
 
 
-  peer0.org1.fabric3.standard:
-    container_name: peer0.org1.fabric3.standard
-    hostname: peer0.org1.fabric3.standard
+  peer0.org1.raft:
+    container_name: peer0.org1.raft
+    hostname: peer0.org1.raft
     image: hyperledger/fabric-peer:latest
     labels:
       service: hyperledger-fabric
-      raft-network: fabric3-raft-standard
+      raft-network: raft
     environment:
       - FABRIC_CFG_PATH=/etc/hyperledger/peercfg
       - FABRIC_LOGGING_SPEC=INFO
@@ -210,22 +209,22 @@ services:
       - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
       - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
       # Peer specific variables
-      - CORE_PEER_ID=peer0.org1.fabric3.standard
-      - CORE_PEER_ADDRESS=peer0.org1.fabric3.standard:7153
+      - CORE_PEER_ID=peer0.org1.raft
+      - CORE_PEER_ADDRESS=peer0.org1.raft:7153
       - CORE_PEER_LISTENADDRESS=0.0.0.0:7153
-      - CORE_PEER_CHAINCODEADDRESS=peer0.org1.fabric3.standard:7152
+      - CORE_PEER_CHAINCODEADDRESS=peer0.org1.raft:7152
       - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7152
-      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org1.fabric3.standard:7153
-      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org1.fabric3.standard:7153
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org1.raft:7153
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org1.raft:7153
       - CORE_PEER_LOCALMSPID=Org1MSP
       - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp
-      - CORE_OPERATIONS_LISTENADDRESS=peer0.org1.fabric3.standard:9544
+      - CORE_OPERATIONS_LISTENADDRESS=peer0.org1.raft:9544
       - CORE_METRICS_PROVIDER=prometheus
       - CHAINCODE_AS_A_SERVICE_BUILDER_CONFIG={"peername":"peer0org1"}
       - CORE_CHAINCODE_EXECUTETIMEOUT=300s
     volumes:
-      - ../organizations/peerOrganizations/org1.fabric3.standard/peers/peer0.org1.fabric3.standard:/etc/hyperledger/fabric
-      - peer0.org1.fabric3.standard:/var/hyperledger/production
+      - ../organizations/peerOrganizations/org1.raft/peers/peer0.org1.raft:/etc/hyperledger/fabric
+      - peer0.org1.raft:/var/hyperledger/production
     working_dir: /root
     command: peer node start
     ports:
@@ -234,13 +233,13 @@ services:
     networks:
       - test
 
-  peer0.org2.fabric3.standard:
-    container_name: peer0.org2.fabric3.standard
-    hostname: peer0.org2.fabric3.standard
+  peer0.org2.raft:
+    container_name: peer0.org2.raft
+    hostname: peer0.org2.raft
     image: hyperledger/fabric-peer:latest
     labels:
       service: hyperledger-fabric
-      raft-network: fabric3-raft-standard
+      raft-network: raft
     environment:
       - FABRIC_CFG_PATH=/etc/hyperledger/peercfg
       - FABRIC_LOGGING_SPEC=INFO
@@ -251,22 +250,22 @@ services:
       - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
       - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
       # Peer specific variables
-      - CORE_PEER_ID=peer0.org2.fabric3.standard
-      - CORE_PEER_ADDRESS=peer0.org2.fabric3.standard:9153
+      - CORE_PEER_ID=peer0.org2.raft
+      - CORE_PEER_ADDRESS=peer0.org2.raft:9153
       - CORE_PEER_LISTENADDRESS=0.0.0.0:9153
-      - CORE_PEER_CHAINCODEADDRESS=peer0.org2.fabric3.standard:9152
+      - CORE_PEER_CHAINCODEADDRESS=peer0.org2.raft:9152
       - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:9152
-      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org2.fabric3.standard:9153
-      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org2.fabric3.standard:9153
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org2.raft:9153
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org2.raft:9153
       - CORE_PEER_LOCALMSPID=Org2MSP
       - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp
-      - CORE_OPERATIONS_LISTENADDRESS=peer0.org2.fabric3.standard:9545
+      - CORE_OPERATIONS_LISTENADDRESS=peer0.org2.raft:9545
       - CORE_METRICS_PROVIDER=prometheus
       - CHAINCODE_AS_A_SERVICE_BUILDER_CONFIG={"peername":"peer0org2"}
       - CORE_CHAINCODE_EXECUTETIMEOUT=300s
     volumes:
-      - ../organizations/peerOrganizations/org2.fabric3.standard/peers/peer0.org2.fabric3.standard:/etc/hyperledger/fabric
-      - peer0.org2.fabric3.standard:/var/hyperledger/production
+      - ../organizations/peerOrganizations/org2.raft/peers/peer0.org2.raft:/etc/hyperledger/fabric
+      - peer0.org2.raft:/var/hyperledger/production
     working_dir: /root
     command: peer node start
     ports:
@@ -274,3 +273,4 @@ services:
       - 9545:9545
     networks:
       - test
+

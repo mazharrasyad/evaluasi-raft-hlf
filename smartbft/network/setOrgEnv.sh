@@ -13,22 +13,22 @@ set -o pipefail
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 
 # --- UPDATE: semua path mengarah ke network/organizations ---
-ORDERER_CA=${DIR}/network/organizations-variant/ordererOrganizations/fabric3.variant/tlsca/tlsca.fabric3.variant-cert.pem
-PEER0_ORG1_CA=${DIR}/network/organizations-variant/peerOrganizations/org1.fabric3.variant/tlsca/tlsca.org1.fabric3.variant-cert.pem
-PEER0_ORG2_CA=${DIR}/network/organizations-variant/peerOrganizations/org2.fabric3.variant/tlsca/tlsca.org2.fabric3.variant-cert.pem
-PEER0_ORG3_CA=${DIR}/network/organizations-variant/peerOrganizations/org3.fabric3.variant/tlsca/tlsca.org3.fabric3.variant-cert.pem
+ORDERER_CA=${DIR}/network/organizations-variant/ordererOrganizations/smartbft/tlsca/tlsca.smartbft-cert.pem
+PEER0_ORG1_CA=${DIR}/network/organizations-variant/peerOrganizations/org1.smartbft/tlsca/tlsca.org1.smartbft-cert.pem
+PEER0_ORG2_CA=${DIR}/network/organizations-variant/peerOrganizations/org2.smartbft/tlsca/tlsca.org2.smartbft-cert.pem
+PEER0_ORG3_CA=${DIR}/network/organizations-variant/peerOrganizations/org3.smartbft/tlsca/tlsca.org3.smartbft-cert.pem
 
 if [[ ${ORG,,} == "org1" || ${ORG,,} == "digibank" ]]; then
    CORE_PEER_LOCALMSPID=Org1MSP
-   CORE_PEER_MSPCONFIGPATH=${DIR}/network/organizations-variant/peerOrganizations/org1.fabric3.variant/users/Admin@org1.fabric3.variant/msp
+   CORE_PEER_MSPCONFIGPATH=${DIR}/network/organizations-variant/peerOrganizations/org1.smartbft/users/Admin@org1.smartbft/msp
    CORE_PEER_ADDRESS=localhost:7353
-   CORE_PEER_TLS_ROOTCERT_FILE=${DIR}/network/organizations-variant/peerOrganizations/org1.fabric3.variant/tlsca/tlsca.org1.fabric3.variant-cert.pem
+   CORE_PEER_TLS_ROOTCERT_FILE=${DIR}/network/organizations-variant/peerOrganizations/org1.smartbft/tlsca/tlsca.org1.smartbft-cert.pem
 
 elif [[ ${ORG,,} == "org2" || ${ORG,,} == "magnetocorp" ]]; then
    CORE_PEER_LOCALMSPID=Org2MSP
-   CORE_PEER_MSPCONFIGPATH=${DIR}/network/organizations-variant/peerOrganizations/org2.fabric3.variant/users/Admin@org2.fabric3.variant/msp
+   CORE_PEER_MSPCONFIGPATH=${DIR}/network/organizations-variant/peerOrganizations/org2.smartbft/users/Admin@org2.smartbft/msp
    CORE_PEER_ADDRESS=localhost:9553
-   CORE_PEER_TLS_ROOTCERT_FILE=${DIR}/network/organizations-variant/peerOrganizations/org2.fabric3.variant/tlsca/tlsca.org2.fabric3.variant-cert.pem
+   CORE_PEER_TLS_ROOTCERT_FILE=${DIR}/network/organizations-variant/peerOrganizations/org2.smartbft/tlsca/tlsca.org2.smartbft-cert.pem
 
 else
    echo "Unknown \"$ORG\", please choose Org1/Digibank or Org2/Magnetocorp"
@@ -48,3 +48,4 @@ echo "CORE_PEER_MSPCONFIGPATH=${CORE_PEER_MSPCONFIGPATH}"
 echo "CORE_PEER_ADDRESS=${CORE_PEER_ADDRESS}"
 echo "CORE_PEER_TLS_ROOTCERT_FILE=${CORE_PEER_TLS_ROOTCERT_FILE}"
 echo "CORE_PEER_LOCALMSPID=${CORE_PEER_LOCALMSPID}"
+

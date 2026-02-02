@@ -4,7 +4,8 @@
 channel_name=$1
 
 export PATH=${ROOTDIR}/../bin:${PWD}/../bin:$PATH
-export ORDERER_ADMIN_TLS_SIGN_CERT=${PWD}/organizations-variant/ordererOrganizations/fabric3.variant/orderers/orderer4.fabric3.variant/tls/server.crt
-export ORDERER_ADMIN_TLS_PRIVATE_KEY=${PWD}/organizations-variant/ordererOrganizations/fabric3.variant/orderers/orderer4.fabric3.variant/tls/server.key
+export ORDERER_ADMIN_TLS_SIGN_CERT=${PWD}/organizations-variant/ordererOrganizations/smartbft/orderers/orderer4.smartbft/tls/server.crt
+export ORDERER_ADMIN_TLS_PRIVATE_KEY=${PWD}/organizations-variant/ordererOrganizations/smartbft/orderers/orderer4.smartbft/tls/server.key
 
 osnadmin channel join --channelID ${channel_name} --config-block ./channel-artifacts/${channel_name}.block -o localhost:9259 --ca-file "$ORDERER_CA" --client-cert "$ORDERER_ADMIN_TLS_SIGN_CERT" --client-key "$ORDERER_ADMIN_TLS_PRIVATE_KEY" >> log.txt 2>&1
+

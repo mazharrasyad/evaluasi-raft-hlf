@@ -3,23 +3,22 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-version: '3.7'
 
 volumes:
-  peer0.org3.fabric3.variant:
+  peer0.org3.smartbft:
 
 networks:
   test:
-    name: fabric3_raft_variant_net
+    name: smartbft_net
 
 services:
 
-  peer0.org3.fabric3.variant:
-    container_name: peer0.org3.fabric3.variant
+  peer0.org3.smartbft:
+    container_name: peer0.org3.smartbft
     image: hyperledger/fabric-peer:latest
     labels:
       service: hyperledger-fabric
-      raft-network: fabric3-raft-variant
+      raft-network: smartbft
     environment:
       - FABRIC_CFG_PATH=/etc/hyperledger/peercfg
       #Generic peer variables
@@ -31,22 +30,23 @@ services:
       - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
       - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
       # Peer specific variables
-      - CORE_PEER_ID=peer0.org3.fabric3.variant
-      - CORE_PEER_ADDRESS=peer0.org3.fabric3.variant:11051
+      - CORE_PEER_ID=peer0.org3.smartbft
+      - CORE_PEER_ADDRESS=peer0.org3.smartbft:11051
       - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp
       - CORE_PEER_LISTENADDRESS=0.0.0.0:11051
-      - CORE_PEER_CHAINCODEADDRESS=peer0.org3.fabric3.variant:11052
+      - CORE_PEER_CHAINCODEADDRESS=peer0.org3.smartbft:11052
       - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:11052
-      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org3.fabric3.variant:11051
-      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org3.fabric3.variant:11051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org3.smartbft:11051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org3.smartbft:11051
       - CORE_PEER_LOCALMSPID=Org3MSP
     volumes:
         - ../peercfg:/etc/hyperledger/peercfg
-        - ../../organizations-variant/peerOrganizations/org3.fabric3.variant/peers/peer0.org3.fabric3.variant:/etc/hyperledger/fabric
-        - peer0.org3.fabric3.variant:/var/hyperledger/production
+        - ../../organizations-variant/peerOrganizations/org3.smartbft/peers/peer0.org3.smartbft:/etc/hyperledger/fabric
+        - peer0.org3.smartbft:/var/hyperledger/production
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
     command: peer node start
     ports:
       - 11151:11051
     networks:
       - test
+

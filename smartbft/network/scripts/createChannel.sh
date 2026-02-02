@@ -62,6 +62,10 @@ createChannel() {
     fi
 		res=$?
 		{ set +x; } 2>/dev/null
+    if [ $res -ne 0 ] && grep -qi "channel already exists" log.txt; then
+      infoln "Channel '${CHANNEL_NAME}' already exists on orderer. Skipping create."
+      res=0
+    fi
 		let rc=$res
 		COUNTER=$(expr $COUNTER + 1)
 	done

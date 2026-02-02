@@ -1205,10 +1205,6 @@ app.get('/implementation', (req, res) => {
     res.sendFile(path.join(pagesRoot, 'implementation.html'));
 });
 
-app.get('/dummy-transactions', (req, res) => {
-    res.sendFile(path.join(pagesRoot, 'dummy-transactions.html'));
-});
-
 app.get('/test-execution', (req, res) => {
     res.sendFile(path.join(pagesRoot, 'test-execution.html'));
 });

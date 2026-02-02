@@ -109,12 +109,12 @@ foreach ($p in $pathsToRemove) {
 Write-Host "[INFO] Starting RAFT network..."
 & $gitBash -lc "$bashPrefix cd '$scriptDir/raft/network'; ./network.sh up createChannel -c raft"
 & $gitBash -lc "$bashPrefix sleep 30"
-& $gitBash -lc "$bashPrefix cd '$scriptDir/raft/network'; ./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl node -c raft"
+& $gitBash -lc "$bashPrefix cd '$scriptDir/raft/network'; ./network.sh deployCCAAS -ccn pelaporan -ccp ../chaincode/pelaporan -ccs auto -c raft"
 
 Write-Host "[INFO] Starting SmartBFT network..."
 & $gitBash -lc "$bashPrefix cd '$scriptDir/smartbft/network'; ./network.sh up createChannel -c smartbft"
 & $gitBash -lc "$bashPrefix sleep 30"
-& $gitBash -lc "$bashPrefix cd '$scriptDir/smartbft/network'; ./network.sh deployCC -ccn pelaporan -ccp ../chaincode/pelaporan -ccl node -c smartbft"
+& $gitBash -lc "$bashPrefix cd '$scriptDir/smartbft/network'; ./network.sh deployCCAAS -ccn pelaporan -ccp ../chaincode/pelaporan -ccs auto -c smartbft"
 if ($LASTEXITCODE -ne 0) {
     Write-Host "[ERROR] Network startup failed!"
     exit $LASTEXITCODE

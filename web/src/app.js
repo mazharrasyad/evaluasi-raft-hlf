@@ -28,6 +28,7 @@ const networkStartupLogPath = path.resolve(logsRoot, 'network-start.log');
 const EXEC_MAX_BUFFER = 20 * 1024 * 1024;
 
 const dataRoot = path.resolve(__dirname, '../data');
+const analysisRoot = path.resolve(__dirname, '../data/analysis');
 const simulationsDataPath = path.resolve(dataRoot, 'simulations.jsonl');
 const throughputDataPath = path.resolve(dataRoot, 'throughput-metrics.jsonl');
 
@@ -1610,6 +1611,7 @@ app.post('/api/raft/pelaporan', async (req, res) => {
             networkId,
             label: 'Fabric 3 Raft',
             result,
+            error: result.error || null,  // Include error from result if present
         });
     } catch (error) {
         console.error('Error submitting to Fabric 3 Raft:', error);
@@ -1702,6 +1704,7 @@ app.post('/api/smartbft/pelaporan', async (req, res) => {
             networkId,
             label: 'Fabric 3 SmartBFT',
             result,
+            error: result.error || null,  // Include error from result if present
         });
     } catch (error) {
         console.error('Error submitting to Fabric 3 SmartBFT:', error);
@@ -2300,6 +2303,162 @@ app.delete('/api/metrics/clear', async (req, res) => {
         });
     } catch (error) {
         console.error('Error clearing metrics:', error);
+        res.status(500).json({
+            success: false,
+            error: error instanceof Error ? error.message : String(error)
+        });
+    }
+});
+
+// ============================================================================
+// SCENARIO RESULTS BACKUP API - Menyimpan hasil skenario ke file
+// ============================================================================
+
+// POST /api/analysis/save-scenario - Menyimpan hasil skenario ke file backup
+app.post('/api/analysis/save-scenario', async (req, res) => {
+    const savedAt = new Date().toISOString();
+    
+    try {
+        const { scenarioId, scenarioConfig, iterations, results, summary } = req.body;
+        
+        if (!scenarioId || !results) {
+            return res.status(400).json({
+                success: false,
+                error: 'scenarioId and results are required'
+            });
+        }
+
+        // Create analysis directory if not exists
+        await fs.mkdir(analysisRoot, { recursive: true });
+
+        // Generate filename with timestamp
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+        const filename = `${scenarioId}_${timestamp}.json`;
+        const filePath = path.join(analysisRoot, filename);
+
+        // Prepare data structure
+        const scenarioData = {
+            metadata: {
+                scenarioId,
+                savedAt,
+                filename,
+                version: '1.0'
+            },
+            config: scenarioConfig || {
+                txCount: null,
+                mode: null,
+                concurrency: null,
+                iterations: null
+            },
+            iterations: iterations || [],
+            results: results,
+            summary: summary || null
+        };
+
+        // Write to file
+        await fs.writeFile(filePath, JSON.stringify(scenarioData, null, 2), 'utf8');
+
+        console.log(`✅ Scenario ${scenarioId} saved to: ${filename}`);
+
+        res.json({
+            success: true,
+            savedAt,
+            filename,
+            filePath: `data/analysis/${filename}`,
+            message: `Scenario ${scenarioId} saved successfully`
+        });
+    } catch (error) {
+        console.error('Error saving scenario results:', error);
+        res.status(500).json({
+            success: false,
+            error: error instanceof Error ? error.message : String(error)
+        });
+    }
+});
+
+// GET /api/analysis/scenarios - Mendapatkan daftar file hasil skenario
+app.get('/api/analysis/scenarios', async (req, res) => {
+    try {
+        // Create directory if not exists
+        await fs.mkdir(analysisRoot, { recursive: true });
+        
+        const files = await fs.readdir(analysisRoot);
+        const jsonFiles = files.filter(f => f.endsWith('.json'));
+        
+        const scenarios = [];
+        for (const filename of jsonFiles) {
+            try {
+                const filePath = path.join(analysisRoot, filename);
+                const content = await fs.readFile(filePath, 'utf8');
+                const data = JSON.parse(content);
+                
+                scenarios.push({
+                    filename,
+                    scenarioId: data.metadata?.scenarioId || filename.split('_')[0],
+                    savedAt: data.metadata?.savedAt || null,
+                    config: data.config || null,
+                    hasResults: !!data.results,
+                    hasSummary: !!data.summary
+                });
+            } catch (parseErr) {
+                // Skip invalid files
+                console.warn(`Could not parse ${filename}:`, parseErr.message);
+            }
+        }
+        
+        // Sort by savedAt descending
+        scenarios.sort((a, b) => new Date(b.savedAt) - new Date(a.savedAt));
+
+        res.json({
+            success: true,
+            count: scenarios.length,
+            directory: 'data/analysis',
+            scenarios
+        });
+    } catch (error) {
+        console.error('Error listing scenario files:', error);
+        res.status(500).json({
+            success: false,
+            error: error instanceof Error ? error.message : String(error)
+        });
+    }
+});
+
+// GET /api/analysis/scenario/:filename - Mendapatkan detail file hasil skenario
+app.get('/api/analysis/scenario/:filename', async (req, res) => {
+    try {
+        const { filename } = req.params;
+        
+        // Security: prevent directory traversal
+        if (filename.includes('..') || filename.includes('/') || filename.includes('\\')) {
+            return res.status(400).json({
+                success: false,
+                error: 'Invalid filename'
+            });
+        }
+        
+        const filePath = path.join(analysisRoot, filename);
+        
+        // Check if file exists
+        try {
+            await fs.access(filePath, fsConstants.F_OK);
+        } catch {
+            return res.status(404).json({
+                success: false,
+                error: 'File not found'
+            });
+        }
+        
+        const content = await fs.readFile(filePath, 'utf8');
+        const data = JSON.parse(content);
+        
+        res.json({
+            success: true,
+            filename,
+            data
+        });
+    } catch (error) {
+        console.error('Error reading scenario file:', error);
         res.status(500).json({
             success: false,
             error: error instanceof Error ? error.message : String(error)

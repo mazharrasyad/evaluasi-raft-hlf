@@ -1138,6 +1138,88 @@
       return new Promise(resolve => setTimeout(resolve, ms));
     }
 
+    // Save scenario results to file backup
+    async function saveScenarioToFile(scenarioId, scenario, allResults, targets) {
+      try {
+        // Calculate summary from all iterations
+        const summary = {
+          totalIterations: allResults.length,
+          networks: {}
+        };
+
+        targets.forEach(target => {
+          const networkData = {
+            totalTx: 0,
+            successTx: 0,
+            failedTx: 0,
+            totalLatencyMs: 0,
+            avgLatencyMs: 0,
+            avgTps: 0,
+            tpsValues: []
+          };
+
+          allResults.forEach(iterResult => {
+            if (iterResult[target]) {
+              const r = iterResult[target];
+              networkData.totalTx += r.txSuccess + r.txFailed;
+              networkData.successTx += r.txSuccess;
+              networkData.failedTx += r.txFailed;
+              
+              if (r.latencies && r.latencies.length > 0) {
+                networkData.totalLatencyMs += r.latencies.reduce((a, b) => a + b, 0);
+              }
+              
+              if (r.durationSec > 0 && r.txSuccess > 0) {
+                const tps = r.txSuccess / r.durationSec;
+                networkData.tpsValues.push(tps);
+              }
+            }
+          });
+
+          // Calculate averages
+          if (networkData.successTx > 0) {
+            networkData.avgLatencyMs = networkData.totalLatencyMs / networkData.successTx;
+          }
+          if (networkData.tpsValues.length > 0) {
+            networkData.avgTps = networkData.tpsValues.reduce((a, b) => a + b, 0) / networkData.tpsValues.length;
+          }
+
+          summary.networks[target] = networkData;
+        });
+
+        // Prepare iterations data
+        const iterationsData = allResults.map((iterResult, idx) => ({
+          iteration: idx + 1,
+          results: iterResult
+        }));
+
+        // Call API to save
+        const saveRes = await postJson('/api/analysis/save-scenario', {
+          scenarioId,
+          scenarioConfig: {
+            txCount: scenario.txCount,
+            mode: scenario.mode,
+            concurrency: scenario.concurrency,
+            iterations: scenario.iterations,
+            faultAction: scenario.faultAction || null,
+            description: scenario.description,
+            name: scenario.name
+          },
+          iterations: iterationsData,
+          results: allResults,
+          summary
+        });
+
+        if (saveRes.success) {
+          log(`📁 Hasil disimpan: ${saveRes.filename}`, 'success');
+        } else {
+          log(`⚠ Gagal menyimpan hasil: ${saveRes.error}`, 'warning');
+        }
+      } catch (err) {
+        log(`⚠ Gagal menyimpan hasil ke file: ${err.message}`, 'warning');
+      }
+    }
+
     // ============================================================
     // MAIN TEST EXECUTION
     // ============================================================
@@ -1208,6 +1290,9 @@
           displayResults(allResults[allResults.length - 1]); // Show last iteration results
           setTestStatus('completed', 'Completed');
           log(`\n✓ Skenario ${scenarioId} selesai: ${iterations} iterasi`, 'success');
+          
+          // Save scenario results to file backup
+          await saveScenarioToFile(scenarioId, scenario, allResults, targets);
         } else {
           updateScenarioTableStatus(scenarioId, 'failed');
           setTestStatus('cancelled', 'Cancelled');
@@ -1514,7 +1599,9 @@
         } else {
           testState.stats.failed++;
           networkResults[target].txFailed++;
-          log(`${network.label} TX ${index}/${txCount}: FAILED - ${submitRes.error}`, 'error');
+          // Extract error message from response or result
+          const errorMsg = submitRes.error || submitRes.result?.error || 'Unknown error';
+          log(`${network.label} TX ${index}/${txCount}: FAILED - ${errorMsg}`, 'error');
         }
       } catch (err) {
         testState.stats.failed++;
@@ -1646,6 +1733,9 @@
             completedCount++;
             allBatchResults.push({ scenarioId, results: scenarioResults });
             log(`✓ Skenario ${scenarioId} selesai`, 'success');
+            
+            // Save scenario results to file backup
+            await saveScenarioToFile(scenarioId, scenario, scenarioResults, targets);
           } else {
             updateScenarioTableStatus(scenarioId, 'failed');
             failedCount++;

@@ -1765,6 +1765,116 @@ app.get('/api/smartbft/pelaporan', async (req, res) => {
 });
 
 // ============================================================================
+// FAULT INJECTION API - Untuk pengujian Fault Tolerance
+// ============================================================================
+
+app.post('/api/fault-injection', async (req, res) => {
+    const { action, target, consensus } = req.body;
+    const timestamp = new Date().toISOString();
+
+    console.log(`[FAULT INJECTION] Action: ${action}, Target: ${target}, Consensus: ${consensus}`);
+
+    // Determine the correct orderer container based on consensus type
+    let ordererContainers = [];
+    
+    if (consensus === 'raft') {
+        // RAFT network orderers (from raft/network/compose)
+        ordererContainers = [
+            'orderer.example.com',
+            'orderer2.example.com', 
+            'orderer3.example.com'
+        ];
+    } else if (consensus === 'smartbft') {
+        // SmartBFT network orderers (from smartbft/network/compose)
+        ordererContainers = [
+            'orderer.example.com',
+            'orderer2.example.com',
+            'orderer3.example.com',
+            'orderer4.example.com'
+        ];
+    }
+
+    // Pick one orderer to target (usually the first non-leader or a random one)
+    const targetOrderer = ordererContainers[1] || ordererContainers[0]; // Target orderer2 by default
+
+    try {
+        const { exec } = require('child_process');
+        const util = require('util');
+        const execPromise = util.promisify(exec);
+
+        let command = '';
+        
+        if (action === 'kill') {
+            command = `docker stop ${targetOrderer}`;
+        } else if (action === 'restart') {
+            command = `docker restart ${targetOrderer}`;
+        } else {
+            return res.status(400).json({
+                success: false,
+                error: `Unknown action: ${action}. Use 'kill' or 'restart'.`
+            });
+        }
+
+        console.log(`[FAULT INJECTION] Executing: ${command}`);
+        
+        const { stdout, stderr } = await execPromise(command, { timeout: 30000 });
+        
+        console.log(`[FAULT INJECTION] Result: ${stdout || 'OK'}`);
+        if (stderr) console.warn(`[FAULT INJECTION] Stderr: ${stderr}`);
+
+        res.json({
+            success: true,
+            timestamp,
+            action,
+            target: targetOrderer,
+            consensus,
+            command,
+            output: stdout || 'Command executed successfully'
+        });
+
+    } catch (err) {
+        console.error(`[FAULT INJECTION] Error: ${err.message}`);
+        
+        res.status(500).json({
+            success: false,
+            timestamp,
+            action,
+            target: targetOrderer,
+            consensus,
+            error: err.message,
+            hint: 'Make sure Docker is running and the container exists. You may need to run the command manually.'
+        });
+    }
+});
+
+// GET endpoint to check orderer status
+app.get('/api/fault-injection/status', async (req, res) => {
+    try {
+        const { exec } = require('child_process');
+        const util = require('util');
+        const execPromise = util.promisify(exec);
+
+        const { stdout } = await execPromise('docker ps --format "{{.Names}}: {{.Status}}" | grep orderer || echo "No orderers found"');
+        
+        const orderers = stdout.trim().split('\n').map(line => {
+            const [name, ...statusParts] = line.split(': ');
+            return { name, status: statusParts.join(': ') };
+        });
+
+        res.json({
+            success: true,
+            timestamp: new Date().toISOString(),
+            orderers
+        });
+    } catch (err) {
+        res.status(500).json({
+            success: false,
+            error: err.message
+        });
+    }
+});
+
+// ============================================================================
 // METRICS API ENDPOINTS - Untuk pengukuran throughput per data
 // ============================================================================
 

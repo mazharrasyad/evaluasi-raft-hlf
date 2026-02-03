@@ -1222,11 +1222,14 @@
     }
 
     async function runSingleIteration(scenario, targets, iterationNum) {
-      const { txCount, mode, concurrency } = scenario;
+      const { txCount, mode, concurrency, faultAction } = scenario;
       const totalTx = txCount * targets.length;
       
       let simulationId = null;
       const networkResults = {};
+
+      // Check if this is a fault tolerance scenario
+      const isFaultTest = faultAction && (faultAction === 'kill' || faultAction === 'restart');
 
       // Start simulation
       const startPayload = {
@@ -1241,6 +1244,12 @@
       simulationId = startRes.simulationId;
       log(`Simulation started: ${simulationId}`, 'info');
 
+      // For fault tolerance tests, show warning
+      if (isFaultTest) {
+        log(`⚠ FAULT TOLERANCE TEST: Will ${faultAction} orderer at ~40% progress`, 'warning');
+        log(`⚠ Make sure Docker containers are running and accessible`, 'warning');
+      }
+
       for (const target of targets) {
         if (testState.cancelled) break;
 
@@ -1254,12 +1263,23 @@
           txFailed: 0,
           startTimestamp: new Date().toISOString(),
           endTimestamp: null,
-          latencies: []
+          latencies: [],
+          faultInjection: isFaultTest ? {
+            action: faultAction,
+            triggered: false,
+            triggerTime: null,
+            recoveryTime: null,
+            txBeforeFault: 0,
+            txDuringFault: 0,
+            txAfterRecovery: 0
+          } : null
         };
 
-        log(`→ ${network.label}: ${txCount} tx (${mode}, c=${concurrency})`, 'info');
+        log(`→ ${network.label}: ${txCount} tx (${mode}, c=${concurrency})${isFaultTest ? ` [FAULT: ${faultAction}]` : ''}`, 'info');
 
-        if (mode === 'parallel' && concurrency > 1) {
+        if (isFaultTest) {
+          await runFaultToleranceTest(network, target, txCount, concurrency, simulationId, networkResults, scenario.id, faultAction);
+        } else if (mode === 'parallel' && concurrency > 1) {
           await runParallelTransactions(network, target, txCount, concurrency, simulationId, networkResults, scenario.id);
         } else {
           await runSequentialTransactions(network, target, txCount, simulationId, networkResults, scenario.id, totalTx);
@@ -1272,7 +1292,18 @@
         const tps = networkResults[target].durationSec > 0 
           ? (networkResults[target].txSuccess / networkResults[target].durationSec).toFixed(2) 
           : 0;
-        log(`← ${network.label}: ${networkResults[target].txSuccess}/${txCount} OK, TPS: ${tps}`, 'success');
+        
+        if (isFaultTest && networkResults[target].faultInjection) {
+          const fi = networkResults[target].faultInjection;
+          log(`← ${network.label}: ${networkResults[target].txSuccess}/${txCount} OK, TPS: ${tps}`, 'success');
+          log(`  └─ Fault Stats: Before=${fi.txBeforeFault}, During=${fi.txDuringFault}, After=${fi.txAfterRecovery}`, 'info');
+          if (fi.recoveryTime && fi.triggerTime) {
+            const recoveryMs = new Date(fi.recoveryTime) - new Date(fi.triggerTime);
+            log(`  └─ Recovery Time: ${recoveryMs}ms`, 'info');
+          }
+        } else {
+          log(`← ${network.label}: ${networkResults[target].txSuccess}/${txCount} OK, TPS: ${tps}`, 'success');
+        }
       }
 
       // Complete simulation
@@ -1282,6 +1313,133 @@
       }
 
       return networkResults;
+    }
+
+    // Fault Tolerance Test execution
+    async function runFaultToleranceTest(network, target, txCount, concurrency, simulationId, networkResults, scenarioId, faultAction) {
+      const faultTriggerPoint = Math.floor(txCount * 0.4); // Trigger at 40%
+      let faultTriggered = false;
+      let faultRecovered = false;
+      
+      const txIndices = Array.from({ length: txCount }, (_, i) => i + 1);
+      
+      for (let batchStart = 0; batchStart < txIndices.length; batchStart += concurrency) {
+        if (testState.cancelled) {
+          log('Test cancelled by user', 'warning');
+          break;
+        }
+
+        const batch = txIndices.slice(batchStart, batchStart + concurrency);
+        const currentProgress = batchStart + batch.length;
+        
+        // Trigger fault at ~40% progress
+        if (!faultTriggered && currentProgress >= faultTriggerPoint) {
+          faultTriggered = true;
+          networkResults[target].faultInjection.triggered = true;
+          networkResults[target].faultInjection.triggerTime = new Date().toISOString();
+          networkResults[target].faultInjection.txBeforeFault = networkResults[target].txSuccess;
+          
+          log(`\n🔥 TRIGGERING FAULT: ${faultAction.toUpperCase()} orderer for ${network.label}`, 'warning');
+          
+          try {
+            await triggerFaultAction(network.consensus, faultAction);
+            log(`✓ Fault action '${faultAction}' executed successfully`, 'warning');
+            
+            // Wait a bit to let the fault take effect
+            await delay(2000);
+            
+          } catch (err) {
+            log(`✗ Fault action failed: ${err.message}`, 'error');
+            log(`  Note: Manual fault injection may be required via Docker`, 'warning');
+          }
+        }
+        
+        // Execute batch concurrently
+        const batchPromises = batch.map(i => 
+          executeSingleTransaction(network, target, i, txCount, simulationId, networkResults, scenarioId, true)
+            .catch(err => {
+              // Count failures during fault
+              if (faultTriggered && !faultRecovered) {
+                networkResults[target].faultInjection.txDuringFault++;
+              }
+              return null;
+            })
+        );
+        
+        const results = await Promise.all(batchPromises);
+        
+        // Check for recovery (if transactions start succeeding again after fault)
+        if (faultTriggered && !faultRecovered) {
+          const successfulInBatch = results.filter(r => r !== null).length;
+          if (successfulInBatch > batch.length * 0.5) { // More than 50% success = recovered
+            faultRecovered = true;
+            networkResults[target].faultInjection.recoveryTime = new Date().toISOString();
+            log(`✓ System recovered - transactions succeeding again`, 'success');
+          }
+        }
+        
+        // Count successful tx after recovery
+        if (faultRecovered) {
+          const successfulInBatch = results.filter(r => r !== null).length;
+          networkResults[target].faultInjection.txAfterRecovery += successfulInBatch;
+        }
+        
+        updateProgress(testState.stats.total, txCount);
+      }
+      
+      // If fault was restart, ensure orderer is back up
+      if (faultAction === 'restart' && faultTriggered) {
+        log(`Ensuring orderer is fully recovered...`, 'info');
+        await delay(3000);
+      }
+    }
+
+    // Trigger fault action via API or Docker command
+    async function triggerFaultAction(consensus, action) {
+      // Determine orderer container name based on consensus
+      const ordererContainer = consensus === 'raft' 
+        ? 'orderer.example.com'  // RAFT orderer
+        : 'orderer.example.com'; // SmartBFT orderer (adjust if different)
+      
+      log(`Target container: ${ordererContainer}`, 'info');
+      
+      // Try to call fault injection API (if available)
+      try {
+        const response = await fetch('/api/fault-injection', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: action,
+            target: ordererContainer,
+            consensus: consensus
+          })
+        });
+        
+        if (response.ok) {
+          const result = await response.json();
+          return result;
+        } else {
+          throw new Error(`API returned ${response.status}`);
+        }
+      } catch (apiErr) {
+        // API not available - log manual instructions
+        log(`⚠ Fault injection API not available`, 'warning');
+        log(`📋 MANUAL ACTION REQUIRED:`, 'warning');
+        
+        if (action === 'kill') {
+          log(`   docker stop ${ordererContainer}`, 'info');
+        } else if (action === 'restart') {
+          log(`   docker restart ${ordererContainer}`, 'info');
+        }
+        
+        log(`   Execute the command above in another terminal NOW!`, 'warning');
+        log(`   Waiting 10 seconds for manual action...`, 'warning');
+        
+        // Give user time to manually execute
+        await delay(10000);
+        
+        return { manual: true };
+      }
     }
 
     // Sequential transaction execution

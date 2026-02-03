@@ -1121,17 +1121,66 @@
     // ============================================================
     // API UTILITIES
     // ============================================================
-    async function postJson(url, payload) {
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(`HTTP ${res.status}: ${text}`);
+    
+    // Fetch with timeout and retry support
+    async function fetchWithTimeout(url, options = {}, timeoutMs = 120000) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+      
+      try {
+        const response = await fetch(url, {
+          ...options,
+          signal: controller.signal
+        });
+        return response;
+      } finally {
+        clearTimeout(timeoutId);
       }
-      return res.json();
+    }
+    
+    // Post JSON with retry logic
+    async function postJson(url, payload, retries = 3, timeoutMs = 120000) {
+      let lastError = null;
+      
+      for (let attempt = 0; attempt < retries; attempt++) {
+        try {
+          const res = await fetchWithTimeout(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          }, timeoutMs);
+          
+          if (!res.ok) {
+            const text = await res.text();
+            throw new Error(`HTTP ${res.status}: ${text}`);
+          }
+          return res.json();
+        } catch (err) {
+          lastError = err;
+          
+          // Check if it's a retryable error
+          const isRetryable = err.name === 'AbortError' || 
+                              err.message.includes('Failed to fetch') ||
+                              err.message.includes('NetworkError') ||
+                              err.message.includes('timeout') ||
+                              err.message.includes('HTTP 503') ||
+                              err.message.includes('HTTP 502') ||
+                              err.message.includes('HTTP 504');
+          
+          if (isRetryable && attempt < retries - 1) {
+            // Exponential backoff with jitter
+            const backoffMs = Math.min(1000 * Math.pow(2, attempt) + Math.random() * 500, 10000);
+            console.warn(`[Retry ${attempt + 1}/${retries}] ${url} - ${err.message}, waiting ${backoffMs}ms...`);
+            await delay(backoffMs);
+          } else if (!isRetryable) {
+            // Non-retryable error, throw immediately
+            throw err;
+          }
+        }
+      }
+      
+      // All retries exhausted
+      throw lastError;
     }
 
     function delay(ms) {
@@ -1593,15 +1642,19 @@
         const success = submitRes.success !== false;
         const latencyMs = new Date(completedAt).getTime() - new Date(submittedAt).getTime();
 
-        // Record transaction
-        await postJson(`/api/metrics/simulation/${simulationId}/transaction`, {
-          txId: record.reportId,
-          networkId: network.id,
-          submittedAt,
-          completedAt,
-          success,
-          error: submitRes.error || null
-        });
+        // Record transaction to metrics API
+        try {
+          await postJson(`/api/metrics/simulation/${simulationId}/transaction`, {
+            txId: record.reportId,
+            networkId: network.id,
+            submittedAt,
+            completedAt,
+            success,
+            error: submitRes.error || null
+          }, 2, 30000); // 2 retries, 30s timeout for metrics
+        } catch (metricsErr) {
+          console.warn(`Failed to record metrics for TX ${index}:`, metricsErr.message);
+        }
 
         if (success) {
           testState.stats.success++;
@@ -1618,8 +1671,24 @@
           log(`${network.label} TX ${index}/${txCount}: FAILED - ${errorMsg}`, 'error');
         }
       } catch (err) {
+        const completedAt = new Date().toISOString();
         testState.stats.failed++;
         networkResults[target].txFailed++;
+        
+        // Record failed transaction to metrics API
+        try {
+          await postJson(`/api/metrics/simulation/${simulationId}/transaction`, {
+            txId: record.reportId,
+            networkId: network.id,
+            submittedAt,
+            completedAt,
+            success: false,
+            error: err.message
+          }, 2, 30000); // 2 retries, 30s timeout for metrics
+        } catch (metricsErr) {
+          console.warn(`Failed to record error metrics for TX ${index}:`, metricsErr.message);
+        }
+        
         log(`${network.label} TX ${index}/${txCount}: ERROR - ${err.message}`, 'error');
       }
 

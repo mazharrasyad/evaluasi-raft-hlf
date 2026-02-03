@@ -589,32 +589,75 @@
             </p>
           </div>
 
+          <!-- Skenario C: Fault Tolerance (Tabel 4.5) -->
+          <div class="card" style="margin-bottom: 20px;">
+            <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 12px; color: #dc2626;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline; vertical-align: middle; margin-right: 6px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+              C. Fault Tolerance (Tabel 4.5)
+            </h3>
+            <div style="background: #fef2f2; padding: 12px; border-radius: 6px; margin-bottom: 12px; font-size: 12px;">
+              <strong>Pattern:</strong> PARALLEL | <strong>Transactions:</strong> 300 | <strong>Concurrency:</strong> 10 | <strong>Iterations:</strong> 2 per skenario
+            </div>
+            <table class="data-table" style="margin-top: 0;">
+              <thead>
+                <tr>
+                  <th style="width: 60px;">ID</th>
+                  <th style="width: 220px;">Jenis Gangguan</th>
+                  <th>Parameter yang Dicatat</th>
+                  <th style="width: 100px;">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>F1</code></td>
+                  <td>Mematikan satu node orderer saat pengujian berlangsung</td>
+                  <td>Waktu pemulihan sistem, jumlah transaksi berhasil dan gagal, lonjakan latency</td>
+                  <td><span class="scenario-status pending" id="status-F1">Pending</span></td>
+                </tr>
+                <tr>
+                  <td><code>F2</code></td>
+                  <td>Restart satu node orderer saat pengujian berlangsung</td>
+                  <td>Downtime sistem, retry transaksi, perubahan throughput dan latency</td>
+                  <td><span class="scenario-status pending" id="status-F2">Pending</span></td>
+                </tr>
+              </tbody>
+            </table>
+            <p style="font-size: 11px; color: var(--text-light); margin-top: 8px; margin-bottom: 0;">
+              Parameter yang dicatat meliputi waktu pemulihan sistem setelah gangguan, jumlah transaksi yang berhasil dan gagal diproses selama gangguan, serta perubahan nilai throughput dan latency akibat terjadinya kegagalan. Data hasil pengujian fault tolerance digunakan untuk membandingkan karakteristik ketahanan dan mekanisme pemulihan algoritma konsensus Raft dan SmartBFT.
+            </p>
+          </div>
+
           <!-- Ringkasan Total Run -->
           <div class="card" style="margin-bottom: 20px; background: linear-gradient(135deg, #f8fafc, #f1f5f9);">
             <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 12px; color: var(--text-dark);">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline; vertical-align: middle; margin-right: 6px;"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
               Ringkasan Total Run
             </h3>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
               <div style="background: white; padding: 12px; border-radius: 6px; text-align: center;">
                 <div style="font-size: 24px; font-weight: 700; color: #3b82f6;">9</div>
-                <div style="font-size: 11px; color: var(--text-light);">Sequential runs per konsensus</div>
+                <div style="font-size: 11px; color: var(--text-light);">Sequential runs</div>
                 <div style="font-size: 10px; color: var(--text-muted);">3 skenario × 3 iterasi</div>
               </div>
               <div style="background: white; padding: 12px; border-radius: 6px; text-align: center;">
                 <div style="font-size: 24px; font-weight: 700; color: #f59e0b;">12</div>
-                <div style="font-size: 11px; color: var(--text-light);">Parallel runs per konsensus</div>
+                <div style="font-size: 11px; color: var(--text-light);">Parallel runs</div>
                 <div style="font-size: 10px; color: var(--text-muted);">4 skenario × 3 iterasi</div>
               </div>
               <div style="background: white; padding: 12px; border-radius: 6px; text-align: center;">
-                <div style="font-size: 24px; font-weight: 700; color: #10b981;">21</div>
-                <div style="font-size: 11px; color: var(--text-light);">Total runs per konsensus</div>
-                <div style="font-size: 10px; color: var(--text-muted);">7 skenario × 3 iterasi</div>
+                <div style="font-size: 24px; font-weight: 700; color: #dc2626;">4</div>
+                <div style="font-size: 11px; color: var(--text-light);">Fault Tolerance runs</div>
+                <div style="font-size: 10px; color: var(--text-muted);">2 skenario × 2 iterasi</div>
               </div>
               <div style="background: white; padding: 12px; border-radius: 6px; text-align: center;">
-                <div style="font-size: 24px; font-weight: 700; color: #8b5cf6;">42</div>
-                <div style="font-size: 11px; color: var(--text-light);">Total runs (2 konsensus)</div>
-                <div style="font-size: 10px; color: var(--text-muted);">21 run × 2 network</div>
+                <div style="font-size: 24px; font-weight: 700; color: #10b981;">25</div>
+                <div style="font-size: 11px; color: var(--text-light);">Total per konsensus</div>
+                <div style="font-size: 10px; color: var(--text-muted);">9 + 12 + 4</div>
+              </div>
+              <div style="background: white; padding: 12px; border-radius: 6px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 700; color: #8b5cf6;">50</div>
+                <div style="font-size: 11px; color: var(--text-light);">Total (2 konsensus)</div>
+                <div style="font-size: 10px; color: var(--text-muted);">25 run × 2 network</div>
               </div>
             </div>
           </div>
@@ -651,6 +694,10 @@
                   <option value="P3">P3 — 500 tx, Concurrency 10 (scaling paralel)</option>
                   <option value="P4">P4 — 500 tx, Concurrency 20 (batas paralel)</option>
                 </optgroup>
+                <optgroup label="C. Fault Tolerance (Tabel 4.5)">
+                  <option value="F1">F1 — Kill orderer saat test (waktu pemulihan)</option>
+                  <option value="F2">F2 — Restart orderer saat test (downtime)</option>
+                </optgroup>
               </select>
             </div>
 
@@ -672,7 +719,7 @@
                 <button type="button" onclick="selectParallelOnly()" class="btn" style="padding: 4px 10px; font-size: 11px; background: #f59e0b; color: white;">Parallel Only</button>
               </div>
 
-              <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
+              <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
                 <!-- Sequential -->
                 <div style="background: white; padding: 10px; border-radius: 6px;">
                   <div style="font-size: 11px; font-weight: 600; color: #3b82f6; margin-bottom: 6px;">A. Sequential (Tabel 4.3)</div>
@@ -701,6 +748,17 @@
                   <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; cursor: pointer;">
                     <input type="checkbox" class="scenario-checkbox" value="P4" checked> <code>P4</code> 500tx c20
                   </label>
+                </div>
+                <!-- Fault Tolerance -->
+                <div style="background: white; padding: 10px; border-radius: 6px;">
+                  <div style="font-size: 11px; font-weight: 600; color: #dc2626; margin-bottom: 6px;">C. Fault Tolerance (Tabel 4.5)</div>
+                  <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; cursor: pointer; margin-bottom: 4px;">
+                    <input type="checkbox" class="scenario-checkbox" value="F1"> <code>F1</code> Kill orderer
+                  </label>
+                  <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; cursor: pointer;">
+                    <input type="checkbox" class="scenario-checkbox" value="F2"> <code>F2</code> Restart orderer
+                  </label>
+                  <div style="font-size: 10px; color: #94a3b8; margin-top: 6px;">⚠️ Memerlukan akses Docker</div>
                 </div>
               </div>
 
@@ -917,7 +975,11 @@
       P1: { id: 'P1', group: 'B', name: 'Paralel Ringan', txCount: 300, mode: 'parallel', concurrency: 5, iterations: 3, description: 'Beban paralel ringan' },
       P2: { id: 'P2', group: 'B', name: 'Paralel Menengah', txCount: 300, mode: 'parallel', concurrency: 10, iterations: 3, description: 'Beban paralel menengah (skenario utama)' },
       P3: { id: 'P3', group: 'B', name: 'Scaling Paralel', txCount: 500, mode: 'parallel', concurrency: 10, iterations: 3, description: 'Scaling transaksi dengan paralelisme' },
-      P4: { id: 'P4', group: 'B', name: 'Batas Paralel', txCount: 500, mode: 'parallel', concurrency: 20, iterations: 3, description: 'Uji batas paralel sistem' }
+      P4: { id: 'P4', group: 'B', name: 'Batas Paralel', txCount: 500, mode: 'parallel', concurrency: 20, iterations: 3, description: 'Uji batas paralel sistem' },
+      
+      // C. Fault Tolerance (Tabel 4.5)
+      F1: { id: 'F1', group: 'C', name: 'Kill Orderer', txCount: 300, mode: 'parallel', concurrency: 10, iterations: 2, description: 'Mematikan satu node orderer saat pengujian berlangsung', faultAction: 'kill' },
+      F2: { id: 'F2', group: 'C', name: 'Restart Orderer', txCount: 300, mode: 'parallel', concurrency: 10, iterations: 2, description: 'Restart satu node orderer saat pengujian berlangsung', faultAction: 'restart' }
     };
 
     // ============================================================

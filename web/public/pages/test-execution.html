@@ -681,7 +681,10 @@
             </div>
 
             <div style="margin-bottom: 16px;">
-              <label style="font-size: 13px; font-weight: 600; color: var(--text-dark); display: block; margin-bottom: 8px;">Skenario:</label>
+              <label style="font-size: 13px; font-weight: 600; color: var(--text-dark); display: block; margin-bottom: 8px;">
+                <span style="background: #3b82f6; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-right: 6px;">MODE 1</span>
+                Pilih Skenario Tunggal (Dropdown):
+              </label>
               <select id="scenarioSelect" style="width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px;">
                 <optgroup label="A. Sequential (Tabel 4.3)">
                   <option value="B1">B1 — 50 tx, Sequential (validasi awal)</option>
@@ -699,6 +702,9 @@
                   <option value="F2">F2 — Restart orderer saat test (downtime)</option>
                 </optgroup>
               </select>
+              <p style="font-size: 11px; color: var(--text-muted); margin-top: 6px; margin-bottom: 0;">
+                → Klik tombol <strong style="color: #3b82f6;">"Jalankan 1 Skenario (Dropdown)"</strong> untuk menjalankan skenario ini saja.
+              </p>
             </div>
 
             <div id="scenarioInfo" style="background: #f8fafc; padding: 12px; border-radius: 6px; margin-bottom: 16px; font-size: 13px;">
@@ -708,9 +714,13 @@
             <!-- Checklist Skenario untuk Batch Run -->
             <div style="margin-bottom: 16px; padding: 16px; background: linear-gradient(135deg, #f5f3ff, #ede9fe); border-radius: 8px; border: 1px solid #c4b5fd;">
               <label style="font-size: 13px; font-weight: 700; color: #5b21b6; display: block; margin-bottom: 12px;">
+                <span style="background: #8b5cf6; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-right: 6px;">MODE 2</span>
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline; vertical-align: middle; margin-right: 4px;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                Pilih Skenario untuk Batch Run:
+                Pilih Skenario untuk Batch Run (Checklist):
               </label>
+              <p style="font-size: 11px; color: #6d28d9; margin-top: -8px; margin-bottom: 12px;">
+                → Centang skenario yang ingin dijalankan, lalu klik tombol <strong>"Jalankan Batch (Checklist)"</strong>.
+              </p>
               
               <div style="display: flex; gap: 8px; margin-bottom: 12px;">
                 <button type="button" onclick="selectAllScenarios()" class="btn" style="padding: 4px 10px; font-size: 11px; background: #7c3aed; color: white;">Pilih Semua</button>
@@ -777,17 +787,17 @@
             </div>
 
             <div class="btn-group">
-              <button class="btn btn-primary" id="runTestBtn">
+              <button class="btn btn-primary" id="runTestBtn" title="Jalankan skenario yang dipilih dari dropdown di atas">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                Jalankan Skenario
+                Jalankan 1 Skenario (Dropdown)
               </button>
               <button class="btn btn-danger" id="stopTestBtn" disabled>
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12"/></svg>
                 Hentikan
               </button>
-              <button class="btn btn-secondary" id="runAllBtn" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
-                Jalankan Skenario Terpilih
+              <button class="btn btn-secondary" id="runAllBtn" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white;" title="Jalankan semua skenario yang dicentang pada checklist di atas">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                Jalankan Batch (Checklist)
               </button>
             </div>
           </div>

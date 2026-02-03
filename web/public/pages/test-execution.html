@@ -1547,6 +1547,11 @@
     // Parallel transaction execution with concurrency limit
     async function runParallelTransactions(network, target, txCount, concurrency, simulationId, networkResults, scenarioId) {
       const txIndices = Array.from({ length: txCount }, (_, i) => i + 1);
+      const totalBatches = Math.ceil(txCount / concurrency);
+      
+      // Add small delay between batches to prevent overwhelming peers
+      // Higher concurrency = longer delay to allow peers to catch up
+      const batchDelayMs = concurrency >= 20 ? 100 : (concurrency >= 10 ? 50 : 0);
       
       for (let batchStart = 0; batchStart < txIndices.length; batchStart += concurrency) {
         if (testState.cancelled) {
@@ -1556,14 +1561,23 @@
 
         const batch = txIndices.slice(batchStart, batchStart + concurrency);
         const batchNum = Math.floor(batchStart / concurrency) + 1;
-        const totalBatches = Math.ceil(txCount / concurrency);
         
-        // Execute batch concurrently
+        // Execute batch concurrently with error handling for each transaction
         const batchPromises = batch.map(i => 
           executeSingleTransaction(network, target, i, txCount, simulationId, networkResults, scenarioId, true)
+            .catch(err => {
+              // Don't let individual failures break the batch
+              console.error(`TX ${i} error:`, err.message);
+              return null;
+            })
         );
         
         await Promise.all(batchPromises);
+        
+        // Add delay between batches to allow peers to process
+        if (batchDelayMs > 0 && batchStart + concurrency < txIndices.length) {
+          await delay(batchDelayMs);
+        }
         // Progress is now updated in executeSingleTransaction
       }
     }

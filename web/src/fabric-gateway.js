@@ -92,7 +92,13 @@ async function createGrpcClient(config) {
         'grpc.keepalive_permit_without_calls': true,
         'grpc.http2.max_pings_without_data': 0,
         'grpc.http2.min_time_between_pings_ms': 10000,
-        'grpc.http2.min_ping_interval_without_data_ms': 300000
+        'grpc.http2.min_ping_interval_without_data_ms': 300000,
+        // Additional settings for high concurrency
+        'grpc.max_send_message_length': 100 * 1024 * 1024, // 100MB
+        'grpc.max_receive_message_length': 100 * 1024 * 1024, // 100MB
+        'grpc.max_concurrent_streams': 100,
+        'grpc.initial_reconnect_backoff_ms': 1000,
+        'grpc.max_reconnect_backoff_ms': 10000,
     });
 }
 
@@ -190,6 +196,50 @@ async function createSigner(config) {
 }
 
 /**
+ * Helper function for delay
+ */
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
+ * Retry configuration for handling endorsement failures
+ */
+const RETRY_CONFIG = {
+    maxRetries: 3,
+    baseDelayMs: 500,
+    maxDelayMs: 5000,
+    retryableErrors: [
+        'failed to collect enough transaction endorsements',
+        'ABORTED',
+        'UNAVAILABLE',
+        'DEADLINE_EXCEEDED',
+        'endorsement failure',
+        'chaincode response 500',
+        'proposal response was not successful',
+    ]
+};
+
+/**
+ * Check if an error is retryable
+ */
+function isRetryableError(error) {
+    const errorMessage = error.message || String(error);
+    return RETRY_CONFIG.retryableErrors.some(pattern => 
+        errorMessage.toLowerCase().includes(pattern.toLowerCase())
+    );
+}
+
+/**
+ * Calculate backoff delay with jitter
+ */
+function calculateBackoff(attempt) {
+    const exponentialDelay = RETRY_CONFIG.baseDelayMs * Math.pow(2, attempt);
+    const jitter = Math.random() * RETRY_CONFIG.baseDelayMs;
+    return Math.min(exponentialDelay + jitter, RETRY_CONFIG.maxDelayMs);
+}
+
+/**
  * Connect to Fabric Gateway
  */
 export async function connectToGateway(networkId) {
@@ -205,9 +255,11 @@ export async function connectToGateway(networkId) {
             identity,
             signer,
             hash: hash.sha256,
-            evaluateOptions: () => ({ deadline: Date.now() + 5000 }),
-            endorseOptions: () => ({ deadline: Date.now() + 15000 }),
-            submitOptions: () => ({ deadline: Date.now() + 30000 }),
+            // Increased timeouts for high concurrency scenarios
+            evaluateOptions: () => ({ deadline: Date.now() + 10000 }),   // 10s for queries
+            endorseOptions: () => ({ deadline: Date.now() + 30000 }),    // 30s for endorsement
+            submitOptions: () => ({ deadline: Date.now() + 60000 }),     // 60s for commit
+            commitStatusOptions: () => ({ deadline: Date.now() + 60000 }), // 60s for commit status
         });
 
         return {
@@ -230,145 +282,137 @@ export async function submitTransaction(networkId, record, metadata = {}) {
     let connection = null;
     let config = null;
     const submittedAt = new Date().toISOString();
+    const recordId = record.reportId || record.id;
 
-    try {
-        config = getNetworkConfig(networkId);
-        connection = await connectToGateway(networkId);
-        const { gateway, client } = connection;
-
-        // Get network and contract
-        const network = gateway.getNetwork(config.channel);
-        const contract = network.getContract(config.chaincode);
-
-        // Use reportId as the ID (frontend sends reportId, not id)
-        const recordId = record.reportId || record.id;
-        if (!recordId) {
-            throw new Error('Record must have either reportId or id property');
-        }
-
-        console.log(`📝 [${config.label}] Preparing to save simulationData to blockchain block...`);
-        console.log(`   Record ID: ${recordId}`);
-        console.log(`   Network: ${networkId} (${config.label})`);
-        console.log(`   Channel: ${config.channel}`);
-
-        // Prepare comprehensive data to store in blockchain block
-        const comprehensiveData = {
-            // Original simulation data
-            ...record,
-            // Submission metadata
-            submittedAt: metadata.submittedAt || submittedAt,
-            submittedToNetwork: config.label,
-            networkId: networkId,
-            // Network configuration metadata
-            networkMetadata: {
-                channel: config.channel,
-                chaincode: config.chaincode,
-                fabricVersion: config.fabricVersion || null,
-                variant: config.variant,
-                peerEndpoint: config.peerEndpoint,
-                label: config.label,
-            },
-            // Ensure ID fields are consistent
-            reportId: recordId,
-            id: recordId,
-        };
-
-        console.log(`💾 [${config.label}] Submitting transaction to create/update record in blockchain...`);
-
-        // Submit transaction using CreateOrUpdateCatatan to handle both new and existing records
-        const resultBytes = await contract.submitTransaction(
-            'CreateOrUpdateCatatan',
-            recordId,
-            JSON.stringify(comprehensiveData)
-        );
-
-        const completedAt = new Date().toISOString();
-
-        // Parse result
-        const resultString = new TextDecoder().decode(resultBytes);
-        const result = JSON.parse(resultString);
-
-        console.log(`✅ [${config.label}] SimulationData successfully saved to blockchain block!`);
-        console.log(`   Status: ${result.status}`);
-        console.log(`   Record ID: ${recordId}`);
-        console.log(`   Completed at: ${completedAt}`);
-
-        // Update record dengan completedAt untuk perhitungan throughput
-        // Ini penting agar data_throughput bisa menghitung TPS dengan akurat
-        const finalData = {
-            ...comprehensiveData,
-            completedAt: completedAt,
-            networkMetadata: {
-                ...comprehensiveData.networkMetadata,
-                submittedAt: comprehensiveData.submittedAt,
-                completedAt: completedAt,
-            }
-        };
-
-        await contract.submitTransaction(
-            'CreateOrUpdateCatatan',
-            recordId,
-            JSON.stringify(finalData)
-        );
-
-        // Validate the data was saved by reading it back
-        console.log(`🔍 [${config.label}] Validating data was saved correctly...`);
-        try {
-            const validationBytes = await contract.evaluateTransaction('ReadCatatan', recordId);
-            const validationString = new TextDecoder().decode(validationBytes);
-            const savedData = JSON.parse(validationString);
-
-            if (savedData && savedData.reportId === recordId) {
-                console.log(`✓ [${config.label}] Validation successful - data confirmed in blockchain!`);
-            } else {
-                console.warn(`⚠ [${config.label}] Validation warning - data may not match`);
-            }
-        } catch (validationError) {
-            console.warn(`⚠ [${config.label}] Could not validate saved data:`, validationError.message);
-        }
-
-        // Close connection
-        gateway.close();
-        client.close();
-
-        return {
-            success: true,
-            result,
-            networkId,
-            label: config.label,
-            recordId: recordId,
-            submittedAt,
-            completedAt,
-            timestamp: completedAt,
-            channel: config.channel,
-            chaincode: config.chaincode,
-        };
-    } catch (error) {
-        console.error(`❌ [${config ? config.label : networkId}] Failed to save simulationData to blockchain:`, error.message);
-
-        // Close connection if it was opened
-        if (connection) {
-            try {
-                connection.gateway.close();
-                connection.client.close();
-            } catch (closeError) {
-                console.error('Error closing connection:', closeError);
-            }
-        }
-
-        const recordId = record.reportId || record.id;
-        const completedAt = new Date().toISOString();
-
+    if (!recordId) {
         return {
             success: false,
-            error: error.message,
+            error: 'Record must have either reportId or id property',
             networkId,
-            label: config ? config.label : networkId,
-            recordId: recordId,
             submittedAt,
-            completedAt,
+            completedAt: new Date().toISOString(),
         };
     }
+
+    // Retry loop for handling transient errors
+    let lastError = null;
+    for (let attempt = 0; attempt <= RETRY_CONFIG.maxRetries; attempt++) {
+        try {
+            config = getNetworkConfig(networkId);
+            connection = await connectToGateway(networkId);
+            const { gateway, client } = connection;
+
+            // Get network and contract
+            const network = gateway.getNetwork(config.channel);
+            const contract = network.getContract(config.chaincode);
+
+            if (attempt === 0) {
+                console.log(`📝 [${config.label}] Preparing to save simulationData to blockchain block...`);
+                console.log(`   Record ID: ${recordId}`);
+                console.log(`   Network: ${networkId} (${config.label})`);
+                console.log(`   Channel: ${config.channel}`);
+            } else {
+                console.log(`🔄 [${config.label}] Retry attempt ${attempt}/${RETRY_CONFIG.maxRetries} for ${recordId}...`);
+            }
+
+            // Prepare comprehensive data to store in blockchain block
+            // Include completedAt from the start to avoid second submit
+            const comprehensiveData = {
+                // Original simulation data
+                ...record,
+                // Submission metadata
+                submittedAt: metadata.submittedAt || submittedAt,
+                submittedToNetwork: config.label,
+                networkId: networkId,
+                // Network configuration metadata
+                networkMetadata: {
+                    channel: config.channel,
+                    chaincode: config.chaincode,
+                    fabricVersion: config.fabricVersion || null,
+                    variant: config.variant,
+                    peerEndpoint: config.peerEndpoint,
+                    label: config.label,
+                },
+                // Ensure ID fields are consistent
+                reportId: recordId,
+                id: recordId,
+            };
+
+            // Submit transaction using CreateOrUpdateCatatan
+            const resultBytes = await contract.submitTransaction(
+                'CreateOrUpdateCatatan',
+                recordId,
+                JSON.stringify(comprehensiveData)
+            );
+
+            const completedAt = new Date().toISOString();
+
+            // Parse result
+            const resultString = new TextDecoder().decode(resultBytes);
+            const result = JSON.parse(resultString);
+
+            console.log(`✅ [${config.label}] SimulationData successfully saved to blockchain block!`);
+            console.log(`   Status: ${result.status}`);
+            console.log(`   Record ID: ${recordId}`);
+            console.log(`   Completed at: ${completedAt}`);
+
+            // Close connection
+            gateway.close();
+            client.close();
+
+            return {
+                success: true,
+                result,
+                networkId,
+                label: config.label,
+                recordId: recordId,
+                submittedAt,
+                completedAt,
+                timestamp: completedAt,
+                channel: config.channel,
+                chaincode: config.chaincode,
+                retryAttempts: attempt,
+            };
+        } catch (error) {
+            lastError = error;
+            console.error(`❌ [${config ? config.label : networkId}] Attempt ${attempt + 1} failed:`, error.message);
+
+            // Close connection if it was opened
+            if (connection) {
+                try {
+                    connection.gateway.close();
+                    connection.client.close();
+                } catch (closeError) {
+                    // Ignore close errors
+                }
+                connection = null;
+            }
+
+            // Check if we should retry
+            if (attempt < RETRY_CONFIG.maxRetries && isRetryableError(error)) {
+                const backoffDelay = calculateBackoff(attempt);
+                console.log(`⏳ [${config ? config.label : networkId}] Waiting ${backoffDelay}ms before retry...`);
+                await delay(backoffDelay);
+            } else if (!isRetryableError(error)) {
+                // Non-retryable error, break immediately
+                console.error(`🚫 [${config ? config.label : networkId}] Non-retryable error, not retrying.`);
+                break;
+            }
+        }
+    }
+
+    // All retries exhausted
+    const completedAt = new Date().toISOString();
+    return {
+        success: false,
+        error: lastError ? lastError.message : 'Unknown error',
+        networkId,
+        label: config ? config.label : networkId,
+        recordId: recordId,
+        submittedAt,
+        completedAt,
+        retryAttempts: RETRY_CONFIG.maxRetries,
+    };
 }
 
 /**

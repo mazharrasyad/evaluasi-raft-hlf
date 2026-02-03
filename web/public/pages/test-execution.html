@@ -1161,12 +1161,17 @@
       }
 
       // Initialize state
+      const { txCount, mode, concurrency, iterations } = scenario;
+      const totalTxPerIteration = txCount * targets.length;
+      const totalTxAll = totalTxPerIteration * iterations;
+
       testState = {
         running: true,
         cancelled: false,
         startTime: Date.now(),
         currentScenario: scenarioId,
         currentIteration: 0,
+        totalTxAll: totalTxAll,
         stats: { total: 0, success: 0, failed: 0 }
       };
 
@@ -1176,9 +1181,8 @@
       setTestStatus('running', 'Running');
       updateScenarioTableStatus(scenarioId, 'running');
 
-      const { txCount, mode, concurrency, iterations } = scenario;
-      const totalTxPerIteration = txCount * targets.length;
-      const totalTxAll = totalTxPerIteration * iterations;
+      // Reset progress bar
+      updateProgress(0, totalTxAll);
 
       log(`\n════════════════════════════════════════════════════════════`, 'info');
       log(`SKENARIO ${scenarioId}: ${scenario.name}`, 'info');
@@ -1384,7 +1388,7 @@
           networkResults[target].faultInjection.txAfterRecovery += successfulInBatch;
         }
         
-        updateProgress(testState.stats.total, txCount);
+        // Progress is now updated in executeSingleTransaction
       }
       
       // If fault was restart, ensure orderer is back up
@@ -1451,7 +1455,7 @@
         }
 
         await executeSingleTransaction(network, target, i, txCount, simulationId, networkResults, scenarioId);
-        updateProgress(testState.stats.total, totalTx);
+        // Progress is now updated in executeSingleTransaction
       }
     }
 
@@ -1475,7 +1479,7 @@
         );
         
         await Promise.all(batchPromises);
-        updateProgress(testState.stats.total, txCount);
+        // Progress is now updated in executeSingleTransaction
       }
     }
 
@@ -1520,6 +1524,11 @@
 
       testState.stats.total++;
       updateStats();
+      
+      // Update progress bar with total across all iterations
+      if (testState.totalTxAll > 0) {
+        updateProgress(testState.stats.total, testState.totalTxAll);
+      }
     }
 
     // ============================================================
@@ -1602,12 +1611,18 @@
         try {
           const scenario = SCENARIOS[scenarioId];
           const { txCount, mode, concurrency, iterations } = scenario;
+          const totalTxPerIteration = txCount * targets.length;
+          const totalTxAll = totalTxPerIteration * iterations;
 
           // Reset stats for this scenario
           testState.running = true;
           testState.startTime = Date.now();
           testState.currentScenario = scenarioId;
+          testState.totalTxAll = totalTxAll;
           testState.stats = { total: 0, success: 0, failed: 0 };
+
+          // Reset progress bar for this scenario
+          updateProgress(0, totalTxAll);
 
           setTestStatus('running', `Running ${scenarioId}`);
 
